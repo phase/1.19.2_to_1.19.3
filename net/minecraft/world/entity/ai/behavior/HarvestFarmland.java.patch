@@ -1,0 +1,189 @@
+--- net/minecraft/world/entity/ai/behavior/HarvestFarmland.java
++++ net/minecraft/world/entity/ai/behavior/HarvestFarmland.java
+@@ -19,115 +19,115 @@
+         this.validFarmlandAroundVillager = com.google.common.collect.Lists.newArrayList();
+     }
+ 
+-    public boolean checkExtraStartConditions(net.minecraft.server.level.ServerLevel level, net.minecraft.world.entity.npc.Villager owner) {
+-        if (!level.getGameRules().getBoolean(net.minecraft.world.level.GameRules.RULE_MOBGRIEFING)) {
++    public boolean checkExtraStartConditions(net.minecraft.server.level.ServerLevel $$0, net.minecraft.world.entity.npc.Villager $$1) {
++        if (!$$0.getGameRules().getBoolean(net.minecraft.world.level.GameRules.RULE_MOBGRIEFING)) {
+             return false;
+         }
+-        if (owner.getVillagerData().getProfession() != net.minecraft.world.entity.npc.VillagerProfession.FARMER) {
++        if ($$1.getVillagerData().getProfession() != net.minecraft.world.entity.npc.VillagerProfession.FARMER) {
+             return false;
+         }
+-        net.minecraft.core.BlockPos$MutableBlockPos mutableBlockPos = owner.blockPosition().mutable();
++        net.minecraft.core.BlockPos$MutableBlockPos $$2 = $$1.blockPosition().mutable();
+         this.validFarmlandAroundVillager.clear();
+-        for (int i = -1; i <= 1; ++i) {
+-            for (int j = -1; j <= 1; ++j) {
+-                for (int k = -1; k <= 1; ++k) {
+-                    mutableBlockPos.set(owner.getX() + (double)i, owner.getY() + (double)j, owner.getZ() + (double)k);
+-                    if (!this.validPos((net.minecraft.core.BlockPos)mutableBlockPos, level)) continue;
+-                    this.validFarmlandAroundVillager.add((java.lang.Object)new net.minecraft.core.BlockPos((net.minecraft.core.Vec3i)mutableBlockPos));
++        for (int $$3 = -1; $$3 <= 1; ++$$3) {
++            for (int $$4 = -1; $$4 <= 1; ++$$4) {
++                for (int $$5 = -1; $$5 <= 1; ++$$5) {
++                    $$2.set($$1.getX() + (double)$$3, $$1.getY() + (double)$$4, $$1.getZ() + (double)$$5);
++                    if (!this.validPos((net.minecraft.core.BlockPos)$$2, $$0)) continue;
++                    this.validFarmlandAroundVillager.add((java.lang.Object)new net.minecraft.core.BlockPos((net.minecraft.core.Vec3i)$$2));
+                 }
+             }
+         }
+-        this.aboveFarmlandPos = this.getValidFarmland(level);
++        this.aboveFarmlandPos = this.getValidFarmland($$0);
+         return this.aboveFarmlandPos != null;
+     }
+ 
+     @javax.annotation.Nullable
+-    public net.minecraft.core.BlockPos getValidFarmland(net.minecraft.server.level.ServerLevel serverLevel) {
+-        return this.validFarmlandAroundVillager.isEmpty() ? null : (net.minecraft.core.BlockPos)this.validFarmlandAroundVillager.get(serverLevel.getRandom().nextInt(this.validFarmlandAroundVillager.size()));
++    public net.minecraft.core.BlockPos getValidFarmland(net.minecraft.server.level.ServerLevel $$0) {
++        return this.validFarmlandAroundVillager.isEmpty() ? null : (net.minecraft.core.BlockPos)this.validFarmlandAroundVillager.get($$0.getRandom().nextInt(this.validFarmlandAroundVillager.size()));
+     }
+ 
+-    public boolean validPos(net.minecraft.core.BlockPos pos, net.minecraft.server.level.ServerLevel serverLevel) {
+-        net.minecraft.world.level.block.state.BlockState blockState = serverLevel.getBlockState(pos);
+-        net.minecraft.world.level.block.Block block = blockState.getBlock();
+-        net.minecraft.world.level.block.Block block2 = serverLevel.getBlockState(pos.below()).getBlock();
+-        return block instanceof net.minecraft.world.level.block.CropBlock && ((net.minecraft.world.level.block.CropBlock)block).isMaxAge(blockState) || blockState.isAir() && block2 instanceof net.minecraft.world.level.block.FarmBlock;
++    public boolean validPos(net.minecraft.core.BlockPos $$0, net.minecraft.server.level.ServerLevel $$1) {
++        net.minecraft.world.level.block.state.BlockState $$2 = $$1.getBlockState($$0);
++        net.minecraft.world.level.block.Block $$3 = $$2.getBlock();
++        net.minecraft.world.level.block.Block $$4 = $$1.getBlockState($$0.below()).getBlock();
++        return $$3 instanceof net.minecraft.world.level.block.CropBlock && ((net.minecraft.world.level.block.CropBlock)$$3).isMaxAge($$2) || $$2.isAir() && $$4 instanceof net.minecraft.world.level.block.FarmBlock;
+     }
+ 
+-    public void start(net.minecraft.server.level.ServerLevel level, net.minecraft.world.entity.npc.Villager entity, long gameTime) {
+-        if (gameTime > this.nextOkStartTime && this.aboveFarmlandPos != null) {
+-            entity.getBrain().setMemory(net.minecraft.world.entity.ai.memory.MemoryModuleType.LOOK_TARGET, (java.lang.Object)new net.minecraft.world.entity.ai.behavior.BlockPosTracker(this.aboveFarmlandPos));
+-            entity.getBrain().setMemory(net.minecraft.world.entity.ai.memory.MemoryModuleType.WALK_TARGET, (java.lang.Object)new net.minecraft.world.entity.ai.memory.WalkTarget((net.minecraft.world.entity.ai.behavior.PositionTracker)new net.minecraft.world.entity.ai.behavior.BlockPosTracker(this.aboveFarmlandPos), 0.5f, 1));
++    public void start(net.minecraft.server.level.ServerLevel $$0, net.minecraft.world.entity.npc.Villager $$1, long $$2) {
++        if ($$2 > this.nextOkStartTime && this.aboveFarmlandPos != null) {
++            $$1.getBrain().setMemory(net.minecraft.world.entity.ai.memory.MemoryModuleType.LOOK_TARGET, (java.lang.Object)new net.minecraft.world.entity.ai.behavior.BlockPosTracker(this.aboveFarmlandPos));
++            $$1.getBrain().setMemory(net.minecraft.world.entity.ai.memory.MemoryModuleType.WALK_TARGET, (java.lang.Object)new net.minecraft.world.entity.ai.memory.WalkTarget((net.minecraft.world.entity.ai.behavior.PositionTracker)new net.minecraft.world.entity.ai.behavior.BlockPosTracker(this.aboveFarmlandPos), 0.5f, 1));
+         }
+     }
+ 
+-    public void stop(net.minecraft.server.level.ServerLevel level, net.minecraft.world.entity.npc.Villager entity, long gameTime) {
+-        entity.getBrain().eraseMemory(net.minecraft.world.entity.ai.memory.MemoryModuleType.LOOK_TARGET);
+-        entity.getBrain().eraseMemory(net.minecraft.world.entity.ai.memory.MemoryModuleType.WALK_TARGET);
++    public void stop(net.minecraft.server.level.ServerLevel $$0, net.minecraft.world.entity.npc.Villager $$1, long $$2) {
++        $$1.getBrain().eraseMemory(net.minecraft.world.entity.ai.memory.MemoryModuleType.LOOK_TARGET);
++        $$1.getBrain().eraseMemory(net.minecraft.world.entity.ai.memory.MemoryModuleType.WALK_TARGET);
+         this.timeWorkedSoFar = 0;
+-        this.nextOkStartTime = gameTime + 40L;
++        this.nextOkStartTime = $$2 + 40L;
+     }
+ 
+-    public void tick(net.minecraft.server.level.ServerLevel level, net.minecraft.world.entity.npc.Villager owner, long gameTime) {
+-        if (this.aboveFarmlandPos != null && !this.aboveFarmlandPos.closerToCenterThan((net.minecraft.core.Position)owner.position(), 1.0)) {
++    public void tick(net.minecraft.server.level.ServerLevel $$0, net.minecraft.world.entity.npc.Villager $$1, long $$2) {
++        if (this.aboveFarmlandPos != null && !this.aboveFarmlandPos.closerToCenterThan((net.minecraft.core.Position)$$1.position(), 1.0)) {
+             return;
+         }
+-        if (this.aboveFarmlandPos != null && gameTime > this.nextOkStartTime) {
+-            net.minecraft.world.level.block.state.BlockState blockState = level.getBlockState(this.aboveFarmlandPos);
+-            net.minecraft.world.level.block.Block block = blockState.getBlock();
+-            net.minecraft.world.level.block.Block block2 = level.getBlockState(this.aboveFarmlandPos.below()).getBlock();
+-            if (block instanceof net.minecraft.world.level.block.CropBlock && ((net.minecraft.world.level.block.CropBlock)block).isMaxAge(blockState)) {
+-                level.destroyBlock(this.aboveFarmlandPos, true, (net.minecraft.world.entity.Entity)owner);
++        if (this.aboveFarmlandPos != null && $$2 > this.nextOkStartTime) {
++            net.minecraft.world.level.block.state.BlockState $$3 = $$0.getBlockState(this.aboveFarmlandPos);
++            net.minecraft.world.level.block.Block $$4 = $$3.getBlock();
++            net.minecraft.world.level.block.Block $$5 = $$0.getBlockState(this.aboveFarmlandPos.below()).getBlock();
++            if ($$4 instanceof net.minecraft.world.level.block.CropBlock && ((net.minecraft.world.level.block.CropBlock)$$4).isMaxAge($$3)) {
++                $$0.destroyBlock(this.aboveFarmlandPos, true, (net.minecraft.world.entity.Entity)$$1);
+             }
+-            if (blockState.isAir() && block2 instanceof net.minecraft.world.level.block.FarmBlock && owner.hasFarmSeeds()) {
+-                net.minecraft.world.SimpleContainer simpleContainer = owner.getInventory();
+-                for (int i = 0; i < simpleContainer.getContainerSize(); ++i) {
+-                    net.minecraft.world.item.ItemStack itemStack = simpleContainer.getItem(i);
+-                    boolean bl = false;
+-                    if (!itemStack.isEmpty()) {
+-                        if (itemStack.is(net.minecraft.world.item.Items.WHEAT_SEEDS)) {
+-                            var12_11 = net.minecraft.world.level.block.Blocks.WHEAT.defaultBlockState();
+-                            level.setBlockAndUpdate(this.aboveFarmlandPos, var12_11);
+-                            level.gameEvent(net.minecraft.world.level.gameevent.GameEvent.BLOCK_PLACE, this.aboveFarmlandPos, net.minecraft.world.level.gameevent.GameEvent$Context.of((net.minecraft.world.entity.Entity)owner, (net.minecraft.world.level.block.state.BlockState)var12_11));
+-                            bl = true;
+-                        } else if (itemStack.is(net.minecraft.world.item.Items.POTATO)) {
+-                            var12_11 = net.minecraft.world.level.block.Blocks.POTATOES.defaultBlockState();
+-                            level.setBlockAndUpdate(this.aboveFarmlandPos, var12_11);
+-                            level.gameEvent(net.minecraft.world.level.gameevent.GameEvent.BLOCK_PLACE, this.aboveFarmlandPos, net.minecraft.world.level.gameevent.GameEvent$Context.of((net.minecraft.world.entity.Entity)owner, (net.minecraft.world.level.block.state.BlockState)var12_11));
+-                            bl = true;
+-                        } else if (itemStack.is(net.minecraft.world.item.Items.CARROT)) {
+-                            var12_11 = net.minecraft.world.level.block.Blocks.CARROTS.defaultBlockState();
+-                            level.setBlockAndUpdate(this.aboveFarmlandPos, var12_11);
+-                            level.gameEvent(net.minecraft.world.level.gameevent.GameEvent.BLOCK_PLACE, this.aboveFarmlandPos, net.minecraft.world.level.gameevent.GameEvent$Context.of((net.minecraft.world.entity.Entity)owner, (net.minecraft.world.level.block.state.BlockState)var12_11));
+-                            bl = true;
+-                        } else if (itemStack.is(net.minecraft.world.item.Items.BEETROOT_SEEDS)) {
+-                            var12_11 = net.minecraft.world.level.block.Blocks.BEETROOTS.defaultBlockState();
+-                            level.setBlockAndUpdate(this.aboveFarmlandPos, var12_11);
+-                            level.gameEvent(net.minecraft.world.level.gameevent.GameEvent.BLOCK_PLACE, this.aboveFarmlandPos, net.minecraft.world.level.gameevent.GameEvent$Context.of((net.minecraft.world.entity.Entity)owner, (net.minecraft.world.level.block.state.BlockState)var12_11));
+-                            bl = true;
++            if ($$3.isAir() && $$5 instanceof net.minecraft.world.level.block.FarmBlock && $$1.hasFarmSeeds()) {
++                net.minecraft.world.SimpleContainer $$6 = $$1.getInventory();
++                for (int $$7 = 0; $$7 < $$6.getContainerSize(); ++$$7) {
++                    net.minecraft.world.item.ItemStack $$8 = $$6.getItem($$7);
++                    boolean $$9 = false;
++                    if (!$$8.isEmpty()) {
++                        if ($$8.is(net.minecraft.world.item.Items.WHEAT_SEEDS)) {
++                            net.minecraft.world.level.block.state.BlockState $$10 = net.minecraft.world.level.block.Blocks.WHEAT.defaultBlockState();
++                            $$0.setBlockAndUpdate(this.aboveFarmlandPos, $$10);
++                            $$0.gameEvent(net.minecraft.world.level.gameevent.GameEvent.BLOCK_PLACE, this.aboveFarmlandPos, net.minecraft.world.level.gameevent.GameEvent$Context.of((net.minecraft.world.entity.Entity)$$1, (net.minecraft.world.level.block.state.BlockState)$$10));
++                            $$9 = true;
++                        } else if ($$8.is(net.minecraft.world.item.Items.POTATO)) {
++                            net.minecraft.world.level.block.state.BlockState $$11 = net.minecraft.world.level.block.Blocks.POTATOES.defaultBlockState();
++                            $$0.setBlockAndUpdate(this.aboveFarmlandPos, $$11);
++                            $$0.gameEvent(net.minecraft.world.level.gameevent.GameEvent.BLOCK_PLACE, this.aboveFarmlandPos, net.minecraft.world.level.gameevent.GameEvent$Context.of((net.minecraft.world.entity.Entity)$$1, (net.minecraft.world.level.block.state.BlockState)$$11));
++                            $$9 = true;
++                        } else if ($$8.is(net.minecraft.world.item.Items.CARROT)) {
++                            net.minecraft.world.level.block.state.BlockState $$12 = net.minecraft.world.level.block.Blocks.CARROTS.defaultBlockState();
++                            $$0.setBlockAndUpdate(this.aboveFarmlandPos, $$12);
++                            $$0.gameEvent(net.minecraft.world.level.gameevent.GameEvent.BLOCK_PLACE, this.aboveFarmlandPos, net.minecraft.world.level.gameevent.GameEvent$Context.of((net.minecraft.world.entity.Entity)$$1, (net.minecraft.world.level.block.state.BlockState)$$12));
++                            $$9 = true;
++                        } else if ($$8.is(net.minecraft.world.item.Items.BEETROOT_SEEDS)) {
++                            net.minecraft.world.level.block.state.BlockState $$13 = net.minecraft.world.level.block.Blocks.BEETROOTS.defaultBlockState();
++                            $$0.setBlockAndUpdate(this.aboveFarmlandPos, $$13);
++                            $$0.gameEvent(net.minecraft.world.level.gameevent.GameEvent.BLOCK_PLACE, this.aboveFarmlandPos, net.minecraft.world.level.gameevent.GameEvent$Context.of((net.minecraft.world.entity.Entity)$$1, (net.minecraft.world.level.block.state.BlockState)$$13));
++                            $$9 = true;
+                         }
+                     }
+-                    if (!bl) continue;
+-                    level.playSound(null, (double)this.aboveFarmlandPos.getX(), (double)this.aboveFarmlandPos.getY(), (double)this.aboveFarmlandPos.getZ(), net.minecraft.sounds.SoundEvents.CROP_PLANTED, net.minecraft.sounds.SoundSource.BLOCKS, 1.0f, 1.0f);
+-                    itemStack.shrink(1);
+-                    if (!itemStack.isEmpty()) break;
+-                    simpleContainer.setItem(i, net.minecraft.world.item.ItemStack.EMPTY);
++                    if (!$$9) continue;
++                    $$0.playSound(null, (double)this.aboveFarmlandPos.getX(), (double)this.aboveFarmlandPos.getY(), (double)this.aboveFarmlandPos.getZ(), net.minecraft.sounds.SoundEvents.CROP_PLANTED, net.minecraft.sounds.SoundSource.BLOCKS, 1.0f, 1.0f);
++                    $$8.shrink(1);
++                    if (!$$8.isEmpty()) break;
++                    $$6.setItem($$7, net.minecraft.world.item.ItemStack.EMPTY);
+                     break;
+                 }
+             }
+-            if (block instanceof net.minecraft.world.level.block.CropBlock && !((net.minecraft.world.level.block.CropBlock)block).isMaxAge(blockState)) {
++            if ($$4 instanceof net.minecraft.world.level.block.CropBlock && !((net.minecraft.world.level.block.CropBlock)$$4).isMaxAge($$3)) {
+                 this.validFarmlandAroundVillager.remove((java.lang.Object)this.aboveFarmlandPos);
+-                this.aboveFarmlandPos = this.getValidFarmland(level);
++                this.aboveFarmlandPos = this.getValidFarmland($$0);
+                 if (this.aboveFarmlandPos != null) {
+-                    this.nextOkStartTime = gameTime + 20L;
+-                    owner.getBrain().setMemory(net.minecraft.world.entity.ai.memory.MemoryModuleType.WALK_TARGET, (java.lang.Object)new net.minecraft.world.entity.ai.memory.WalkTarget((net.minecraft.world.entity.ai.behavior.PositionTracker)new net.minecraft.world.entity.ai.behavior.BlockPosTracker(this.aboveFarmlandPos), 0.5f, 1));
+-                    owner.getBrain().setMemory(net.minecraft.world.entity.ai.memory.MemoryModuleType.LOOK_TARGET, (java.lang.Object)new net.minecraft.world.entity.ai.behavior.BlockPosTracker(this.aboveFarmlandPos));
++                    this.nextOkStartTime = $$2 + 20L;
++                    $$1.getBrain().setMemory(net.minecraft.world.entity.ai.memory.MemoryModuleType.WALK_TARGET, (java.lang.Object)new net.minecraft.world.entity.ai.memory.WalkTarget((net.minecraft.world.entity.ai.behavior.PositionTracker)new net.minecraft.world.entity.ai.behavior.BlockPosTracker(this.aboveFarmlandPos), 0.5f, 1));
++                    $$1.getBrain().setMemory(net.minecraft.world.entity.ai.memory.MemoryModuleType.LOOK_TARGET, (java.lang.Object)new net.minecraft.world.entity.ai.behavior.BlockPosTracker(this.aboveFarmlandPos));
+                 }
+             }
+         }
+         ++this.timeWorkedSoFar;
+     }
+ 
+-    public boolean canStillUse(net.minecraft.server.level.ServerLevel level, net.minecraft.world.entity.npc.Villager entity, long gameTime) {
++    public boolean canStillUse(net.minecraft.server.level.ServerLevel $$0, net.minecraft.world.entity.npc.Villager $$1, long $$2) {
+         return this.timeWorkedSoFar < 200;
+     }
+ 

@@ -1,0 +1,67 @@
+--- net/minecraft/server/packs/AbstractPackResources.java
++++ net/minecraft/server/packs/AbstractPackResources.java
+@@ -1,1 +1,63 @@
+-// Failed to decompile net/minecraft/server/packs/AbstractPackResources.class
++/*
++ * Decompiled with CFR 0.151.
++ */
++package net.minecraft.server.packs;
++
++public abstract class net.minecraft.server.packs.AbstractPackResources
++implements net.minecraft.server.packs.PackResources
++ {
++    public static org.slf4j.Logger LOGGER;
++    public java.lang.String name;
++
++    public net.minecraft.server.packs.AbstractPackResources(java.lang.String $$0) {
++        this.name = $$0;
++    }
++
++    @javax.annotation.Nullable
++    public <T> T getMetadataSection(net.minecraft.server.packs.metadata.MetadataSectionSerializer<T> $$0) throws java.io.IOException {
++        net.minecraft.server.packs.resources.IoSupplier $$1 = this.getRootResource(new java.lang.String[]{"pack.mcmeta"});
++        if ($$1 == null) {
++            return null;
++        }
++        try (java.io.InputStream $$2 = (java.io.InputStream)$$1.get();
++){
++            java.lang.Object object = net.minecraft.server.packs.AbstractPackResources.getMetadataFromStream($$0, (java.io.InputStream)$$2);
++            return (T)object;
++        }
++    }
++
++    /*
++     * WARNING - void declaration
++     */
++    @javax.annotation.Nullable
++    public static <T> T getMetadataFromStream(net.minecraft.server.packs.metadata.MetadataSectionSerializer<T> $$0, java.io.InputStream $$1) {
++        void $$6;
++        try (java.io.BufferedReader $$2 = new java.io.BufferedReader((java.io.Reader)new java.io.InputStreamReader($$1, java.nio.charset.StandardCharsets.UTF_8));
++){
++            com.google.gson.JsonObject $$3 = net.minecraft.util.GsonHelper.parse((java.io.Reader)$$2);
++        }
++        catch (java.lang.Exception $$5) {
++            LOGGER.error("Couldn't load {} metadata", (java.lang.Object)$$0.getMetadataSectionName(), (java.lang.Object)((java.lang.Object)$$5));
++            return null;
++        }
++        if (!$$6.has($$0.getMetadataSectionName())) {
++            return null;
++        }
++        try {
++            return (T)$$0.fromJson(net.minecraft.util.GsonHelper.getAsJsonObject((com.google.gson.JsonObject)$$6, (java.lang.String)$$0.getMetadataSectionName()));
++        }
++        catch (java.lang.Exception $$7) {
++            LOGGER.error("Couldn't load {} metadata", (java.lang.Object)$$0.getMetadataSectionName(), (java.lang.Object)((java.lang.Object)$$7));
++            return null;
++        }
++    }
++
++    public java.lang.String packId() {
++        return this.name;
++    }
++
++    static {
++        LOGGER = com.mojang.logging.LogUtils.getLogger();
++    }
++}
++

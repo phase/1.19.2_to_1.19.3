@@ -1,0 +1,71 @@
+--- net/minecraft/commands/arguments/GameProfileArgument.java
++++ net/minecraft/commands/arguments/GameProfileArgument.java
+@@ -12,46 +12,46 @@
+     public net.minecraft.commands.arguments.GameProfileArgument() {
+     }
+ 
+-    public static java.util.Collection<com.mojang.authlib.GameProfile> getGameProfiles(com.mojang.brigadier.context.CommandContext<net.minecraft.commands.CommandSourceStack> context, java.lang.String name) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
+-        return ((net.minecraft.commands.arguments.GameProfileArgument$Result)context.getArgument(name, net.minecraft.commands.arguments.GameProfileArgument$Result.class)).getNames((net.minecraft.commands.CommandSourceStack)context.getSource());
++    public static java.util.Collection<com.mojang.authlib.GameProfile> getGameProfiles(com.mojang.brigadier.context.CommandContext<net.minecraft.commands.CommandSourceStack> $$0, java.lang.String $$1) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
++        return ((net.minecraft.commands.arguments.GameProfileArgument$Result)$$0.getArgument($$1, net.minecraft.commands.arguments.GameProfileArgument$Result.class)).getNames((net.minecraft.commands.CommandSourceStack)$$0.getSource());
+     }
+ 
+     public static net.minecraft.commands.arguments.GameProfileArgument gameProfile() {
+         return new net.minecraft.commands.arguments.GameProfileArgument();
+     }
+ 
+-    public net.minecraft.commands.arguments.GameProfileArgument$Result parse(com.mojang.brigadier.StringReader reader) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
+-        if (reader.canRead() && reader.peek() == '@') {
+-            net.minecraft.commands.arguments.selector.EntitySelectorParser entitySelectorParser = new net.minecraft.commands.arguments.selector.EntitySelectorParser(reader);
+-            net.minecraft.commands.arguments.selector.EntitySelector entitySelector = entitySelectorParser.parse();
+-            if (entitySelector.includesEntities()) {
++    public net.minecraft.commands.arguments.GameProfileArgument$Result parse(com.mojang.brigadier.StringReader $$0) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
++        if ($$0.canRead() && $$0.peek() == '@') {
++            net.minecraft.commands.arguments.selector.EntitySelectorParser $$12 = new net.minecraft.commands.arguments.selector.EntitySelectorParser($$0);
++            net.minecraft.commands.arguments.selector.EntitySelector $$2 = $$12.parse();
++            if ($$2.includesEntities()) {
+                 throw net.minecraft.commands.arguments.EntityArgument.ERROR_ONLY_PLAYERS_ALLOWED.create();
+             }
+-            return new net.minecraft.commands.arguments.GameProfileArgument$SelectorResult(entitySelector);
++            return new net.minecraft.commands.arguments.GameProfileArgument$SelectorResult($$2);
+         }
+-        int n = reader.getCursor();
+-        while (reader.canRead() && reader.peek() != ' ') {
+-            reader.skip();
++        int $$3 = $$0.getCursor();
++        while ($$0.canRead() && $$0.peek() != ' ') {
++            $$0.skip();
+         }
+-        java.lang.String string = reader.getString().substring(n, reader.getCursor());
+-        return source -> {
+-            java.util.Optional optional = source.getServer().getProfileCache().get(string);
+-            return java.util.Collections.singleton((java.lang.Object)((com.mojang.authlib.GameProfile)optional.orElseThrow(() -> ((com.mojang.brigadier.exceptions.SimpleCommandExceptionType)ERROR_UNKNOWN_PLAYER).create())));
++        java.lang.String $$4 = $$0.getString().substring($$3, $$0.getCursor());
++        return $$1 -> {
++            java.util.Optional $$2 = $$1.getServer().getProfileCache().get($$4);
++            return java.util.Collections.singleton((java.lang.Object)((com.mojang.authlib.GameProfile)$$2.orElseThrow(() -> ((com.mojang.brigadier.exceptions.SimpleCommandExceptionType)ERROR_UNKNOWN_PLAYER).create())));
+         };
+     }
+ 
+-    public <S> java.util.concurrent.CompletableFuture<com.mojang.brigadier.suggestion.Suggestions> listSuggestions(com.mojang.brigadier.context.CommandContext<S> context, com.mojang.brigadier.suggestion.SuggestionsBuilder builder) {
+-        if (context.getSource() instanceof net.minecraft.commands.SharedSuggestionProvider) {
+-            com.mojang.brigadier.StringReader stringReader = new com.mojang.brigadier.StringReader(builder.getInput());
+-            stringReader.setCursor(builder.getStart());
+-            net.minecraft.commands.arguments.selector.EntitySelectorParser entitySelectorParser = new net.minecraft.commands.arguments.selector.EntitySelectorParser(stringReader);
++    public <S> java.util.concurrent.CompletableFuture<com.mojang.brigadier.suggestion.Suggestions> listSuggestions(com.mojang.brigadier.context.CommandContext<S> $$0, com.mojang.brigadier.suggestion.SuggestionsBuilder $$12) {
++        if ($$0.getSource() instanceof net.minecraft.commands.SharedSuggestionProvider) {
++            com.mojang.brigadier.StringReader $$2 = new com.mojang.brigadier.StringReader($$12.getInput());
++            $$2.setCursor($$12.getStart());
++            net.minecraft.commands.arguments.selector.EntitySelectorParser $$3 = new net.minecraft.commands.arguments.selector.EntitySelectorParser($$2);
+             try {
+-                entitySelectorParser.parse();
++                $$3.parse();
+             }
+             catch (com.mojang.brigadier.exceptions.CommandSyntaxException commandSyntaxException) {
+                 // empty catch block
+             }
+-            return entitySelectorParser.fillSuggestions(builder, offsetBuilder -> net.minecraft.commands.SharedSuggestionProvider.suggest((java.lang.Iterable)((net.minecraft.commands.SharedSuggestionProvider)context.getSource()).getOnlinePlayerNames(), (com.mojang.brigadier.suggestion.SuggestionsBuilder)offsetBuilder));
++            return $$3.fillSuggestions($$12, $$1 -> net.minecraft.commands.SharedSuggestionProvider.suggest((java.lang.Iterable)((net.minecraft.commands.SharedSuggestionProvider)$$0.getSource()).getOnlinePlayerNames(), (com.mojang.brigadier.suggestion.SuggestionsBuilder)$$1));
+         }
+         return com.mojang.brigadier.suggestion.Suggestions.empty();
+     }

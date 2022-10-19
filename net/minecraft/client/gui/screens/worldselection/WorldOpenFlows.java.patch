@@ -1,0 +1,179 @@
+--- net/minecraft/client/gui/screens/worldselection/WorldOpenFlows.java
++++ net/minecraft/client/gui/screens/worldselection/WorldOpenFlows.java
+@@ -18,21 +18,24 @@
+         this.doLoadLevel($$0, $$1, false, true);
+     }
+ 
+-    public void createFreshLevel(java.lang.String $$0, net.minecraft.world.level.LevelSettings $$1, net.minecraft.core.RegistryAccess $$2, net.minecraft.world.level.levelgen.WorldGenSettings $$32) {
+-        net.minecraft.world.level.storage.LevelStorageSource$LevelStorageAccess $$42 = this.createWorldAccess($$0);
+-        if ($$42 == null) {
++    public void createFreshLevel(java.lang.String $$0, net.minecraft.world.level.LevelSettings $$1, net.minecraft.world.level.levelgen.WorldOptions $$2, java.util.function.Function<net.minecraft.core.RegistryAccess, net.minecraft.world.level.levelgen.WorldDimensions> $$32) {
++        net.minecraft.world.level.storage.LevelStorageSource$LevelStorageAccess $$4 = this.createWorldAccess($$0);
++        if ($$4 == null) {
+             return;
+         }
+-        net.minecraft.server.packs.repository.PackRepository $$5 = net.minecraft.client.gui.screens.worldselection.WorldOpenFlows.createPackRepository((net.minecraft.world.level.storage.LevelStorageSource$LevelStorageAccess)$$42);
+-        net.minecraft.world.level.DataPackConfig $$6 = $$1.getDataPackConfig();
++        net.minecraft.server.packs.repository.PackRepository $$5 = net.minecraft.server.packs.repository.ServerPacksSource.createPackRepository((net.minecraft.world.level.storage.LevelStorageSource$LevelStorageAccess)$$4);
++        net.minecraft.world.level.WorldDataConfiguration $$6 = $$1.getDataConfiguration();
+         try {
+-            net.minecraft.server.WorldLoader$PackConfig $$7 = new net.minecraft.server.WorldLoader$PackConfig($$5, $$6, false);
+-            net.minecraft.server.WorldStem $$8 = this.loadWorldStem($$7, ($$3, $$4) -> com.mojang.datafixers.util.Pair.of((java.lang.Object)new net.minecraft.world.level.storage.PrimaryLevelData($$1, $$32, com.mojang.serialization.Lifecycle.stable()), (java.lang.Object)$$2.freeze()));
+-            this.minecraft.doWorldLoad($$0, $$42, $$5, $$8);
++            net.minecraft.server.WorldLoader$PackConfig $$7 = new net.minecraft.server.WorldLoader$PackConfig($$5, $$6, false, false);
++            net.minecraft.server.WorldStem $$8 = (net.minecraft.server.WorldStem)this.loadWorldDataBlocking($$7, $$3 -> {
++                net.minecraft.world.level.levelgen.WorldDimensions$Complete $$4 = ((net.minecraft.world.level.levelgen.WorldDimensions)$$32.apply((java.lang.Object)$$3.datapackWorldgen())).bake($$3.datapackDimensions().registryOrThrow(net.minecraft.core.Registry.LEVEL_STEM_REGISTRY));
++                return new net.minecraft.server.WorldLoader$DataLoadOutput((java.lang.Object)new net.minecraft.world.level.storage.PrimaryLevelData($$1, $$2, $$4.specialWorldProperty(), $$4.lifecycle()), $$4.dimensionsRegistryAccess());
++            }, net.minecraft.server.WorldStem::new);
++            this.minecraft.doWorldLoad($$0, $$4, $$5, $$8);
+         }
+         catch (java.lang.Exception $$9) {
+             LOGGER.warn("Failed to load datapacks, can't proceed with server load", (java.lang.Throwable)$$9);
+-            net.minecraft.client.gui.screens.worldselection.WorldOpenFlows.safeCloseAccess((net.minecraft.world.level.storage.LevelStorageSource$LevelStorageAccess)$$42, (java.lang.String)$$0);
++            net.minecraft.client.gui.screens.worldselection.WorldOpenFlows.safeCloseAccess((net.minecraft.world.level.storage.LevelStorageSource$LevelStorageAccess)$$4, (java.lang.String)$$0);
+         }
+     }
+ 
+@@ -49,43 +52,60 @@
+         }
+     }
+ 
+-    public void createLevelFromExistingSettings(net.minecraft.world.level.storage.LevelStorageSource$LevelStorageAccess $$0, net.minecraft.server.ReloadableServerResources $$1, net.minecraft.core.RegistryAccess$Frozen $$2, net.minecraft.world.level.storage.WorldData $$3) {
+-        net.minecraft.server.packs.repository.PackRepository $$4 = net.minecraft.client.gui.screens.worldselection.WorldOpenFlows.createPackRepository((net.minecraft.world.level.storage.LevelStorageSource$LevelStorageAccess)$$0);
+-        net.minecraft.server.packs.resources.CloseableResourceManager $$5 = (net.minecraft.server.packs.resources.CloseableResourceManager)new net.minecraft.server.WorldLoader$PackConfig($$4, $$3.getDataPackConfig(), false).createResourceManager().getSecond();
++    public void createLevelFromExistingSettings(net.minecraft.world.level.storage.LevelStorageSource$LevelStorageAccess $$0, net.minecraft.server.ReloadableServerResources $$1, net.minecraft.core.LayeredRegistryAccess<net.minecraft.server.RegistryLayer> $$2, net.minecraft.world.level.storage.WorldData $$3) {
++        net.minecraft.server.packs.repository.PackRepository $$4 = net.minecraft.server.packs.repository.ServerPacksSource.createPackRepository((net.minecraft.world.level.storage.LevelStorageSource$LevelStorageAccess)$$0);
++        net.minecraft.server.packs.resources.CloseableResourceManager $$5 = (net.minecraft.server.packs.resources.CloseableResourceManager)new net.minecraft.server.WorldLoader$PackConfig($$4, $$3.getDataConfiguration(), false, false).createResourceManager().getSecond();
+         this.minecraft.doWorldLoad($$0.getLevelId(), $$0, $$4, new net.minecraft.server.WorldStem($$5, $$1, $$2, $$3));
+     }
+ 
+-    public static net.minecraft.server.packs.repository.PackRepository createPackRepository(net.minecraft.world.level.storage.LevelStorageSource$LevelStorageAccess $$0) {
+-        return new net.minecraft.server.packs.repository.PackRepository(net.minecraft.server.packs.PackType.SERVER_DATA, new net.minecraft.server.packs.repository.RepositorySource[]{new net.minecraft.server.packs.repository.ServerPacksSource(), new net.minecraft.server.packs.repository.FolderRepositorySource($$0.getLevelPath(net.minecraft.world.level.storage.LevelResource.DATAPACK_DIR).toFile(), net.minecraft.server.packs.repository.PackSource.WORLD)});
++    public net.minecraft.server.WorldStem loadWorldStem(net.minecraft.world.level.storage.LevelStorageSource$LevelStorageAccess $$0, boolean $$12, net.minecraft.server.packs.repository.PackRepository $$2) throws java.lang.Exception {
++        net.minecraft.server.WorldLoader$PackConfig $$3 = this.getPackConfigFromLevelData($$0, $$12, $$2);
++        return (net.minecraft.server.WorldStem)this.loadWorldDataBlocking($$3, $$1 -> {
++            net.minecraft.resources.RegistryOps $$2 = net.minecraft.resources.RegistryOps.create((com.mojang.serialization.DynamicOps)net.minecraft.nbt.NbtOps.INSTANCE, (net.minecraft.core.RegistryAccess)$$1.datapackWorldgen());
++            net.minecraft.core.Registry $$3 = $$1.datapackDimensions().registryOrThrow(net.minecraft.core.Registry.LEVEL_STEM_REGISTRY);
++            com.mojang.datafixers.util.Pair $$4 = $$0.getDataTag((com.mojang.serialization.DynamicOps)$$2, $$1.dataConfiguration(), $$3, $$1.datapackWorldgen().allElementsLifecycle());
++            if ($$4 == null) {
++                throw new java.lang.IllegalStateException("Failed to load world");
++            }
++            return new net.minecraft.server.WorldLoader$DataLoadOutput((java.lang.Object)((net.minecraft.world.level.storage.WorldData)$$4.getFirst()), ((net.minecraft.world.level.levelgen.WorldDimensions$Complete)$$4.getSecond()).dimensionsRegistryAccess());
++        }, net.minecraft.server.WorldStem::new);
+     }
+ 
+-    public net.minecraft.server.WorldStem loadWorldStem(net.minecraft.world.level.storage.LevelStorageSource$LevelStorageAccess $$0, boolean $$12, net.minecraft.server.packs.repository.PackRepository $$22) throws java.lang.Exception {
+-        net.minecraft.world.level.DataPackConfig $$3 = $$0.getDataPacks();
+-        if ($$3 == null) {
+-            throw new java.lang.IllegalStateException("Failed to load data pack config");
+-        }
+-        net.minecraft.server.WorldLoader$PackConfig $$4 = new net.minecraft.server.WorldLoader$PackConfig($$22, $$3, $$12);
+-        return this.loadWorldStem($$4, ($$1, $$2) -> {
+-            net.minecraft.core.RegistryAccess$Writable $$3 = net.minecraft.core.RegistryAccess.builtinCopy();
+-            net.minecraft.resources.RegistryOps $$4 = net.minecraft.resources.RegistryOps.createAndLoad((com.mojang.serialization.DynamicOps)net.minecraft.nbt.NbtOps.INSTANCE, (net.minecraft.core.RegistryAccess$Writable)$$3, (net.minecraft.server.packs.resources.ResourceManager)$$1);
+-            net.minecraft.world.level.storage.WorldData $$5 = $$0.getDataTag((com.mojang.serialization.DynamicOps)$$4, $$2, $$3.allElementsLifecycle());
+-            if ($$5 == null) {
++    public com.mojang.datafixers.util.Pair<net.minecraft.world.level.LevelSettings, net.minecraft.client.gui.screens.worldselection.WorldCreationContext> recreateWorldData(net.minecraft.world.level.storage.LevelStorageSource$LevelStorageAccess $$02) throws java.lang.Exception {
++        net.minecraft.server.packs.repository.PackRepository $$12 = net.minecraft.server.packs.repository.ServerPacksSource.createPackRepository((net.minecraft.world.level.storage.LevelStorageSource$LevelStorageAccess)$$02);
++        net.minecraft.server.WorldLoader$PackConfig $$22 = this.getPackConfigFromLevelData($$02, false, $$12);
++        return (com.mojang.datafixers.util.Pair)this.loadWorldDataBlocking($$22, $$1 -> {
++            net.minecraft.resources.RegistryOps $$2 = net.minecraft.resources.RegistryOps.create((com.mojang.serialization.DynamicOps)net.minecraft.nbt.NbtOps.INSTANCE, (net.minecraft.core.RegistryAccess)$$1.datapackWorldgen());
++            net.minecraft.core.Registry $$3 = new net.minecraft.core.MappedRegistry(net.minecraft.core.Registry.LEVEL_STEM_REGISTRY, com.mojang.serialization.Lifecycle.stable()).freeze();
++            com.mojang.datafixers.util.Pair $$4 = $$02.getDataTag((com.mojang.serialization.DynamicOps)$$2, $$1.dataConfiguration(), $$3, $$1.datapackWorldgen().allElementsLifecycle());
++            if ($$4 == null) {
+                 throw new java.lang.IllegalStateException("Failed to load world");
+             }
+-            return com.mojang.datafixers.util.Pair.of((java.lang.Object)$$5, (java.lang.Object)$$3.freeze());
++            return new net.minecraft.server.WorldLoader$DataLoadOutput((java.lang.Object)new Data(((net.minecraft.world.level.storage.WorldData)$$4.getFirst()).getLevelSettings(), ((net.minecraft.world.level.storage.WorldData)$$4.getFirst()).worldGenOptions(), ((net.minecraft.world.level.levelgen.WorldDimensions$Complete)$$4.getSecond()).dimensions()), $$1.datapackDimensions());
++        }, ($$0, $$1, $$2, $$3) -> {
++            $$0.close();
++            return com.mojang.datafixers.util.Pair.of((java.lang.Object)$$3.levelSettings, (java.lang.Object)new net.minecraft.client.gui.screens.worldselection.WorldCreationContext($$3.options, new net.minecraft.world.level.levelgen.WorldDimensions($$3.existingDimensions), $$2, $$1, $$3.levelSettings.getDataConfiguration()));
+         });
+     }
+ 
++    public net.minecraft.server.WorldLoader$PackConfig getPackConfigFromLevelData(net.minecraft.world.level.storage.LevelStorageSource$LevelStorageAccess $$0, boolean $$1, net.minecraft.server.packs.repository.PackRepository $$2) {
++        net.minecraft.world.level.WorldDataConfiguration $$3 = $$0.getDataConfiguration();
++        if ($$3 == null) {
++            throw new java.lang.IllegalStateException("Failed to load data pack config");
++        }
++        return new net.minecraft.server.WorldLoader$PackConfig($$2, $$3, $$1, false);
++    }
++
+     public net.minecraft.server.WorldStem loadWorldStem(net.minecraft.world.level.storage.LevelStorageSource$LevelStorageAccess $$0, boolean $$1) throws java.lang.Exception {
+-        net.minecraft.server.packs.repository.PackRepository $$2 = net.minecraft.client.gui.screens.worldselection.WorldOpenFlows.createPackRepository((net.minecraft.world.level.storage.LevelStorageSource$LevelStorageAccess)$$0);
++        net.minecraft.server.packs.repository.PackRepository $$2 = net.minecraft.server.packs.repository.ServerPacksSource.createPackRepository((net.minecraft.world.level.storage.LevelStorageSource$LevelStorageAccess)$$0);
+         return this.loadWorldStem($$0, $$1, $$2);
+     }
+ 
+-    public net.minecraft.server.WorldStem loadWorldStem(net.minecraft.server.WorldLoader$PackConfig $$0, net.minecraft.server.WorldLoader$WorldDataSupplier<net.minecraft.world.level.storage.WorldData> $$1) throws java.lang.Exception {
+-        net.minecraft.server.WorldLoader$InitConfig $$2 = new net.minecraft.server.WorldLoader$InitConfig($$0, net.minecraft.commands.Commands$CommandSelection.INTEGRATED, 2);
+-        java.util.concurrent.CompletableFuture $$3 = net.minecraft.server.WorldStem.load((net.minecraft.server.WorldLoader$InitConfig)$$2, $$1, (java.util.concurrent.Executor)net.minecraft.Util.backgroundExecutor(), (java.util.concurrent.Executor)this.minecraft);
+-        this.minecraft.managedBlock(() -> ((java.util.concurrent.CompletableFuture)$$3).isDone());
+-        return (net.minecraft.server.WorldStem)$$3.get();
++    public <D, R> R loadWorldDataBlocking(net.minecraft.server.WorldLoader$PackConfig $$0, net.minecraft.server.WorldLoader$WorldDataSupplier<D> $$1, net.minecraft.server.WorldLoader$ResultFactory<D, R> $$2) throws java.lang.Exception {
++        net.minecraft.server.WorldLoader$InitConfig $$3 = new net.minecraft.server.WorldLoader$InitConfig($$0, net.minecraft.commands.Commands$CommandSelection.INTEGRATED, 2);
++        java.util.concurrent.CompletableFuture $$4 = net.minecraft.server.WorldLoader.load((net.minecraft.server.WorldLoader$InitConfig)$$3, $$1, $$2, (java.util.concurrent.Executor)net.minecraft.Util.backgroundExecutor(), (java.util.concurrent.Executor)this.minecraft);
++        this.minecraft.managedBlock(() -> ((java.util.concurrent.CompletableFuture)$$4).isDone());
++        return (R)$$4.get();
+     }
+ 
+     /*
+@@ -98,18 +118,18 @@
+         if ($$4 == null) {
+             return;
+         }
+-        net.minecraft.server.packs.repository.PackRepository $$5 = net.minecraft.client.gui.screens.worldselection.WorldOpenFlows.createPackRepository((net.minecraft.world.level.storage.LevelStorageSource$LevelStorageAccess)$$4);
++        net.minecraft.server.packs.repository.PackRepository $$5 = net.minecraft.server.packs.repository.ServerPacksSource.createPackRepository((net.minecraft.world.level.storage.LevelStorageSource$LevelStorageAccess)$$4);
+         try {
+             net.minecraft.server.WorldStem $$6 = this.loadWorldStem($$4, $$2, $$5);
+         }
+         catch (java.lang.Exception $$7) {
+-            LOGGER.warn("Failed to load datapacks, can't proceed with server load", (java.lang.Throwable)$$7);
++            LOGGER.warn("Failed to load level data or datapacks, can't proceed with server load", (java.lang.Throwable)$$7);
+             this.minecraft.setScreen((net.minecraft.client.gui.screens.Screen)new net.minecraft.client.gui.screens.DatapackLoadFailureScreen(() -> this.doLoadLevel($$02, $$1, true, $$3)));
+             net.minecraft.client.gui.screens.worldselection.WorldOpenFlows.safeCloseAccess((net.minecraft.world.level.storage.LevelStorageSource$LevelStorageAccess)$$4, (java.lang.String)$$1);
+             return;
+         }
+         net.minecraft.world.level.storage.WorldData $$9 = $$8.worldData();
+-        boolean $$10 = $$9.worldGenSettings().isOldCustomizedWorld();
++        boolean $$10 = $$9.worldGenOptions().isOldCustomizedWorld();
+         boolean bl = $$11 = $$9.worldGenSettingsLifecycle() != com.mojang.serialization.Lifecycle.stable();
+         if ($$3 && ($$10 || $$11)) {
+             this.askForBackup($$02, $$1, $$10, () -> this.doLoadLevel($$02, $$1, $$2, false));
+@@ -117,10 +137,10 @@
+             net.minecraft.client.gui.screens.worldselection.WorldOpenFlows.safeCloseAccess((net.minecraft.world.level.storage.LevelStorageSource$LevelStorageAccess)$$4, (java.lang.String)$$1);
+             return;
+         }
+-        this.minecraft.getClientPackSource().loadBundledResourcePack($$4).thenApply($$0 -> true).exceptionallyComposeAsync($$0 -> {
++        this.minecraft.getDownloadedPackSource().loadBundledResourcePack($$4).thenApply($$0 -> true).exceptionallyComposeAsync($$0 -> {
+             LOGGER.warn("Failed to load pack: ", $$0);
+             return this.promptBundledPackLoadFailure();
+-        }, (java.util.concurrent.Executor)this.minecraft).thenAcceptAsync(arg_0 -> this.lambda$doLoadLevel$7($$1, $$4, $$5, (net.minecraft.server.WorldStem)$$8, $$02, arg_0), (java.util.concurrent.Executor)this.minecraft).exceptionally($$0 -> {
++        }, (java.util.concurrent.Executor)this.minecraft).thenAcceptAsync(arg_0 -> this.lambda$doLoadLevel$9($$1, $$4, $$5, (net.minecraft.server.WorldStem)$$8, $$02, arg_0), (java.util.concurrent.Executor)this.minecraft).exceptionally($$0 -> {
+             this.minecraft.delayCrash(net.minecraft.CrashReport.forThrowable((java.lang.Throwable)$$0, (java.lang.String)"Load world"));
+             return null;
+         });
+@@ -170,19 +190,19 @@
+         if ($$2 == com.mojang.serialization.Lifecycle.stable()) {
+             $$32.run();
+         } else if ($$2 == com.mojang.serialization.Lifecycle.experimental()) {
+-            $$0.setScreen((net.minecraft.client.gui.screens.Screen)new net.minecraft.client.gui.screens.ConfirmScreen($$4, (net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"selectWorld.import_worldgen_settings.experimental.title"), (net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"selectWorld.import_worldgen_settings.experimental.question")));
++            $$0.setScreen((net.minecraft.client.gui.screens.Screen)new net.minecraft.client.gui.screens.ConfirmScreen($$4, (net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"selectWorld.warning.experimental.title"), (net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"selectWorld.warning.experimental.question")));
+         } else {
+-            $$0.setScreen((net.minecraft.client.gui.screens.Screen)new net.minecraft.client.gui.screens.ConfirmScreen($$4, (net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"selectWorld.import_worldgen_settings.deprecated.title"), (net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"selectWorld.import_worldgen_settings.deprecated.question")));
++            $$0.setScreen((net.minecraft.client.gui.screens.Screen)new net.minecraft.client.gui.screens.ConfirmScreen($$4, (net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"selectWorld.warning.deprecated.title"), (net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"selectWorld.warning.deprecated.question")));
+         }
+     }
+ 
+-    public /* synthetic */ void lambda$doLoadLevel$7(java.lang.String $$0, net.minecraft.world.level.storage.LevelStorageSource$LevelStorageAccess $$1, net.minecraft.server.packs.repository.PackRepository $$2, net.minecraft.server.WorldStem $$3, net.minecraft.client.gui.screens.Screen $$4, java.lang.Boolean $$5) {
++    public /* synthetic */ void lambda$doLoadLevel$9(java.lang.String $$0, net.minecraft.world.level.storage.LevelStorageSource$LevelStorageAccess $$1, net.minecraft.server.packs.repository.PackRepository $$2, net.minecraft.server.WorldStem $$3, net.minecraft.client.gui.screens.Screen $$4, java.lang.Boolean $$5) {
+         if ($$5.booleanValue()) {
+             this.minecraft.doWorldLoad($$0, $$1, $$2, $$3);
+         } else {
+             $$3.close();
+             net.minecraft.client.gui.screens.worldselection.WorldOpenFlows.safeCloseAccess((net.minecraft.world.level.storage.LevelStorageSource$LevelStorageAccess)$$1, (java.lang.String)$$0);
+-            this.minecraft.getClientPackSource().clearServerPack().thenRunAsync(() -> this.minecraft.setScreen($$4), (java.util.concurrent.Executor)this.minecraft);
++            this.minecraft.getDownloadedPackSource().clearServerPack().thenRunAsync(() -> this.minecraft.setScreen($$4), (java.util.concurrent.Executor)this.minecraft);
+         }
+     }
+ 

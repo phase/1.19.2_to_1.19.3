@@ -1,0 +1,880 @@
+--- net/minecraft/world/entity/animal/horse/AbstractHorse.java
++++ net/minecraft/world/entity/animal/horse/AbstractHorse.java
+@@ -61,6 +61,9 @@
+         this.goalSelector.addGoal(6, (net.minecraft.world.entity.ai.goal.Goal)new net.minecraft.world.entity.ai.goal.WaterAvoidingRandomStrollGoal((net.minecraft.world.entity.PathfinderMob)this, 0.7));
+         this.goalSelector.addGoal(7, (net.minecraft.world.entity.ai.goal.Goal)new net.minecraft.world.entity.ai.goal.LookAtPlayerGoal((net.minecraft.world.entity.Mob)this, net.minecraft.world.entity.player.Player.class, 6.0f));
+         this.goalSelector.addGoal(8, (net.minecraft.world.entity.ai.goal.Goal)new net.minecraft.world.entity.ai.goal.RandomLookAroundGoal((net.minecraft.world.entity.Mob)this));
++        if (this.canPerformRearing()) {
++            this.goalSelector.addGoal(9, (net.minecraft.world.entity.ai.goal.Goal)new net.minecraft.world.entity.ai.goal.RandomStandGoal(this));
++        }
+         this.addBehaviourGoals();
+     }
+ 
+@@ -75,16 +78,16 @@
+         this.entityData.define(DATA_ID_OWNER_UUID, (java.lang.Object)java.util.Optional.empty());
+     }
+ 
+-    public boolean getFlag(int flagId) {
+-        return ((java.lang.Byte)this.entityData.get(DATA_ID_FLAGS) & flagId) != 0;
++    public boolean getFlag(int $$0) {
++        return ((java.lang.Byte)this.entityData.get(DATA_ID_FLAGS) & $$0) != 0;
+     }
+ 
+-    public void setFlag(int flagId, boolean value) {
+-        byte by = (java.lang.Byte)this.entityData.get(DATA_ID_FLAGS);
+-        if (value) {
+-            this.entityData.set(DATA_ID_FLAGS, (java.lang.Object)((byte)(by | flagId)));
++    public void setFlag(int $$0, boolean $$1) {
++        byte $$2 = (java.lang.Byte)this.entityData.get(DATA_ID_FLAGS);
++        if ($$1) {
++            this.entityData.set(DATA_ID_FLAGS, (java.lang.Object)((byte)($$2 | $$0)));
+         } else {
+-            this.entityData.set(DATA_ID_FLAGS, (java.lang.Object)((byte)(by & ~flagId)));
++            this.entityData.set(DATA_ID_FLAGS, (java.lang.Object)((byte)($$2 & ~$$0)));
+         }
+     }
+ 
+@@ -97,24 +100,24 @@
+         return (java.util.UUID)((java.util.Optional)this.entityData.get(DATA_ID_OWNER_UUID)).orElse(null);
+     }
+ 
+-    public void setOwnerUUID(@javax.annotation.Nullable java.util.UUID uuid) {
+-        this.entityData.set(DATA_ID_OWNER_UUID, (java.lang.Object)java.util.Optional.ofNullable((java.lang.Object)uuid));
++    public void setOwnerUUID(@javax.annotation.Nullable java.util.UUID $$0) {
++        this.entityData.set(DATA_ID_OWNER_UUID, (java.lang.Object)java.util.Optional.ofNullable((java.lang.Object)$$0));
+     }
+ 
+     public boolean isJumping() {
+         return this.isJumping;
+     }
+ 
+-    public void setTamed(boolean tamed) {
+-        this.setFlag(2, tamed);
++    public void setTamed(boolean $$0) {
++        this.setFlag(2, $$0);
+     }
+ 
+-    public void setIsJumping(boolean jumping) {
+-        this.isJumping = jumping;
++    public void setIsJumping(boolean $$0) {
++        this.isJumping = $$0;
+     }
+ 
+-    public void onLeashDistance(float distance) {
+-        if (distance > 6.0f && this.isEating()) {
++    public void onLeashDistance(float $$0) {
++        if ($$0 > 6.0f && this.isEating()) {
+             this.setEating(false);
+         }
+     }
+@@ -131,21 +134,30 @@
+         return this.getFlag(8);
+     }
+ 
+-    public void setBred(boolean breeding) {
+-        this.setFlag(8, breeding);
++    public void setBred(boolean $$0) {
++        this.setFlag(8, $$0);
+     }
+ 
+     public boolean isSaddleable() {
+         return this.isAlive() && !this.isBaby() && this.isTamed();
+     }
+ 
+-    public void equipSaddle(@javax.annotation.Nullable net.minecraft.sounds.SoundSource source) {
++    public void equipSaddle(@javax.annotation.Nullable net.minecraft.sounds.SoundSource $$0) {
+         this.inventory.setItem(0, new net.minecraft.world.item.ItemStack((net.minecraft.world.level.ItemLike)net.minecraft.world.item.Items.SADDLE));
+-        if (source != null) {
+-            this.level.playSound(null, (net.minecraft.world.entity.Entity)this, net.minecraft.sounds.SoundEvents.HORSE_SADDLE, source, 0.5f, 1.0f);
++        if ($$0 != null) {
++            this.level.playSound(null, (net.minecraft.world.entity.Entity)this, this.getSaddleSoundEvent(), $$0, 0.5f, 1.0f);
+         }
+     }
+ 
++    public void equipArmor(net.minecraft.world.entity.player.Player $$0, net.minecraft.world.item.ItemStack $$1) {
++        if (this.isArmor($$1)) {
++            this.inventory.setItem(1, new net.minecraft.world.item.ItemStack((net.minecraft.world.level.ItemLike)$$1.getItem()));
++            if (!$$0.getAbilities().instabuild) {
++                $$1.shrink(1);
++            }
++        }
++    }
++
+     public boolean isSaddled() {
+         return this.getFlag(4);
+     }
+@@ -154,14 +166,14 @@
+         return this.temper;
+     }
+ 
+-    public void setTemper(int temper) {
+-        this.temper = temper;
++    public void setTemper(int $$0) {
++        this.temper = $$0;
+     }
+ 
+-    public int modifyTemper(int addedTemper) {
+-        int n = net.minecraft.util.Mth.clamp((int)(this.getTemper() + addedTemper), (int)0, (int)this.getMaxTemper());
+-        this.setTemper(n);
+-        return n;
++    public int modifyTemper(int $$0) {
++        int $$1 = net.minecraft.util.Mth.clamp((int)(this.getTemper() + $$0), (int)0, (int)this.getMaxTemper());
++        this.setTemper($$1);
++        return $$1;
+     }
+ 
+     public boolean isPushable() {
+@@ -194,8 +206,8 @@
+         return true;
+     }
+ 
+-    public int calculateFallDamage(float distance, float damageMultiplier) {
+-        return net.minecraft.util.Mth.ceil((float)((distance * 0.5f - 3.0f) * damageMultiplier));
++    public int calculateFallDamage(float $$0, float $$1) {
++        return net.minecraft.util.Mth.ceil((float)(($$0 * 0.5f - 3.0f) * $$1));
+     }
+ 
+     public int getInventorySize() {
+@@ -225,10 +237,10 @@
+         this.setFlag(4, !this.inventory.getItem(0).isEmpty());
+     }
+ 
+-    public void containerChanged(net.minecraft.world.Container invBasic) {
+-        boolean bl = this.isSaddled();
++    public void containerChanged(net.minecraft.world.Container $$0) {
++        boolean $$1 = this.isSaddled();
+         this.updateContainerEquipment();
+-        if (this.tickCount > 20 && !bl && this.isSaddled()) {
++        if (this.tickCount > 20 && !$$1 && this.isSaddled()) {
+             this.playSound(net.minecraft.sounds.SoundEvents.HORSE_SADDLE, 0.5f, 1.0f);
+         }
+     }
+@@ -237,63 +249,53 @@
+         return this.getAttributeValue(net.minecraft.world.entity.ai.attributes.Attributes.JUMP_STRENGTH);
+     }
+ 
+-    @javax.annotation.Nullable
+-    public net.minecraft.sounds.SoundEvent getEatingSound() {
+-        return null;
++    public boolean hurt(net.minecraft.world.damagesource.DamageSource $$0, float $$1) {
++        boolean $$2 = super.hurt($$0, $$1);
++        if ($$2 && this.random.nextInt(3) == 0) {
++            this.standIfPossible();
++        }
++        return $$2;
+     }
+ 
+-    @javax.annotation.Nullable
+-    public net.minecraft.sounds.SoundEvent getDeathSound() {
+-        return null;
++    public boolean canPerformRearing() {
++        return true;
+     }
+ 
+     @javax.annotation.Nullable
+-    public net.minecraft.sounds.SoundEvent getHurtSound(net.minecraft.world.damagesource.DamageSource damageSource) {
+-        if (this.random.nextInt(3) == 0) {
+-            this.stand();
+-        }
++    public net.minecraft.sounds.SoundEvent getEatingSound() {
+         return null;
+     }
+ 
+     @javax.annotation.Nullable
+-    public net.minecraft.sounds.SoundEvent getAmbientSound() {
+-        if (this.random.nextInt(10) == 0 && !this.isImmobile()) {
+-            this.stand();
+-        }
+-        return null;
+-    }
+-
+-    @javax.annotation.Nullable
+     public net.minecraft.sounds.SoundEvent getAngrySound() {
+-        this.stand();
+         return null;
+     }
+ 
+-    public void playStepSound(net.minecraft.core.BlockPos pos, net.minecraft.world.level.block.state.BlockState block) {
+-        if (block.getMaterial().isLiquid()) {
++    public void playStepSound(net.minecraft.core.BlockPos $$0, net.minecraft.world.level.block.state.BlockState $$1) {
++        if ($$1.getMaterial().isLiquid()) {
+             return;
+         }
+-        net.minecraft.world.level.block.state.BlockState blockState = this.level.getBlockState(pos.above());
+-        net.minecraft.world.level.block.SoundType soundType = block.getSoundType();
+-        if (blockState.is(net.minecraft.world.level.block.Blocks.SNOW)) {
+-            soundType = blockState.getSoundType();
++        net.minecraft.world.level.block.state.BlockState $$2 = this.level.getBlockState($$0.above());
++        net.minecraft.world.level.block.SoundType $$3 = $$1.getSoundType();
++        if ($$2.is(net.minecraft.world.level.block.Blocks.SNOW)) {
++            $$3 = $$2.getSoundType();
+         }
+         if (this.isVehicle() && this.canGallop) {
+             ++this.gallopSoundCounter;
+             if (this.gallopSoundCounter > 5 && this.gallopSoundCounter % 3 == 0) {
+-                this.playGallopSound(soundType);
++                this.playGallopSound($$3);
+             } else if (this.gallopSoundCounter <= 5) {
+-                this.playSound(net.minecraft.sounds.SoundEvents.HORSE_STEP_WOOD, soundType.getVolume() * 0.15f, soundType.getPitch());
++                this.playSound(net.minecraft.sounds.SoundEvents.HORSE_STEP_WOOD, $$3.getVolume() * 0.15f, $$3.getPitch());
+             }
+-        } else if (soundType == net.minecraft.world.level.block.SoundType.WOOD) {
+-            this.playSound(net.minecraft.sounds.SoundEvents.HORSE_STEP_WOOD, soundType.getVolume() * 0.15f, soundType.getPitch());
++        } else if ($$3 == net.minecraft.world.level.block.SoundType.WOOD) {
++            this.playSound(net.minecraft.sounds.SoundEvents.HORSE_STEP_WOOD, $$3.getVolume() * 0.15f, $$3.getPitch());
+         } else {
+-            this.playSound(net.minecraft.sounds.SoundEvents.HORSE_STEP, soundType.getVolume() * 0.15f, soundType.getPitch());
++            this.playSound(net.minecraft.sounds.SoundEvents.HORSE_STEP, $$3.getVolume() * 0.15f, $$3.getPitch());
+         }
+     }
+ 
+-    public void playGallopSound(net.minecraft.world.level.block.SoundType soundType) {
+-        this.playSound(net.minecraft.sounds.SoundEvents.HORSE_GALLOP, soundType.getVolume() * 0.15f, soundType.getPitch());
++    public void playGallopSound(net.minecraft.world.level.block.SoundType $$0) {
++        this.playSound(net.minecraft.sounds.SoundEvents.HORSE_GALLOP, $$0.getVolume() * 0.15f, $$0.getPitch());
+     }
+ 
+     public static net.minecraft.world.entity.ai.attributes.AttributeSupplier$Builder createBaseHorseAttributes() {
+@@ -322,85 +324,85 @@
+         }
+     }
+ 
+-    public net.minecraft.world.InteractionResult fedFood(net.minecraft.world.entity.player.Player player, net.minecraft.world.item.ItemStack stack) {
+-        boolean bl = this.handleEating(player, stack);
+-        if (!player.getAbilities().instabuild) {
+-            stack.shrink(1);
++    public net.minecraft.world.InteractionResult fedFood(net.minecraft.world.entity.player.Player $$0, net.minecraft.world.item.ItemStack $$1) {
++        boolean $$2 = this.handleEating($$0, $$1);
++        if (!$$0.getAbilities().instabuild) {
++            $$1.shrink(1);
+         }
+         if (this.level.isClientSide) {
+             return net.minecraft.world.InteractionResult.CONSUME;
+         }
+-        return bl ? net.minecraft.world.InteractionResult.SUCCESS : net.minecraft.world.InteractionResult.PASS;
++        return $$2 ? net.minecraft.world.InteractionResult.SUCCESS : net.minecraft.world.InteractionResult.PASS;
+     }
+ 
+-    public boolean handleEating(net.minecraft.world.entity.player.Player player, net.minecraft.world.item.ItemStack stack) {
+-        boolean bl = false;
+-        float f = 0.0f;
+-        int n = 0;
+-        int n2 = 0;
+-        if (stack.is(net.minecraft.world.item.Items.WHEAT)) {
+-            f = 2.0f;
+-            n = 20;
+-            n2 = 3;
+-        } else if (stack.is(net.minecraft.world.item.Items.SUGAR)) {
+-            f = 1.0f;
+-            n = 30;
+-            n2 = 3;
+-        } else if (stack.is(net.minecraft.world.level.block.Blocks.HAY_BLOCK.asItem())) {
+-            f = 20.0f;
+-            n = 180;
+-        } else if (stack.is(net.minecraft.world.item.Items.APPLE)) {
+-            f = 3.0f;
+-            n = 60;
+-            n2 = 3;
+-        } else if (stack.is(net.minecraft.world.item.Items.GOLDEN_CARROT)) {
+-            f = 4.0f;
+-            n = 60;
+-            n2 = 5;
++    public boolean handleEating(net.minecraft.world.entity.player.Player $$0, net.minecraft.world.item.ItemStack $$1) {
++        boolean $$2 = false;
++        float $$3 = 0.0f;
++        int $$4 = 0;
++        int $$5 = 0;
++        if ($$1.is(net.minecraft.world.item.Items.WHEAT)) {
++            $$3 = 2.0f;
++            $$4 = 20;
++            $$5 = 3;
++        } else if ($$1.is(net.minecraft.world.item.Items.SUGAR)) {
++            $$3 = 1.0f;
++            $$4 = 30;
++            $$5 = 3;
++        } else if ($$1.is(net.minecraft.world.level.block.Blocks.HAY_BLOCK.asItem())) {
++            $$3 = 20.0f;
++            $$4 = 180;
++        } else if ($$1.is(net.minecraft.world.item.Items.APPLE)) {
++            $$3 = 3.0f;
++            $$4 = 60;
++            $$5 = 3;
++        } else if ($$1.is(net.minecraft.world.item.Items.GOLDEN_CARROT)) {
++            $$3 = 4.0f;
++            $$4 = 60;
++            $$5 = 5;
+             if (!this.level.isClientSide && this.isTamed() && this.getAge() == 0 && !this.isInLove()) {
+-                bl = true;
+-                this.setInLove(player);
++                $$2 = true;
++                this.setInLove($$0);
+             }
+-        } else if (stack.is(net.minecraft.world.item.Items.GOLDEN_APPLE) || stack.is(net.minecraft.world.item.Items.ENCHANTED_GOLDEN_APPLE)) {
+-            f = 10.0f;
+-            n = 240;
+-            n2 = 10;
++        } else if ($$1.is(net.minecraft.world.item.Items.GOLDEN_APPLE) || $$1.is(net.minecraft.world.item.Items.ENCHANTED_GOLDEN_APPLE)) {
++            $$3 = 10.0f;
++            $$4 = 240;
++            $$5 = 10;
+             if (!this.level.isClientSide && this.isTamed() && this.getAge() == 0 && !this.isInLove()) {
+-                bl = true;
+-                this.setInLove(player);
++                $$2 = true;
++                this.setInLove($$0);
+             }
+         }
+-        if (this.getHealth() < this.getMaxHealth() && f > 0.0f) {
+-            this.heal(f);
+-            bl = true;
++        if (this.getHealth() < this.getMaxHealth() && $$3 > 0.0f) {
++            this.heal($$3);
++            $$2 = true;
+         }
+-        if (this.isBaby() && n > 0) {
++        if (this.isBaby() && $$4 > 0) {
+             this.level.addParticle((net.minecraft.core.particles.ParticleOptions)net.minecraft.core.particles.ParticleTypes.HAPPY_VILLAGER, this.getRandomX(1.0), this.getRandomY() + 0.5, this.getRandomZ(1.0), 0.0, 0.0, 0.0);
+             if (!this.level.isClientSide) {
+-                this.ageUp(n);
++                this.ageUp($$4);
+             }
+-            bl = true;
++            $$2 = true;
+         }
+-        if (n2 > 0 && (bl || !this.isTamed()) && this.getTemper() < this.getMaxTemper()) {
+-            bl = true;
++        if ($$5 > 0 && ($$2 || !this.isTamed()) && this.getTemper() < this.getMaxTemper()) {
++            $$2 = true;
+             if (!this.level.isClientSide) {
+-                this.modifyTemper(n2);
++                this.modifyTemper($$5);
+             }
+         }
+-        if (bl) {
++        if ($$2) {
+             this.eating();
+             this.gameEvent(net.minecraft.world.level.gameevent.GameEvent.EAT);
+         }
+-        return bl;
++        return $$2;
+     }
+ 
+-    public void doPlayerRide(net.minecraft.world.entity.player.Player player) {
++    public void doPlayerRide(net.minecraft.world.entity.player.Player $$0) {
+         this.setEating(false);
+         this.setStanding(false);
+         if (!this.level.isClientSide) {
+-            player.setYRot(this.getYRot());
+-            player.setXRot(this.getXRot());
+-            player.startRiding((net.minecraft.world.entity.Entity)this);
++            $$0.setYRot(this.getYRot());
++            $$0.setXRot(this.getXRot());
++            $$0.startRiding((net.minecraft.world.entity.Entity)this);
+         }
+     }
+ 
+@@ -408,8 +410,8 @@
+         return super.isImmobile() && this.isVehicle() && this.isSaddled() || this.isEating() || this.isStanding();
+     }
+ 
+-    public boolean isFood(net.minecraft.world.item.ItemStack stack) {
+-        return FOOD_ITEMS.test(stack);
++    public boolean isFood(net.minecraft.world.item.ItemStack $$0) {
++        return FOOD_ITEMS.test($$0);
+     }
+ 
+     public void moveTail() {
+@@ -521,6 +523,29 @@
+         }
+     }
+ 
++    public net.minecraft.world.InteractionResult mobInteract(net.minecraft.world.entity.player.Player $$0, net.minecraft.world.InteractionHand $$1) {
++        if (this.isVehicle() || this.isBaby()) {
++            return super.mobInteract($$0, $$1);
++        }
++        if (this.isTamed() && $$0.isSecondaryUseActive()) {
++            this.openCustomInventoryScreen($$0);
++            return net.minecraft.world.InteractionResult.sidedSuccess((boolean)this.level.isClientSide);
++        }
++        net.minecraft.world.item.ItemStack $$2 = $$0.getItemInHand($$1);
++        if (!$$2.isEmpty()) {
++            net.minecraft.world.InteractionResult $$3 = $$2.interactLivingEntity($$0, (net.minecraft.world.entity.LivingEntity)this, $$1);
++            if ($$3.consumesAction()) {
++                return $$3;
++            }
++            if (this.canWearArmor() && this.isArmor($$2) && !this.isWearingArmor()) {
++                this.equipArmor($$0, $$2);
++                return net.minecraft.world.InteractionResult.sidedSuccess((boolean)this.level.isClientSide);
++            }
++        }
++        this.doPlayerRide($$0);
++        return net.minecraft.world.InteractionResult.sidedSuccess((boolean)this.level.isClientSide);
++    }
++
+     public void openMouth() {
+         if (!this.level.isClientSide) {
+             this.mouthCounter = 1;
+@@ -528,19 +553,24 @@
+         }
+     }
+ 
+-    public void setEating(boolean eating) {
+-        this.setFlag(16, eating);
++    public void setEating(boolean $$0) {
++        this.setFlag(16, $$0);
+     }
+ 
+-    public void setStanding(boolean standing) {
+-        if (standing) {
++    public void setStanding(boolean $$0) {
++        if ($$0) {
+             this.setEating(false);
+         }
+-        this.setFlag(32, standing);
++        this.setFlag(32, $$0);
+     }
+ 
+-    public void stand() {
+-        if (this.isControlledByLocalInstance() || this.isEffectiveAi()) {
++    @javax.annotation.Nullable
++    public net.minecraft.sounds.SoundEvent getAmbientStandSound() {
++        return this.getAmbientSound();
++    }
++
++    public void standIfPossible() {
++        if (this.canPerformRearing() && this.isControlledByLocalInstance() || this.isEffectiveAi()) {
+             this.standCounter = 1;
+             this.setStanding(true);
+         }
+@@ -548,7 +578,7 @@
+ 
+     public void makeMad() {
+         if (!this.isStanding()) {
+-            this.stand();
++            this.standIfPossible();
+             net.minecraft.sounds.SoundEvent $$0 = this.getAngrySound();
+             if ($$0 != null) {
+                 this.playSound($$0, this.getSoundVolume(), this.getVoicePitch());
+@@ -556,61 +586,49 @@
+         }
+     }
+ 
+-    public boolean tameWithName(net.minecraft.world.entity.player.Player player) {
+-        this.setOwnerUUID(player.getUUID());
++    public boolean tameWithName(net.minecraft.world.entity.player.Player $$0) {
++        this.setOwnerUUID($$0.getUUID());
+         this.setTamed(true);
+-        if (player instanceof net.minecraft.server.level.ServerPlayer) {
+-            net.minecraft.advancements.CriteriaTriggers.TAME_ANIMAL.trigger((net.minecraft.server.level.ServerPlayer)player, (net.minecraft.world.entity.animal.Animal)this);
++        if ($$0 instanceof net.minecraft.server.level.ServerPlayer) {
++            net.minecraft.advancements.CriteriaTriggers.TAME_ANIMAL.trigger((net.minecraft.server.level.ServerPlayer)$$0, (net.minecraft.world.entity.animal.Animal)this);
+         }
+         this.level.broadcastEntityEvent((net.minecraft.world.entity.Entity)this, (byte)7);
+         return true;
+     }
+ 
+-    public void travel(net.minecraft.world.phys.Vec3 travelVector) {
++    public void travel(net.minecraft.world.phys.Vec3 $$0) {
+         if (!this.isAlive()) {
+             return;
+         }
+-        net.minecraft.world.entity.LivingEntity livingEntity = this.getControllingPassenger();
+-        if (!this.isVehicle() || livingEntity == null) {
++        net.minecraft.world.entity.LivingEntity $$1 = this.getControllingPassenger();
++        if (!this.isVehicle() || $$1 == null || this.mountIgnoresControllerInput($$1)) {
+             this.flyingSpeed = 0.02f;
+-            super.travel(travelVector);
++            super.travel($$0);
+             return;
+         }
+-        this.setYRot(livingEntity.getYRot());
+-        this.yRotO = this.getYRot();
+-        this.setXRot(livingEntity.getXRot() * 0.5f);
+-        this.setRot(this.getYRot(), this.getXRot());
+-        this.yHeadRot = this.yBodyRot = this.getYRot();
+-        float f = livingEntity.xxa * 0.5f;
+-        float f2 = livingEntity.zza;
+-        if (f2 <= 0.0f) {
+-            f2 *= 0.25f;
++        this.setRot($$1.getYRot(), $$1.getXRot() * 0.5f);
++        this.yBodyRot = this.yHeadRot = this.getYRot();
++        this.yRotO = this.yHeadRot;
++        float $$2 = $$1.xxa * 0.5f;
++        float $$3 = $$1.zza;
++        if ($$3 <= 0.0f) {
++            $$3 *= 0.25f;
+             this.gallopSoundCounter = 0;
+         }
+         if (this.onGround && this.playerJumpPendingScale == 0.0f && this.isStanding() && !this.allowStandSliding) {
+-            f = 0.0f;
+-            f2 = 0.0f;
++            $$2 = 0.0f;
++            $$3 = 0.0f;
+         }
+         if (this.playerJumpPendingScale > 0.0f && !this.isJumping() && this.onGround) {
+-            double d = this.getCustomJump() * (double)this.playerJumpPendingScale * (double)this.getBlockJumpFactor();
+-            double d2 = d + this.getJumpBoostPower();
+-            net.minecraft.world.phys.Vec3 vec3 = this.getDeltaMovement();
+-            this.setDeltaMovement(vec3.x, d2, vec3.z);
+-            this.setIsJumping(true);
+-            this.hasImpulse = true;
+-            if (f2 > 0.0f) {
+-                float f3 = net.minecraft.util.Mth.sin((float)(this.getYRot() * ((float)java.lang.Math.PI / 180)));
+-                float f4 = net.minecraft.util.Mth.cos((float)(this.getYRot() * ((float)java.lang.Math.PI / 180)));
+-                this.setDeltaMovement(this.getDeltaMovement().add((double)(-0.4f * f3 * this.playerJumpPendingScale), 0.0, (double)(0.4f * f4 * this.playerJumpPendingScale)));
+-            }
++            this.executeRidersJump(this.playerJumpPendingScale, $$2, $$3);
+             this.playerJumpPendingScale = 0.0f;
+         }
+         this.flyingSpeed = this.getSpeed() * 0.1f;
+         if (this.isControlledByLocalInstance()) {
+-            this.setSpeed((float)this.getAttributeValue(net.minecraft.world.entity.ai.attributes.Attributes.MOVEMENT_SPEED));
+-            super.travel(new net.minecraft.world.phys.Vec3((double)f, travelVector.y, (double)f2));
+-        } else if (livingEntity instanceof net.minecraft.world.entity.player.Player) {
+-            this.setDeltaMovement(net.minecraft.world.phys.Vec3.ZERO);
++            this.setSpeed(this.getDrivenMovementSpeed($$1));
++            super.travel(new net.minecraft.world.phys.Vec3((double)$$2, $$0.y, (double)$$3));
++        } else if ($$1 instanceof net.minecraft.world.entity.player.Player) {
++            this.setDeltaMovement(this.getX() - this.xOld, this.getY() - this.yOld, this.getZ() - this.zOld);
+         }
+         if (this.onGround) {
+             this.playerJumpPendingScale = 0.0f;
+@@ -620,48 +638,70 @@
+         this.tryCheckInsideBlocks();
+     }
+ 
++    public float getDrivenMovementSpeed(net.minecraft.world.entity.LivingEntity $$0) {
++        return (float)this.getAttributeValue(net.minecraft.world.entity.ai.attributes.Attributes.MOVEMENT_SPEED);
++    }
++
++    public boolean mountIgnoresControllerInput(net.minecraft.world.entity.LivingEntity $$0) {
++        return false;
++    }
++
++    public void executeRidersJump(float $$0, float $$1, float $$2) {
++        double $$3 = this.getCustomJump() * (double)$$0 * (double)this.getBlockJumpFactor();
++        double $$4 = $$3 + this.getJumpBoostPower();
++        net.minecraft.world.phys.Vec3 $$5 = this.getDeltaMovement();
++        this.setDeltaMovement($$5.x, $$4, $$5.z);
++        this.setIsJumping(true);
++        this.hasImpulse = true;
++        if ($$2 > 0.0f) {
++            float $$6 = net.minecraft.util.Mth.sin((float)(this.getYRot() * ((float)java.lang.Math.PI / 180)));
++            float $$7 = net.minecraft.util.Mth.cos((float)(this.getYRot() * ((float)java.lang.Math.PI / 180)));
++            this.setDeltaMovement(this.getDeltaMovement().add((double)(-0.4f * $$6 * $$0), 0.0, (double)(0.4f * $$7 * $$0)));
++        }
++    }
++
+     public void playJumpSound() {
+         this.playSound(net.minecraft.sounds.SoundEvents.HORSE_JUMP, 0.4f, 1.0f);
+     }
+ 
+-    public void addAdditionalSaveData(net.minecraft.nbt.CompoundTag compound) {
+-        super.addAdditionalSaveData(compound);
+-        compound.putBoolean("EatingHaystack", this.isEating());
+-        compound.putBoolean("Bred", this.isBred());
+-        compound.putInt("Temper", this.getTemper());
+-        compound.putBoolean("Tame", this.isTamed());
++    public void addAdditionalSaveData(net.minecraft.nbt.CompoundTag $$0) {
++        super.addAdditionalSaveData($$0);
++        $$0.putBoolean("EatingHaystack", this.isEating());
++        $$0.putBoolean("Bred", this.isBred());
++        $$0.putInt("Temper", this.getTemper());
++        $$0.putBoolean("Tame", this.isTamed());
+         if (this.getOwnerUUID() != null) {
+-            compound.putUUID("Owner", this.getOwnerUUID());
++            $$0.putUUID("Owner", this.getOwnerUUID());
+         }
+         if (!this.inventory.getItem(0).isEmpty()) {
+-            compound.put("SaddleItem", (net.minecraft.nbt.Tag)this.inventory.getItem(0).save(new net.minecraft.nbt.CompoundTag()));
++            $$0.put("SaddleItem", (net.minecraft.nbt.Tag)this.inventory.getItem(0).save(new net.minecraft.nbt.CompoundTag()));
+         }
+     }
+ 
+-    public void readAdditionalSaveData(net.minecraft.nbt.CompoundTag compound) {
+-        java.lang.String string;
+-        java.util.UUID uUID;
+-        super.readAdditionalSaveData(compound);
+-        this.setEating(compound.getBoolean("EatingHaystack"));
+-        this.setBred(compound.getBoolean("Bred"));
+-        this.setTemper(compound.getInt("Temper"));
+-        this.setTamed(compound.getBoolean("Tame"));
+-        if (compound.hasUUID("Owner")) {
+-            uUID = compound.getUUID("Owner");
++    public void readAdditionalSaveData(net.minecraft.nbt.CompoundTag $$0) {
++        net.minecraft.world.item.ItemStack $$4;
++        java.util.UUID $$3;
++        super.readAdditionalSaveData($$0);
++        this.setEating($$0.getBoolean("EatingHaystack"));
++        this.setBred($$0.getBoolean("Bred"));
++        this.setTemper($$0.getInt("Temper"));
++        this.setTamed($$0.getBoolean("Tame"));
++        if ($$0.hasUUID("Owner")) {
++            java.util.UUID $$1 = $$0.getUUID("Owner");
+         } else {
+-            string = compound.getString("Owner");
+-            uUID = net.minecraft.server.players.OldUsersConverter.convertMobOwnerIfNecessary((net.minecraft.server.MinecraftServer)this.getServer(), (java.lang.String)string);
++            java.lang.String $$2 = $$0.getString("Owner");
++            $$3 = net.minecraft.server.players.OldUsersConverter.convertMobOwnerIfNecessary((net.minecraft.server.MinecraftServer)this.getServer(), (java.lang.String)$$2);
+         }
+-        if (uUID != null) {
+-            this.setOwnerUUID(uUID);
++        if ($$3 != null) {
++            this.setOwnerUUID($$3);
+         }
+-        if (compound.contains("SaddleItem", 10) && (string = net.minecraft.world.item.ItemStack.of((net.minecraft.nbt.CompoundTag)compound.getCompound("SaddleItem"))).is(net.minecraft.world.item.Items.SADDLE)) {
+-            this.inventory.setItem(0, (net.minecraft.world.item.ItemStack)string);
++        if ($$0.contains("SaddleItem", 10) && ($$4 = net.minecraft.world.item.ItemStack.of((net.minecraft.nbt.CompoundTag)$$0.getCompound("SaddleItem"))).is(net.minecraft.world.item.Items.SADDLE)) {
++            this.inventory.setItem(0, $$4);
+         }
+         this.updateContainerEquipment();
+     }
+ 
+-    public boolean canMate(net.minecraft.world.entity.animal.Animal otherAnimal) {
++    public boolean canMate(net.minecraft.world.entity.animal.Animal $$0) {
+         return false;
+     }
+ 
+@@ -683,78 +723,78 @@
+         $$1.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.MOVEMENT_SPEED).setBaseValue($$4 / 3.0);
+     }
+ 
+-    public float getEatAnim(float partialTick) {
+-        return net.minecraft.util.Mth.lerp((float)partialTick, (float)this.eatAnimO, (float)this.eatAnim);
++    public float getEatAnim(float $$0) {
++        return net.minecraft.util.Mth.lerp((float)$$0, (float)this.eatAnimO, (float)this.eatAnim);
+     }
+ 
+-    public float getStandAnim(float partialTick) {
+-        return net.minecraft.util.Mth.lerp((float)partialTick, (float)this.standAnimO, (float)this.standAnim);
++    public float getStandAnim(float $$0) {
++        return net.minecraft.util.Mth.lerp((float)$$0, (float)this.standAnimO, (float)this.standAnim);
+     }
+ 
+-    public float getMouthAnim(float partialTick) {
+-        return net.minecraft.util.Mth.lerp((float)partialTick, (float)this.mouthAnimO, (float)this.mouthAnim);
++    public float getMouthAnim(float $$0) {
++        return net.minecraft.util.Mth.lerp((float)$$0, (float)this.mouthAnimO, (float)this.mouthAnim);
+     }
+ 
+-    public void onPlayerJump(int jumpPower) {
++    public void onPlayerJump(int $$0) {
+         if (!this.isSaddled()) {
+             return;
+         }
+-        if (jumpPower < 0) {
+-            jumpPower = 0;
++        if ($$0 < 0) {
++            $$0 = 0;
+         } else {
+             this.allowStandSliding = true;
+-            this.stand();
++            this.standIfPossible();
+         }
+-        this.playerJumpPendingScale = jumpPower >= 90 ? 1.0f : 0.4f + 0.4f * (float)jumpPower / 90.0f;
++        this.playerJumpPendingScale = $$0 >= 90 ? 1.0f : 0.4f + 0.4f * (float)$$0 / 90.0f;
+     }
+ 
+     public boolean canJump() {
+         return this.isSaddled();
+     }
+ 
+-    public void handleStartJump(int jumpPower) {
++    public void handleStartJump(int $$0) {
+         this.allowStandSliding = true;
+-        this.stand();
++        this.standIfPossible();
+         this.playJumpSound();
+     }
+ 
+     public void handleStopJump() {
+     }
+ 
+-    public void spawnTamingParticles(boolean tamed) {
+-        net.minecraft.core.particles.SimpleParticleType simpleParticleType = tamed ? net.minecraft.core.particles.ParticleTypes.HEART : net.minecraft.core.particles.ParticleTypes.SMOKE;
+-        for (int i = 0; i < 7; ++i) {
+-            double d = this.random.nextGaussian() * 0.02;
+-            double d2 = this.random.nextGaussian() * 0.02;
+-            double d3 = this.random.nextGaussian() * 0.02;
+-            this.level.addParticle((net.minecraft.core.particles.ParticleOptions)simpleParticleType, this.getRandomX(1.0), this.getRandomY() + 0.5, this.getRandomZ(1.0), d, d2, d3);
++    public void spawnTamingParticles(boolean $$0) {
++        net.minecraft.core.particles.SimpleParticleType $$1 = $$0 ? net.minecraft.core.particles.ParticleTypes.HEART : net.minecraft.core.particles.ParticleTypes.SMOKE;
++        for (int $$2 = 0; $$2 < 7; ++$$2) {
++            double $$3 = this.random.nextGaussian() * 0.02;
++            double $$4 = this.random.nextGaussian() * 0.02;
++            double $$5 = this.random.nextGaussian() * 0.02;
++            this.level.addParticle((net.minecraft.core.particles.ParticleOptions)$$1, this.getRandomX(1.0), this.getRandomY() + 0.5, this.getRandomZ(1.0), $$3, $$4, $$5);
+         }
+     }
+ 
+-    public void handleEntityEvent(byte id) {
+-        if (id == 7) {
++    public void handleEntityEvent(byte $$0) {
++        if ($$0 == 7) {
+             this.spawnTamingParticles(true);
+-        } else if (id == 6) {
++        } else if ($$0 == 6) {
+             this.spawnTamingParticles(false);
+         } else {
+-            super.handleEntityEvent(id);
++            super.handleEntityEvent($$0);
+         }
+     }
+ 
+-    public void positionRider(net.minecraft.world.entity.Entity passenger) {
+-        super.positionRider(passenger);
+-        if (passenger instanceof net.minecraft.world.entity.Mob) {
+-            net.minecraft.world.entity.Mob mob = (net.minecraft.world.entity.Mob)passenger;
+-            this.yBodyRot = mob.yBodyRot;
++    public void positionRider(net.minecraft.world.entity.Entity $$0) {
++        super.positionRider($$0);
++        if ($$0 instanceof net.minecraft.world.entity.Mob) {
++            net.minecraft.world.entity.Mob $$1 = (net.minecraft.world.entity.Mob)$$0;
++            this.yBodyRot = $$1.yBodyRot;
+         }
+         if (this.standAnimO > 0.0f) {
+-            float f = net.minecraft.util.Mth.sin((float)(this.yBodyRot * ((float)java.lang.Math.PI / 180)));
+-            float f2 = net.minecraft.util.Mth.cos((float)(this.yBodyRot * ((float)java.lang.Math.PI / 180)));
+-            float f3 = 0.7f * this.standAnimO;
+-            float f4 = 0.15f * this.standAnimO;
+-            passenger.setPos(this.getX() + (double)(f3 * f), this.getY() + this.getPassengersRidingOffset() + passenger.getMyRidingOffset() + (double)f4, this.getZ() - (double)(f3 * f2));
+-            if (passenger instanceof net.minecraft.world.entity.LivingEntity) {
+-                ((net.minecraft.world.entity.LivingEntity)passenger).yBodyRot = this.yBodyRot;
++            float $$2 = net.minecraft.util.Mth.sin((float)(this.yBodyRot * ((float)java.lang.Math.PI / 180)));
++            float $$3 = net.minecraft.util.Mth.cos((float)(this.yBodyRot * ((float)java.lang.Math.PI / 180)));
++            float $$4 = 0.7f * this.standAnimO;
++            float $$5 = 0.15f * this.standAnimO;
++            $$0.setPos(this.getX() + (double)($$4 * $$2), this.getY() + this.getPassengersRidingOffset() + $$0.getMyRidingOffset() + (double)$$5, this.getZ() - (double)($$4 * $$3));
++            if ($$0 instanceof net.minecraft.world.entity.LivingEntity) {
++                ((net.minecraft.world.entity.LivingEntity)$$0).yBodyRot = this.yBodyRot;
+             }
+         }
+     }
+@@ -775,8 +815,8 @@
+         return false;
+     }
+ 
+-    public float getStandingEyeHeight(net.minecraft.world.entity.Pose pose, net.minecraft.world.entity.EntityDimensions size) {
+-        return size.height * 0.95f;
++    public float getStandingEyeHeight(net.minecraft.world.entity.Pose $$0, net.minecraft.world.entity.EntityDimensions $$1) {
++        return $$1.height * 0.95f;
+     }
+ 
+     public boolean canWearArmor() {
+@@ -787,7 +827,7 @@
+         return !this.getItemBySlot(net.minecraft.world.entity.EquipmentSlot.CHEST).isEmpty();
+     }
+ 
+-    public boolean isArmor(net.minecraft.world.item.ItemStack stack) {
++    public boolean isArmor(net.minecraft.world.item.ItemStack $$0) {
+         return false;
+     }
+ 
+@@ -826,39 +866,39 @@
+     }
+ 
+     @javax.annotation.Nullable
+-    public net.minecraft.world.phys.Vec3 getDismountLocationInDirection(net.minecraft.world.phys.Vec3 direction, net.minecraft.world.entity.LivingEntity passenger) {
+-        double d = this.getX() + direction.x;
+-        double d2 = this.getBoundingBox().minY;
+-        double d3 = this.getZ() + direction.z;
+-        net.minecraft.core.BlockPos$MutableBlockPos mutableBlockPos = new net.minecraft.core.BlockPos$MutableBlockPos();
+-block0:        for (net.minecraft.world.entity.Pose pose : passenger.getDismountPoses()) {
+-            mutableBlockPos.set(d, d2, d3);
+-            double d4 = this.getBoundingBox().maxY + 0.75;
++    public net.minecraft.world.phys.Vec3 getDismountLocationInDirection(net.minecraft.world.phys.Vec3 $$0, net.minecraft.world.entity.LivingEntity $$1) {
++        double $$2 = this.getX() + $$0.x;
++        double $$3 = this.getBoundingBox().minY;
++        double $$4 = this.getZ() + $$0.z;
++        net.minecraft.core.BlockPos$MutableBlockPos $$5 = new net.minecraft.core.BlockPos$MutableBlockPos();
++block0:        for (net.minecraft.world.entity.Pose $$6 : $$1.getDismountPoses()) {
++            $$5.set($$2, $$3, $$4);
++            double $$7 = this.getBoundingBox().maxY + 0.75;
+             do {
+-                net.minecraft.world.phys.Vec3 vec3;
+-                net.minecraft.world.phys.AABB aABB;
+-                double d5 = this.level.getBlockFloorHeight((net.minecraft.core.BlockPos)mutableBlockPos);
+-                if ((double)mutableBlockPos.getY() + d5 > d4) continue block0;
+-                if (net.minecraft.world.entity.vehicle.DismountHelper.isBlockFloorValid((double)d5) && net.minecraft.world.entity.vehicle.DismountHelper.canDismountTo((net.minecraft.world.level.CollisionGetter)this.level, (net.minecraft.world.entity.LivingEntity)passenger, (net.minecraft.world.phys.AABB)(aABB = passenger.getLocalBoundsForPose(pose)).move(vec3 = new net.minecraft.world.phys.Vec3(d, (double)mutableBlockPos.getY() + d5, d3)))) {
+-                    passenger.setPose(pose);
+-                    return vec3;
++                net.minecraft.world.phys.Vec3 $$10;
++                net.minecraft.world.phys.AABB $$9;
++                double $$8 = this.level.getBlockFloorHeight((net.minecraft.core.BlockPos)$$5);
++                if ((double)$$5.getY() + $$8 > $$7) continue block0;
++                if (net.minecraft.world.entity.vehicle.DismountHelper.isBlockFloorValid((double)$$8) && net.minecraft.world.entity.vehicle.DismountHelper.canDismountTo((net.minecraft.world.level.CollisionGetter)this.level, (net.minecraft.world.entity.LivingEntity)$$1, (net.minecraft.world.phys.AABB)($$9 = $$1.getLocalBoundsForPose($$6)).move($$10 = new net.minecraft.world.phys.Vec3($$2, (double)$$5.getY() + $$8, $$4)))) {
++                    $$1.setPose($$6);
++                    return $$10;
+                 }
+-                mutableBlockPos.move(net.minecraft.core.Direction.UP);
+-            } while ((double)mutableBlockPos.getY() < d4);
++                $$5.move(net.minecraft.core.Direction.UP);
++            } while ((double)$$5.getY() < $$7);
+         }
+         return null;
+     }
+ 
+-    public net.minecraft.world.phys.Vec3 getDismountLocationForPassenger(net.minecraft.world.entity.LivingEntity livingEntity) {
+-        net.minecraft.world.phys.Vec3 vec3 = net.minecraft.world.entity.animal.horse.AbstractHorse.getCollisionHorizontalEscapeVector((double)this.getBbWidth(), (double)livingEntity.getBbWidth(), (float)(this.getYRot() + (livingEntity.getMainArm() == net.minecraft.world.entity.HumanoidArm.RIGHT ? 90.0f : -90.0f)));
+-        net.minecraft.world.phys.Vec3 vec32 = this.getDismountLocationInDirection(vec3, livingEntity);
+-        if (vec32 != null) {
+-            return vec32;
++    public net.minecraft.world.phys.Vec3 getDismountLocationForPassenger(net.minecraft.world.entity.LivingEntity $$0) {
++        net.minecraft.world.phys.Vec3 $$1 = net.minecraft.world.entity.animal.horse.AbstractHorse.getCollisionHorizontalEscapeVector((double)this.getBbWidth(), (double)$$0.getBbWidth(), (float)(this.getYRot() + ($$0.getMainArm() == net.minecraft.world.entity.HumanoidArm.RIGHT ? 90.0f : -90.0f)));
++        net.minecraft.world.phys.Vec3 $$2 = this.getDismountLocationInDirection($$1, $$0);
++        if ($$2 != null) {
++            return $$2;
+         }
+-        net.minecraft.world.phys.Vec3 vec33 = net.minecraft.world.entity.animal.horse.AbstractHorse.getCollisionHorizontalEscapeVector((double)this.getBbWidth(), (double)livingEntity.getBbWidth(), (float)(this.getYRot() + (livingEntity.getMainArm() == net.minecraft.world.entity.HumanoidArm.LEFT ? 90.0f : -90.0f)));
+-        net.minecraft.world.phys.Vec3 vec34 = this.getDismountLocationInDirection(vec33, livingEntity);
+-        if (vec34 != null) {
+-            return vec34;
++        net.minecraft.world.phys.Vec3 $$3 = net.minecraft.world.entity.animal.horse.AbstractHorse.getCollisionHorizontalEscapeVector((double)this.getBbWidth(), (double)$$0.getBbWidth(), (float)(this.getYRot() + ($$0.getMainArm() == net.minecraft.world.entity.HumanoidArm.LEFT ? 90.0f : -90.0f)));
++        net.minecraft.world.phys.Vec3 $$4 = this.getDismountLocationInDirection($$3, $$0);
++        if ($$4 != null) {
++            return $$4;
+         }
+         return this.position();
+     }
+@@ -867,29 +907,33 @@
+     }
+ 
+     @javax.annotation.Nullable
+-    public net.minecraft.world.entity.SpawnGroupData finalizeSpawn(net.minecraft.world.level.ServerLevelAccessor level, net.minecraft.world.DifficultyInstance difficulty, net.minecraft.world.entity.MobSpawnType reason, @javax.annotation.Nullable net.minecraft.world.entity.SpawnGroupData spawnData, @javax.annotation.Nullable net.minecraft.nbt.CompoundTag dataTag) {
+-        if (spawnData == null) {
+-            spawnData = new net.minecraft.world.entity.AgeableMob$AgeableMobGroupData(0.2f);
++    public net.minecraft.world.entity.SpawnGroupData finalizeSpawn(net.minecraft.world.level.ServerLevelAccessor $$0, net.minecraft.world.DifficultyInstance $$1, net.minecraft.world.entity.MobSpawnType $$2, @javax.annotation.Nullable net.minecraft.world.entity.SpawnGroupData $$3, @javax.annotation.Nullable net.minecraft.nbt.CompoundTag $$4) {
++        if ($$3 == null) {
++            $$3 = new net.minecraft.world.entity.AgeableMob$AgeableMobGroupData(0.2f);
+         }
+-        this.randomizeAttributes(level.getRandom());
+-        return super.finalizeSpawn(level, difficulty, reason, spawnData, dataTag);
++        this.randomizeAttributes($$0.getRandom());
++        return super.finalizeSpawn($$0, $$1, $$2, $$3, $$4);
+     }
+ 
+     public boolean hasInventoryChanged(net.minecraft.world.Container $$0) {
+         return this.inventory != $$0;
+     }
+ 
++    public int getAmbientStandInterval() {
++        return this.getAmbientSoundInterval();
++    }
++
+     @javax.annotation.Nullable
+     public /* synthetic */ net.minecraft.world.entity.Entity getControllingPassenger() {
+         return this.getControllingPassenger();
+     }
+ 
+-    public static /* synthetic */ boolean lambda$static$0(net.minecraft.world.entity.LivingEntity entity) {
+-        return entity instanceof net.minecraft.world.entity.animal.horse.AbstractHorse && ((net.minecraft.world.entity.animal.horse.AbstractHorse)entity).isBred();
++    public static /* synthetic */ boolean lambda$static$0(net.minecraft.world.entity.LivingEntity $$0) {
++        return $$0 instanceof net.minecraft.world.entity.animal.horse.AbstractHorse && ((net.minecraft.world.entity.animal.horse.AbstractHorse)$$0).isBred();
+     }
+ 
+     static {
+-        PARENT_HORSE_SELECTOR = entity -> entity instanceof net.minecraft.world.entity.animal.horse.AbstractHorse && ((net.minecraft.world.entity.animal.horse.AbstractHorse)entity).isBred();
++        PARENT_HORSE_SELECTOR = $$0 -> $$0 instanceof net.minecraft.world.entity.animal.horse.AbstractHorse && ((net.minecraft.world.entity.animal.horse.AbstractHorse)$$0).isBred();
+         MOMMY_TARGETING = net.minecraft.world.entity.ai.targeting.TargetingConditions.forNonCombat().range(16.0).ignoreLineOfSight().selector(PARENT_HORSE_SELECTOR);
+         FOOD_ITEMS = net.minecraft.world.item.crafting.Ingredient.of((net.minecraft.world.level.ItemLike[])new net.minecraft.world.level.ItemLike[]{net.minecraft.world.item.Items.WHEAT, net.minecraft.world.item.Items.SUGAR, net.minecraft.world.level.block.Blocks.HAY_BLOCK.asItem(), net.minecraft.world.item.Items.APPLE, net.minecraft.world.item.Items.GOLDEN_CARROT, net.minecraft.world.item.Items.GOLDEN_APPLE, net.minecraft.world.item.Items.ENCHANTED_GOLDEN_APPLE});
+         DATA_ID_FLAGS = net.minecraft.network.syncher.SynchedEntityData.defineId(net.minecraft.world.entity.animal.horse.AbstractHorse.class, (net.minecraft.network.syncher.EntityDataSerializer)net.minecraft.network.syncher.EntityDataSerializers.BYTE);

@@ -1,0 +1,415 @@
+--- net/minecraft/world/level/storage/PrimaryLevelData.java
++++ net/minecraft/world/level/storage/PrimaryLevelData.java
+@@ -11,7 +11,8 @@
+     public static java.lang.String PLAYER = "Player";
+     public static java.lang.String WORLD_GEN_SETTINGS = "WorldGenSettings";
+     public net.minecraft.world.level.LevelSettings settings;
+-    public net.minecraft.world.level.levelgen.WorldGenSettings worldGenSettings;
++    public net.minecraft.world.level.levelgen.WorldOptions worldOptions;
++    public net.minecraft.world.level.storage.PrimaryLevelData$SpecialWorldProperty specialWorldProperty;
+     public com.mojang.serialization.Lifecycle worldGenSettingsLifecycle;
+     public int xSpawn;
+     public int ySpawn;
+@@ -45,10 +46,7 @@
+     public boolean wasModded;
+     public net.minecraft.world.level.timers.TimerQueue<net.minecraft.server.MinecraftServer> scheduledEvents;
+ 
+-    public net.minecraft.world.level.storage.PrimaryLevelData(@javax.annotation.Nullable com.mojang.datafixers.DataFixer $$0, int $$1, @javax.annotation.Nullable net.minecraft.nbt.CompoundTag $$2, boolean $$3, int $$4, int $$5, int $$6, float $$7, long $$8, long $$9, int $$10, int $$11, int $$12, boolean $$13, int $$14, boolean $$15, boolean $$16, boolean $$17, net.minecraft.world.level.border.WorldBorder$Settings $$18, int $$19, int $$20, @javax.annotation.Nullable java.util.UUID $$21, java.util.Set<java.lang.String> $$22, net.minecraft.world.level.timers.TimerQueue<net.minecraft.server.MinecraftServer> $$23, @javax.annotation.Nullable net.minecraft.nbt.CompoundTag $$24, net.minecraft.nbt.CompoundTag $$25, net.minecraft.world.level.LevelSettings $$26, net.minecraft.world.level.levelgen.WorldGenSettings $$27, com.mojang.serialization.Lifecycle $$28) {
+-        if (!$$27.dimensions().containsKey(net.minecraft.world.level.dimension.LevelStem.OVERWORLD)) {
+-            throw new java.lang.IllegalStateException("Missing Overworld dimension data");
+-        }
++    public net.minecraft.world.level.storage.PrimaryLevelData(@javax.annotation.Nullable com.mojang.datafixers.DataFixer $$0, int $$1, @javax.annotation.Nullable net.minecraft.nbt.CompoundTag $$2, boolean $$3, int $$4, int $$5, int $$6, float $$7, long $$8, long $$9, int $$10, int $$11, int $$12, boolean $$13, int $$14, boolean $$15, boolean $$16, boolean $$17, net.minecraft.world.level.border.WorldBorder$Settings $$18, int $$19, int $$20, @javax.annotation.Nullable java.util.UUID $$21, java.util.Set<java.lang.String> $$22, net.minecraft.world.level.timers.TimerQueue<net.minecraft.server.MinecraftServer> $$23, @javax.annotation.Nullable net.minecraft.nbt.CompoundTag $$24, net.minecraft.nbt.CompoundTag $$25, net.minecraft.world.level.LevelSettings $$26, net.minecraft.world.level.levelgen.WorldOptions $$27, net.minecraft.world.level.storage.PrimaryLevelData$SpecialWorldProperty $$28, com.mojang.serialization.Lifecycle $$29) {
+         this.fixerUpper = $$0;
+         this.wasModded = $$3;
+         this.xSpawn = $$4;
+@@ -76,79 +74,81 @@
+         this.customBossEvents = $$24;
+         this.endDragonFightData = $$25;
+         this.settings = $$26;
+-        this.worldGenSettings = $$27;
+-        this.worldGenSettingsLifecycle = $$28;
++        this.worldOptions = $$27;
++        this.specialWorldProperty = $$28;
++        this.worldGenSettingsLifecycle = $$29;
+     }
+ 
+-    public net.minecraft.world.level.storage.PrimaryLevelData(net.minecraft.world.level.LevelSettings $$0, net.minecraft.world.level.levelgen.WorldGenSettings $$1, com.mojang.serialization.Lifecycle $$2) {
+-        this(null, net.minecraft.SharedConstants.getCurrentVersion().getWorldVersion(), null, false, 0, 0, 0, 0.0f, 0L, 0L, 19133, 0, 0, false, 0, false, false, false, net.minecraft.world.level.border.WorldBorder.DEFAULT_SETTINGS, 0, 0, null, (java.util.Set)com.google.common.collect.Sets.newLinkedHashSet(), new net.minecraft.world.level.timers.TimerQueue(net.minecraft.world.level.timers.TimerCallbacks.SERVER_CALLBACKS), null, new net.minecraft.nbt.CompoundTag(), $$0.copy(), $$1, $$2);
++    public net.minecraft.world.level.storage.PrimaryLevelData(net.minecraft.world.level.LevelSettings $$0, net.minecraft.world.level.levelgen.WorldOptions $$1, net.minecraft.world.level.storage.PrimaryLevelData$SpecialWorldProperty $$2, com.mojang.serialization.Lifecycle $$3) {
++        this(null, net.minecraft.SharedConstants.getCurrentVersion().getWorldVersion(), null, false, 0, 0, 0, 0.0f, 0L, 0L, 19133, 0, 0, false, 0, false, false, false, net.minecraft.world.level.border.WorldBorder.DEFAULT_SETTINGS, 0, 0, null, (java.util.Set)com.google.common.collect.Sets.newLinkedHashSet(), new net.minecraft.world.level.timers.TimerQueue(net.minecraft.world.level.timers.TimerCallbacks.SERVER_CALLBACKS), null, new net.minecraft.nbt.CompoundTag(), $$0.copy(), $$1, $$2, $$3);
+     }
+ 
+-    public static net.minecraft.world.level.storage.PrimaryLevelData parse(com.mojang.serialization.Dynamic<net.minecraft.nbt.Tag> dynamic, com.mojang.datafixers.DataFixer dataFixer, int version, @javax.annotation.Nullable net.minecraft.nbt.CompoundTag playerNBT, net.minecraft.world.level.LevelSettings levelSettings, net.minecraft.world.level.storage.LevelVersion versionData, net.minecraft.world.level.levelgen.WorldGenSettings generatorSettings, com.mojang.serialization.Lifecycle lifecycle) {
+-        long l = dynamic.get("Time").asLong(0L);
+-        net.minecraft.nbt.CompoundTag compoundTag = (net.minecraft.nbt.CompoundTag)dynamic.get("DragonFight").result().map(com.mojang.serialization.Dynamic::getValue).orElseGet(() -> (net.minecraft.nbt.Tag)dynamic.get("DimensionData").get("1").get("DragonFight").orElseEmptyMap().getValue());
+-        return new net.minecraft.world.level.storage.PrimaryLevelData(dataFixer, version, playerNBT, dynamic.get("WasModded").asBoolean(false), dynamic.get("SpawnX").asInt(0), dynamic.get("SpawnY").asInt(0), dynamic.get("SpawnZ").asInt(0), dynamic.get("SpawnAngle").asFloat(0.0f), l, dynamic.get("DayTime").asLong(l), versionData.levelDataVersion(), dynamic.get("clearWeatherTime").asInt(0), dynamic.get("rainTime").asInt(0), dynamic.get("raining").asBoolean(false), dynamic.get("thunderTime").asInt(0), dynamic.get("thundering").asBoolean(false), dynamic.get("initialized").asBoolean(true), dynamic.get("DifficultyLocked").asBoolean(false), net.minecraft.world.level.border.WorldBorder$Settings.read(dynamic, (net.minecraft.world.level.border.WorldBorder$Settings)net.minecraft.world.level.border.WorldBorder.DEFAULT_SETTINGS), dynamic.get("WanderingTraderSpawnDelay").asInt(0), dynamic.get("WanderingTraderSpawnChance").asInt(0), (java.util.UUID)dynamic.get("WanderingTraderId").read((com.mojang.serialization.Decoder)net.minecraft.core.UUIDUtil.CODEC).result().orElse(null), (java.util.Set)dynamic.get("ServerBrands").asStream().flatMap($$0 -> $$0.asString().result().stream()).collect(java.util.stream.Collectors.toCollection(com.google.common.collect.Sets::newLinkedHashSet)), new net.minecraft.world.level.timers.TimerQueue(net.minecraft.world.level.timers.TimerCallbacks.SERVER_CALLBACKS, dynamic.get("ScheduledEvents").asStream()), (net.minecraft.nbt.CompoundTag)dynamic.get("CustomBossEvents").orElseEmptyMap().getValue(), compoundTag, levelSettings, generatorSettings, lifecycle);
++    public static net.minecraft.world.level.storage.PrimaryLevelData parse(com.mojang.serialization.Dynamic<net.minecraft.nbt.Tag> $$02, com.mojang.datafixers.DataFixer $$1, int $$2, @javax.annotation.Nullable net.minecraft.nbt.CompoundTag $$3, net.minecraft.world.level.LevelSettings $$4, net.minecraft.world.level.storage.LevelVersion $$5, net.minecraft.world.level.storage.PrimaryLevelData$SpecialWorldProperty $$6, net.minecraft.world.level.levelgen.WorldOptions $$7, com.mojang.serialization.Lifecycle $$8) {
++        long $$9 = $$02.get("Time").asLong(0L);
++        net.minecraft.nbt.CompoundTag $$10 = (net.minecraft.nbt.CompoundTag)$$02.get("DragonFight").result().map(com.mojang.serialization.Dynamic::getValue).orElseGet(() -> (net.minecraft.nbt.Tag)$$02.get("DimensionData").get("1").get("DragonFight").orElseEmptyMap().getValue());
++        return new net.minecraft.world.level.storage.PrimaryLevelData($$1, $$2, $$3, $$02.get("WasModded").asBoolean(false), $$02.get("SpawnX").asInt(0), $$02.get("SpawnY").asInt(0), $$02.get("SpawnZ").asInt(0), $$02.get("SpawnAngle").asFloat(0.0f), $$9, $$02.get("DayTime").asLong($$9), $$5.levelDataVersion(), $$02.get("clearWeatherTime").asInt(0), $$02.get("rainTime").asInt(0), $$02.get("raining").asBoolean(false), $$02.get("thunderTime").asInt(0), $$02.get("thundering").asBoolean(false), $$02.get("initialized").asBoolean(true), $$02.get("DifficultyLocked").asBoolean(false), net.minecraft.world.level.border.WorldBorder$Settings.read($$02, (net.minecraft.world.level.border.WorldBorder$Settings)net.minecraft.world.level.border.WorldBorder.DEFAULT_SETTINGS), $$02.get("WanderingTraderSpawnDelay").asInt(0), $$02.get("WanderingTraderSpawnChance").asInt(0), (java.util.UUID)$$02.get("WanderingTraderId").read((com.mojang.serialization.Decoder)net.minecraft.core.UUIDUtil.CODEC).result().orElse(null), (java.util.Set)$$02.get("ServerBrands").asStream().flatMap($$0 -> $$0.asString().result().stream()).collect(java.util.stream.Collectors.toCollection(com.google.common.collect.Sets::newLinkedHashSet)), new net.minecraft.world.level.timers.TimerQueue(net.minecraft.world.level.timers.TimerCallbacks.SERVER_CALLBACKS, $$02.get("ScheduledEvents").asStream()), (net.minecraft.nbt.CompoundTag)$$02.get("CustomBossEvents").orElseEmptyMap().getValue(), $$10, $$4, $$7, $$6, $$8);
+     }
+ 
+-    public net.minecraft.nbt.CompoundTag createTag(net.minecraft.core.RegistryAccess registries, @javax.annotation.Nullable net.minecraft.nbt.CompoundTag hostPlayerNBT) {
++    public net.minecraft.nbt.CompoundTag createTag(net.minecraft.core.RegistryAccess $$0, @javax.annotation.Nullable net.minecraft.nbt.CompoundTag $$1) {
+         this.updatePlayerTag();
+-        if (hostPlayerNBT == null) {
+-            hostPlayerNBT = this.loadedPlayerTag;
++        if ($$1 == null) {
++            $$1 = this.loadedPlayerTag;
+         }
+-        net.minecraft.nbt.CompoundTag compoundTag = new net.minecraft.nbt.CompoundTag();
+-        this.setTagData(registries, compoundTag, hostPlayerNBT);
+-        return compoundTag;
++        net.minecraft.nbt.CompoundTag $$2 = new net.minecraft.nbt.CompoundTag();
++        this.setTagData($$0, $$2, $$1);
++        return $$2;
+     }
+ 
+-    public void setTagData(net.minecraft.core.RegistryAccess registry, net.minecraft.nbt.CompoundTag nbt, @javax.annotation.Nullable net.minecraft.nbt.CompoundTag playerNBT) {
+-        net.minecraft.nbt.ListTag listTag = new net.minecraft.nbt.ListTag();
+-        this.knownServerBrands.stream().map(net.minecraft.nbt.StringTag::valueOf).forEach(arg_0 -> ((net.minecraft.nbt.ListTag)listTag).add(arg_0));
+-        nbt.put("ServerBrands", (net.minecraft.nbt.Tag)listTag);
+-        nbt.putBoolean("WasModded", this.wasModded);
+-        net.minecraft.nbt.CompoundTag compoundTag = new net.minecraft.nbt.CompoundTag();
+-        compoundTag.putString("Name", net.minecraft.SharedConstants.getCurrentVersion().getName());
+-        compoundTag.putInt("Id", net.minecraft.SharedConstants.getCurrentVersion().getDataVersion().getVersion());
+-        compoundTag.putBoolean("Snapshot", !net.minecraft.SharedConstants.getCurrentVersion().isStable());
+-        compoundTag.putString("Series", net.minecraft.SharedConstants.getCurrentVersion().getDataVersion().getSeries());
+-        nbt.put("Version", (net.minecraft.nbt.Tag)compoundTag);
+-        nbt.putInt("DataVersion", net.minecraft.SharedConstants.getCurrentVersion().getWorldVersion());
+-        net.minecraft.resources.RegistryOps registryOps = net.minecraft.resources.RegistryOps.create((com.mojang.serialization.DynamicOps)net.minecraft.nbt.NbtOps.INSTANCE, (net.minecraft.core.RegistryAccess)registry);
+-        net.minecraft.world.level.levelgen.WorldGenSettings.CODEC.encodeStart((com.mojang.serialization.DynamicOps)registryOps, (java.lang.Object)this.worldGenSettings).resultOrPartial(net.minecraft.Util.prefix((java.lang.String)"WorldGenSettings: ", arg_0 -> ((org.slf4j.Logger)LOGGER).error(arg_0))).ifPresent($$1 -> nbt.put("WorldGenSettings", $$1));
+-        nbt.putInt("GameType", this.settings.gameType().getId());
+-        nbt.putInt("SpawnX", this.xSpawn);
+-        nbt.putInt("SpawnY", this.ySpawn);
+-        nbt.putInt("SpawnZ", this.zSpawn);
+-        nbt.putFloat("SpawnAngle", this.spawnAngle);
+-        nbt.putLong("Time", this.gameTime);
+-        nbt.putLong("DayTime", this.dayTime);
+-        nbt.putLong("LastPlayed", net.minecraft.Util.getEpochMillis());
+-        nbt.putString("LevelName", this.settings.levelName());
+-        nbt.putInt("version", 19133);
+-        nbt.putInt("clearWeatherTime", this.clearWeatherTime);
+-        nbt.putInt("rainTime", this.rainTime);
+-        nbt.putBoolean("raining", this.raining);
+-        nbt.putInt("thunderTime", this.thunderTime);
+-        nbt.putBoolean("thundering", this.thundering);
+-        nbt.putBoolean("hardcore", this.settings.hardcore());
+-        nbt.putBoolean("allowCommands", this.settings.allowCommands());
+-        nbt.putBoolean("initialized", this.initialized);
+-        this.worldBorder.write(nbt);
+-        nbt.putByte("Difficulty", (byte)this.settings.difficulty().getId());
+-        nbt.putBoolean("DifficultyLocked", this.difficultyLocked);
+-        nbt.put("GameRules", (net.minecraft.nbt.Tag)this.settings.gameRules().createTag());
+-        nbt.put("DragonFight", (net.minecraft.nbt.Tag)this.endDragonFightData);
+-        if (playerNBT != null) {
+-            nbt.put("Player", (net.minecraft.nbt.Tag)playerNBT);
++    public void setTagData(net.minecraft.core.RegistryAccess $$02, net.minecraft.nbt.CompoundTag $$12, @javax.annotation.Nullable net.minecraft.nbt.CompoundTag $$2) {
++        net.minecraft.nbt.ListTag $$3 = new net.minecraft.nbt.ListTag();
++        this.knownServerBrands.stream().map(net.minecraft.nbt.StringTag::valueOf).forEach(arg_0 -> ((net.minecraft.nbt.ListTag)$$3).add(arg_0));
++        $$12.put("ServerBrands", (net.minecraft.nbt.Tag)$$3);
++        $$12.putBoolean("WasModded", this.wasModded);
++        net.minecraft.nbt.CompoundTag $$4 = new net.minecraft.nbt.CompoundTag();
++        $$4.putString("Name", net.minecraft.SharedConstants.getCurrentVersion().getName());
++        $$4.putInt("Id", net.minecraft.SharedConstants.getCurrentVersion().getDataVersion().getVersion());
++        $$4.putBoolean("Snapshot", !net.minecraft.SharedConstants.getCurrentVersion().isStable());
++        $$4.putString("Series", net.minecraft.SharedConstants.getCurrentVersion().getDataVersion().getSeries());
++        $$12.put("Version", (net.minecraft.nbt.Tag)$$4);
++        $$12.putInt("DataVersion", net.minecraft.SharedConstants.getCurrentVersion().getWorldVersion());
++        net.minecraft.resources.RegistryOps $$5 = net.minecraft.resources.RegistryOps.create((com.mojang.serialization.DynamicOps)net.minecraft.nbt.NbtOps.INSTANCE, (net.minecraft.core.RegistryAccess)$$02);
++        net.minecraft.world.level.levelgen.WorldGenSettings.encode((com.mojang.serialization.DynamicOps)$$5, (net.minecraft.world.level.levelgen.WorldOptions)this.worldOptions, (net.minecraft.core.RegistryAccess)$$02).resultOrPartial(net.minecraft.Util.prefix((java.lang.String)"WorldGenSettings: ", arg_0 -> ((org.slf4j.Logger)LOGGER).error(arg_0))).ifPresent($$1 -> $$12.put("WorldGenSettings", $$1));
++        $$12.putInt("GameType", this.settings.gameType().getId());
++        $$12.putInt("SpawnX", this.xSpawn);
++        $$12.putInt("SpawnY", this.ySpawn);
++        $$12.putInt("SpawnZ", this.zSpawn);
++        $$12.putFloat("SpawnAngle", this.spawnAngle);
++        $$12.putLong("Time", this.gameTime);
++        $$12.putLong("DayTime", this.dayTime);
++        $$12.putLong("LastPlayed", net.minecraft.Util.getEpochMillis());
++        $$12.putString("LevelName", this.settings.levelName());
++        $$12.putInt("version", 19133);
++        $$12.putInt("clearWeatherTime", this.clearWeatherTime);
++        $$12.putInt("rainTime", this.rainTime);
++        $$12.putBoolean("raining", this.raining);
++        $$12.putInt("thunderTime", this.thunderTime);
++        $$12.putBoolean("thundering", this.thundering);
++        $$12.putBoolean("hardcore", this.settings.hardcore());
++        $$12.putBoolean("allowCommands", this.settings.allowCommands());
++        $$12.putBoolean("initialized", this.initialized);
++        this.worldBorder.write($$12);
++        $$12.putByte("Difficulty", (byte)this.settings.difficulty().getId());
++        $$12.putBoolean("DifficultyLocked", this.difficultyLocked);
++        $$12.put("GameRules", (net.minecraft.nbt.Tag)this.settings.gameRules().createTag());
++        $$12.put("DragonFight", (net.minecraft.nbt.Tag)this.endDragonFightData);
++        if ($$2 != null) {
++            $$12.put("Player", (net.minecraft.nbt.Tag)$$2);
+         }
+-        net.minecraft.world.level.DataPackConfig.CODEC.encodeStart((com.mojang.serialization.DynamicOps)net.minecraft.nbt.NbtOps.INSTANCE, (java.lang.Object)this.settings.getDataPackConfig()).result().ifPresent($$1 -> nbt.put("DataPacks", $$1));
++        com.mojang.serialization.DataResult $$6 = net.minecraft.world.level.WorldDataConfiguration.CODEC.encodeStart((com.mojang.serialization.DynamicOps)net.minecraft.nbt.NbtOps.INSTANCE, (java.lang.Object)this.settings.getDataConfiguration());
++        $$6.get().ifLeft($$1 -> $$12.merge((net.minecraft.nbt.CompoundTag)$$1)).ifRight($$0 -> LOGGER.warn("Failed to encode configuration {}", (java.lang.Object)$$0.message()));
+         if (this.customBossEvents != null) {
+-            nbt.put("CustomBossEvents", (net.minecraft.nbt.Tag)this.customBossEvents);
++            $$12.put("CustomBossEvents", (net.minecraft.nbt.Tag)this.customBossEvents);
+         }
+-        nbt.put("ScheduledEvents", (net.minecraft.nbt.Tag)this.scheduledEvents.store());
+-        nbt.putInt("WanderingTraderSpawnDelay", this.wanderingTraderSpawnDelay);
+-        nbt.putInt("WanderingTraderSpawnChance", this.wanderingTraderSpawnChance);
++        $$12.put("ScheduledEvents", (net.minecraft.nbt.Tag)this.scheduledEvents.store());
++        $$12.putInt("WanderingTraderSpawnDelay", this.wanderingTraderSpawnDelay);
++        $$12.putInt("WanderingTraderSpawnChance", this.wanderingTraderSpawnChance);
+         if (this.wanderingTraderId != null) {
+-            nbt.putUUID("WanderingTraderId", this.wanderingTraderId);
++            $$12.putUUID("WanderingTraderId", this.wanderingTraderId);
+         }
+     }
+ 
+@@ -194,35 +194,35 @@
+         return this.loadedPlayerTag;
+     }
+ 
+-    public void setXSpawn(int x) {
+-        this.xSpawn = x;
++    public void setXSpawn(int $$0) {
++        this.xSpawn = $$0;
+     }
+ 
+-    public void setYSpawn(int y) {
+-        this.ySpawn = y;
++    public void setYSpawn(int $$0) {
++        this.ySpawn = $$0;
+     }
+ 
+-    public void setZSpawn(int z) {
+-        this.zSpawn = z;
++    public void setZSpawn(int $$0) {
++        this.zSpawn = $$0;
+     }
+ 
+-    public void setSpawnAngle(float angle) {
+-        this.spawnAngle = angle;
++    public void setSpawnAngle(float $$0) {
++        this.spawnAngle = $$0;
+     }
+ 
+-    public void setGameTime(long time) {
+-        this.gameTime = time;
++    public void setGameTime(long $$0) {
++        this.gameTime = $$0;
+     }
+ 
+-    public void setDayTime(long time) {
+-        this.dayTime = time;
++    public void setDayTime(long $$0) {
++        this.dayTime = $$0;
+     }
+ 
+-    public void setSpawn(net.minecraft.core.BlockPos spawnPoint, float angle) {
+-        this.xSpawn = spawnPoint.getX();
+-        this.ySpawn = spawnPoint.getY();
+-        this.zSpawn = spawnPoint.getZ();
+-        this.spawnAngle = angle;
++    public void setSpawn(net.minecraft.core.BlockPos $$0, float $$1) {
++        this.xSpawn = $$0.getX();
++        this.ySpawn = $$0.getY();
++        this.zSpawn = $$0.getZ();
++        this.spawnAngle = $$1;
+     }
+ 
+     public java.lang.String getLevelName() {
+@@ -237,48 +237,48 @@
+         return this.clearWeatherTime;
+     }
+ 
+-    public void setClearWeatherTime(int time) {
+-        this.clearWeatherTime = time;
++    public void setClearWeatherTime(int $$0) {
++        this.clearWeatherTime = $$0;
+     }
+ 
+     public boolean isThundering() {
+         return this.thundering;
+     }
+ 
+-    public void setThundering(boolean thundering) {
+-        this.thundering = thundering;
++    public void setThundering(boolean $$0) {
++        this.thundering = $$0;
+     }
+ 
+     public int getThunderTime() {
+         return this.thunderTime;
+     }
+ 
+-    public void setThunderTime(int time) {
+-        this.thunderTime = time;
++    public void setThunderTime(int $$0) {
++        this.thunderTime = $$0;
+     }
+ 
+     public boolean isRaining() {
+         return this.raining;
+     }
+ 
+-    public void setRaining(boolean isRaining) {
+-        this.raining = isRaining;
++    public void setRaining(boolean $$0) {
++        this.raining = $$0;
+     }
+ 
+     public int getRainTime() {
+         return this.rainTime;
+     }
+ 
+-    public void setRainTime(int time) {
+-        this.rainTime = time;
++    public void setRainTime(int $$0) {
++        this.rainTime = $$0;
+     }
+ 
+     public net.minecraft.world.level.GameType getGameType() {
+         return this.settings.gameType();
+     }
+ 
+-    public void setGameType(net.minecraft.world.level.GameType type) {
+-        this.settings = this.settings.withGameType(type);
++    public void setGameType(net.minecraft.world.level.GameType $$0) {
++        this.settings = this.settings.withGameType($$0);
+     }
+ 
+     public boolean isHardcore() {
+@@ -293,8 +293,8 @@
+         return this.initialized;
+     }
+ 
+-    public void setInitialized(boolean initialized) {
+-        this.initialized = initialized;
++    public void setInitialized(boolean $$0) {
++        this.initialized = $$0;
+     }
+ 
+     public net.minecraft.world.level.GameRules getGameRules() {
+@@ -305,24 +305,24 @@
+         return this.worldBorder;
+     }
+ 
+-    public void setWorldBorder(net.minecraft.world.level.border.WorldBorder$Settings serializer) {
+-        this.worldBorder = serializer;
++    public void setWorldBorder(net.minecraft.world.level.border.WorldBorder$Settings $$0) {
++        this.worldBorder = $$0;
+     }
+ 
+     public net.minecraft.world.Difficulty getDifficulty() {
+         return this.settings.difficulty();
+     }
+ 
+-    public void setDifficulty(net.minecraft.world.Difficulty difficulty) {
+-        this.settings = this.settings.withDifficulty(difficulty);
++    public void setDifficulty(net.minecraft.world.Difficulty $$0) {
++        this.settings = this.settings.withDifficulty($$0);
+     }
+ 
+     public boolean isDifficultyLocked() {
+         return this.difficultyLocked;
+     }
+ 
+-    public void setDifficultyLocked(boolean locked) {
+-        this.difficultyLocked = locked;
++    public void setDifficultyLocked(boolean $$0) {
++        this.difficultyLocked = $$0;
+     }
+ 
+     public net.minecraft.world.level.timers.TimerQueue<net.minecraft.server.MinecraftServer> getScheduledEvents() {
+@@ -334,10 +334,18 @@
+         super.fillCrashReportCategory($$0);
+     }
+ 
+-    public net.minecraft.world.level.levelgen.WorldGenSettings worldGenSettings() {
+-        return this.worldGenSettings;
++    public net.minecraft.world.level.levelgen.WorldOptions worldGenOptions() {
++        return this.worldOptions;
+     }
+ 
++    public boolean isFlatWorld() {
++        return this.specialWorldProperty == net.minecraft.world.level.storage.PrimaryLevelData$SpecialWorldProperty.FLAT;
++    }
++
++    public boolean isDebugWorld() {
++        return this.specialWorldProperty == net.minecraft.world.level.storage.PrimaryLevelData$SpecialWorldProperty.DEBUG;
++    }
++
+     public com.mojang.serialization.Lifecycle worldGenSettingsLifecycle() {
+         return this.worldGenSettingsLifecycle;
+     }
+@@ -346,16 +354,16 @@
+         return this.endDragonFightData;
+     }
+ 
+-    public void setEndDragonFightData(net.minecraft.nbt.CompoundTag nbt) {
+-        this.endDragonFightData = nbt;
++    public void setEndDragonFightData(net.minecraft.nbt.CompoundTag $$0) {
++        this.endDragonFightData = $$0;
+     }
+ 
+-    public net.minecraft.world.level.DataPackConfig getDataPackConfig() {
+-        return this.settings.getDataPackConfig();
++    public net.minecraft.world.level.WorldDataConfiguration getDataConfiguration() {
++        return this.settings.getDataConfiguration();
+     }
+ 
+-    public void setDataPackConfig(net.minecraft.world.level.DataPackConfig codec) {
+-        this.settings = this.settings.withDataPackConfig(codec);
++    public void setDataConfiguration(net.minecraft.world.level.WorldDataConfiguration $$0) {
++        this.settings = this.settings.withDataConfiguration($$0);
+     }
+ 
+     @javax.annotation.Nullable
+@@ -363,24 +371,24 @@
+         return this.customBossEvents;
+     }
+ 
+-    public void setCustomBossEvents(@javax.annotation.Nullable net.minecraft.nbt.CompoundTag nbt) {
+-        this.customBossEvents = nbt;
++    public void setCustomBossEvents(@javax.annotation.Nullable net.minecraft.nbt.CompoundTag $$0) {
++        this.customBossEvents = $$0;
+     }
+ 
+     public int getWanderingTraderSpawnDelay() {
+         return this.wanderingTraderSpawnDelay;
+     }
+ 
+-    public void setWanderingTraderSpawnDelay(int delay) {
+-        this.wanderingTraderSpawnDelay = delay;
++    public void setWanderingTraderSpawnDelay(int $$0) {
++        this.wanderingTraderSpawnDelay = $$0;
+     }
+ 
+     public int getWanderingTraderSpawnChance() {
+         return this.wanderingTraderSpawnChance;
+     }
+ 
+-    public void setWanderingTraderSpawnChance(int chance) {
+-        this.wanderingTraderSpawnChance = chance;
++    public void setWanderingTraderSpawnChance(int $$0) {
++        this.wanderingTraderSpawnChance = $$0;
+     }
+ 
+     @javax.annotation.Nullable
+@@ -388,13 +396,13 @@
+         return this.wanderingTraderId;
+     }
+ 
+-    public void setWanderingTraderId(java.util.UUID id) {
+-        this.wanderingTraderId = id;
++    public void setWanderingTraderId(java.util.UUID $$0) {
++        this.wanderingTraderId = $$0;
+     }
+ 
+-    public void setModdedInfo(java.lang.String name, boolean isModded) {
+-        this.knownServerBrands.add((java.lang.Object)name);
+-        this.wasModded |= isModded;
++    public void setModdedInfo(java.lang.String $$0, boolean $$1) {
++        this.knownServerBrands.add((java.lang.Object)$$0);
++        this.wasModded |= $$1;
+     }
+ 
+     public boolean wasModded() {

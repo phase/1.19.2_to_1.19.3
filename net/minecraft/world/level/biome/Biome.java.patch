@@ -1,0 +1,111 @@
+--- net/minecraft/world/level/biome/Biome.java
++++ net/minecraft/world/level/biome/Biome.java
+@@ -48,49 +48,49 @@
+         return this.getDownfall() > 0.85f;
+     }
+ 
+-    public float getHeightAdjustedTemperature(net.minecraft.core.BlockPos pos) {
+-        float f = this.climateSettings.temperatureModifier.modifyTemperature(pos, this.getBaseTemperature());
+-        if (pos.getY() > 80) {
+-            float f2 = (float)(TEMPERATURE_NOISE.getValue((double)((float)pos.getX() / 8.0f), (double)((float)pos.getZ() / 8.0f), false) * 8.0);
+-            return f - (f2 + (float)pos.getY() - 80.0f) * 0.05f / 40.0f;
++    public float getHeightAdjustedTemperature(net.minecraft.core.BlockPos $$0) {
++        float $$1 = this.climateSettings.temperatureModifier.modifyTemperature($$0, this.getBaseTemperature());
++        if ($$0.getY() > 80) {
++            float $$2 = (float)(TEMPERATURE_NOISE.getValue((double)((float)$$0.getX() / 8.0f), (double)((float)$$0.getZ() / 8.0f), false) * 8.0);
++            return $$1 - ($$2 + (float)$$0.getY() - 80.0f) * 0.05f / 40.0f;
+         }
+-        return f;
++        return $$1;
+     }
+ 
+     @java.lang.Deprecated
+-    public float getTemperature(net.minecraft.core.BlockPos pos) {
+-        long l = pos.asLong();
+-        it.unimi.dsi.fastutil.longs.Long2FloatLinkedOpenHashMap long2FloatLinkedOpenHashMap = (it.unimi.dsi.fastutil.longs.Long2FloatLinkedOpenHashMap)this.temperatureCache.get();
+-        float f = long2FloatLinkedOpenHashMap.get(l);
+-        if (!java.lang.Float.isNaN((float)f)) {
+-            return f;
++    public float getTemperature(net.minecraft.core.BlockPos $$0) {
++        long $$1 = $$0.asLong();
++        it.unimi.dsi.fastutil.longs.Long2FloatLinkedOpenHashMap $$2 = (it.unimi.dsi.fastutil.longs.Long2FloatLinkedOpenHashMap)this.temperatureCache.get();
++        float $$3 = $$2.get($$1);
++        if (!java.lang.Float.isNaN((float)$$3)) {
++            return $$3;
+         }
+-        float f2 = this.getHeightAdjustedTemperature(pos);
+-        if (long2FloatLinkedOpenHashMap.size() == 1024) {
+-            long2FloatLinkedOpenHashMap.removeFirstFloat();
++        float $$4 = this.getHeightAdjustedTemperature($$0);
++        if ($$2.size() == 1024) {
++            $$2.removeFirstFloat();
+         }
+-        long2FloatLinkedOpenHashMap.put(l, f2);
+-        return f2;
++        $$2.put($$1, $$4);
++        return $$4;
+     }
+ 
+-    public boolean shouldFreeze(net.minecraft.world.level.LevelReader level, net.minecraft.core.BlockPos pos) {
+-        return this.shouldFreeze(level, pos, true);
++    public boolean shouldFreeze(net.minecraft.world.level.LevelReader $$0, net.minecraft.core.BlockPos $$1) {
++        return this.shouldFreeze($$0, $$1, true);
+     }
+ 
+-    public boolean shouldFreeze(net.minecraft.world.level.LevelReader level, net.minecraft.core.BlockPos water, boolean mustBeAtEdge) {
+-        if (this.warmEnoughToRain(water)) {
++    public boolean shouldFreeze(net.minecraft.world.level.LevelReader $$0, net.minecraft.core.BlockPos $$1, boolean $$2) {
++        if (this.warmEnoughToRain($$1)) {
+             return false;
+         }
+-        if (water.getY() >= level.getMinBuildHeight() && water.getY() < level.getMaxBuildHeight() && level.getBrightness(net.minecraft.world.level.LightLayer.BLOCK, water) < 10) {
+-            net.minecraft.world.level.block.state.BlockState blockState = level.getBlockState(water);
+-            net.minecraft.world.level.material.FluidState fluidState = level.getFluidState(water);
+-            if (fluidState.getType() == net.minecraft.world.level.material.Fluids.WATER && blockState.getBlock() instanceof net.minecraft.world.level.block.LiquidBlock) {
+-                boolean bl;
+-                if (!mustBeAtEdge) {
++        if ($$1.getY() >= $$0.getMinBuildHeight() && $$1.getY() < $$0.getMaxBuildHeight() && $$0.getBrightness(net.minecraft.world.level.LightLayer.BLOCK, $$1) < 10) {
++            net.minecraft.world.level.block.state.BlockState $$3 = $$0.getBlockState($$1);
++            net.minecraft.world.level.material.FluidState $$4 = $$0.getFluidState($$1);
++            if ($$4.getType() == net.minecraft.world.level.material.Fluids.WATER && $$3.getBlock() instanceof net.minecraft.world.level.block.LiquidBlock) {
++                boolean $$5;
++                if (!$$2) {
+                     return true;
+                 }
+-                boolean bl2 = bl = level.isWaterAt(water.west()) && level.isWaterAt(water.east()) && level.isWaterAt(water.north()) && level.isWaterAt(water.south());
+-                if (!bl) {
++                boolean bl = $$5 = $$0.isWaterAt($$1.west()) && $$0.isWaterAt($$1.east()) && $$0.isWaterAt($$1.north()) && $$0.isWaterAt($$1.south());
++                if (!$$5) {
+                     return true;
+                 }
+             }
+@@ -114,12 +114,12 @@
+         return this.getTemperature($$0) > 1.0f;
+     }
+ 
+-    public boolean shouldSnow(net.minecraft.world.level.LevelReader level, net.minecraft.core.BlockPos pos) {
+-        net.minecraft.world.level.block.state.BlockState blockState;
+-        if (this.warmEnoughToRain(pos)) {
++    public boolean shouldSnow(net.minecraft.world.level.LevelReader $$0, net.minecraft.core.BlockPos $$1) {
++        net.minecraft.world.level.block.state.BlockState $$2;
++        if (this.warmEnoughToRain($$1)) {
+             return false;
+         }
+-        return pos.getY() >= level.getMinBuildHeight() && pos.getY() < level.getMaxBuildHeight() && level.getBrightness(net.minecraft.world.level.LightLayer.BLOCK, pos) < 10 && (blockState = level.getBlockState(pos)).isAir() && net.minecraft.world.level.block.Blocks.SNOW.defaultBlockState().canSurvive(level, pos);
++        return $$1.getY() >= $$0.getMinBuildHeight() && $$1.getY() < $$0.getMaxBuildHeight() && $$0.getBrightness(net.minecraft.world.level.LightLayer.BLOCK, $$1) < 10 && ($$2 = $$0.getBlockState($$1)).isAir() && net.minecraft.world.level.block.Blocks.SNOW.defaultBlockState().canSurvive($$0, $$1);
+     }
+ 
+     public net.minecraft.world.level.biome.BiomeGenerationSettings getGenerationSettings() {
+@@ -130,9 +130,9 @@
+         return this.specialEffects.getFogColor();
+     }
+ 
+-    public int getGrassColor(double posX, double posZ) {
+-        int n = (java.lang.Integer)this.specialEffects.getGrassColorOverride().orElseGet(() -> this.getGrassColorFromTexture());
+-        return this.specialEffects.getGrassColorModifier().modifyColor(posX, posZ, n);
++    public int getGrassColor(double $$0, double $$1) {
++        int $$2 = (java.lang.Integer)this.specialEffects.getGrassColorOverride().orElseGet(() -> this.getGrassColorFromTexture());
++        return this.specialEffects.getGrassColorModifier().modifyColor($$0, $$1, $$2);
+     }
+ 
+     public int getGrassColorFromTexture() {

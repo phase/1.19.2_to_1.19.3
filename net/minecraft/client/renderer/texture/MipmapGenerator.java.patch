@@ -1,0 +1,174 @@
+--- net/minecraft/client/renderer/texture/MipmapGenerator.java
++++ net/minecraft/client/renderer/texture/MipmapGenerator.java
+@@ -11,94 +11,99 @@
+     public net.minecraft.client.renderer.texture.MipmapGenerator() {
+     }
+ 
+-    public static com.mojang.blaze3d.platform.NativeImage[] generateMipLevels(com.mojang.blaze3d.platform.NativeImage image, int mipmapLevels) {
+-        com.mojang.blaze3d.platform.NativeImage[] nativeImageArray = new com.mojang.blaze3d.platform.NativeImage[mipmapLevels + 1];
+-        nativeImageArray[0] = image;
+-        if (mipmapLevels > 0) {
+-            int n;
+-            boolean bl = false;
+-block0:            for (n = 0;
+- n < image.getWidth(); ++n) {
+-                for (int i = 0; i < image.getHeight(); ++i) {
+-                    if (image.getPixelRGBA(n, i) >> 24 != 0) continue;
+-                    bl = true;
+-                    break block0;
+-                }
++    public static com.mojang.blaze3d.platform.NativeImage[] generateMipLevels(com.mojang.blaze3d.platform.NativeImage[] $$0, int $$1) {
++        if ($$1 + 1 <= $$0.length) {
++            return $$0;
++        }
++        com.mojang.blaze3d.platform.NativeImage[] $$2 = new com.mojang.blaze3d.platform.NativeImage[$$1 + 1];
++        $$2[0] = $$0[0];
++        boolean $$3 = net.minecraft.client.renderer.texture.MipmapGenerator.hasTransparentPixel((com.mojang.blaze3d.platform.NativeImage)$$2[0]);
++        for (int $$4 = 1; $$4 <= $$1; ++$$4) {
++            if ($$4 < $$0.length) {
++                $$2[$$4] = $$0[$$4];
++                continue;
+             }
+-            for (n = 1;
+- n <= mipmapLevels; ++n) {
+-                com.mojang.blaze3d.platform.NativeImage nativeImage = nativeImageArray[n - 1];
+-                com.mojang.blaze3d.platform.NativeImage nativeImage2 = new com.mojang.blaze3d.platform.NativeImage(nativeImage.getWidth() >> 1, nativeImage.getHeight() >> 1, false);
+-                int n2 = nativeImage2.getWidth();
+-                int n3 = nativeImage2.getHeight();
+-                for (int i = 0; i < n2; ++i) {
+-                    for (int j = 0; j < n3; ++j) {
+-                        nativeImage2.setPixelRGBA(i, j, net.minecraft.client.renderer.texture.MipmapGenerator.alphaBlend((int)nativeImage.getPixelRGBA(i * 2 + 0, j * 2 + 0), (int)nativeImage.getPixelRGBA(i * 2 + 1, j * 2 + 0), (int)nativeImage.getPixelRGBA(i * 2 + 0, j * 2 + 1), (int)nativeImage.getPixelRGBA(i * 2 + 1, j * 2 + 1), (boolean)bl));
+-                    }
++            com.mojang.blaze3d.platform.NativeImage $$5 = $$2[$$4 - 1];
++            com.mojang.blaze3d.platform.NativeImage $$6 = new com.mojang.blaze3d.platform.NativeImage($$5.getWidth() >> 1, $$5.getHeight() >> 1, false);
++            int $$7 = $$6.getWidth();
++            int $$8 = $$6.getHeight();
++            for (int $$9 = 0; $$9 < $$7; ++$$9) {
++                for (int $$10 = 0; $$10 < $$8; ++$$10) {
++                    $$6.setPixelRGBA($$9, $$10, net.minecraft.client.renderer.texture.MipmapGenerator.alphaBlend((int)$$5.getPixelRGBA($$9 * 2 + 0, $$10 * 2 + 0), (int)$$5.getPixelRGBA($$9 * 2 + 1, $$10 * 2 + 0), (int)$$5.getPixelRGBA($$9 * 2 + 0, $$10 * 2 + 1), (int)$$5.getPixelRGBA($$9 * 2 + 1, $$10 * 2 + 1), (boolean)$$3));
+                 }
+-                nativeImageArray[n] = nativeImage2;
+             }
++            $$2[$$4] = $$6;
+         }
+-        return nativeImageArray;
++        return $$2;
+     }
+ 
+-    public static int alphaBlend(int col1, int col2, int col3, int col4, boolean transparent) {
+-        if (transparent) {
+-            float f = 0.0f;
+-            float f2 = 0.0f;
+-            float f3 = 0.0f;
+-            float f4 = 0.0f;
+-            if (col1 >> 24 != 0) {
+-                f += net.minecraft.client.renderer.texture.MipmapGenerator.getPow22((int)(col1 >> 24));
+-                f2 += net.minecraft.client.renderer.texture.MipmapGenerator.getPow22((int)(col1 >> 16));
+-                f3 += net.minecraft.client.renderer.texture.MipmapGenerator.getPow22((int)(col1 >> 8));
+-                f4 += net.minecraft.client.renderer.texture.MipmapGenerator.getPow22((int)(col1 >> 0));
++    public static boolean hasTransparentPixel(com.mojang.blaze3d.platform.NativeImage $$0) {
++        for (int $$1 = 0; $$1 < $$0.getWidth(); ++$$1) {
++            for (int $$2 = 0; $$2 < $$0.getHeight(); ++$$2) {
++                if ($$0.getPixelRGBA($$1, $$2) >> 24 != 0) continue;
++                return true;
+             }
+-            if (col2 >> 24 != 0) {
+-                f += net.minecraft.client.renderer.texture.MipmapGenerator.getPow22((int)(col2 >> 24));
+-                f2 += net.minecraft.client.renderer.texture.MipmapGenerator.getPow22((int)(col2 >> 16));
+-                f3 += net.minecraft.client.renderer.texture.MipmapGenerator.getPow22((int)(col2 >> 8));
+-                f4 += net.minecraft.client.renderer.texture.MipmapGenerator.getPow22((int)(col2 >> 0));
++        }
++        return false;
++    }
++
++    public static int alphaBlend(int $$0, int $$1, int $$2, int $$3, boolean $$4) {
++        if ($$4) {
++            float $$5 = 0.0f;
++            float $$6 = 0.0f;
++            float $$7 = 0.0f;
++            float $$8 = 0.0f;
++            if ($$0 >> 24 != 0) {
++                $$5 += net.minecraft.client.renderer.texture.MipmapGenerator.getPow22((int)($$0 >> 24));
++                $$6 += net.minecraft.client.renderer.texture.MipmapGenerator.getPow22((int)($$0 >> 16));
++                $$7 += net.minecraft.client.renderer.texture.MipmapGenerator.getPow22((int)($$0 >> 8));
++                $$8 += net.minecraft.client.renderer.texture.MipmapGenerator.getPow22((int)($$0 >> 0));
+             }
+-            if (col3 >> 24 != 0) {
+-                f += net.minecraft.client.renderer.texture.MipmapGenerator.getPow22((int)(col3 >> 24));
+-                f2 += net.minecraft.client.renderer.texture.MipmapGenerator.getPow22((int)(col3 >> 16));
+-                f3 += net.minecraft.client.renderer.texture.MipmapGenerator.getPow22((int)(col3 >> 8));
+-                f4 += net.minecraft.client.renderer.texture.MipmapGenerator.getPow22((int)(col3 >> 0));
++            if ($$1 >> 24 != 0) {
++                $$5 += net.minecraft.client.renderer.texture.MipmapGenerator.getPow22((int)($$1 >> 24));
++                $$6 += net.minecraft.client.renderer.texture.MipmapGenerator.getPow22((int)($$1 >> 16));
++                $$7 += net.minecraft.client.renderer.texture.MipmapGenerator.getPow22((int)($$1 >> 8));
++                $$8 += net.minecraft.client.renderer.texture.MipmapGenerator.getPow22((int)($$1 >> 0));
+             }
+-            if (col4 >> 24 != 0) {
+-                f += net.minecraft.client.renderer.texture.MipmapGenerator.getPow22((int)(col4 >> 24));
+-                f2 += net.minecraft.client.renderer.texture.MipmapGenerator.getPow22((int)(col4 >> 16));
+-                f3 += net.minecraft.client.renderer.texture.MipmapGenerator.getPow22((int)(col4 >> 8));
+-                f4 += net.minecraft.client.renderer.texture.MipmapGenerator.getPow22((int)(col4 >> 0));
++            if ($$2 >> 24 != 0) {
++                $$5 += net.minecraft.client.renderer.texture.MipmapGenerator.getPow22((int)($$2 >> 24));
++                $$6 += net.minecraft.client.renderer.texture.MipmapGenerator.getPow22((int)($$2 >> 16));
++                $$7 += net.minecraft.client.renderer.texture.MipmapGenerator.getPow22((int)($$2 >> 8));
++                $$8 += net.minecraft.client.renderer.texture.MipmapGenerator.getPow22((int)($$2 >> 0));
+             }
+-            int n = (int)(java.lang.Math.pow((double)(f /= 4.0f), (double)0.45454545454545453) * 255.0);
+-            int n2 = (int)(java.lang.Math.pow((double)(f2 /= 4.0f), (double)0.45454545454545453) * 255.0);
+-            int n3 = (int)(java.lang.Math.pow((double)(f3 /= 4.0f), (double)0.45454545454545453) * 255.0);
+-            int n4 = (int)(java.lang.Math.pow((double)(f4 /= 4.0f), (double)0.45454545454545453) * 255.0);
+-            if (n < 96) {
+-                n = 0;
++            if ($$3 >> 24 != 0) {
++                $$5 += net.minecraft.client.renderer.texture.MipmapGenerator.getPow22((int)($$3 >> 24));
++                $$6 += net.minecraft.client.renderer.texture.MipmapGenerator.getPow22((int)($$3 >> 16));
++                $$7 += net.minecraft.client.renderer.texture.MipmapGenerator.getPow22((int)($$3 >> 8));
++                $$8 += net.minecraft.client.renderer.texture.MipmapGenerator.getPow22((int)($$3 >> 0));
+             }
+-            return n << 24 | n2 << 16 | n3 << 8 | n4;
++            int $$9 = (int)(java.lang.Math.pow((double)($$5 /= 4.0f), (double)0.45454545454545453) * 255.0);
++            int $$10 = (int)(java.lang.Math.pow((double)($$6 /= 4.0f), (double)0.45454545454545453) * 255.0);
++            int $$11 = (int)(java.lang.Math.pow((double)($$7 /= 4.0f), (double)0.45454545454545453) * 255.0);
++            int $$12 = (int)(java.lang.Math.pow((double)($$8 /= 4.0f), (double)0.45454545454545453) * 255.0);
++            if ($$9 < 96) {
++                $$9 = 0;
++            }
++            return $$9 << 24 | $$10 << 16 | $$11 << 8 | $$12;
+         }
+-        int n = net.minecraft.client.renderer.texture.MipmapGenerator.gammaBlend((int)col1, (int)col2, (int)col3, (int)col4, (int)24);
+-        int n5 = net.minecraft.client.renderer.texture.MipmapGenerator.gammaBlend((int)col1, (int)col2, (int)col3, (int)col4, (int)16);
+-        int n6 = net.minecraft.client.renderer.texture.MipmapGenerator.gammaBlend((int)col1, (int)col2, (int)col3, (int)col4, (int)8);
+-        int n7 = net.minecraft.client.renderer.texture.MipmapGenerator.gammaBlend((int)col1, (int)col2, (int)col3, (int)col4, (int)0);
+-        return n << 24 | n5 << 16 | n6 << 8 | n7;
++        int $$13 = net.minecraft.client.renderer.texture.MipmapGenerator.gammaBlend((int)$$0, (int)$$1, (int)$$2, (int)$$3, (int)24);
++        int $$14 = net.minecraft.client.renderer.texture.MipmapGenerator.gammaBlend((int)$$0, (int)$$1, (int)$$2, (int)$$3, (int)16);
++        int $$15 = net.minecraft.client.renderer.texture.MipmapGenerator.gammaBlend((int)$$0, (int)$$1, (int)$$2, (int)$$3, (int)8);
++        int $$16 = net.minecraft.client.renderer.texture.MipmapGenerator.gammaBlend((int)$$0, (int)$$1, (int)$$2, (int)$$3, (int)0);
++        return $$13 << 24 | $$14 << 16 | $$15 << 8 | $$16;
+     }
+ 
+-    public static int gammaBlend(int col1, int col2, int col3, int col4, int bitOffset) {
+-        float f = net.minecraft.client.renderer.texture.MipmapGenerator.getPow22((int)(col1 >> bitOffset));
+-        float f2 = net.minecraft.client.renderer.texture.MipmapGenerator.getPow22((int)(col2 >> bitOffset));
+-        float f3 = net.minecraft.client.renderer.texture.MipmapGenerator.getPow22((int)(col3 >> bitOffset));
+-        float f4 = net.minecraft.client.renderer.texture.MipmapGenerator.getPow22((int)(col4 >> bitOffset));
+-        float f5 = (float)((double)((float)java.lang.Math.pow((double)((double)(f + f2 + f3 + f4) * 0.25), (double)0.45454545454545453)));
+-        return (int)((double)f5 * 255.0);
++    public static int gammaBlend(int $$0, int $$1, int $$2, int $$3, int $$4) {
++        float $$5 = net.minecraft.client.renderer.texture.MipmapGenerator.getPow22((int)($$0 >> $$4));
++        float $$6 = net.minecraft.client.renderer.texture.MipmapGenerator.getPow22((int)($$1 >> $$4));
++        float $$7 = net.minecraft.client.renderer.texture.MipmapGenerator.getPow22((int)($$2 >> $$4));
++        float $$8 = net.minecraft.client.renderer.texture.MipmapGenerator.getPow22((int)($$3 >> $$4));
++        float $$9 = (float)((double)((float)java.lang.Math.pow((double)((double)($$5 + $$6 + $$7 + $$8) * 0.25), (double)0.45454545454545453)));
++        return (int)((double)$$9 * 255.0);
+     }
+ 
+-    public static float getPow22(int val) {
+-        return POW22[val & 0xFF];
++    public static float getPow22(int $$0) {
++        return POW22[$$0 & 0xFF];
+     }
+ 
+     public static /* synthetic */ void lambda$static$0(float[] $$0) {

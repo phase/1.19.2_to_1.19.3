@@ -1,0 +1,416 @@
+--- net/minecraft/client/KeyboardHandler.java
++++ net/minecraft/client/KeyboardHandler.java
+@@ -66,32 +66,32 @@
+         this.debugComponent(net.minecraft.ChatFormatting.YELLOW, $$0);
+     }
+ 
+-    public void debugFeedbackTranslated(java.lang.String message, java.lang.Object ... args) {
+-        this.debugFeedbackComponent((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)message, (java.lang.Object[])args));
++    public void debugFeedbackTranslated(java.lang.String $$0, java.lang.Object ... $$1) {
++        this.debugFeedbackComponent((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)$$0, (java.lang.Object[])$$1));
+     }
+ 
+-    public void debugWarningTranslated(java.lang.String message, java.lang.Object ... args) {
+-        this.debugComponent(net.minecraft.ChatFormatting.RED, (net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)message, (java.lang.Object[])args));
++    public void debugWarningTranslated(java.lang.String $$0, java.lang.Object ... $$1) {
++        this.debugComponent(net.minecraft.ChatFormatting.RED, (net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)$$0, (java.lang.Object[])$$1));
+     }
+ 
+     public void debugFeedback(java.lang.String $$0, java.lang.Object ... $$1) {
+         this.debugFeedbackComponent((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.literal((java.lang.String)java.text.MessageFormat.format((java.lang.String)$$0, (java.lang.Object[])$$1)));
+     }
+ 
+-    public boolean handleDebugKeys(int key) {
++    public boolean handleDebugKeys(int $$0) {
+         if (this.debugCrashKeyTime > 0L && this.debugCrashKeyTime < net.minecraft.Util.getMillis() - 100L) {
+             return true;
+         }
+-        switch (key) {
++        switch ($$0) {
+             case 65: {
+                 this.minecraft.levelRenderer.allChanged();
+                 this.debugFeedbackTranslated("debug.reload_chunks.message", new java.lang.Object[0]);
+                 return true;
+             }
+             case 66: {
+-                boolean bl = !this.minecraft.getEntityRenderDispatcher().shouldRenderHitBoxes();
+-                this.minecraft.getEntityRenderDispatcher().setRenderHitBoxes(bl);
+-                this.debugFeedbackTranslated(bl ? "debug.show_hitboxes.on" : "debug.show_hitboxes.off", new java.lang.Object[0]);
++                boolean $$1 = !this.minecraft.getEntityRenderDispatcher().shouldRenderHitBoxes();
++                this.minecraft.getEntityRenderDispatcher().setRenderHitBoxes($$1);
++                this.debugFeedbackTranslated($$1 ? "debug.show_hitboxes.on" : "debug.show_hitboxes.off", new java.lang.Object[0]);
+                 return true;
+             }
+             case 68: {
+@@ -101,8 +101,8 @@
+                 return true;
+             }
+             case 71: {
+-                boolean bl = this.minecraft.debugRenderer.switchRenderChunkborder();
+-                this.debugFeedbackTranslated(bl ? "debug.chunk_boundaries.on" : "debug.chunk_boundaries.off", new java.lang.Object[0]);
++                boolean $$2 = this.minecraft.debugRenderer.switchRenderChunkborder();
++                this.debugFeedbackTranslated($$2 ? "debug.chunk_boundaries.on" : "debug.chunk_boundaries.off", new java.lang.Object[0]);
+                 return true;
+             }
+             case 72: {
+@@ -121,9 +121,9 @@
+                 if (!this.minecraft.player.hasPermissions(2)) {
+                     this.debugFeedbackTranslated("debug.creative_spectator.error", new java.lang.Object[0]);
+                 } else if (!this.minecraft.player.isSpectator()) {
+-                    this.minecraft.player.commandUnsigned("gamemode spectator");
++                    this.minecraft.player.connection.sendUnsignedCommand("gamemode spectator");
+                 } else {
+-                    this.minecraft.player.commandUnsigned("gamemode " + ((net.minecraft.world.level.GameType)com.google.common.base.MoreObjects.firstNonNull((java.lang.Object)this.minecraft.gameMode.getPreviousPlayerMode(), (java.lang.Object)net.minecraft.world.level.GameType.CREATIVE)).getName());
++                    this.minecraft.player.connection.sendUnsignedCommand("gamemode " + ((net.minecraft.world.level.GameType)com.google.common.base.MoreObjects.firstNonNull((java.lang.Object)this.minecraft.gameMode.getPreviousPlayerMode(), (java.lang.Object)net.minecraft.world.level.GameType.CREATIVE)).getName());
+                 }
+                 return true;
+             }
+@@ -143,21 +143,21 @@
+             }
+             case 81: {
+                 this.debugFeedbackTranslated("debug.help.message", new java.lang.Object[0]);
+-                net.minecraft.client.gui.components.ChatComponent chatComponent = this.minecraft.gui.getChat();
+-                chatComponent.addMessage((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"debug.reload_chunks.help"));
+-                chatComponent.addMessage((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"debug.show_hitboxes.help"));
+-                chatComponent.addMessage((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"debug.copy_location.help"));
+-                chatComponent.addMessage((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"debug.clear_chat.help"));
+-                chatComponent.addMessage((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"debug.chunk_boundaries.help"));
+-                chatComponent.addMessage((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"debug.advanced_tooltips.help"));
+-                chatComponent.addMessage((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"debug.inspect.help"));
+-                chatComponent.addMessage((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"debug.profiling.help"));
+-                chatComponent.addMessage((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"debug.creative_spectator.help"));
+-                chatComponent.addMessage((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"debug.pause_focus.help"));
+-                chatComponent.addMessage((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"debug.help.help"));
+-                chatComponent.addMessage((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"debug.reload_resourcepacks.help"));
+-                chatComponent.addMessage((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"debug.pause.help"));
+-                chatComponent.addMessage((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"debug.gamemodes.help"));
++                net.minecraft.client.gui.components.ChatComponent $$3 = this.minecraft.gui.getChat();
++                $$3.addMessage((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"debug.reload_chunks.help"));
++                $$3.addMessage((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"debug.show_hitboxes.help"));
++                $$3.addMessage((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"debug.copy_location.help"));
++                $$3.addMessage((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"debug.clear_chat.help"));
++                $$3.addMessage((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"debug.chunk_boundaries.help"));
++                $$3.addMessage((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"debug.advanced_tooltips.help"));
++                $$3.addMessage((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"debug.inspect.help"));
++                $$3.addMessage((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"debug.profiling.help"));
++                $$3.addMessage((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"debug.creative_spectator.help"));
++                $$3.addMessage((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"debug.pause_focus.help"));
++                $$3.addMessage((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"debug.help.help"));
++                $$3.addMessage((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"debug.reload_resourcepacks.help"));
++                $$3.addMessage((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"debug.pause.help"));
++                $$3.addMessage((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"debug.gamemodes.help"));
+                 return true;
+             }
+             case 84: {
+@@ -175,8 +175,8 @@
+                 if (this.minecraft.player.isReducedDebugInfo()) {
+                     return false;
+                 }
+-                net.minecraft.client.multiplayer.ClientPacketListener clientPacketListener = this.minecraft.player.connection;
+-                if (clientPacketListener == null) {
++                net.minecraft.client.multiplayer.ClientPacketListener $$4 = this.minecraft.player.connection;
++                if ($$4 == null) {
+                     return false;
+                 }
+                 this.debugFeedbackTranslated("debug.copy_location.message", new java.lang.Object[0]);
+@@ -187,82 +187,81 @@
+         return false;
+     }
+ 
+-    public void copyRecreateCommand(boolean privileged, boolean askServer) {
+-        net.minecraft.world.phys.HitResult hitResult = this.minecraft.hitResult;
+-        if (hitResult == null) {
++    public void copyRecreateCommand(boolean $$0, boolean $$1) {
++        net.minecraft.world.phys.HitResult $$22 = this.minecraft.hitResult;
++        if ($$22 == null) {
+             return;
+         }
+-        switch (net.minecraft.client.KeyboardHandler$1.$SwitchMap$net$minecraft$world$phys$HitResult$Type[hitResult.getType().ordinal()]) {
++        switch (net.minecraft.client.KeyboardHandler$1.$SwitchMap$net$minecraft$world$phys$HitResult$Type[$$22.getType().ordinal()]) {
+             case 1: {
+-                net.minecraft.core.BlockPos blockPos = ((net.minecraft.world.phys.BlockHitResult)hitResult).getBlockPos();
+-                net.minecraft.world.level.block.state.BlockState blockState = this.minecraft.player.level.getBlockState(blockPos);
+-                if (privileged) {
+-                    if (askServer) {
+-                        this.minecraft.player.connection.getDebugQueryHandler().queryBlockEntityTag(blockPos, $$2 -> {
+-                            this.copyCreateBlockCommand(blockState, blockPos, $$2);
++                net.minecraft.core.BlockPos $$3 = ((net.minecraft.world.phys.BlockHitResult)$$22).getBlockPos();
++                net.minecraft.world.level.block.state.BlockState $$4 = this.minecraft.player.level.getBlockState($$3);
++                if ($$0) {
++                    if ($$1) {
++                        this.minecraft.player.connection.getDebugQueryHandler().queryBlockEntityTag($$3, $$2 -> {
++                            this.copyCreateBlockCommand($$4, $$3, $$2);
+                             this.debugFeedbackTranslated("debug.inspect.server.block", new java.lang.Object[0]);
+                         });
+                         break;
+                     }
+-                    net.minecraft.world.level.block.entity.BlockEntity blockEntity = this.minecraft.player.level.getBlockEntity(blockPos);
+-                    net.minecraft.nbt.CompoundTag compoundTag = blockEntity != null ? blockEntity.saveWithoutMetadata() : null;
+-                    this.copyCreateBlockCommand(blockState, blockPos, compoundTag);
++                    net.minecraft.world.level.block.entity.BlockEntity $$5 = this.minecraft.player.level.getBlockEntity($$3);
++                    net.minecraft.nbt.CompoundTag $$6 = $$5 != null ? $$5.saveWithoutMetadata() : null;
++                    this.copyCreateBlockCommand($$4, $$3, $$6);
+                     this.debugFeedbackTranslated("debug.inspect.client.block", new java.lang.Object[0]);
+                     break;
+                 }
+-                this.copyCreateBlockCommand(blockState, blockPos, null);
++                this.copyCreateBlockCommand($$4, $$3, null);
+                 this.debugFeedbackTranslated("debug.inspect.client.block", new java.lang.Object[0]);
+                 break;
+             }
+             case 2: {
+-                net.minecraft.world.entity.Entity entity = ((net.minecraft.world.phys.EntityHitResult)hitResult).getEntity();
+-                net.minecraft.resources.ResourceLocation resourceLocation = net.minecraft.core.Registry.ENTITY_TYPE.getKey((java.lang.Object)entity.getType());
+-                if (privileged) {
+-                    if (askServer) {
+-                        this.minecraft.player.connection.getDebugQueryHandler().queryEntityTag(entity.getId(), $$2 -> {
+-                            this.copyCreateEntityCommand(resourceLocation, entity.position(), $$2);
++                net.minecraft.world.entity.Entity $$7 = ((net.minecraft.world.phys.EntityHitResult)$$22).getEntity();
++                net.minecraft.resources.ResourceLocation $$8 = net.minecraft.core.Registry.ENTITY_TYPE.getKey((java.lang.Object)$$7.getType());
++                if ($$0) {
++                    if ($$1) {
++                        this.minecraft.player.connection.getDebugQueryHandler().queryEntityTag($$7.getId(), $$2 -> {
++                            this.copyCreateEntityCommand($$8, $$7.position(), $$2);
+                             this.debugFeedbackTranslated("debug.inspect.server.entity", new java.lang.Object[0]);
+                         });
+                         break;
+                     }
+-                    net.minecraft.nbt.CompoundTag compoundTag = entity.saveWithoutId(new net.minecraft.nbt.CompoundTag());
+-                    this.copyCreateEntityCommand(resourceLocation, entity.position(), compoundTag);
++                    net.minecraft.nbt.CompoundTag $$9 = $$7.saveWithoutId(new net.minecraft.nbt.CompoundTag());
++                    this.copyCreateEntityCommand($$8, $$7.position(), $$9);
+                     this.debugFeedbackTranslated("debug.inspect.client.entity", new java.lang.Object[0]);
+                     break;
+                 }
+-                this.copyCreateEntityCommand(resourceLocation, entity.position(), null);
++                this.copyCreateEntityCommand($$8, $$7.position(), null);
+                 this.debugFeedbackTranslated("debug.inspect.client.entity", new java.lang.Object[0]);
+                 break;
+             }
+         }
+     }
+ 
+-    public void copyCreateBlockCommand(net.minecraft.world.level.block.state.BlockState state, net.minecraft.core.BlockPos pos, @javax.annotation.Nullable net.minecraft.nbt.CompoundTag compound) {
+-        java.lang.StringBuilder stringBuilder = new java.lang.StringBuilder(net.minecraft.commands.arguments.blocks.BlockStateParser.serialize((net.minecraft.world.level.block.state.BlockState)state));
+-        if (compound != null) {
+-            stringBuilder.append((java.lang.Object)compound);
++    public void copyCreateBlockCommand(net.minecraft.world.level.block.state.BlockState $$0, net.minecraft.core.BlockPos $$1, @javax.annotation.Nullable net.minecraft.nbt.CompoundTag $$2) {
++        java.lang.StringBuilder $$3 = new java.lang.StringBuilder(net.minecraft.commands.arguments.blocks.BlockStateParser.serialize((net.minecraft.world.level.block.state.BlockState)$$0));
++        if ($$2 != null) {
++            $$3.append((java.lang.Object)$$2);
+         }
+-        java.lang.String string = java.lang.String.format((java.util.Locale)java.util.Locale.ROOT, (java.lang.String)"/setblock %d %d %d %s", (java.lang.Object[])new java.lang.Object[]{pos.getX(), pos.getY(), pos.getZ(), stringBuilder});
+-        this.setClipboard(string);
++        java.lang.String $$4 = java.lang.String.format((java.util.Locale)java.util.Locale.ROOT, (java.lang.String)"/setblock %d %d %d %s", (java.lang.Object[])new java.lang.Object[]{$$1.getX(), $$1.getY(), $$1.getZ(), $$3});
++        this.setClipboard($$4);
+     }
+ 
+-    public void copyCreateEntityCommand(net.minecraft.resources.ResourceLocation entityId, net.minecraft.world.phys.Vec3 pos, @javax.annotation.Nullable net.minecraft.nbt.CompoundTag compound) {
+-        java.lang.String string;
+-        if (compound != null) {
+-            compound.remove("UUID");
+-            compound.remove("Pos");
+-            compound.remove("Dimension");
+-            java.lang.String string2 = net.minecraft.nbt.NbtUtils.toPrettyComponent((net.minecraft.nbt.Tag)compound).getString();
+-            string = java.lang.String.format((java.util.Locale)java.util.Locale.ROOT, (java.lang.String)"/summon %s %.2f %.2f %.2f %s", (java.lang.Object[])new java.lang.Object[]{entityId.toString(), pos.x, pos.y, pos.z, string2});
++    public void copyCreateEntityCommand(net.minecraft.resources.ResourceLocation $$0, net.minecraft.world.phys.Vec3 $$1, @javax.annotation.Nullable net.minecraft.nbt.CompoundTag $$2) {
++        java.lang.String $$5;
++        if ($$2 != null) {
++            $$2.remove("UUID");
++            $$2.remove("Pos");
++            $$2.remove("Dimension");
++            java.lang.String $$3 = net.minecraft.nbt.NbtUtils.toPrettyComponent((net.minecraft.nbt.Tag)$$2).getString();
++            java.lang.String $$4 = java.lang.String.format((java.util.Locale)java.util.Locale.ROOT, (java.lang.String)"/summon %s %.2f %.2f %.2f %s", (java.lang.Object[])new java.lang.Object[]{$$0.toString(), $$1.x, $$1.y, $$1.z, $$3});
+         } else {
+-            string = java.lang.String.format((java.util.Locale)java.util.Locale.ROOT, (java.lang.String)"/summon %s %.2f %.2f %.2f", (java.lang.Object[])new java.lang.Object[]{entityId.toString(), pos.x, pos.y, pos.z});
++            $$5 = java.lang.String.format((java.util.Locale)java.util.Locale.ROOT, (java.lang.String)"/summon %s %.2f %.2f %.2f", (java.lang.Object[])new java.lang.Object[]{$$0.toString(), $$1.x, $$1.y, $$1.z});
+         }
+-        this.setClipboard(string);
++        this.setClipboard($$5);
+     }
+ 
+-    public void keyPress(long windowPointer, int key, int scanCode, int action, int modifiers) {
+-        boolean bl;
+-        if (windowPointer != this.minecraft.getWindow().getWindow()) {
++    public void keyPress(long $$02, int $$1, int $$2, int $$3, int $$4) {
++        if ($$02 != this.minecraft.getWindow().getWindow()) {
+             return;
+         }
+         if (this.debugCrashKeyTime > 0L) {
+@@ -275,14 +274,14 @@
+             this.debugCrashKeyReportedTime = net.minecraft.Util.getMillis();
+             this.debugCrashKeyReportedCount = 0L;
+         }
+-        net.minecraft.client.gui.screens.Screen screen = this.minecraft.screen;
+-        if (!(action != 1 || this.minecraft.screen instanceof net.minecraft.client.gui.screens.controls.KeyBindsScreen && ((net.minecraft.client.gui.screens.controls.KeyBindsScreen)screen).lastKeySelection > net.minecraft.Util.getMillis() - 20L)) {
+-            if (this.minecraft.options.keyFullscreen.matches(key, scanCode)) {
++        net.minecraft.client.gui.screens.Screen $$5 = this.minecraft.screen;
++        if (!($$3 != 1 || this.minecraft.screen instanceof net.minecraft.client.gui.screens.controls.KeyBindsScreen && ((net.minecraft.client.gui.screens.controls.KeyBindsScreen)$$5).lastKeySelection > net.minecraft.Util.getMillis() - 20L)) {
++            if (this.minecraft.options.keyFullscreen.matches($$1, $$2)) {
+                 this.minecraft.getWindow().toggleFullScreen();
+                 this.minecraft.options.fullscreen().set((java.lang.Object)this.minecraft.getWindow().isFullscreen());
+                 return;
+             }
+-            if (this.minecraft.options.keyScreenshot.matches(key, scanCode)) {
++            if (this.minecraft.options.keyScreenshot.matches($$1, $$2)) {
+                 if (net.minecraft.client.gui.screens.Screen.hasControlDown()) {
+                     // empty if block
+                 }
+@@ -291,38 +290,38 @@
+             }
+         }
+         if (this.minecraft.getNarrator().isActive()) {
+-            boolean bl2;
+-            boolean bl3 = bl2 = screen == null || !(screen.getFocused() instanceof net.minecraft.client.gui.components.EditBox) || !((net.minecraft.client.gui.components.EditBox)screen.getFocused()).canConsumeInput();
+-            if (action != 0 && key == 66 && net.minecraft.client.gui.screens.Screen.hasControlDown() && bl2) {
+-                bl = this.minecraft.options.narrator().get() == net.minecraft.client.NarratorStatus.OFF;
++            boolean $$6;
++            boolean bl = $$6 = $$5 == null || !($$5.getFocused() instanceof net.minecraft.client.gui.components.EditBox) || !((net.minecraft.client.gui.components.EditBox)$$5.getFocused()).canConsumeInput();
++            if ($$3 != 0 && $$1 == 66 && net.minecraft.client.gui.screens.Screen.hasControlDown() && $$6) {
++                boolean $$7 = this.minecraft.options.narrator().get() == net.minecraft.client.NarratorStatus.OFF;
+                 this.minecraft.options.narrator().set((java.lang.Object)net.minecraft.client.NarratorStatus.byId((int)(((net.minecraft.client.NarratorStatus)this.minecraft.options.narrator().get()).getId() + 1)));
+-                if (screen instanceof net.minecraft.client.gui.screens.SimpleOptionsSubScreen) {
+-                    ((net.minecraft.client.gui.screens.SimpleOptionsSubScreen)screen).updateNarratorButton();
++                if ($$5 instanceof net.minecraft.client.gui.screens.SimpleOptionsSubScreen) {
++                    ((net.minecraft.client.gui.screens.SimpleOptionsSubScreen)$$5).updateNarratorButton();
+                 }
+-                if (bl && screen != null) {
+-                    screen.narrationEnabled();
++                if ($$7 && $$5 != null) {
++                    $$5.narrationEnabled();
+                 }
+             }
+         }
+-        if (screen != null) {
+-            boolean[] blArray = new boolean[]{false};
++        if ($$5 != null) {
++            boolean[] $$8 = new boolean[]{false};
+             net.minecraft.client.gui.screens.Screen.wrapScreenError(() -> {
+-                if (action == 1 || action == 2 && this.sendRepeatsToGui) {
+-                    screen.afterKeyboardAction();
+-                    $$2[0] = screen.keyPressed(key, scanCode, modifiers);
+-                } else if (action == 0) {
+-                    $$2[0] = screen.keyReleased(key, scanCode, modifiers);
++                if ($$3 == 1 || $$3 == 2 && this.sendRepeatsToGui) {
++                    $$5.afterKeyboardAction();
++                    $$2[0] = $$5.keyPressed($$1, $$2, $$4);
++                } else if ($$3 == 0) {
++                    $$2[0] = $$5.keyReleased($$1, $$2, $$4);
+                 }
+-            }, (java.lang.String)"keyPressed event handler", (java.lang.String)screen.getClass().getCanonicalName());
+-            if (blArray[0]) {
++            }, (java.lang.String)"keyPressed event handler", (java.lang.String)$$5.getClass().getCanonicalName());
++            if ($$8[0]) {
+                 return;
+             }
+         }
+         if (this.minecraft.screen == null || this.minecraft.screen.passEvents) {
+-            com.mojang.blaze3d.platform.InputConstants$Key key2 = com.mojang.blaze3d.platform.InputConstants.getKey((int)key, (int)scanCode);
+-            if (action == 0) {
+-                net.minecraft.client.KeyMapping.set((com.mojang.blaze3d.platform.InputConstants$Key)key2, (boolean)false);
+-                if (key == 292) {
++            com.mojang.blaze3d.platform.InputConstants$Key $$9 = com.mojang.blaze3d.platform.InputConstants.getKey((int)$$1, (int)$$2);
++            if ($$3 == 0) {
++                net.minecraft.client.KeyMapping.set((com.mojang.blaze3d.platform.InputConstants$Key)$$9, (boolean)false);
++                if ($$1 == 292) {
+                     if (this.handledDebugKey) {
+                         this.handledDebugKey = false;
+                     } else {
+@@ -332,57 +331,57 @@
+                     }
+                 }
+             } else {
+-                if (key == 293 && this.minecraft.gameRenderer != null) {
++                if ($$1 == 293 && this.minecraft.gameRenderer != null) {
+                     this.minecraft.gameRenderer.togglePostEffect();
+                 }
+-                bl = false;
++                boolean $$10 = false;
+                 if (this.minecraft.screen == null) {
+-                    if (key == 256) {
+-                        boolean bl4 = com.mojang.blaze3d.platform.InputConstants.isKeyDown((long)net.minecraft.client.Minecraft.getInstance().getWindow().getWindow(), (int)292);
+-                        this.minecraft.pauseGame(bl4);
++                    if ($$1 == 256) {
++                        boolean $$11 = com.mojang.blaze3d.platform.InputConstants.isKeyDown((long)net.minecraft.client.Minecraft.getInstance().getWindow().getWindow(), (int)292);
++                        this.minecraft.pauseGame($$11);
+                     }
+-                    bl = com.mojang.blaze3d.platform.InputConstants.isKeyDown((long)net.minecraft.client.Minecraft.getInstance().getWindow().getWindow(), (int)292) && this.handleDebugKeys(key);
+-                    this.handledDebugKey |= bl;
+-                    if (key == 290) {
+-                        boolean bl5 = this.minecraft.options.hideGui = !this.minecraft.options.hideGui;
++                    $$10 = com.mojang.blaze3d.platform.InputConstants.isKeyDown((long)net.minecraft.client.Minecraft.getInstance().getWindow().getWindow(), (int)292) && this.handleDebugKeys($$1);
++                    this.handledDebugKey |= $$10;
++                    if ($$1 == 290) {
++                        boolean bl = this.minecraft.options.hideGui = !this.minecraft.options.hideGui;
+                     }
+                 }
+-                if (bl) {
+-                    net.minecraft.client.KeyMapping.set((com.mojang.blaze3d.platform.InputConstants$Key)key2, (boolean)false);
++                if ($$10) {
++                    net.minecraft.client.KeyMapping.set((com.mojang.blaze3d.platform.InputConstants$Key)$$9, (boolean)false);
+                 } else {
+-                    net.minecraft.client.KeyMapping.set((com.mojang.blaze3d.platform.InputConstants$Key)key2, (boolean)true);
+-                    net.minecraft.client.KeyMapping.click((com.mojang.blaze3d.platform.InputConstants$Key)key2);
++                    net.minecraft.client.KeyMapping.set((com.mojang.blaze3d.platform.InputConstants$Key)$$9, (boolean)true);
++                    net.minecraft.client.KeyMapping.click((com.mojang.blaze3d.platform.InputConstants$Key)$$9);
+                 }
+-                if (this.minecraft.options.renderDebugCharts && key >= 48 && key <= 57) {
+-                    this.minecraft.debugFpsMeterKeyPress(key - 48);
++                if (this.minecraft.options.renderDebugCharts && $$1 >= 48 && $$1 <= 57) {
++                    this.minecraft.debugFpsMeterKeyPress($$1 - 48);
+                 }
+             }
+         }
+     }
+ 
+-    public void charTyped(long windowPointer, int codePoint, int modifiers) {
+-        if (windowPointer != this.minecraft.getWindow().getWindow()) {
++    public void charTyped(long $$0, int $$1, int $$2) {
++        if ($$0 != this.minecraft.getWindow().getWindow()) {
+             return;
+         }
+-        net.minecraft.client.gui.screens.Screen screen = this.minecraft.screen;
+-        if (screen == null || this.minecraft.getOverlay() != null) {
++        net.minecraft.client.gui.screens.Screen $$3 = this.minecraft.screen;
++        if ($$3 == null || this.minecraft.getOverlay() != null) {
+             return;
+         }
+-        if (java.lang.Character.charCount((int)codePoint) == 1) {
+-            net.minecraft.client.gui.screens.Screen.wrapScreenError(() -> net.minecraft.client.KeyboardHandler.lambda$charTyped$5((net.minecraft.client.gui.components.events.GuiEventListener)screen, codePoint, modifiers), (java.lang.String)"charTyped event handler", (java.lang.String)screen.getClass().getCanonicalName());
++        if (java.lang.Character.charCount((int)$$1) == 1) {
++            net.minecraft.client.gui.screens.Screen.wrapScreenError(() -> net.minecraft.client.KeyboardHandler.lambda$charTyped$5((net.minecraft.client.gui.components.events.GuiEventListener)$$3, $$1, $$2), (java.lang.String)"charTyped event handler", (java.lang.String)$$3.getClass().getCanonicalName());
+         } else {
+-            for (char c : java.lang.Character.toChars((int)codePoint)) {
+-                net.minecraft.client.gui.screens.Screen.wrapScreenError(() -> net.minecraft.client.KeyboardHandler.lambda$charTyped$6((net.minecraft.client.gui.components.events.GuiEventListener)screen, c, modifiers), (java.lang.String)"charTyped event handler", (java.lang.String)screen.getClass().getCanonicalName());
++            for (char $$4 : java.lang.Character.toChars((int)$$1)) {
++                net.minecraft.client.gui.screens.Screen.wrapScreenError(() -> net.minecraft.client.KeyboardHandler.lambda$charTyped$6((net.minecraft.client.gui.components.events.GuiEventListener)$$3, $$4, $$2), (java.lang.String)"charTyped event handler", (java.lang.String)$$3.getClass().getCanonicalName());
+             }
+         }
+     }
+ 
+-    public void setSendRepeatsToGui(boolean repeatEvents) {
+-        this.sendRepeatsToGui = repeatEvents;
++    public void setSendRepeatsToGui(boolean $$0) {
++        this.sendRepeatsToGui = $$0;
+     }
+ 
+-    public void setup(long window) {
+-        com.mojang.blaze3d.platform.InputConstants.setupKeyboardCallbacks((long)window, ($$0, $$1, $$2, $$3, $$4) -> this.minecraft.execute(() -> this.keyPress($$0, $$1, $$2, $$3, $$4)), ($$0, $$1, $$2) -> this.minecraft.execute(() -> this.charTyped($$0, $$1, $$2)));
++    public void setup(long $$02) {
++        com.mojang.blaze3d.platform.InputConstants.setupKeyboardCallbacks((long)$$02, ($$0, $$1, $$2, $$3, $$4) -> this.minecraft.execute(() -> this.keyPress($$0, $$1, $$2, $$3, $$4)), ($$0, $$1, $$2) -> this.minecraft.execute(() -> this.charTyped($$0, $$1, $$2)));
+     }
+ 
+     public java.lang.String getClipboard() {
+@@ -393,9 +392,9 @@
+         });
+     }
+ 
+-    public void setClipboard(java.lang.String string) {
+-        if (!string.isEmpty()) {
+-            this.clipboardManager.setClipboard(this.minecraft.getWindow().getWindow(), string);
++    public void setClipboard(java.lang.String $$0) {
++        if (!$$0.isEmpty()) {
++            this.clipboardManager.setClipboard(this.minecraft.getWindow().getWindow(), $$0);
+         }
+     }
+ 

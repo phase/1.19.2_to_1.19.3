@@ -1,0 +1,217 @@
+--- net/minecraft/client/multiplayer/chat/ChatListener.java
++++ net/minecraft/client/multiplayer/chat/ChatListener.java
+@@ -5,7 +5,6 @@
+ 
+ public class net.minecraft.client.multiplayer.chat.ChatListener
+  {
+-    public static net.minecraft.network.chat.Component CHAT_VALIDATION_FAILED_ERROR;
+     public net.minecraft.client.Minecraft minecraft;
+     public java.util.Deque<net.minecraft.client.multiplayer.chat.ChatListener$Message> delayedMessageQueue;
+     public long messageDelay;
+@@ -42,84 +41,73 @@
+     }
+ 
+     public long queueSize() {
+-        return this.delayedMessageQueue.stream().filter(net.minecraft.client.multiplayer.chat.ChatListener$Message::isVisible).count();
++        return this.delayedMessageQueue.size();
+     }
+ 
+     public void clearQueue() {
+-        this.delayedMessageQueue.forEach($$0 -> {
+-            $$0.remove();
+-            $$0.accept();
+-        });
++        this.delayedMessageQueue.forEach(net.minecraft.client.multiplayer.chat.ChatListener$Message::accept);
+         this.delayedMessageQueue.clear();
+     }
+ 
+     public boolean removeFromDelayedMessageQueue(net.minecraft.network.chat.MessageSignature $$0) {
+-        for (net.minecraft.client.multiplayer.chat.ChatListener$Message $$1 : this.delayedMessageQueue) {
+-            if (!$$1.removeIfSignatureMatches($$0)) continue;
+-            return true;
+-        }
+-        return false;
++        return this.delayedMessageQueue.removeIf($$1 -> $$0.equals((java.lang.Object)$$1.signature()));
+     }
+ 
+     public boolean willDelayMessages() {
+         return this.messageDelay > 0L && net.minecraft.Util.getMillis() < this.previousMessageTime + this.messageDelay;
+     }
+ 
+-    public void handleMessage(net.minecraft.client.multiplayer.chat.ChatListener$Message $$0) {
++    public void handleMessage(@javax.annotation.Nullable net.minecraft.network.chat.MessageSignature $$0, java.util.function.BooleanSupplier $$1) {
+         if (this.willDelayMessages()) {
+-            this.delayedMessageQueue.add((java.lang.Object)$$0);
++            this.delayedMessageQueue.add((java.lang.Object)new net.minecraft.client.multiplayer.chat.ChatListener$Message($$0, $$1));
+         } else {
+-            $$0.accept();
++            $$1.getAsBoolean();
+         }
+     }
+ 
+-    public void handleChatMessage(net.minecraft.network.chat.PlayerChatMessage $$0, net.minecraft.network.chat.ChatType$Bound $$1) {
+-        boolean $$2 = (java.lang.Boolean)this.minecraft.options.onlyShowSecureChat().get();
+-        net.minecraft.network.chat.PlayerChatMessage $$3 = $$2 ? $$0.removeUnsignedContent() : $$0;
+-        net.minecraft.network.chat.Component $$4 = $$1.decorate($$3.serverContent());
+-        net.minecraft.network.chat.MessageSigner $$5 = $$0.signer();
+-        if (!$$5.isSystem()) {
+-            net.minecraft.client.multiplayer.PlayerInfo $$6 = this.resolveSenderPlayer($$5.profileId());
+-            java.time.Instant $$7 = java.time.Instant.now();
+-            this.handleMessage((net.minecraft.client.multiplayer.chat.ChatListener$Message)new /* Unavailable Anonymous Inner Class!! */);
+-        } else {
+-            this.handleMessage((net.minecraft.client.multiplayer.chat.ChatListener$Message)new /* Unavailable Anonymous Inner Class!! */);
+-        }
++    public void handlePlayerChatMessage(net.minecraft.network.chat.PlayerChatMessage $$0, com.mojang.authlib.GameProfile $$1, net.minecraft.network.chat.ChatType$Bound $$2) {
++        boolean $$3 = (java.lang.Boolean)this.minecraft.options.onlyShowSecureChat().get();
++        net.minecraft.network.chat.PlayerChatMessage $$4 = $$3 ? $$0.removeUnsignedContent() : $$0;
++        net.minecraft.network.chat.Component $$5 = $$2.decorate($$4.decoratedContent());
++        java.time.Instant $$6 = java.time.Instant.now();
++        this.handleMessage($$0.signature(), () -> {
++            boolean $$6 = this.showMessageToPlayer($$2, $$0, $$5, $$1, $$3, $$6);
++            net.minecraft.client.multiplayer.ClientPacketListener $$7 = this.minecraft.getConnection();
++            if ($$7 != null) {
++                $$7.markMessageAsProcessed($$0, $$6);
++            }
++            return $$6;
++        });
+     }
+ 
+-    public void handleChatHeader(net.minecraft.network.chat.SignedMessageHeader $$0, net.minecraft.network.chat.MessageSignature $$1, byte[] $$2) {
+-        this.handleMessage(() -> this.processPlayerChatHeader($$0, $$1, $$2));
++    public void handleDisguisedChatMessage(net.minecraft.network.chat.Component $$0, net.minecraft.network.chat.ChatType$Bound $$1) {
++        java.time.Instant $$2 = java.time.Instant.now();
++        this.handleMessage(null, () -> {
++            net.minecraft.network.chat.Component $$3 = $$1.decorate($$0);
++            this.minecraft.gui.getChat().addMessage($$3);
++            this.narrateChatMessage($$1, $$0);
++            this.logSystemMessage($$3, $$2);
++            this.previousMessageTime = net.minecraft.Util.getMillis();
++            return true;
++        });
+     }
+ 
+-    public boolean processPlayerChatMessage(net.minecraft.network.chat.ChatType$Bound $$0, net.minecraft.network.chat.PlayerChatMessage $$1, net.minecraft.network.chat.Component $$2, @javax.annotation.Nullable net.minecraft.client.multiplayer.PlayerInfo $$3, boolean $$4, java.time.Instant $$5) {
+-        boolean $$6 = this.showMessageToPlayer($$0, $$1, $$2, $$3, $$4, $$5);
+-        net.minecraft.client.multiplayer.ClientPacketListener $$7 = this.minecraft.getConnection();
+-        if ($$7 != null) {
+-            $$7.markMessageAsProcessed($$1, $$6);
+-        }
+-        return $$6;
+-    }
+-
+-    public boolean showMessageToPlayer(net.minecraft.network.chat.ChatType$Bound $$0, net.minecraft.network.chat.PlayerChatMessage $$1, net.minecraft.network.chat.Component $$2, @javax.annotation.Nullable net.minecraft.client.multiplayer.PlayerInfo $$3, boolean $$4, java.time.Instant $$5) {
+-        net.minecraft.client.multiplayer.chat.ChatTrustLevel $$6 = this.evaluateTrustLevel($$1, $$2, $$3, $$5);
+-        if ($$6 == net.minecraft.client.multiplayer.chat.ChatTrustLevel.BROKEN_CHAIN) {
+-            this.onChatChainBroken();
+-            return true;
+-        }
++    public boolean showMessageToPlayer(net.minecraft.network.chat.ChatType$Bound $$0, net.minecraft.network.chat.PlayerChatMessage $$1, net.minecraft.network.chat.Component $$2, com.mojang.authlib.GameProfile $$3, boolean $$4, java.time.Instant $$5) {
++        net.minecraft.client.multiplayer.chat.ChatTrustLevel $$6 = this.evaluateTrustLevel($$1, $$2, $$5);
+         if ($$4 && $$6.isNotSecure()) {
+             return false;
+         }
+-        if (this.minecraft.isBlocked($$1.signer().profileId()) || $$1.isFullyFiltered()) {
++        if (this.minecraft.isBlocked($$1.sender()) || $$1.isFullyFiltered()) {
+             return false;
+         }
+         net.minecraft.client.GuiMessageTag $$7 = $$6.createTag($$1);
+-        net.minecraft.network.chat.MessageSignature $$8 = $$1.headerSignature();
++        net.minecraft.network.chat.MessageSignature $$8 = $$1.signature();
+         net.minecraft.network.chat.FilterMask $$9 = $$1.filterMask();
+         if ($$9.isEmpty()) {
+             this.minecraft.gui.getChat().addMessage($$2, $$8, $$7);
+-            this.narrateChatMessage($$0, $$1.serverContent());
++            this.narrateChatMessage($$0, $$1.decoratedContent());
+         } else {
+-            net.minecraft.network.chat.Component $$10 = $$9.apply($$1.signedContent());
++            net.minecraft.network.chat.Component $$10 = $$9.applyWithFormatting($$1.signedContent());
+             if ($$10 != null) {
+                 this.minecraft.gui.getChat().addMessage($$0.decorate($$10), $$8, $$7);
+                 this.narrateChatMessage($$0, $$10);
+@@ -130,52 +118,20 @@
+         return true;
+     }
+ 
+-    public boolean processNonPlayerChatMessage(net.minecraft.network.chat.ChatType$Bound $$0, net.minecraft.network.chat.PlayerChatMessage $$1, net.minecraft.network.chat.Component $$2) {
+-        this.minecraft.gui.getChat().addMessage($$2);
+-        this.narrateChatMessage($$0, $$1.serverContent());
+-        this.logSystemMessage($$2, $$1.timeStamp());
+-        this.previousMessageTime = net.minecraft.Util.getMillis();
+-        return true;
+-    }
+-
+-    public boolean processPlayerChatHeader(net.minecraft.network.chat.SignedMessageHeader $$0, net.minecraft.network.chat.MessageSignature $$1, byte[] $$2) {
+-        net.minecraft.network.chat.SignedMessageValidator$State $$4;
+-        net.minecraft.client.multiplayer.PlayerInfo $$3 = this.resolveSenderPlayer($$0.sender());
+-        if ($$3 != null && ($$4 = $$3.getMessageValidator().validateHeader($$0, $$1, $$2)) == net.minecraft.network.chat.SignedMessageValidator$State.BROKEN_CHAIN) {
+-            this.onChatChainBroken();
+-            return true;
+-        }
+-        this.logPlayerHeader($$0, $$1, $$2);
+-        return false;
+-    }
+-
+-    public void onChatChainBroken() {
+-        net.minecraft.client.multiplayer.ClientPacketListener $$0 = this.minecraft.getConnection();
+-        if ($$0 != null) {
+-            $$0.getConnection().disconnect(CHAT_VALIDATION_FAILED_ERROR);
+-        }
+-    }
+-
+     public void narrateChatMessage(net.minecraft.network.chat.ChatType$Bound $$0, net.minecraft.network.chat.Component $$1) {
+         this.minecraft.getNarrator().sayChatNow(() -> $$0.decorateNarration($$1));
+     }
+ 
+-    public net.minecraft.client.multiplayer.chat.ChatTrustLevel evaluateTrustLevel(net.minecraft.network.chat.PlayerChatMessage $$0, net.minecraft.network.chat.Component $$1, @javax.annotation.Nullable net.minecraft.client.multiplayer.PlayerInfo $$2, java.time.Instant $$3) {
+-        if (this.isSenderLocalPlayer($$0.signer().profileId())) {
++    public net.minecraft.client.multiplayer.chat.ChatTrustLevel evaluateTrustLevel(net.minecraft.network.chat.PlayerChatMessage $$0, net.minecraft.network.chat.Component $$1, java.time.Instant $$2) {
++        if (this.isSenderLocalPlayer($$0.sender())) {
+             return net.minecraft.client.multiplayer.chat.ChatTrustLevel.SECURE;
+         }
+-        return net.minecraft.client.multiplayer.chat.ChatTrustLevel.evaluate((net.minecraft.network.chat.PlayerChatMessage)$$0, (net.minecraft.network.chat.Component)$$1, (net.minecraft.client.multiplayer.PlayerInfo)$$2, (java.time.Instant)$$3);
++        return net.minecraft.client.multiplayer.chat.ChatTrustLevel.evaluate((net.minecraft.network.chat.PlayerChatMessage)$$0, (net.minecraft.network.chat.Component)$$1, (java.time.Instant)$$2);
+     }
+ 
+-    public void logPlayerMessage(net.minecraft.network.chat.PlayerChatMessage $$0, net.minecraft.network.chat.ChatType$Bound $$1, @javax.annotation.Nullable net.minecraft.client.multiplayer.PlayerInfo $$2, net.minecraft.client.multiplayer.chat.ChatTrustLevel $$3) {
+-        com.mojang.authlib.GameProfile $$5;
+-        if ($$2 != null) {
+-            com.mojang.authlib.GameProfile $$4 = $$2.getProfile();
+-        } else {
+-            $$5 = new com.mojang.authlib.GameProfile($$0.signer().profileId(), $$1.name().getString());
+-        }
+-        net.minecraft.client.multiplayer.chat.ChatLog $$6 = this.minecraft.getReportingContext().chatLog();
+-        $$6.push((net.minecraft.client.multiplayer.chat.LoggedChatEvent)net.minecraft.client.multiplayer.chat.LoggedChatMessage.player((com.mojang.authlib.GameProfile)$$5, (net.minecraft.network.chat.Component)$$1.name(), (net.minecraft.network.chat.PlayerChatMessage)$$0, (net.minecraft.client.multiplayer.chat.ChatTrustLevel)$$3));
++    public void logPlayerMessage(net.minecraft.network.chat.PlayerChatMessage $$0, net.minecraft.network.chat.ChatType$Bound $$1, com.mojang.authlib.GameProfile $$2, net.minecraft.client.multiplayer.chat.ChatTrustLevel $$3) {
++        net.minecraft.client.multiplayer.chat.ChatLog $$4 = this.minecraft.getReportingContext().chatLog();
++        $$4.push((net.minecraft.client.multiplayer.chat.LoggedChatEvent)net.minecraft.client.multiplayer.chat.LoggedChatMessage.player((com.mojang.authlib.GameProfile)$$2, (net.minecraft.network.chat.Component)$$1.name(), (net.minecraft.network.chat.PlayerChatMessage)$$0, (net.minecraft.client.multiplayer.chat.ChatTrustLevel)$$3));
+     }
+ 
+     public void logSystemMessage(net.minecraft.network.chat.Component $$0, java.time.Instant $$1) {
+@@ -183,17 +139,6 @@
+         $$2.push((net.minecraft.client.multiplayer.chat.LoggedChatEvent)net.minecraft.client.multiplayer.chat.LoggedChatMessage.system((net.minecraft.network.chat.Component)$$0, (java.time.Instant)$$1));
+     }
+ 
+-    public void logPlayerHeader(net.minecraft.network.chat.SignedMessageHeader $$0, net.minecraft.network.chat.MessageSignature $$1, byte[] $$2) {
+-        net.minecraft.client.multiplayer.chat.ChatLog $$3 = this.minecraft.getReportingContext().chatLog();
+-        $$3.push((net.minecraft.client.multiplayer.chat.LoggedChatEvent)net.minecraft.client.multiplayer.chat.LoggedChatMessageLink.header((net.minecraft.network.chat.SignedMessageHeader)$$0, (net.minecraft.network.chat.MessageSignature)$$1, (byte[])$$2));
+-    }
+-
+-    @javax.annotation.Nullable
+-    public net.minecraft.client.multiplayer.PlayerInfo resolveSenderPlayer(java.util.UUID $$0) {
+-        net.minecraft.client.multiplayer.ClientPacketListener $$1 = this.minecraft.getConnection();
+-        return $$1 != null ? $$1.getPlayerInfo($$0) : null;
+-    }
+-
+     public void handleSystemMessage(net.minecraft.network.chat.Component $$0, boolean $$1) {
+         if (((java.lang.Boolean)this.minecraft.options.hideMatchedNames().get()).booleanValue() && this.minecraft.isBlocked(this.guessChatUUID($$0))) {
+             return;
+@@ -223,9 +168,5 @@
+         }
+         return false;
+     }
+-
+-    static {
+-        CHAT_VALIDATION_FAILED_ERROR = net.minecraft.network.chat.Component.translatable((java.lang.String)"multiplayer.disconnect.chat_validation_failed");
+-    }
+ }
+ 

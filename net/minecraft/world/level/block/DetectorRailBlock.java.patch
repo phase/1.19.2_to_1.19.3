@@ -1,0 +1,389 @@
+--- net/minecraft/world/level/block/DetectorRailBlock.java
++++ net/minecraft/world/level/block/DetectorRailBlock.java
+@@ -15,18 +15,18 @@
+         this.registerDefaultState((net.minecraft.world.level.block.state.BlockState)((net.minecraft.world.level.block.state.BlockState)((net.minecraft.world.level.block.state.BlockState)((net.minecraft.world.level.block.state.BlockState)this.stateDefinition.any()).setValue((net.minecraft.world.level.block.state.properties.Property)POWERED, (java.lang.Comparable)java.lang.Boolean.valueOf((boolean)false))).setValue((net.minecraft.world.level.block.state.properties.Property)SHAPE, (java.lang.Comparable)net.minecraft.world.level.block.state.properties.RailShape.NORTH_SOUTH)).setValue((net.minecraft.world.level.block.state.properties.Property)WATERLOGGED, (java.lang.Comparable)java.lang.Boolean.valueOf((boolean)false)));
+     }
+ 
+-    public boolean isSignalSource(net.minecraft.world.level.block.state.BlockState state) {
++    public boolean isSignalSource(net.minecraft.world.level.block.state.BlockState $$0) {
+         return true;
+     }
+ 
+-    public void entityInside(net.minecraft.world.level.block.state.BlockState state, net.minecraft.world.level.Level level, net.minecraft.core.BlockPos pos, net.minecraft.world.entity.Entity entity) {
+-        if (level.isClientSide) {
++    public void entityInside(net.minecraft.world.level.block.state.BlockState $$0, net.minecraft.world.level.Level $$1, net.minecraft.core.BlockPos $$2, net.minecraft.world.entity.Entity $$3) {
++        if ($$1.isClientSide) {
+             return;
+         }
+-        if (((java.lang.Boolean)state.getValue((net.minecraft.world.level.block.state.properties.Property)POWERED)).booleanValue()) {
++        if (((java.lang.Boolean)$$0.getValue((net.minecraft.world.level.block.state.properties.Property)POWERED)).booleanValue()) {
+             return;
+         }
+-        this.checkPressed(level, pos, state);
++        this.checkPressed($$1, $$2, $$0);
+     }
+ 
+     public void tick(net.minecraft.world.level.block.state.BlockState $$0, net.minecraft.server.level.ServerLevel $$1, net.minecraft.core.BlockPos $$2, net.minecraft.util.RandomSource $$3) {
+@@ -36,255 +36,254 @@
+         this.checkPressed((net.minecraft.world.level.Level)$$1, $$2, $$0);
+     }
+ 
+-    public int getSignal(net.minecraft.world.level.block.state.BlockState blockState, net.minecraft.world.level.BlockGetter blockAccess, net.minecraft.core.BlockPos pos, net.minecraft.core.Direction side) {
+-        return (java.lang.Boolean)blockState.getValue((net.minecraft.world.level.block.state.properties.Property)POWERED) != false ? 15 : 0;
++    public int getSignal(net.minecraft.world.level.block.state.BlockState $$0, net.minecraft.world.level.BlockGetter $$1, net.minecraft.core.BlockPos $$2, net.minecraft.core.Direction $$3) {
++        return (java.lang.Boolean)$$0.getValue((net.minecraft.world.level.block.state.properties.Property)POWERED) != false ? 15 : 0;
+     }
+ 
+-    public int getDirectSignal(net.minecraft.world.level.block.state.BlockState blockState, net.minecraft.world.level.BlockGetter blockAccess, net.minecraft.core.BlockPos pos, net.minecraft.core.Direction side) {
+-        if (!((java.lang.Boolean)blockState.getValue((net.minecraft.world.level.block.state.properties.Property)POWERED)).booleanValue()) {
++    public int getDirectSignal(net.minecraft.world.level.block.state.BlockState $$0, net.minecraft.world.level.BlockGetter $$1, net.minecraft.core.BlockPos $$2, net.minecraft.core.Direction $$3) {
++        if (!((java.lang.Boolean)$$0.getValue((net.minecraft.world.level.block.state.properties.Property)POWERED)).booleanValue()) {
+             return 0;
+         }
+-        return side == net.minecraft.core.Direction.UP ? 15 : 0;
++        return $$3 == net.minecraft.core.Direction.UP ? 15 : 0;
+     }
+ 
+-    public void checkPressed(net.minecraft.world.level.Level level, net.minecraft.core.BlockPos pos, net.minecraft.world.level.block.state.BlockState state) {
+-        net.minecraft.world.level.block.state.BlockState blockState;
+-        if (!this.canSurvive(state, (net.minecraft.world.level.LevelReader)level, pos)) {
++    public void checkPressed(net.minecraft.world.level.Level $$02, net.minecraft.core.BlockPos $$1, net.minecraft.world.level.block.state.BlockState $$2) {
++        if (!this.canSurvive($$2, (net.minecraft.world.level.LevelReader)$$02, $$1)) {
+             return;
+         }
+-        boolean bl = (java.lang.Boolean)state.getValue((net.minecraft.world.level.block.state.properties.Property)POWERED);
+-        boolean bl2 = false;
+-        java.util.List list = this.getInteractingMinecartOfType(level, pos, net.minecraft.world.entity.vehicle.AbstractMinecart.class, $$0 -> true);
+-        if (!list.isEmpty()) {
+-            bl2 = true;
++        boolean $$3 = (java.lang.Boolean)$$2.getValue((net.minecraft.world.level.block.state.properties.Property)POWERED);
++        boolean $$4 = false;
++        java.util.List $$5 = this.getInteractingMinecartOfType($$02, $$1, net.minecraft.world.entity.vehicle.AbstractMinecart.class, $$0 -> true);
++        if (!$$5.isEmpty()) {
++            $$4 = true;
+         }
+-        if (bl2 && !bl) {
+-            blockState = (net.minecraft.world.level.block.state.BlockState)state.setValue((net.minecraft.world.level.block.state.properties.Property)POWERED, (java.lang.Comparable)java.lang.Boolean.valueOf((boolean)true));
+-            level.setBlock(pos, blockState, 3);
+-            this.updatePowerToConnected(level, pos, blockState, true);
+-            level.updateNeighborsAt(pos, (net.minecraft.world.level.block.Block)this);
+-            level.updateNeighborsAt(pos.below(), (net.minecraft.world.level.block.Block)this);
+-            level.setBlocksDirty(pos, state, blockState);
++        if ($$4 && !$$3) {
++            net.minecraft.world.level.block.state.BlockState $$6 = (net.minecraft.world.level.block.state.BlockState)$$2.setValue((net.minecraft.world.level.block.state.properties.Property)POWERED, (java.lang.Comparable)java.lang.Boolean.valueOf((boolean)true));
++            $$02.setBlock($$1, $$6, 3);
++            this.updatePowerToConnected($$02, $$1, $$6, true);
++            $$02.updateNeighborsAt($$1, (net.minecraft.world.level.block.Block)this);
++            $$02.updateNeighborsAt($$1.below(), (net.minecraft.world.level.block.Block)this);
++            $$02.setBlocksDirty($$1, $$2, $$6);
+         }
+-        if (!bl2 && bl) {
+-            blockState = (net.minecraft.world.level.block.state.BlockState)state.setValue((net.minecraft.world.level.block.state.properties.Property)POWERED, (java.lang.Comparable)java.lang.Boolean.valueOf((boolean)false));
+-            level.setBlock(pos, blockState, 3);
+-            this.updatePowerToConnected(level, pos, blockState, false);
+-            level.updateNeighborsAt(pos, (net.minecraft.world.level.block.Block)this);
+-            level.updateNeighborsAt(pos.below(), (net.minecraft.world.level.block.Block)this);
+-            level.setBlocksDirty(pos, state, blockState);
++        if (!$$4 && $$3) {
++            net.minecraft.world.level.block.state.BlockState $$7 = (net.minecraft.world.level.block.state.BlockState)$$2.setValue((net.minecraft.world.level.block.state.properties.Property)POWERED, (java.lang.Comparable)java.lang.Boolean.valueOf((boolean)false));
++            $$02.setBlock($$1, $$7, 3);
++            this.updatePowerToConnected($$02, $$1, $$7, false);
++            $$02.updateNeighborsAt($$1, (net.minecraft.world.level.block.Block)this);
++            $$02.updateNeighborsAt($$1.below(), (net.minecraft.world.level.block.Block)this);
++            $$02.setBlocksDirty($$1, $$2, $$7);
+         }
+-        if (bl2) {
+-            level.scheduleTick(pos, (net.minecraft.world.level.block.Block)this, 20);
++        if ($$4) {
++            $$02.scheduleTick($$1, (net.minecraft.world.level.block.Block)this, 20);
+         }
+-        level.updateNeighbourForOutputSignal(pos, (net.minecraft.world.level.block.Block)this);
++        $$02.updateNeighbourForOutputSignal($$1, (net.minecraft.world.level.block.Block)this);
+     }
+ 
+-    public void updatePowerToConnected(net.minecraft.world.level.Level level, net.minecraft.core.BlockPos pos, net.minecraft.world.level.block.state.BlockState state, boolean powered) {
+-        net.minecraft.world.level.block.RailState railState = new net.minecraft.world.level.block.RailState(level, pos, state);
+-        java.util.List list = railState.getConnections();
+-        for (net.minecraft.core.BlockPos blockPos : list) {
+-            net.minecraft.world.level.block.state.BlockState blockState = level.getBlockState(blockPos);
+-            level.neighborChanged(blockState, blockPos, blockState.getBlock(), pos, false);
++    public void updatePowerToConnected(net.minecraft.world.level.Level $$0, net.minecraft.core.BlockPos $$1, net.minecraft.world.level.block.state.BlockState $$2, boolean $$3) {
++        net.minecraft.world.level.block.RailState $$4 = new net.minecraft.world.level.block.RailState($$0, $$1, $$2);
++        java.util.List $$5 = $$4.getConnections();
++        for (net.minecraft.core.BlockPos $$6 : $$5) {
++            net.minecraft.world.level.block.state.BlockState $$7 = $$0.getBlockState($$6);
++            $$0.neighborChanged($$7, $$6, $$7.getBlock(), $$1, false);
+         }
+     }
+ 
+-    public void onPlace(net.minecraft.world.level.block.state.BlockState state, net.minecraft.world.level.Level level, net.minecraft.core.BlockPos pos, net.minecraft.world.level.block.state.BlockState oldState, boolean isMoving) {
+-        if (oldState.is(state.getBlock())) {
++    public void onPlace(net.minecraft.world.level.block.state.BlockState $$0, net.minecraft.world.level.Level $$1, net.minecraft.core.BlockPos $$2, net.minecraft.world.level.block.state.BlockState $$3, boolean $$4) {
++        if ($$3.is($$0.getBlock())) {
+             return;
+         }
+-        net.minecraft.world.level.block.state.BlockState blockState = this.updateState(state, level, pos, isMoving);
+-        this.checkPressed(level, pos, blockState);
++        net.minecraft.world.level.block.state.BlockState $$5 = this.updateState($$0, $$1, $$2, $$4);
++        this.checkPressed($$1, $$2, $$5);
+     }
+ 
+     public net.minecraft.world.level.block.state.properties.Property<net.minecraft.world.level.block.state.properties.RailShape> getShapeProperty() {
+         return SHAPE;
+     }
+ 
+-    public boolean hasAnalogOutputSignal(net.minecraft.world.level.block.state.BlockState state) {
++    public boolean hasAnalogOutputSignal(net.minecraft.world.level.block.state.BlockState $$0) {
+         return true;
+     }
+ 
+-    public int getAnalogOutputSignal(net.minecraft.world.level.block.state.BlockState blockState, net.minecraft.world.level.Level level, net.minecraft.core.BlockPos pos) {
+-        if (((java.lang.Boolean)blockState.getValue((net.minecraft.world.level.block.state.properties.Property)POWERED)).booleanValue()) {
+-            java.util.List list = this.getInteractingMinecartOfType(level, pos, net.minecraft.world.entity.vehicle.MinecartCommandBlock.class, $$0 -> true);
+-            if (!list.isEmpty()) {
+-                return ((net.minecraft.world.entity.vehicle.MinecartCommandBlock)list.get(0)).getCommandBlock().getSuccessCount();
++    public int getAnalogOutputSignal(net.minecraft.world.level.block.state.BlockState $$02, net.minecraft.world.level.Level $$1, net.minecraft.core.BlockPos $$2) {
++        if (((java.lang.Boolean)$$02.getValue((net.minecraft.world.level.block.state.properties.Property)POWERED)).booleanValue()) {
++            java.util.List $$3 = this.getInteractingMinecartOfType($$1, $$2, net.minecraft.world.entity.vehicle.MinecartCommandBlock.class, $$0 -> true);
++            if (!$$3.isEmpty()) {
++                return ((net.minecraft.world.entity.vehicle.MinecartCommandBlock)$$3.get(0)).getCommandBlock().getSuccessCount();
+             }
+-            java.util.List list2 = this.getInteractingMinecartOfType(level, pos, net.minecraft.world.entity.vehicle.AbstractMinecart.class, net.minecraft.world.entity.EntitySelector.CONTAINER_ENTITY_SELECTOR);
+-            if (!list2.isEmpty()) {
+-                return net.minecraft.world.inventory.AbstractContainerMenu.getRedstoneSignalFromContainer((net.minecraft.world.Container)((net.minecraft.world.Container)list2.get(0)));
++            java.util.List $$4 = this.getInteractingMinecartOfType($$1, $$2, net.minecraft.world.entity.vehicle.AbstractMinecart.class, net.minecraft.world.entity.EntitySelector.CONTAINER_ENTITY_SELECTOR);
++            if (!$$4.isEmpty()) {
++                return net.minecraft.world.inventory.AbstractContainerMenu.getRedstoneSignalFromContainer((net.minecraft.world.Container)((net.minecraft.world.Container)$$4.get(0)));
+             }
+         }
+         return 0;
+     }
+ 
+-    public <T extends net.minecraft.world.entity.vehicle.AbstractMinecart> java.util.List<T> getInteractingMinecartOfType(net.minecraft.world.level.Level level, net.minecraft.core.BlockPos pos, java.lang.Class<T> cartType, java.util.function.Predicate<net.minecraft.world.entity.Entity> filter) {
+-        return level.getEntitiesOfClass(cartType, this.getSearchBB(pos), filter);
++    public <T extends net.minecraft.world.entity.vehicle.AbstractMinecart> java.util.List<T> getInteractingMinecartOfType(net.minecraft.world.level.Level $$0, net.minecraft.core.BlockPos $$1, java.lang.Class<T> $$2, java.util.function.Predicate<net.minecraft.world.entity.Entity> $$3) {
++        return $$0.getEntitiesOfClass($$2, this.getSearchBB($$1), $$3);
+     }
+ 
+-    public net.minecraft.world.phys.AABB getSearchBB(net.minecraft.core.BlockPos pos) {
+-        double d = 0.2;
+-        return new net.minecraft.world.phys.AABB((double)pos.getX() + 0.2, (double)pos.getY(), (double)pos.getZ() + 0.2, (double)(pos.getX() + 1) - 0.2, (double)(pos.getY() + 1) - 0.2, (double)(pos.getZ() + 1) - 0.2);
++    public net.minecraft.world.phys.AABB getSearchBB(net.minecraft.core.BlockPos $$0) {
++        double $$1 = 0.2;
++        return new net.minecraft.world.phys.AABB((double)$$0.getX() + 0.2, (double)$$0.getY(), (double)$$0.getZ() + 0.2, (double)($$0.getX() + 1) - 0.2, (double)($$0.getY() + 1) - 0.2, (double)($$0.getZ() + 1) - 0.2);
+     }
+ 
+-    public net.minecraft.world.level.block.state.BlockState rotate(net.minecraft.world.level.block.state.BlockState state, net.minecraft.world.level.block.Rotation rotation) {
+-        switch (net.minecraft.world.level.block.DetectorRailBlock$1.$SwitchMap$net$minecraft$world$level$block$Rotation[rotation.ordinal()]) {
++    public net.minecraft.world.level.block.state.BlockState rotate(net.minecraft.world.level.block.state.BlockState $$0, net.minecraft.world.level.block.Rotation $$1) {
++        switch (net.minecraft.world.level.block.DetectorRailBlock$1.$SwitchMap$net$minecraft$world$level$block$Rotation[$$1.ordinal()]) {
+             case 1: {
+-                switch (net.minecraft.world.level.block.DetectorRailBlock$1.$SwitchMap$net$minecraft$world$level$block$state$properties$RailShape[((net.minecraft.world.level.block.state.properties.RailShape)state.getValue((net.minecraft.world.level.block.state.properties.Property)SHAPE)).ordinal()]) {
++                switch (net.minecraft.world.level.block.DetectorRailBlock$1.$SwitchMap$net$minecraft$world$level$block$state$properties$RailShape[((net.minecraft.world.level.block.state.properties.RailShape)$$0.getValue((net.minecraft.world.level.block.state.properties.Property)SHAPE)).ordinal()]) {
+                     case 1: {
+-                        return (net.minecraft.world.level.block.state.BlockState)state.setValue((net.minecraft.world.level.block.state.properties.Property)SHAPE, (java.lang.Comparable)net.minecraft.world.level.block.state.properties.RailShape.ASCENDING_WEST);
++                        return (net.minecraft.world.level.block.state.BlockState)$$0.setValue((net.minecraft.world.level.block.state.properties.Property)SHAPE, (java.lang.Comparable)net.minecraft.world.level.block.state.properties.RailShape.ASCENDING_WEST);
+                     }
+                     case 2: {
+-                        return (net.minecraft.world.level.block.state.BlockState)state.setValue((net.minecraft.world.level.block.state.properties.Property)SHAPE, (java.lang.Comparable)net.minecraft.world.level.block.state.properties.RailShape.ASCENDING_EAST);
++                        return (net.minecraft.world.level.block.state.BlockState)$$0.setValue((net.minecraft.world.level.block.state.properties.Property)SHAPE, (java.lang.Comparable)net.minecraft.world.level.block.state.properties.RailShape.ASCENDING_EAST);
+                     }
+                     case 3: {
+-                        return (net.minecraft.world.level.block.state.BlockState)state.setValue((net.minecraft.world.level.block.state.properties.Property)SHAPE, (java.lang.Comparable)net.minecraft.world.level.block.state.properties.RailShape.ASCENDING_SOUTH);
++                        return (net.minecraft.world.level.block.state.BlockState)$$0.setValue((net.minecraft.world.level.block.state.properties.Property)SHAPE, (java.lang.Comparable)net.minecraft.world.level.block.state.properties.RailShape.ASCENDING_SOUTH);
+                     }
+                     case 4: {
+-                        return (net.minecraft.world.level.block.state.BlockState)state.setValue((net.minecraft.world.level.block.state.properties.Property)SHAPE, (java.lang.Comparable)net.minecraft.world.level.block.state.properties.RailShape.ASCENDING_NORTH);
++                        return (net.minecraft.world.level.block.state.BlockState)$$0.setValue((net.minecraft.world.level.block.state.properties.Property)SHAPE, (java.lang.Comparable)net.minecraft.world.level.block.state.properties.RailShape.ASCENDING_NORTH);
+                     }
+                     case 5: {
+-                        return (net.minecraft.world.level.block.state.BlockState)state.setValue((net.minecraft.world.level.block.state.properties.Property)SHAPE, (java.lang.Comparable)net.minecraft.world.level.block.state.properties.RailShape.NORTH_WEST);
++                        return (net.minecraft.world.level.block.state.BlockState)$$0.setValue((net.minecraft.world.level.block.state.properties.Property)SHAPE, (java.lang.Comparable)net.minecraft.world.level.block.state.properties.RailShape.NORTH_WEST);
+                     }
+                     case 6: {
+-                        return (net.minecraft.world.level.block.state.BlockState)state.setValue((net.minecraft.world.level.block.state.properties.Property)SHAPE, (java.lang.Comparable)net.minecraft.world.level.block.state.properties.RailShape.NORTH_EAST);
++                        return (net.minecraft.world.level.block.state.BlockState)$$0.setValue((net.minecraft.world.level.block.state.properties.Property)SHAPE, (java.lang.Comparable)net.minecraft.world.level.block.state.properties.RailShape.NORTH_EAST);
+                     }
+                     case 7: {
+-                        return (net.minecraft.world.level.block.state.BlockState)state.setValue((net.minecraft.world.level.block.state.properties.Property)SHAPE, (java.lang.Comparable)net.minecraft.world.level.block.state.properties.RailShape.SOUTH_EAST);
++                        return (net.minecraft.world.level.block.state.BlockState)$$0.setValue((net.minecraft.world.level.block.state.properties.Property)SHAPE, (java.lang.Comparable)net.minecraft.world.level.block.state.properties.RailShape.SOUTH_EAST);
+                     }
+                     case 8: {
+-                        return (net.minecraft.world.level.block.state.BlockState)state.setValue((net.minecraft.world.level.block.state.properties.Property)SHAPE, (java.lang.Comparable)net.minecraft.world.level.block.state.properties.RailShape.SOUTH_WEST);
++                        return (net.minecraft.world.level.block.state.BlockState)$$0.setValue((net.minecraft.world.level.block.state.properties.Property)SHAPE, (java.lang.Comparable)net.minecraft.world.level.block.state.properties.RailShape.SOUTH_WEST);
+                     }
+                 }
+             }
+             case 2: {
+-                switch (net.minecraft.world.level.block.DetectorRailBlock$1.$SwitchMap$net$minecraft$world$level$block$state$properties$RailShape[((net.minecraft.world.level.block.state.properties.RailShape)state.getValue((net.minecraft.world.level.block.state.properties.Property)SHAPE)).ordinal()]) {
++                switch (net.minecraft.world.level.block.DetectorRailBlock$1.$SwitchMap$net$minecraft$world$level$block$state$properties$RailShape[((net.minecraft.world.level.block.state.properties.RailShape)$$0.getValue((net.minecraft.world.level.block.state.properties.Property)SHAPE)).ordinal()]) {
+                     case 9: {
+-                        return (net.minecraft.world.level.block.state.BlockState)state.setValue((net.minecraft.world.level.block.state.properties.Property)SHAPE, (java.lang.Comparable)net.minecraft.world.level.block.state.properties.RailShape.EAST_WEST);
++                        return (net.minecraft.world.level.block.state.BlockState)$$0.setValue((net.minecraft.world.level.block.state.properties.Property)SHAPE, (java.lang.Comparable)net.minecraft.world.level.block.state.properties.RailShape.EAST_WEST);
+                     }
+                     case 10: {
+-                        return (net.minecraft.world.level.block.state.BlockState)state.setValue((net.minecraft.world.level.block.state.properties.Property)SHAPE, (java.lang.Comparable)net.minecraft.world.level.block.state.properties.RailShape.NORTH_SOUTH);
++                        return (net.minecraft.world.level.block.state.BlockState)$$0.setValue((net.minecraft.world.level.block.state.properties.Property)SHAPE, (java.lang.Comparable)net.minecraft.world.level.block.state.properties.RailShape.NORTH_SOUTH);
+                     }
+                     case 1: {
+-                        return (net.minecraft.world.level.block.state.BlockState)state.setValue((net.minecraft.world.level.block.state.properties.Property)SHAPE, (java.lang.Comparable)net.minecraft.world.level.block.state.properties.RailShape.ASCENDING_NORTH);
++                        return (net.minecraft.world.level.block.state.BlockState)$$0.setValue((net.minecraft.world.level.block.state.properties.Property)SHAPE, (java.lang.Comparable)net.minecraft.world.level.block.state.properties.RailShape.ASCENDING_NORTH);
+                     }
+                     case 2: {
+-                        return (net.minecraft.world.level.block.state.BlockState)state.setValue((net.minecraft.world.level.block.state.properties.Property)SHAPE, (java.lang.Comparable)net.minecraft.world.level.block.state.properties.RailShape.ASCENDING_SOUTH);
++                        return (net.minecraft.world.level.block.state.BlockState)$$0.setValue((net.minecraft.world.level.block.state.properties.Property)SHAPE, (java.lang.Comparable)net.minecraft.world.level.block.state.properties.RailShape.ASCENDING_SOUTH);
+                     }
+                     case 3: {
+-                        return (net.minecraft.world.level.block.state.BlockState)state.setValue((net.minecraft.world.level.block.state.properties.Property)SHAPE, (java.lang.Comparable)net.minecraft.world.level.block.state.properties.RailShape.ASCENDING_WEST);
++                        return (net.minecraft.world.level.block.state.BlockState)$$0.setValue((net.minecraft.world.level.block.state.properties.Property)SHAPE, (java.lang.Comparable)net.minecraft.world.level.block.state.properties.RailShape.ASCENDING_WEST);
+                     }
+                     case 4: {
+-                        return (net.minecraft.world.level.block.state.BlockState)state.setValue((net.minecraft.world.level.block.state.properties.Property)SHAPE, (java.lang.Comparable)net.minecraft.world.level.block.state.properties.RailShape.ASCENDING_EAST);
++                        return (net.minecraft.world.level.block.state.BlockState)$$0.setValue((net.minecraft.world.level.block.state.properties.Property)SHAPE, (java.lang.Comparable)net.minecraft.world.level.block.state.properties.RailShape.ASCENDING_EAST);
+                     }
+                     case 5: {
+-                        return (net.minecraft.world.level.block.state.BlockState)state.setValue((net.minecraft.world.level.block.state.properties.Property)SHAPE, (java.lang.Comparable)net.minecraft.world.level.block.state.properties.RailShape.NORTH_EAST);
++                        return (net.minecraft.world.level.block.state.BlockState)$$0.setValue((net.minecraft.world.level.block.state.properties.Property)SHAPE, (java.lang.Comparable)net.minecraft.world.level.block.state.properties.RailShape.NORTH_EAST);
+                     }
+                     case 6: {
+-                        return (net.minecraft.world.level.block.state.BlockState)state.setValue((net.minecraft.world.level.block.state.properties.Property)SHAPE, (java.lang.Comparable)net.minecraft.world.level.block.state.properties.RailShape.SOUTH_EAST);
++                        return (net.minecraft.world.level.block.state.BlockState)$$0.setValue((net.minecraft.world.level.block.state.properties.Property)SHAPE, (java.lang.Comparable)net.minecraft.world.level.block.state.properties.RailShape.SOUTH_EAST);
+                     }
+                     case 7: {
+-                        return (net.minecraft.world.level.block.state.BlockState)state.setValue((net.minecraft.world.level.block.state.properties.Property)SHAPE, (java.lang.Comparable)net.minecraft.world.level.block.state.properties.RailShape.SOUTH_WEST);
++                        return (net.minecraft.world.level.block.state.BlockState)$$0.setValue((net.minecraft.world.level.block.state.properties.Property)SHAPE, (java.lang.Comparable)net.minecraft.world.level.block.state.properties.RailShape.SOUTH_WEST);
+                     }
+                     case 8: {
+-                        return (net.minecraft.world.level.block.state.BlockState)state.setValue((net.minecraft.world.level.block.state.properties.Property)SHAPE, (java.lang.Comparable)net.minecraft.world.level.block.state.properties.RailShape.NORTH_WEST);
++                        return (net.minecraft.world.level.block.state.BlockState)$$0.setValue((net.minecraft.world.level.block.state.properties.Property)SHAPE, (java.lang.Comparable)net.minecraft.world.level.block.state.properties.RailShape.NORTH_WEST);
+                     }
+                 }
+             }
+             case 3: {
+-                switch (net.minecraft.world.level.block.DetectorRailBlock$1.$SwitchMap$net$minecraft$world$level$block$state$properties$RailShape[((net.minecraft.world.level.block.state.properties.RailShape)state.getValue((net.minecraft.world.level.block.state.properties.Property)SHAPE)).ordinal()]) {
++                switch (net.minecraft.world.level.block.DetectorRailBlock$1.$SwitchMap$net$minecraft$world$level$block$state$properties$RailShape[((net.minecraft.world.level.block.state.properties.RailShape)$$0.getValue((net.minecraft.world.level.block.state.properties.Property)SHAPE)).ordinal()]) {
+                     case 9: {
+-                        return (net.minecraft.world.level.block.state.BlockState)state.setValue((net.minecraft.world.level.block.state.properties.Property)SHAPE, (java.lang.Comparable)net.minecraft.world.level.block.state.properties.RailShape.EAST_WEST);
++                        return (net.minecraft.world.level.block.state.BlockState)$$0.setValue((net.minecraft.world.level.block.state.properties.Property)SHAPE, (java.lang.Comparable)net.minecraft.world.level.block.state.properties.RailShape.EAST_WEST);
+                     }
+                     case 10: {
+-                        return (net.minecraft.world.level.block.state.BlockState)state.setValue((net.minecraft.world.level.block.state.properties.Property)SHAPE, (java.lang.Comparable)net.minecraft.world.level.block.state.properties.RailShape.NORTH_SOUTH);
++                        return (net.minecraft.world.level.block.state.BlockState)$$0.setValue((net.minecraft.world.level.block.state.properties.Property)SHAPE, (java.lang.Comparable)net.minecraft.world.level.block.state.properties.RailShape.NORTH_SOUTH);
+                     }
+                     case 1: {
+-                        return (net.minecraft.world.level.block.state.BlockState)state.setValue((net.minecraft.world.level.block.state.properties.Property)SHAPE, (java.lang.Comparable)net.minecraft.world.level.block.state.properties.RailShape.ASCENDING_SOUTH);
++                        return (net.minecraft.world.level.block.state.BlockState)$$0.setValue((net.minecraft.world.level.block.state.properties.Property)SHAPE, (java.lang.Comparable)net.minecraft.world.level.block.state.properties.RailShape.ASCENDING_SOUTH);
+                     }
+                     case 2: {
+-                        return (net.minecraft.world.level.block.state.BlockState)state.setValue((net.minecraft.world.level.block.state.properties.Property)SHAPE, (java.lang.Comparable)net.minecraft.world.level.block.state.properties.RailShape.ASCENDING_NORTH);
++                        return (net.minecraft.world.level.block.state.BlockState)$$0.setValue((net.minecraft.world.level.block.state.properties.Property)SHAPE, (java.lang.Comparable)net.minecraft.world.level.block.state.properties.RailShape.ASCENDING_NORTH);
+                     }
+                     case 3: {
+-                        return (net.minecraft.world.level.block.state.BlockState)state.setValue((net.minecraft.world.level.block.state.properties.Property)SHAPE, (java.lang.Comparable)net.minecraft.world.level.block.state.properties.RailShape.ASCENDING_EAST);
++                        return (net.minecraft.world.level.block.state.BlockState)$$0.setValue((net.minecraft.world.level.block.state.properties.Property)SHAPE, (java.lang.Comparable)net.minecraft.world.level.block.state.properties.RailShape.ASCENDING_EAST);
+                     }
+                     case 4: {
+-                        return (net.minecraft.world.level.block.state.BlockState)state.setValue((net.minecraft.world.level.block.state.properties.Property)SHAPE, (java.lang.Comparable)net.minecraft.world.level.block.state.properties.RailShape.ASCENDING_WEST);
++                        return (net.minecraft.world.level.block.state.BlockState)$$0.setValue((net.minecraft.world.level.block.state.properties.Property)SHAPE, (java.lang.Comparable)net.minecraft.world.level.block.state.properties.RailShape.ASCENDING_WEST);
+                     }
+                     case 5: {
+-                        return (net.minecraft.world.level.block.state.BlockState)state.setValue((net.minecraft.world.level.block.state.properties.Property)SHAPE, (java.lang.Comparable)net.minecraft.world.level.block.state.properties.RailShape.SOUTH_WEST);
++                        return (net.minecraft.world.level.block.state.BlockState)$$0.setValue((net.minecraft.world.level.block.state.properties.Property)SHAPE, (java.lang.Comparable)net.minecraft.world.level.block.state.properties.RailShape.SOUTH_WEST);
+                     }
+                     case 6: {
+-                        return (net.minecraft.world.level.block.state.BlockState)state.setValue((net.minecraft.world.level.block.state.properties.Property)SHAPE, (java.lang.Comparable)net.minecraft.world.level.block.state.properties.RailShape.NORTH_WEST);
++                        return (net.minecraft.world.level.block.state.BlockState)$$0.setValue((net.minecraft.world.level.block.state.properties.Property)SHAPE, (java.lang.Comparable)net.minecraft.world.level.block.state.properties.RailShape.NORTH_WEST);
+                     }
+                     case 7: {
+-                        return (net.minecraft.world.level.block.state.BlockState)state.setValue((net.minecraft.world.level.block.state.properties.Property)SHAPE, (java.lang.Comparable)net.minecraft.world.level.block.state.properties.RailShape.NORTH_EAST);
++                        return (net.minecraft.world.level.block.state.BlockState)$$0.setValue((net.minecraft.world.level.block.state.properties.Property)SHAPE, (java.lang.Comparable)net.minecraft.world.level.block.state.properties.RailShape.NORTH_EAST);
+                     }
+                     case 8: {
+-                        return (net.minecraft.world.level.block.state.BlockState)state.setValue((net.minecraft.world.level.block.state.properties.Property)SHAPE, (java.lang.Comparable)net.minecraft.world.level.block.state.properties.RailShape.SOUTH_EAST);
++                        return (net.minecraft.world.level.block.state.BlockState)$$0.setValue((net.minecraft.world.level.block.state.properties.Property)SHAPE, (java.lang.Comparable)net.minecraft.world.level.block.state.properties.RailShape.SOUTH_EAST);
+                     }
+                 }
+             }
+         }
+-        return state;
++        return $$0;
+     }
+ 
+-    public net.minecraft.world.level.block.state.BlockState mirror(net.minecraft.world.level.block.state.BlockState state, net.minecraft.world.level.block.Mirror mirror) {
+-        net.minecraft.world.level.block.state.properties.RailShape railShape = (net.minecraft.world.level.block.state.properties.RailShape)state.getValue((net.minecraft.world.level.block.state.properties.Property)SHAPE);
+-        switch (net.minecraft.world.level.block.DetectorRailBlock$1.$SwitchMap$net$minecraft$world$level$block$Mirror[mirror.ordinal()]) {
++    public net.minecraft.world.level.block.state.BlockState mirror(net.minecraft.world.level.block.state.BlockState $$0, net.minecraft.world.level.block.Mirror $$1) {
++        net.minecraft.world.level.block.state.properties.RailShape $$2 = (net.minecraft.world.level.block.state.properties.RailShape)$$0.getValue((net.minecraft.world.level.block.state.properties.Property)SHAPE);
++        switch (net.minecraft.world.level.block.DetectorRailBlock$1.$SwitchMap$net$minecraft$world$level$block$Mirror[$$1.ordinal()]) {
+             case 1: {
+-                switch (net.minecraft.world.level.block.DetectorRailBlock$1.$SwitchMap$net$minecraft$world$level$block$state$properties$RailShape[railShape.ordinal()]) {
++                switch (net.minecraft.world.level.block.DetectorRailBlock$1.$SwitchMap$net$minecraft$world$level$block$state$properties$RailShape[$$2.ordinal()]) {
+                     case 3: {
+-                        return (net.minecraft.world.level.block.state.BlockState)state.setValue((net.minecraft.world.level.block.state.properties.Property)SHAPE, (java.lang.Comparable)net.minecraft.world.level.block.state.properties.RailShape.ASCENDING_SOUTH);
++                        return (net.minecraft.world.level.block.state.BlockState)$$0.setValue((net.minecraft.world.level.block.state.properties.Property)SHAPE, (java.lang.Comparable)net.minecraft.world.level.block.state.properties.RailShape.ASCENDING_SOUTH);
+                     }
+                     case 4: {
+-                        return (net.minecraft.world.level.block.state.BlockState)state.setValue((net.minecraft.world.level.block.state.properties.Property)SHAPE, (java.lang.Comparable)net.minecraft.world.level.block.state.properties.RailShape.ASCENDING_NORTH);
++                        return (net.minecraft.world.level.block.state.BlockState)$$0.setValue((net.minecraft.world.level.block.state.properties.Property)SHAPE, (java.lang.Comparable)net.minecraft.world.level.block.state.properties.RailShape.ASCENDING_NORTH);
+                     }
+                     case 5: {
+-                        return (net.minecraft.world.level.block.state.BlockState)state.setValue((net.minecraft.world.level.block.state.properties.Property)SHAPE, (java.lang.Comparable)net.minecraft.world.level.block.state.properties.RailShape.NORTH_EAST);
++                        return (net.minecraft.world.level.block.state.BlockState)$$0.setValue((net.minecraft.world.level.block.state.properties.Property)SHAPE, (java.lang.Comparable)net.minecraft.world.level.block.state.properties.RailShape.NORTH_EAST);
+                     }
+                     case 6: {
+-                        return (net.minecraft.world.level.block.state.BlockState)state.setValue((net.minecraft.world.level.block.state.properties.Property)SHAPE, (java.lang.Comparable)net.minecraft.world.level.block.state.properties.RailShape.NORTH_WEST);
++                        return (net.minecraft.world.level.block.state.BlockState)$$0.setValue((net.minecraft.world.level.block.state.properties.Property)SHAPE, (java.lang.Comparable)net.minecraft.world.level.block.state.properties.RailShape.NORTH_WEST);
+                     }
+                     case 7: {
+-                        return (net.minecraft.world.level.block.state.BlockState)state.setValue((net.minecraft.world.level.block.state.properties.Property)SHAPE, (java.lang.Comparable)net.minecraft.world.level.block.state.properties.RailShape.SOUTH_WEST);
++                        return (net.minecraft.world.level.block.state.BlockState)$$0.setValue((net.minecraft.world.level.block.state.properties.Property)SHAPE, (java.lang.Comparable)net.minecraft.world.level.block.state.properties.RailShape.SOUTH_WEST);
+                     }
+                     case 8: {
+-                        return (net.minecraft.world.level.block.state.BlockState)state.setValue((net.minecraft.world.level.block.state.properties.Property)SHAPE, (java.lang.Comparable)net.minecraft.world.level.block.state.properties.RailShape.SOUTH_EAST);
++                        return (net.minecraft.world.level.block.state.BlockState)$$0.setValue((net.minecraft.world.level.block.state.properties.Property)SHAPE, (java.lang.Comparable)net.minecraft.world.level.block.state.properties.RailShape.SOUTH_EAST);
+                     }
+                 }
+                 break;
+             }
+             case 2: {
+-                switch (net.minecraft.world.level.block.DetectorRailBlock$1.$SwitchMap$net$minecraft$world$level$block$state$properties$RailShape[railShape.ordinal()]) {
++                switch (net.minecraft.world.level.block.DetectorRailBlock$1.$SwitchMap$net$minecraft$world$level$block$state$properties$RailShape[$$2.ordinal()]) {
+                     case 1: {
+-                        return (net.minecraft.world.level.block.state.BlockState)state.setValue((net.minecraft.world.level.block.state.properties.Property)SHAPE, (java.lang.Comparable)net.minecraft.world.level.block.state.properties.RailShape.ASCENDING_WEST);
++                        return (net.minecraft.world.level.block.state.BlockState)$$0.setValue((net.minecraft.world.level.block.state.properties.Property)SHAPE, (java.lang.Comparable)net.minecraft.world.level.block.state.properties.RailShape.ASCENDING_WEST);
+                     }
+                     case 2: {
+-                        return (net.minecraft.world.level.block.state.BlockState)state.setValue((net.minecraft.world.level.block.state.properties.Property)SHAPE, (java.lang.Comparable)net.minecraft.world.level.block.state.properties.RailShape.ASCENDING_EAST);
++                        return (net.minecraft.world.level.block.state.BlockState)$$0.setValue((net.minecraft.world.level.block.state.properties.Property)SHAPE, (java.lang.Comparable)net.minecraft.world.level.block.state.properties.RailShape.ASCENDING_EAST);
+                     }
+                     case 5: {
+-                        return (net.minecraft.world.level.block.state.BlockState)state.setValue((net.minecraft.world.level.block.state.properties.Property)SHAPE, (java.lang.Comparable)net.minecraft.world.level.block.state.properties.RailShape.SOUTH_WEST);
++                        return (net.minecraft.world.level.block.state.BlockState)$$0.setValue((net.minecraft.world.level.block.state.properties.Property)SHAPE, (java.lang.Comparable)net.minecraft.world.level.block.state.properties.RailShape.SOUTH_WEST);
+                     }
+                     case 6: {
+-                        return (net.minecraft.world.level.block.state.BlockState)state.setValue((net.minecraft.world.level.block.state.properties.Property)SHAPE, (java.lang.Comparable)net.minecraft.world.level.block.state.properties.RailShape.SOUTH_EAST);
++                        return (net.minecraft.world.level.block.state.BlockState)$$0.setValue((net.minecraft.world.level.block.state.properties.Property)SHAPE, (java.lang.Comparable)net.minecraft.world.level.block.state.properties.RailShape.SOUTH_EAST);
+                     }
+                     case 7: {
+-                        return (net.minecraft.world.level.block.state.BlockState)state.setValue((net.minecraft.world.level.block.state.properties.Property)SHAPE, (java.lang.Comparable)net.minecraft.world.level.block.state.properties.RailShape.NORTH_EAST);
++                        return (net.minecraft.world.level.block.state.BlockState)$$0.setValue((net.minecraft.world.level.block.state.properties.Property)SHAPE, (java.lang.Comparable)net.minecraft.world.level.block.state.properties.RailShape.NORTH_EAST);
+                     }
+                     case 8: {
+-                        return (net.minecraft.world.level.block.state.BlockState)state.setValue((net.minecraft.world.level.block.state.properties.Property)SHAPE, (java.lang.Comparable)net.minecraft.world.level.block.state.properties.RailShape.NORTH_WEST);
++                        return (net.minecraft.world.level.block.state.BlockState)$$0.setValue((net.minecraft.world.level.block.state.properties.Property)SHAPE, (java.lang.Comparable)net.minecraft.world.level.block.state.properties.RailShape.NORTH_WEST);
+                     }
+                 }
+                 break;
+             }
+         }
+-        return super.mirror(state, mirror);
++        return super.mirror($$0, $$1);
+     }
+ 
+-    public void createBlockStateDefinition(net.minecraft.world.level.block.state.StateDefinition$Builder<net.minecraft.world.level.block.Block, net.minecraft.world.level.block.state.BlockState> builder) {
+-        builder.add(new net.minecraft.world.level.block.state.properties.Property[]{SHAPE, POWERED, WATERLOGGED});
++    public void createBlockStateDefinition(net.minecraft.world.level.block.state.StateDefinition$Builder<net.minecraft.world.level.block.Block, net.minecraft.world.level.block.state.BlockState> $$0) {
++        $$0.add(new net.minecraft.world.level.block.state.properties.Property[]{SHAPE, POWERED, WATERLOGGED});
+     }
+ 
+     static {

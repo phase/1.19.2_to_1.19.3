@@ -1,0 +1,184 @@
+--- net/minecraft/world/level/block/CropBlock.java
++++ net/minecraft/world/level/block/CropBlock.java
+@@ -16,12 +16,12 @@
+         this.registerDefaultState((net.minecraft.world.level.block.state.BlockState)((net.minecraft.world.level.block.state.BlockState)this.stateDefinition.any()).setValue((net.minecraft.world.level.block.state.properties.Property)this.getAgeProperty(), (java.lang.Comparable)java.lang.Integer.valueOf((int)0)));
+     }
+ 
+-    public net.minecraft.world.phys.shapes.VoxelShape getShape(net.minecraft.world.level.block.state.BlockState state, net.minecraft.world.level.BlockGetter level, net.minecraft.core.BlockPos pos, net.minecraft.world.phys.shapes.CollisionContext context) {
+-        return SHAPE_BY_AGE[(java.lang.Integer)state.getValue((net.minecraft.world.level.block.state.properties.Property)this.getAgeProperty())];
++    public net.minecraft.world.phys.shapes.VoxelShape getShape(net.minecraft.world.level.block.state.BlockState $$0, net.minecraft.world.level.BlockGetter $$1, net.minecraft.core.BlockPos $$2, net.minecraft.world.phys.shapes.CollisionContext $$3) {
++        return SHAPE_BY_AGE[(java.lang.Integer)$$0.getValue((net.minecraft.world.level.block.state.properties.Property)this.getAgeProperty())];
+     }
+ 
+-    public boolean mayPlaceOn(net.minecraft.world.level.block.state.BlockState state, net.minecraft.world.level.BlockGetter level, net.minecraft.core.BlockPos pos) {
+-        return state.is(net.minecraft.world.level.block.Blocks.FARMLAND);
++    public boolean mayPlaceOn(net.minecraft.world.level.block.state.BlockState $$0, net.minecraft.world.level.BlockGetter $$1, net.minecraft.core.BlockPos $$2) {
++        return $$0.is(net.minecraft.world.level.block.Blocks.FARMLAND);
+     }
+ 
+     public net.minecraft.world.level.block.state.properties.IntegerProperty getAgeProperty() {
+@@ -32,20 +32,20 @@
+         return 7;
+     }
+ 
+-    public int getAge(net.minecraft.world.level.block.state.BlockState state) {
+-        return (java.lang.Integer)state.getValue((net.minecraft.world.level.block.state.properties.Property)this.getAgeProperty());
++    public int getAge(net.minecraft.world.level.block.state.BlockState $$0) {
++        return (java.lang.Integer)$$0.getValue((net.minecraft.world.level.block.state.properties.Property)this.getAgeProperty());
+     }
+ 
+-    public net.minecraft.world.level.block.state.BlockState getStateForAge(int age) {
+-        return (net.minecraft.world.level.block.state.BlockState)this.defaultBlockState().setValue((net.minecraft.world.level.block.state.properties.Property)this.getAgeProperty(), (java.lang.Comparable)java.lang.Integer.valueOf((int)age));
++    public net.minecraft.world.level.block.state.BlockState getStateForAge(int $$0) {
++        return (net.minecraft.world.level.block.state.BlockState)this.defaultBlockState().setValue((net.minecraft.world.level.block.state.properties.Property)this.getAgeProperty(), (java.lang.Comparable)java.lang.Integer.valueOf((int)$$0));
+     }
+ 
+-    public boolean isMaxAge(net.minecraft.world.level.block.state.BlockState state) {
+-        return (java.lang.Integer)state.getValue((net.minecraft.world.level.block.state.properties.Property)this.getAgeProperty()) >= this.getMaxAge();
++    public boolean isMaxAge(net.minecraft.world.level.block.state.BlockState $$0) {
++        return (java.lang.Integer)$$0.getValue((net.minecraft.world.level.block.state.properties.Property)this.getAgeProperty()) >= this.getMaxAge();
+     }
+ 
+-    public boolean isRandomlyTicking(net.minecraft.world.level.block.state.BlockState state) {
+-        return !this.isMaxAge(state);
++    public boolean isRandomlyTicking(net.minecraft.world.level.block.state.BlockState $$0) {
++        return !this.isMaxAge($$0);
+     }
+ 
+     public void randomTick(net.minecraft.world.level.block.state.BlockState $$0, net.minecraft.server.level.ServerLevel $$1, net.minecraft.core.BlockPos $$2, net.minecraft.util.RandomSource $$3) {
+@@ -56,79 +56,78 @@
+         }
+     }
+ 
+-    public void growCrops(net.minecraft.world.level.Level level, net.minecraft.core.BlockPos pos, net.minecraft.world.level.block.state.BlockState state) {
+-        int n;
+-        int n2 = this.getAge(state) + this.getBonemealAgeIncrease(level);
+-        if (n2 > (n = this.getMaxAge())) {
+-            n2 = n;
++    public void growCrops(net.minecraft.world.level.Level $$0, net.minecraft.core.BlockPos $$1, net.minecraft.world.level.block.state.BlockState $$2) {
++        int $$4;
++        int $$3 = this.getAge($$2) + this.getBonemealAgeIncrease($$0);
++        if ($$3 > ($$4 = this.getMaxAge())) {
++            $$3 = $$4;
+         }
+-        level.setBlock(pos, this.getStateForAge(n2), 2);
++        $$0.setBlock($$1, this.getStateForAge($$3), 2);
+     }
+ 
+-    public int getBonemealAgeIncrease(net.minecraft.world.level.Level level) {
+-        return net.minecraft.util.Mth.nextInt((net.minecraft.util.RandomSource)level.random, (int)2, (int)5);
++    public int getBonemealAgeIncrease(net.minecraft.world.level.Level $$0) {
++        return net.minecraft.util.Mth.nextInt((net.minecraft.util.RandomSource)$$0.random, (int)2, (int)5);
+     }
+ 
+-    public static float getGrowthSpeed(net.minecraft.world.level.block.Block block, net.minecraft.world.level.BlockGetter level, net.minecraft.core.BlockPos pos) {
+-        boolean bl;
+-        net.minecraft.core.BlockPos blockPos;
+-        float f = 1.0f;
+-        net.minecraft.core.BlockPos blockPos2 = pos.below();
+-        for (int i = -1; i <= 1; ++i) {
+-            for (int j = -1; j <= 1; ++j) {
+-                float f2 = 0.0f;
+-                blockPos = level.getBlockState(blockPos2.offset(i, 0, j));
+-                if (blockPos.is(net.minecraft.world.level.block.Blocks.FARMLAND)) {
+-                    f2 = 1.0f;
+-                    if ((java.lang.Integer)blockPos.getValue((net.minecraft.world.level.block.state.properties.Property)net.minecraft.world.level.block.FarmBlock.MOISTURE) > 0) {
+-                        f2 = 3.0f;
++    public static float getGrowthSpeed(net.minecraft.world.level.block.Block $$0, net.minecraft.world.level.BlockGetter $$1, net.minecraft.core.BlockPos $$2) {
++        boolean $$14;
++        float $$3 = 1.0f;
++        net.minecraft.core.BlockPos $$4 = $$2.below();
++        for (int $$5 = -1; $$5 <= 1; ++$$5) {
++            for (int $$6 = -1; $$6 <= 1; ++$$6) {
++                float $$7 = 0.0f;
++                net.minecraft.world.level.block.state.BlockState $$8 = $$1.getBlockState($$4.offset($$5, 0, $$6));
++                if ($$8.is(net.minecraft.world.level.block.Blocks.FARMLAND)) {
++                    $$7 = 1.0f;
++                    if ((java.lang.Integer)$$8.getValue((net.minecraft.world.level.block.state.properties.Property)net.minecraft.world.level.block.FarmBlock.MOISTURE) > 0) {
++                        $$7 = 3.0f;
+                     }
+                 }
+-                if (i != 0 || j != 0) {
+-                    f2 /= 4.0f;
++                if ($$5 != 0 || $$6 != 0) {
++                    $$7 /= 4.0f;
+                 }
+-                f += f2;
++                $$3 += $$7;
+             }
+         }
+-        net.minecraft.core.BlockPos blockPos3 = pos.north();
+-        net.minecraft.core.BlockPos blockPos4 = pos.south();
+-        net.minecraft.core.BlockPos blockPos5 = pos.west();
+-        blockPos = pos.east();
+-        boolean bl2 = level.getBlockState(blockPos5).is(block) || level.getBlockState(blockPos).is(block);
+-        boolean bl3 = bl = level.getBlockState(blockPos3).is(block) || level.getBlockState(blockPos4).is(block);
+-        if (bl2 && bl) {
+-            f /= 2.0f;
++        net.minecraft.core.BlockPos $$9 = $$2.north();
++        net.minecraft.core.BlockPos $$10 = $$2.south();
++        net.minecraft.core.BlockPos $$11 = $$2.west();
++        net.minecraft.core.BlockPos $$12 = $$2.east();
++        boolean $$13 = $$1.getBlockState($$11).is($$0) || $$1.getBlockState($$12).is($$0);
++        boolean bl = $$14 = $$1.getBlockState($$9).is($$0) || $$1.getBlockState($$10).is($$0);
++        if ($$13 && $$14) {
++            $$3 /= 2.0f;
+         } else {
+-            boolean bl4;
+-            boolean bl5 = bl4 = level.getBlockState(blockPos5.north()).is(block) || level.getBlockState(blockPos.north()).is(block) || level.getBlockState(blockPos.south()).is(block) || level.getBlockState(blockPos5.south()).is(block);
+-            if (bl4) {
+-                f /= 2.0f;
++            boolean $$15;
++            boolean bl2 = $$15 = $$1.getBlockState($$11.north()).is($$0) || $$1.getBlockState($$12.north()).is($$0) || $$1.getBlockState($$12.south()).is($$0) || $$1.getBlockState($$11.south()).is($$0);
++            if ($$15) {
++                $$3 /= 2.0f;
+             }
+         }
+-        return f;
++        return $$3;
+     }
+ 
+-    public boolean canSurvive(net.minecraft.world.level.block.state.BlockState state, net.minecraft.world.level.LevelReader level, net.minecraft.core.BlockPos pos) {
+-        return (level.getRawBrightness(pos, 0) >= 8 || level.canSeeSky(pos)) && super.canSurvive(state, level, pos);
++    public boolean canSurvive(net.minecraft.world.level.block.state.BlockState $$0, net.minecraft.world.level.LevelReader $$1, net.minecraft.core.BlockPos $$2) {
++        return ($$1.getRawBrightness($$2, 0) >= 8 || $$1.canSeeSky($$2)) && super.canSurvive($$0, $$1, $$2);
+     }
+ 
+-    public void entityInside(net.minecraft.world.level.block.state.BlockState state, net.minecraft.world.level.Level level, net.minecraft.core.BlockPos pos, net.minecraft.world.entity.Entity entity) {
+-        if (entity instanceof net.minecraft.world.entity.monster.Ravager && level.getGameRules().getBoolean(net.minecraft.world.level.GameRules.RULE_MOBGRIEFING)) {
+-            level.destroyBlock(pos, true, entity);
++    public void entityInside(net.minecraft.world.level.block.state.BlockState $$0, net.minecraft.world.level.Level $$1, net.minecraft.core.BlockPos $$2, net.minecraft.world.entity.Entity $$3) {
++        if ($$3 instanceof net.minecraft.world.entity.monster.Ravager && $$1.getGameRules().getBoolean(net.minecraft.world.level.GameRules.RULE_MOBGRIEFING)) {
++            $$1.destroyBlock($$2, true, $$3);
+         }
+-        super.entityInside(state, level, pos, entity);
++        super.entityInside($$0, $$1, $$2, $$3);
+     }
+ 
+     public net.minecraft.world.level.ItemLike getBaseSeedId() {
+         return net.minecraft.world.item.Items.WHEAT_SEEDS;
+     }
+ 
+-    public net.minecraft.world.item.ItemStack getCloneItemStack(net.minecraft.world.level.BlockGetter level, net.minecraft.core.BlockPos pos, net.minecraft.world.level.block.state.BlockState state) {
++    public net.minecraft.world.item.ItemStack getCloneItemStack(net.minecraft.world.level.BlockGetter $$0, net.minecraft.core.BlockPos $$1, net.minecraft.world.level.block.state.BlockState $$2) {
+         return new net.minecraft.world.item.ItemStack(this.getBaseSeedId());
+     }
+ 
+-    public boolean isValidBonemealTarget(net.minecraft.world.level.BlockGetter level, net.minecraft.core.BlockPos pos, net.minecraft.world.level.block.state.BlockState state, boolean isClient) {
+-        return !this.isMaxAge(state);
++    public boolean isValidBonemealTarget(net.minecraft.world.level.BlockGetter $$0, net.minecraft.core.BlockPos $$1, net.minecraft.world.level.block.state.BlockState $$2, boolean $$3) {
++        return !this.isMaxAge($$2);
+     }
+ 
+     public boolean isBonemealSuccess(net.minecraft.world.level.Level $$0, net.minecraft.util.RandomSource $$1, net.minecraft.core.BlockPos $$2, net.minecraft.world.level.block.state.BlockState $$3) {
+@@ -139,8 +138,8 @@
+         this.growCrops((net.minecraft.world.level.Level)$$0, $$2, $$3);
+     }
+ 
+-    public void createBlockStateDefinition(net.minecraft.world.level.block.state.StateDefinition$Builder<net.minecraft.world.level.block.Block, net.minecraft.world.level.block.state.BlockState> builder) {
+-        builder.add(new net.minecraft.world.level.block.state.properties.Property[]{AGE});
++    public void createBlockStateDefinition(net.minecraft.world.level.block.state.StateDefinition$Builder<net.minecraft.world.level.block.Block, net.minecraft.world.level.block.state.BlockState> $$0) {
++        $$0.add(new net.minecraft.world.level.block.state.properties.Property[]{AGE});
+     }
+ 
+     static {

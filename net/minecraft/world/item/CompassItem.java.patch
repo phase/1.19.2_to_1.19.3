@@ -1,0 +1,123 @@
+--- net/minecraft/world/item/CompassItem.java
++++ net/minecraft/world/item/CompassItem.java
+@@ -16,13 +16,13 @@
+         super($$0);
+     }
+ 
+-    public static boolean isLodestoneCompass(net.minecraft.world.item.ItemStack stack) {
+-        net.minecraft.nbt.CompoundTag compoundTag = stack.getTag();
+-        return compoundTag != null && (compoundTag.contains("LodestoneDimension") || compoundTag.contains("LodestonePos"));
++    public static boolean isLodestoneCompass(net.minecraft.world.item.ItemStack $$0) {
++        net.minecraft.nbt.CompoundTag $$1 = $$0.getTag();
++        return $$1 != null && ($$1.contains("LodestoneDimension") || $$1.contains("LodestonePos"));
+     }
+ 
+-    public static java.util.Optional<net.minecraft.resources.ResourceKey<net.minecraft.world.level.Level>> getLodestoneDimension(net.minecraft.nbt.CompoundTag compoundTag) {
+-        return net.minecraft.world.level.Level.RESOURCE_KEY_CODEC.parse((com.mojang.serialization.DynamicOps)net.minecraft.nbt.NbtOps.INSTANCE, (java.lang.Object)compoundTag.get("LodestoneDimension")).result();
++    public static java.util.Optional<net.minecraft.resources.ResourceKey<net.minecraft.world.level.Level>> getLodestoneDimension(net.minecraft.nbt.CompoundTag $$0) {
++        return net.minecraft.world.level.Level.RESOURCE_KEY_CODEC.parse((com.mojang.serialization.DynamicOps)net.minecraft.nbt.NbtOps.INSTANCE, (java.lang.Object)$$0.get("LodestoneDimension")).result();
+     }
+ 
+     @javax.annotation.Nullable
+@@ -42,63 +42,63 @@
+         return $$0.dimensionType().natural() ? net.minecraft.core.GlobalPos.of((net.minecraft.resources.ResourceKey)$$0.dimension(), (net.minecraft.core.BlockPos)$$0.getSharedSpawnPos()) : null;
+     }
+ 
+-    public boolean isFoil(net.minecraft.world.item.ItemStack stack) {
+-        return net.minecraft.world.item.CompassItem.isLodestoneCompass((net.minecraft.world.item.ItemStack)stack) || super.isFoil(stack);
++    public boolean isFoil(net.minecraft.world.item.ItemStack $$0) {
++        return net.minecraft.world.item.CompassItem.isLodestoneCompass((net.minecraft.world.item.ItemStack)$$0) || super.isFoil($$0);
+     }
+ 
+-    public void inventoryTick(net.minecraft.world.item.ItemStack stack, net.minecraft.world.level.Level level, net.minecraft.world.entity.Entity entity, int itemSlot, boolean isSelected) {
+-        if (level.isClientSide) {
++    public void inventoryTick(net.minecraft.world.item.ItemStack $$0, net.minecraft.world.level.Level $$1, net.minecraft.world.entity.Entity $$2, int $$3, boolean $$4) {
++        if ($$1.isClientSide) {
+             return;
+         }
+-        if (net.minecraft.world.item.CompassItem.isLodestoneCompass((net.minecraft.world.item.ItemStack)stack)) {
+-            net.minecraft.core.BlockPos blockPos;
+-            net.minecraft.nbt.CompoundTag compoundTag = stack.getOrCreateTag();
+-            if (compoundTag.contains("LodestoneTracked") && !compoundTag.getBoolean("LodestoneTracked")) {
++        if (net.minecraft.world.item.CompassItem.isLodestoneCompass((net.minecraft.world.item.ItemStack)$$0)) {
++            net.minecraft.core.BlockPos $$7;
++            net.minecraft.nbt.CompoundTag $$5 = $$0.getOrCreateTag();
++            if ($$5.contains("LodestoneTracked") && !$$5.getBoolean("LodestoneTracked")) {
+                 return;
+             }
+-            java.util.Optional optional = net.minecraft.world.item.CompassItem.getLodestoneDimension((net.minecraft.nbt.CompoundTag)compoundTag);
+-            if (optional.isPresent() && optional.get() == level.dimension() && compoundTag.contains("LodestonePos") && (!level.isInWorldBounds(blockPos = net.minecraft.nbt.NbtUtils.readBlockPos((net.minecraft.nbt.CompoundTag)compoundTag.getCompound("LodestonePos"))) || !((net.minecraft.server.level.ServerLevel)level).getPoiManager().existsAtPosition(net.minecraft.world.entity.ai.village.poi.PoiTypes.LODESTONE, blockPos))) {
+-                compoundTag.remove("LodestonePos");
++            java.util.Optional $$6 = net.minecraft.world.item.CompassItem.getLodestoneDimension((net.minecraft.nbt.CompoundTag)$$5);
++            if ($$6.isPresent() && $$6.get() == $$1.dimension() && $$5.contains("LodestonePos") && (!$$1.isInWorldBounds($$7 = net.minecraft.nbt.NbtUtils.readBlockPos((net.minecraft.nbt.CompoundTag)$$5.getCompound("LodestonePos"))) || !((net.minecraft.server.level.ServerLevel)$$1).getPoiManager().existsAtPosition(net.minecraft.world.entity.ai.village.poi.PoiTypes.LODESTONE, $$7))) {
++                $$5.remove("LodestonePos");
+             }
+         }
+     }
+ 
+-    public net.minecraft.world.InteractionResult useOn(net.minecraft.world.item.context.UseOnContext context) {
+-        net.minecraft.core.BlockPos blockPos = context.getClickedPos();
+-        net.minecraft.world.level.Level level = context.getLevel();
+-        if (level.getBlockState(blockPos).is(net.minecraft.world.level.block.Blocks.LODESTONE)) {
+-            boolean bl;
+-            level.playSound(null, blockPos, net.minecraft.sounds.SoundEvents.LODESTONE_COMPASS_LOCK, net.minecraft.sounds.SoundSource.PLAYERS, 1.0f, 1.0f);
+-            net.minecraft.world.entity.player.Player player = context.getPlayer();
+-            net.minecraft.world.item.ItemStack itemStack = context.getItemInHand();
+-            boolean bl2 = bl = !player.getAbilities().instabuild && itemStack.getCount() == 1;
+-            if (bl) {
+-                this.addLodestoneTags(level.dimension(), blockPos, itemStack.getOrCreateTag());
++    public net.minecraft.world.InteractionResult useOn(net.minecraft.world.item.context.UseOnContext $$0) {
++        net.minecraft.core.BlockPos $$1 = $$0.getClickedPos();
++        net.minecraft.world.level.Level $$2 = $$0.getLevel();
++        if ($$2.getBlockState($$1).is(net.minecraft.world.level.block.Blocks.LODESTONE)) {
++            boolean $$5;
++            $$2.playSound(null, $$1, net.minecraft.sounds.SoundEvents.LODESTONE_COMPASS_LOCK, net.minecraft.sounds.SoundSource.PLAYERS, 1.0f, 1.0f);
++            net.minecraft.world.entity.player.Player $$3 = $$0.getPlayer();
++            net.minecraft.world.item.ItemStack $$4 = $$0.getItemInHand();
++            boolean bl = $$5 = !$$3.getAbilities().instabuild && $$4.getCount() == 1;
++            if ($$5) {
++                this.addLodestoneTags($$2.dimension(), $$1, $$4.getOrCreateTag());
+             } else {
+-                net.minecraft.world.item.ItemStack itemStack2 = new net.minecraft.world.item.ItemStack((net.minecraft.world.level.ItemLike)net.minecraft.world.item.Items.COMPASS, 1);
+-                net.minecraft.nbt.CompoundTag compoundTag = itemStack.hasTag() ? itemStack.getTag().copy() : new net.minecraft.nbt.CompoundTag();
+-                itemStack2.setTag(compoundTag);
+-                if (!player.getAbilities().instabuild) {
+-                    itemStack.shrink(1);
++                net.minecraft.world.item.ItemStack $$6 = new net.minecraft.world.item.ItemStack((net.minecraft.world.level.ItemLike)net.minecraft.world.item.Items.COMPASS, 1);
++                net.minecraft.nbt.CompoundTag $$7 = $$4.hasTag() ? $$4.getTag().copy() : new net.minecraft.nbt.CompoundTag();
++                $$6.setTag($$7);
++                if (!$$3.getAbilities().instabuild) {
++                    $$4.shrink(1);
+                 }
+-                this.addLodestoneTags(level.dimension(), blockPos, compoundTag);
+-                if (!player.getInventory().add(itemStack2)) {
+-                    player.drop(itemStack2, false);
++                this.addLodestoneTags($$2.dimension(), $$1, $$7);
++                if (!$$3.getInventory().add($$6)) {
++                    $$3.drop($$6, false);
+                 }
+             }
+-            return net.minecraft.world.InteractionResult.sidedSuccess((boolean)level.isClientSide);
++            return net.minecraft.world.InteractionResult.sidedSuccess((boolean)$$2.isClientSide);
+         }
+-        return super.useOn(context);
++        return super.useOn($$0);
+     }
+ 
+-    public void addLodestoneTags(net.minecraft.resources.ResourceKey<net.minecraft.world.level.Level> lodestoneDimension, net.minecraft.core.BlockPos lodestonePos, net.minecraft.nbt.CompoundTag compoundTag) {
+-        compoundTag.put("LodestonePos", (net.minecraft.nbt.Tag)net.minecraft.nbt.NbtUtils.writeBlockPos((net.minecraft.core.BlockPos)lodestonePos));
+-        net.minecraft.world.level.Level.RESOURCE_KEY_CODEC.encodeStart((com.mojang.serialization.DynamicOps)net.minecraft.nbt.NbtOps.INSTANCE, lodestoneDimension).resultOrPartial(arg_0 -> ((org.slf4j.Logger)LOGGER).error(arg_0)).ifPresent(tag -> compoundTag.put("LodestoneDimension", tag));
+-        compoundTag.putBoolean("LodestoneTracked", true);
++    public void addLodestoneTags(net.minecraft.resources.ResourceKey<net.minecraft.world.level.Level> $$0, net.minecraft.core.BlockPos $$12, net.minecraft.nbt.CompoundTag $$2) {
++        $$2.put("LodestonePos", (net.minecraft.nbt.Tag)net.minecraft.nbt.NbtUtils.writeBlockPos((net.minecraft.core.BlockPos)$$12));
++        net.minecraft.world.level.Level.RESOURCE_KEY_CODEC.encodeStart((com.mojang.serialization.DynamicOps)net.minecraft.nbt.NbtOps.INSTANCE, $$0).resultOrPartial(arg_0 -> ((org.slf4j.Logger)LOGGER).error(arg_0)).ifPresent($$1 -> $$2.put("LodestoneDimension", $$1));
++        $$2.putBoolean("LodestoneTracked", true);
+     }
+ 
+-    public java.lang.String getDescriptionId(net.minecraft.world.item.ItemStack stack) {
+-        return net.minecraft.world.item.CompassItem.isLodestoneCompass((net.minecraft.world.item.ItemStack)stack) ? "item.minecraft.lodestone_compass" : super.getDescriptionId(stack);
++    public java.lang.String getDescriptionId(net.minecraft.world.item.ItemStack $$0) {
++        return net.minecraft.world.item.CompassItem.isLodestoneCompass((net.minecraft.world.item.ItemStack)$$0) ? "item.minecraft.lodestone_compass" : super.getDescriptionId($$0);
+     }
+ 
+     static {

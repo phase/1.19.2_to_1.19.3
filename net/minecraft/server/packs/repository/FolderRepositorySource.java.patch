@@ -1,0 +1,110 @@
+--- net/minecraft/server/packs/repository/FolderRepositorySource.java
++++ net/minecraft/server/packs/repository/FolderRepositorySource.java
+@@ -6,50 +6,78 @@
+ public class net.minecraft.server.packs.repository.FolderRepositorySource
+ implements net.minecraft.server.packs.repository.RepositorySource
+  {
+-    public static java.io.FileFilter RESOURCEPACK_FILTER;
+-    public java.io.File folder;
++    public static org.slf4j.Logger LOGGER;
++    public java.nio.file.Path folder;
++    public net.minecraft.server.packs.PackType packType;
+     public net.minecraft.server.packs.repository.PackSource packSource;
+ 
+-    public net.minecraft.server.packs.repository.FolderRepositorySource(java.io.File $$0, net.minecraft.server.packs.repository.PackSource $$1) {
++    public net.minecraft.server.packs.repository.FolderRepositorySource(java.nio.file.Path $$0, net.minecraft.server.packs.PackType $$1, net.minecraft.server.packs.repository.PackSource $$2) {
+         this.folder = $$0;
+-        this.packSource = $$1;
++        this.packType = $$1;
++        this.packSource = $$2;
+     }
+ 
+-    public void loadPacks(java.util.function.Consumer<net.minecraft.server.packs.repository.Pack> infoConsumer, net.minecraft.server.packs.repository.Pack$PackConstructor infoFactory) {
+-        java.io.File[] fileArray;
+-        if (!this.folder.isDirectory()) {
+-            this.folder.mkdirs();
++    public static java.lang.String nameFromPath(java.nio.file.Path $$0) {
++        return $$0.getFileName().toString();
++    }
++
++    public void loadPacks(java.util.function.Consumer<net.minecraft.server.packs.repository.Pack> $$0) {
++        try {
++            java.nio.file.Files.createDirectories((java.nio.file.Path)this.folder, (java.nio.file.attribute.FileAttribute[])new java.nio.file.attribute.FileAttribute[0]);
++            net.minecraft.server.packs.repository.FolderRepositorySource.discoverPacks((java.nio.file.Path)this.folder, ($$1, $$2) -> {
++                java.lang.String $$3 = net.minecraft.server.packs.repository.FolderRepositorySource.nameFromPath((java.nio.file.Path)$$1);
++                net.minecraft.server.packs.repository.Pack $$4 = net.minecraft.server.packs.repository.Pack.readMetaAndCreate((java.lang.String)("file/" + $$3), (net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.literal((java.lang.String)$$3), (boolean)false, (net.minecraft.server.packs.repository.Pack$ResourcesSupplier)$$2, (net.minecraft.server.packs.PackType)this.packType, (net.minecraft.server.packs.repository.Pack$Position)net.minecraft.server.packs.repository.Pack$Position.TOP, (net.minecraft.server.packs.repository.PackSource)this.packSource);
++                if ($$4 != null) {
++                    $$0.accept((java.lang.Object)$$4);
++                }
++            });
+         }
+-        if ((fileArray = this.folder.listFiles(RESOURCEPACK_FILTER)) == null) {
+-            return;
++        catch (java.io.IOException $$12) {
++            LOGGER.warn("Failed to list packs in {}", (java.lang.Object)this.folder, (java.lang.Object)((java.lang.Object)$$12));
+         }
+-        for (java.io.File file : fileArray) {
+-            java.lang.String string = "file/" + file.getName();
+-            net.minecraft.server.packs.repository.Pack pack = net.minecraft.server.packs.repository.Pack.create((java.lang.String)string, (boolean)false, (java.util.function.Supplier)this.createSupplier(file), (net.minecraft.server.packs.repository.Pack$PackConstructor)infoFactory, (net.minecraft.server.packs.repository.Pack$Position)net.minecraft.server.packs.repository.Pack$Position.TOP, (net.minecraft.server.packs.repository.PackSource)this.packSource);
+-            if (pack == null) continue;
+-            infoConsumer.accept((java.lang.Object)pack);
+-        }
+     }
+ 
+-    public java.util.function.Supplier<net.minecraft.server.packs.PackResources> createSupplier(java.io.File file) {
+-        if (file.isDirectory()) {
+-            return () -> new net.minecraft.server.packs.FolderPackResources(file);
++    public static void discoverPacks(java.nio.file.Path $$0, java.util.function.BiConsumer<java.nio.file.Path, net.minecraft.server.packs.repository.Pack$ResourcesSupplier> $$1) throws java.io.IOException {
++        try (java.nio.file.DirectoryStream $$2 = java.nio.file.Files.newDirectoryStream((java.nio.file.Path)$$0);
++){
++            for (java.nio.file.Path $$3 : $$2) {
++                net.minecraft.server.packs.repository.Pack$ResourcesSupplier $$4 = net.minecraft.server.packs.repository.FolderRepositorySource.detectPackResources((java.nio.file.Path)$$3);
++                if ($$4 == null) continue;
++                $$1.accept((java.lang.Object)$$3, (java.lang.Object)$$4);
++            }
+         }
+-        return () -> new net.minecraft.server.packs.FilePackResources(file);
+     }
+ 
+-    public static /* synthetic */ boolean lambda$static$0(java.io.File $$0) {
+-        boolean $$1 = $$0.isFile() && $$0.getName().endsWith(".zip");
+-        boolean $$2 = $$0.isDirectory() && new java.io.File($$0, "pack.mcmeta").isFile();
+-        return $$1 || $$2;
++    /*
++     * WARNING - void declaration
++     */
++    @javax.annotation.Nullable
++    public static net.minecraft.server.packs.repository.Pack$ResourcesSupplier detectPackResources(java.nio.file.Path $$0) {
++        java.nio.file.FileSystem $$5;
++        void $$4;
++        try {
++            java.nio.file.attribute.BasicFileAttributes $$12 = java.nio.file.Files.readAttributes((java.nio.file.Path)$$0, java.nio.file.attribute.BasicFileAttributes.class, (java.nio.file.LinkOption[])new java.nio.file.LinkOption[0]);
++        }
++        catch (java.nio.file.NoSuchFileException $$2) {
++            return null;
++        }
++        catch (java.io.IOException $$3) {
++            LOGGER.warn("Failed to read properties of '{}', ignoring", (java.lang.Object)$$0, (java.lang.Object)((java.lang.Object)$$3));
++            return null;
++        }
++        if ($$4.isDirectory() && java.nio.file.Files.isRegularFile((java.nio.file.Path)$$0.resolve("pack.mcmeta"), (java.nio.file.LinkOption[])new java.nio.file.LinkOption[0])) {
++            return $$1 -> new net.minecraft.server.packs.PathPackResources($$1, $$0);
++        }
++        if ($$4.isRegularFile() && $$0.getFileName().toString().endsWith(".zip") && (($$5 = $$0.getFileSystem()) == java.nio.file.FileSystems.getDefault() || $$5 instanceof net.minecraft.server.packs.linkfs.LinkFileSystem)) {
++            java.io.File $$6 = $$0.toFile();
++            return $$1 -> new net.minecraft.server.packs.FilePackResources($$1, $$6);
++        }
++        LOGGER.info("Found non-pack entry '{}', ignoring", (java.lang.Object)$$0);
++        return null;
+     }
+ 
+     static {
+-        RESOURCEPACK_FILTER = $$0 -> {
+-            boolean $$1 = $$0.isFile() && $$0.getName().endsWith(".zip");
+-            boolean $$2 = $$0.isDirectory() && new java.io.File($$0, "pack.mcmeta").isFile();
+-            return $$1 || $$2;
+-        };
++        LOGGER = com.mojang.logging.LogUtils.getLogger();
+     }
+ }
+ 

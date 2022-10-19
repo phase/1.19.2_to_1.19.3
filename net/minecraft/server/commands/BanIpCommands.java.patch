@@ -1,0 +1,62 @@
+--- net/minecraft/server/commands/BanIpCommands.java
++++ net/minecraft/server/commands/BanIpCommands.java
+@@ -12,38 +12,38 @@
+     public net.minecraft.server.commands.BanIpCommands() {
+     }
+ 
+-    public static void register(com.mojang.brigadier.CommandDispatcher<net.minecraft.commands.CommandSourceStack> dispatcher) {
+-        dispatcher.register((com.mojang.brigadier.builder.LiteralArgumentBuilder)((com.mojang.brigadier.builder.LiteralArgumentBuilder)net.minecraft.commands.Commands.literal((java.lang.String)"ban-ip").requires($$0 -> $$0.hasPermission(3))).then(((com.mojang.brigadier.builder.RequiredArgumentBuilder)net.minecraft.commands.Commands.argument((java.lang.String)"target", (com.mojang.brigadier.arguments.ArgumentType)com.mojang.brigadier.arguments.StringArgumentType.word()).executes($$0 -> net.minecraft.server.commands.BanIpCommands.banIpOrName((net.minecraft.commands.CommandSourceStack)((net.minecraft.commands.CommandSourceStack)$$0.getSource()), (java.lang.String)com.mojang.brigadier.arguments.StringArgumentType.getString((com.mojang.brigadier.context.CommandContext)$$0, (java.lang.String)"target"), null))).then(net.minecraft.commands.Commands.argument((java.lang.String)"reason", (com.mojang.brigadier.arguments.ArgumentType)net.minecraft.commands.arguments.MessageArgument.message()).executes($$0 -> net.minecraft.server.commands.BanIpCommands.banIpOrName((net.minecraft.commands.CommandSourceStack)((net.minecraft.commands.CommandSourceStack)$$0.getSource()), (java.lang.String)com.mojang.brigadier.arguments.StringArgumentType.getString((com.mojang.brigadier.context.CommandContext)$$0, (java.lang.String)"target"), (net.minecraft.network.chat.Component)net.minecraft.commands.arguments.MessageArgument.getMessage((com.mojang.brigadier.context.CommandContext)$$0, (java.lang.String)"reason"))))));
++    public static void register(com.mojang.brigadier.CommandDispatcher<net.minecraft.commands.CommandSourceStack> $$02) {
++        $$02.register((com.mojang.brigadier.builder.LiteralArgumentBuilder)((com.mojang.brigadier.builder.LiteralArgumentBuilder)net.minecraft.commands.Commands.literal((java.lang.String)"ban-ip").requires($$0 -> $$0.hasPermission(3))).then(((com.mojang.brigadier.builder.RequiredArgumentBuilder)net.minecraft.commands.Commands.argument((java.lang.String)"target", (com.mojang.brigadier.arguments.ArgumentType)com.mojang.brigadier.arguments.StringArgumentType.word()).executes($$0 -> net.minecraft.server.commands.BanIpCommands.banIpOrName((net.minecraft.commands.CommandSourceStack)((net.minecraft.commands.CommandSourceStack)$$0.getSource()), (java.lang.String)com.mojang.brigadier.arguments.StringArgumentType.getString((com.mojang.brigadier.context.CommandContext)$$0, (java.lang.String)"target"), null))).then(net.minecraft.commands.Commands.argument((java.lang.String)"reason", (com.mojang.brigadier.arguments.ArgumentType)net.minecraft.commands.arguments.MessageArgument.message()).executes($$0 -> net.minecraft.server.commands.BanIpCommands.banIpOrName((net.minecraft.commands.CommandSourceStack)((net.minecraft.commands.CommandSourceStack)$$0.getSource()), (java.lang.String)com.mojang.brigadier.arguments.StringArgumentType.getString((com.mojang.brigadier.context.CommandContext)$$0, (java.lang.String)"target"), (net.minecraft.network.chat.Component)net.minecraft.commands.arguments.MessageArgument.getMessage((com.mojang.brigadier.context.CommandContext)$$0, (java.lang.String)"reason"))))));
+     }
+ 
+-    public static int banIpOrName(net.minecraft.commands.CommandSourceStack source, java.lang.String username, @javax.annotation.Nullable net.minecraft.network.chat.Component reason) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
+-        java.util.regex.Matcher matcher = IP_ADDRESS_PATTERN.matcher((java.lang.CharSequence)username);
+-        if (matcher.matches()) {
+-            return net.minecraft.server.commands.BanIpCommands.banIp((net.minecraft.commands.CommandSourceStack)source, (java.lang.String)username, (net.minecraft.network.chat.Component)reason);
++    public static int banIpOrName(net.minecraft.commands.CommandSourceStack $$0, java.lang.String $$1, @javax.annotation.Nullable net.minecraft.network.chat.Component $$2) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
++        java.util.regex.Matcher $$3 = IP_ADDRESS_PATTERN.matcher((java.lang.CharSequence)$$1);
++        if ($$3.matches()) {
++            return net.minecraft.server.commands.BanIpCommands.banIp((net.minecraft.commands.CommandSourceStack)$$0, (java.lang.String)$$1, (net.minecraft.network.chat.Component)$$2);
+         }
+-        net.minecraft.server.level.ServerPlayer serverPlayer = source.getServer().getPlayerList().getPlayerByName(username);
+-        if (serverPlayer != null) {
+-            return net.minecraft.server.commands.BanIpCommands.banIp((net.minecraft.commands.CommandSourceStack)source, (java.lang.String)serverPlayer.getIpAddress(), (net.minecraft.network.chat.Component)reason);
++        net.minecraft.server.level.ServerPlayer $$4 = $$0.getServer().getPlayerList().getPlayerByName($$1);
++        if ($$4 != null) {
++            return net.minecraft.server.commands.BanIpCommands.banIp((net.minecraft.commands.CommandSourceStack)$$0, (java.lang.String)$$4.getIpAddress(), (net.minecraft.network.chat.Component)$$2);
+         }
+         throw ERROR_INVALID_IP.create();
+     }
+ 
+-    public static int banIp(net.minecraft.commands.CommandSourceStack source, java.lang.String ip, @javax.annotation.Nullable net.minecraft.network.chat.Component reason) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
+-        net.minecraft.server.players.IpBanList ipBanList = source.getServer().getPlayerList().getIpBans();
+-        if (ipBanList.isBanned(ip)) {
++    public static int banIp(net.minecraft.commands.CommandSourceStack $$0, java.lang.String $$1, @javax.annotation.Nullable net.minecraft.network.chat.Component $$2) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
++        net.minecraft.server.players.IpBanList $$3 = $$0.getServer().getPlayerList().getIpBans();
++        if ($$3.isBanned($$1)) {
+             throw ERROR_ALREADY_BANNED.create();
+         }
+-        java.util.List list = source.getServer().getPlayerList().getPlayersWithAddress(ip);
+-        net.minecraft.server.players.IpBanListEntry ipBanListEntry = new net.minecraft.server.players.IpBanListEntry(ip, null, source.getTextName(), null, reason == null ? null : reason.getString());
+-        ipBanList.add((net.minecraft.server.players.StoredUserEntry)ipBanListEntry);
+-        source.sendSuccess((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"commands.banip.success", (java.lang.Object[])new java.lang.Object[]{ip, ipBanListEntry.getReason()}), true);
+-        if (!list.isEmpty()) {
+-            source.sendSuccess((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"commands.banip.info", (java.lang.Object[])new java.lang.Object[]{list.size(), net.minecraft.commands.arguments.selector.EntitySelector.joinNames((java.util.List)list)}), true);
++        java.util.List $$4 = $$0.getServer().getPlayerList().getPlayersWithAddress($$1);
++        net.minecraft.server.players.IpBanListEntry $$5 = new net.minecraft.server.players.IpBanListEntry($$1, null, $$0.getTextName(), null, $$2 == null ? null : $$2.getString());
++        $$3.add((net.minecraft.server.players.StoredUserEntry)$$5);
++        $$0.sendSuccess((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"commands.banip.success", (java.lang.Object[])new java.lang.Object[]{$$1, $$5.getReason()}), true);
++        if (!$$4.isEmpty()) {
++            $$0.sendSuccess((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"commands.banip.info", (java.lang.Object[])new java.lang.Object[]{$$4.size(), net.minecraft.commands.arguments.selector.EntitySelector.joinNames((java.util.List)$$4)}), true);
+         }
+-        for (net.minecraft.server.level.ServerPlayer serverPlayer : list) {
+-            serverPlayer.connection.disconnect((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"multiplayer.disconnect.ip_banned"));
++        for (net.minecraft.server.level.ServerPlayer $$6 : $$4) {
++            $$6.connection.disconnect((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"multiplayer.disconnect.ip_banned"));
+         }
+-        return list.size();
++        return $$4.size();
+     }
+ 
+     static {

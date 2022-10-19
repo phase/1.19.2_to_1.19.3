@@ -1,0 +1,73 @@
+--- net/minecraft/client/particle/VibrationSignalParticle.java
++++ net/minecraft/client/particle/VibrationSignalParticle.java
+@@ -7,29 +7,40 @@
+ extends net.minecraft.client.particle.TextureSheetParticle
+  {
+     public net.minecraft.world.level.gameevent.PositionSource target;
+-    public float yRot;
+-    public float yRotO;
++    public float rot;
++    public float rotO;
++    public float pitch;
++    public float pitchO;
+ 
+     public net.minecraft.client.particle.VibrationSignalParticle(net.minecraft.client.multiplayer.ClientLevel $$0, double $$1, double $$2, double $$3, net.minecraft.world.level.gameevent.PositionSource $$4, int $$5) {
+         super($$0, $$1, $$2, $$3, 0.0, 0.0, 0.0);
+         this.quadSize = 0.3f;
+         this.target = $$4;
+         this.lifetime = $$5;
++        java.util.Optional $$6 = $$4.getPosition((net.minecraft.world.level.Level)$$0);
++        if ($$6.isPresent()) {
++            net.minecraft.world.phys.Vec3 $$7 = (net.minecraft.world.phys.Vec3)$$6.get();
++            double $$8 = $$1 - $$7.x();
++            double $$9 = $$2 - $$7.y();
++            double $$10 = $$3 - $$7.z();
++            this.rotO = this.rot = (float)net.minecraft.util.Mth.atan2((double)$$8, (double)$$10);
++            this.pitchO = this.pitch = (float)net.minecraft.util.Mth.atan2((double)$$9, (double)java.lang.Math.sqrt((double)($$8 * $$8 + $$10 * $$10)));
++        }
+     }
+ 
+-    public void render(com.mojang.blaze3d.vertex.VertexConsumer $$0, net.minecraft.client.Camera $$1, float $$22) {
+-        float $$3 = net.minecraft.util.Mth.sin((float)(((float)this.age + $$22 - (float)java.lang.Math.PI * 2) * 0.05f)) * 2.0f;
+-        float $$4 = net.minecraft.util.Mth.lerp((float)$$22, (float)this.yRotO, (float)this.yRot);
+-        float $$5 = 1.0472f;
+-        this.renderSignal($$0, $$1, $$22, $$2 -> {
+-            $$2.mul(com.mojang.math.Vector3f.YP.rotation($$4));
+-            $$2.mul(com.mojang.math.Vector3f.XP.rotation(-1.0472f));
+-            $$2.mul(com.mojang.math.Vector3f.YP.rotation($$3));
++    public void render(com.mojang.blaze3d.vertex.VertexConsumer $$0, net.minecraft.client.Camera $$1, float $$2) {
++        float $$32 = net.minecraft.util.Mth.sin((float)(((float)this.age + $$2 - (float)java.lang.Math.PI * 2) * 0.05f)) * 2.0f;
++        float $$4 = net.minecraft.util.Mth.lerp((float)$$2, (float)this.rotO, (float)this.rot);
++        float $$5 = net.minecraft.util.Mth.lerp((float)$$2, (float)this.pitchO, (float)this.pitch) + 1.5707964f;
++        this.renderSignal($$0, $$1, $$2, $$3 -> {
++            $$3.mul(com.mojang.math.Vector3f.YP.rotation($$4));
++            $$3.mul(com.mojang.math.Vector3f.XP.rotation(-$$5));
++            $$3.mul(com.mojang.math.Vector3f.YP.rotation($$32));
+         });
+-        this.renderSignal($$0, $$1, $$22, $$2 -> {
+-            $$2.mul(com.mojang.math.Vector3f.YP.rotation((float)(-java.lang.Math.PI) + $$4));
+-            $$2.mul(com.mojang.math.Vector3f.XP.rotation(1.0472f));
+-            $$2.mul(com.mojang.math.Vector3f.YP.rotation($$3));
++        this.renderSignal($$0, $$1, $$2, $$3 -> {
++            $$3.mul(com.mojang.math.Vector3f.YP.rotation((float)(-java.lang.Math.PI) + $$4));
++            $$3.mul(com.mojang.math.Vector3f.XP.rotation($$5));
++            $$3.mul(com.mojang.math.Vector3f.YP.rotation($$32));
+         });
+     }
+ 
+@@ -90,8 +101,13 @@
+         this.x = net.minecraft.util.Mth.lerp((double)$$2, (double)this.x, (double)$$3.x());
+         this.y = net.minecraft.util.Mth.lerp((double)$$2, (double)this.y, (double)$$3.y());
+         this.z = net.minecraft.util.Mth.lerp((double)$$2, (double)this.z, (double)$$3.z());
+-        this.yRotO = this.yRot;
+-        this.yRot = (float)net.minecraft.util.Mth.atan2((double)(this.x - $$3.x()), (double)(this.z - $$3.z()));
++        double $$4 = this.x - $$3.x();
++        double $$5 = this.y - $$3.y();
++        double $$6 = this.z - $$3.z();
++        this.rotO = this.rot;
++        this.rot = (float)net.minecraft.util.Mth.atan2((double)$$4, (double)$$6);
++        this.pitchO = this.pitch;
++        this.pitch = (float)net.minecraft.util.Mth.atan2((double)$$5, (double)java.lang.Math.sqrt((double)($$4 * $$4 + $$6 * $$6)));
+     }
+ }
+ 

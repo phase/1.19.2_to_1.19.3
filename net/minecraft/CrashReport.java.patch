@@ -1,0 +1,189 @@
+--- net/minecraft/CrashReport.java
++++ net/minecraft/CrashReport.java
+@@ -15,13 +15,13 @@
+     public java.lang.StackTraceElement[] uncategorizedStackTrace;
+     public net.minecraft.SystemReport systemReport;
+ 
+-    public net.minecraft.CrashReport(java.lang.String title, java.lang.Throwable exception) {
++    public net.minecraft.CrashReport(java.lang.String $$0, java.lang.Throwable $$1) {
+         this.details = com.google.common.collect.Lists.newArrayList();
+         this.trackingStackTrace = true;
+         this.uncategorizedStackTrace = new java.lang.StackTraceElement[0];
+         this.systemReport = new net.minecraft.SystemReport();
+-        this.title = title;
+-        this.exception = exception;
++        this.title = $$0;
++        this.exception = $$1;
+     }
+ 
+     public java.lang.String getTitle() {
+@@ -38,25 +38,25 @@
+         return $$0.toString();
+     }
+ 
+-    public void getDetails(java.lang.StringBuilder builder) {
++    public void getDetails(java.lang.StringBuilder $$0) {
+         if (!(this.uncategorizedStackTrace != null && this.uncategorizedStackTrace.length > 0 || this.details.isEmpty())) {
+             this.uncategorizedStackTrace = (java.lang.StackTraceElement[])org.apache.commons.lang3.ArrayUtils.subarray((java.lang.Object[])((net.minecraft.CrashReportCategory)this.details.get(0)).getStacktrace(), (int)0, (int)1);
+         }
+         if (this.uncategorizedStackTrace != null && this.uncategorizedStackTrace.length > 0) {
+-            builder.append("-- Head --\n");
+-            builder.append("Thread: ").append(java.lang.Thread.currentThread().getName()).append("\n");
+-            builder.append("Stacktrace:\n");
+-            for (java.lang.StackTraceElement stackTraceElement : this.uncategorizedStackTrace) {
+-                builder.append("\t").append("at ").append((java.lang.Object)stackTraceElement);
+-                builder.append("\n");
++            $$0.append("-- Head --\n");
++            $$0.append("Thread: ").append(java.lang.Thread.currentThread().getName()).append("\n");
++            $$0.append("Stacktrace:\n");
++            for (java.lang.StackTraceElement $$1 : this.uncategorizedStackTrace) {
++                $$0.append("\t").append("at ").append((java.lang.Object)$$1);
++                $$0.append("\n");
+             }
+-            builder.append("\n");
++            $$0.append("\n");
+         }
+-        for (net.minecraft.CrashReportCategory crashReportCategory : this.details) {
+-            crashReportCategory.getDetails(builder);
+-            builder.append("\n\n");
++        for (net.minecraft.CrashReportCategory $$2 : this.details) {
++            $$2.getDetails($$0);
++            $$0.append("\n\n");
+         }
+-        this.systemReport.appendToCrashReportString(builder);
++        this.systemReport.appendToCrashReportString($$0);
+     }
+ 
+     /*
+@@ -122,35 +122,35 @@
+     /*
+      * WARNING - Removed try catching itself - possible behaviour change.
+      */
+-    public boolean saveToFile(java.io.File toFile) {
++    public boolean saveToFile(java.io.File $$0) {
+         boolean bl;
+         if (this.saveFile != null) {
+             return false;
+         }
+-        if (toFile.getParentFile() != null) {
+-            toFile.getParentFile().mkdirs();
++        if ($$0.getParentFile() != null) {
++            $$0.getParentFile().mkdirs();
+         }
+-        java.io.OutputStreamWriter outputStreamWriter = null;
++        java.io.OutputStreamWriter $$1 = null;
+         try {
+-            outputStreamWriter = new java.io.OutputStreamWriter((java.io.OutputStream)new java.io.FileOutputStream(toFile), java.nio.charset.StandardCharsets.UTF_8);
+-            outputStreamWriter.write(this.getFriendlyReport());
+-            this.saveFile = toFile;
++            $$1 = new java.io.OutputStreamWriter((java.io.OutputStream)new java.io.FileOutputStream($$0), java.nio.charset.StandardCharsets.UTF_8);
++            $$1.write(this.getFriendlyReport());
++            this.saveFile = $$0;
+             bl = true;
+         }
+-        catch (java.lang.Throwable throwable) {
++        catch (java.lang.Throwable $$2) {
+             boolean bl2;
+             try {
+-                LOGGER.error("Could not save crash report to {}", (java.lang.Object)toFile, (java.lang.Object)((java.lang.Object)throwable));
++                LOGGER.error("Could not save crash report to {}", (java.lang.Object)$$0, (java.lang.Object)((java.lang.Object)$$2));
+                 bl2 = false;
+             }
+-            catch (java.lang.Throwable throwable2) {
+-                org.apache.commons.io.IOUtils.closeQuietly(outputStreamWriter);
+-                throw throwable2;
++            catch (java.lang.Throwable throwable) {
++                org.apache.commons.io.IOUtils.closeQuietly($$1);
++                throw throwable;
+             }
+-            org.apache.commons.io.IOUtils.closeQuietly((java.io.Writer)outputStreamWriter);
++            org.apache.commons.io.IOUtils.closeQuietly((java.io.Writer)$$1);
+             return bl2;
+         }
+-        org.apache.commons.io.IOUtils.closeQuietly((java.io.Writer)outputStreamWriter);
++        org.apache.commons.io.IOUtils.closeQuietly((java.io.Writer)$$1);
+         return bl;
+     }
+ 
+@@ -158,37 +158,37 @@
+         return this.systemReport;
+     }
+ 
+-    public net.minecraft.CrashReportCategory addCategory(java.lang.String name) {
+-        return this.addCategory(name, 1);
++    public net.minecraft.CrashReportCategory addCategory(java.lang.String $$0) {
++        return this.addCategory($$0, 1);
+     }
+ 
+-    public net.minecraft.CrashReportCategory addCategory(java.lang.String categoryName, int stacktraceLength) {
+-        net.minecraft.CrashReportCategory crashReportCategory = new net.minecraft.CrashReportCategory(categoryName);
++    public net.minecraft.CrashReportCategory addCategory(java.lang.String $$0, int $$1) {
++        net.minecraft.CrashReportCategory $$2 = new net.minecraft.CrashReportCategory($$0);
+         if (this.trackingStackTrace) {
+-            int n = crashReportCategory.fillInStackTrace(stacktraceLength);
+-            java.lang.StackTraceElement[] stackTraceElementArray = this.exception.getStackTrace();
+-            java.lang.StackTraceElement stackTraceElement = null;
+-            java.lang.StackTraceElement stackTraceElement2 = null;
+-            int n2 = stackTraceElementArray.length - n;
+-            if (n2 < 0) {
+-                java.lang.System.out.println("Negative index in crash report handler (" + stackTraceElementArray.length + "/" + n + ")");
++            int $$3 = $$2.fillInStackTrace($$1);
++            java.lang.StackTraceElement[] $$4 = this.exception.getStackTrace();
++            java.lang.StackTraceElement $$5 = null;
++            java.lang.StackTraceElement $$6 = null;
++            int $$7 = $$4.length - $$3;
++            if ($$7 < 0) {
++                java.lang.System.out.println("Negative index in crash report handler (" + $$4.length + "/" + $$3 + ")");
+             }
+-            if (stackTraceElementArray != null && 0 <= n2 && n2 < stackTraceElementArray.length) {
+-                stackTraceElement = stackTraceElementArray[n2];
+-                if (stackTraceElementArray.length + 1 - n < stackTraceElementArray.length) {
+-                    stackTraceElement2 = stackTraceElementArray[stackTraceElementArray.length + 1 - n];
++            if ($$4 != null && 0 <= $$7 && $$7 < $$4.length) {
++                $$5 = $$4[$$7];
++                if ($$4.length + 1 - $$3 < $$4.length) {
++                    $$6 = $$4[$$4.length + 1 - $$3];
+                 }
+             }
+-            this.trackingStackTrace = crashReportCategory.validateStackTrace(stackTraceElement, stackTraceElement2);
+-            if (stackTraceElementArray != null && stackTraceElementArray.length >= n && 0 <= n2 && n2 < stackTraceElementArray.length) {
+-                this.uncategorizedStackTrace = new java.lang.StackTraceElement[n2];
+-                java.lang.System.arraycopy((java.lang.Object)stackTraceElementArray, (int)0, (java.lang.Object)this.uncategorizedStackTrace, (int)0, (int)this.uncategorizedStackTrace.length);
++            this.trackingStackTrace = $$2.validateStackTrace($$5, $$6);
++            if ($$4 != null && $$4.length >= $$3 && 0 <= $$7 && $$7 < $$4.length) {
++                this.uncategorizedStackTrace = new java.lang.StackTraceElement[$$7];
++                java.lang.System.arraycopy((java.lang.Object)$$4, (int)0, (java.lang.Object)this.uncategorizedStackTrace, (int)0, (int)this.uncategorizedStackTrace.length);
+             } else {
+                 this.trackingStackTrace = false;
+             }
+         }
+-        this.details.add((java.lang.Object)crashReportCategory);
+-        return crashReportCategory;
++        this.details.add((java.lang.Object)$$2);
++        return $$2;
+     }
+ 
+     public static java.lang.String getErrorComment() {
+@@ -201,12 +201,17 @@
+         }
+     }
+ 
+-    public static net.minecraft.CrashReport forThrowable(java.lang.Throwable cause, java.lang.String description) {
+-        while (cause instanceof java.util.concurrent.CompletionException && cause.getCause() != null) {
+-            cause = cause.getCause();
++    public static net.minecraft.CrashReport forThrowable(java.lang.Throwable $$0, java.lang.String $$1) {
++        net.minecraft.CrashReport $$3;
++        while ($$0 instanceof java.util.concurrent.CompletionException && $$0.getCause() != null) {
++            $$0 = $$0.getCause();
+         }
+-        net.minecraft.CrashReport crashReport = cause instanceof net.minecraft.ReportedException ? ((net.minecraft.ReportedException)cause).getReport() : new net.minecraft.CrashReport(description, cause);
+-        return crashReport;
++        if ($$0 instanceof net.minecraft.ReportedException) {
++            net.minecraft.CrashReport $$2 = ((net.minecraft.ReportedException)$$0).getReport();
++        } else {
++            $$3 = new net.minecraft.CrashReport($$1, $$0);
++        }
++        return $$3;
+     }
+ 
+     public static void preload() {

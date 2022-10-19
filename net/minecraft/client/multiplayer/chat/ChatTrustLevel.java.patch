@@ -1,0 +1,101 @@
+--- net/minecraft/client/multiplayer/chat/ChatTrustLevel.java
++++ net/minecraft/client/multiplayer/chat/ChatTrustLevel.java
+@@ -8,9 +8,7 @@
+  {
+     public static /* enum */ net.minecraft.client.multiplayer.chat.ChatTrustLevel SECURE;
+     public static /* enum */ net.minecraft.client.multiplayer.chat.ChatTrustLevel MODIFIED;
+-    public static /* enum */ net.minecraft.client.multiplayer.chat.ChatTrustLevel FILTERED;
+     public static /* enum */ net.minecraft.client.multiplayer.chat.ChatTrustLevel NOT_SECURE;
+-    public static /* enum */ net.minecraft.client.multiplayer.chat.ChatTrustLevel BROKEN_CHAIN;
+     public static /* synthetic */ net.minecraft.client.multiplayer.chat.ChatTrustLevel[] $VALUES;
+ 
+     public static net.minecraft.client.multiplayer.chat.ChatTrustLevel[] values() {
+@@ -25,56 +23,61 @@
+         super(string, n);
+     }
+ 
+-    public static net.minecraft.client.multiplayer.chat.ChatTrustLevel evaluate(net.minecraft.network.chat.PlayerChatMessage $$0, net.minecraft.network.chat.Component $$1, @javax.annotation.Nullable net.minecraft.client.multiplayer.PlayerInfo $$2, java.time.Instant $$3) {
+-        if ($$2 == null) {
++    public static net.minecraft.client.multiplayer.chat.ChatTrustLevel evaluate(net.minecraft.network.chat.PlayerChatMessage $$0, net.minecraft.network.chat.Component $$1, java.time.Instant $$2) {
++        if (!$$0.hasSignature() || $$0.hasExpiredClient($$2)) {
+             return NOT_SECURE;
+         }
+-        net.minecraft.network.chat.SignedMessageValidator$State $$4 = $$2.getMessageValidator().validateMessage($$0);
+-        if ($$4 == net.minecraft.network.chat.SignedMessageValidator$State.BROKEN_CHAIN) {
+-            return BROKEN_CHAIN;
+-        }
+-        if ($$4 == net.minecraft.network.chat.SignedMessageValidator$State.NOT_SECURE) {
+-            return NOT_SECURE;
+-        }
+-        if ($$0.hasExpiredClient($$3)) {
+-            return NOT_SECURE;
+-        }
+-        if (!$$0.filterMask().isEmpty()) {
+-            return FILTERED;
+-        }
+-        if ($$0.unsignedContent().isPresent()) {
++        if (net.minecraft.client.multiplayer.chat.ChatTrustLevel.isModified((net.minecraft.network.chat.PlayerChatMessage)$$0, (net.minecraft.network.chat.Component)$$1)) {
+             return MODIFIED;
+         }
+-        if (!$$1.contains($$0.signedContent().decorated())) {
+-            return MODIFIED;
+-        }
+         return SECURE;
+     }
+ 
++    public static boolean isModified(net.minecraft.network.chat.PlayerChatMessage $$0, net.minecraft.network.chat.Component $$1) {
++        if (!$$1.getString().contains((java.lang.CharSequence)$$0.signedContent())) {
++            return true;
++        }
++        net.minecraft.network.chat.Component $$2 = $$0.unsignedContent();
++        if ($$2 == null) {
++            return false;
++        }
++        return net.minecraft.client.multiplayer.chat.ChatTrustLevel.containsModifiedStyle((net.minecraft.network.chat.Component)$$2);
++    }
++
++    public static boolean containsModifiedStyle(net.minecraft.network.chat.Component $$02) {
++        return (java.lang.Boolean)$$02.visit(($$0, $$1) -> {
++            if (net.minecraft.client.multiplayer.chat.ChatTrustLevel.isModifiedStyle((net.minecraft.network.chat.Style)$$0)) {
++                return java.util.Optional.of((java.lang.Object)true);
++            }
++            return java.util.Optional.empty();
++        }, net.minecraft.network.chat.Style.EMPTY).orElse((java.lang.Object)false);
++    }
++
++    public static boolean isModifiedStyle(net.minecraft.network.chat.Style $$0) {
++        return !$$0.getFont().equals((java.lang.Object)net.minecraft.network.chat.Style.DEFAULT_FONT);
++    }
++
+     public boolean isNotSecure() {
+-        return this == NOT_SECURE || this == BROKEN_CHAIN;
++        return this == NOT_SECURE;
+     }
+ 
+     @javax.annotation.Nullable
+     public net.minecraft.client.GuiMessageTag createTag(net.minecraft.network.chat.PlayerChatMessage $$0) {
+         return switch (net.minecraft.client.multiplayer.chat.ChatTrustLevel$1.$SwitchMap$net$minecraft$client$multiplayer$chat$ChatTrustLevel[this.ordinal()]) {
+-            case 1 -> net.minecraft.client.GuiMessageTag.chatModified((java.lang.String)$$0.signedContent().plain());
+-            case 2 -> net.minecraft.client.GuiMessageTag.chatFiltered();
+-            case 3 -> net.minecraft.client.GuiMessageTag.chatNotSecure();
++            case 1 -> net.minecraft.client.GuiMessageTag.chatModified((java.lang.String)$$0.signedContent());
++            case 2 -> net.minecraft.client.GuiMessageTag.chatNotSecure();
+             default -> null;
+         };
+     }
+ 
+     public static /* synthetic */ net.minecraft.client.multiplayer.chat.ChatTrustLevel[] $values() {
+-        return new net.minecraft.client.multiplayer.chat.ChatTrustLevel[]{SECURE, MODIFIED, FILTERED, NOT_SECURE, BROKEN_CHAIN};
++        return new net.minecraft.client.multiplayer.chat.ChatTrustLevel[]{SECURE, MODIFIED, NOT_SECURE};
+     }
+ 
+     static {
+         SECURE = new net.minecraft.client.multiplayer.chat.ChatTrustLevel("SECURE", 0);
+         MODIFIED = new net.minecraft.client.multiplayer.chat.ChatTrustLevel("MODIFIED", 1);
+-        FILTERED = new net.minecraft.client.multiplayer.chat.ChatTrustLevel("FILTERED", 2);
+-        NOT_SECURE = new net.minecraft.client.multiplayer.chat.ChatTrustLevel("NOT_SECURE", 3);
+-        BROKEN_CHAIN = new net.minecraft.client.multiplayer.chat.ChatTrustLevel("BROKEN_CHAIN", 4);
++        NOT_SECURE = new net.minecraft.client.multiplayer.chat.ChatTrustLevel("NOT_SECURE", 2);
+         $VALUES = net.minecraft.client.multiplayer.chat.ChatTrustLevel.$values();
+     }
+ }

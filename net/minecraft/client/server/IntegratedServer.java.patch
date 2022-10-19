@@ -1,0 +1,153 @@
+--- net/minecraft/client/server/IntegratedServer.java
++++ net/minecraft/client/server/IntegratedServer.java
+@@ -26,7 +26,7 @@
+         this.previousSimulationDistance = 0;
+         this.setSingleplayerProfile($$1.getUser().getGameProfile());
+         this.setDemo($$1.isDemo());
+-        this.setPlayerList((net.minecraft.server.players.PlayerList)new net.minecraft.client.server.IntegratedPlayerList(this, this.registryAccess(), this.playerDataStorage));
++        this.setPlayerList((net.minecraft.server.players.PlayerList)new net.minecraft.client.server.IntegratedPlayerList(this, this.registries(), this.playerDataStorage));
+         this.minecraft = $$1;
+     }
+ 
+@@ -43,33 +43,33 @@
+         return true;
+     }
+ 
+-    public void tickServer(java.util.function.BooleanSupplier hasTimeLeft) {
+-        int n;
+-        boolean bl;
+-        boolean bl2 = this.paused;
++    public void tickServer(java.util.function.BooleanSupplier $$0) {
++        int $$5;
++        boolean $$3;
++        boolean $$1 = this.paused;
+         this.paused = net.minecraft.client.Minecraft.getInstance().isPaused();
+-        net.minecraft.util.profiling.ProfilerFiller profilerFiller = this.getProfiler();
+-        if (!bl2 && this.paused) {
+-            profilerFiller.push("autoSave");
++        net.minecraft.util.profiling.ProfilerFiller $$2 = this.getProfiler();
++        if (!$$1 && this.paused) {
++            $$2.push("autoSave");
+             LOGGER.info("Saving and pausing game...");
+             this.saveEverything(false, false, false);
+-            profilerFiller.pop();
++            $$2.pop();
+         }
+-        boolean bl3 = bl = net.minecraft.client.Minecraft.getInstance().getConnection() != null;
+-        if (bl && this.paused) {
++        boolean bl = $$3 = net.minecraft.client.Minecraft.getInstance().getConnection() != null;
++        if ($$3 && this.paused) {
+             this.tickPaused();
+             return;
+         }
+-        super.tickServer(hasTimeLeft);
+-        int n2 = java.lang.Math.max((int)2, (int)((java.lang.Integer)this.minecraft.options.renderDistance().get()));
+-        if (n2 != this.getPlayerList().getViewDistance()) {
+-            LOGGER.info("Changing view distance to {}, from {}", (java.lang.Object)n2, (java.lang.Object)this.getPlayerList().getViewDistance());
+-            this.getPlayerList().setViewDistance(n2);
++        super.tickServer($$0);
++        int $$4 = java.lang.Math.max((int)2, (int)((java.lang.Integer)this.minecraft.options.renderDistance().get()));
++        if ($$4 != this.getPlayerList().getViewDistance()) {
++            LOGGER.info("Changing view distance to {}, from {}", (java.lang.Object)$$4, (java.lang.Object)this.getPlayerList().getViewDistance());
++            this.getPlayerList().setViewDistance($$4);
+         }
+-        if ((n = java.lang.Math.max((int)2, (int)((java.lang.Integer)this.minecraft.options.simulationDistance().get()))) != this.previousSimulationDistance) {
+-            LOGGER.info("Changing simulation distance to {}, from {}", (java.lang.Object)n, (java.lang.Object)this.previousSimulationDistance);
+-            this.getPlayerList().setSimulationDistance(n);
+-            this.previousSimulationDistance = n;
++        if (($$5 = java.lang.Math.max((int)2, (int)((java.lang.Integer)this.minecraft.options.simulationDistance().get()))) != this.previousSimulationDistance) {
++            LOGGER.info("Changing simulation distance to {}, from {}", (java.lang.Object)$$5, (java.lang.Object)this.previousSimulationDistance);
++            this.getPlayerList().setSimulationDistance($$5);
++            this.previousSimulationDistance = $$5;
+         }
+     }
+ 
+@@ -103,8 +103,8 @@
+         return false;
+     }
+ 
+-    public void onServerCrash(net.minecraft.CrashReport report) {
+-        this.minecraft.delayCrashRaw(report);
++    public void onServerCrash(net.minecraft.CrashReport $$0) {
++        this.minecraft.delayCrashRaw($$0);
+     }
+ 
+     public net.minecraft.SystemReport fillServerSystemReport(net.minecraft.SystemReport $$0) {
+@@ -118,20 +118,20 @@
+         return net.minecraft.client.Minecraft.checkModStatus().merge(super.getModdedStatus());
+     }
+ 
+-    public boolean publishServer(@javax.annotation.Nullable net.minecraft.world.level.GameType gameMode, boolean cheats, int port) {
++    public boolean publishServer(@javax.annotation.Nullable net.minecraft.world.level.GameType $$0, boolean $$1, int $$2) {
+         try {
+             this.minecraft.prepareForMultiplayer();
+-            this.getConnection().startTcpServerListener(null, port);
+-            LOGGER.info("Started serving on {}", (java.lang.Object)port);
+-            this.publishedPort = port;
+-            this.lanPinger = new net.minecraft.client.server.LanServerPinger(this.getMotd(), "" + port);
++            this.getConnection().startTcpServerListener(null, $$2);
++            LOGGER.info("Started serving on {}", (java.lang.Object)$$2);
++            this.publishedPort = $$2;
++            this.lanPinger = new net.minecraft.client.server.LanServerPinger(this.getMotd(), "" + $$2);
+             this.lanPinger.start();
+-            this.publishedGameType = gameMode;
+-            this.getPlayerList().setAllowCheatsForAllPlayers(cheats);
+-            int n = this.getProfilePermissions(this.minecraft.player.getGameProfile());
+-            this.minecraft.player.setPermissionLevel(n);
+-            for (net.minecraft.server.level.ServerPlayer serverPlayer : this.getPlayerList().getPlayers()) {
+-                this.getCommands().sendCommands(serverPlayer);
++            this.publishedGameType = $$0;
++            this.getPlayerList().setAllowCheatsForAllPlayers($$1);
++            int $$3 = this.getProfilePermissions(this.minecraft.player.getGameProfile());
++            this.minecraft.player.setPermissionLevel($$3);
++            for (net.minecraft.server.level.ServerPlayer $$4 : this.getPlayerList().getPlayers()) {
++                this.getCommands().sendCommands($$4);
+             }
+             return true;
+         }
+@@ -148,7 +148,7 @@
+         }
+     }
+ 
+-    public void halt(boolean waitForServer) {
++    public void halt(boolean $$0) {
+         this.executeBlocking(() -> {
+             java.util.ArrayList $$0 = com.google.common.collect.Lists.newArrayList((java.lang.Iterable)this.getPlayerList().getPlayers());
+             for (net.minecraft.server.level.ServerPlayer $$1 : $$0) {
+@@ -156,7 +156,7 @@
+                 this.getPlayerList().remove($$1);
+             }
+         });
+-        super.halt(waitForServer);
++        super.halt($$0);
+         if (this.lanPinger != null) {
+             this.lanPinger.interrupt();
+             this.lanPinger = null;
+@@ -171,8 +171,8 @@
+         return this.publishedPort;
+     }
+ 
+-    public void setDefaultGameType(net.minecraft.world.level.GameType gameMode) {
+-        super.setDefaultGameType(gameMode);
++    public void setDefaultGameType(net.minecraft.world.level.GameType $$0) {
++        super.setDefaultGameType($$0);
+         this.publishedGameType = null;
+     }
+ 
+@@ -188,12 +188,12 @@
+         return 2;
+     }
+ 
+-    public void setUUID(java.util.UUID uuid) {
+-        this.uuid = uuid;
++    public void setUUID(java.util.UUID $$0) {
++        this.uuid = $$0;
+     }
+ 
+-    public boolean isSingleplayerOwner(com.mojang.authlib.GameProfile profile) {
+-        return this.getSingleplayerProfile() != null && profile.getName().equalsIgnoreCase(this.getSingleplayerProfile().getName());
++    public boolean isSingleplayerOwner(com.mojang.authlib.GameProfile $$0) {
++        return this.getSingleplayerProfile() != null && $$0.getName().equalsIgnoreCase(this.getSingleplayerProfile().getName());
+     }
+ 
+     public int getScaledTrackingDistance(int $$0) {

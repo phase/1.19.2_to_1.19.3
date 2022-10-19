@@ -1,0 +1,325 @@
+--- net/minecraft/client/gui/components/CommandSuggestions.java
++++ net/minecraft/client/gui/components/CommandSuggestions.java
+@@ -31,57 +31,57 @@
+     public boolean allowSuggestions;
+     public boolean keepSuggestions;
+ 
+-    public net.minecraft.client.gui.components.CommandSuggestions(net.minecraft.client.Minecraft minecraft, net.minecraft.client.gui.screens.Screen screen, net.minecraft.client.gui.components.EditBox input, net.minecraft.client.gui.Font font, boolean commandsOnly, boolean onlyShowIfCursorPastError, int lineStartOffset, int suggestionLineLimit, boolean anchorToBottom, int fillColor) {
++    public net.minecraft.client.gui.components.CommandSuggestions(net.minecraft.client.Minecraft $$0, net.minecraft.client.gui.screens.Screen $$1, net.minecraft.client.gui.components.EditBox $$2, net.minecraft.client.gui.Font $$3, boolean $$4, boolean $$5, int $$6, int $$7, boolean $$8, int $$9) {
+         this.commandUsage = com.google.common.collect.Lists.newArrayList();
+-        this.minecraft = minecraft;
+-        this.screen = screen;
+-        this.input = input;
+-        this.font = font;
+-        this.commandsOnly = commandsOnly;
+-        this.onlyShowIfCursorPastError = onlyShowIfCursorPastError;
+-        this.lineStartOffset = lineStartOffset;
+-        this.suggestionLineLimit = suggestionLineLimit;
+-        this.anchorToBottom = anchorToBottom;
+-        this.fillColor = fillColor;
+-        input.setFormatter((arg_0, arg_1) -> this.formatChat(arg_0, arg_1));
++        this.minecraft = $$0;
++        this.screen = $$1;
++        this.input = $$2;
++        this.font = $$3;
++        this.commandsOnly = $$4;
++        this.onlyShowIfCursorPastError = $$5;
++        this.lineStartOffset = $$6;
++        this.suggestionLineLimit = $$7;
++        this.anchorToBottom = $$8;
++        this.fillColor = $$9;
++        $$2.setFormatter((arg_0, arg_1) -> this.formatChat(arg_0, arg_1));
+     }
+ 
+-    public void setAllowSuggestions(boolean autoSuggest) {
+-        this.allowSuggestions = autoSuggest;
+-        if (!autoSuggest) {
++    public void setAllowSuggestions(boolean $$0) {
++        this.allowSuggestions = $$0;
++        if (!$$0) {
+             this.suggestions = null;
+         }
+     }
+ 
+-    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+-        if (this.suggestions != null && this.suggestions.keyPressed(keyCode, scanCode, modifiers)) {
++    public boolean keyPressed(int $$0, int $$1, int $$2) {
++        if (this.suggestions != null && this.suggestions.keyPressed($$0, $$1, $$2)) {
+             return true;
+         }
+-        if (this.screen.getFocused() == this.input && keyCode == 258) {
++        if (this.screen.getFocused() == this.input && $$0 == 258) {
+             this.showSuggestions(true);
+             return true;
+         }
+         return false;
+     }
+ 
+-    public boolean mouseScrolled(double delta) {
+-        return this.suggestions != null && this.suggestions.mouseScrolled(net.minecraft.util.Mth.clamp((double)delta, (double)-1.0, (double)1.0));
++    public boolean mouseScrolled(double $$0) {
++        return this.suggestions != null && this.suggestions.mouseScrolled(net.minecraft.util.Mth.clamp((double)$$0, (double)-1.0, (double)1.0));
+     }
+ 
+-    public boolean mouseClicked(double mouseX, double mouseY, int mouseButton) {
+-        return this.suggestions != null && this.suggestions.mouseClicked((int)mouseX, (int)mouseY, mouseButton);
++    public boolean mouseClicked(double $$0, double $$1, int $$2) {
++        return this.suggestions != null && this.suggestions.mouseClicked((int)$$0, (int)$$1, $$2);
+     }
+ 
+-    public void showSuggestions(boolean narrateFirstSuggestion) {
+-        com.mojang.brigadier.suggestion.Suggestions suggestions;
+-        if (this.pendingSuggestions != null && this.pendingSuggestions.isDone() && !(suggestions = (com.mojang.brigadier.suggestion.Suggestions)this.pendingSuggestions.join()).isEmpty()) {
+-            int n = 0;
+-            for (com.mojang.brigadier.suggestion.Suggestion suggestion : suggestions.getList()) {
+-                n = java.lang.Math.max((int)n, (int)this.font.width(suggestion.getText()));
++    public void showSuggestions(boolean $$0) {
++        com.mojang.brigadier.suggestion.Suggestions $$1;
++        if (this.pendingSuggestions != null && this.pendingSuggestions.isDone() && !($$1 = (com.mojang.brigadier.suggestion.Suggestions)this.pendingSuggestions.join()).isEmpty()) {
++            int $$2 = 0;
++            for (com.mojang.brigadier.suggestion.Suggestion $$3 : $$1.getList()) {
++                $$2 = java.lang.Math.max((int)$$2, (int)this.font.width($$3.getText()));
+             }
+-            int n2 = net.minecraft.util.Mth.clamp((int)this.input.getScreenX(suggestions.getRange().getStart()), (int)0, (int)(this.input.getScreenX(0) + this.input.getInnerWidth() - n));
+-            int n3 = this.anchorToBottom ? this.screen.height - 12 : 72;
+-            this.suggestions = new net.minecraft.client.gui.components.CommandSuggestions$SuggestionsList(this, n2, n3, n, this.sortSuggestions(suggestions), narrateFirstSuggestion);
++            int $$4 = net.minecraft.util.Mth.clamp((int)this.input.getScreenX($$1.getRange().getStart()), (int)0, (int)(this.input.getScreenX(0) + this.input.getInnerWidth() - $$2));
++            int $$5 = this.anchorToBottom ? this.screen.height - 12 : 72;
++            this.suggestions = new net.minecraft.client.gui.components.CommandSuggestions$SuggestionsList(this, $$4, $$5, $$2, this.sortSuggestions($$1), $$0);
+         }
+     }
+ 
+@@ -89,21 +89,21 @@
+         this.suggestions = null;
+     }
+ 
+-    public java.util.List<com.mojang.brigadier.suggestion.Suggestion> sortSuggestions(com.mojang.brigadier.suggestion.Suggestions suggestions) {
+-        java.lang.String string = this.input.getValue().substring(0, this.input.getCursorPosition());
+-        int n = net.minecraft.client.gui.components.CommandSuggestions.getLastWordIndex((java.lang.String)string);
+-        java.lang.String string2 = string.substring(n).toLowerCase(java.util.Locale.ROOT);
+-        java.util.ArrayList arrayList = com.google.common.collect.Lists.newArrayList();
+-        java.util.ArrayList arrayList2 = com.google.common.collect.Lists.newArrayList();
+-        for (com.mojang.brigadier.suggestion.Suggestion suggestion : suggestions.getList()) {
+-            if (suggestion.getText().startsWith(string2) || suggestion.getText().startsWith("minecraft:" + string2)) {
+-                arrayList.add((java.lang.Object)suggestion);
++    public java.util.List<com.mojang.brigadier.suggestion.Suggestion> sortSuggestions(com.mojang.brigadier.suggestion.Suggestions $$0) {
++        java.lang.String $$1 = this.input.getValue().substring(0, this.input.getCursorPosition());
++        int $$2 = net.minecraft.client.gui.components.CommandSuggestions.getLastWordIndex((java.lang.String)$$1);
++        java.lang.String $$3 = $$1.substring($$2).toLowerCase(java.util.Locale.ROOT);
++        java.util.ArrayList $$4 = com.google.common.collect.Lists.newArrayList();
++        java.util.ArrayList $$5 = com.google.common.collect.Lists.newArrayList();
++        for (com.mojang.brigadier.suggestion.Suggestion $$6 : $$0.getList()) {
++            if ($$6.getText().startsWith($$3) || $$6.getText().startsWith("minecraft:" + $$3)) {
++                $$4.add((java.lang.Object)$$6);
+                 continue;
+             }
+-            arrayList2.add((java.lang.Object)suggestion);
++            $$5.add((java.lang.Object)$$6);
+         }
+-        arrayList.addAll((java.util.Collection)arrayList2);
+-        return arrayList;
++        $$4.addAll((java.util.Collection)$$5);
++        return $$4;
+     }
+ 
+     public void updateCommandInfo() {
+@@ -148,25 +148,25 @@
+         }
+     }
+ 
+-    public static int getLastWordIndex(java.lang.String text) {
+-        if (com.google.common.base.Strings.isNullOrEmpty((java.lang.String)text)) {
++    public static int getLastWordIndex(java.lang.String $$0) {
++        if (com.google.common.base.Strings.isNullOrEmpty((java.lang.String)$$0)) {
+             return 0;
+         }
+-        int n = 0;
+-        java.util.regex.Matcher matcher = WHITESPACE_PATTERN.matcher((java.lang.CharSequence)text);
+-        while (matcher.find()) {
+-            n = matcher.end();
++        int $$1 = 0;
++        java.util.regex.Matcher $$2 = WHITESPACE_PATTERN.matcher((java.lang.CharSequence)$$0);
++        while ($$2.find()) {
++            $$1 = $$2.end();
+         }
+-        return n;
++        return $$1;
+     }
+ 
+-    public static net.minecraft.util.FormattedCharSequence getExceptionMessage(com.mojang.brigadier.exceptions.CommandSyntaxException exception) {
+-        net.minecraft.network.chat.Component component = net.minecraft.network.chat.ComponentUtils.fromMessage((com.mojang.brigadier.Message)exception.getRawMessage());
+-        java.lang.String string = exception.getContext();
+-        if (string == null) {
+-            return component.getVisualOrderText();
++    public static net.minecraft.util.FormattedCharSequence getExceptionMessage(com.mojang.brigadier.exceptions.CommandSyntaxException $$0) {
++        net.minecraft.network.chat.Component $$1 = net.minecraft.network.chat.ComponentUtils.fromMessage((com.mojang.brigadier.Message)$$0.getRawMessage());
++        java.lang.String $$2 = $$0.getContext();
++        if ($$2 == null) {
++            return $$1.getVisualOrderText();
+         }
+-        return net.minecraft.network.chat.Component.translatable((java.lang.String)"command.context.parse_error", (java.lang.Object[])new java.lang.Object[]{component, exception.getCursor(), string}).getVisualOrderText();
++        return net.minecraft.network.chat.Component.translatable((java.lang.String)"command.context.parse_error", (java.lang.Object[])new java.lang.Object[]{$$1, $$0.getCursor(), $$2}).getVisualOrderText();
+     }
+ 
+     public void updateUsageInfo() {
+@@ -199,71 +199,71 @@
+         }
+     }
+ 
+-    public void fillNodeUsage(net.minecraft.ChatFormatting formatting) {
+-        com.mojang.brigadier.context.CommandContextBuilder commandContextBuilder = this.currentParse.getContext();
+-        com.mojang.brigadier.context.SuggestionContext suggestionContext = commandContextBuilder.findSuggestionContext(this.input.getCursorPosition());
+-        java.util.Map map = this.minecraft.player.connection.getCommands().getSmartUsage(suggestionContext.parent, (java.lang.Object)this.minecraft.player.connection.getSuggestionsProvider());
+-        java.util.ArrayList arrayList = com.google.common.collect.Lists.newArrayList();
+-        int n = 0;
+-        net.minecraft.network.chat.Style style = net.minecraft.network.chat.Style.EMPTY.withColor(formatting);
+-        for (java.util.Map$Entry entry : map.entrySet()) {
+-            if (entry.getKey() instanceof com.mojang.brigadier.tree.LiteralCommandNode) continue;
+-            arrayList.add((java.lang.Object)net.minecraft.util.FormattedCharSequence.forward((java.lang.String)((java.lang.String)entry.getValue()), (net.minecraft.network.chat.Style)style));
+-            n = java.lang.Math.max((int)n, (int)this.font.width((java.lang.String)entry.getValue()));
++    public void fillNodeUsage(net.minecraft.ChatFormatting $$0) {
++        com.mojang.brigadier.context.CommandContextBuilder $$1 = this.currentParse.getContext();
++        com.mojang.brigadier.context.SuggestionContext $$2 = $$1.findSuggestionContext(this.input.getCursorPosition());
++        java.util.Map $$3 = this.minecraft.player.connection.getCommands().getSmartUsage($$2.parent, (java.lang.Object)this.minecraft.player.connection.getSuggestionsProvider());
++        java.util.ArrayList $$4 = com.google.common.collect.Lists.newArrayList();
++        int $$5 = 0;
++        net.minecraft.network.chat.Style $$6 = net.minecraft.network.chat.Style.EMPTY.withColor($$0);
++        for (java.util.Map$Entry $$7 : $$3.entrySet()) {
++            if ($$7.getKey() instanceof com.mojang.brigadier.tree.LiteralCommandNode) continue;
++            $$4.add((java.lang.Object)net.minecraft.util.FormattedCharSequence.forward((java.lang.String)((java.lang.String)$$7.getValue()), (net.minecraft.network.chat.Style)$$6));
++            $$5 = java.lang.Math.max((int)$$5, (int)this.font.width((java.lang.String)$$7.getValue()));
+         }
+-        if (!arrayList.isEmpty()) {
+-            this.commandUsage.addAll((java.util.Collection)arrayList);
+-            this.commandUsagePosition = net.minecraft.util.Mth.clamp((int)this.input.getScreenX(suggestionContext.startPos), (int)0, (int)(this.input.getScreenX(0) + this.input.getInnerWidth() - n));
+-            this.commandUsageWidth = n;
++        if (!$$4.isEmpty()) {
++            this.commandUsage.addAll((java.util.Collection)$$4);
++            this.commandUsagePosition = net.minecraft.util.Mth.clamp((int)this.input.getScreenX($$2.startPos), (int)0, (int)(this.input.getScreenX(0) + this.input.getInnerWidth() - $$5));
++            this.commandUsageWidth = $$5;
+         }
+     }
+ 
+-    public net.minecraft.util.FormattedCharSequence formatChat(java.lang.String command, int maxLength) {
++    public net.minecraft.util.FormattedCharSequence formatChat(java.lang.String $$0, int $$1) {
+         if (this.currentParse != null) {
+-            return net.minecraft.client.gui.components.CommandSuggestions.formatText((com.mojang.brigadier.ParseResults)this.currentParse, (java.lang.String)command, (int)maxLength);
++            return net.minecraft.client.gui.components.CommandSuggestions.formatText((com.mojang.brigadier.ParseResults)this.currentParse, (java.lang.String)$$0, (int)$$1);
+         }
+-        return net.minecraft.util.FormattedCharSequence.forward((java.lang.String)command, (net.minecraft.network.chat.Style)net.minecraft.network.chat.Style.EMPTY);
++        return net.minecraft.util.FormattedCharSequence.forward((java.lang.String)$$0, (net.minecraft.network.chat.Style)net.minecraft.network.chat.Style.EMPTY);
+     }
+ 
+     @javax.annotation.Nullable
+-    public static java.lang.String calculateSuggestionSuffix(java.lang.String inputText, java.lang.String suggestionText) {
+-        if (suggestionText.startsWith(inputText)) {
+-            return suggestionText.substring(inputText.length());
++    public static java.lang.String calculateSuggestionSuffix(java.lang.String $$0, java.lang.String $$1) {
++        if ($$1.startsWith($$0)) {
++            return $$1.substring($$0.length());
+         }
+         return null;
+     }
+ 
+-    public static net.minecraft.util.FormattedCharSequence formatText(com.mojang.brigadier.ParseResults<net.minecraft.commands.SharedSuggestionProvider> provider, java.lang.String command, int maxLength) {
+-        int n;
+-        java.util.ArrayList arrayList = com.google.common.collect.Lists.newArrayList();
+-        int n2 = 0;
+-        int n3 = -1;
+-        com.mojang.brigadier.context.CommandContextBuilder commandContextBuilder = provider.getContext().getLastChild();
+-        for (com.mojang.brigadier.context.ParsedArgument parsedArgument : commandContextBuilder.getArguments().values()) {
+-            int n4;
+-            if (++n3 >= ARGUMENT_STYLES.size()) {
+-                n3 = 0;
++    public static net.minecraft.util.FormattedCharSequence formatText(com.mojang.brigadier.ParseResults<net.minecraft.commands.SharedSuggestionProvider> $$0, java.lang.String $$1, int $$2) {
++        int $$10;
++        java.util.ArrayList $$3 = com.google.common.collect.Lists.newArrayList();
++        int $$4 = 0;
++        int $$5 = -1;
++        com.mojang.brigadier.context.CommandContextBuilder $$6 = $$0.getContext().getLastChild();
++        for (com.mojang.brigadier.context.ParsedArgument $$7 : $$6.getArguments().values()) {
++            int $$8;
++            if (++$$5 >= ARGUMENT_STYLES.size()) {
++                $$5 = 0;
+             }
+-            if ((n4 = java.lang.Math.max((int)(parsedArgument.getRange().getStart() - maxLength), (int)0)) >= command.length()) break;
+-            int n5 = java.lang.Math.min((int)(parsedArgument.getRange().getEnd() - maxLength), (int)command.length());
+-            if (n5 <= 0) continue;
+-            arrayList.add((java.lang.Object)net.minecraft.util.FormattedCharSequence.forward((java.lang.String)command.substring(n2, n4), (net.minecraft.network.chat.Style)LITERAL_STYLE));
+-            arrayList.add((java.lang.Object)net.minecraft.util.FormattedCharSequence.forward((java.lang.String)command.substring(n4, n5), (net.minecraft.network.chat.Style)((net.minecraft.network.chat.Style)ARGUMENT_STYLES.get(n3))));
+-            n2 = n5;
++            if (($$8 = java.lang.Math.max((int)($$7.getRange().getStart() - $$2), (int)0)) >= $$1.length()) break;
++            int $$9 = java.lang.Math.min((int)($$7.getRange().getEnd() - $$2), (int)$$1.length());
++            if ($$9 <= 0) continue;
++            $$3.add((java.lang.Object)net.minecraft.util.FormattedCharSequence.forward((java.lang.String)$$1.substring($$4, $$8), (net.minecraft.network.chat.Style)LITERAL_STYLE));
++            $$3.add((java.lang.Object)net.minecraft.util.FormattedCharSequence.forward((java.lang.String)$$1.substring($$8, $$9), (net.minecraft.network.chat.Style)((net.minecraft.network.chat.Style)ARGUMENT_STYLES.get($$5))));
++            $$4 = $$9;
+         }
+-        if (provider.getReader().canRead() && (n = java.lang.Math.max((int)(provider.getReader().getCursor() - maxLength), (int)0)) < command.length()) {
+-            int n6 = java.lang.Math.min((int)(n + provider.getReader().getRemainingLength()), (int)command.length());
+-            arrayList.add((java.lang.Object)net.minecraft.util.FormattedCharSequence.forward((java.lang.String)command.substring(n2, n), (net.minecraft.network.chat.Style)LITERAL_STYLE));
+-            arrayList.add((java.lang.Object)net.minecraft.util.FormattedCharSequence.forward((java.lang.String)command.substring(n, n6), (net.minecraft.network.chat.Style)UNPARSED_STYLE));
+-            n2 = n6;
++        if ($$0.getReader().canRead() && ($$10 = java.lang.Math.max((int)($$0.getReader().getCursor() - $$2), (int)0)) < $$1.length()) {
++            int $$11 = java.lang.Math.min((int)($$10 + $$0.getReader().getRemainingLength()), (int)$$1.length());
++            $$3.add((java.lang.Object)net.minecraft.util.FormattedCharSequence.forward((java.lang.String)$$1.substring($$4, $$10), (net.minecraft.network.chat.Style)LITERAL_STYLE));
++            $$3.add((java.lang.Object)net.minecraft.util.FormattedCharSequence.forward((java.lang.String)$$1.substring($$10, $$11), (net.minecraft.network.chat.Style)UNPARSED_STYLE));
++            $$4 = $$11;
+         }
+-        arrayList.add((java.lang.Object)net.minecraft.util.FormattedCharSequence.forward((java.lang.String)command.substring(n2), (net.minecraft.network.chat.Style)LITERAL_STYLE));
+-        return net.minecraft.util.FormattedCharSequence.composite((java.util.List)arrayList);
++        $$3.add((java.lang.Object)net.minecraft.util.FormattedCharSequence.forward((java.lang.String)$$1.substring($$4), (net.minecraft.network.chat.Style)LITERAL_STYLE));
++        return net.minecraft.util.FormattedCharSequence.composite((java.util.List)$$3);
+     }
+ 
+-    public void render(com.mojang.blaze3d.vertex.PoseStack matrixStack, int mouseX, int mouseY) {
+-        if (!this.renderSuggestions(matrixStack, mouseX, mouseY)) {
+-            this.renderUsage(matrixStack);
++    public void render(com.mojang.blaze3d.vertex.PoseStack $$0, int $$1, int $$2) {
++        if (!this.renderSuggestions($$0, $$1, $$2)) {
++            this.renderUsage($$0);
+         }
+     }
+ 
+@@ -292,41 +292,6 @@
+         return "";
+     }
+ 
+-    @javax.annotation.Nullable
+-    public com.mojang.brigadier.tree.CommandNode<net.minecraft.commands.SharedSuggestionProvider> getNodeAt(int $$0) {
+-        return this.currentParse != null ? net.minecraft.client.gui.components.CommandSuggestions.getNodeAt((int)$$0, (com.mojang.brigadier.context.CommandContextBuilder)this.currentParse.getContext()) : null;
+-    }
+-
+-    @javax.annotation.Nullable
+-    public com.mojang.brigadier.ParseResults<net.minecraft.commands.SharedSuggestionProvider> getCurrentContext() {
+-        return this.currentParse;
+-    }
+-
+-    @javax.annotation.Nullable
+-    public static <S> com.mojang.brigadier.tree.CommandNode<S> getNodeAt(int $$0, com.mojang.brigadier.context.CommandContextBuilder<S> $$1) {
+-        com.mojang.brigadier.context.StringRange $$2 = $$1.getRange();
+-        if ($$0 < $$2.getStart()) {
+-            return null;
+-        }
+-        java.util.List $$3 = $$1.getNodes();
+-        if ($$0 <= $$2.getEnd()) {
+-            for (com.mojang.brigadier.context.ParsedCommandNode $$4 : $$3) {
+-                com.mojang.brigadier.context.StringRange $$5 = $$4.getRange();
+-                if ($$0 < $$5.getStart() || $$0 > $$5.getEnd()) continue;
+-                return $$4.getNode();
+-            }
+-        } else {
+-            if ($$1.getChild() != null) {
+-                return net.minecraft.client.gui.components.CommandSuggestions.getNodeAt((int)$$0, (com.mojang.brigadier.context.CommandContextBuilder)$$1.getChild());
+-            }
+-            if (!$$3.isEmpty()) {
+-                com.mojang.brigadier.context.ParsedCommandNode $$6 = (com.mojang.brigadier.context.ParsedCommandNode)$$3.get($$3.size() - 1);
+-                return $$6.getNode();
+-            }
+-        }
+-        return $$1.getRootNode();
+-    }
+-
+     static {
+         WHITESPACE_PATTERN = java.util.regex.Pattern.compile((java.lang.String)"(\\s+)");
+         UNPARSED_STYLE = net.minecraft.network.chat.Style.EMPTY.withColor(net.minecraft.ChatFormatting.RED);

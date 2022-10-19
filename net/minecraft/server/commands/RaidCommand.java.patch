@@ -1,0 +1,22 @@
+--- net/minecraft/server/commands/RaidCommand.java
++++ net/minecraft/server/commands/RaidCommand.java
+@@ -43,6 +43,10 @@
+     public static int spawnLeader(net.minecraft.commands.CommandSourceStack $$0) {
+         $$0.sendSuccess((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.literal((java.lang.String)"Spawned a raid captain"), false);
+         net.minecraft.world.entity.raid.Raider $$1 = (net.minecraft.world.entity.raid.Raider)net.minecraft.world.entity.EntityType.PILLAGER.create((net.minecraft.world.level.Level)$$0.getLevel());
++        if ($$1 == null) {
++            $$0.sendFailure((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.literal((java.lang.String)"Pillager failed to spawn"));
++            return 0;
++        }
+         $$1.setPatrolLeader(true);
+         $$1.setItemSlot(net.minecraft.world.entity.EquipmentSlot.HEAD, net.minecraft.world.entity.raid.Raid.getLeaderBannerInstance());
+         $$1.setPos($$0.getPosition().x, $$0.getPosition().y, $$0.getPosition().z);
+@@ -51,7 +55,7 @@
+         return 1;
+     }
+ 
+-    public static int playSound(net.minecraft.commands.CommandSourceStack $$0, net.minecraft.network.chat.Component $$1) {
++    public static int playSound(net.minecraft.commands.CommandSourceStack $$0, @javax.annotation.Nullable net.minecraft.network.chat.Component $$1) {
+         if ($$1 != null && $$1.getString().equals((java.lang.Object)"local")) {
+             $$0.getLevel().playSound(null, new net.minecraft.core.BlockPos($$0.getPosition().add(5.0, 0.0, 0.0)), net.minecraft.sounds.SoundEvents.RAID_HORN, net.minecraft.sounds.SoundSource.NEUTRAL, 2.0f, 1.0f);
+         }

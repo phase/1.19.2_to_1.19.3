@@ -1,0 +1,174 @@
+--- net/minecraft/client/gui/screens/worldselection/WorldGenSettingsComponent.java
++++ net/minecraft/client/gui/screens/worldselection/WorldGenSettingsComponent.java
+@@ -33,23 +33,23 @@
+     }
+ 
+     public static java.util.Optional<net.minecraft.core.Holder<net.minecraft.world.level.levelgen.presets.WorldPreset>> findPreset(net.minecraft.client.gui.screens.worldselection.WorldCreationContext $$0, java.util.Optional<net.minecraft.resources.ResourceKey<net.minecraft.world.level.levelgen.presets.WorldPreset>> $$12) {
+-        return $$12.flatMap($$1 -> $$0.registryAccess().registryOrThrow(net.minecraft.core.Registry.WORLD_PRESET_REGISTRY).getHolder($$1));
++        return $$12.flatMap($$1 -> $$0.worldgenLoadContext().registryOrThrow(net.minecraft.core.Registry.WORLD_PRESET_REGISTRY).getHolder($$1));
+     }
+ 
+-    public void init(net.minecraft.client.gui.screens.worldselection.CreateWorldScreen $$02, net.minecraft.client.Minecraft $$13, net.minecraft.client.gui.Font $$22) {
+-        this.font = $$22;
++    public void init(net.minecraft.client.gui.screens.worldselection.CreateWorldScreen $$02, net.minecraft.client.Minecraft $$1, net.minecraft.client.gui.Font $$23) {
++        this.font = $$23;
+         this.width = $$02.width;
+         this.seedEdit = new net.minecraft.client.gui.components.EditBox(this.font, this.width / 2 - 100, 60, 200, 20, (net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"selectWorld.enterSeed"));
+         this.seedEdit.setValue(net.minecraft.client.gui.screens.worldselection.WorldGenSettingsComponent.toString((java.util.OptionalLong)this.seed));
+         this.seedEdit.setResponder($$0 -> {
+-            this.seed = net.minecraft.world.level.levelgen.WorldGenSettings.parseSeed((java.lang.String)this.seedEdit.getValue());
++            this.seed = net.minecraft.world.level.levelgen.WorldOptions.parseSeed((java.lang.String)this.seedEdit.getValue());
+         });
+         $$02.addWidget((net.minecraft.client.gui.components.events.GuiEventListener)this.seedEdit);
+         int $$3 = this.width / 2 - 155;
+         int $$4 = this.width / 2 + 5;
+-        this.featuresButton = (net.minecraft.client.gui.components.CycleButton)$$02.addRenderableWidget((net.minecraft.client.gui.components.events.GuiEventListener)net.minecraft.client.gui.components.CycleButton.onOffBuilder((boolean)this.settings.worldGenSettings().generateStructures()).withCustomNarration($$0 -> net.minecraft.network.chat.CommonComponents.joinForNarration((net.minecraft.network.chat.Component)$$0.createDefaultNarrationMessage(), (net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"selectWorld.mapFeatures.info"))).create($$3, 100, 150, 20, (net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"selectWorld.mapFeatures"), ($$0, $$1) -> this.updateSettings(net.minecraft.world.level.levelgen.WorldGenSettings::withStructuresToggled)));
++        this.featuresButton = (net.minecraft.client.gui.components.CycleButton)$$02.addRenderableWidget((net.minecraft.client.gui.components.events.GuiEventListener)net.minecraft.client.gui.components.CycleButton.onOffBuilder((boolean)this.settings.options().generateStructures()).withCustomNarration($$0 -> net.minecraft.network.chat.CommonComponents.joinForNarration((net.minecraft.network.chat.Component)$$0.createDefaultNarrationMessage(), (net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"selectWorld.mapFeatures.info"))).create($$3, 100, 150, 20, (net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"selectWorld.mapFeatures"), ($$0, $$12) -> this.updateSettings($$1 -> $$1.withStructures($$12.booleanValue()))));
+         this.featuresButton.visible = false;
+-        net.minecraft.core.Registry $$5 = this.settings.registryAccess().registryOrThrow(net.minecraft.core.Registry.WORLD_PRESET_REGISTRY);
++        net.minecraft.core.Registry $$5 = this.settings.worldgenLoadContext().registryOrThrow(net.minecraft.core.Registry.WORLD_PRESET_REGISTRY);
+         java.util.List $$6 = (java.util.List)net.minecraft.client.gui.screens.worldselection.WorldGenSettingsComponent.getNonEmptyList((net.minecraft.core.Registry)$$5, (net.minecraft.tags.TagKey)net.minecraft.tags.WorldPresetTags.NORMAL).orElseGet(() -> (java.util.List)$$5.holders().collect(java.util.stream.Collectors.toUnmodifiableList()));
+         java.util.List $$7 = (java.util.List)net.minecraft.client.gui.screens.worldselection.WorldGenSettingsComponent.getNonEmptyList((net.minecraft.core.Registry)$$5, (net.minecraft.tags.TagKey)net.minecraft.tags.WorldPresetTags.EXTENDED).orElse((java.lang.Object)$$6);
+         this.typeButton = (net.minecraft.client.gui.components.CycleButton)$$02.addRenderableWidget((net.minecraft.client.gui.components.events.GuiEventListener)net.minecraft.client.gui.components.CycleButton.builder(net.minecraft.client.gui.screens.worldselection.WorldGenSettingsComponent::describePreset).withValues($$6, $$7).withCustomNarration($$0 -> {
+@@ -57,9 +57,9 @@
+                 return net.minecraft.network.chat.CommonComponents.joinForNarration((net.minecraft.network.chat.Component)$$0.createDefaultNarrationMessage(), (net.minecraft.network.chat.Component)AMPLIFIED_HELP_TEXT);
+             }
+             return $$0.createDefaultNarrationMessage();
+-        }).create($$4, 100, 150, 20, (net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"selectWorld.mapType"), ($$12, $$2) -> {
+-            this.preset = java.util.Optional.of((java.lang.Object)$$2);
+-            this.updateSettings($$1 -> ((net.minecraft.world.level.levelgen.presets.WorldPreset)$$2.value()).recreateWorldGenSettings($$1));
++        }).create($$4, 100, 150, 20, (net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"selectWorld.mapType"), ($$12, $$22) -> {
++            this.preset = java.util.Optional.of((java.lang.Object)$$22);
++            this.updateSettings(($$1, $$2) -> ((net.minecraft.world.level.levelgen.presets.WorldPreset)$$22.value()).createWorldDimensions());
+             $$02.refreshWorldGenSettingsVisibility();
+         }));
+         this.preset.ifPresent(arg_0 -> ((net.minecraft.client.gui.components.CycleButton)this.typeButton).setValue(arg_0));
+@@ -71,11 +71,11 @@
+         this.customizeTypeButton = (net.minecraft.client.gui.components.Button)$$02.addRenderableWidget((net.minecraft.client.gui.components.events.GuiEventListener)new net.minecraft.client.gui.components.Button($$4, 120, 150, 20, (net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"selectWorld.customizeType"), $$2 -> {
+             net.minecraft.client.gui.screens.worldselection.PresetEditor $$3 = (net.minecraft.client.gui.screens.worldselection.PresetEditor)net.minecraft.client.gui.screens.worldselection.PresetEditor.EDITORS.get((java.lang.Object)this.preset.flatMap(net.minecraft.core.Holder::unwrapKey));
+             if ($$3 != null) {
+-                $$13.setScreen($$3.createEditScreen($$02, this.settings));
++                $$1.setScreen($$3.createEditScreen($$02, this.settings));
+             }
+         }));
+         this.customizeTypeButton.visible = false;
+-        this.bonusItemsButton = (net.minecraft.client.gui.components.CycleButton)$$02.addRenderableWidget((net.minecraft.client.gui.components.events.GuiEventListener)net.minecraft.client.gui.components.CycleButton.onOffBuilder((this.settings.worldGenSettings().generateBonusChest() && !$$02.hardCore ? 1 : 0) != 0).create($$3, 151, 150, 20, (net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"selectWorld.bonusItems"), ($$0, $$1) -> this.updateSettings(net.minecraft.world.level.levelgen.WorldGenSettings::withBonusChestToggled)));
++        this.bonusItemsButton = (net.minecraft.client.gui.components.CycleButton)$$02.addRenderableWidget((net.minecraft.client.gui.components.events.GuiEventListener)net.minecraft.client.gui.components.CycleButton.onOffBuilder((this.settings.options().generateBonusChest() && !$$02.hardCore ? 1 : 0) != 0).create($$3, 151, 150, 20, (net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"selectWorld.bonusItems"), ($$0, $$12) -> this.updateSettings($$1 -> $$1.withBonusChest($$12.booleanValue()))));
+         this.bonusItemsButton.visible = false;
+         this.importSettingsButton = (net.minecraft.client.gui.components.Button)$$02.addRenderableWidget((net.minecraft.client.gui.components.events.GuiEventListener)new net.minecraft.client.gui.components.Button($$3, 185, 150, 20, (net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"selectWorld.import_worldgen_settings"), $$2 -> {
+             com.mojang.serialization.DataResult $$10;
+@@ -83,7 +83,7 @@
+             if ($$32 == null) {
+                 return;
+             }
+-            net.minecraft.resources.RegistryOps $$4 = net.minecraft.resources.RegistryOps.create((com.mojang.serialization.DynamicOps)com.mojang.serialization.JsonOps.INSTANCE, (net.minecraft.core.RegistryAccess)this.settings.registryAccess());
++            net.minecraft.resources.RegistryOps $$4 = net.minecraft.resources.RegistryOps.create((com.mojang.serialization.DynamicOps)com.mojang.serialization.JsonOps.INSTANCE, (net.minecraft.core.RegistryAccess)this.settings.worldgenLoadContext());
+             try (java.io.BufferedReader $$5 = java.nio.file.Files.newBufferedReader((java.nio.file.Path)java.nio.file.Paths.get((java.lang.String)$$32, (java.lang.String[])new java.lang.String[0]));
+ ){
+                 com.google.gson.JsonElement $$6 = com.google.gson.JsonParser.parseReader((java.io.Reader)$$5);
+@@ -97,14 +97,14 @@
+                 java.lang.String $$12 = ((com.mojang.serialization.DataResult$PartialResult)$$10.error().get()).message();
+                 LOGGER.error("Error parsing world settings: {}", (java.lang.Object)$$12);
+                 net.minecraft.network.chat.MutableComponent $$13 = net.minecraft.network.chat.Component.literal((java.lang.String)$$12);
+-                $$13.getToasts().addToast((net.minecraft.client.gui.components.toasts.Toast)net.minecraft.client.gui.components.toasts.SystemToast.multiline((net.minecraft.client.Minecraft)$$13, (net.minecraft.client.gui.components.toasts.SystemToast$SystemToastIds)net.minecraft.client.gui.components.toasts.SystemToast$SystemToastIds.WORLD_GEN_SETTINGS_TRANSFER, (net.minecraft.network.chat.Component)$$11, (net.minecraft.network.chat.Component)$$13));
++                $$1.getToasts().addToast((net.minecraft.client.gui.components.toasts.Toast)net.minecraft.client.gui.components.toasts.SystemToast.multiline((net.minecraft.client.Minecraft)$$1, (net.minecraft.client.gui.components.toasts.SystemToast$SystemToastIds)net.minecraft.client.gui.components.toasts.SystemToast$SystemToastIds.WORLD_GEN_SETTINGS_TRANSFER, (net.minecraft.network.chat.Component)$$11, (net.minecraft.network.chat.Component)$$13));
+                 return;
+             }
+             com.mojang.serialization.Lifecycle $$14 = $$10.lifecycle();
+-            $$10.resultOrPartial(arg_0 -> ((org.slf4j.Logger)LOGGER).error(arg_0)).ifPresent($$3 -> net.minecraft.client.gui.screens.worldselection.WorldOpenFlows.confirmWorldCreation((net.minecraft.client.Minecraft)$$13, (net.minecraft.client.gui.screens.worldselection.CreateWorldScreen)$$02, (com.mojang.serialization.Lifecycle)$$14, () -> this.importSettings($$3)));
++            $$10.resultOrPartial(arg_0 -> ((org.slf4j.Logger)LOGGER).error(arg_0)).ifPresent($$3 -> net.minecraft.client.gui.screens.worldselection.WorldOpenFlows.confirmWorldCreation((net.minecraft.client.Minecraft)$$1, (net.minecraft.client.gui.screens.worldselection.CreateWorldScreen)$$02, (com.mojang.serialization.Lifecycle)$$14, () -> this.importSettings($$3.options(), $$3.dimensions())));
+         }));
+         this.importSettingsButton.visible = false;
+-        this.amplifiedWorldInfo = net.minecraft.client.gui.components.MultiLineLabel.create((net.minecraft.client.gui.Font)$$22, (net.minecraft.network.chat.FormattedText)AMPLIFIED_HELP_TEXT, (int)this.typeButton.getWidth());
++        this.amplifiedWorldInfo = net.minecraft.client.gui.components.MultiLineLabel.create((net.minecraft.client.gui.Font)$$23, (net.minecraft.network.chat.FormattedText)AMPLIFIED_HELP_TEXT, (int)this.typeButton.getWidth());
+     }
+ 
+     public static java.util.Optional<java.util.List<net.minecraft.core.Holder<net.minecraft.world.level.levelgen.presets.WorldPreset>>> getNonEmptyList(net.minecraft.core.Registry<net.minecraft.world.level.levelgen.presets.WorldPreset> $$02, net.minecraft.tags.TagKey<net.minecraft.world.level.levelgen.presets.WorldPreset> $$1) {
+@@ -119,9 +119,9 @@
+         return (net.minecraft.network.chat.Component)$$02.unwrapKey().map($$0 -> net.minecraft.network.chat.Component.translatable((java.lang.String)$$0.location().toLanguageKey("generator"))).orElse((java.lang.Object)CUSTOM_WORLD_DESCRIPTION);
+     }
+ 
+-    public void importSettings(net.minecraft.world.level.levelgen.WorldGenSettings $$0) {
+-        this.settings = this.settings.withSettings($$0);
+-        this.preset = net.minecraft.client.gui.screens.worldselection.WorldGenSettingsComponent.findPreset((net.minecraft.client.gui.screens.worldselection.WorldCreationContext)this.settings, (java.util.Optional)net.minecraft.world.level.levelgen.presets.WorldPresets.fromSettings((net.minecraft.world.level.levelgen.WorldGenSettings)$$0));
++    public void importSettings(net.minecraft.world.level.levelgen.WorldOptions $$0, net.minecraft.world.level.levelgen.WorldDimensions $$1) {
++        this.settings = this.settings.withSettings($$0, $$1);
++        this.preset = net.minecraft.client.gui.screens.worldselection.WorldGenSettingsComponent.findPreset((net.minecraft.client.gui.screens.worldselection.WorldCreationContext)this.settings, (java.util.Optional)net.minecraft.world.level.levelgen.presets.WorldPresets.fromSettings((net.minecraft.core.Registry)$$1.dimensions()));
+         this.selectWorldTypeButton(true);
+         this.seed = java.util.OptionalLong.of((long)$$0.seed());
+         this.seedEdit.setValue(net.minecraft.client.gui.screens.worldselection.WorldGenSettingsComponent.toString((java.util.OptionalLong)this.seed));
+@@ -131,23 +131,23 @@
+         this.seedEdit.tick();
+     }
+ 
+-    public void render(com.mojang.blaze3d.vertex.PoseStack matrixStack, int mouseX, int mouseY, float partialTicks) {
++    public void render(com.mojang.blaze3d.vertex.PoseStack $$0, int $$1, int $$2, float $$3) {
+         if (this.featuresButton.visible) {
+-            this.font.drawShadow(matrixStack, MAP_FEATURES_INFO, (float)(this.width / 2 - 150), 122.0f, -6250336);
++            this.font.drawShadow($$0, MAP_FEATURES_INFO, (float)(this.width / 2 - 150), 122.0f, -6250336);
+         }
+-        this.seedEdit.render(matrixStack, mouseX, mouseY, partialTicks);
++        this.seedEdit.render($$0, $$1, $$2, $$3);
+         if (this.preset.filter(net.minecraft.client.gui.screens.worldselection.WorldGenSettingsComponent::isAmplified).isPresent()) {
+             java.util.Objects.requireNonNull((java.lang.Object)this.font);
+-            this.amplifiedWorldInfo.renderLeftAligned(matrixStack, this.typeButton.x + 2, this.typeButton.y + 22, 9, 0xA0A0A0);
++            this.amplifiedWorldInfo.renderLeftAligned($$0, this.typeButton.x + 2, this.typeButton.y + 22, 9, 0xA0A0A0);
+         }
+     }
+ 
+-    public void updateSettings(net.minecraft.client.gui.screens.worldselection.WorldCreationContext$SimpleUpdater $$0) {
+-        this.settings = this.settings.withSettings($$0);
++    public void updateSettings(net.minecraft.client.gui.screens.worldselection.WorldCreationContext$DimensionsUpdater $$0) {
++        this.settings = this.settings.withDimensions($$0);
+     }
+ 
+-    public void updateSettings(net.minecraft.client.gui.screens.worldselection.WorldCreationContext$Updater $$0) {
+-        this.settings = this.settings.withSettings($$0);
++    public void updateSettings(net.minecraft.client.gui.screens.worldselection.WorldCreationContext$OptionsModifier $$0) {
++        this.settings = this.settings.withOptions($$0);
+     }
+ 
+     public void updateSettings(net.minecraft.client.gui.screens.worldselection.WorldCreationContext $$0) {
+@@ -161,13 +161,20 @@
+         return "";
+     }
+ 
+-    public net.minecraft.client.gui.screens.worldselection.WorldCreationContext createFinalSettings(boolean $$0) {
+-        java.util.OptionalLong $$1 = net.minecraft.world.level.levelgen.WorldGenSettings.parseSeed((java.lang.String)this.seedEdit.getValue());
+-        return this.settings.withSettings($$2 -> $$2.withSeed($$0, $$1));
++    public net.minecraft.world.level.levelgen.WorldOptions createFinalOptions(boolean $$0, boolean $$1) {
++        java.util.OptionalLong $$2 = net.minecraft.world.level.levelgen.WorldOptions.parseSeed((java.lang.String)this.seedEdit.getValue());
++        net.minecraft.world.level.levelgen.WorldOptions $$3 = this.settings.options();
++        if ($$0 || $$1) {
++            $$3 = $$3.withBonusChest(false);
++        }
++        if ($$0) {
++            $$3 = $$3.withStructures(false);
++        }
++        return $$3.withSeed($$2);
+     }
+ 
+     public boolean isDebug() {
+-        return this.settings.worldGenSettings().isDebug();
++        return this.settings.selectedDimensions().isDebug();
+     }
+ 
+     public void setVisibility(boolean $$0) {
+@@ -201,7 +208,7 @@
+     }
+ 
+     public net.minecraft.core.RegistryAccess registryHolder() {
+-        return this.settings.registryAccess();
++        return this.settings.worldgenLoadContext();
+     }
+ 
+     public void switchToHardcore() {
+@@ -211,7 +218,7 @@
+ 
+     public void switchOutOfHardcode() {
+         this.bonusItemsButton.active = true;
+-        this.bonusItemsButton.setValue((java.lang.Object)this.settings.worldGenSettings().generateBonusChest());
++        this.bonusItemsButton.setValue((java.lang.Object)this.settings.options().generateBonusChest());
+     }
+ 
+     static {

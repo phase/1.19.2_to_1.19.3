@@ -1,0 +1,132 @@
+--- net/minecraft/advancements/AdvancementList.java
++++ net/minecraft/advancements/AdvancementList.java
+@@ -18,63 +18,63 @@
+         this.tasks = com.google.common.collect.Sets.newLinkedHashSet();
+     }
+ 
+-    public void remove(net.minecraft.advancements.Advancement advancement) {
+-        for (net.minecraft.advancements.Advancement advancement2 : advancement.getChildren()) {
+-            this.remove(advancement2);
++    public void remove(net.minecraft.advancements.Advancement $$0) {
++        for (net.minecraft.advancements.Advancement $$1 : $$0.getChildren()) {
++            this.remove($$1);
+         }
+-        LOGGER.info("Forgot about advancement {}", (java.lang.Object)advancement.getId());
+-        this.advancements.remove((java.lang.Object)advancement.getId());
+-        if (advancement.getParent() == null) {
+-            this.roots.remove((java.lang.Object)advancement);
++        LOGGER.info("Forgot about advancement {}", (java.lang.Object)$$0.getId());
++        this.advancements.remove((java.lang.Object)$$0.getId());
++        if ($$0.getParent() == null) {
++            this.roots.remove((java.lang.Object)$$0);
+             if (this.listener != null) {
+-                this.listener.onRemoveAdvancementRoot(advancement);
++                this.listener.onRemoveAdvancementRoot($$0);
+             }
+         } else {
+-            this.tasks.remove((java.lang.Object)advancement);
++            this.tasks.remove((java.lang.Object)$$0);
+             if (this.listener != null) {
+-                this.listener.onRemoveAdvancementTask(advancement);
++                this.listener.onRemoveAdvancementTask($$0);
+             }
+         }
+     }
+ 
+-    public void remove(java.util.Set<net.minecraft.resources.ResourceLocation> ids) {
+-        for (net.minecraft.resources.ResourceLocation resourceLocation : ids) {
+-            net.minecraft.advancements.Advancement advancement = (net.minecraft.advancements.Advancement)this.advancements.get((java.lang.Object)resourceLocation);
+-            if (advancement == null) {
+-                LOGGER.warn("Told to remove advancement {} but I don't know what that is", (java.lang.Object)resourceLocation);
++    public void remove(java.util.Set<net.minecraft.resources.ResourceLocation> $$0) {
++        for (net.minecraft.resources.ResourceLocation $$1 : $$0) {
++            net.minecraft.advancements.Advancement $$2 = (net.minecraft.advancements.Advancement)this.advancements.get((java.lang.Object)$$1);
++            if ($$2 == null) {
++                LOGGER.warn("Told to remove advancement {} but I don't know what that is", (java.lang.Object)$$1);
+                 continue;
+             }
+-            this.remove(advancement);
++            this.remove($$2);
+         }
+     }
+ 
+-    public void add(java.util.Map<net.minecraft.resources.ResourceLocation, net.minecraft.advancements.Advancement$Builder> advancements) {
+-        java.util.HashMap hashMap = com.google.common.collect.Maps.newHashMap(advancements);
+-        while (!hashMap.isEmpty()) {
+-            boolean bl = false;
+-            java.util.Iterator iterator = hashMap.entrySet().iterator();
+-            while (iterator.hasNext()) {
+-                java.util.Map$Entry entry = (java.util.Map$Entry)iterator.next();
+-                net.minecraft.resources.ResourceLocation resourceLocation = (net.minecraft.resources.ResourceLocation)entry.getKey();
+-                net.minecraft.advancements.Advancement$Builder builder = (net.minecraft.advancements.Advancement$Builder)entry.getValue();
+-                if (!builder.canBuild(arg_0 -> ((java.util.Map)this.advancements).get(arg_0))) continue;
+-                net.minecraft.advancements.Advancement advancement = builder.build(resourceLocation);
+-                this.advancements.put((java.lang.Object)resourceLocation, (java.lang.Object)advancement);
+-                bl = true;
+-                iterator.remove();
+-                if (advancement.getParent() == null) {
+-                    this.roots.add((java.lang.Object)advancement);
++    public void add(java.util.Map<net.minecraft.resources.ResourceLocation, net.minecraft.advancements.Advancement$Builder> $$0) {
++        java.util.HashMap $$1 = com.google.common.collect.Maps.newHashMap($$0);
++        while (!$$1.isEmpty()) {
++            boolean $$2 = false;
++            java.util.Iterator $$3 = $$1.entrySet().iterator();
++            while ($$3.hasNext()) {
++                java.util.Map$Entry $$4 = (java.util.Map$Entry)$$3.next();
++                net.minecraft.resources.ResourceLocation $$5 = (net.minecraft.resources.ResourceLocation)$$4.getKey();
++                net.minecraft.advancements.Advancement$Builder $$6 = (net.minecraft.advancements.Advancement$Builder)$$4.getValue();
++                if (!$$6.canBuild(arg_0 -> ((java.util.Map)this.advancements).get(arg_0))) continue;
++                net.minecraft.advancements.Advancement $$7 = $$6.build($$5);
++                this.advancements.put((java.lang.Object)$$5, (java.lang.Object)$$7);
++                $$2 = true;
++                $$3.remove();
++                if ($$7.getParent() == null) {
++                    this.roots.add((java.lang.Object)$$7);
+                     if (this.listener == null) continue;
+-                    this.listener.onAddAdvancementRoot(advancement);
++                    this.listener.onAddAdvancementRoot($$7);
+                     continue;
+                 }
+-                this.tasks.add((java.lang.Object)advancement);
++                this.tasks.add((java.lang.Object)$$7);
+                 if (this.listener == null) continue;
+-                this.listener.onAddAdvancementTask(advancement);
++                this.listener.onAddAdvancementTask($$7);
+             }
+-            if (bl) continue;
+-            for (java.util.Map$Entry entry : hashMap.entrySet()) {
+-                LOGGER.error("Couldn't load advancement {}: {}", entry.getKey(), entry.getValue());
++            if ($$2) continue;
++            for (java.util.Map$Entry $$8 : $$1.entrySet()) {
++                LOGGER.error("Couldn't load advancement {}: {}", $$8.getKey(), $$8.getValue());
+             }
+         }
+         LOGGER.info("Loaded {} advancements", (java.lang.Object)this.advancements.size());
+@@ -98,18 +98,18 @@
+     }
+ 
+     @javax.annotation.Nullable
+-    public net.minecraft.advancements.Advancement get(net.minecraft.resources.ResourceLocation id) {
+-        return (net.minecraft.advancements.Advancement)this.advancements.get((java.lang.Object)id);
++    public net.minecraft.advancements.Advancement get(net.minecraft.resources.ResourceLocation $$0) {
++        return (net.minecraft.advancements.Advancement)this.advancements.get((java.lang.Object)$$0);
+     }
+ 
+-    public void setListener(@javax.annotation.Nullable net.minecraft.advancements.AdvancementList$Listener listener) {
+-        this.listener = listener;
+-        if (listener != null) {
+-            for (net.minecraft.advancements.Advancement advancement : this.roots) {
+-                listener.onAddAdvancementRoot(advancement);
++    public void setListener(@javax.annotation.Nullable net.minecraft.advancements.AdvancementList$Listener $$0) {
++        this.listener = $$0;
++        if ($$0 != null) {
++            for (net.minecraft.advancements.Advancement $$1 : this.roots) {
++                $$0.onAddAdvancementRoot($$1);
+             }
+-            for (net.minecraft.advancements.Advancement advancement : this.tasks) {
+-                listener.onAddAdvancementTask(advancement);
++            for (net.minecraft.advancements.Advancement $$2 : this.tasks) {
++                $$0.onAddAdvancementTask($$2);
+             }
+         }
+     }

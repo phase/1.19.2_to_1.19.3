@@ -1,0 +1,74 @@
+--- net/minecraft/server/ServerFunctionLibrary.java
++++ net/minecraft/server/ServerFunctionLibrary.java
+@@ -7,9 +7,7 @@
+ implements net.minecraft.server.packs.resources.PreparableReloadListener
+  {
+     public static org.slf4j.Logger LOGGER;
+-    public static java.lang.String FILE_EXTENSION = ".mcfunction";
+-    public static int PATH_PREFIX_LENGTH;
+-    public static int PATH_SUFFIX_LENGTH;
++    public static net.minecraft.resources.FileToIdConverter LISTER;
+     public volatile java.util.Map<net.minecraft.resources.ResourceLocation, net.minecraft.commands.CommandFunction> functions;
+     public net.minecraft.tags.TagLoader<net.minecraft.commands.CommandFunction> tagsLoader;
+     public volatile java.util.Map<net.minecraft.resources.ResourceLocation, java.util.Collection<net.minecraft.commands.CommandFunction>> tags;
+@@ -40,24 +38,23 @@
+         this.dispatcher = $$1;
+     }
+ 
+-    public java.util.concurrent.CompletableFuture<java.lang.Void> reload(net.minecraft.server.packs.resources.PreparableReloadListener$PreparationBarrier stage, net.minecraft.server.packs.resources.ResourceManager resourceManager, net.minecraft.util.profiling.ProfilerFiller preparationsProfiler, net.minecraft.util.profiling.ProfilerFiller reloadProfiler, java.util.concurrent.Executor backgroundExecutor, java.util.concurrent.Executor gameExecutor) {
+-        java.util.concurrent.CompletableFuture completableFuture = java.util.concurrent.CompletableFuture.supplyAsync(() -> this.tagsLoader.load(resourceManager), (java.util.concurrent.Executor)backgroundExecutor);
+-        java.util.concurrent.CompletableFuture completableFuture2 = java.util.concurrent.CompletableFuture.supplyAsync(() -> resourceManager.listResources("functions", $$0 -> $$0.getPath().endsWith(".mcfunction")), (java.util.concurrent.Executor)backgroundExecutor).thenCompose($$1 -> {
++    public java.util.concurrent.CompletableFuture<java.lang.Void> reload(net.minecraft.server.packs.resources.PreparableReloadListener$PreparationBarrier $$02, net.minecraft.server.packs.resources.ResourceManager $$12, net.minecraft.util.profiling.ProfilerFiller $$2, net.minecraft.util.profiling.ProfilerFiller $$3, java.util.concurrent.Executor $$4, java.util.concurrent.Executor $$5) {
++        java.util.concurrent.CompletableFuture $$6 = java.util.concurrent.CompletableFuture.supplyAsync(() -> this.tagsLoader.load($$12), (java.util.concurrent.Executor)$$4);
++        java.util.concurrent.CompletableFuture $$7 = java.util.concurrent.CompletableFuture.supplyAsync(() -> LISTER.listMatchingResources($$12), (java.util.concurrent.Executor)$$4).thenCompose($$1 -> {
+             java.util.HashMap $$2 = com.google.common.collect.Maps.newHashMap();
+             net.minecraft.commands.CommandSourceStack $$3 = new net.minecraft.commands.CommandSourceStack(net.minecraft.commands.CommandSource.NULL, net.minecraft.world.phys.Vec3.ZERO, net.minecraft.world.phys.Vec2.ZERO, null, this.functionCompilationLevel, "", net.minecraft.network.chat.CommonComponents.EMPTY, null, null);
+             for (java.util.Map$Entry $$4 : $$1.entrySet()) {
+                 net.minecraft.resources.ResourceLocation $$5 = (net.minecraft.resources.ResourceLocation)$$4.getKey();
+-                java.lang.String $$6 = $$5.getPath();
+-                net.minecraft.resources.ResourceLocation $$7 = new net.minecraft.resources.ResourceLocation($$5.getNamespace(), $$6.substring(PATH_PREFIX_LENGTH, $$6.length() - PATH_SUFFIX_LENGTH));
+-                $$2.put((java.lang.Object)$$7, (java.lang.Object)java.util.concurrent.CompletableFuture.supplyAsync(() -> {
++                net.minecraft.resources.ResourceLocation $$6 = LISTER.fileToId($$5);
++                $$2.put((java.lang.Object)$$6, (java.lang.Object)java.util.concurrent.CompletableFuture.supplyAsync(() -> {
+                     java.util.List $$3 = net.minecraft.server.ServerFunctionLibrary.readLines((net.minecraft.server.packs.resources.Resource)((net.minecraft.server.packs.resources.Resource)$$4.getValue()));
+-                    return net.minecraft.commands.CommandFunction.fromLines((net.minecraft.resources.ResourceLocation)$$7, (com.mojang.brigadier.CommandDispatcher)this.dispatcher, (net.minecraft.commands.CommandSourceStack)$$3, (java.util.List)$$3);
+-                }, (java.util.concurrent.Executor)backgroundExecutor));
++                    return net.minecraft.commands.CommandFunction.fromLines((net.minecraft.resources.ResourceLocation)$$6, (com.mojang.brigadier.CommandDispatcher)this.dispatcher, (net.minecraft.commands.CommandSourceStack)$$3, (java.util.List)$$3);
++                }, (java.util.concurrent.Executor)$$4));
+             }
+-            java.util.concurrent.CompletableFuture[] $$8 = (java.util.concurrent.CompletableFuture[])$$2.values().toArray((java.lang.Object[])new java.util.concurrent.CompletableFuture[0]);
+-            return java.util.concurrent.CompletableFuture.allOf((java.util.concurrent.CompletableFuture[])$$8).handle((arg_0, arg_1) -> net.minecraft.server.ServerFunctionLibrary.lambda$reload$4((java.util.Map)$$2, arg_0, arg_1));
++            java.util.concurrent.CompletableFuture[] $$7 = (java.util.concurrent.CompletableFuture[])$$2.values().toArray((java.lang.Object[])new java.util.concurrent.CompletableFuture[0]);
++            return java.util.concurrent.CompletableFuture.allOf((java.util.concurrent.CompletableFuture[])$$7).handle((arg_0, arg_1) -> net.minecraft.server.ServerFunctionLibrary.lambda$reload$3((java.util.Map)$$2, arg_0, arg_1));
+         });
+-        return completableFuture.thenCombine((java.util.concurrent.CompletionStage)completableFuture2, com.mojang.datafixers.util.Pair::of).thenCompose(arg_0 -> ((net.minecraft.server.packs.resources.PreparableReloadListener$PreparationBarrier)stage).wait(arg_0)).thenAcceptAsync($$0 -> {
++        return $$6.thenCombine((java.util.concurrent.CompletionStage)$$7, com.mojang.datafixers.util.Pair::of).thenCompose(arg_0 -> ((net.minecraft.server.packs.resources.PreparableReloadListener$PreparationBarrier)$$02).wait(arg_0)).thenAcceptAsync($$0 -> {
+             java.util.Map $$12 = (java.util.Map)$$0.getSecond();
+             com.google.common.collect.ImmutableMap$Builder $$2 = com.google.common.collect.ImmutableMap.builder();
+             $$12.forEach(($$1, $$22) -> $$22.handle(($$2, $$3) -> {
+@@ -70,7 +67,7 @@
+             }).join());
+             this.functions = $$2.build();
+             this.tags = this.tagsLoader.build((java.util.Map)$$0.getFirst());
+-        }, gameExecutor);
++        }, $$5);
+     }
+ 
+     public static java.util.List<java.lang.String> readLines(net.minecraft.server.packs.resources.Resource $$0) {
+@@ -102,14 +99,13 @@
+         return list;
+     }
+ 
+-    public static /* synthetic */ java.util.Map lambda$reload$4(java.util.Map $$0, java.lang.Void $$1, java.lang.Throwable $$2) {
++    public static /* synthetic */ java.util.Map lambda$reload$3(java.util.Map $$0, java.lang.Void $$1, java.lang.Throwable $$2) {
+         return $$0;
+     }
+ 
+     static {
+         LOGGER = com.mojang.logging.LogUtils.getLogger();
+-        PATH_PREFIX_LENGTH = "functions/".length();
+-        PATH_SUFFIX_LENGTH = ".mcfunction".length();
++        LISTER = new net.minecraft.resources.FileToIdConverter("functions", ".mcfunction");
+     }
+ }
+ 

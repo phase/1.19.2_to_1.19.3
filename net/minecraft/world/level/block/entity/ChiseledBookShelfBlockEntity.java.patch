@@ -1,0 +1,82 @@
+--- net/minecraft/world/level/block/entity/ChiseledBookShelfBlockEntity.java
++++ net/minecraft/world/level/block/entity/ChiseledBookShelfBlockEntity.java
+@@ -1,0 +1,79 @@
++/*
++ * Decompiled with CFR 0.151.
++ */
++package net.minecraft.world.level.block.entity;
++
++public class net.minecraft.world.level.block.entity.ChiseledBookShelfBlockEntity
++extends net.minecraft.world.level.block.entity.BlockEntity
++implements net.minecraft.world.Clearable
++ {
++    public static int MAX_BOOKS_IN_STORAGE = 6;
++    public java.util.Deque<net.minecraft.world.item.ItemStack> items;
++
++    public net.minecraft.world.level.block.entity.ChiseledBookShelfBlockEntity(net.minecraft.core.BlockPos $$0, net.minecraft.world.level.block.state.BlockState $$1) {
++        super(net.minecraft.world.level.block.entity.BlockEntityType.CHISELED_BOOKSHELF, $$0, $$1);
++        this.items = new java.util.ArrayDeque(6);
++    }
++
++    public net.minecraft.world.item.ItemStack removeBook() {
++        return (net.minecraft.world.item.ItemStack)java.util.Objects.requireNonNullElse((java.lang.Object)((net.minecraft.world.item.ItemStack)this.items.poll()), (java.lang.Object)net.minecraft.world.item.ItemStack.EMPTY);
++    }
++
++    public void addBook(net.minecraft.world.item.ItemStack $$0) {
++        if ($$0.is(net.minecraft.tags.ItemTags.BOOKSHELF_BOOKS)) {
++            this.items.addFirst((java.lang.Object)$$0);
++        }
++    }
++
++    public void load(net.minecraft.nbt.CompoundTag $$0) {
++        net.minecraft.core.NonNullList $$1 = net.minecraft.core.NonNullList.withSize((int)6, (java.lang.Object)net.minecraft.world.item.ItemStack.EMPTY);
++        net.minecraft.world.ContainerHelper.loadAllItems((net.minecraft.nbt.CompoundTag)$$0, (net.minecraft.core.NonNullList)$$1);
++        this.items.clear();
++        for (net.minecraft.world.item.ItemStack $$2 : $$1) {
++            if (!$$2.is(net.minecraft.tags.ItemTags.BOOKSHELF_BOOKS)) continue;
++            this.items.add((java.lang.Object)$$2);
++        }
++    }
++
++    public void saveAdditional(net.minecraft.nbt.CompoundTag $$0) {
++        net.minecraft.world.ContainerHelper.saveAllItems((net.minecraft.nbt.CompoundTag)$$0, (net.minecraft.core.NonNullList)net.minecraft.world.level.block.entity.ChiseledBookShelfBlockEntity.asNonNullList((java.util.Collection)this.items), (boolean)true);
++    }
++
++    @org.jetbrains.annotations.NotNull
++    public static net.minecraft.core.NonNullList<net.minecraft.world.item.ItemStack> asNonNullList(java.util.Collection<net.minecraft.world.item.ItemStack> $$0) {
++        net.minecraft.core.NonNullList $$1 = net.minecraft.core.NonNullList.createWithCapacity((int)$$0.size());
++        $$1.addAll($$0);
++        return $$1;
++    }
++
++    public net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket getUpdatePacket() {
++        return net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket.create((net.minecraft.world.level.block.entity.BlockEntity)this);
++    }
++
++    public net.minecraft.nbt.CompoundTag getUpdateTag() {
++        net.minecraft.nbt.CompoundTag $$0 = new net.minecraft.nbt.CompoundTag();
++        net.minecraft.world.ContainerHelper.saveAllItems((net.minecraft.nbt.CompoundTag)$$0, (net.minecraft.core.NonNullList)net.minecraft.world.level.block.entity.ChiseledBookShelfBlockEntity.asNonNullList((java.util.Collection)this.items), (boolean)true);
++        return $$0;
++    }
++
++    public void clearContent() {
++        this.items.clear();
++    }
++
++    public int bookCount() {
++        return this.items.size();
++    }
++
++    public boolean isFull() {
++        return this.bookCount() == 6;
++    }
++
++    public boolean isEmpty() {
++        return this.items.isEmpty();
++    }
++
++    public /* synthetic */ net.minecraft.network.protocol.Packet getUpdatePacket() {
++        return this.getUpdatePacket();
++    }
++}
++

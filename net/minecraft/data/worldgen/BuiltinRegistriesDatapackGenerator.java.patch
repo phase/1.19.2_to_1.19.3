@@ -1,0 +1,58 @@
+--- net/minecraft/data/worldgen/BuiltinRegistriesDatapackGenerator.java
++++ net/minecraft/data/worldgen/BuiltinRegistriesDatapackGenerator.java
+@@ -1,0 +1,55 @@
++/*
++ * Decompiled with CFR 0.151.
++ */
++package net.minecraft.data.worldgen;
++
++public class net.minecraft.data.worldgen.BuiltinRegistriesDatapackGenerator
++implements net.minecraft.data.DataProvider
++ {
++    public static org.slf4j.Logger LOGGER;
++    public net.minecraft.data.PackOutput output;
++
++    public net.minecraft.data.worldgen.BuiltinRegistriesDatapackGenerator(net.minecraft.data.PackOutput $$0) {
++        this.output = $$0;
++    }
++
++    public void run(net.minecraft.data.CachedOutput $$0) {
++        net.minecraft.core.RegistryAccess$Frozen $$1 = net.minecraft.data.BuiltinRegistries.createAccess();
++        net.minecraft.resources.RegistryOps $$2 = net.minecraft.resources.RegistryOps.create((com.mojang.serialization.DynamicOps)com.mojang.serialization.JsonOps.INSTANCE, (net.minecraft.core.RegistryAccess)$$1);
++        net.minecraft.resources.RegistryDataLoader.WORLDGEN_REGISTRIES.forEach(arg_0 -> this.lambda$run$0($$0, (net.minecraft.core.RegistryAccess)$$1, (com.mojang.serialization.DynamicOps)$$2, arg_0));
++    }
++
++    public <T> void dumpRegistryCap(net.minecraft.data.CachedOutput $$0, net.minecraft.core.RegistryAccess $$1, com.mojang.serialization.DynamicOps<com.google.gson.JsonElement> $$2, net.minecraft.resources.RegistryDataLoader$RegistryData<T> $$3) {
++        net.minecraft.resources.ResourceKey $$4 = $$3.key();
++        net.minecraft.core.Registry $$5 = $$1.registryOrThrow($$4);
++        net.minecraft.data.PackOutput$PathProvider $$6 = this.output.createPathProvider(net.minecraft.data.PackOutput$Target.DATA_PACK, $$4.location().getPath());
++        for (java.util.Map$Entry $$7 : $$5.entrySet()) {
++            net.minecraft.data.worldgen.BuiltinRegistriesDatapackGenerator.dumpValue((java.nio.file.Path)$$6.json(((net.minecraft.resources.ResourceKey)$$7.getKey()).location()), (net.minecraft.data.CachedOutput)$$0, $$2, (com.mojang.serialization.Encoder)$$3.elementCodec(), (java.lang.Object)$$7.getValue());
++        }
++    }
++
++    public static <E> void dumpValue(java.nio.file.Path $$0, net.minecraft.data.CachedOutput $$12, com.mojang.serialization.DynamicOps<com.google.gson.JsonElement> $$2, com.mojang.serialization.Encoder<E> $$3, E $$4) {
++        try {
++            java.util.Optional $$5 = $$3.encodeStart($$2, $$4).resultOrPartial($$1 -> LOGGER.error("Couldn't serialize element {}: {}", (java.lang.Object)$$0, $$1));
++            if ($$5.isPresent()) {
++                net.minecraft.data.DataProvider.saveStable((net.minecraft.data.CachedOutput)$$12, (com.google.gson.JsonElement)((com.google.gson.JsonElement)$$5.get()), (java.nio.file.Path)$$0);
++            }
++        }
++        catch (java.io.IOException $$6) {
++            LOGGER.error("Couldn't save element {}", (java.lang.Object)$$0, (java.lang.Object)((java.lang.Object)$$6));
++        }
++    }
++
++    public java.lang.String getName() {
++        return "Worldgen";
++    }
++
++    public /* synthetic */ void lambda$run$0(net.minecraft.data.CachedOutput $$0, net.minecraft.core.RegistryAccess $$1, com.mojang.serialization.DynamicOps $$2, net.minecraft.resources.RegistryDataLoader$RegistryData $$3) {
++        this.dumpRegistryCap($$0, $$1, $$2, $$3);
++    }
++
++    static {
++        LOGGER = com.mojang.logging.LogUtils.getLogger();
++    }
++}
++

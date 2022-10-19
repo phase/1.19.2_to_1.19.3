@@ -1,0 +1,108 @@
+--- net/minecraft/client/gui/screens/worldselection/WorldCreationContext.java
++++ net/minecraft/client/gui/screens/worldselection/WorldCreationContext.java
+@@ -6,58 +6,80 @@
+ public class net.minecraft.client.gui.screens.worldselection.WorldCreationContext
+ extends java.lang.Record
+  {
+-    public net.minecraft.world.level.levelgen.WorldGenSettings worldGenSettings;
+-    public com.mojang.serialization.Lifecycle worldSettingsStability;
+-    public net.minecraft.core.RegistryAccess$Frozen registryAccess;
++    public net.minecraft.world.level.levelgen.WorldOptions options;
++    public net.minecraft.core.Registry<net.minecraft.world.level.dimension.LevelStem> datapackDimensions;
++    public net.minecraft.world.level.levelgen.WorldDimensions selectedDimensions;
++    public net.minecraft.core.LayeredRegistryAccess<net.minecraft.server.RegistryLayer> worldgenRegistries;
+     public net.minecraft.server.ReloadableServerResources dataPackResources;
++    public net.minecraft.world.level.WorldDataConfiguration dataConfiguration;
+ 
+-    public net.minecraft.client.gui.screens.worldselection.WorldCreationContext(net.minecraft.world.level.levelgen.WorldGenSettings $$0, com.mojang.serialization.Lifecycle $$1, net.minecraft.core.RegistryAccess$Frozen $$2, net.minecraft.server.ReloadableServerResources $$3) {
+-        this.worldGenSettings = $$0;
+-        this.worldSettingsStability = $$1;
+-        this.registryAccess = $$2;
+-        this.dataPackResources = $$3;
++    public net.minecraft.client.gui.screens.worldselection.WorldCreationContext(net.minecraft.world.level.levelgen.WorldGenSettings $$0, net.minecraft.core.LayeredRegistryAccess<net.minecraft.server.RegistryLayer> $$1, net.minecraft.server.ReloadableServerResources $$2, net.minecraft.world.level.WorldDataConfiguration $$3) {
++        this($$0.options(), $$0.dimensions(), $$1, $$2, $$3);
+     }
+ 
+-    public net.minecraft.client.gui.screens.worldselection.WorldCreationContext withSettings(net.minecraft.world.level.levelgen.WorldGenSettings $$0) {
+-        return new net.minecraft.client.gui.screens.worldselection.WorldCreationContext($$0, this.worldSettingsStability, this.registryAccess, this.dataPackResources);
++    public net.minecraft.client.gui.screens.worldselection.WorldCreationContext(net.minecraft.world.level.levelgen.WorldOptions $$0, net.minecraft.world.level.levelgen.WorldDimensions $$1, net.minecraft.core.LayeredRegistryAccess<net.minecraft.server.RegistryLayer> $$2, net.minecraft.server.ReloadableServerResources $$3, net.minecraft.world.level.WorldDataConfiguration $$4) {
++        this($$0, $$2.getLayer((java.lang.Object)net.minecraft.server.RegistryLayer.DIMENSIONS).registryOrThrow(net.minecraft.core.Registry.LEVEL_STEM_REGISTRY), $$1, $$2.replaceFrom((java.lang.Object)net.minecraft.server.RegistryLayer.DIMENSIONS, new net.minecraft.core.RegistryAccess$Frozen[0]), $$3, $$4);
+     }
+ 
+-    public net.minecraft.client.gui.screens.worldselection.WorldCreationContext withSettings(net.minecraft.client.gui.screens.worldselection.WorldCreationContext$SimpleUpdater $$0) {
+-        net.minecraft.world.level.levelgen.WorldGenSettings $$1 = (net.minecraft.world.level.levelgen.WorldGenSettings)$$0.apply((java.lang.Object)this.worldGenSettings);
+-        return this.withSettings($$1);
++    public net.minecraft.client.gui.screens.worldselection.WorldCreationContext(net.minecraft.world.level.levelgen.WorldOptions $$0, net.minecraft.core.Registry<net.minecraft.world.level.dimension.LevelStem> $$1, net.minecraft.world.level.levelgen.WorldDimensions $$2, net.minecraft.core.LayeredRegistryAccess<net.minecraft.server.RegistryLayer> $$3, net.minecraft.server.ReloadableServerResources $$4, net.minecraft.world.level.WorldDataConfiguration $$5) {
++        this.options = $$0;
++        this.datapackDimensions = $$1;
++        this.selectedDimensions = $$2;
++        this.worldgenRegistries = $$3;
++        this.dataPackResources = $$4;
++        this.dataConfiguration = $$5;
+     }
+ 
+-    public net.minecraft.client.gui.screens.worldselection.WorldCreationContext withSettings(net.minecraft.client.gui.screens.worldselection.WorldCreationContext$Updater $$0) {
+-        net.minecraft.world.level.levelgen.WorldGenSettings $$1 = (net.minecraft.world.level.levelgen.WorldGenSettings)$$0.apply((java.lang.Object)this.registryAccess, (java.lang.Object)this.worldGenSettings);
+-        return this.withSettings($$1);
++    public net.minecraft.client.gui.screens.worldselection.WorldCreationContext withSettings(net.minecraft.world.level.levelgen.WorldOptions $$0, net.minecraft.world.level.levelgen.WorldDimensions $$1) {
++        return new net.minecraft.client.gui.screens.worldselection.WorldCreationContext($$0, this.datapackDimensions, $$1, this.worldgenRegistries, this.dataPackResources, this.dataConfiguration);
+     }
+ 
++    public net.minecraft.client.gui.screens.worldselection.WorldCreationContext withOptions(net.minecraft.client.gui.screens.worldselection.WorldCreationContext$OptionsModifier $$0) {
++        return new net.minecraft.client.gui.screens.worldselection.WorldCreationContext((net.minecraft.world.level.levelgen.WorldOptions)$$0.apply((java.lang.Object)this.options), this.datapackDimensions, this.selectedDimensions, this.worldgenRegistries, this.dataPackResources, this.dataConfiguration);
++    }
++
++    public net.minecraft.client.gui.screens.worldselection.WorldCreationContext withDimensions(net.minecraft.client.gui.screens.worldselection.WorldCreationContext$DimensionsUpdater $$0) {
++        return new net.minecraft.client.gui.screens.worldselection.WorldCreationContext(this.options, this.datapackDimensions, (net.minecraft.world.level.levelgen.WorldDimensions)$$0.apply((java.lang.Object)this.worldgenLoadContext(), (java.lang.Object)this.selectedDimensions), this.worldgenRegistries, this.dataPackResources, this.dataConfiguration);
++    }
++
++    public net.minecraft.core.RegistryAccess$Frozen worldgenLoadContext() {
++        return this.worldgenRegistries.compositeAccess();
++    }
++
+     public java.lang.String toString() {
+-        return java.lang.runtime.ObjectMethods.bootstrap("toString", new java.lang.invoke.MethodHandle[]{net.minecraft.client.gui.screens.worldselection.WorldCreationContext.class, "worldGenSettings;worldSettingsStability;registryAccess;dataPackResources", "worldGenSettings", "worldSettingsStability", "registryAccess", "dataPackResources"}, this);
++        return java.lang.runtime.ObjectMethods.bootstrap("toString", new java.lang.invoke.MethodHandle[]{net.minecraft.client.gui.screens.worldselection.WorldCreationContext.class, "options;datapackDimensions;selectedDimensions;worldgenRegistries;dataPackResources;dataConfiguration", "options", "datapackDimensions", "selectedDimensions", "worldgenRegistries", "dataPackResources", "dataConfiguration"}, this);
+     }
+ 
+     public int hashCode() {
+-        return (int)java.lang.runtime.ObjectMethods.bootstrap("hashCode", new java.lang.invoke.MethodHandle[]{net.minecraft.client.gui.screens.worldselection.WorldCreationContext.class, "worldGenSettings;worldSettingsStability;registryAccess;dataPackResources", "worldGenSettings", "worldSettingsStability", "registryAccess", "dataPackResources"}, this);
++        return (int)java.lang.runtime.ObjectMethods.bootstrap("hashCode", new java.lang.invoke.MethodHandle[]{net.minecraft.client.gui.screens.worldselection.WorldCreationContext.class, "options;datapackDimensions;selectedDimensions;worldgenRegistries;dataPackResources;dataConfiguration", "options", "datapackDimensions", "selectedDimensions", "worldgenRegistries", "dataPackResources", "dataConfiguration"}, this);
+     }
+ 
+     public boolean equals(java.lang.Object $$0) {
+-        return (boolean)java.lang.runtime.ObjectMethods.bootstrap("equals", new java.lang.invoke.MethodHandle[]{net.minecraft.client.gui.screens.worldselection.WorldCreationContext.class, "worldGenSettings;worldSettingsStability;registryAccess;dataPackResources", "worldGenSettings", "worldSettingsStability", "registryAccess", "dataPackResources"}, this, $$0);
++        return (boolean)java.lang.runtime.ObjectMethods.bootstrap("equals", new java.lang.invoke.MethodHandle[]{net.minecraft.client.gui.screens.worldselection.WorldCreationContext.class, "options;datapackDimensions;selectedDimensions;worldgenRegistries;dataPackResources;dataConfiguration", "options", "datapackDimensions", "selectedDimensions", "worldgenRegistries", "dataPackResources", "dataConfiguration"}, this, $$0);
+     }
+ 
+-    public net.minecraft.world.level.levelgen.WorldGenSettings worldGenSettings() {
+-        return this.worldGenSettings;
++    public net.minecraft.world.level.levelgen.WorldOptions options() {
++        return this.options;
+     }
+ 
+-    public com.mojang.serialization.Lifecycle worldSettingsStability() {
+-        return this.worldSettingsStability;
++    public net.minecraft.core.Registry<net.minecraft.world.level.dimension.LevelStem> datapackDimensions() {
++        return this.datapackDimensions;
+     }
+ 
+-    public net.minecraft.core.RegistryAccess$Frozen registryAccess() {
+-        return this.registryAccess;
++    public net.minecraft.world.level.levelgen.WorldDimensions selectedDimensions() {
++        return this.selectedDimensions;
+     }
+ 
++    public net.minecraft.core.LayeredRegistryAccess<net.minecraft.server.RegistryLayer> worldgenRegistries() {
++        return this.worldgenRegistries;
++    }
++
+     public net.minecraft.server.ReloadableServerResources dataPackResources() {
+         return this.dataPackResources;
+     }
++
++    public net.minecraft.world.level.WorldDataConfiguration dataConfiguration() {
++        return this.dataConfiguration;
++    }
+ }
+ 

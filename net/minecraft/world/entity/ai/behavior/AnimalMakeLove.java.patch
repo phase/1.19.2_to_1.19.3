@@ -1,0 +1,96 @@
+--- net/minecraft/world/entity/ai/behavior/AnimalMakeLove.java
++++ net/minecraft/world/entity/ai/behavior/AnimalMakeLove.java
+@@ -19,60 +19,60 @@
+         this.speedModifier = $$1;
+     }
+ 
+-    public boolean checkExtraStartConditions(net.minecraft.server.level.ServerLevel level, net.minecraft.world.entity.animal.Animal owner) {
+-        return owner.isInLove() && this.findValidBreedPartner(owner).isPresent();
++    public boolean checkExtraStartConditions(net.minecraft.server.level.ServerLevel $$0, net.minecraft.world.entity.animal.Animal $$1) {
++        return $$1.isInLove() && this.findValidBreedPartner($$1).isPresent();
+     }
+ 
+-    public void start(net.minecraft.server.level.ServerLevel level, net.minecraft.world.entity.animal.Animal entity, long gameTime) {
+-        net.minecraft.world.entity.animal.Animal animal = (net.minecraft.world.entity.animal.Animal)this.findValidBreedPartner(entity).get();
+-        entity.getBrain().setMemory(net.minecraft.world.entity.ai.memory.MemoryModuleType.BREED_TARGET, (java.lang.Object)animal);
+-        animal.getBrain().setMemory(net.minecraft.world.entity.ai.memory.MemoryModuleType.BREED_TARGET, (java.lang.Object)entity);
+-        net.minecraft.world.entity.ai.behavior.BehaviorUtils.lockGazeAndWalkToEachOther((net.minecraft.world.entity.LivingEntity)entity, (net.minecraft.world.entity.LivingEntity)animal, (float)this.speedModifier);
+-        int n = 60 + entity.getRandom().nextInt(50);
+-        this.spawnChildAtTime = gameTime + (long)n;
++    public void start(net.minecraft.server.level.ServerLevel $$0, net.minecraft.world.entity.animal.Animal $$1, long $$2) {
++        net.minecraft.world.entity.animal.Animal $$3 = (net.minecraft.world.entity.animal.Animal)this.findValidBreedPartner($$1).get();
++        $$1.getBrain().setMemory(net.minecraft.world.entity.ai.memory.MemoryModuleType.BREED_TARGET, (java.lang.Object)$$3);
++        $$3.getBrain().setMemory(net.minecraft.world.entity.ai.memory.MemoryModuleType.BREED_TARGET, (java.lang.Object)$$1);
++        net.minecraft.world.entity.ai.behavior.BehaviorUtils.lockGazeAndWalkToEachOther((net.minecraft.world.entity.LivingEntity)$$1, (net.minecraft.world.entity.LivingEntity)$$3, (float)this.speedModifier);
++        int $$4 = 60 + $$1.getRandom().nextInt(50);
++        this.spawnChildAtTime = $$2 + (long)$$4;
+     }
+ 
+-    public boolean canStillUse(net.minecraft.server.level.ServerLevel level, net.minecraft.world.entity.animal.Animal entity, long gameTime) {
+-        if (!this.hasBreedTargetOfRightType(entity)) {
++    public boolean canStillUse(net.minecraft.server.level.ServerLevel $$0, net.minecraft.world.entity.animal.Animal $$1, long $$2) {
++        if (!this.hasBreedTargetOfRightType($$1)) {
+             return false;
+         }
+-        net.minecraft.world.entity.animal.Animal animal = this.getBreedTarget(entity);
+-        return animal.isAlive() && entity.canMate(animal) && net.minecraft.world.entity.ai.behavior.BehaviorUtils.entityIsVisible((net.minecraft.world.entity.ai.Brain)entity.getBrain(), (net.minecraft.world.entity.LivingEntity)animal) && gameTime <= this.spawnChildAtTime;
++        net.minecraft.world.entity.animal.Animal $$3 = this.getBreedTarget($$1);
++        return $$3.isAlive() && $$1.canMate($$3) && net.minecraft.world.entity.ai.behavior.BehaviorUtils.entityIsVisible((net.minecraft.world.entity.ai.Brain)$$1.getBrain(), (net.minecraft.world.entity.LivingEntity)$$3) && $$2 <= this.spawnChildAtTime;
+     }
+ 
+-    public void tick(net.minecraft.server.level.ServerLevel level, net.minecraft.world.entity.animal.Animal owner, long gameTime) {
+-        net.minecraft.world.entity.animal.Animal animal = this.getBreedTarget(owner);
+-        net.minecraft.world.entity.ai.behavior.BehaviorUtils.lockGazeAndWalkToEachOther((net.minecraft.world.entity.LivingEntity)owner, (net.minecraft.world.entity.LivingEntity)animal, (float)this.speedModifier);
+-        if (!owner.closerThan((net.minecraft.world.entity.Entity)animal, 3.0)) {
++    public void tick(net.minecraft.server.level.ServerLevel $$0, net.minecraft.world.entity.animal.Animal $$1, long $$2) {
++        net.minecraft.world.entity.animal.Animal $$3 = this.getBreedTarget($$1);
++        net.minecraft.world.entity.ai.behavior.BehaviorUtils.lockGazeAndWalkToEachOther((net.minecraft.world.entity.LivingEntity)$$1, (net.minecraft.world.entity.LivingEntity)$$3, (float)this.speedModifier);
++        if (!$$1.closerThan((net.minecraft.world.entity.Entity)$$3, 3.0)) {
+             return;
+         }
+-        if (gameTime >= this.spawnChildAtTime) {
+-            owner.spawnChildFromBreeding(level, animal);
+-            owner.getBrain().eraseMemory(net.minecraft.world.entity.ai.memory.MemoryModuleType.BREED_TARGET);
+-            animal.getBrain().eraseMemory(net.minecraft.world.entity.ai.memory.MemoryModuleType.BREED_TARGET);
++        if ($$2 >= this.spawnChildAtTime) {
++            $$1.spawnChildFromBreeding($$0, $$3);
++            $$1.getBrain().eraseMemory(net.minecraft.world.entity.ai.memory.MemoryModuleType.BREED_TARGET);
++            $$3.getBrain().eraseMemory(net.minecraft.world.entity.ai.memory.MemoryModuleType.BREED_TARGET);
+         }
+     }
+ 
+-    public void stop(net.minecraft.server.level.ServerLevel level, net.minecraft.world.entity.animal.Animal entity, long gameTime) {
+-        entity.getBrain().eraseMemory(net.minecraft.world.entity.ai.memory.MemoryModuleType.BREED_TARGET);
+-        entity.getBrain().eraseMemory(net.minecraft.world.entity.ai.memory.MemoryModuleType.WALK_TARGET);
+-        entity.getBrain().eraseMemory(net.minecraft.world.entity.ai.memory.MemoryModuleType.LOOK_TARGET);
++    public void stop(net.minecraft.server.level.ServerLevel $$0, net.minecraft.world.entity.animal.Animal $$1, long $$2) {
++        $$1.getBrain().eraseMemory(net.minecraft.world.entity.ai.memory.MemoryModuleType.BREED_TARGET);
++        $$1.getBrain().eraseMemory(net.minecraft.world.entity.ai.memory.MemoryModuleType.WALK_TARGET);
++        $$1.getBrain().eraseMemory(net.minecraft.world.entity.ai.memory.MemoryModuleType.LOOK_TARGET);
+         this.spawnChildAtTime = 0L;
+     }
+ 
+-    public net.minecraft.world.entity.animal.Animal getBreedTarget(net.minecraft.world.entity.animal.Animal animal) {
+-        return (net.minecraft.world.entity.animal.Animal)animal.getBrain().getMemory(net.minecraft.world.entity.ai.memory.MemoryModuleType.BREED_TARGET).get();
++    public net.minecraft.world.entity.animal.Animal getBreedTarget(net.minecraft.world.entity.animal.Animal $$0) {
++        return (net.minecraft.world.entity.animal.Animal)$$0.getBrain().getMemory(net.minecraft.world.entity.ai.memory.MemoryModuleType.BREED_TARGET).get();
+     }
+ 
+-    public boolean hasBreedTargetOfRightType(net.minecraft.world.entity.animal.Animal animal) {
+-        net.minecraft.world.entity.ai.Brain brain = animal.getBrain();
+-        return brain.hasMemoryValue(net.minecraft.world.entity.ai.memory.MemoryModuleType.BREED_TARGET) && ((net.minecraft.world.entity.AgeableMob)brain.getMemory(net.minecraft.world.entity.ai.memory.MemoryModuleType.BREED_TARGET).get()).getType() == this.partnerType;
++    public boolean hasBreedTargetOfRightType(net.minecraft.world.entity.animal.Animal $$0) {
++        net.minecraft.world.entity.ai.Brain $$1 = $$0.getBrain();
++        return $$1.hasMemoryValue(net.minecraft.world.entity.ai.memory.MemoryModuleType.BREED_TARGET) && ((net.minecraft.world.entity.AgeableMob)$$1.getMemory(net.minecraft.world.entity.ai.memory.MemoryModuleType.BREED_TARGET).get()).getType() == this.partnerType;
+     }
+ 
+-    public java.util.Optional<? extends net.minecraft.world.entity.animal.Animal> findValidBreedPartner(net.minecraft.world.entity.animal.Animal animal) {
+-        return ((net.minecraft.world.entity.ai.memory.NearestVisibleLivingEntities)animal.getBrain().getMemory(net.minecraft.world.entity.ai.memory.MemoryModuleType.NEAREST_VISIBLE_LIVING_ENTITIES).get()).findClosest($$1 -> {
++    public java.util.Optional<? extends net.minecraft.world.entity.animal.Animal> findValidBreedPartner(net.minecraft.world.entity.animal.Animal $$0) {
++        return ((net.minecraft.world.entity.ai.memory.NearestVisibleLivingEntities)$$0.getBrain().getMemory(net.minecraft.world.entity.ai.memory.MemoryModuleType.NEAREST_VISIBLE_LIVING_ENTITIES).get()).findClosest($$1 -> {
+             net.minecraft.world.entity.animal.Animal $$2;
+-            return $$1.getType() == this.partnerType && $$1 instanceof net.minecraft.world.entity.animal.Animal && animal.canMate($$2 = (net.minecraft.world.entity.animal.Animal)$$1);
++            return $$1.getType() == this.partnerType && $$1 instanceof net.minecraft.world.entity.animal.Animal && $$0.canMate($$2 = (net.minecraft.world.entity.animal.Animal)$$1);
+         }).map(arg_0 -> net.minecraft.world.entity.animal.Animal.class.cast(arg_0));
+     }
+ 

@@ -1,0 +1,71 @@
+--- net/minecraft/data/recipes/ShapedRecipeBuilder$Result.java
++++ net/minecraft/data/recipes/ShapedRecipeBuilder$Result.java
+@@ -4,7 +4,7 @@
+ package net.minecraft.data.recipes;
+ 
+ public class net.minecraft.data.recipes.ShapedRecipeBuilder$Result
+-implements net.minecraft.data.recipes.FinishedRecipe
++extends net.minecraft.data.recipes.CraftingRecipeBuilder$CraftingResult
+  {
+     public net.minecraft.resources.ResourceLocation id;
+     public net.minecraft.world.item.Item result;
+@@ -15,38 +15,39 @@
+     public net.minecraft.advancements.Advancement$Builder advancement;
+     public net.minecraft.resources.ResourceLocation advancementId;
+ 
+-    public net.minecraft.data.recipes.ShapedRecipeBuilder$Result(net.minecraft.resources.ResourceLocation $$0, net.minecraft.world.item.Item $$1, int $$2, java.lang.String $$3, java.util.List<java.lang.String> $$4, java.util.Map<java.lang.Character, net.minecraft.world.item.crafting.Ingredient> $$5, net.minecraft.advancements.Advancement$Builder $$6, net.minecraft.resources.ResourceLocation $$7) {
++    public net.minecraft.data.recipes.ShapedRecipeBuilder$Result(net.minecraft.resources.ResourceLocation $$0, net.minecraft.world.item.Item $$1, int $$2, java.lang.String $$3, net.minecraft.world.item.crafting.CraftingBookCategory $$4, java.util.List<java.lang.String> $$5, java.util.Map<java.lang.Character, net.minecraft.world.item.crafting.Ingredient> $$6, net.minecraft.advancements.Advancement$Builder $$7, net.minecraft.resources.ResourceLocation $$8) {
++        super($$4);
+         this.id = $$0;
+         this.result = $$1;
+         this.count = $$2;
+         this.group = $$3;
+-        this.pattern = $$4;
+-        this.key = $$5;
+-        this.advancement = $$6;
+-        this.advancementId = $$7;
++        this.pattern = $$5;
++        this.key = $$6;
++        this.advancement = $$7;
++        this.advancementId = $$8;
+     }
+ 
+-    public void serializeRecipeData(com.google.gson.JsonObject json) {
+-        java.lang.String string2;
++    public void serializeRecipeData(com.google.gson.JsonObject $$0) {
++        super.serializeRecipeData($$0);
+         if (!this.group.isEmpty()) {
+-            json.addProperty("group", this.group);
++            $$0.addProperty("group", this.group);
+         }
+-        com.google.gson.JsonArray jsonArray = new com.google.gson.JsonArray();
+-        for (java.lang.String string2 : this.pattern) {
+-            jsonArray.add(string2);
++        com.google.gson.JsonArray $$1 = new com.google.gson.JsonArray();
++        for (java.lang.String $$2 : this.pattern) {
++            $$1.add($$2);
+         }
+-        json.add("pattern", (com.google.gson.JsonElement)jsonArray);
+-        java.util.Iterator iterator = new com.google.gson.JsonObject();
+-        for (java.util.Map$Entry entry : this.key.entrySet()) {
+-            iterator.add(java.lang.String.valueOf((java.lang.Object)entry.getKey()), ((net.minecraft.world.item.crafting.Ingredient)entry.getValue()).toJson());
++        $$0.add("pattern", (com.google.gson.JsonElement)$$1);
++        com.google.gson.JsonObject $$3 = new com.google.gson.JsonObject();
++        for (java.util.Map$Entry $$4 : this.key.entrySet()) {
++            $$3.add(java.lang.String.valueOf((java.lang.Object)$$4.getKey()), ((net.minecraft.world.item.crafting.Ingredient)$$4.getValue()).toJson());
+         }
+-        json.add("key", (com.google.gson.JsonElement)iterator);
+-        string2 = new com.google.gson.JsonObject();
+-        string2.addProperty("item", net.minecraft.core.Registry.ITEM.getKey((java.lang.Object)this.result).toString());
++        $$0.add("key", (com.google.gson.JsonElement)$$3);
++        com.google.gson.JsonObject $$5 = new com.google.gson.JsonObject();
++        $$5.addProperty("item", net.minecraft.core.Registry.ITEM.getKey((java.lang.Object)this.result).toString());
+         if (this.count > 1) {
+-            string2.addProperty("count", (java.lang.Number)java.lang.Integer.valueOf((int)this.count));
++            $$5.addProperty("count", (java.lang.Number)java.lang.Integer.valueOf((int)this.count));
+         }
+-        json.add("result", (com.google.gson.JsonElement)string2);
++        $$0.add("result", (com.google.gson.JsonElement)$$5);
+     }
+ 
+     public net.minecraft.world.item.crafting.RecipeSerializer<?> getType() {

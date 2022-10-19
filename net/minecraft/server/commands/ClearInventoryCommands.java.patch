@@ -1,0 +1,52 @@
+--- net/minecraft/server/commands/ClearInventoryCommands.java
++++ net/minecraft/server/commands/ClearInventoryCommands.java
+@@ -15,31 +15,31 @@
+         $$03.register((com.mojang.brigadier.builder.LiteralArgumentBuilder)((com.mojang.brigadier.builder.LiteralArgumentBuilder)((com.mojang.brigadier.builder.LiteralArgumentBuilder)net.minecraft.commands.Commands.literal((java.lang.String)"clear").requires($$0 -> $$0.hasPermission(2))).executes($$02 -> net.minecraft.server.commands.ClearInventoryCommands.clearInventory((net.minecraft.commands.CommandSourceStack)((net.minecraft.commands.CommandSourceStack)$$02.getSource()), (java.util.Collection)java.util.Collections.singleton((java.lang.Object)((net.minecraft.commands.CommandSourceStack)$$02.getSource()).getPlayerOrException()), $$0 -> true, (int)-1))).then(((com.mojang.brigadier.builder.RequiredArgumentBuilder)net.minecraft.commands.Commands.argument((java.lang.String)"targets", (com.mojang.brigadier.arguments.ArgumentType)net.minecraft.commands.arguments.EntityArgument.players()).executes($$02 -> net.minecraft.server.commands.ClearInventoryCommands.clearInventory((net.minecraft.commands.CommandSourceStack)((net.minecraft.commands.CommandSourceStack)$$02.getSource()), (java.util.Collection)net.minecraft.commands.arguments.EntityArgument.getPlayers((com.mojang.brigadier.context.CommandContext)$$02, (java.lang.String)"targets"), $$0 -> true, (int)-1))).then(((com.mojang.brigadier.builder.RequiredArgumentBuilder)net.minecraft.commands.Commands.argument((java.lang.String)"item", (com.mojang.brigadier.arguments.ArgumentType)net.minecraft.commands.arguments.item.ItemPredicateArgument.itemPredicate((net.minecraft.commands.CommandBuildContext)$$1)).executes($$0 -> net.minecraft.server.commands.ClearInventoryCommands.clearInventory((net.minecraft.commands.CommandSourceStack)((net.minecraft.commands.CommandSourceStack)$$0.getSource()), (java.util.Collection)net.minecraft.commands.arguments.EntityArgument.getPlayers((com.mojang.brigadier.context.CommandContext)$$0, (java.lang.String)"targets"), (java.util.function.Predicate)net.minecraft.commands.arguments.item.ItemPredicateArgument.getItemPredicate((com.mojang.brigadier.context.CommandContext)$$0, (java.lang.String)"item"), (int)-1))).then(net.minecraft.commands.Commands.argument((java.lang.String)"maxCount", (com.mojang.brigadier.arguments.ArgumentType)com.mojang.brigadier.arguments.IntegerArgumentType.integer((int)0)).executes($$0 -> net.minecraft.server.commands.ClearInventoryCommands.clearInventory((net.minecraft.commands.CommandSourceStack)((net.minecraft.commands.CommandSourceStack)$$0.getSource()), (java.util.Collection)net.minecraft.commands.arguments.EntityArgument.getPlayers((com.mojang.brigadier.context.CommandContext)$$0, (java.lang.String)"targets"), (java.util.function.Predicate)net.minecraft.commands.arguments.item.ItemPredicateArgument.getItemPredicate((com.mojang.brigadier.context.CommandContext)$$0, (java.lang.String)"item"), (int)com.mojang.brigadier.arguments.IntegerArgumentType.getInteger((com.mojang.brigadier.context.CommandContext)$$0, (java.lang.String)"maxCount")))))));
+     }
+ 
+-    public static int clearInventory(net.minecraft.commands.CommandSourceStack source, java.util.Collection<net.minecraft.server.level.ServerPlayer> targetPlayers, java.util.function.Predicate<net.minecraft.world.item.ItemStack> itemPredicate, int maxCount) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
+-        int n = 0;
+-        for (net.minecraft.server.level.ServerPlayer serverPlayer : targetPlayers) {
+-            n += serverPlayer.getInventory().clearOrCountMatchingItems(itemPredicate, maxCount, (net.minecraft.world.Container)serverPlayer.inventoryMenu.getCraftSlots());
+-            serverPlayer.containerMenu.broadcastChanges();
+-            serverPlayer.inventoryMenu.slotsChanged((net.minecraft.world.Container)serverPlayer.getInventory());
++    public static int clearInventory(net.minecraft.commands.CommandSourceStack $$0, java.util.Collection<net.minecraft.server.level.ServerPlayer> $$1, java.util.function.Predicate<net.minecraft.world.item.ItemStack> $$2, int $$3) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
++        int $$4 = 0;
++        for (net.minecraft.server.level.ServerPlayer $$5 : $$1) {
++            $$4 += $$5.getInventory().clearOrCountMatchingItems($$2, $$3, (net.minecraft.world.Container)$$5.inventoryMenu.getCraftSlots());
++            $$5.containerMenu.broadcastChanges();
++            $$5.inventoryMenu.slotsChanged((net.minecraft.world.Container)$$5.getInventory());
+         }
+-        if (n == 0) {
+-            if (targetPlayers.size() == 1) {
+-                throw ERROR_SINGLE.create((java.lang.Object)((net.minecraft.server.level.ServerPlayer)targetPlayers.iterator().next()).getName());
++        if ($$4 == 0) {
++            if ($$1.size() == 1) {
++                throw ERROR_SINGLE.create((java.lang.Object)((net.minecraft.server.level.ServerPlayer)$$1.iterator().next()).getName());
+             }
+-            throw ERROR_MULTIPLE.create((java.lang.Object)targetPlayers.size());
++            throw ERROR_MULTIPLE.create((java.lang.Object)$$1.size());
+         }
+-        if (maxCount == 0) {
+-            if (targetPlayers.size() == 1) {
+-                source.sendSuccess((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"commands.clear.test.single", (java.lang.Object[])new java.lang.Object[]{n, ((net.minecraft.server.level.ServerPlayer)targetPlayers.iterator().next()).getDisplayName()}), true);
++        if ($$3 == 0) {
++            if ($$1.size() == 1) {
++                $$0.sendSuccess((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"commands.clear.test.single", (java.lang.Object[])new java.lang.Object[]{$$4, ((net.minecraft.server.level.ServerPlayer)$$1.iterator().next()).getDisplayName()}), true);
+             } else {
+-                source.sendSuccess((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"commands.clear.test.multiple", (java.lang.Object[])new java.lang.Object[]{n, targetPlayers.size()}), true);
++                $$0.sendSuccess((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"commands.clear.test.multiple", (java.lang.Object[])new java.lang.Object[]{$$4, $$1.size()}), true);
+             }
+-        } else if (targetPlayers.size() == 1) {
+-            source.sendSuccess((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"commands.clear.success.single", (java.lang.Object[])new java.lang.Object[]{n, ((net.minecraft.server.level.ServerPlayer)targetPlayers.iterator().next()).getDisplayName()}), true);
++        } else if ($$1.size() == 1) {
++            $$0.sendSuccess((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"commands.clear.success.single", (java.lang.Object[])new java.lang.Object[]{$$4, ((net.minecraft.server.level.ServerPlayer)$$1.iterator().next()).getDisplayName()}), true);
+         } else {
+-            source.sendSuccess((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"commands.clear.success.multiple", (java.lang.Object[])new java.lang.Object[]{n, targetPlayers.size()}), true);
++            $$0.sendSuccess((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"commands.clear.success.multiple", (java.lang.Object[])new java.lang.Object[]{$$4, $$1.size()}), true);
+         }
+-        return n;
++        return $$4;
+     }
+ 
+     public static /* synthetic */ com.mojang.brigadier.Message lambda$static$1(java.lang.Object $$0) {

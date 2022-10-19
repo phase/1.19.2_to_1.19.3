@@ -1,0 +1,389 @@
+--- net/minecraft/world/entity/ai/Brain.java
++++ net/minecraft/world/entity/ai/Brain.java
+@@ -19,14 +19,14 @@
+     public net.minecraft.world.entity.schedule.Activity defaultActivity;
+     public long lastScheduleUpdate;
+ 
+-    public static <E extends net.minecraft.world.entity.LivingEntity> net.minecraft.world.entity.ai.Brain$Provider<E> provider(java.util.Collection<? extends net.minecraft.world.entity.ai.memory.MemoryModuleType<?>> memoryTypes, java.util.Collection<? extends net.minecraft.world.entity.ai.sensing.SensorType<? extends net.minecraft.world.entity.ai.sensing.Sensor<? super E>>> sensorTypes) {
+-        return new net.minecraft.world.entity.ai.Brain$Provider(memoryTypes, sensorTypes);
++    public static <E extends net.minecraft.world.entity.LivingEntity> net.minecraft.world.entity.ai.Brain$Provider<E> provider(java.util.Collection<? extends net.minecraft.world.entity.ai.memory.MemoryModuleType<?>> $$0, java.util.Collection<? extends net.minecraft.world.entity.ai.sensing.SensorType<? extends net.minecraft.world.entity.ai.sensing.Sensor<? super E>>> $$1) {
++        return new net.minecraft.world.entity.ai.Brain$Provider($$0, $$1);
+     }
+ 
+-    public static <E extends net.minecraft.world.entity.LivingEntity> com.mojang.serialization.Codec<net.minecraft.world.entity.ai.Brain<E>> codec(java.util.Collection<? extends net.minecraft.world.entity.ai.memory.MemoryModuleType<?>> memoryTypes, java.util.Collection<? extends net.minecraft.world.entity.ai.sensing.SensorType<? extends net.minecraft.world.entity.ai.sensing.Sensor<? super E>>> sensorTypes) {
+-        org.apache.commons.lang3.mutable.MutableObject mutableObject = new org.apache.commons.lang3.mutable.MutableObject();
+-        mutableObject.setValue((java.lang.Object)new /* Unavailable Anonymous Inner Class!! */.fieldOf("memories").codec());
+-        return (com.mojang.serialization.Codec)mutableObject.getValue();
++    public static <E extends net.minecraft.world.entity.LivingEntity> com.mojang.serialization.Codec<net.minecraft.world.entity.ai.Brain<E>> codec(java.util.Collection<? extends net.minecraft.world.entity.ai.memory.MemoryModuleType<?>> $$0, java.util.Collection<? extends net.minecraft.world.entity.ai.sensing.SensorType<? extends net.minecraft.world.entity.ai.sensing.Sensor<? super E>>> $$1) {
++        org.apache.commons.lang3.mutable.MutableObject $$2 = new org.apache.commons.lang3.mutable.MutableObject();
++        $$2.setValue((java.lang.Object)new /* Unavailable Anonymous Inner Class!! */.fieldOf("memories").codec());
++        return (com.mojang.serialization.Codec)$$2.getValue();
+     }
+ 
+     public net.minecraft.world.entity.ai.Brain(java.util.Collection<? extends net.minecraft.world.entity.ai.memory.MemoryModuleType<?>> $$0, java.util.Collection<? extends net.minecraft.world.entity.ai.sensing.SensorType<? extends net.minecraft.world.entity.ai.sensing.Sensor<? super E>>> $$1, com.google.common.collect.ImmutableList<net.minecraft.world.entity.ai.Brain$MemoryValue<?>> $$2, java.util.function.Supplier<com.mojang.serialization.Codec<net.minecraft.world.entity.ai.Brain<E>>> $$3) {
+@@ -57,50 +57,50 @@
+         }
+     }
+ 
+-    public <T> com.mojang.serialization.DataResult<T> serializeStart(com.mojang.serialization.DynamicOps<T> ops) {
+-        return ((com.mojang.serialization.Codec)this.codec.get()).encodeStart(ops, (java.lang.Object)this);
++    public <T> com.mojang.serialization.DataResult<T> serializeStart(com.mojang.serialization.DynamicOps<T> $$0) {
++        return ((com.mojang.serialization.Codec)this.codec.get()).encodeStart($$0, (java.lang.Object)this);
+     }
+ 
+     public java.util.stream.Stream<net.minecraft.world.entity.ai.Brain$MemoryValue<?>> memories() {
+         return this.memories.entrySet().stream().map($$0 -> net.minecraft.world.entity.ai.Brain$MemoryValue.createUnchecked((net.minecraft.world.entity.ai.memory.MemoryModuleType)((net.minecraft.world.entity.ai.memory.MemoryModuleType)$$0.getKey()), (java.util.Optional)((java.util.Optional)$$0.getValue())));
+     }
+ 
+-    public boolean hasMemoryValue(net.minecraft.world.entity.ai.memory.MemoryModuleType<?> type) {
+-        return this.checkMemory(type, net.minecraft.world.entity.ai.memory.MemoryStatus.VALUE_PRESENT);
++    public boolean hasMemoryValue(net.minecraft.world.entity.ai.memory.MemoryModuleType<?> $$0) {
++        return this.checkMemory($$0, net.minecraft.world.entity.ai.memory.MemoryStatus.VALUE_PRESENT);
+     }
+ 
+-    public <U> void eraseMemory(net.minecraft.world.entity.ai.memory.MemoryModuleType<U> type) {
+-        this.setMemory(type, java.util.Optional.empty());
++    public <U> void eraseMemory(net.minecraft.world.entity.ai.memory.MemoryModuleType<U> $$0) {
++        this.setMemory($$0, java.util.Optional.empty());
+     }
+ 
+-    public <U> void setMemory(net.minecraft.world.entity.ai.memory.MemoryModuleType<U> memoryType, @javax.annotation.Nullable U memory) {
+-        this.setMemory(memoryType, java.util.Optional.ofNullable(memory));
++    public <U> void setMemory(net.minecraft.world.entity.ai.memory.MemoryModuleType<U> $$0, @javax.annotation.Nullable U $$1) {
++        this.setMemory($$0, java.util.Optional.ofNullable($$1));
+     }
+ 
+-    public <U> void setMemoryWithExpiry(net.minecraft.world.entity.ai.memory.MemoryModuleType<U> memoryType, U memory, long timesToLive) {
+-        this.setMemoryInternal(memoryType, java.util.Optional.of((java.lang.Object)net.minecraft.world.entity.ai.memory.ExpirableValue.of(memory, (long)timesToLive)));
++    public <U> void setMemoryWithExpiry(net.minecraft.world.entity.ai.memory.MemoryModuleType<U> $$0, U $$1, long $$2) {
++        this.setMemoryInternal($$0, java.util.Optional.of((java.lang.Object)net.minecraft.world.entity.ai.memory.ExpirableValue.of($$1, (long)$$2)));
+     }
+ 
+-    public <U> void setMemory(net.minecraft.world.entity.ai.memory.MemoryModuleType<U> memoryType, java.util.Optional<? extends U> memory) {
+-        this.setMemoryInternal(memoryType, memory.map(net.minecraft.world.entity.ai.memory.ExpirableValue::of));
++    public <U> void setMemory(net.minecraft.world.entity.ai.memory.MemoryModuleType<U> $$0, java.util.Optional<? extends U> $$1) {
++        this.setMemoryInternal($$0, $$1.map(net.minecraft.world.entity.ai.memory.ExpirableValue::of));
+     }
+ 
+-    public <U> void setMemoryInternal(net.minecraft.world.entity.ai.memory.MemoryModuleType<U> memoryType, java.util.Optional<? extends net.minecraft.world.entity.ai.memory.ExpirableValue<?>> memory) {
+-        if (this.memories.containsKey(memoryType)) {
+-            if (memory.isPresent() && this.isEmptyCollection(((net.minecraft.world.entity.ai.memory.ExpirableValue)memory.get()).getValue())) {
+-                this.eraseMemory(memoryType);
++    public <U> void setMemoryInternal(net.minecraft.world.entity.ai.memory.MemoryModuleType<U> $$0, java.util.Optional<? extends net.minecraft.world.entity.ai.memory.ExpirableValue<?>> $$1) {
++        if (this.memories.containsKey($$0)) {
++            if ($$1.isPresent() && this.isEmptyCollection(((net.minecraft.world.entity.ai.memory.ExpirableValue)$$1.get()).getValue())) {
++                this.eraseMemory($$0);
+             } else {
+-                this.memories.put(memoryType, memory);
++                this.memories.put($$0, $$1);
+             }
+         }
+     }
+ 
+-    public <U> java.util.Optional<U> getMemory(net.minecraft.world.entity.ai.memory.MemoryModuleType<U> type) {
+-        java.util.Optional optional = (java.util.Optional)this.memories.get(type);
+-        if (optional == null) {
+-            throw new java.lang.IllegalStateException("Unregistered memory fetched: " + type);
++    public <U> java.util.Optional<U> getMemory(net.minecraft.world.entity.ai.memory.MemoryModuleType<U> $$0) {
++        java.util.Optional $$1 = (java.util.Optional)this.memories.get($$0);
++        if ($$1 == null) {
++            throw new java.lang.IllegalStateException("Unregistered memory fetched: " + $$0);
+         }
+-        return optional.map(net.minecraft.world.entity.ai.memory.ExpirableValue::getValue);
++        return $$1.map(net.minecraft.world.entity.ai.memory.ExpirableValue::getValue);
+     }
+ 
+     public <U> long getTimeUntilExpiry(net.minecraft.world.entity.ai.memory.MemoryModuleType<U> $$0) {
+@@ -114,31 +114,31 @@
+         return this.memories;
+     }
+ 
+-    public <U> boolean isMemoryValue(net.minecraft.world.entity.ai.memory.MemoryModuleType<U> memoryType, U memory) {
+-        if (!this.hasMemoryValue(memoryType)) {
++    public <U> boolean isMemoryValue(net.minecraft.world.entity.ai.memory.MemoryModuleType<U> $$0, U $$12) {
++        if (!this.hasMemoryValue($$0)) {
+             return false;
+         }
+-        return this.getMemory(memoryType).filter($$1 -> $$1.equals(memory)).isPresent();
++        return this.getMemory($$0).filter($$1 -> $$1.equals($$12)).isPresent();
+     }
+ 
+-    public boolean checkMemory(net.minecraft.world.entity.ai.memory.MemoryModuleType<?> memoryType, net.minecraft.world.entity.ai.memory.MemoryStatus memoryStatus) {
+-        java.util.Optional optional = (java.util.Optional)this.memories.get(memoryType);
+-        if (optional == null) {
++    public boolean checkMemory(net.minecraft.world.entity.ai.memory.MemoryModuleType<?> $$0, net.minecraft.world.entity.ai.memory.MemoryStatus $$1) {
++        java.util.Optional $$2 = (java.util.Optional)this.memories.get($$0);
++        if ($$2 == null) {
+             return false;
+         }
+-        return memoryStatus == net.minecraft.world.entity.ai.memory.MemoryStatus.REGISTERED || memoryStatus == net.minecraft.world.entity.ai.memory.MemoryStatus.VALUE_PRESENT && optional.isPresent() || memoryStatus == net.minecraft.world.entity.ai.memory.MemoryStatus.VALUE_ABSENT && !optional.isPresent();
++        return $$1 == net.minecraft.world.entity.ai.memory.MemoryStatus.REGISTERED || $$1 == net.minecraft.world.entity.ai.memory.MemoryStatus.VALUE_PRESENT && $$2.isPresent() || $$1 == net.minecraft.world.entity.ai.memory.MemoryStatus.VALUE_ABSENT && !$$2.isPresent();
+     }
+ 
+     public net.minecraft.world.entity.schedule.Schedule getSchedule() {
+         return this.schedule;
+     }
+ 
+-    public void setSchedule(net.minecraft.world.entity.schedule.Schedule newSchedule) {
+-        this.schedule = newSchedule;
++    public void setSchedule(net.minecraft.world.entity.schedule.Schedule $$0) {
++        this.schedule = $$0;
+     }
+ 
+-    public void setCoreActivities(java.util.Set<net.minecraft.world.entity.schedule.Activity> newActivities) {
+-        this.coreActivities = newActivities;
++    public void setCoreActivities(java.util.Set<net.minecraft.world.entity.schedule.Activity> $$0) {
++        this.coreActivities = $$0;
+     }
+ 
+     @java.lang.Deprecated
+@@ -174,81 +174,81 @@
+         return java.util.Optional.empty();
+     }
+ 
+-    public void setActiveActivityIfPossible(net.minecraft.world.entity.schedule.Activity activity) {
+-        if (this.activityRequirementsAreMet(activity)) {
+-            this.setActiveActivity(activity);
++    public void setActiveActivityIfPossible(net.minecraft.world.entity.schedule.Activity $$0) {
++        if (this.activityRequirementsAreMet($$0)) {
++            this.setActiveActivity($$0);
+         } else {
+             this.useDefaultActivity();
+         }
+     }
+ 
+-    public void setActiveActivity(net.minecraft.world.entity.schedule.Activity activity) {
+-        if (this.isActive(activity)) {
++    public void setActiveActivity(net.minecraft.world.entity.schedule.Activity $$0) {
++        if (this.isActive($$0)) {
+             return;
+         }
+-        this.eraseMemoriesForOtherActivitesThan(activity);
++        this.eraseMemoriesForOtherActivitesThan($$0);
+         this.activeActivities.clear();
+         this.activeActivities.addAll((java.util.Collection)this.coreActivities);
+-        this.activeActivities.add((java.lang.Object)activity);
++        this.activeActivities.add((java.lang.Object)$$0);
+     }
+ 
+-    public void eraseMemoriesForOtherActivitesThan(net.minecraft.world.entity.schedule.Activity activity) {
+-        for (net.minecraft.world.entity.schedule.Activity activity2 : this.activeActivities) {
+-            java.util.Set set;
+-            if (activity2 == activity || (set = (java.util.Set)this.activityMemoriesToEraseWhenStopped.get((java.lang.Object)activity2)) == null) continue;
+-            for (net.minecraft.world.entity.ai.memory.MemoryModuleType memoryModuleType : set) {
+-                this.eraseMemory(memoryModuleType);
++    public void eraseMemoriesForOtherActivitesThan(net.minecraft.world.entity.schedule.Activity $$0) {
++        for (net.minecraft.world.entity.schedule.Activity $$1 : this.activeActivities) {
++            java.util.Set $$2;
++            if ($$1 == $$0 || ($$2 = (java.util.Set)this.activityMemoriesToEraseWhenStopped.get((java.lang.Object)$$1)) == null) continue;
++            for (net.minecraft.world.entity.ai.memory.MemoryModuleType $$3 : $$2) {
++                this.eraseMemory($$3);
+             }
+         }
+     }
+ 
+-    public void updateActivityFromSchedule(long dayTime, long gameTime) {
+-        if (gameTime - this.lastScheduleUpdate > 20L) {
+-            this.lastScheduleUpdate = gameTime;
+-            net.minecraft.world.entity.schedule.Activity activity = this.getSchedule().getActivityAt((int)(dayTime % 24000L));
+-            if (!this.activeActivities.contains((java.lang.Object)activity)) {
+-                this.setActiveActivityIfPossible(activity);
++    public void updateActivityFromSchedule(long $$0, long $$1) {
++        if ($$1 - this.lastScheduleUpdate > 20L) {
++            this.lastScheduleUpdate = $$1;
++            net.minecraft.world.entity.schedule.Activity $$2 = this.getSchedule().getActivityAt((int)($$0 % 24000L));
++            if (!this.activeActivities.contains((java.lang.Object)$$2)) {
++                this.setActiveActivityIfPossible($$2);
+             }
+         }
+     }
+ 
+-    public void setActiveActivityToFirstValid(java.util.List<net.minecraft.world.entity.schedule.Activity> activities) {
+-        for (net.minecraft.world.entity.schedule.Activity activity : activities) {
+-            if (!this.activityRequirementsAreMet(activity)) continue;
+-            this.setActiveActivity(activity);
++    public void setActiveActivityToFirstValid(java.util.List<net.minecraft.world.entity.schedule.Activity> $$0) {
++        for (net.minecraft.world.entity.schedule.Activity $$1 : $$0) {
++            if (!this.activityRequirementsAreMet($$1)) continue;
++            this.setActiveActivity($$1);
+             break;
+         }
+     }
+ 
+-    public void setDefaultActivity(net.minecraft.world.entity.schedule.Activity newFallbackActivity) {
+-        this.defaultActivity = newFallbackActivity;
++    public void setDefaultActivity(net.minecraft.world.entity.schedule.Activity $$0) {
++        this.defaultActivity = $$0;
+     }
+ 
+-    public void addActivity(net.minecraft.world.entity.schedule.Activity activity, int priorityStart, com.google.common.collect.ImmutableList<? extends net.minecraft.world.entity.ai.behavior.Behavior<? super E>> tasks) {
+-        this.addActivity(activity, this.createPriorityPairs(priorityStart, tasks));
++    public void addActivity(net.minecraft.world.entity.schedule.Activity $$0, int $$1, com.google.common.collect.ImmutableList<? extends net.minecraft.world.entity.ai.behavior.Behavior<? super E>> $$2) {
++        this.addActivity($$0, this.createPriorityPairs($$1, $$2));
+     }
+ 
+-    public void addActivityAndRemoveMemoryWhenStopped(net.minecraft.world.entity.schedule.Activity activity, int priorityStart, com.google.common.collect.ImmutableList<? extends net.minecraft.world.entity.ai.behavior.Behavior<? super E>> tasks, net.minecraft.world.entity.ai.memory.MemoryModuleType<?> memoryType) {
+-        com.google.common.collect.ImmutableSet immutableSet = com.google.common.collect.ImmutableSet.of((java.lang.Object)com.mojang.datafixers.util.Pair.of(memoryType, (java.lang.Object)net.minecraft.world.entity.ai.memory.MemoryStatus.VALUE_PRESENT));
+-        com.google.common.collect.ImmutableSet immutableSet2 = com.google.common.collect.ImmutableSet.of(memoryType);
+-        this.addActivityAndRemoveMemoriesWhenStopped(activity, this.createPriorityPairs(priorityStart, tasks), (java.util.Set)immutableSet, (java.util.Set)immutableSet2);
++    public void addActivityAndRemoveMemoryWhenStopped(net.minecraft.world.entity.schedule.Activity $$0, int $$1, com.google.common.collect.ImmutableList<? extends net.minecraft.world.entity.ai.behavior.Behavior<? super E>> $$2, net.minecraft.world.entity.ai.memory.MemoryModuleType<?> $$3) {
++        com.google.common.collect.ImmutableSet $$4 = com.google.common.collect.ImmutableSet.of((java.lang.Object)com.mojang.datafixers.util.Pair.of($$3, (java.lang.Object)net.minecraft.world.entity.ai.memory.MemoryStatus.VALUE_PRESENT));
++        com.google.common.collect.ImmutableSet $$5 = com.google.common.collect.ImmutableSet.of($$3);
++        this.addActivityAndRemoveMemoriesWhenStopped($$0, this.createPriorityPairs($$1, $$2), (java.util.Set)$$4, (java.util.Set)$$5);
+     }
+ 
+-    public void addActivity(net.minecraft.world.entity.schedule.Activity activity, com.google.common.collect.ImmutableList<? extends com.mojang.datafixers.util.Pair<java.lang.Integer, ? extends net.minecraft.world.entity.ai.behavior.Behavior<? super E>>> tasks) {
+-        this.addActivityAndRemoveMemoriesWhenStopped(activity, tasks, (java.util.Set)com.google.common.collect.ImmutableSet.of(), (java.util.Set)com.google.common.collect.Sets.newHashSet());
++    public void addActivity(net.minecraft.world.entity.schedule.Activity $$0, com.google.common.collect.ImmutableList<? extends com.mojang.datafixers.util.Pair<java.lang.Integer, ? extends net.minecraft.world.entity.ai.behavior.Behavior<? super E>>> $$1) {
++        this.addActivityAndRemoveMemoriesWhenStopped($$0, $$1, (java.util.Set)com.google.common.collect.ImmutableSet.of(), (java.util.Set)com.google.common.collect.Sets.newHashSet());
+     }
+ 
+-    public void addActivityWithConditions(net.minecraft.world.entity.schedule.Activity activity, com.google.common.collect.ImmutableList<? extends com.mojang.datafixers.util.Pair<java.lang.Integer, ? extends net.minecraft.world.entity.ai.behavior.Behavior<? super E>>> tasks, java.util.Set<com.mojang.datafixers.util.Pair<net.minecraft.world.entity.ai.memory.MemoryModuleType<?>, net.minecraft.world.entity.ai.memory.MemoryStatus>> memoryStatuses) {
+-        this.addActivityAndRemoveMemoriesWhenStopped(activity, tasks, memoryStatuses, (java.util.Set)com.google.common.collect.Sets.newHashSet());
++    public void addActivityWithConditions(net.minecraft.world.entity.schedule.Activity $$0, com.google.common.collect.ImmutableList<? extends com.mojang.datafixers.util.Pair<java.lang.Integer, ? extends net.minecraft.world.entity.ai.behavior.Behavior<? super E>>> $$1, java.util.Set<com.mojang.datafixers.util.Pair<net.minecraft.world.entity.ai.memory.MemoryModuleType<?>, net.minecraft.world.entity.ai.memory.MemoryStatus>> $$2) {
++        this.addActivityAndRemoveMemoriesWhenStopped($$0, $$1, $$2, (java.util.Set)com.google.common.collect.Sets.newHashSet());
+     }
+ 
+-    public void addActivityAndRemoveMemoriesWhenStopped(net.minecraft.world.entity.schedule.Activity activity, com.google.common.collect.ImmutableList<? extends com.mojang.datafixers.util.Pair<java.lang.Integer, ? extends net.minecraft.world.entity.ai.behavior.Behavior<? super E>>> tasks, java.util.Set<com.mojang.datafixers.util.Pair<net.minecraft.world.entity.ai.memory.MemoryModuleType<?>, net.minecraft.world.entity.ai.memory.MemoryStatus>> memorieStatuses, java.util.Set<net.minecraft.world.entity.ai.memory.MemoryModuleType<?>> memoryTypes) {
+-        this.activityRequirements.put((java.lang.Object)activity, memorieStatuses);
+-        if (!memoryTypes.isEmpty()) {
+-            this.activityMemoriesToEraseWhenStopped.put((java.lang.Object)activity, memoryTypes);
++    public void addActivityAndRemoveMemoriesWhenStopped(net.minecraft.world.entity.schedule.Activity $$02, com.google.common.collect.ImmutableList<? extends com.mojang.datafixers.util.Pair<java.lang.Integer, ? extends net.minecraft.world.entity.ai.behavior.Behavior<? super E>>> $$1, java.util.Set<com.mojang.datafixers.util.Pair<net.minecraft.world.entity.ai.memory.MemoryModuleType<?>, net.minecraft.world.entity.ai.memory.MemoryStatus>> $$2, java.util.Set<net.minecraft.world.entity.ai.memory.MemoryModuleType<?>> $$3) {
++        this.activityRequirements.put((java.lang.Object)$$02, $$2);
++        if (!$$3.isEmpty()) {
++            this.activityMemoriesToEraseWhenStopped.put((java.lang.Object)$$02, $$3);
+         }
+-        for (com.mojang.datafixers.util.Pair pair : tasks) {
+-            ((java.util.Set)((java.util.Map)this.availableBehaviorsByPriority.computeIfAbsent((java.lang.Object)((java.lang.Integer)pair.getFirst()), $$0 -> com.google.common.collect.Maps.newHashMap())).computeIfAbsent((java.lang.Object)activity, $$0 -> com.google.common.collect.Sets.newLinkedHashSet())).add((java.lang.Object)((net.minecraft.world.entity.ai.behavior.Behavior)pair.getSecond()));
++        for (com.mojang.datafixers.util.Pair $$4 : $$1) {
++            ((java.util.Set)((java.util.Map)this.availableBehaviorsByPriority.computeIfAbsent((java.lang.Object)((java.lang.Integer)$$4.getFirst()), $$0 -> com.google.common.collect.Maps.newHashMap())).computeIfAbsent((java.lang.Object)$$02, $$0 -> com.google.common.collect.Sets.newLinkedHashSet())).add((java.lang.Object)((net.minecraft.world.entity.ai.behavior.Behavior)$$4.getSecond()));
+         }
+     }
+ 
+@@ -257,8 +257,8 @@
+         this.availableBehaviorsByPriority.clear();
+     }
+ 
+-    public boolean isActive(net.minecraft.world.entity.schedule.Activity activity) {
+-        return this.activeActivities.contains((java.lang.Object)activity);
++    public boolean isActive(net.minecraft.world.entity.schedule.Activity $$0) {
++        return this.activeActivities.contains((java.lang.Object)$$0);
+     }
+ 
+     public net.minecraft.world.entity.ai.Brain<E> copyWithoutBehaviors() {
+@@ -271,16 +271,16 @@
+         return $$0;
+     }
+ 
+-    public void tick(net.minecraft.server.level.ServerLevel level, E entity) {
++    public void tick(net.minecraft.server.level.ServerLevel $$0, E $$1) {
+         this.forgetOutdatedMemories();
+-        this.tickSensors(level, entity);
+-        this.startEachNonRunningBehavior(level, entity);
+-        this.tickEachRunningBehavior(level, entity);
++        this.tickSensors($$0, $$1);
++        this.startEachNonRunningBehavior($$0, $$1);
++        this.tickEachRunningBehavior($$0, $$1);
+     }
+ 
+-    public void tickSensors(net.minecraft.server.level.ServerLevel level, E brainHolder) {
+-        for (net.minecraft.world.entity.ai.sensing.Sensor sensor : this.sensors.values()) {
+-            sensor.tick(level, brainHolder);
++    public void tickSensors(net.minecraft.server.level.ServerLevel $$0, E $$1) {
++        for (net.minecraft.world.entity.ai.sensing.Sensor $$2 : this.sensors.values()) {
++            $$2.tick($$0, $$1);
+         }
+     }
+ 
+@@ -295,59 +295,59 @@
+         }
+     }
+ 
+-    public void stopAll(net.minecraft.server.level.ServerLevel level, E owner) {
+-        long l = ((net.minecraft.world.entity.LivingEntity)owner).level.getGameTime();
+-        for (net.minecraft.world.entity.ai.behavior.Behavior behavior : this.getRunningBehaviors()) {
+-            behavior.doStop(level, owner, l);
++    public void stopAll(net.minecraft.server.level.ServerLevel $$0, E $$1) {
++        long $$2 = ((net.minecraft.world.entity.LivingEntity)$$1).level.getGameTime();
++        for (net.minecraft.world.entity.ai.behavior.Behavior $$3 : this.getRunningBehaviors()) {
++            $$3.doStop($$0, $$1, $$2);
+         }
+     }
+ 
+-    public void startEachNonRunningBehavior(net.minecraft.server.level.ServerLevel level, E entity) {
+-        long l = level.getGameTime();
+-        for (java.util.Map map : this.availableBehaviorsByPriority.values()) {
+-            for (java.util.Map$Entry entry : map.entrySet()) {
+-                net.minecraft.world.entity.schedule.Activity activity = (net.minecraft.world.entity.schedule.Activity)entry.getKey();
+-                if (!this.activeActivities.contains((java.lang.Object)activity)) continue;
+-                java.util.Set set = (java.util.Set)entry.getValue();
+-                for (net.minecraft.world.entity.ai.behavior.Behavior behavior : set) {
+-                    if (behavior.getStatus() != net.minecraft.world.entity.ai.behavior.Behavior$Status.STOPPED) continue;
+-                    behavior.tryStart(level, entity, l);
++    public void startEachNonRunningBehavior(net.minecraft.server.level.ServerLevel $$0, E $$1) {
++        long $$2 = $$0.getGameTime();
++        for (java.util.Map $$3 : this.availableBehaviorsByPriority.values()) {
++            for (java.util.Map$Entry $$4 : $$3.entrySet()) {
++                net.minecraft.world.entity.schedule.Activity $$5 = (net.minecraft.world.entity.schedule.Activity)$$4.getKey();
++                if (!this.activeActivities.contains((java.lang.Object)$$5)) continue;
++                java.util.Set $$6 = (java.util.Set)$$4.getValue();
++                for (net.minecraft.world.entity.ai.behavior.Behavior $$7 : $$6) {
++                    if ($$7.getStatus() != net.minecraft.world.entity.ai.behavior.Behavior$Status.STOPPED) continue;
++                    $$7.tryStart($$0, $$1, $$2);
+                 }
+             }
+         }
+     }
+ 
+-    public void tickEachRunningBehavior(net.minecraft.server.level.ServerLevel level, E entity) {
+-        long l = level.getGameTime();
+-        for (net.minecraft.world.entity.ai.behavior.Behavior behavior : this.getRunningBehaviors()) {
+-            behavior.tickOrStop(level, entity, l);
++    public void tickEachRunningBehavior(net.minecraft.server.level.ServerLevel $$0, E $$1) {
++        long $$2 = $$0.getGameTime();
++        for (net.minecraft.world.entity.ai.behavior.Behavior $$3 : this.getRunningBehaviors()) {
++            $$3.tickOrStop($$0, $$1, $$2);
+         }
+     }
+ 
+-    public boolean activityRequirementsAreMet(net.minecraft.world.entity.schedule.Activity activity) {
+-        if (!this.activityRequirements.containsKey((java.lang.Object)activity)) {
++    public boolean activityRequirementsAreMet(net.minecraft.world.entity.schedule.Activity $$0) {
++        if (!this.activityRequirements.containsKey((java.lang.Object)$$0)) {
+             return false;
+         }
+-        for (com.mojang.datafixers.util.Pair pair : (java.util.Set)this.activityRequirements.get((java.lang.Object)activity)) {
+-            net.minecraft.world.entity.ai.memory.MemoryStatus memoryStatus;
+-            net.minecraft.world.entity.ai.memory.MemoryModuleType memoryModuleType = (net.minecraft.world.entity.ai.memory.MemoryModuleType)pair.getFirst();
+-            if (this.checkMemory(memoryModuleType, memoryStatus = (net.minecraft.world.entity.ai.memory.MemoryStatus)pair.getSecond())) continue;
++        for (com.mojang.datafixers.util.Pair $$1 : (java.util.Set)this.activityRequirements.get((java.lang.Object)$$0)) {
++            net.minecraft.world.entity.ai.memory.MemoryStatus $$3;
++            net.minecraft.world.entity.ai.memory.MemoryModuleType $$2 = (net.minecraft.world.entity.ai.memory.MemoryModuleType)$$1.getFirst();
++            if (this.checkMemory($$2, $$3 = (net.minecraft.world.entity.ai.memory.MemoryStatus)$$1.getSecond())) continue;
+             return false;
+         }
+         return true;
+     }
+ 
+-    public boolean isEmptyCollection(java.lang.Object collection) {
+-        return collection instanceof java.util.Collection && ((java.util.Collection)collection).isEmpty();
++    public boolean isEmptyCollection(java.lang.Object $$0) {
++        return $$0 instanceof java.util.Collection && ((java.util.Collection)$$0).isEmpty();
+     }
+ 
+-    public com.google.common.collect.ImmutableList<? extends com.mojang.datafixers.util.Pair<java.lang.Integer, ? extends net.minecraft.world.entity.ai.behavior.Behavior<? super E>>> createPriorityPairs(int priorityStart, com.google.common.collect.ImmutableList<? extends net.minecraft.world.entity.ai.behavior.Behavior<? super E>> tasks) {
+-        int n = priorityStart;
+-        com.google.common.collect.ImmutableList$Builder builder = com.google.common.collect.ImmutableList.builder();
+-        for (net.minecraft.world.entity.ai.behavior.Behavior behavior : tasks) {
+-            builder.add((java.lang.Object)com.mojang.datafixers.util.Pair.of((java.lang.Object)n++, (java.lang.Object)behavior));
++    public com.google.common.collect.ImmutableList<? extends com.mojang.datafixers.util.Pair<java.lang.Integer, ? extends net.minecraft.world.entity.ai.behavior.Behavior<? super E>>> createPriorityPairs(int $$0, com.google.common.collect.ImmutableList<? extends net.minecraft.world.entity.ai.behavior.Behavior<? super E>> $$1) {
++        int $$2 = $$0;
++        com.google.common.collect.ImmutableList$Builder $$3 = com.google.common.collect.ImmutableList.builder();
++        for (net.minecraft.world.entity.ai.behavior.Behavior $$4 : $$1) {
++            $$3.add((java.lang.Object)com.mojang.datafixers.util.Pair.of((java.lang.Object)$$2++, (java.lang.Object)$$4));
+         }
+-        return builder.build();
++        return $$3.build();
+     }
+ 
+     static {

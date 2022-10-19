@@ -1,0 +1,173 @@
+--- net/minecraft/world/level/levelgen/WorldDimensions.java
++++ net/minecraft/world/level/levelgen/WorldDimensions.java
+@@ -1,0 +1,170 @@
++/*
++ * Decompiled with CFR 0.151.
++ */
++package net.minecraft.world.level.levelgen;
++
++public class net.minecraft.world.level.levelgen.WorldDimensions
++extends java.lang.Record
++ {
++    public net.minecraft.core.Registry<net.minecraft.world.level.dimension.LevelStem> dimensions;
++    public static com.mojang.serialization.MapCodec<net.minecraft.world.level.levelgen.WorldDimensions> CODEC;
++    public static java.util.Set<net.minecraft.resources.ResourceKey<net.minecraft.world.level.dimension.LevelStem>> BUILTIN_ORDER;
++    public static int VANILLA_DIMENSION_COUNT;
++
++    public net.minecraft.world.level.levelgen.WorldDimensions(net.minecraft.core.Registry<net.minecraft.world.level.dimension.LevelStem> $$0) {
++        net.minecraft.world.level.dimension.LevelStem $$1 = (net.minecraft.world.level.dimension.LevelStem)$$0.get(net.minecraft.world.level.dimension.LevelStem.OVERWORLD);
++        if ($$1 == null) {
++            throw new java.lang.IllegalStateException("Overworld settings missing");
++        }
++        this.dimensions = $$0;
++    }
++
++    public static java.util.stream.Stream<net.minecraft.resources.ResourceKey<net.minecraft.world.level.dimension.LevelStem>> keysInOrder(java.util.stream.Stream<net.minecraft.resources.ResourceKey<net.minecraft.world.level.dimension.LevelStem>> $$02) {
++        return java.util.stream.Stream.concat((java.util.stream.Stream)BUILTIN_ORDER.stream(), (java.util.stream.Stream)$$02.filter($$0 -> !BUILTIN_ORDER.contains($$0)));
++    }
++
++    public net.minecraft.world.level.levelgen.WorldDimensions replaceOverworldGenerator(net.minecraft.core.RegistryAccess $$0, net.minecraft.world.level.chunk.ChunkGenerator $$1) {
++        net.minecraft.core.Registry $$2 = $$0.registryOrThrow(net.minecraft.core.Registry.DIMENSION_TYPE_REGISTRY);
++        net.minecraft.core.Registry $$3 = net.minecraft.world.level.levelgen.WorldDimensions.withOverworld((net.minecraft.core.Registry)$$2, (net.minecraft.core.Registry)this.dimensions, (net.minecraft.world.level.chunk.ChunkGenerator)$$1);
++        return new net.minecraft.world.level.levelgen.WorldDimensions($$3);
++    }
++
++    public static net.minecraft.core.Registry<net.minecraft.world.level.dimension.LevelStem> withOverworld(net.minecraft.core.Registry<net.minecraft.world.level.dimension.DimensionType> $$0, net.minecraft.core.Registry<net.minecraft.world.level.dimension.LevelStem> $$1, net.minecraft.world.level.chunk.ChunkGenerator $$2) {
++        net.minecraft.world.level.dimension.LevelStem $$3 = (net.minecraft.world.level.dimension.LevelStem)$$1.get(net.minecraft.world.level.dimension.LevelStem.OVERWORLD);
++        net.minecraft.core.Holder $$4 = $$3 == null ? $$0.getOrCreateHolderOrThrow(net.minecraft.world.level.dimension.BuiltinDimensionTypes.OVERWORLD) : $$3.type();
++        return net.minecraft.world.level.levelgen.WorldDimensions.withOverworld($$1, (net.minecraft.core.Holder)$$4, (net.minecraft.world.level.chunk.ChunkGenerator)$$2);
++    }
++
++    public static net.minecraft.core.Registry<net.minecraft.world.level.dimension.LevelStem> withOverworld(net.minecraft.core.Registry<net.minecraft.world.level.dimension.LevelStem> $$0, net.minecraft.core.Holder<net.minecraft.world.level.dimension.DimensionType> $$1, net.minecraft.world.level.chunk.ChunkGenerator $$2) {
++        net.minecraft.core.MappedRegistry $$3 = new net.minecraft.core.MappedRegistry(net.minecraft.core.Registry.LEVEL_STEM_REGISTRY, com.mojang.serialization.Lifecycle.experimental());
++        $$3.register(net.minecraft.world.level.dimension.LevelStem.OVERWORLD, (java.lang.Object)new net.minecraft.world.level.dimension.LevelStem($$1, $$2), com.mojang.serialization.Lifecycle.stable());
++        for (java.util.Map$Entry $$4 : $$0.entrySet()) {
++            net.minecraft.resources.ResourceKey $$5 = (net.minecraft.resources.ResourceKey)$$4.getKey();
++            if ($$5 == net.minecraft.world.level.dimension.LevelStem.OVERWORLD) continue;
++            $$3.register($$5, (java.lang.Object)((net.minecraft.world.level.dimension.LevelStem)$$4.getValue()), $$0.lifecycle((java.lang.Object)((net.minecraft.world.level.dimension.LevelStem)$$4.getValue())));
++        }
++        return $$3.freeze();
++    }
++
++    public net.minecraft.world.level.chunk.ChunkGenerator overworld() {
++        net.minecraft.world.level.dimension.LevelStem $$0 = (net.minecraft.world.level.dimension.LevelStem)this.dimensions.get(net.minecraft.world.level.dimension.LevelStem.OVERWORLD);
++        if ($$0 == null) {
++            throw new java.lang.IllegalStateException("Overworld settings missing");
++        }
++        return $$0.generator();
++    }
++
++    public java.util.Optional<net.minecraft.world.level.dimension.LevelStem> get(net.minecraft.resources.ResourceKey<net.minecraft.world.level.dimension.LevelStem> $$0) {
++        return this.dimensions.getOptional($$0);
++    }
++
++    public com.google.common.collect.ImmutableSet<net.minecraft.resources.ResourceKey<net.minecraft.world.level.Level>> levels() {
++        return (com.google.common.collect.ImmutableSet)this.dimensions().entrySet().stream().map(java.util.Map$Entry::getKey).map(net.minecraft.core.Registry::levelStemToLevel).collect(com.google.common.collect.ImmutableSet.toImmutableSet());
++    }
++
++    public boolean isDebug() {
++        return this.overworld() instanceof net.minecraft.world.level.levelgen.DebugLevelSource;
++    }
++
++    public static net.minecraft.world.level.storage.PrimaryLevelData$SpecialWorldProperty specialWorldProperty(net.minecraft.core.Registry<net.minecraft.world.level.dimension.LevelStem> $$02) {
++        return (net.minecraft.world.level.storage.PrimaryLevelData$SpecialWorldProperty)$$02.getOptional(net.minecraft.world.level.dimension.LevelStem.OVERWORLD).map($$0 -> {
++            net.minecraft.world.level.chunk.ChunkGenerator $$1 = $$0.generator();
++            if ($$1 instanceof net.minecraft.world.level.levelgen.DebugLevelSource) {
++                return net.minecraft.world.level.storage.PrimaryLevelData$SpecialWorldProperty.DEBUG;
++            }
++            if ($$1 instanceof net.minecraft.world.level.levelgen.FlatLevelSource) {
++                return net.minecraft.world.level.storage.PrimaryLevelData$SpecialWorldProperty.FLAT;
++            }
++            return net.minecraft.world.level.storage.PrimaryLevelData$SpecialWorldProperty.NONE;
++        }).orElse((java.lang.Object)net.minecraft.world.level.storage.PrimaryLevelData$SpecialWorldProperty.NONE);
++    }
++
++    public static com.mojang.serialization.Lifecycle checkStability(net.minecraft.resources.ResourceKey<net.minecraft.world.level.dimension.LevelStem> $$0, net.minecraft.world.level.dimension.LevelStem $$1) {
++        return net.minecraft.world.level.levelgen.WorldDimensions.isVanillaLike($$0, (net.minecraft.world.level.dimension.LevelStem)$$1) ? com.mojang.serialization.Lifecycle.stable() : com.mojang.serialization.Lifecycle.experimental();
++    }
++
++    public static boolean isVanillaLike(net.minecraft.resources.ResourceKey<net.minecraft.world.level.dimension.LevelStem> $$0, net.minecraft.world.level.dimension.LevelStem $$1) {
++        if ($$0 == net.minecraft.world.level.dimension.LevelStem.OVERWORLD) {
++            return net.minecraft.world.level.levelgen.WorldDimensions.isStableOverworld((net.minecraft.world.level.dimension.LevelStem)$$1);
++        }
++        if ($$0 == net.minecraft.world.level.dimension.LevelStem.NETHER) {
++            return net.minecraft.world.level.levelgen.WorldDimensions.isStableNether((net.minecraft.world.level.dimension.LevelStem)$$1);
++        }
++        if ($$0 == net.minecraft.world.level.dimension.LevelStem.END) {
++            return net.minecraft.world.level.levelgen.WorldDimensions.isStableEnd((net.minecraft.world.level.dimension.LevelStem)$$1);
++        }
++        return false;
++    }
++
++    public static boolean isStableOverworld(net.minecraft.world.level.dimension.LevelStem $$0) {
++        net.minecraft.world.level.biome.MultiNoiseBiomeSource $$2;
++        net.minecraft.core.Holder $$1 = $$0.type();
++        if (!$$1.is(net.minecraft.world.level.dimension.BuiltinDimensionTypes.OVERWORLD) && !$$1.is(net.minecraft.world.level.dimension.BuiltinDimensionTypes.OVERWORLD_CAVES)) {
++            return false;
++        }
++        net.minecraft.world.level.biome.BiomeSource biomeSource = $$0.generator().getBiomeSource();
++        return !(biomeSource instanceof net.minecraft.world.level.biome.MultiNoiseBiomeSource) || ($$2 = (net.minecraft.world.level.biome.MultiNoiseBiomeSource)biomeSource).stable(net.minecraft.world.level.biome.MultiNoiseBiomeSource$Preset.OVERWORLD);
++    }
++
++    public static boolean isStableNether(net.minecraft.world.level.dimension.LevelStem $$0) {
++        net.minecraft.world.level.biome.MultiNoiseBiomeSource $$2;
++        net.minecraft.world.level.levelgen.NoiseBasedChunkGenerator $$1;
++        net.minecraft.world.level.chunk.ChunkGenerator chunkGenerator;
++        return $$0.type().is(net.minecraft.world.level.dimension.BuiltinDimensionTypes.NETHER) && (chunkGenerator = $$0.generator()) instanceof net.minecraft.world.level.levelgen.NoiseBasedChunkGenerator && ($$1 = (net.minecraft.world.level.levelgen.NoiseBasedChunkGenerator)chunkGenerator).stable(net.minecraft.world.level.levelgen.NoiseGeneratorSettings.NETHER) && (chunkGenerator = $$1.getBiomeSource()) instanceof net.minecraft.world.level.biome.MultiNoiseBiomeSource && ($$2 = (net.minecraft.world.level.biome.MultiNoiseBiomeSource)chunkGenerator).stable(net.minecraft.world.level.biome.MultiNoiseBiomeSource$Preset.NETHER);
++    }
++
++    public static boolean isStableEnd(net.minecraft.world.level.dimension.LevelStem $$0) {
++        net.minecraft.world.level.levelgen.NoiseBasedChunkGenerator $$1;
++        net.minecraft.world.level.chunk.ChunkGenerator chunkGenerator;
++        return $$0.type().is(net.minecraft.world.level.dimension.BuiltinDimensionTypes.END) && (chunkGenerator = $$0.generator()) instanceof net.minecraft.world.level.levelgen.NoiseBasedChunkGenerator && ($$1 = (net.minecraft.world.level.levelgen.NoiseBasedChunkGenerator)chunkGenerator).stable(net.minecraft.world.level.levelgen.NoiseGeneratorSettings.END) && $$1.getBiomeSource() instanceof net.minecraft.world.level.biome.TheEndBiomeSource;
++    }
++
++    public net.minecraft.world.level.levelgen.WorldDimensions$Complete bake(net.minecraft.core.Registry<net.minecraft.world.level.dimension.LevelStem> $$0) {
++        java.util.stream.Stream $$1 = java.util.stream.Stream.concat((java.util.stream.Stream)$$0.registryKeySet().stream(), (java.util.stream.Stream)this.dimensions.registryKeySet().stream()).distinct();
++        java.util.ArrayList $$2 = new java.util.ArrayList();
++        net.minecraft.world.level.levelgen.WorldDimensions.keysInOrder((java.util.stream.Stream)$$1).forEach(arg_0 -> this.lambda$bake$5($$0, (java.util.List)$$2, arg_0));
++        com.mojang.serialization.Lifecycle $$3 = $$2.size() == VANILLA_DIMENSION_COUNT ? com.mojang.serialization.Lifecycle.stable() : com.mojang.serialization.Lifecycle.experimental();
++        net.minecraft.core.MappedRegistry $$4 = new net.minecraft.core.MappedRegistry(net.minecraft.core.Registry.LEVEL_STEM_REGISTRY, $$3);
++        $$2.forEach(arg_0 -> net.minecraft.world.level.levelgen.WorldDimensions.lambda$bake$6((net.minecraft.core.WritableRegistry)$$4, arg_0));
++        net.minecraft.core.Registry $$5 = $$4.freeze();
++        net.minecraft.world.level.storage.PrimaryLevelData$SpecialWorldProperty $$6 = net.minecraft.world.level.levelgen.WorldDimensions.specialWorldProperty((net.minecraft.core.Registry)$$5);
++        return new net.minecraft.world.level.levelgen.WorldDimensions$Complete($$5.freeze(), $$6);
++    }
++
++    public java.lang.String toString() {
++        return java.lang.runtime.ObjectMethods.bootstrap("toString", new java.lang.invoke.MethodHandle[]{net.minecraft.world.level.levelgen.WorldDimensions.class, "dimensions", "dimensions"}, this);
++    }
++
++    public int hashCode() {
++        return (int)java.lang.runtime.ObjectMethods.bootstrap("hashCode", new java.lang.invoke.MethodHandle[]{net.minecraft.world.level.levelgen.WorldDimensions.class, "dimensions", "dimensions"}, this);
++    }
++
++    public boolean equals(java.lang.Object $$0) {
++        return (boolean)java.lang.runtime.ObjectMethods.bootstrap("equals", new java.lang.invoke.MethodHandle[]{net.minecraft.world.level.levelgen.WorldDimensions.class, "dimensions", "dimensions"}, this, $$0);
++    }
++
++    public net.minecraft.core.Registry<net.minecraft.world.level.dimension.LevelStem> dimensions() {
++        return this.dimensions;
++    }
++
++    public static /* synthetic */ void lambda$bake$6(net.minecraft.core.WritableRegistry $$0, net.minecraft.world.level.levelgen.WorldDimensions$1Entry $$1) {
++        $$0.register($$1.key, (java.lang.Object)$$1.value, $$1.lifecycle());
++    }
++
++    public /* synthetic */ void lambda$bake$5(net.minecraft.core.Registry $$0, java.util.List $$1, net.minecraft.resources.ResourceKey $$22) {
++        $$0.getOptional($$22).or(() -> this.dimensions.getOptional($$22)).ifPresent($$2 -> {
++            $$1.add((java.lang.Object)new Entry($$22, $$2));
++        });
++    }
++
++    public static /* synthetic */ com.mojang.datafixers.kinds.App lambda$static$0(com.mojang.serialization.codecs.RecordCodecBuilder$Instance $$0) {
++        return $$0.group((com.mojang.datafixers.kinds.App)net.minecraft.core.RegistryCodecs.fullCodec((net.minecraft.resources.ResourceKey)net.minecraft.core.Registry.LEVEL_STEM_REGISTRY, (com.mojang.serialization.Lifecycle)com.mojang.serialization.Lifecycle.stable(), (com.mojang.serialization.Codec)net.minecraft.world.level.dimension.LevelStem.CODEC).fieldOf("dimensions").forGetter(net.minecraft.world.level.levelgen.WorldDimensions::dimensions)).apply((com.mojang.datafixers.kinds.Applicative)$$0, $$0.stable(net.minecraft.world.level.levelgen.WorldDimensions::new));
++    }
++
++    static {
++        CODEC = com.mojang.serialization.codecs.RecordCodecBuilder.mapCodec($$0 -> $$0.group((com.mojang.datafixers.kinds.App)net.minecraft.core.RegistryCodecs.fullCodec((net.minecraft.resources.ResourceKey)net.minecraft.core.Registry.LEVEL_STEM_REGISTRY, (com.mojang.serialization.Lifecycle)com.mojang.serialization.Lifecycle.stable(), (com.mojang.serialization.Codec)net.minecraft.world.level.dimension.LevelStem.CODEC).fieldOf("dimensions").forGetter(net.minecraft.world.level.levelgen.WorldDimensions::dimensions)).apply((com.mojang.datafixers.kinds.Applicative)$$0, $$0.stable(net.minecraft.world.level.levelgen.WorldDimensions::new)));
++        BUILTIN_ORDER = com.google.common.collect.ImmutableSet.of((java.lang.Object)net.minecraft.world.level.dimension.LevelStem.OVERWORLD, (java.lang.Object)net.minecraft.world.level.dimension.LevelStem.NETHER, (java.lang.Object)net.minecraft.world.level.dimension.LevelStem.END);
++        VANILLA_DIMENSION_COUNT = BUILTIN_ORDER.size();
++    }
++}
++

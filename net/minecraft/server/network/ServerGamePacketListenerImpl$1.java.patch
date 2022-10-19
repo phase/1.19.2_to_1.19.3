@@ -1,0 +1,45 @@
+--- net/minecraft/server/network/ServerGamePacketListenerImpl$1.java
++++ net/minecraft/server/network/ServerGamePacketListenerImpl$1.java
+@@ -6,20 +6,26 @@
+ public class net.minecraft.server.network.ServerGamePacketListenerImpl$1
+ implements net.minecraft.network.protocol.game.ServerboundInteractPacket$Handler
+  {
++    public /* synthetic */ net.minecraft.server.level.ServerLevel val$level;
+     public /* synthetic */ net.minecraft.world.entity.Entity val$target;
+     public /* synthetic */ net.minecraft.server.network.ServerGamePacketListenerImpl this$0;
+ 
+     public net.minecraft.server.network.ServerGamePacketListenerImpl$1() {
+         this.this$0 = $$0;
++        this.val$level = serverLevel;
+         this.val$target = entity;
+     }
+ 
+     public void performInteraction(net.minecraft.world.InteractionHand $$0, net.minecraft.server.network.ServerGamePacketListenerImpl$EntityInteraction $$1) {
+-        net.minecraft.world.item.ItemStack $$2 = this.this$0.player.getItemInHand($$0).copy();
+-        net.minecraft.world.InteractionResult $$3 = $$1.run(this.this$0.player, this.val$target, $$0);
+-        if ($$3.consumesAction()) {
+-            net.minecraft.advancements.CriteriaTriggers.PLAYER_INTERACTED_WITH_ENTITY.trigger(this.this$0.player, $$2, this.val$target);
+-            if ($$3.shouldSwing()) {
++        net.minecraft.world.item.ItemStack $$2 = this.this$0.player.getItemInHand($$0);
++        if (!$$2.isItemEnabled(this.val$level.enabledFeatures())) {
++            return;
++        }
++        net.minecraft.world.item.ItemStack $$3 = $$2.copy();
++        net.minecraft.world.InteractionResult $$4 = $$1.run(this.this$0.player, this.val$target, $$0);
++        if ($$4.consumesAction()) {
++            net.minecraft.advancements.CriteriaTriggers.PLAYER_INTERACTED_WITH_ENTITY.trigger(this.this$0.player, $$3, this.val$target);
++            if ($$4.shouldSwing()) {
+                 this.this$0.player.swing($$0, true);
+             }
+         }
+@@ -39,6 +45,10 @@
+             net.minecraft.server.network.ServerGamePacketListenerImpl.LOGGER.warn("Player {} tried to attack an invalid entity", (java.lang.Object)this.this$0.player.getName().getString());
+             return;
+         }
++        net.minecraft.world.item.ItemStack $$0 = this.this$0.player.getItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND);
++        if (!$$0.isItemEnabled(this.val$level.enabledFeatures())) {
++            return;
++        }
+         this.this$0.player.attack(this.val$target);
+     }
+ }

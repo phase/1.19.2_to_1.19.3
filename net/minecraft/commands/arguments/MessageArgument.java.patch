@@ -1,0 +1,103 @@
+--- net/minecraft/commands/arguments/MessageArgument.java
++++ net/minecraft/commands/arguments/MessageArgument.java
+@@ -7,7 +7,6 @@
+ implements net.minecraft.commands.arguments.SignedArgument<net.minecraft.commands.arguments.MessageArgument$Message>
+  {
+     public static java.util.Collection<java.lang.String> EXAMPLES;
+-    public static org.slf4j.Logger LOGGER;
+ 
+     public net.minecraft.commands.arguments.MessageArgument() {
+     }
+@@ -16,57 +15,62 @@
+         return new net.minecraft.commands.arguments.MessageArgument();
+     }
+ 
+-    public static net.minecraft.network.chat.Component getMessage(com.mojang.brigadier.context.CommandContext<net.minecraft.commands.CommandSourceStack> context, java.lang.String name) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
+-        net.minecraft.commands.arguments.MessageArgument$Message message = (net.minecraft.commands.arguments.MessageArgument$Message)context.getArgument(name, net.minecraft.commands.arguments.MessageArgument$Message.class);
+-        return message.resolveComponent((net.minecraft.commands.CommandSourceStack)context.getSource());
++    public static net.minecraft.network.chat.Component getMessage(com.mojang.brigadier.context.CommandContext<net.minecraft.commands.CommandSourceStack> $$0, java.lang.String $$1) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
++        net.minecraft.commands.arguments.MessageArgument$Message $$2 = (net.minecraft.commands.arguments.MessageArgument$Message)$$0.getArgument($$1, net.minecraft.commands.arguments.MessageArgument$Message.class);
++        return $$2.resolveComponent((net.minecraft.commands.CommandSourceStack)$$0.getSource());
+     }
+ 
+-    public static net.minecraft.commands.arguments.MessageArgument$ChatMessage getChatMessage(com.mojang.brigadier.context.CommandContext<net.minecraft.commands.CommandSourceStack> $$0, java.lang.String $$1) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
+-        net.minecraft.commands.arguments.MessageArgument$Message $$2 = (net.minecraft.commands.arguments.MessageArgument$Message)$$0.getArgument($$1, net.minecraft.commands.arguments.MessageArgument$Message.class);
+-        net.minecraft.network.chat.Component $$3 = $$2.resolveComponent((net.minecraft.commands.CommandSourceStack)$$0.getSource());
+-        net.minecraft.commands.CommandSigningContext $$4 = ((net.minecraft.commands.CommandSourceStack)$$0.getSource()).getSigningContext();
+-        net.minecraft.network.chat.PlayerChatMessage $$5 = $$4.getArgument($$1);
+-        if ($$5 == null) {
+-            net.minecraft.network.chat.ChatMessageContent $$6 = new net.minecraft.network.chat.ChatMessageContent($$2.text, $$3);
+-            return new net.minecraft.commands.arguments.MessageArgument$ChatMessage(net.minecraft.network.chat.PlayerChatMessage.system((net.minecraft.network.chat.ChatMessageContent)$$6));
++    public static void resolveChatMessage(com.mojang.brigadier.context.CommandContext<net.minecraft.commands.CommandSourceStack> $$0, java.lang.String $$1, java.util.function.Consumer<net.minecraft.network.chat.PlayerChatMessage> $$2) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
++        net.minecraft.commands.arguments.MessageArgument$Message $$3 = (net.minecraft.commands.arguments.MessageArgument$Message)$$0.getArgument($$1, net.minecraft.commands.arguments.MessageArgument$Message.class);
++        net.minecraft.commands.CommandSourceStack $$4 = (net.minecraft.commands.CommandSourceStack)$$0.getSource();
++        net.minecraft.network.chat.Component $$5 = $$3.resolveComponent($$4);
++        net.minecraft.commands.CommandSigningContext $$6 = $$4.getSigningContext();
++        net.minecraft.network.chat.PlayerChatMessage $$7 = $$6.getArgument($$1);
++        if ($$7 != null) {
++            net.minecraft.commands.arguments.MessageArgument.resolveSignedMessage($$2, (net.minecraft.commands.CommandSourceStack)$$4, (net.minecraft.network.chat.PlayerChatMessage)$$7.withUnsignedContent($$5));
++        } else {
++            net.minecraft.commands.arguments.MessageArgument.resolveDisguisedMessage($$2, (net.minecraft.commands.CommandSourceStack)$$4, (net.minecraft.network.chat.PlayerChatMessage)net.minecraft.network.chat.PlayerChatMessage.system((java.lang.String)$$3.text).withUnsignedContent($$5));
+         }
+-        return new net.minecraft.commands.arguments.MessageArgument$ChatMessage(net.minecraft.network.chat.ChatDecorator.attachIfNotDecorated((net.minecraft.network.chat.PlayerChatMessage)$$5, (net.minecraft.network.chat.Component)$$3));
+     }
+ 
+-    public net.minecraft.commands.arguments.MessageArgument$Message parse(com.mojang.brigadier.StringReader reader) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
+-        return net.minecraft.commands.arguments.MessageArgument$Message.parseText((com.mojang.brigadier.StringReader)reader, (boolean)true);
++    public static void resolveSignedMessage(java.util.function.Consumer<net.minecraft.network.chat.PlayerChatMessage> $$0, net.minecraft.commands.CommandSourceStack $$1, net.minecraft.network.chat.PlayerChatMessage $$2) {
++        net.minecraft.server.MinecraftServer $$3 = $$1.getServer();
++        java.util.concurrent.CompletableFuture $$4 = net.minecraft.commands.arguments.MessageArgument.filterPlainText((net.minecraft.commands.CommandSourceStack)$$1, (net.minecraft.network.chat.PlayerChatMessage)$$2);
++        java.util.concurrent.CompletableFuture $$5 = $$3.getChatDecorator().decorate($$1.getPlayer(), $$2.decoratedContent());
++        $$1.getChatMessageChainer().append($$42 -> java.util.concurrent.CompletableFuture.allOf((java.util.concurrent.CompletableFuture[])new java.util.concurrent.CompletableFuture[]{$$4, $$5}).thenAcceptAsync($$4 -> {
++            net.minecraft.network.chat.PlayerChatMessage $$5 = $$2.withUnsignedContent((net.minecraft.network.chat.Component)$$5.join()).filter(((net.minecraft.server.network.FilteredText)$$4.join()).mask());
++            $$0.accept((java.lang.Object)$$5);
++        }, $$42));
+     }
+ 
+-    public java.util.Collection<java.lang.String> getExamples() {
+-        return EXAMPLES;
++    public static void resolveDisguisedMessage(java.util.function.Consumer<net.minecraft.network.chat.PlayerChatMessage> $$0, net.minecraft.commands.CommandSourceStack $$1, net.minecraft.network.chat.PlayerChatMessage $$2) {
++        net.minecraft.server.MinecraftServer $$32 = $$1.getServer();
++        java.util.concurrent.CompletableFuture $$4 = $$32.getChatDecorator().decorate($$1.getPlayer(), $$2.decoratedContent());
++        $$1.getChatMessageChainer().append($$3 -> $$4.thenAcceptAsync($$2 -> $$0.accept((java.lang.Object)$$2.withUnsignedContent($$2)), $$3));
+     }
+ 
+-    public java.lang.String getSignableText(net.minecraft.commands.arguments.MessageArgument$Message $$0) {
+-        return $$0.getText();
++    public static java.util.concurrent.CompletableFuture<net.minecraft.server.network.FilteredText> filterPlainText(net.minecraft.commands.CommandSourceStack $$0, net.minecraft.network.chat.PlayerChatMessage $$1) {
++        net.minecraft.server.level.ServerPlayer $$2 = $$0.getPlayer();
++        if ($$2 != null && $$1.hasSignatureFrom($$2.getUUID())) {
++            return $$2.getTextFilter().processStreamMessage($$1.signedContent());
++        }
++        return java.util.concurrent.CompletableFuture.completedFuture((java.lang.Object)net.minecraft.server.network.FilteredText.passThrough((java.lang.String)$$1.signedContent()));
+     }
+ 
+-    public java.util.concurrent.CompletableFuture<net.minecraft.network.chat.Component> resolvePreview(net.minecraft.commands.CommandSourceStack $$0, net.minecraft.commands.arguments.MessageArgument$Message $$1) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
+-        return $$1.resolveDecoratedComponent($$0);
++    public net.minecraft.commands.arguments.MessageArgument$Message parse(com.mojang.brigadier.StringReader $$0) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
++        return net.minecraft.commands.arguments.MessageArgument$Message.parseText((com.mojang.brigadier.StringReader)$$0, (boolean)true);
+     }
+ 
+-    public java.lang.Class<net.minecraft.commands.arguments.MessageArgument$Message> getValueType() {
+-        return net.minecraft.commands.arguments.MessageArgument$Message.class;
++    public java.util.Collection<java.lang.String> getExamples() {
++        return EXAMPLES;
+     }
+ 
+-    public static void logResolutionFailure(net.minecraft.commands.CommandSourceStack $$0, java.util.concurrent.CompletableFuture<?> $$12) {
+-        $$12.exceptionally($$1 -> {
+-            LOGGER.error("Encountered unexpected exception while resolving chat message argument from '{}'", (java.lang.Object)$$0.getDisplayName().getString(), $$1);
+-            return null;
+-        });
+-    }
+-
+     public /* synthetic */ java.lang.Object parse(com.mojang.brigadier.StringReader stringReader) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
+         return this.parse(stringReader);
+     }
+ 
+     static {
+         EXAMPLES = java.util.Arrays.asList((java.lang.Object[])new java.lang.String[]{"Hello world!", "foo", "@e", "Hello @p :)"});
+-        LOGGER = com.mojang.logging.LogUtils.getLogger();
+     }
+ }
+ 

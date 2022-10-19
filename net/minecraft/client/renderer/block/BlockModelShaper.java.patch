@@ -1,0 +1,86 @@
+--- net/minecraft/client/renderer/block/BlockModelShaper.java
++++ net/minecraft/client/renderer/block/BlockModelShaper.java
+@@ -9,57 +9,54 @@
+     public net.minecraft.client.resources.model.ModelManager modelManager;
+ 
+     public net.minecraft.client.renderer.block.BlockModelShaper(net.minecraft.client.resources.model.ModelManager $$0) {
+-        this.modelByStateCache = com.google.common.collect.Maps.newIdentityHashMap();
++        this.modelByStateCache = java.util.Map.of();
+         this.modelManager = $$0;
+     }
+ 
+-    public net.minecraft.client.renderer.texture.TextureAtlasSprite getParticleIcon(net.minecraft.world.level.block.state.BlockState state) {
+-        return this.getBlockModel(state).getParticleIcon();
++    public net.minecraft.client.renderer.texture.TextureAtlasSprite getParticleIcon(net.minecraft.world.level.block.state.BlockState $$0) {
++        return this.getBlockModel($$0).getParticleIcon();
+     }
+ 
+-    public net.minecraft.client.resources.model.BakedModel getBlockModel(net.minecraft.world.level.block.state.BlockState state) {
+-        net.minecraft.client.resources.model.BakedModel bakedModel = (net.minecraft.client.resources.model.BakedModel)this.modelByStateCache.get((java.lang.Object)state);
+-        if (bakedModel == null) {
+-            bakedModel = this.modelManager.getMissingModel();
++    public net.minecraft.client.resources.model.BakedModel getBlockModel(net.minecraft.world.level.block.state.BlockState $$0) {
++        net.minecraft.client.resources.model.BakedModel $$1 = (net.minecraft.client.resources.model.BakedModel)this.modelByStateCache.get((java.lang.Object)$$0);
++        if ($$1 == null) {
++            $$1 = this.modelManager.getMissingModel();
+         }
+-        return bakedModel;
++        return $$1;
+     }
+ 
+     public net.minecraft.client.resources.model.ModelManager getModelManager() {
+         return this.modelManager;
+     }
+ 
+-    public void rebuildCache() {
+-        this.modelByStateCache.clear();
+-        for (net.minecraft.world.level.block.Block $$02 : net.minecraft.core.Registry.BLOCK) {
+-            $$02.getStateDefinition().getPossibleStates().forEach($$0 -> this.modelByStateCache.put($$0, (java.lang.Object)this.modelManager.getModel(net.minecraft.client.renderer.block.BlockModelShaper.stateToModelLocation((net.minecraft.world.level.block.state.BlockState)$$0))));
+-        }
++    public void replaceCache(java.util.Map<net.minecraft.world.level.block.state.BlockState, net.minecraft.client.resources.model.BakedModel> $$0) {
++        this.modelByStateCache = $$0;
+     }
+ 
+-    public static net.minecraft.client.resources.model.ModelResourceLocation stateToModelLocation(net.minecraft.world.level.block.state.BlockState state) {
+-        return net.minecraft.client.renderer.block.BlockModelShaper.stateToModelLocation((net.minecraft.resources.ResourceLocation)net.minecraft.core.Registry.BLOCK.getKey((java.lang.Object)state.getBlock()), (net.minecraft.world.level.block.state.BlockState)state);
++    public static net.minecraft.client.resources.model.ModelResourceLocation stateToModelLocation(net.minecraft.world.level.block.state.BlockState $$0) {
++        return net.minecraft.client.renderer.block.BlockModelShaper.stateToModelLocation((net.minecraft.resources.ResourceLocation)net.minecraft.core.Registry.BLOCK.getKey((java.lang.Object)$$0.getBlock()), (net.minecraft.world.level.block.state.BlockState)$$0);
+     }
+ 
+-    public static net.minecraft.client.resources.model.ModelResourceLocation stateToModelLocation(net.minecraft.resources.ResourceLocation location, net.minecraft.world.level.block.state.BlockState state) {
+-        return new net.minecraft.client.resources.model.ModelResourceLocation(location, net.minecraft.client.renderer.block.BlockModelShaper.statePropertiesToString((java.util.Map)state.getValues()));
++    public static net.minecraft.client.resources.model.ModelResourceLocation stateToModelLocation(net.minecraft.resources.ResourceLocation $$0, net.minecraft.world.level.block.state.BlockState $$1) {
++        return new net.minecraft.client.resources.model.ModelResourceLocation($$0, net.minecraft.client.renderer.block.BlockModelShaper.statePropertiesToString((java.util.Map)$$1.getValues()));
+     }
+ 
+-    public static java.lang.String statePropertiesToString(java.util.Map<net.minecraft.world.level.block.state.properties.Property<?>, java.lang.Comparable<?>> propertyValues) {
+-        java.lang.StringBuilder stringBuilder = new java.lang.StringBuilder();
+-        for (java.util.Map$Entry entry : propertyValues.entrySet()) {
+-            if (stringBuilder.length() != 0) {
+-                stringBuilder.append(',');
++    public static java.lang.String statePropertiesToString(java.util.Map<net.minecraft.world.level.block.state.properties.Property<?>, java.lang.Comparable<?>> $$0) {
++        java.lang.StringBuilder $$1 = new java.lang.StringBuilder();
++        for (java.util.Map$Entry $$2 : $$0.entrySet()) {
++            if ($$1.length() != 0) {
++                $$1.append(',');
+             }
+-            net.minecraft.world.level.block.state.properties.Property property = (net.minecraft.world.level.block.state.properties.Property)entry.getKey();
+-            stringBuilder.append(property.getName());
+-            stringBuilder.append('=');
+-            stringBuilder.append(net.minecraft.client.renderer.block.BlockModelShaper.getValue((net.minecraft.world.level.block.state.properties.Property)property, (java.lang.Comparable)((java.lang.Comparable)entry.getValue())));
++            net.minecraft.world.level.block.state.properties.Property $$3 = (net.minecraft.world.level.block.state.properties.Property)$$2.getKey();
++            $$1.append($$3.getName());
++            $$1.append('=');
++            $$1.append(net.minecraft.client.renderer.block.BlockModelShaper.getValue((net.minecraft.world.level.block.state.properties.Property)$$3, (java.lang.Comparable)((java.lang.Comparable)$$2.getValue())));
+         }
+-        return stringBuilder.toString();
++        return $$1.toString();
+     }
+ 
+-    public static <T extends java.lang.Comparable<T>> java.lang.String getValue(net.minecraft.world.level.block.state.properties.Property<T> property, java.lang.Comparable<?> value) {
+-        return property.getName(value);
++    public static <T extends java.lang.Comparable<T>> java.lang.String getValue(net.minecraft.world.level.block.state.properties.Property<T> $$0, java.lang.Comparable<?> $$1) {
++        return $$0.getName($$1);
+     }
+ }
+ 

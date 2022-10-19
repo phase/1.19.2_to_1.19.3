@@ -1,0 +1,109 @@
+--- net/minecraft/resources/RegistryResourceAccess$1.java
++++ net/minecraft/resources/RegistryResourceAccess$1.java
+@@ -1,106 +1,0 @@
+-/*
+- * Decompiled with CFR 0.151.
+- */
+-package net.minecraft.resources;
+-
+-public class net.minecraft.resources.RegistryResourceAccess$1
+-implements net.minecraft.resources.RegistryResourceAccess
+- {
+-    public static java.lang.String JSON = ".json";
+-    public /* synthetic */ net.minecraft.server.packs.resources.ResourceManager val$manager;
+-
+-    public net.minecraft.resources.RegistryResourceAccess$1(net.minecraft.server.packs.resources.ResourceManager resourceManager) {
+-        this.val$manager = resourceManager;
+-    }
+-
+-    public <E> java.util.Map<net.minecraft.resources.ResourceKey<E>, net.minecraft.resources.RegistryResourceAccess$EntryThunk<E>> listResources(net.minecraft.resources.ResourceKey<? extends net.minecraft.core.Registry<E>> $$02) {
+-        java.lang.String $$1 = net.minecraft.resources.RegistryResourceAccess$1.registryDirPath((net.minecraft.resources.ResourceLocation)$$02.location());
+-        java.util.HashMap $$2 = com.google.common.collect.Maps.newHashMap();
+-        this.val$manager.listResources($$1, $$0 -> $$0.getPath().endsWith(".json")).forEach((arg_0, arg_1) -> this.lambda$listResources$2($$1, $$02, (java.util.Map)$$2, arg_0, arg_1));
+-        return $$2;
+-    }
+-
+-    public <E> java.util.Optional<net.minecraft.resources.RegistryResourceAccess$EntryThunk<E>> getResource(net.minecraft.resources.ResourceKey<E> $$0) {
+-        net.minecraft.resources.ResourceLocation $$12 = net.minecraft.resources.RegistryResourceAccess$1.elementPath($$0);
+-        return this.val$manager.getResource($$12).map($$1 -> ($$2, $$3) -> {
+-            com.mojang.serialization.DataResult dataResult;
+-block8:            {
+-                java.io.BufferedReader $$4 = $$1.openAsReader();
+-                try {
+-                    dataResult = this.decodeElement($$2, $$3, (java.io.Reader)$$4);
+-                    if ($$4 == null) break block8;
+-                }
+-                catch (java.lang.Throwable throwable) {
+-                    try {
+-                        if ($$4 != null) {
+-                            try {
+-                                $$4.close();
+-                            }
+-                            catch (java.lang.Throwable throwable2) {
+-                                throwable.addSuppressed(throwable2);
+-                            }
+-                        }
+-                        throw throwable;
+-                    }
+-                    catch (com.google.gson.JsonIOException | com.google.gson.JsonSyntaxException | java.io.IOException $$5) {
+-                        return com.mojang.serialization.DataResult.error((java.lang.String)("Failed to parse " + $$12 + " file: " + $$5.getMessage()));
+-                    }
+-                }
+-                $$4.close();
+-            }
+-            return dataResult;
+-        });
+-    }
+-
+-    public <E> com.mojang.serialization.DataResult<net.minecraft.resources.RegistryResourceAccess$ParsedEntry<E>> decodeElement(com.mojang.serialization.DynamicOps<com.google.gson.JsonElement> $$0, com.mojang.serialization.Decoder<E> $$1, java.io.Reader $$2) throws java.io.IOException {
+-        com.google.gson.JsonElement $$3 = com.google.gson.JsonParser.parseReader((java.io.Reader)$$2);
+-        return $$1.parse($$0, (java.lang.Object)$$3).map(net.minecraft.resources.RegistryResourceAccess$ParsedEntry::createWithoutId);
+-    }
+-
+-    public static java.lang.String registryDirPath(net.minecraft.resources.ResourceLocation $$0) {
+-        return $$0.getPath();
+-    }
+-
+-    public static <E> net.minecraft.resources.ResourceLocation elementPath(net.minecraft.resources.ResourceKey<E> $$0) {
+-        return new net.minecraft.resources.ResourceLocation($$0.location().getNamespace(), net.minecraft.resources.RegistryResourceAccess$1.registryDirPath((net.minecraft.resources.ResourceLocation)$$0.registry()) + "/" + $$0.location().getPath() + ".json");
+-    }
+-
+-    public java.lang.String toString() {
+-        return "ResourceAccess[" + this.val$manager + "]";
+-    }
+-
+-    public /* synthetic */ void lambda$listResources$2(java.lang.String $$0, net.minecraft.resources.ResourceKey $$1, java.util.Map $$22, net.minecraft.resources.ResourceLocation $$32, net.minecraft.server.packs.resources.Resource $$4) {
+-        java.lang.String $$5 = $$32.getPath();
+-        java.lang.String $$6 = $$5.substring($$0.length() + 1, $$5.length() - ".json".length());
+-        net.minecraft.resources.ResourceKey $$7 = net.minecraft.resources.ResourceKey.create((net.minecraft.resources.ResourceKey)$$1, (net.minecraft.resources.ResourceLocation)new net.minecraft.resources.ResourceLocation($$32.getNamespace(), $$6));
+-        $$22.put((java.lang.Object)$$7, ($$2, $$3) -> {
+-            com.mojang.serialization.DataResult dataResult;
+-block8:            {
+-                java.io.BufferedReader $$4 = $$4.openAsReader();
+-                try {
+-                    dataResult = this.decodeElement($$2, $$3, (java.io.Reader)$$4);
+-                    if ($$4 == null) break block8;
+-                }
+-                catch (java.lang.Throwable throwable) {
+-                    try {
+-                        if ($$4 != null) {
+-                            try {
+-                                $$4.close();
+-                            }
+-                            catch (java.lang.Throwable throwable2) {
+-                                throwable.addSuppressed(throwable2);
+-                            }
+-                        }
+-                        throw throwable;
+-                    }
+-                    catch (com.google.gson.JsonIOException | com.google.gson.JsonSyntaxException | java.io.IOException $$5) {
+-                        return com.mojang.serialization.DataResult.error((java.lang.String)("Failed to parse " + $$32 + " file: " + $$5.getMessage()));
+-                    }
+-                }
+-                $$4.close();
+-            }
+-            return dataResult;
+-        });
+-    }
+-}
+-

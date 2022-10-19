@@ -1,0 +1,371 @@
+--- net/minecraft/server/PlayerAdvancements.java
++++ net/minecraft/server/PlayerAdvancements.java
+@@ -34,8 +34,8 @@
+         this.load($$2);
+     }
+ 
+-    public void setPlayer(net.minecraft.server.level.ServerPlayer player) {
+-        this.player = player;
++    public void setPlayer(net.minecraft.server.level.ServerPlayer $$0) {
++        this.player = $$0;
+     }
+ 
+     public void stopListening() {
+@@ -44,7 +44,7 @@
+         }
+     }
+ 
+-    public void reload(net.minecraft.server.ServerAdvancementManager manager) {
++    public void reload(net.minecraft.server.ServerAdvancementManager $$0) {
+         this.stopListening();
+         this.advancements.clear();
+         this.visible.clear();
+@@ -52,12 +52,12 @@
+         this.progressChanged.clear();
+         this.isFirstPacket = true;
+         this.lastSelectedTab = null;
+-        this.load(manager);
++        this.load($$0);
+     }
+ 
+-    public void registerListeners(net.minecraft.server.ServerAdvancementManager manager) {
+-        for (net.minecraft.advancements.Advancement advancement : manager.getAllAdvancements()) {
+-            this.registerListeners(advancement);
++    public void registerListeners(net.minecraft.server.ServerAdvancementManager $$0) {
++        for (net.minecraft.advancements.Advancement $$1 : $$0.getAllAdvancements()) {
++            this.registerListeners($$1);
+         }
+     }
+ 
+@@ -73,49 +73,49 @@
+         }
+     }
+ 
+-    public void checkForAutomaticTriggers(net.minecraft.server.ServerAdvancementManager manager) {
+-        for (net.minecraft.advancements.Advancement advancement : manager.getAllAdvancements()) {
+-            if (!advancement.getCriteria().isEmpty()) continue;
+-            this.award(advancement, "");
+-            advancement.getRewards().grant(this.player);
++    public void checkForAutomaticTriggers(net.minecraft.server.ServerAdvancementManager $$0) {
++        for (net.minecraft.advancements.Advancement $$1 : $$0.getAllAdvancements()) {
++            if (!$$1.getCriteria().isEmpty()) continue;
++            this.award($$1, "");
++            $$1.getRewards().grant(this.player);
+         }
+     }
+ 
+-    public void load(net.minecraft.server.ServerAdvancementManager manager) {
++    public void load(net.minecraft.server.ServerAdvancementManager $$0) {
+         if (this.file.isFile()) {
+-            try (com.google.gson.stream.JsonReader jsonReader = new com.google.gson.stream.JsonReader((java.io.Reader)new java.io.StringReader(com.google.common.io.Files.toString((java.io.File)this.file, (java.nio.charset.Charset)java.nio.charset.StandardCharsets.UTF_8)));
++            try (com.google.gson.stream.JsonReader $$1 = new com.google.gson.stream.JsonReader((java.io.Reader)new java.io.StringReader(com.google.common.io.Files.toString((java.io.File)this.file, (java.nio.charset.Charset)java.nio.charset.StandardCharsets.UTF_8)));
+ ){
+-                jsonReader.setLenient(false);
+-                com.mojang.serialization.Dynamic dynamic = new com.mojang.serialization.Dynamic((com.mojang.serialization.DynamicOps)com.mojang.serialization.JsonOps.INSTANCE, (java.lang.Object)com.google.gson.internal.Streams.parse((com.google.gson.stream.JsonReader)jsonReader));
+-                if (!dynamic.get("DataVersion").asNumber().result().isPresent()) {
+-                    dynamic = dynamic.set("DataVersion", dynamic.createInt(1343));
++                $$1.setLenient(false);
++                com.mojang.serialization.Dynamic $$2 = new com.mojang.serialization.Dynamic((com.mojang.serialization.DynamicOps)com.mojang.serialization.JsonOps.INSTANCE, (java.lang.Object)com.google.gson.internal.Streams.parse((com.google.gson.stream.JsonReader)$$1));
++                if (!$$2.get("DataVersion").asNumber().result().isPresent()) {
++                    $$2 = $$2.set("DataVersion", $$2.createInt(1343));
+                 }
+-                dynamic = this.dataFixer.update(net.minecraft.util.datafix.DataFixTypes.ADVANCEMENTS.getType(), dynamic, dynamic.get("DataVersion").asInt(0), net.minecraft.SharedConstants.getCurrentVersion().getWorldVersion());
+-                dynamic = dynamic.remove("DataVersion");
+-                java.util.Map map = (java.util.Map)GSON.getAdapter(TYPE_TOKEN).fromJsonTree((com.google.gson.JsonElement)dynamic.getValue());
+-                if (map == null) {
++                $$2 = this.dataFixer.update(net.minecraft.util.datafix.DataFixTypes.ADVANCEMENTS.getType(), $$2, $$2.get("DataVersion").asInt(0), net.minecraft.SharedConstants.getCurrentVersion().getWorldVersion());
++                $$2 = $$2.remove("DataVersion");
++                java.util.Map $$3 = (java.util.Map)GSON.getAdapter(TYPE_TOKEN).fromJsonTree((com.google.gson.JsonElement)$$2.getValue());
++                if ($$3 == null) {
+                     throw new com.google.gson.JsonParseException("Found null for advancements");
+                 }
+-                java.util.stream.Stream stream = map.entrySet().stream().sorted(java.util.Comparator.comparing(java.util.Map$Entry::getValue));
+-                for (java.util.Map$Entry entry : (java.util.List)stream.collect(java.util.stream.Collectors.toList())) {
+-                    net.minecraft.advancements.Advancement advancement = manager.getAdvancement((net.minecraft.resources.ResourceLocation)entry.getKey());
+-                    if (advancement == null) {
+-                        LOGGER.warn("Ignored advancement '{}' in progress file {} - it doesn't exist anymore?", entry.getKey(), (java.lang.Object)this.file);
++                java.util.stream.Stream $$4 = $$3.entrySet().stream().sorted(java.util.Comparator.comparing(java.util.Map$Entry::getValue));
++                for (java.util.Map$Entry $$5 : (java.util.List)$$4.collect(java.util.stream.Collectors.toList())) {
++                    net.minecraft.advancements.Advancement $$6 = $$0.getAdvancement((net.minecraft.resources.ResourceLocation)$$5.getKey());
++                    if ($$6 == null) {
++                        LOGGER.warn("Ignored advancement '{}' in progress file {} - it doesn't exist anymore?", $$5.getKey(), (java.lang.Object)this.file);
+                         continue;
+                     }
+-                    this.startProgress(advancement, (net.minecraft.advancements.AdvancementProgress)entry.getValue());
++                    this.startProgress($$6, (net.minecraft.advancements.AdvancementProgress)$$5.getValue());
+                 }
+             }
+-            catch (com.google.gson.JsonParseException jsonParseException) {
+-                LOGGER.error("Couldn't parse player advancements in {}", (java.lang.Object)this.file, (java.lang.Object)((java.lang.Object)jsonParseException));
++            catch (com.google.gson.JsonParseException $$7) {
++                LOGGER.error("Couldn't parse player advancements in {}", (java.lang.Object)this.file, (java.lang.Object)((java.lang.Object)$$7));
+             }
+-            catch (java.io.IOException iOException) {
+-                LOGGER.error("Couldn't access player advancements in {}", (java.lang.Object)this.file, (java.lang.Object)((java.lang.Object)iOException));
++            catch (java.io.IOException $$8) {
++                LOGGER.error("Couldn't access player advancements in {}", (java.lang.Object)this.file, (java.lang.Object)((java.lang.Object)$$8));
+             }
+         }
+-        this.checkForAutomaticTriggers(manager);
++        this.checkForAutomaticTriggers($$0);
+         this.ensureAllVisible();
+-        this.registerListeners(manager);
++        this.registerListeners($$0);
+     }
+ 
+     public void save() {
+@@ -140,84 +140,84 @@
+         }
+     }
+ 
+-    public boolean award(net.minecraft.advancements.Advancement advancement, java.lang.String criterionKey) {
+-        boolean bl = false;
+-        net.minecraft.advancements.AdvancementProgress advancementProgress = this.getOrStartProgress(advancement);
+-        boolean bl2 = advancementProgress.isDone();
+-        if (advancementProgress.grantProgress(criterionKey)) {
+-            this.unregisterListeners(advancement);
+-            this.progressChanged.add((java.lang.Object)advancement);
+-            bl = true;
+-            if (!bl2 && advancementProgress.isDone()) {
+-                advancement.getRewards().grant(this.player);
+-                if (advancement.getDisplay() != null && advancement.getDisplay().shouldAnnounceChat() && this.player.level.getGameRules().getBoolean(net.minecraft.world.level.GameRules.RULE_ANNOUNCE_ADVANCEMENTS)) {
+-                    this.playerList.broadcastSystemMessage((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)("chat.type.advancement." + advancement.getDisplay().getFrame().getName()), (java.lang.Object[])new java.lang.Object[]{this.player.getDisplayName(), advancement.getChatComponent()}), false);
++    public boolean award(net.minecraft.advancements.Advancement $$0, java.lang.String $$1) {
++        boolean $$2 = false;
++        net.minecraft.advancements.AdvancementProgress $$3 = this.getOrStartProgress($$0);
++        boolean $$4 = $$3.isDone();
++        if ($$3.grantProgress($$1)) {
++            this.unregisterListeners($$0);
++            this.progressChanged.add((java.lang.Object)$$0);
++            $$2 = true;
++            if (!$$4 && $$3.isDone()) {
++                $$0.getRewards().grant(this.player);
++                if ($$0.getDisplay() != null && $$0.getDisplay().shouldAnnounceChat() && this.player.level.getGameRules().getBoolean(net.minecraft.world.level.GameRules.RULE_ANNOUNCE_ADVANCEMENTS)) {
++                    this.playerList.broadcastSystemMessage((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)("chat.type.advancement." + $$0.getDisplay().getFrame().getName()), (java.lang.Object[])new java.lang.Object[]{this.player.getDisplayName(), $$0.getChatComponent()}), false);
+                 }
+             }
+         }
+-        if (advancementProgress.isDone()) {
+-            this.ensureVisibility(advancement);
++        if ($$3.isDone()) {
++            this.ensureVisibility($$0);
+         }
+-        return bl;
++        return $$2;
+     }
+ 
+-    public boolean revoke(net.minecraft.advancements.Advancement advancement, java.lang.String criterionKey) {
+-        boolean bl = false;
+-        net.minecraft.advancements.AdvancementProgress advancementProgress = this.getOrStartProgress(advancement);
+-        if (advancementProgress.revokeProgress(criterionKey)) {
+-            this.registerListeners(advancement);
+-            this.progressChanged.add((java.lang.Object)advancement);
+-            bl = true;
++    public boolean revoke(net.minecraft.advancements.Advancement $$0, java.lang.String $$1) {
++        boolean $$2 = false;
++        net.minecraft.advancements.AdvancementProgress $$3 = this.getOrStartProgress($$0);
++        if ($$3.revokeProgress($$1)) {
++            this.registerListeners($$0);
++            this.progressChanged.add((java.lang.Object)$$0);
++            $$2 = true;
+         }
+-        if (!advancementProgress.hasProgress()) {
+-            this.ensureVisibility(advancement);
++        if (!$$3.hasProgress()) {
++            this.ensureVisibility($$0);
+         }
+-        return bl;
++        return $$2;
+     }
+ 
+-    public void registerListeners(net.minecraft.advancements.Advancement advancement) {
+-        net.minecraft.advancements.AdvancementProgress advancementProgress = this.getOrStartProgress(advancement);
+-        if (advancementProgress.isDone()) {
++    public void registerListeners(net.minecraft.advancements.Advancement $$0) {
++        net.minecraft.advancements.AdvancementProgress $$1 = this.getOrStartProgress($$0);
++        if ($$1.isDone()) {
+             return;
+         }
+-        for (java.util.Map$Entry entry : advancement.getCriteria().entrySet()) {
+-            net.minecraft.advancements.CriterionTrigger criterionTrigger;
+-            net.minecraft.advancements.CriterionTriggerInstance criterionTriggerInstance;
+-            net.minecraft.advancements.CriterionProgress criterionProgress = advancementProgress.getCriterion((java.lang.String)entry.getKey());
+-            if (criterionProgress == null || criterionProgress.isDone() || (criterionTriggerInstance = ((net.minecraft.advancements.Criterion)entry.getValue()).getTrigger()) == null || (criterionTrigger = net.minecraft.advancements.CriteriaTriggers.getCriterion((net.minecraft.resources.ResourceLocation)criterionTriggerInstance.getCriterion())) == null) continue;
+-            criterionTrigger.addPlayerListener(this, new net.minecraft.advancements.CriterionTrigger$Listener(criterionTriggerInstance, advancement, (java.lang.String)entry.getKey()));
++        for (java.util.Map$Entry $$2 : $$0.getCriteria().entrySet()) {
++            net.minecraft.advancements.CriterionTrigger $$5;
++            net.minecraft.advancements.CriterionTriggerInstance $$4;
++            net.minecraft.advancements.CriterionProgress $$3 = $$1.getCriterion((java.lang.String)$$2.getKey());
++            if ($$3 == null || $$3.isDone() || ($$4 = ((net.minecraft.advancements.Criterion)$$2.getValue()).getTrigger()) == null || ($$5 = net.minecraft.advancements.CriteriaTriggers.getCriterion((net.minecraft.resources.ResourceLocation)$$4.getCriterion())) == null) continue;
++            $$5.addPlayerListener(this, new net.minecraft.advancements.CriterionTrigger$Listener($$4, $$0, (java.lang.String)$$2.getKey()));
+         }
+     }
+ 
+-    public void unregisterListeners(net.minecraft.advancements.Advancement advancement) {
+-        net.minecraft.advancements.AdvancementProgress advancementProgress = this.getOrStartProgress(advancement);
+-        for (java.util.Map$Entry entry : advancement.getCriteria().entrySet()) {
+-            net.minecraft.advancements.CriterionTrigger criterionTrigger;
+-            net.minecraft.advancements.CriterionTriggerInstance criterionTriggerInstance;
+-            net.minecraft.advancements.CriterionProgress criterionProgress = advancementProgress.getCriterion((java.lang.String)entry.getKey());
+-            if (criterionProgress == null || !criterionProgress.isDone() && !advancementProgress.isDone() || (criterionTriggerInstance = ((net.minecraft.advancements.Criterion)entry.getValue()).getTrigger()) == null || (criterionTrigger = net.minecraft.advancements.CriteriaTriggers.getCriterion((net.minecraft.resources.ResourceLocation)criterionTriggerInstance.getCriterion())) == null) continue;
+-            criterionTrigger.removePlayerListener(this, new net.minecraft.advancements.CriterionTrigger$Listener(criterionTriggerInstance, advancement, (java.lang.String)entry.getKey()));
++    public void unregisterListeners(net.minecraft.advancements.Advancement $$0) {
++        net.minecraft.advancements.AdvancementProgress $$1 = this.getOrStartProgress($$0);
++        for (java.util.Map$Entry $$2 : $$0.getCriteria().entrySet()) {
++            net.minecraft.advancements.CriterionTrigger $$5;
++            net.minecraft.advancements.CriterionTriggerInstance $$4;
++            net.minecraft.advancements.CriterionProgress $$3 = $$1.getCriterion((java.lang.String)$$2.getKey());
++            if ($$3 == null || !$$3.isDone() && !$$1.isDone() || ($$4 = ((net.minecraft.advancements.Criterion)$$2.getValue()).getTrigger()) == null || ($$5 = net.minecraft.advancements.CriteriaTriggers.getCriterion((net.minecraft.resources.ResourceLocation)$$4.getCriterion())) == null) continue;
++            $$5.removePlayerListener(this, new net.minecraft.advancements.CriterionTrigger$Listener($$4, $$0, (java.lang.String)$$2.getKey()));
+         }
+     }
+ 
+-    public void flushDirty(net.minecraft.server.level.ServerPlayer serverPlayer) {
++    public void flushDirty(net.minecraft.server.level.ServerPlayer $$0) {
+         if (this.isFirstPacket || !this.visibilityChanged.isEmpty() || !this.progressChanged.isEmpty()) {
+-            java.util.HashMap hashMap = com.google.common.collect.Maps.newHashMap();
+-            java.util.LinkedHashSet linkedHashSet = com.google.common.collect.Sets.newLinkedHashSet();
+-            java.util.LinkedHashSet linkedHashSet2 = com.google.common.collect.Sets.newLinkedHashSet();
+-            for (net.minecraft.advancements.Advancement advancement : this.progressChanged) {
+-                if (!this.visible.contains((java.lang.Object)advancement)) continue;
+-                hashMap.put((java.lang.Object)advancement.getId(), (java.lang.Object)((net.minecraft.advancements.AdvancementProgress)this.advancements.get((java.lang.Object)advancement)));
++            java.util.HashMap $$1 = com.google.common.collect.Maps.newHashMap();
++            java.util.LinkedHashSet $$2 = com.google.common.collect.Sets.newLinkedHashSet();
++            java.util.LinkedHashSet $$3 = com.google.common.collect.Sets.newLinkedHashSet();
++            for (net.minecraft.advancements.Advancement $$4 : this.progressChanged) {
++                if (!this.visible.contains((java.lang.Object)$$4)) continue;
++                $$1.put((java.lang.Object)$$4.getId(), (java.lang.Object)((net.minecraft.advancements.AdvancementProgress)this.advancements.get((java.lang.Object)$$4)));
+             }
+-            for (net.minecraft.advancements.Advancement advancement : this.visibilityChanged) {
+-                if (this.visible.contains((java.lang.Object)advancement)) {
+-                    linkedHashSet.add((java.lang.Object)advancement);
++            for (net.minecraft.advancements.Advancement $$5 : this.visibilityChanged) {
++                if (this.visible.contains((java.lang.Object)$$5)) {
++                    $$2.add((java.lang.Object)$$5);
+                     continue;
+                 }
+-                linkedHashSet2.add((java.lang.Object)advancement.getId());
++                $$3.add((java.lang.Object)$$5.getId());
+             }
+-            if (this.isFirstPacket || !hashMap.isEmpty() || !linkedHashSet.isEmpty() || !linkedHashSet2.isEmpty()) {
+-                serverPlayer.connection.send((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ClientboundUpdateAdvancementsPacket(this.isFirstPacket, (java.util.Collection)linkedHashSet, (java.util.Set)linkedHashSet2, (java.util.Map)hashMap));
++            if (this.isFirstPacket || !$$1.isEmpty() || !$$2.isEmpty() || !$$3.isEmpty()) {
++                $$0.connection.send((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ClientboundUpdateAdvancementsPacket(this.isFirstPacket, (java.util.Collection)$$2, (java.util.Set)$$3, (java.util.Map)$$1));
+                 this.visibilityChanged.clear();
+                 this.progressChanged.clear();
+             }
+@@ -225,74 +225,74 @@
+         this.isFirstPacket = false;
+     }
+ 
+-    public void setSelectedTab(@javax.annotation.Nullable net.minecraft.advancements.Advancement advancement) {
+-        net.minecraft.advancements.Advancement advancement2 = this.lastSelectedTab;
+-        this.lastSelectedTab = advancement != null && advancement.getParent() == null && advancement.getDisplay() != null ? advancement : null;
+-        if (advancement2 != this.lastSelectedTab) {
++    public void setSelectedTab(@javax.annotation.Nullable net.minecraft.advancements.Advancement $$0) {
++        net.minecraft.advancements.Advancement $$1 = this.lastSelectedTab;
++        this.lastSelectedTab = $$0 != null && $$0.getParent() == null && $$0.getDisplay() != null ? $$0 : null;
++        if ($$1 != this.lastSelectedTab) {
+             this.player.connection.send((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ClientboundSelectAdvancementsTabPacket(this.lastSelectedTab == null ? null : this.lastSelectedTab.getId()));
+         }
+     }
+ 
+-    public net.minecraft.advancements.AdvancementProgress getOrStartProgress(net.minecraft.advancements.Advancement advancement) {
+-        net.minecraft.advancements.AdvancementProgress advancementProgress = (net.minecraft.advancements.AdvancementProgress)this.advancements.get((java.lang.Object)advancement);
+-        if (advancementProgress == null) {
+-            advancementProgress = new net.minecraft.advancements.AdvancementProgress();
+-            this.startProgress(advancement, advancementProgress);
++    public net.minecraft.advancements.AdvancementProgress getOrStartProgress(net.minecraft.advancements.Advancement $$0) {
++        net.minecraft.advancements.AdvancementProgress $$1 = (net.minecraft.advancements.AdvancementProgress)this.advancements.get((java.lang.Object)$$0);
++        if ($$1 == null) {
++            $$1 = new net.minecraft.advancements.AdvancementProgress();
++            this.startProgress($$0, $$1);
+         }
+-        return advancementProgress;
++        return $$1;
+     }
+ 
+-    public void startProgress(net.minecraft.advancements.Advancement advancement, net.minecraft.advancements.AdvancementProgress progress) {
+-        progress.update(advancement.getCriteria(), advancement.getRequirements());
+-        this.advancements.put((java.lang.Object)advancement, (java.lang.Object)progress);
++    public void startProgress(net.minecraft.advancements.Advancement $$0, net.minecraft.advancements.AdvancementProgress $$1) {
++        $$1.update($$0.getCriteria(), $$0.getRequirements());
++        this.advancements.put((java.lang.Object)$$0, (java.lang.Object)$$1);
+     }
+ 
+-    public void ensureVisibility(net.minecraft.advancements.Advancement advancement) {
+-        boolean bl = this.shouldBeVisible(advancement);
+-        boolean bl2 = this.visible.contains((java.lang.Object)advancement);
+-        if (bl && !bl2) {
+-            this.visible.add((java.lang.Object)advancement);
+-            this.visibilityChanged.add((java.lang.Object)advancement);
+-            if (this.advancements.containsKey((java.lang.Object)advancement)) {
+-                this.progressChanged.add((java.lang.Object)advancement);
++    public void ensureVisibility(net.minecraft.advancements.Advancement $$0) {
++        boolean $$1 = this.shouldBeVisible($$0);
++        boolean $$2 = this.visible.contains((java.lang.Object)$$0);
++        if ($$1 && !$$2) {
++            this.visible.add((java.lang.Object)$$0);
++            this.visibilityChanged.add((java.lang.Object)$$0);
++            if (this.advancements.containsKey((java.lang.Object)$$0)) {
++                this.progressChanged.add((java.lang.Object)$$0);
+             }
+-        } else if (!bl && bl2) {
+-            this.visible.remove((java.lang.Object)advancement);
+-            this.visibilityChanged.add((java.lang.Object)advancement);
++        } else if (!$$1 && $$2) {
++            this.visible.remove((java.lang.Object)$$0);
++            this.visibilityChanged.add((java.lang.Object)$$0);
+         }
+-        if (bl != bl2 && advancement.getParent() != null) {
+-            this.ensureVisibility(advancement.getParent());
++        if ($$1 != $$2 && $$0.getParent() != null) {
++            this.ensureVisibility($$0.getParent());
+         }
+-        for (net.minecraft.advancements.Advancement advancement2 : advancement.getChildren()) {
+-            this.ensureVisibility(advancement2);
++        for (net.minecraft.advancements.Advancement $$3 : $$0.getChildren()) {
++            this.ensureVisibility($$3);
+         }
+     }
+ 
+-    public boolean shouldBeVisible(net.minecraft.advancements.Advancement advancement) {
+-        for (int n = 0; advancement != null && n <= 2; advancement = advancement.getParent(), ++n) {
+-            if (n == 0 && this.hasCompletedChildrenOrSelf(advancement)) {
++    public boolean shouldBeVisible(net.minecraft.advancements.Advancement $$0) {
++        for (int $$1 = 0; $$0 != null && $$1 <= 2; $$0 = $$0.getParent(), ++$$1) {
++            if ($$1 == 0 && this.hasCompletedChildrenOrSelf($$0)) {
+                 return true;
+             }
+-            if (advancement.getDisplay() == null) {
++            if ($$0.getDisplay() == null) {
+                 return false;
+             }
+-            net.minecraft.advancements.AdvancementProgress advancementProgress = this.getOrStartProgress(advancement);
+-            if (advancementProgress.isDone()) {
++            net.minecraft.advancements.AdvancementProgress $$2 = this.getOrStartProgress($$0);
++            if ($$2.isDone()) {
+                 return true;
+             }
+-            if (!advancement.getDisplay().isHidden()) continue;
++            if (!$$0.getDisplay().isHidden()) continue;
+             return false;
+         }
+         return false;
+     }
+ 
+-    public boolean hasCompletedChildrenOrSelf(net.minecraft.advancements.Advancement advancement) {
+-        net.minecraft.advancements.AdvancementProgress advancementProgress = this.getOrStartProgress(advancement);
+-        if (advancementProgress.isDone()) {
++    public boolean hasCompletedChildrenOrSelf(net.minecraft.advancements.Advancement $$0) {
++        net.minecraft.advancements.AdvancementProgress $$1 = this.getOrStartProgress($$0);
++        if ($$1.isDone()) {
+             return true;
+         }
+-        for (net.minecraft.advancements.Advancement advancement2 : advancement.getChildren()) {
+-            if (!this.hasCompletedChildrenOrSelf(advancement2)) continue;
++        for (net.minecraft.advancements.Advancement $$2 : $$0.getChildren()) {
++            if (!this.hasCompletedChildrenOrSelf($$2)) continue;
+             return true;
+         }
+         return false;

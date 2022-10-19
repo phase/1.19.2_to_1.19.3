@@ -1,0 +1,121 @@
+--- net/minecraft/gametest/framework/GameTestHelper.java
++++ net/minecraft/gametest/framework/GameTestHelper.java
+@@ -8,8 +8,8 @@
+     public net.minecraft.gametest.framework.GameTestInfo testInfo;
+     public boolean finalCheckAdded;
+ 
+-    public net.minecraft.gametest.framework.GameTestHelper(net.minecraft.gametest.framework.GameTestInfo testInfo) {
+-        this.testInfo = testInfo;
++    public net.minecraft.gametest.framework.GameTestHelper(net.minecraft.gametest.framework.GameTestInfo $$0) {
++        this.testInfo = $$0;
+     }
+ 
+     public net.minecraft.server.level.ServerLevel getLevel() {
+@@ -40,6 +40,10 @@
+         return $$6;
+     }
+ 
++    public net.minecraft.world.entity.item.ItemEntity spawnItem(net.minecraft.world.item.Item $$0, net.minecraft.core.BlockPos $$1) {
++        return this.spawnItem($$0, (float)$$1.getX(), (float)$$1.getY(), (float)$$1.getZ());
++    }
++
+     public <E extends net.minecraft.world.entity.Entity> E spawn(net.minecraft.world.entity.EntityType<E> $$0, net.minecraft.core.BlockPos $$1) {
+         return (E)this.spawn($$0, net.minecraft.world.phys.Vec3.atBottomCenterOf((net.minecraft.core.Vec3i)$$1));
+     }
+@@ -47,11 +51,15 @@
+     public <E extends net.minecraft.world.entity.Entity> E spawn(net.minecraft.world.entity.EntityType<E> $$0, net.minecraft.world.phys.Vec3 $$1) {
+         net.minecraft.server.level.ServerLevel $$2 = this.getLevel();
+         net.minecraft.world.entity.Entity $$3 = $$0.create((net.minecraft.world.level.Level)$$2);
++        if ($$3 == null) {
++            throw new java.lang.NullPointerException("Failed to create entity " + $$0.builtInRegistryHolder().key().location());
++        }
+         if ($$3 instanceof net.minecraft.world.entity.Mob) {
+-            ((net.minecraft.world.entity.Mob)$$3).setPersistenceRequired();
++            net.minecraft.world.entity.Mob $$4 = (net.minecraft.world.entity.Mob)$$3;
++            $$4.setPersistenceRequired();
+         }
+-        net.minecraft.world.phys.Vec3 $$4 = this.absoluteVec($$1);
+-        $$3.moveTo($$4.x, $$4.y, $$4.z, $$3.getYRot(), $$3.getXRot());
++        net.minecraft.world.phys.Vec3 $$5 = this.absoluteVec($$1);
++        $$3.moveTo($$5.x, $$5.y, $$5.z, $$3.getYRot(), $$3.getXRot());
+         $$2.addFreshEntity($$3);
+         return (E)$$3;
+     }
+@@ -104,17 +112,25 @@
+     }
+ 
+     public void useBlock(net.minecraft.core.BlockPos $$0) {
+-        net.minecraft.core.BlockPos $$1 = this.absolutePos($$0);
+-        net.minecraft.world.level.block.state.BlockState $$2 = this.getLevel().getBlockState($$1);
+-        $$2.use((net.minecraft.world.level.Level)this.getLevel(), this.makeMockPlayer(), net.minecraft.world.InteractionHand.MAIN_HAND, new net.minecraft.world.phys.BlockHitResult(net.minecraft.world.phys.Vec3.atCenterOf((net.minecraft.core.Vec3i)$$1), net.minecraft.core.Direction.NORTH, $$1, true));
++        this.useBlock($$0, this.makeMockPlayer());
+     }
+ 
++    public void useBlock(net.minecraft.core.BlockPos $$0, net.minecraft.world.entity.player.Player $$1) {
++        net.minecraft.core.BlockPos $$2 = this.absolutePos($$0);
++        net.minecraft.world.level.block.state.BlockState $$3 = this.getLevel().getBlockState($$2);
++        $$3.use((net.minecraft.world.level.Level)this.getLevel(), $$1, net.minecraft.world.InteractionHand.MAIN_HAND, new net.minecraft.world.phys.BlockHitResult(net.minecraft.world.phys.Vec3.atCenterOf((net.minecraft.core.Vec3i)$$2), net.minecraft.core.Direction.NORTH, $$2, true));
++    }
++
+     public net.minecraft.world.entity.LivingEntity makeAboutToDrown(net.minecraft.world.entity.LivingEntity $$0) {
+         $$0.setAirSupply(0);
+         $$0.setHealth(0.25f);
+         return $$0;
+     }
+ 
++    public net.minecraft.world.entity.player.Player makeMockSurvivalPlayer() {
++        return new /* Unavailable Anonymous Inner Class!! */;
++    }
++
+     public net.minecraft.world.entity.player.Player makeMockPlayer() {
+         return new /* Unavailable Anonymous Inner Class!! */;
+     }
+@@ -197,8 +213,14 @@
+         this.assertBlockState($$0, $$1 -> $$12.test((java.lang.Object)$$1.getBlock()), $$2);
+     }
+ 
+-    public <T extends java.lang.Comparable<T>> void assertBlockProperty(net.minecraft.core.BlockPos $$0, net.minecraft.world.level.block.state.properties.Property<T> $$1, T $$22) {
+-        this.assertBlockState($$0, $$2 -> $$2.hasProperty($$1) && $$2.getValue($$1).equals((java.lang.Object)$$22), () -> "Expected property " + $$1.getName() + " to be " + $$22);
++    public <T extends java.lang.Comparable<T>> void assertBlockProperty(net.minecraft.core.BlockPos $$0, net.minecraft.world.level.block.state.properties.Property<T> $$1, T $$2) {
++        net.minecraft.world.level.block.state.BlockState $$3 = this.getBlockState($$0);
++        boolean $$4 = $$3.hasProperty($$1);
++        if (!$$4 || !$$3.getValue($$1).equals($$2)) {
++            java.lang.String $$5 = $$4 ? "was %s".formatted(new java.lang.Object[]{$$3.getValue($$1)}) : "property %s is missing".formatted(new java.lang.Object[]{$$1.getName()});
++            java.lang.String $$6 = "Expected property %s to be %s, %s".formatted(new java.lang.Object[]{$$1.getName(), $$2, $$5});
++            throw new net.minecraft.gametest.framework.GameTestAssertPosException($$6, this.absolutePos($$0), $$0, this.testInfo.getTick());
++        }
+     }
+ 
+     public <T extends java.lang.Comparable<T>> void assertBlockProperty(net.minecraft.core.BlockPos $$0, net.minecraft.world.level.block.state.properties.Property<T> $$1, java.util.function.Predicate<T> $$22, java.lang.String $$3) {
+@@ -231,6 +253,13 @@
+         }
+     }
+ 
++    public void assertEntityPresent(net.minecraft.world.entity.EntityType<?> $$0, net.minecraft.world.phys.Vec3 $$1, net.minecraft.world.phys.Vec3 $$2) {
++        java.util.List $$3 = this.getLevel().getEntities($$0, new net.minecraft.world.phys.AABB($$1, $$2), net.minecraft.world.entity.Entity::isAlive);
++        if ($$3.isEmpty()) {
++            throw new net.minecraft.gametest.framework.GameTestAssertPosException("Expected " + $$0.toShortString() + " between ", new net.minecraft.core.BlockPos($$1), new net.minecraft.core.BlockPos($$2), this.testInfo.getTick());
++        }
++    }
++
+     public void assertEntitiesPresent(net.minecraft.world.entity.EntityType<?> $$0, net.minecraft.core.BlockPos $$1, int $$2, double $$3) {
+         net.minecraft.core.BlockPos $$4 = this.absolutePos($$1);
+         java.util.List $$5 = this.getEntities($$0, $$1, $$3);
+@@ -511,6 +540,17 @@
+         return net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate.transform((net.minecraft.world.phys.Vec3)$$1.add($$0), (net.minecraft.world.level.block.Mirror)net.minecraft.world.level.block.Mirror.NONE, (net.minecraft.world.level.block.Rotation)this.testInfo.getRotation(), (net.minecraft.core.BlockPos)this.testInfo.getStructureBlockPos());
+     }
+ 
++    public net.minecraft.world.phys.Vec3 relativeVec(net.minecraft.world.phys.Vec3 $$0) {
++        net.minecraft.world.phys.Vec3 $$1 = net.minecraft.world.phys.Vec3.atLowerCornerOf((net.minecraft.core.Vec3i)this.testInfo.getStructureBlockPos());
++        return net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate.transform((net.minecraft.world.phys.Vec3)$$0.subtract($$1), (net.minecraft.world.level.block.Mirror)net.minecraft.world.level.block.Mirror.NONE, (net.minecraft.world.level.block.Rotation)this.testInfo.getRotation(), (net.minecraft.core.BlockPos)this.testInfo.getStructureBlockPos());
++    }
++
++    public void assertTrue(boolean $$0, java.lang.String $$1) {
++        if (!$$0) {
++            throw new net.minecraft.gametest.framework.GameTestAssertException($$1);
++        }
++    }
++
+     public long getTick() {
+         return this.testInfo.getTick();
+     }

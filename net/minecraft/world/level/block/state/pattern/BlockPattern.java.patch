@@ -1,0 +1,90 @@
+--- net/minecraft/world/level/block/state/pattern/BlockPattern.java
++++ net/minecraft/world/level/block/state/pattern/BlockPattern.java
+@@ -10,12 +10,12 @@
+     public int height;
+     public int width;
+ 
+-    public net.minecraft.world.level.block.state.pattern.BlockPattern(java.util.function.Predicate<net.minecraft.world.level.block.state.pattern.BlockInWorld>[][][] pattern) {
+-        this.pattern = pattern;
+-        this.depth = pattern.length;
++    public net.minecraft.world.level.block.state.pattern.BlockPattern(java.util.function.Predicate<net.minecraft.world.level.block.state.pattern.BlockInWorld>[][][] $$0) {
++        this.pattern = $$0;
++        this.depth = $$0.length;
+         if (this.depth > 0) {
+-            this.height = pattern[0].length;
+-            this.width = this.height > 0 ? pattern[0][0].length : 0;
++            this.height = $$0[0].length;
++            this.width = this.height > 0 ? $$0[0][0].length : 0;
+         } else {
+             this.height = 0;
+             this.width = 0;
+@@ -47,46 +47,46 @@
+     }
+ 
+     @javax.annotation.Nullable
+-    public net.minecraft.world.level.block.state.pattern.BlockPattern$BlockPatternMatch matches(net.minecraft.core.BlockPos pos, net.minecraft.core.Direction finger, net.minecraft.core.Direction thumb, com.google.common.cache.LoadingCache<net.minecraft.core.BlockPos, net.minecraft.world.level.block.state.pattern.BlockInWorld> cache) {
+-        for (int i = 0; i < this.width; ++i) {
+-            for (int j = 0; j < this.height; ++j) {
+-                for (int k = 0; k < this.depth; ++k) {
+-                    if (this.pattern[k][j][i].test((java.lang.Object)((net.minecraft.world.level.block.state.pattern.BlockInWorld)cache.getUnchecked((java.lang.Object)net.minecraft.world.level.block.state.pattern.BlockPattern.translateAndRotate((net.minecraft.core.BlockPos)pos, (net.minecraft.core.Direction)finger, (net.minecraft.core.Direction)thumb, (int)i, (int)j, (int)k))))) continue;
++    public net.minecraft.world.level.block.state.pattern.BlockPattern$BlockPatternMatch matches(net.minecraft.core.BlockPos $$0, net.minecraft.core.Direction $$1, net.minecraft.core.Direction $$2, com.google.common.cache.LoadingCache<net.minecraft.core.BlockPos, net.minecraft.world.level.block.state.pattern.BlockInWorld> $$3) {
++        for (int $$4 = 0; $$4 < this.width; ++$$4) {
++            for (int $$5 = 0; $$5 < this.height; ++$$5) {
++                for (int $$6 = 0; $$6 < this.depth; ++$$6) {
++                    if (this.pattern[$$6][$$5][$$4].test((java.lang.Object)((net.minecraft.world.level.block.state.pattern.BlockInWorld)$$3.getUnchecked((java.lang.Object)net.minecraft.world.level.block.state.pattern.BlockPattern.translateAndRotate((net.minecraft.core.BlockPos)$$0, (net.minecraft.core.Direction)$$1, (net.minecraft.core.Direction)$$2, (int)$$4, (int)$$5, (int)$$6))))) continue;
+                     return null;
+                 }
+             }
+         }
+-        return new net.minecraft.world.level.block.state.pattern.BlockPattern$BlockPatternMatch(pos, finger, thumb, cache, this.width, this.height, this.depth);
++        return new net.minecraft.world.level.block.state.pattern.BlockPattern$BlockPatternMatch($$0, $$1, $$2, $$3, this.width, this.height, this.depth);
+     }
+ 
+     @javax.annotation.Nullable
+-    public net.minecraft.world.level.block.state.pattern.BlockPattern$BlockPatternMatch find(net.minecraft.world.level.LevelReader level, net.minecraft.core.BlockPos pos) {
+-        com.google.common.cache.LoadingCache loadingCache = net.minecraft.world.level.block.state.pattern.BlockPattern.createLevelCache((net.minecraft.world.level.LevelReader)level, (boolean)false);
+-        int n = java.lang.Math.max((int)java.lang.Math.max((int)this.width, (int)this.height), (int)this.depth);
+-        for (net.minecraft.core.BlockPos blockPos : net.minecraft.core.BlockPos.betweenClosed((net.minecraft.core.BlockPos)pos, (net.minecraft.core.BlockPos)pos.offset(n - 1, n - 1, n - 1))) {
+-            for (net.minecraft.core.Direction direction : net.minecraft.core.Direction.values()) {
+-                for (net.minecraft.core.Direction direction2 : net.minecraft.core.Direction.values()) {
+-                    net.minecraft.world.level.block.state.pattern.BlockPattern$BlockPatternMatch blockPatternMatch;
+-                    if (direction2 == direction || direction2 == direction.getOpposite() || (blockPatternMatch = this.matches(blockPos, direction, direction2, loadingCache)) == null) continue;
+-                    return blockPatternMatch;
++    public net.minecraft.world.level.block.state.pattern.BlockPattern$BlockPatternMatch find(net.minecraft.world.level.LevelReader $$0, net.minecraft.core.BlockPos $$1) {
++        com.google.common.cache.LoadingCache $$2 = net.minecraft.world.level.block.state.pattern.BlockPattern.createLevelCache((net.minecraft.world.level.LevelReader)$$0, (boolean)false);
++        int $$3 = java.lang.Math.max((int)java.lang.Math.max((int)this.width, (int)this.height), (int)this.depth);
++        for (net.minecraft.core.BlockPos $$4 : net.minecraft.core.BlockPos.betweenClosed((net.minecraft.core.BlockPos)$$1, (net.minecraft.core.BlockPos)$$1.offset($$3 - 1, $$3 - 1, $$3 - 1))) {
++            for (net.minecraft.core.Direction $$5 : net.minecraft.core.Direction.values()) {
++                for (net.minecraft.core.Direction $$6 : net.minecraft.core.Direction.values()) {
++                    net.minecraft.world.level.block.state.pattern.BlockPattern$BlockPatternMatch $$7;
++                    if ($$6 == $$5 || $$6 == $$5.getOpposite() || ($$7 = this.matches($$4, $$5, $$6, $$2)) == null) continue;
++                    return $$7;
+                 }
+             }
+         }
+         return null;
+     }
+ 
+-    public static com.google.common.cache.LoadingCache<net.minecraft.core.BlockPos, net.minecraft.world.level.block.state.pattern.BlockInWorld> createLevelCache(net.minecraft.world.level.LevelReader level, boolean forceLoad) {
+-        return com.google.common.cache.CacheBuilder.newBuilder().build((com.google.common.cache.CacheLoader)new net.minecraft.world.level.block.state.pattern.BlockPattern$BlockCacheLoader(level, forceLoad));
++    public static com.google.common.cache.LoadingCache<net.minecraft.core.BlockPos, net.minecraft.world.level.block.state.pattern.BlockInWorld> createLevelCache(net.minecraft.world.level.LevelReader $$0, boolean $$1) {
++        return com.google.common.cache.CacheBuilder.newBuilder().build((com.google.common.cache.CacheLoader)new net.minecraft.world.level.block.state.pattern.BlockPattern$BlockCacheLoader($$0, $$1));
+     }
+ 
+-    public static net.minecraft.core.BlockPos translateAndRotate(net.minecraft.core.BlockPos pos, net.minecraft.core.Direction finger, net.minecraft.core.Direction thumb, int palmOffset, int thumbOffset, int fingerOffset) {
+-        if (finger == thumb || finger == thumb.getOpposite()) {
++    public static net.minecraft.core.BlockPos translateAndRotate(net.minecraft.core.BlockPos $$0, net.minecraft.core.Direction $$1, net.minecraft.core.Direction $$2, int $$3, int $$4, int $$5) {
++        if ($$1 == $$2 || $$1 == $$2.getOpposite()) {
+             throw new java.lang.IllegalArgumentException("Invalid forwards & up combination");
+         }
+-        net.minecraft.core.Vec3i vec3i = new net.minecraft.core.Vec3i(finger.getStepX(), finger.getStepY(), finger.getStepZ());
+-        net.minecraft.core.Vec3i vec3i2 = new net.minecraft.core.Vec3i(thumb.getStepX(), thumb.getStepY(), thumb.getStepZ());
+-        net.minecraft.core.Vec3i vec3i3 = vec3i.cross(vec3i2);
+-        return pos.offset(vec3i2.getX() * -thumbOffset + vec3i3.getX() * palmOffset + vec3i.getX() * fingerOffset, vec3i2.getY() * -thumbOffset + vec3i3.getY() * palmOffset + vec3i.getY() * fingerOffset, vec3i2.getZ() * -thumbOffset + vec3i3.getZ() * palmOffset + vec3i.getZ() * fingerOffset);
++        net.minecraft.core.Vec3i $$6 = new net.minecraft.core.Vec3i($$1.getStepX(), $$1.getStepY(), $$1.getStepZ());
++        net.minecraft.core.Vec3i $$7 = new net.minecraft.core.Vec3i($$2.getStepX(), $$2.getStepY(), $$2.getStepZ());
++        net.minecraft.core.Vec3i $$8 = $$6.cross($$7);
++        return $$0.offset($$7.getX() * -$$4 + $$8.getX() * $$3 + $$6.getX() * $$5, $$7.getY() * -$$4 + $$8.getY() * $$3 + $$6.getY() * $$5, $$7.getZ() * -$$4 + $$8.getZ() * $$3 + $$6.getZ() * $$5);
+     }
+ }
+ 

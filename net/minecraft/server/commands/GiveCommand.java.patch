@@ -1,0 +1,73 @@
+--- net/minecraft/server/commands/GiveCommand.java
++++ net/minecraft/server/commands/GiveCommand.java
+@@ -14,43 +14,42 @@
+         $$02.register((com.mojang.brigadier.builder.LiteralArgumentBuilder)((com.mojang.brigadier.builder.LiteralArgumentBuilder)net.minecraft.commands.Commands.literal((java.lang.String)"give").requires($$0 -> $$0.hasPermission(2))).then(net.minecraft.commands.Commands.argument((java.lang.String)"targets", (com.mojang.brigadier.arguments.ArgumentType)net.minecraft.commands.arguments.EntityArgument.players()).then(((com.mojang.brigadier.builder.RequiredArgumentBuilder)net.minecraft.commands.Commands.argument((java.lang.String)"item", (com.mojang.brigadier.arguments.ArgumentType)net.minecraft.commands.arguments.item.ItemArgument.item((net.minecraft.commands.CommandBuildContext)$$1)).executes($$0 -> net.minecraft.server.commands.GiveCommand.giveItem((net.minecraft.commands.CommandSourceStack)((net.minecraft.commands.CommandSourceStack)$$0.getSource()), (net.minecraft.commands.arguments.item.ItemInput)net.minecraft.commands.arguments.item.ItemArgument.getItem((com.mojang.brigadier.context.CommandContext)$$0, (java.lang.String)"item"), (java.util.Collection)net.minecraft.commands.arguments.EntityArgument.getPlayers((com.mojang.brigadier.context.CommandContext)$$0, (java.lang.String)"targets"), (int)1))).then(net.minecraft.commands.Commands.argument((java.lang.String)"count", (com.mojang.brigadier.arguments.ArgumentType)com.mojang.brigadier.arguments.IntegerArgumentType.integer((int)1)).executes($$0 -> net.minecraft.server.commands.GiveCommand.giveItem((net.minecraft.commands.CommandSourceStack)((net.minecraft.commands.CommandSourceStack)$$0.getSource()), (net.minecraft.commands.arguments.item.ItemInput)net.minecraft.commands.arguments.item.ItemArgument.getItem((com.mojang.brigadier.context.CommandContext)$$0, (java.lang.String)"item"), (java.util.Collection)net.minecraft.commands.arguments.EntityArgument.getPlayers((com.mojang.brigadier.context.CommandContext)$$0, (java.lang.String)"targets"), (int)com.mojang.brigadier.arguments.IntegerArgumentType.getInteger((com.mojang.brigadier.context.CommandContext)$$0, (java.lang.String)"count")))))));
+     }
+ 
+-    public static int giveItem(net.minecraft.commands.CommandSourceStack source, net.minecraft.commands.arguments.item.ItemInput item, java.util.Collection<net.minecraft.server.level.ServerPlayer> targets, int count) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
+-        int n = item.getItem().getMaxStackSize();
+-        int n2 = n * 100;
+-        if (count > n2) {
+-            source.sendFailure((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"commands.give.failed.toomanyitems", (java.lang.Object[])new java.lang.Object[]{n2, item.createItemStack(count, false).getDisplayName()}));
++    public static int giveItem(net.minecraft.commands.CommandSourceStack $$0, net.minecraft.commands.arguments.item.ItemInput $$1, java.util.Collection<net.minecraft.server.level.ServerPlayer> $$2, int $$3) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
++        int $$4 = $$1.getItem().getMaxStackSize();
++        int $$5 = $$4 * 100;
++        if ($$3 > $$5) {
++            $$0.sendFailure((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"commands.give.failed.toomanyitems", (java.lang.Object[])new java.lang.Object[]{$$5, $$1.createItemStack($$3, false).getDisplayName()}));
+             return 0;
+         }
+-        for (net.minecraft.server.level.ServerPlayer serverPlayer : targets) {
+-            int n3 = count;
+-            while (n3 > 0) {
+-                net.minecraft.world.entity.item.ItemEntity itemEntity;
+-                int n4 = java.lang.Math.min((int)n, (int)n3);
+-                n3 -= n4;
+-                net.minecraft.world.item.ItemStack itemStack = item.createItemStack(n4, false);
+-                boolean bl = serverPlayer.getInventory().add(itemStack);
+-                if (!bl || !itemStack.isEmpty()) {
+-                    itemEntity = serverPlayer.drop(itemStack, false);
+-                    if (itemEntity == null) continue;
+-                    itemEntity.setNoPickUpDelay();
+-                    itemEntity.setOwner(serverPlayer.getUUID());
++        for (net.minecraft.server.level.ServerPlayer $$6 : $$2) {
++            int $$7 = $$3;
++            while ($$7 > 0) {
++                int $$8 = java.lang.Math.min((int)$$4, (int)$$7);
++                $$7 -= $$8;
++                net.minecraft.world.item.ItemStack $$9 = $$1.createItemStack($$8, false);
++                boolean $$10 = $$6.getInventory().add($$9);
++                if (!$$10 || !$$9.isEmpty()) {
++                    net.minecraft.world.entity.item.ItemEntity $$11 = $$6.drop($$9, false);
++                    if ($$11 == null) continue;
++                    $$11.setNoPickUpDelay();
++                    $$11.setOwner($$6.getUUID());
+                     continue;
+                 }
+-                itemStack.setCount(1);
+-                itemEntity = serverPlayer.drop(itemStack, false);
+-                if (itemEntity != null) {
+-                    itemEntity.makeFakeItem();
++                $$9.setCount(1);
++                net.minecraft.world.entity.item.ItemEntity $$12 = $$6.drop($$9, false);
++                if ($$12 != null) {
++                    $$12.makeFakeItem();
+                 }
+-                serverPlayer.level.playSound(null, serverPlayer.getX(), serverPlayer.getY(), serverPlayer.getZ(), net.minecraft.sounds.SoundEvents.ITEM_PICKUP, net.minecraft.sounds.SoundSource.PLAYERS, 0.2f, ((serverPlayer.getRandom().nextFloat() - serverPlayer.getRandom().nextFloat()) * 0.7f + 1.0f) * 2.0f);
+-                serverPlayer.containerMenu.broadcastChanges();
++                $$6.level.playSound(null, $$6.getX(), $$6.getY(), $$6.getZ(), net.minecraft.sounds.SoundEvents.ITEM_PICKUP, net.minecraft.sounds.SoundSource.PLAYERS, 0.2f, (($$6.getRandom().nextFloat() - $$6.getRandom().nextFloat()) * 0.7f + 1.0f) * 2.0f);
++                $$6.containerMenu.broadcastChanges();
+             }
+         }
+-        if (targets.size() == 1) {
+-            source.sendSuccess((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"commands.give.success.single", (java.lang.Object[])new java.lang.Object[]{count, item.createItemStack(count, false).getDisplayName(), ((net.minecraft.server.level.ServerPlayer)targets.iterator().next()).getDisplayName()}), true);
++        if ($$2.size() == 1) {
++            $$0.sendSuccess((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"commands.give.success.single", (java.lang.Object[])new java.lang.Object[]{$$3, $$1.createItemStack($$3, false).getDisplayName(), ((net.minecraft.server.level.ServerPlayer)$$2.iterator().next()).getDisplayName()}), true);
+         } else {
+-            source.sendSuccess((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"commands.give.success.single", (java.lang.Object[])new java.lang.Object[]{count, item.createItemStack(count, false).getDisplayName(), targets.size()}), true);
++            $$0.sendSuccess((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"commands.give.success.single", (java.lang.Object[])new java.lang.Object[]{$$3, $$1.createItemStack($$3, false).getDisplayName(), $$2.size()}), true);
+         }
+-        return targets.size();
++        return $$2.size();
+     }
+ }
+ 

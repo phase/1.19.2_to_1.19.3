@@ -1,0 +1,89 @@
+--- net/minecraft/world/level/storage/LevelStorageSource$LevelStorageAccess.java
++++ net/minecraft/world/level/storage/LevelStorageSource$LevelStorageAccess.java
+@@ -24,8 +24,8 @@
+         return this.levelId;
+     }
+ 
+-    public java.nio.file.Path getLevelPath(net.minecraft.world.level.storage.LevelResource folderName) {
+-        return (java.nio.file.Path)this.resources.computeIfAbsent((java.lang.Object)folderName, arg_0 -> ((net.minecraft.world.level.storage.LevelStorageSource$LevelDirectory)this.levelDirectory).resourcePath(arg_0));
++    public java.nio.file.Path getLevelPath(net.minecraft.world.level.storage.LevelResource $$0) {
++        return (java.nio.file.Path)this.resources.computeIfAbsent((java.lang.Object)$$0, arg_0 -> ((net.minecraft.world.level.storage.LevelStorageSource$LevelDirectory)this.levelDirectory).resourcePath(arg_0));
+     }
+ 
+     public java.nio.file.Path getDimensionPath(net.minecraft.resources.ResourceKey<net.minecraft.world.level.Level> $$0) {
+@@ -50,35 +50,35 @@
+     }
+ 
+     @javax.annotation.Nullable
+-    public net.minecraft.world.level.storage.WorldData getDataTag(com.mojang.serialization.DynamicOps<net.minecraft.nbt.Tag> $$0, net.minecraft.world.level.DataPackConfig $$1, com.mojang.serialization.Lifecycle $$2) {
++    public com.mojang.datafixers.util.Pair<net.minecraft.world.level.storage.WorldData, net.minecraft.world.level.levelgen.WorldDimensions$Complete> getDataTag(com.mojang.serialization.DynamicOps<net.minecraft.nbt.Tag> $$0, net.minecraft.world.level.WorldDataConfiguration $$1, net.minecraft.core.Registry<net.minecraft.world.level.dimension.LevelStem> $$2, com.mojang.serialization.Lifecycle $$3) {
+         this.checkLock();
+-        return (net.minecraft.world.level.storage.WorldData)this.this$0.readLevelData(this.levelDirectory, net.minecraft.world.level.storage.LevelStorageSource.getLevelData($$0, (net.minecraft.world.level.DataPackConfig)$$1, (com.mojang.serialization.Lifecycle)$$2));
++        return (com.mojang.datafixers.util.Pair)this.this$0.readLevelData(this.levelDirectory, net.minecraft.world.level.storage.LevelStorageSource.getLevelData($$0, (net.minecraft.world.level.WorldDataConfiguration)$$1, $$2, (com.mojang.serialization.Lifecycle)$$3));
+     }
+ 
+     @javax.annotation.Nullable
+-    public net.minecraft.world.level.DataPackConfig getDataPacks() {
++    public net.minecraft.world.level.WorldDataConfiguration getDataConfiguration() {
+         this.checkLock();
+-        return (net.minecraft.world.level.DataPackConfig)this.this$0.readLevelData(this.levelDirectory, net.minecraft.world.level.storage.LevelStorageSource::getDataPacks);
++        return (net.minecraft.world.level.WorldDataConfiguration)this.this$0.readLevelData(this.levelDirectory, net.minecraft.world.level.storage.LevelStorageSource::getDataConfiguration);
+     }
+ 
+-    public void saveDataTag(net.minecraft.core.RegistryAccess registries, net.minecraft.world.level.storage.WorldData serverConfiguration) {
+-        this.saveDataTag(registries, serverConfiguration, null);
++    public void saveDataTag(net.minecraft.core.RegistryAccess $$0, net.minecraft.world.level.storage.WorldData $$1) {
++        this.saveDataTag($$0, $$1, null);
+     }
+ 
+-    public void saveDataTag(net.minecraft.core.RegistryAccess registries, net.minecraft.world.level.storage.WorldData serverConfiguration, @javax.annotation.Nullable net.minecraft.nbt.CompoundTag hostPlayerNBT) {
+-        java.io.File file = this.levelDirectory.path().toFile();
+-        net.minecraft.nbt.CompoundTag compoundTag = serverConfiguration.createTag(registries, hostPlayerNBT);
+-        net.minecraft.nbt.CompoundTag compoundTag2 = new net.minecraft.nbt.CompoundTag();
+-        compoundTag2.put("Data", (net.minecraft.nbt.Tag)compoundTag);
++    public void saveDataTag(net.minecraft.core.RegistryAccess $$0, net.minecraft.world.level.storage.WorldData $$1, @javax.annotation.Nullable net.minecraft.nbt.CompoundTag $$2) {
++        java.io.File $$3 = this.levelDirectory.path().toFile();
++        net.minecraft.nbt.CompoundTag $$4 = $$1.createTag($$0, $$2);
++        net.minecraft.nbt.CompoundTag $$5 = new net.minecraft.nbt.CompoundTag();
++        $$5.put("Data", (net.minecraft.nbt.Tag)$$4);
+         try {
+-            java.io.File file2 = java.io.File.createTempFile((java.lang.String)"level", (java.lang.String)".dat", (java.io.File)file);
+-            net.minecraft.nbt.NbtIo.writeCompressed((net.minecraft.nbt.CompoundTag)compoundTag2, (java.io.File)file2);
+-            java.io.File file3 = this.levelDirectory.oldDataFile().toFile();
+-            java.io.File file4 = this.levelDirectory.dataFile().toFile();
+-            net.minecraft.Util.safeReplaceFile((java.io.File)file4, (java.io.File)file2, (java.io.File)file3);
++            java.io.File $$6 = java.io.File.createTempFile((java.lang.String)"level", (java.lang.String)".dat", (java.io.File)$$3);
++            net.minecraft.nbt.NbtIo.writeCompressed((net.minecraft.nbt.CompoundTag)$$5, (java.io.File)$$6);
++            java.io.File $$7 = this.levelDirectory.oldDataFile().toFile();
++            java.io.File $$8 = this.levelDirectory.dataFile().toFile();
++            net.minecraft.Util.safeReplaceFile((java.io.File)$$8, (java.io.File)$$6, (java.io.File)$$7);
+         }
+-        catch (java.lang.Exception exception) {
+-            net.minecraft.world.level.storage.LevelStorageSource.LOGGER.error("Failed to save level {}", (java.lang.Object)file, (java.lang.Object)((java.lang.Object)exception));
++        catch (java.lang.Exception $$9) {
++            net.minecraft.world.level.storage.LevelStorageSource.LOGGER.error("Failed to save level {}", (java.lang.Object)$$3, (java.lang.Object)((java.lang.Object)$$9));
+         }
+     }
+ 
+@@ -113,14 +113,14 @@
+         }
+     }
+ 
+-    public void renameLevel(java.lang.String saveName) throws java.io.IOException {
++    public void renameLevel(java.lang.String $$0) throws java.io.IOException {
+         this.checkLock();
+-        java.nio.file.Path path = this.levelDirectory.dataFile();
+-        if (java.nio.file.Files.exists((java.nio.file.Path)path, (java.nio.file.LinkOption[])new java.nio.file.LinkOption[0])) {
+-            net.minecraft.nbt.CompoundTag compoundTag = net.minecraft.nbt.NbtIo.readCompressed((java.io.File)path.toFile());
+-            net.minecraft.nbt.CompoundTag compoundTag2 = compoundTag.getCompound("Data");
+-            compoundTag2.putString("LevelName", saveName);
+-            net.minecraft.nbt.NbtIo.writeCompressed((net.minecraft.nbt.CompoundTag)compoundTag, (java.io.File)path.toFile());
++        java.nio.file.Path $$1 = this.levelDirectory.dataFile();
++        if (java.nio.file.Files.exists((java.nio.file.Path)$$1, (java.nio.file.LinkOption[])new java.nio.file.LinkOption[0])) {
++            net.minecraft.nbt.CompoundTag $$2 = net.minecraft.nbt.NbtIo.readCompressed((java.io.File)$$1.toFile());
++            net.minecraft.nbt.CompoundTag $$3 = $$2.getCompound("Data");
++            $$3.putString("LevelName", $$0);
++            net.minecraft.nbt.NbtIo.writeCompressed((net.minecraft.nbt.CompoundTag)$$2, (java.io.File)$$1.toFile());
+         }
+     }
+ 

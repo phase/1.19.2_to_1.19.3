@@ -1,0 +1,53 @@
+--- net/minecraft/network/chat/LastSeenMessages.java
++++ net/minecraft/network/chat/LastSeenMessages.java
+@@ -6,31 +6,23 @@
+ public class net.minecraft.network.chat.LastSeenMessages
+ extends java.lang.Record
+  {
+-    public java.util.List<net.minecraft.network.chat.LastSeenMessages$Entry> entries;
++    public java.util.List<net.minecraft.network.chat.MessageSignature> entries;
+     public static net.minecraft.network.chat.LastSeenMessages EMPTY;
+-    public static int LAST_SEEN_MESSAGES_MAX_LENGTH = 5;
++    public static int LAST_SEEN_MESSAGES_MAX_LENGTH = 20;
+ 
+-    public net.minecraft.network.chat.LastSeenMessages(net.minecraft.network.FriendlyByteBuf $$0) {
+-        this((java.util.List)$$0.readCollection(net.minecraft.network.FriendlyByteBuf.limitValue(java.util.ArrayList::new, (int)5), net.minecraft.network.chat.LastSeenMessages$Entry::new));
+-    }
+-
+-    public net.minecraft.network.chat.LastSeenMessages(java.util.List<net.minecraft.network.chat.LastSeenMessages$Entry> $$0) {
++    public net.minecraft.network.chat.LastSeenMessages(java.util.List<net.minecraft.network.chat.MessageSignature> $$0) {
+         this.entries = $$0;
+     }
+ 
+-    public void write(net.minecraft.network.FriendlyByteBuf $$02) {
+-        $$02.writeCollection((java.util.Collection)this.entries, ($$0, $$1) -> $$1.write($$0));
++    public void updateSignature(net.minecraft.util.SignatureUpdater$Output $$0) throws java.security.SignatureException {
++        $$0.update(com.google.common.primitives.Ints.toByteArray((int)this.entries.size()));
++        for (net.minecraft.network.chat.MessageSignature $$1 : this.entries) {
++            $$0.update($$1.bytes());
++        }
+     }
+ 
+-    public void updateHash(java.io.DataOutput $$0) throws java.io.IOException {
+-        for (net.minecraft.network.chat.LastSeenMessages$Entry $$1 : this.entries) {
+-            java.util.UUID $$2 = $$1.profileId();
+-            net.minecraft.network.chat.MessageSignature $$3 = $$1.lastSignature();
+-            $$0.writeByte(70);
+-            $$0.writeLong($$2.getMostSignificantBits());
+-            $$0.writeLong($$2.getLeastSignificantBits());
+-            $$0.write($$3.bytes());
+-        }
++    public net.minecraft.network.chat.LastSeenMessages$Packed pack(net.minecraft.network.chat.MessageSignature$Packer $$0) {
++        return new net.minecraft.network.chat.LastSeenMessages$Packed(this.entries.stream().map($$1 -> $$1.pack($$0)).toList());
+     }
+ 
+     public java.lang.String toString() {
+@@ -45,7 +37,7 @@
+         return (boolean)java.lang.runtime.ObjectMethods.bootstrap("equals", new java.lang.invoke.MethodHandle[]{net.minecraft.network.chat.LastSeenMessages.class, "entries", "entries"}, this, $$0);
+     }
+ 
+-    public java.util.List<net.minecraft.network.chat.LastSeenMessages$Entry> entries() {
++    public java.util.List<net.minecraft.network.chat.MessageSignature> entries() {
+         return this.entries;
+     }
+ 

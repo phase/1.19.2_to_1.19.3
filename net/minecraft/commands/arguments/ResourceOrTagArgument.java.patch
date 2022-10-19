@@ -1,0 +1,87 @@
+--- net/minecraft/commands/arguments/ResourceOrTagArgument.java
++++ net/minecraft/commands/arguments/ResourceOrTagArgument.java
+@@ -1,0 +1,84 @@
++/*
++ * Decompiled with CFR 0.151.
++ */
++package net.minecraft.commands.arguments;
++
++public class net.minecraft.commands.arguments.ResourceOrTagArgument<T>
++implements com.mojang.brigadier.arguments.ArgumentType<net.minecraft.commands.arguments.ResourceOrTagArgument$Result<T>>
++ {
++    public static java.util.Collection<java.lang.String> EXAMPLES;
++    public static com.mojang.brigadier.exceptions.Dynamic2CommandExceptionType ERROR_UNKNOWN_TAG;
++    public static com.mojang.brigadier.exceptions.Dynamic3CommandExceptionType ERROR_INVALID_TAG_TYPE;
++    public net.minecraft.core.HolderLookup<T> registryLookup;
++    public net.minecraft.resources.ResourceKey<? extends net.minecraft.core.Registry<T>> registryKey;
++
++    public net.minecraft.commands.arguments.ResourceOrTagArgument(net.minecraft.commands.CommandBuildContext $$0, net.minecraft.resources.ResourceKey<? extends net.minecraft.core.Registry<T>> $$1) {
++        this.registryKey = $$1;
++        this.registryLookup = $$0.holderLookup($$1);
++    }
++
++    public static <T> net.minecraft.commands.arguments.ResourceOrTagArgument<T> resourceOrTag(net.minecraft.commands.CommandBuildContext $$0, net.minecraft.resources.ResourceKey<? extends net.minecraft.core.Registry<T>> $$1) {
++        return new net.minecraft.commands.arguments.ResourceOrTagArgument($$0, $$1);
++    }
++
++    public static <T> net.minecraft.commands.arguments.ResourceOrTagArgument$Result<T> getResourceOrTag(com.mojang.brigadier.context.CommandContext<net.minecraft.commands.CommandSourceStack> $$0, java.lang.String $$1, net.minecraft.resources.ResourceKey<net.minecraft.core.Registry<T>> $$2) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
++        net.minecraft.commands.arguments.ResourceOrTagArgument$Result $$3 = (net.minecraft.commands.arguments.ResourceOrTagArgument$Result)$$0.getArgument($$1, net.minecraft.commands.arguments.ResourceOrTagArgument$Result.class);
++        java.util.Optional $$4 = $$3.cast($$2);
++        return (net.minecraft.commands.arguments.ResourceOrTagArgument$Result)$$4.orElseThrow(() -> (com.mojang.brigadier.exceptions.CommandSyntaxException)$$3.unwrap().map($$1 -> {
++            net.minecraft.resources.ResourceKey $$2 = $$1.key();
++            return net.minecraft.commands.arguments.ResourceArgument.ERROR_INVALID_RESOURCE_TYPE.create((java.lang.Object)$$2.location(), (java.lang.Object)$$2.registry(), (java.lang.Object)$$2.location());
++        }, $$1 -> {
++            net.minecraft.tags.TagKey $$2 = $$1.key();
++            return ERROR_INVALID_TAG_TYPE.create((java.lang.Object)$$2.location(), (java.lang.Object)$$2.registry(), (java.lang.Object)$$2.location());
++        }));
++    }
++
++    public net.minecraft.commands.arguments.ResourceOrTagArgument$Result<T> parse(com.mojang.brigadier.StringReader $$0) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
++        if ($$0.canRead() && $$0.peek() == '#') {
++            int $$1 = $$0.getCursor();
++            try {
++                $$0.skip();
++                net.minecraft.resources.ResourceLocation $$2 = net.minecraft.resources.ResourceLocation.read((com.mojang.brigadier.StringReader)$$0);
++                net.minecraft.tags.TagKey $$3 = net.minecraft.tags.TagKey.create((net.minecraft.resources.ResourceKey)this.registryKey, (net.minecraft.resources.ResourceLocation)$$2);
++                net.minecraft.core.HolderSet$Named $$4 = (net.minecraft.core.HolderSet$Named)this.registryLookup.get($$3).orElseThrow(() -> ERROR_UNKNOWN_TAG.create((java.lang.Object)$$2, (java.lang.Object)this.registryKey.location()));
++                return new net.minecraft.commands.arguments.ResourceOrTagArgument$TagResult($$4);
++            }
++            catch (com.mojang.brigadier.exceptions.CommandSyntaxException $$5) {
++                $$0.setCursor($$1);
++                throw $$5;
++            }
++        }
++        net.minecraft.resources.ResourceLocation $$6 = net.minecraft.resources.ResourceLocation.read((com.mojang.brigadier.StringReader)$$0);
++        net.minecraft.resources.ResourceKey $$7 = net.minecraft.resources.ResourceKey.create((net.minecraft.resources.ResourceKey)this.registryKey, (net.minecraft.resources.ResourceLocation)$$6);
++        net.minecraft.core.Holder$Reference $$8 = (net.minecraft.core.Holder$Reference)this.registryLookup.get($$7).orElseThrow(() -> net.minecraft.commands.arguments.ResourceArgument.ERROR_UNKNOWN_RESOURCE.create((java.lang.Object)$$6, (java.lang.Object)this.registryKey.location()));
++        return new net.minecraft.commands.arguments.ResourceOrTagArgument$ResourceResult($$8);
++    }
++
++    public <S> java.util.concurrent.CompletableFuture<com.mojang.brigadier.suggestion.Suggestions> listSuggestions(com.mojang.brigadier.context.CommandContext<S> $$0, com.mojang.brigadier.suggestion.SuggestionsBuilder $$1) {
++        net.minecraft.commands.SharedSuggestionProvider.suggestResource((java.util.stream.Stream)this.registryLookup.listTags().map(net.minecraft.tags.TagKey::location), (com.mojang.brigadier.suggestion.SuggestionsBuilder)$$1, (java.lang.String)"#");
++        return net.minecraft.commands.SharedSuggestionProvider.suggestResource((java.util.stream.Stream)this.registryLookup.listElements().map(net.minecraft.resources.ResourceKey::location), (com.mojang.brigadier.suggestion.SuggestionsBuilder)$$1);
++    }
++
++    public java.util.Collection<java.lang.String> getExamples() {
++        return EXAMPLES;
++    }
++
++    public /* synthetic */ java.lang.Object parse(com.mojang.brigadier.StringReader stringReader) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
++        return this.parse(stringReader);
++    }
++
++    public static /* synthetic */ com.mojang.brigadier.Message lambda$static$1(java.lang.Object $$0, java.lang.Object $$1, java.lang.Object $$2) {
++        return net.minecraft.network.chat.Component.translatable((java.lang.String)"argument.resource_tag.invalid_type", (java.lang.Object[])new java.lang.Object[]{$$0, $$1, $$2});
++    }
++
++    public static /* synthetic */ com.mojang.brigadier.Message lambda$static$0(java.lang.Object $$0, java.lang.Object $$1) {
++        return net.minecraft.network.chat.Component.translatable((java.lang.String)"argument.resource_tag.not_found", (java.lang.Object[])new java.lang.Object[]{$$0, $$1});
++    }
++
++    static {
++        EXAMPLES = java.util.Arrays.asList((java.lang.Object[])new java.lang.String[]{"foo", "foo:bar", "012", "#skeletons", "#minecraft:skeletons"});
++        ERROR_UNKNOWN_TAG = new com.mojang.brigadier.exceptions.Dynamic2CommandExceptionType(($$0, $$1) -> net.minecraft.network.chat.Component.translatable((java.lang.String)"argument.resource_tag.not_found", (java.lang.Object[])new java.lang.Object[]{$$0, $$1}));
++        ERROR_INVALID_TAG_TYPE = new com.mojang.brigadier.exceptions.Dynamic3CommandExceptionType(($$0, $$1, $$2) -> net.minecraft.network.chat.Component.translatable((java.lang.String)"argument.resource_tag.invalid_type", (java.lang.Object[])new java.lang.Object[]{$$0, $$1, $$2}));
++    }
++}
++

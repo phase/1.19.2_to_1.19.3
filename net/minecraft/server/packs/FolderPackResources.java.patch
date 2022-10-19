@@ -1,0 +1,113 @@
+--- net/minecraft/server/packs/FolderPackResources.java
++++ net/minecraft/server/packs/FolderPackResources.java
+@@ -1,110 +1,0 @@
+-/*
+- * Decompiled with CFR 0.151.
+- */
+-package net.minecraft.server.packs;
+-
+-public class net.minecraft.server.packs.FolderPackResources
+-extends net.minecraft.server.packs.AbstractPackResources
+- {
+-    public static org.slf4j.Logger LOGGER;
+-    public static boolean ON_WINDOWS;
+-    public static com.google.common.base.CharMatcher BACKSLASH_MATCHER;
+-
+-    public net.minecraft.server.packs.FolderPackResources(java.io.File $$0) {
+-        super($$0);
+-    }
+-
+-    public static boolean validatePath(java.io.File file, java.lang.String path) throws java.io.IOException {
+-        java.lang.String string = file.getCanonicalPath();
+-        if (ON_WINDOWS) {
+-            string = BACKSLASH_MATCHER.replaceFrom((java.lang.CharSequence)string, '/');
+-        }
+-        return string.endsWith(path);
+-    }
+-
+-    public java.io.InputStream getResource(java.lang.String resourcePath) throws java.io.IOException {
+-        java.io.File file = this.getFile(resourcePath);
+-        if (file == null) {
+-            throw new net.minecraft.server.packs.ResourcePackFileNotFoundException(this.file, resourcePath);
+-        }
+-        return new java.io.FileInputStream(file);
+-    }
+-
+-    public boolean hasResource(java.lang.String resourcePath) {
+-        return this.getFile(resourcePath) != null;
+-    }
+-
+-    @javax.annotation.Nullable
+-    public java.io.File getFile(java.lang.String $$0) {
+-        try {
+-            java.io.File $$1 = new java.io.File(this.file, $$0);
+-            if ($$1.isFile() && net.minecraft.server.packs.FolderPackResources.validatePath((java.io.File)$$1, (java.lang.String)$$0)) {
+-                return $$1;
+-            }
+-        }
+-        catch (java.io.IOException iOException) {
+-            // empty catch block
+-        }
+-        return null;
+-    }
+-
+-    public java.util.Set<java.lang.String> getNamespaces(net.minecraft.server.packs.PackType type) {
+-        java.util.HashSet hashSet = com.google.common.collect.Sets.newHashSet();
+-        java.io.File file = new java.io.File(this.file, type.getDirectory());
+-        java.io.File[] fileArray = file.listFiles((java.io.FileFilter)org.apache.commons.io.filefilter.DirectoryFileFilter.DIRECTORY);
+-        if (fileArray != null) {
+-            for (java.io.File file2 : fileArray) {
+-                java.lang.String string = net.minecraft.server.packs.FolderPackResources.getRelativePath((java.io.File)file, (java.io.File)file2);
+-                if (string.equals((java.lang.Object)string.toLowerCase(java.util.Locale.ROOT))) {
+-                    hashSet.add((java.lang.Object)string.substring(0, string.length() - 1));
+-                    continue;
+-                }
+-                this.logWarning(string);
+-            }
+-        }
+-        return hashSet;
+-    }
+-
+-    public void close() {
+-    }
+-
+-    public java.util.Collection<net.minecraft.resources.ResourceLocation> getResources(net.minecraft.server.packs.PackType $$0, java.lang.String $$1, java.lang.String $$2, java.util.function.Predicate<net.minecraft.resources.ResourceLocation> $$3) {
+-        java.io.File $$4 = new java.io.File(this.file, $$0.getDirectory());
+-        java.util.ArrayList $$5 = com.google.common.collect.Lists.newArrayList();
+-        this.listResources(new java.io.File(new java.io.File($$4, $$1), $$2), $$1, (java.util.List)$$5, $$2 + "/", $$3);
+-        return $$5;
+-    }
+-
+-    public void listResources(java.io.File $$0, java.lang.String $$1, java.util.List<net.minecraft.resources.ResourceLocation> $$2, java.lang.String $$3, java.util.function.Predicate<net.minecraft.resources.ResourceLocation> $$4) {
+-        java.io.File[] $$5 = $$0.listFiles();
+-        if ($$5 != null) {
+-            for (java.io.File $$6 : $$5) {
+-                if ($$6.isDirectory()) {
+-                    this.listResources($$6, $$1, $$2, $$3 + $$6.getName() + "/", $$4);
+-                    continue;
+-                }
+-                if ($$6.getName().endsWith(".mcmeta")) continue;
+-                try {
+-                    java.lang.String $$7 = $$3 + $$6.getName();
+-                    net.minecraft.resources.ResourceLocation $$8 = net.minecraft.resources.ResourceLocation.tryBuild((java.lang.String)$$1, (java.lang.String)$$7);
+-                    if ($$8 == null) {
+-                        LOGGER.warn("Invalid path in datapack: {}:{}, ignoring", (java.lang.Object)$$1, (java.lang.Object)$$7);
+-                        continue;
+-                    }
+-                    if (!$$4.test((java.lang.Object)$$8)) continue;
+-                    $$2.add((java.lang.Object)$$8);
+-                }
+-                catch (net.minecraft.ResourceLocationException $$9) {
+-                    LOGGER.error($$9.getMessage());
+-                }
+-            }
+-        }
+-    }
+-
+-    static {
+-        LOGGER = com.mojang.logging.LogUtils.getLogger();
+-        ON_WINDOWS = net.minecraft.Util.getPlatform() == net.minecraft.Util$OS.WINDOWS;
+-        BACKSLASH_MATCHER = com.google.common.base.CharMatcher.is((char)'\\');
+-    }
+-}
+-

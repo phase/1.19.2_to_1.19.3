@@ -1,0 +1,66 @@
+--- net/minecraft/server/commands/MsgCommand.java
++++ net/minecraft/server/commands/MsgCommand.java
+@@ -8,41 +8,32 @@
+     public net.minecraft.server.commands.MsgCommand() {
+     }
+ 
+-    public static void register(com.mojang.brigadier.CommandDispatcher<net.minecraft.commands.CommandSourceStack> dispatcher) {
+-        com.mojang.brigadier.tree.LiteralCommandNode literalCommandNode = dispatcher.register((com.mojang.brigadier.builder.LiteralArgumentBuilder)net.minecraft.commands.Commands.literal((java.lang.String)"msg").then(net.minecraft.commands.Commands.argument((java.lang.String)"targets", (com.mojang.brigadier.arguments.ArgumentType)net.minecraft.commands.arguments.EntityArgument.players()).then(net.minecraft.commands.Commands.argument((java.lang.String)"message", (com.mojang.brigadier.arguments.ArgumentType)net.minecraft.commands.arguments.MessageArgument.message()).executes($$0 -> {
+-            net.minecraft.commands.arguments.MessageArgument$ChatMessage $$1 = net.minecraft.commands.arguments.MessageArgument.getChatMessage((com.mojang.brigadier.context.CommandContext)$$0, (java.lang.String)"message");
+-            try {
+-                return net.minecraft.server.commands.MsgCommand.sendMessage((net.minecraft.commands.CommandSourceStack)((net.minecraft.commands.CommandSourceStack)$$0.getSource()), (java.util.Collection)net.minecraft.commands.arguments.EntityArgument.getPlayers((com.mojang.brigadier.context.CommandContext)$$0, (java.lang.String)"targets"), (net.minecraft.commands.arguments.MessageArgument$ChatMessage)$$1);
++    public static void register(com.mojang.brigadier.CommandDispatcher<net.minecraft.commands.CommandSourceStack> $$02) {
++        com.mojang.brigadier.tree.LiteralCommandNode $$1 = $$02.register((com.mojang.brigadier.builder.LiteralArgumentBuilder)net.minecraft.commands.Commands.literal((java.lang.String)"msg").then(net.minecraft.commands.Commands.argument((java.lang.String)"targets", (com.mojang.brigadier.arguments.ArgumentType)net.minecraft.commands.arguments.EntityArgument.players()).then(net.minecraft.commands.Commands.argument((java.lang.String)"message", (com.mojang.brigadier.arguments.ArgumentType)net.minecraft.commands.arguments.MessageArgument.message()).executes($$0 -> {
++            java.util.Collection $$1 = net.minecraft.commands.arguments.EntityArgument.getPlayers((com.mojang.brigadier.context.CommandContext)$$0, (java.lang.String)"targets");
++            if (!$$1.isEmpty()) {
++                net.minecraft.commands.arguments.MessageArgument.resolveChatMessage((com.mojang.brigadier.context.CommandContext)$$0, (java.lang.String)"message", $$2 -> net.minecraft.server.commands.MsgCommand.sendMessage((net.minecraft.commands.CommandSourceStack)((net.minecraft.commands.CommandSourceStack)$$0.getSource()), (java.util.Collection)$$1, (net.minecraft.network.chat.PlayerChatMessage)$$2));
+             }
+-            catch (java.lang.Exception $$2) {
+-                $$1.consume((net.minecraft.commands.CommandSourceStack)$$0.getSource());
+-                throw $$2;
+-            }
++            return $$1.size();
+         }))));
+-        dispatcher.register((com.mojang.brigadier.builder.LiteralArgumentBuilder)net.minecraft.commands.Commands.literal((java.lang.String)"tell").redirect((com.mojang.brigadier.tree.CommandNode)literalCommandNode));
+-        dispatcher.register((com.mojang.brigadier.builder.LiteralArgumentBuilder)net.minecraft.commands.Commands.literal((java.lang.String)"w").redirect((com.mojang.brigadier.tree.CommandNode)literalCommandNode));
++        $$02.register((com.mojang.brigadier.builder.LiteralArgumentBuilder)net.minecraft.commands.Commands.literal((java.lang.String)"tell").redirect((com.mojang.brigadier.tree.CommandNode)$$1));
++        $$02.register((com.mojang.brigadier.builder.LiteralArgumentBuilder)net.minecraft.commands.Commands.literal((java.lang.String)"w").redirect((com.mojang.brigadier.tree.CommandNode)$$1));
+     }
+ 
+-    public static int sendMessage(net.minecraft.commands.CommandSourceStack $$0, java.util.Collection<net.minecraft.server.level.ServerPlayer> $$1, net.minecraft.commands.arguments.MessageArgument$ChatMessage $$2) {
+-        net.minecraft.network.chat.ChatType$Bound $$32 = net.minecraft.network.chat.ChatType.bind((net.minecraft.resources.ResourceKey)net.minecraft.network.chat.ChatType.MSG_COMMAND_INCOMING, (net.minecraft.commands.CommandSourceStack)$$0);
+-        $$2.resolve($$0, $$3 -> {
+-            net.minecraft.network.chat.OutgoingPlayerChatMessage $$4 = net.minecraft.network.chat.OutgoingPlayerChatMessage.create((net.minecraft.network.chat.PlayerChatMessage)$$3);
+-            boolean $$5 = $$3.isFullyFiltered();
+-            net.minecraft.world.entity.Entity $$6 = $$0.getEntity();
+-            boolean $$7 = false;
+-            for (net.minecraft.server.level.ServerPlayer $$8 : $$1) {
+-                net.minecraft.network.chat.ChatType$Bound $$9 = net.minecraft.network.chat.ChatType.bind((net.minecraft.resources.ResourceKey)net.minecraft.network.chat.ChatType.MSG_COMMAND_OUTGOING, (net.minecraft.commands.CommandSourceStack)$$0).withTargetName($$8.getDisplayName());
+-                $$0.sendChatMessage($$4, false, $$9);
+-                boolean $$10 = $$0.shouldFilterMessageTo($$8);
+-                $$8.sendChatMessage($$4, $$10, $$32);
+-                $$7 |= $$5 && $$10 && $$8 != $$6;
+-            }
+-            if ($$7) {
+-                $$0.sendSystemMessage(net.minecraft.server.players.PlayerList.CHAT_FILTERED_FULL);
+-            }
+-            $$4.sendHeadersToRemainingPlayers($$0.getServer().getPlayerList());
+-        });
+-        return $$1.size();
++    public static void sendMessage(net.minecraft.commands.CommandSourceStack $$0, java.util.Collection<net.minecraft.server.level.ServerPlayer> $$1, net.minecraft.network.chat.PlayerChatMessage $$2) {
++        net.minecraft.network.chat.ChatType$Bound $$3 = net.minecraft.network.chat.ChatType.bind((net.minecraft.resources.ResourceKey)net.minecraft.network.chat.ChatType.MSG_COMMAND_INCOMING, (net.minecraft.commands.CommandSourceStack)$$0);
++        net.minecraft.network.chat.OutgoingChatMessage $$4 = net.minecraft.network.chat.OutgoingChatMessage.create((net.minecraft.network.chat.PlayerChatMessage)$$2);
++        boolean $$5 = false;
++        for (net.minecraft.server.level.ServerPlayer $$6 : $$1) {
++            net.minecraft.network.chat.ChatType$Bound $$7 = net.minecraft.network.chat.ChatType.bind((net.minecraft.resources.ResourceKey)net.minecraft.network.chat.ChatType.MSG_COMMAND_OUTGOING, (net.minecraft.commands.CommandSourceStack)$$0).withTargetName($$6.getDisplayName());
++            $$0.sendChatMessage($$4, false, $$7);
++            boolean $$8 = $$0.shouldFilterMessageTo($$6);
++            $$6.sendChatMessage($$4, $$8, $$3);
++            $$5 |= $$8 && $$2.isFullyFiltered();
++        }
++        if ($$5) {
++            $$0.sendSystemMessage(net.minecraft.server.players.PlayerList.CHAT_FILTERED_FULL);
++        }
+     }
+ }
+ 

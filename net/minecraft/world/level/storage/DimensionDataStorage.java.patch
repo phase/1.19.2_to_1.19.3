@@ -1,0 +1,79 @@
+--- net/minecraft/world/level/storage/DimensionDataStorage.java
++++ net/minecraft/world/level/storage/DimensionDataStorage.java
+@@ -16,8 +16,8 @@
+         this.dataFolder = $$0;
+     }
+ 
+-    public java.io.File getDataFile(java.lang.String name) {
+-        return new java.io.File(this.dataFolder, name + ".dat");
++    public java.io.File getDataFile(java.lang.String $$0) {
++        return new java.io.File(this.dataFolder, $$0 + ".dat");
+     }
+ 
+     public <T extends net.minecraft.world.level.saveddata.SavedData> T computeIfAbsent(java.util.function.Function<net.minecraft.nbt.CompoundTag, T> $$0, java.util.function.Supplier<T> $$1, java.lang.String $$2) {
+@@ -59,41 +59,44 @@
+         this.cache.put((java.lang.Object)$$0, (java.lang.Object)$$1);
+     }
+ 
+-    public net.minecraft.nbt.CompoundTag readTagFromDisk(java.lang.String name, int levelVersion) throws java.io.IOException {
+-        java.io.File file = this.getDataFile(name);
+-        try (java.io.FileInputStream fileInputStream = new java.io.FileInputStream(file);
++    /*
++     * WARNING - void declaration
++     */
++    public net.minecraft.nbt.CompoundTag readTagFromDisk(java.lang.String $$0, int $$1) throws java.io.IOException {
++        java.io.File $$2 = this.getDataFile($$0);
++        try (java.io.FileInputStream $$3 = new java.io.FileInputStream($$2);
+ ){
+             net.minecraft.nbt.CompoundTag compoundTag;
+-            try (java.io.PushbackInputStream pushbackInputStream = new java.io.PushbackInputStream((java.io.InputStream)fileInputStream, 2);
++            try (java.io.PushbackInputStream $$4 = new java.io.PushbackInputStream((java.io.InputStream)$$3, 2);
+ ){
+-                net.minecraft.nbt.CompoundTag compoundTag2;
+-                if (this.isGzip(pushbackInputStream)) {
+-                    compoundTag2 = net.minecraft.nbt.NbtIo.readCompressed((java.io.InputStream)pushbackInputStream);
++                void $$8;
++                if (this.isGzip($$4)) {
++                    net.minecraft.nbt.CompoundTag $$5 = net.minecraft.nbt.NbtIo.readCompressed((java.io.InputStream)$$4);
+                 } else {
+-                    try (java.io.DataInputStream dataInputStream = new java.io.DataInputStream((java.io.InputStream)pushbackInputStream);
++                    try (java.io.DataInputStream $$6 = new java.io.DataInputStream((java.io.InputStream)$$4);
+ ){
+-                        compoundTag2 = net.minecraft.nbt.NbtIo.read((java.io.DataInput)dataInputStream);
++                        net.minecraft.nbt.CompoundTag $$7 = net.minecraft.nbt.NbtIo.read((java.io.DataInput)$$6);
+                     }
+                 }
+-                int n = compoundTag2.contains("DataVersion", 99) ? compoundTag2.getInt("DataVersion") : 1343;
+-                compoundTag = net.minecraft.nbt.NbtUtils.update((com.mojang.datafixers.DataFixer)this.fixerUpper, (net.minecraft.util.datafix.DataFixTypes)net.minecraft.util.datafix.DataFixTypes.SAVED_DATA, (net.minecraft.nbt.CompoundTag)compoundTag2, (int)n, (int)levelVersion);
++                int $$9 = $$8.contains("DataVersion", 99) ? $$8.getInt("DataVersion") : 1343;
++                compoundTag = net.minecraft.nbt.NbtUtils.update((com.mojang.datafixers.DataFixer)this.fixerUpper, (net.minecraft.util.datafix.DataFixTypes)net.minecraft.util.datafix.DataFixTypes.SAVED_DATA, (net.minecraft.nbt.CompoundTag)$$8, (int)$$9, (int)$$1);
+             }
+             return compoundTag;
+         }
+     }
+ 
+-    public boolean isGzip(java.io.PushbackInputStream inputStream) throws java.io.IOException {
+-        int n;
+-        byte[] byArray = new byte[2];
+-        boolean bl = false;
+-        int n2 = inputStream.read(byArray, 0, 2);
+-        if (n2 == 2 && (n = (byArray[1] & 0xFF) << 8 | byArray[0] & 0xFF) == 35615) {
+-            bl = true;
++    public boolean isGzip(java.io.PushbackInputStream $$0) throws java.io.IOException {
++        int $$4;
++        byte[] $$1 = new byte[2];
++        boolean $$2 = false;
++        int $$3 = $$0.read($$1, 0, 2);
++        if ($$3 == 2 && ($$4 = ($$1[1] & 0xFF) << 8 | $$1[0] & 0xFF) == 35615) {
++            $$2 = true;
+         }
+-        if (n2 != 0) {
+-            inputStream.unread(byArray, 0, n2);
++        if ($$3 != 0) {
++            $$0.unread($$1, 0, $$3);
+         }
+-        return bl;
++        return $$2;
+     }
+ 
+     public void save() {

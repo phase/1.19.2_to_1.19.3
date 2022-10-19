@@ -1,0 +1,86 @@
+--- net/minecraft/network/chat/SignedMessageChain.java
++++ net/minecraft/network/chat/SignedMessageChain.java
+@@ -5,43 +5,56 @@
+ 
+ public class net.minecraft.network.chat.SignedMessageChain
+  {
++    public static org.slf4j.Logger LOGGER;
+     @javax.annotation.Nullable
+-    public net.minecraft.network.chat.MessageSignature previousSignature;
++    public net.minecraft.network.chat.SignedMessageLink nextLink;
+ 
+-    public net.minecraft.network.chat.SignedMessageChain() {
++    public net.minecraft.network.chat.SignedMessageChain(java.util.UUID $$0, java.util.UUID $$1) {
++        this.nextLink = net.minecraft.network.chat.SignedMessageLink.root((java.util.UUID)$$0, (java.util.UUID)$$1);
+     }
+ 
+-    public net.minecraft.network.chat.SignedMessageChain$Link pack(net.minecraft.util.Signer $$0, net.minecraft.network.chat.MessageSigner $$1, net.minecraft.network.chat.ChatMessageContent $$2, net.minecraft.network.chat.LastSeenMessages $$3) {
+-        net.minecraft.network.chat.MessageSignature $$4;
+-        this.previousSignature = $$4 = net.minecraft.network.chat.SignedMessageChain.pack((net.minecraft.util.Signer)$$0, (net.minecraft.network.chat.MessageSigner)$$1, (net.minecraft.network.chat.MessageSignature)this.previousSignature, (net.minecraft.network.chat.ChatMessageContent)$$2, (net.minecraft.network.chat.LastSeenMessages)$$3);
+-        return new net.minecraft.network.chat.SignedMessageChain$Link($$4);
++    public net.minecraft.network.chat.SignedMessageChain$Encoder encoder(net.minecraft.util.Signer $$0) {
++        return $$1 -> {
++            net.minecraft.network.chat.SignedMessageLink $$22 = this.advanceLink();
++            if ($$22 == null) {
++                return null;
++            }
++            return new net.minecraft.network.chat.MessageSignature($$0.sign($$2 -> net.minecraft.network.chat.PlayerChatMessage.updateSignature((net.minecraft.util.SignatureUpdater$Output)$$2, (net.minecraft.network.chat.SignedMessageLink)$$22, (net.minecraft.network.chat.SignedMessageBody)$$1)));
++        };
+     }
+ 
+-    public static net.minecraft.network.chat.MessageSignature pack(net.minecraft.util.Signer $$0, net.minecraft.network.chat.MessageSigner $$1, @javax.annotation.Nullable net.minecraft.network.chat.MessageSignature $$22, net.minecraft.network.chat.ChatMessageContent $$3, net.minecraft.network.chat.LastSeenMessages $$4) {
+-        net.minecraft.network.chat.SignedMessageHeader $$5 = new net.minecraft.network.chat.SignedMessageHeader($$22, $$1.profileId());
+-        net.minecraft.network.chat.SignedMessageBody $$6 = new net.minecraft.network.chat.SignedMessageBody($$3, $$1.timeStamp(), $$1.salt(), $$4);
+-        byte[] $$7 = $$6.hash().asBytes();
+-        return new net.minecraft.network.chat.MessageSignature($$0.sign($$2 -> $$5.updateSignature($$2, $$7)));
++    public net.minecraft.network.chat.SignedMessageChain$Decoder decoder(net.minecraft.world.entity.player.ProfilePublicKey $$0) {
++        net.minecraft.util.SignatureValidator $$1 = $$0.createSignatureValidator();
++        return ($$2, $$3) -> {
++            net.minecraft.network.chat.SignedMessageLink $$4 = this.advanceLink();
++            if ($$4 == null) {
++                throw new net.minecraft.network.chat.SignedMessageChain$DecodeException((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"chat.disabled.chain_broken"), false);
++            }
++            if ($$0.data().hasExpired()) {
++                throw new net.minecraft.network.chat.SignedMessageChain$DecodeException((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"chat.disabled.expiredProfileKey"), false);
++            }
++            net.minecraft.network.chat.PlayerChatMessage $$5 = new net.minecraft.network.chat.PlayerChatMessage($$4, $$2, $$3, null, net.minecraft.network.chat.FilterMask.PASS_THROUGH);
++            if (!$$5.verify($$1)) {
++                throw new net.minecraft.network.chat.SignedMessageChain$DecodeException((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"multiplayer.disconnect.unsigned_chat"), true);
++            }
++            if ($$5.hasExpiredServer(java.time.Instant.now())) {
++                LOGGER.warn("Received expired chat: '{}'. Is the client/server system time unsynchronized?", (java.lang.Object)$$3.content());
++            }
++            return $$5;
++        };
+     }
+ 
+-    public net.minecraft.network.chat.PlayerChatMessage unpack(net.minecraft.network.chat.SignedMessageChain$Link $$0, net.minecraft.network.chat.MessageSigner $$1, net.minecraft.network.chat.ChatMessageContent $$2, net.minecraft.network.chat.LastSeenMessages $$3) {
+-        net.minecraft.network.chat.PlayerChatMessage $$4 = net.minecraft.network.chat.SignedMessageChain.unpack((net.minecraft.network.chat.SignedMessageChain$Link)$$0, (net.minecraft.network.chat.MessageSignature)this.previousSignature, (net.minecraft.network.chat.MessageSigner)$$1, (net.minecraft.network.chat.ChatMessageContent)$$2, (net.minecraft.network.chat.LastSeenMessages)$$3);
+-        this.previousSignature = $$0.signature;
+-        return $$4;
++    @javax.annotation.Nullable
++    public net.minecraft.network.chat.SignedMessageLink advanceLink() {
++        net.minecraft.network.chat.SignedMessageLink $$0 = this.nextLink;
++        if ($$0 != null) {
++            this.nextLink = $$0.advance();
++        }
++        return $$0;
+     }
+ 
+-    public static net.minecraft.network.chat.PlayerChatMessage unpack(net.minecraft.network.chat.SignedMessageChain$Link $$0, @javax.annotation.Nullable net.minecraft.network.chat.MessageSignature $$1, net.minecraft.network.chat.MessageSigner $$2, net.minecraft.network.chat.ChatMessageContent $$3, net.minecraft.network.chat.LastSeenMessages $$4) {
+-        net.minecraft.network.chat.SignedMessageHeader $$5 = new net.minecraft.network.chat.SignedMessageHeader($$1, $$2.profileId());
+-        net.minecraft.network.chat.SignedMessageBody $$6 = new net.minecraft.network.chat.SignedMessageBody($$3, $$2.timeStamp(), $$2.salt(), $$4);
+-        return new net.minecraft.network.chat.PlayerChatMessage($$5, $$0.signature, $$6, java.util.Optional.empty(), net.minecraft.network.chat.FilterMask.PASS_THROUGH);
++    static {
++        LOGGER = com.mojang.logging.LogUtils.getLogger();
+     }
+-
+-    public net.minecraft.network.chat.SignedMessageChain$Decoder decoder() {
+-        return (arg_0, arg_1, arg_2, arg_3) -> this.unpack(arg_0, arg_1, arg_2, arg_3);
+-    }
+-
+-    public net.minecraft.network.chat.SignedMessageChain$Encoder encoder() {
+-        return (arg_0, arg_1, arg_2, arg_3) -> this.pack(arg_0, arg_1, arg_2, arg_3);
+-    }
+ }
+ 

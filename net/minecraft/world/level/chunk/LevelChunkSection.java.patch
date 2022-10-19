@@ -1,0 +1,110 @@
+--- net/minecraft/world/level/chunk/LevelChunkSection.java
++++ net/minecraft/world/level/chunk/LevelChunkSection.java
+@@ -33,12 +33,12 @@
+         return $$0 << 4;
+     }
+ 
+-    public net.minecraft.world.level.block.state.BlockState getBlockState(int x, int y, int z) {
+-        return (net.minecraft.world.level.block.state.BlockState)this.states.get(x, y, z);
++    public net.minecraft.world.level.block.state.BlockState getBlockState(int $$0, int $$1, int $$2) {
++        return (net.minecraft.world.level.block.state.BlockState)this.states.get($$0, $$1, $$2);
+     }
+ 
+-    public net.minecraft.world.level.material.FluidState getFluidState(int x, int y, int z) {
+-        return ((net.minecraft.world.level.block.state.BlockState)this.states.get(x, y, z)).getFluidState();
++    public net.minecraft.world.level.material.FluidState getFluidState(int $$0, int $$1, int $$2) {
++        return ((net.minecraft.world.level.block.state.BlockState)this.states.get($$0, $$1, $$2)).getFluidState();
+     }
+ 
+     public void acquire() {
+@@ -49,33 +49,38 @@
+         this.states.release();
+     }
+ 
+-    public net.minecraft.world.level.block.state.BlockState setBlockState(int x, int y, int z, net.minecraft.world.level.block.state.BlockState blockState) {
+-        return this.setBlockState(x, y, z, blockState, true);
++    public net.minecraft.world.level.block.state.BlockState setBlockState(int $$0, int $$1, int $$2, net.minecraft.world.level.block.state.BlockState $$3) {
++        return this.setBlockState($$0, $$1, $$2, $$3, true);
+     }
+ 
+-    public net.minecraft.world.level.block.state.BlockState setBlockState(int x, int y, int z, net.minecraft.world.level.block.state.BlockState state, boolean useLocks) {
+-        net.minecraft.world.level.block.state.BlockState blockState = useLocks ? (net.minecraft.world.level.block.state.BlockState)this.states.getAndSet(x, y, z, (java.lang.Object)state) : (net.minecraft.world.level.block.state.BlockState)this.states.getAndSetUnchecked(x, y, z, (java.lang.Object)state);
+-        net.minecraft.world.level.material.FluidState fluidState = blockState.getFluidState();
+-        net.minecraft.world.level.material.FluidState fluidState2 = state.getFluidState();
+-        if (!blockState.isAir()) {
++    public net.minecraft.world.level.block.state.BlockState setBlockState(int $$0, int $$1, int $$2, net.minecraft.world.level.block.state.BlockState $$3, boolean $$4) {
++        net.minecraft.world.level.block.state.BlockState $$6;
++        if ($$4) {
++            net.minecraft.world.level.block.state.BlockState $$5 = (net.minecraft.world.level.block.state.BlockState)this.states.getAndSet($$0, $$1, $$2, (java.lang.Object)$$3);
++        } else {
++            $$6 = (net.minecraft.world.level.block.state.BlockState)this.states.getAndSetUnchecked($$0, $$1, $$2, (java.lang.Object)$$3);
++        }
++        net.minecraft.world.level.material.FluidState $$7 = $$6.getFluidState();
++        net.minecraft.world.level.material.FluidState $$8 = $$3.getFluidState();
++        if (!$$6.isAir()) {
+             this.nonEmptyBlockCount = (short)(this.nonEmptyBlockCount - 1);
+-            if (blockState.isRandomlyTicking()) {
++            if ($$6.isRandomlyTicking()) {
+                 this.tickingBlockCount = (short)(this.tickingBlockCount - 1);
+             }
+         }
+-        if (!fluidState.isEmpty()) {
++        if (!$$7.isEmpty()) {
+             this.tickingFluidCount = (short)(this.tickingFluidCount - 1);
+         }
+-        if (!state.isAir()) {
++        if (!$$3.isAir()) {
+             this.nonEmptyBlockCount = (short)(this.nonEmptyBlockCount + 1);
+-            if (state.isRandomlyTicking()) {
++            if ($$3.isRandomlyTicking()) {
+                 this.tickingBlockCount = (short)(this.tickingBlockCount + 1);
+             }
+         }
+-        if (!fluidState2.isEmpty()) {
++        if (!$$8.isEmpty()) {
+             this.tickingFluidCount = (short)(this.tickingFluidCount + 1);
+         }
+-        return blockState;
++        return $$6;
+     }
+ 
+     public boolean hasOnlyAir() {
+@@ -114,26 +119,26 @@
+         return this.biomes;
+     }
+ 
+-    public void read(net.minecraft.network.FriendlyByteBuf packetBuffer) {
+-        this.nonEmptyBlockCount = packetBuffer.readShort();
+-        this.states.read(packetBuffer);
+-        net.minecraft.world.level.chunk.PalettedContainer palettedContainer = this.biomes.recreate();
+-        palettedContainer.read(packetBuffer);
+-        this.biomes = palettedContainer;
++    public void read(net.minecraft.network.FriendlyByteBuf $$0) {
++        this.nonEmptyBlockCount = $$0.readShort();
++        this.states.read($$0);
++        net.minecraft.world.level.chunk.PalettedContainer $$1 = this.biomes.recreate();
++        $$1.read($$0);
++        this.biomes = $$1;
+     }
+ 
+-    public void write(net.minecraft.network.FriendlyByteBuf packetBuffer) {
+-        packetBuffer.writeShort((int)this.nonEmptyBlockCount);
+-        this.states.write(packetBuffer);
+-        this.biomes.write(packetBuffer);
++    public void write(net.minecraft.network.FriendlyByteBuf $$0) {
++        $$0.writeShort((int)this.nonEmptyBlockCount);
++        this.states.write($$0);
++        this.biomes.write($$0);
+     }
+ 
+     public int getSerializedSize() {
+         return 2 + this.states.getSerializedSize() + this.biomes.getSerializedSize();
+     }
+ 
+-    public boolean maybeHas(java.util.function.Predicate<net.minecraft.world.level.block.state.BlockState> predicate) {
+-        return this.states.maybeHas(predicate);
++    public boolean maybeHas(java.util.function.Predicate<net.minecraft.world.level.block.state.BlockState> $$0) {
++        return this.states.maybeHas($$0);
+     }
+ 
+     public net.minecraft.core.Holder<net.minecraft.world.level.biome.Biome> getNoiseBiome(int $$0, int $$1, int $$2) {

@@ -1,0 +1,121 @@
+--- net/minecraft/world/entity/boss/enderdragon/EndCrystal.java
++++ net/minecraft/world/entity/boss/enderdragon/EndCrystal.java
+@@ -16,9 +16,9 @@
+         this.time = this.random.nextInt(100000);
+     }
+ 
+-    public net.minecraft.world.entity.boss.enderdragon.EndCrystal(net.minecraft.world.level.Level level, double x, double y, double z) {
+-        this(net.minecraft.world.entity.EntityType.END_CRYSTAL, level);
+-        this.setPos(x, y, z);
++    public net.minecraft.world.entity.boss.enderdragon.EndCrystal(net.minecraft.world.level.Level $$0, double $$1, double $$2, double $$3) {
++        this(net.minecraft.world.entity.EntityType.END_CRYSTAL, $$0);
++        this.setPos($$1, $$2, $$3);
+     }
+ 
+     public net.minecraft.world.entity.Entity$MovementEmission getMovementEmission() {
+@@ -40,19 +40,19 @@
+         }
+     }
+ 
+-    public void addAdditionalSaveData(net.minecraft.nbt.CompoundTag compound) {
++    public void addAdditionalSaveData(net.minecraft.nbt.CompoundTag $$0) {
+         if (this.getBeamTarget() != null) {
+-            compound.put("BeamTarget", (net.minecraft.nbt.Tag)net.minecraft.nbt.NbtUtils.writeBlockPos((net.minecraft.core.BlockPos)this.getBeamTarget()));
++            $$0.put("BeamTarget", (net.minecraft.nbt.Tag)net.minecraft.nbt.NbtUtils.writeBlockPos((net.minecraft.core.BlockPos)this.getBeamTarget()));
+         }
+-        compound.putBoolean("ShowBottom", this.showsBottom());
++        $$0.putBoolean("ShowBottom", this.showsBottom());
+     }
+ 
+-    public void readAdditionalSaveData(net.minecraft.nbt.CompoundTag compound) {
+-        if (compound.contains("BeamTarget", 10)) {
+-            this.setBeamTarget(net.minecraft.nbt.NbtUtils.readBlockPos((net.minecraft.nbt.CompoundTag)compound.getCompound("BeamTarget")));
++    public void readAdditionalSaveData(net.minecraft.nbt.CompoundTag $$0) {
++        if ($$0.contains("BeamTarget", 10)) {
++            this.setBeamTarget(net.minecraft.nbt.NbtUtils.readBlockPos((net.minecraft.nbt.CompoundTag)$$0.getCompound("BeamTarget")));
+         }
+-        if (compound.contains("ShowBottom", 1)) {
+-            this.setShowBottom(compound.getBoolean("ShowBottom"));
++        if ($$0.contains("ShowBottom", 1)) {
++            this.setShowBottom($$0.getBoolean("ShowBottom"));
+         }
+     }
+ 
+@@ -60,19 +60,19 @@
+         return true;
+     }
+ 
+-    public boolean hurt(net.minecraft.world.damagesource.DamageSource source, float amount) {
+-        if (this.isInvulnerableTo(source)) {
++    public boolean hurt(net.minecraft.world.damagesource.DamageSource $$0, float $$1) {
++        if (this.isInvulnerableTo($$0)) {
+             return false;
+         }
+-        if (source.getEntity() instanceof net.minecraft.world.entity.boss.enderdragon.EnderDragon) {
++        if ($$0.getEntity() instanceof net.minecraft.world.entity.boss.enderdragon.EnderDragon) {
+             return false;
+         }
+         if (!this.isRemoved() && !this.level.isClientSide) {
+             this.remove(net.minecraft.world.entity.Entity$RemovalReason.KILLED);
+-            if (!source.isExplosion()) {
++            if (!$$0.isExplosion()) {
+                 this.level.explode(null, this.getX(), this.getY(), this.getZ(), 6.0f, net.minecraft.world.level.Explosion$BlockInteraction.DESTROY);
+             }
+-            this.onDestroyedBy(source);
++            this.onDestroyedBy($$0);
+         }
+         return true;
+     }
+@@ -82,15 +82,15 @@
+         super.kill();
+     }
+ 
+-    public void onDestroyedBy(net.minecraft.world.damagesource.DamageSource source) {
+-        net.minecraft.world.level.dimension.end.EndDragonFight endDragonFight;
+-        if (this.level instanceof net.minecraft.server.level.ServerLevel && (endDragonFight = ((net.minecraft.server.level.ServerLevel)this.level).dragonFight()) != null) {
+-            endDragonFight.onCrystalDestroyed(this, source);
++    public void onDestroyedBy(net.minecraft.world.damagesource.DamageSource $$0) {
++        net.minecraft.world.level.dimension.end.EndDragonFight $$1;
++        if (this.level instanceof net.minecraft.server.level.ServerLevel && ($$1 = ((net.minecraft.server.level.ServerLevel)this.level).dragonFight()) != null) {
++            $$1.onCrystalDestroyed(this, $$0);
+         }
+     }
+ 
+-    public void setBeamTarget(@javax.annotation.Nullable net.minecraft.core.BlockPos beamTarget) {
+-        this.getEntityData().set(DATA_BEAM_TARGET, (java.lang.Object)java.util.Optional.ofNullable((java.lang.Object)beamTarget));
++    public void setBeamTarget(@javax.annotation.Nullable net.minecraft.core.BlockPos $$0) {
++        this.getEntityData().set(DATA_BEAM_TARGET, (java.lang.Object)java.util.Optional.ofNullable((java.lang.Object)$$0));
+     }
+ 
+     @javax.annotation.Nullable
+@@ -98,26 +98,22 @@
+         return (net.minecraft.core.BlockPos)((java.util.Optional)this.getEntityData().get(DATA_BEAM_TARGET)).orElse(null);
+     }
+ 
+-    public void setShowBottom(boolean showBottom) {
+-        this.getEntityData().set(DATA_SHOW_BOTTOM, (java.lang.Object)showBottom);
++    public void setShowBottom(boolean $$0) {
++        this.getEntityData().set(DATA_SHOW_BOTTOM, (java.lang.Object)$$0);
+     }
+ 
+     public boolean showsBottom() {
+         return (java.lang.Boolean)this.getEntityData().get(DATA_SHOW_BOTTOM);
+     }
+ 
+-    public boolean shouldRenderAtSqrDistance(double distance) {
+-        return super.shouldRenderAtSqrDistance(distance) || this.getBeamTarget() != null;
++    public boolean shouldRenderAtSqrDistance(double $$0) {
++        return super.shouldRenderAtSqrDistance($$0) || this.getBeamTarget() != null;
+     }
+ 
+     public net.minecraft.world.item.ItemStack getPickResult() {
+         return new net.minecraft.world.item.ItemStack((net.minecraft.world.level.ItemLike)net.minecraft.world.item.Items.END_CRYSTAL);
+     }
+ 
+-    public net.minecraft.network.protocol.Packet<?> getAddEntityPacket() {
+-        return new net.minecraft.network.protocol.game.ClientboundAddEntityPacket((net.minecraft.world.entity.Entity)this);
+-    }
+-
+     static {
+         DATA_BEAM_TARGET = net.minecraft.network.syncher.SynchedEntityData.defineId(net.minecraft.world.entity.boss.enderdragon.EndCrystal.class, (net.minecraft.network.syncher.EntityDataSerializer)net.minecraft.network.syncher.EntityDataSerializers.OPTIONAL_BLOCK_POS);
+         DATA_SHOW_BOTTOM = net.minecraft.network.syncher.SynchedEntityData.defineId(net.minecraft.world.entity.boss.enderdragon.EndCrystal.class, (net.minecraft.network.syncher.EntityDataSerializer)net.minecraft.network.syncher.EntityDataSerializers.BOOLEAN);

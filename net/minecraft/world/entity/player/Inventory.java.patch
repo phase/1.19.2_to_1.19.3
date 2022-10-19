@@ -1,0 +1,591 @@
+--- net/minecraft/world/entity/player/Inventory.java
++++ net/minecraft/world/entity/player/Inventory.java
+@@ -22,12 +22,12 @@
+     public net.minecraft.world.entity.player.Player player;
+     public int timesChanged;
+ 
+-    public net.minecraft.world.entity.player.Inventory(net.minecraft.world.entity.player.Player player) {
++    public net.minecraft.world.entity.player.Inventory(net.minecraft.world.entity.player.Player $$0) {
+         this.items = net.minecraft.core.NonNullList.withSize((int)36, (java.lang.Object)net.minecraft.world.item.ItemStack.EMPTY);
+         this.armor = net.minecraft.core.NonNullList.withSize((int)4, (java.lang.Object)net.minecraft.world.item.ItemStack.EMPTY);
+         this.offhand = net.minecraft.core.NonNullList.withSize((int)1, (java.lang.Object)net.minecraft.world.item.ItemStack.EMPTY);
+         this.compartments = com.google.common.collect.ImmutableList.of((java.lang.Object)this.items, (java.lang.Object)this.armor, (java.lang.Object)this.offhand);
+-        this.player = player;
++        this.player = $$0;
+     }
+ 
+     public net.minecraft.world.item.ItemStack getSelected() {
+@@ -41,8 +41,8 @@
+         return 9;
+     }
+ 
+-    public boolean hasRemainingSpaceForItem(net.minecraft.world.item.ItemStack destination, net.minecraft.world.item.ItemStack origin) {
+-        return !destination.isEmpty() && net.minecraft.world.item.ItemStack.isSameItemSameTags((net.minecraft.world.item.ItemStack)destination, (net.minecraft.world.item.ItemStack)origin) && destination.isStackable() && destination.getCount() < destination.getMaxStackSize() && destination.getCount() < this.getMaxStackSize();
++    public boolean hasRemainingSpaceForItem(net.minecraft.world.item.ItemStack $$0, net.minecraft.world.item.ItemStack $$1) {
++        return !$$0.isEmpty() && net.minecraft.world.item.ItemStack.isSameItemSameTags((net.minecraft.world.item.ItemStack)$$0, (net.minecraft.world.item.ItemStack)$$1) && $$0.isStackable() && $$0.getCount() < $$0.getMaxStackSize() && $$0.getCount() < this.getMaxStackSize();
+     }
+ 
+     public int getFreeSlot() {
+@@ -53,48 +53,48 @@
+         return -1;
+     }
+ 
+-    public void setPickedItem(net.minecraft.world.item.ItemStack stack) {
+-        int n = this.findSlotMatchingItem(stack);
+-        if (net.minecraft.world.entity.player.Inventory.isHotbarSlot((int)n)) {
+-            this.selected = n;
++    public void setPickedItem(net.minecraft.world.item.ItemStack $$0) {
++        int $$1 = this.findSlotMatchingItem($$0);
++        if (net.minecraft.world.entity.player.Inventory.isHotbarSlot((int)$$1)) {
++            this.selected = $$1;
+             return;
+         }
+-        if (n == -1) {
+-            int n2;
++        if ($$1 == -1) {
++            int $$2;
+             this.selected = this.getSuitableHotbarSlot();
+-            if (!((net.minecraft.world.item.ItemStack)this.items.get(this.selected)).isEmpty() && (n2 = this.getFreeSlot()) != -1) {
+-                this.items.set(n2, (java.lang.Object)((net.minecraft.world.item.ItemStack)this.items.get(this.selected)));
++            if (!((net.minecraft.world.item.ItemStack)this.items.get(this.selected)).isEmpty() && ($$2 = this.getFreeSlot()) != -1) {
++                this.items.set($$2, (java.lang.Object)((net.minecraft.world.item.ItemStack)this.items.get(this.selected)));
+             }
+-            this.items.set(this.selected, (java.lang.Object)stack);
++            this.items.set(this.selected, (java.lang.Object)$$0);
+         } else {
+-            this.pickSlot(n);
++            this.pickSlot($$1);
+         }
+     }
+ 
+-    public void pickSlot(int index) {
++    public void pickSlot(int $$0) {
+         this.selected = this.getSuitableHotbarSlot();
+-        net.minecraft.world.item.ItemStack itemStack = (net.minecraft.world.item.ItemStack)this.items.get(this.selected);
+-        this.items.set(this.selected, (java.lang.Object)((net.minecraft.world.item.ItemStack)this.items.get(index)));
+-        this.items.set(index, (java.lang.Object)itemStack);
++        net.minecraft.world.item.ItemStack $$1 = (net.minecraft.world.item.ItemStack)this.items.get(this.selected);
++        this.items.set(this.selected, (java.lang.Object)((net.minecraft.world.item.ItemStack)this.items.get($$0)));
++        this.items.set($$0, (java.lang.Object)$$1);
+     }
+ 
+-    public static boolean isHotbarSlot(int index) {
+-        return index >= 0 && index < 9;
++    public static boolean isHotbarSlot(int $$0) {
++        return $$0 >= 0 && $$0 < 9;
+     }
+ 
+-    public int findSlotMatchingItem(net.minecraft.world.item.ItemStack stack) {
+-        for (int i = 0; i < this.items.size(); ++i) {
+-            if (((net.minecraft.world.item.ItemStack)this.items.get(i)).isEmpty() || !net.minecraft.world.item.ItemStack.isSameItemSameTags((net.minecraft.world.item.ItemStack)stack, (net.minecraft.world.item.ItemStack)((net.minecraft.world.item.ItemStack)this.items.get(i)))) continue;
+-            return i;
++    public int findSlotMatchingItem(net.minecraft.world.item.ItemStack $$0) {
++        for (int $$1 = 0; $$1 < this.items.size(); ++$$1) {
++            if (((net.minecraft.world.item.ItemStack)this.items.get($$1)).isEmpty() || !net.minecraft.world.item.ItemStack.isSameItemSameTags((net.minecraft.world.item.ItemStack)$$0, (net.minecraft.world.item.ItemStack)((net.minecraft.world.item.ItemStack)this.items.get($$1)))) continue;
++            return $$1;
+         }
+         return -1;
+     }
+ 
+-    public int findSlotMatchingUnusedItem(net.minecraft.world.item.ItemStack stack) {
+-        for (int i = 0; i < this.items.size(); ++i) {
+-            net.minecraft.world.item.ItemStack itemStack = (net.minecraft.world.item.ItemStack)this.items.get(i);
+-            if (((net.minecraft.world.item.ItemStack)this.items.get(i)).isEmpty() || !net.minecraft.world.item.ItemStack.isSameItemSameTags((net.minecraft.world.item.ItemStack)stack, (net.minecraft.world.item.ItemStack)((net.minecraft.world.item.ItemStack)this.items.get(i))) || ((net.minecraft.world.item.ItemStack)this.items.get(i)).isDamaged() || itemStack.isEnchanted() || itemStack.hasCustomHoverName()) continue;
+-            return i;
++    public int findSlotMatchingUnusedItem(net.minecraft.world.item.ItemStack $$0) {
++        for (int $$1 = 0; $$1 < this.items.size(); ++$$1) {
++            net.minecraft.world.item.ItemStack $$2 = (net.minecraft.world.item.ItemStack)this.items.get($$1);
++            if (((net.minecraft.world.item.ItemStack)this.items.get($$1)).isEmpty() || !net.minecraft.world.item.ItemStack.isSameItemSameTags((net.minecraft.world.item.ItemStack)$$0, (net.minecraft.world.item.ItemStack)((net.minecraft.world.item.ItemStack)this.items.get($$1))) || ((net.minecraft.world.item.ItemStack)this.items.get($$1)).isDamaged() || $$2.isEnchanted() || $$2.hasCustomHoverName()) continue;
++            return $$1;
+         }
+         return -1;
+     }
+@@ -113,9 +113,9 @@
+         return this.selected;
+     }
+ 
+-    public void swapPaint(double direction) {
+-        int n = (int)java.lang.Math.signum((double)direction);
+-        this.selected -= n;
++    public void swapPaint(double $$0) {
++        int $$1 = (int)java.lang.Math.signum((double)$$0);
++        this.selected -= $$1;
+         while (this.selected < 0) {
+             this.selected += 9;
+         }
+@@ -124,66 +124,66 @@
+         }
+     }
+ 
+-    public int clearOrCountMatchingItems(java.util.function.Predicate<net.minecraft.world.item.ItemStack> stackPredicate, int maxCount, net.minecraft.world.Container inventory) {
+-        int n = 0;
+-        boolean bl = maxCount == 0;
+-        n += net.minecraft.world.ContainerHelper.clearOrCountMatchingItems((net.minecraft.world.Container)this, stackPredicate, (int)(maxCount - n), (boolean)bl);
+-        n += net.minecraft.world.ContainerHelper.clearOrCountMatchingItems((net.minecraft.world.Container)inventory, stackPredicate, (int)(maxCount - n), (boolean)bl);
+-        net.minecraft.world.item.ItemStack itemStack = this.player.containerMenu.getCarried();
+-        n += net.minecraft.world.ContainerHelper.clearOrCountMatchingItems((net.minecraft.world.item.ItemStack)itemStack, stackPredicate, (int)(maxCount - n), (boolean)bl);
+-        if (itemStack.isEmpty()) {
++    public int clearOrCountMatchingItems(java.util.function.Predicate<net.minecraft.world.item.ItemStack> $$0, int $$1, net.minecraft.world.Container $$2) {
++        int $$3 = 0;
++        boolean $$4 = $$1 == 0;
++        $$3 += net.minecraft.world.ContainerHelper.clearOrCountMatchingItems((net.minecraft.world.Container)this, $$0, (int)($$1 - $$3), (boolean)$$4);
++        $$3 += net.minecraft.world.ContainerHelper.clearOrCountMatchingItems((net.minecraft.world.Container)$$2, $$0, (int)($$1 - $$3), (boolean)$$4);
++        net.minecraft.world.item.ItemStack $$5 = this.player.containerMenu.getCarried();
++        $$3 += net.minecraft.world.ContainerHelper.clearOrCountMatchingItems((net.minecraft.world.item.ItemStack)$$5, $$0, (int)($$1 - $$3), (boolean)$$4);
++        if ($$5.isEmpty()) {
+             this.player.containerMenu.setCarried(net.minecraft.world.item.ItemStack.EMPTY);
+         }
+-        return n;
++        return $$3;
+     }
+ 
+-    public int addResource(net.minecraft.world.item.ItemStack stack) {
+-        int n = this.getSlotWithRemainingSpace(stack);
+-        if (n == -1) {
+-            n = this.getFreeSlot();
++    public int addResource(net.minecraft.world.item.ItemStack $$0) {
++        int $$1 = this.getSlotWithRemainingSpace($$0);
++        if ($$1 == -1) {
++            $$1 = this.getFreeSlot();
+         }
+-        if (n == -1) {
+-            return stack.getCount();
++        if ($$1 == -1) {
++            return $$0.getCount();
+         }
+-        return this.addResource(n, stack);
++        return this.addResource($$1, $$0);
+     }
+ 
+-    public int addResource(int slot, net.minecraft.world.item.ItemStack stack) {
+-        int n;
+-        net.minecraft.world.item.Item item = stack.getItem();
+-        int n2 = stack.getCount();
+-        net.minecraft.world.item.ItemStack itemStack = this.getItem(slot);
+-        if (itemStack.isEmpty()) {
+-            itemStack = new net.minecraft.world.item.ItemStack((net.minecraft.world.level.ItemLike)item, 0);
+-            if (stack.hasTag()) {
+-                itemStack.setTag(stack.getTag().copy());
++    public int addResource(int $$0, net.minecraft.world.item.ItemStack $$1) {
++        int $$5;
++        net.minecraft.world.item.Item $$2 = $$1.getItem();
++        int $$3 = $$1.getCount();
++        net.minecraft.world.item.ItemStack $$4 = this.getItem($$0);
++        if ($$4.isEmpty()) {
++            $$4 = new net.minecraft.world.item.ItemStack((net.minecraft.world.level.ItemLike)$$2, 0);
++            if ($$1.hasTag()) {
++                $$4.setTag($$1.getTag().copy());
+             }
+-            this.setItem(slot, itemStack);
++            this.setItem($$0, $$4);
+         }
+-        if ((n = n2) > itemStack.getMaxStackSize() - itemStack.getCount()) {
+-            n = itemStack.getMaxStackSize() - itemStack.getCount();
++        if (($$5 = $$3) > $$4.getMaxStackSize() - $$4.getCount()) {
++            $$5 = $$4.getMaxStackSize() - $$4.getCount();
+         }
+-        if (n > this.getMaxStackSize() - itemStack.getCount()) {
+-            n = this.getMaxStackSize() - itemStack.getCount();
++        if ($$5 > this.getMaxStackSize() - $$4.getCount()) {
++            $$5 = this.getMaxStackSize() - $$4.getCount();
+         }
+-        if (n == 0) {
+-            return n2;
++        if ($$5 == 0) {
++            return $$3;
+         }
+-        itemStack.grow(n);
+-        itemStack.setPopTime(5);
+-        return n2 -= n;
++        $$4.grow($$5);
++        $$4.setPopTime(5);
++        return $$3 -= $$5;
+     }
+ 
+-    public int getSlotWithRemainingSpace(net.minecraft.world.item.ItemStack stack) {
+-        if (this.hasRemainingSpaceForItem(this.getItem(this.selected), stack)) {
++    public int getSlotWithRemainingSpace(net.minecraft.world.item.ItemStack $$0) {
++        if (this.hasRemainingSpaceForItem(this.getItem(this.selected), $$0)) {
+             return this.selected;
+         }
+-        if (this.hasRemainingSpaceForItem(this.getItem(40), stack)) {
++        if (this.hasRemainingSpaceForItem(this.getItem(40), $$0)) {
+             return 40;
+         }
+-        for (int i = 0; i < this.items.size(); ++i) {
+-            if (!this.hasRemainingSpaceForItem((net.minecraft.world.item.ItemStack)this.items.get(i), stack)) continue;
+-            return i;
++        for (int $$1 = 0; $$1 < this.items.size(); ++$$1) {
++            if (!this.hasRemainingSpaceForItem((net.minecraft.world.item.ItemStack)this.items.get($$1), $$0)) continue;
++            return $$1;
+         }
+         return -1;
+     }
+@@ -197,53 +197,53 @@
+         }
+     }
+ 
+-    public boolean add(net.minecraft.world.item.ItemStack stack) {
+-        return this.add(-1, stack);
++    public boolean add(net.minecraft.world.item.ItemStack $$0) {
++        return this.add(-1, $$0);
+     }
+ 
+-    public boolean add(int slot, net.minecraft.world.item.ItemStack stack) {
+-        if (stack.isEmpty()) {
++    public boolean add(int $$0, net.minecraft.world.item.ItemStack $$1) {
++        if ($$1.isEmpty()) {
+             return false;
+         }
+         try {
+-            if (!stack.isDamaged()) {
+-                int n;
++            if (!$$1.isDamaged()) {
++                int $$2;
+                 do {
+-                    n = stack.getCount();
+-                    if (slot == -1) {
+-                        stack.setCount(this.addResource(stack));
++                    $$2 = $$1.getCount();
++                    if ($$0 == -1) {
++                        $$1.setCount(this.addResource($$1));
+                         continue;
+                     }
+-                    stack.setCount(this.addResource(slot, stack));
+-                } while (!stack.isEmpty() && stack.getCount() < n);
+-                if (stack.getCount() == n && this.player.getAbilities().instabuild) {
+-                    stack.setCount(0);
++                    $$1.setCount(this.addResource($$0, $$1));
++                } while (!$$1.isEmpty() && $$1.getCount() < $$2);
++                if ($$1.getCount() == $$2 && this.player.getAbilities().instabuild) {
++                    $$1.setCount(0);
+                     return true;
+                 }
+-                return stack.getCount() < n;
++                return $$1.getCount() < $$2;
+             }
+-            if (slot == -1) {
+-                slot = this.getFreeSlot();
++            if ($$0 == -1) {
++                $$0 = this.getFreeSlot();
+             }
+-            if (slot >= 0) {
+-                this.items.set(slot, (java.lang.Object)stack.copy());
+-                ((net.minecraft.world.item.ItemStack)this.items.get(slot)).setPopTime(5);
+-                stack.setCount(0);
++            if ($$0 >= 0) {
++                this.items.set($$0, (java.lang.Object)$$1.copy());
++                ((net.minecraft.world.item.ItemStack)this.items.get($$0)).setPopTime(5);
++                $$1.setCount(0);
+                 return true;
+             }
+             if (this.player.getAbilities().instabuild) {
+-                stack.setCount(0);
++                $$1.setCount(0);
+                 return true;
+             }
+             return false;
+         }
+-        catch (java.lang.Throwable throwable) {
+-            net.minecraft.CrashReport crashReport = net.minecraft.CrashReport.forThrowable((java.lang.Throwable)throwable, (java.lang.String)"Adding item to inventory");
+-            net.minecraft.CrashReportCategory crashReportCategory = crashReport.addCategory("Item being added");
+-            crashReportCategory.setDetail("Item ID", (java.lang.Object)net.minecraft.world.item.Item.getId((net.minecraft.world.item.Item)stack.getItem()));
+-            crashReportCategory.setDetail("Item data", (java.lang.Object)stack.getDamageValue());
+-            crashReportCategory.setDetail("Item name", () -> stack.getHoverName().getString());
+-            throw new net.minecraft.ReportedException(crashReport);
++        catch (java.lang.Throwable $$3) {
++            net.minecraft.CrashReport $$4 = net.minecraft.CrashReport.forThrowable((java.lang.Throwable)$$3, (java.lang.String)"Adding item to inventory");
++            net.minecraft.CrashReportCategory $$5 = $$4.addCategory("Item being added");
++            $$5.setDetail("Item ID", (java.lang.Object)net.minecraft.world.item.Item.getId((net.minecraft.world.item.Item)$$1.getItem()));
++            $$5.setDetail("Item data", (java.lang.Object)$$1.getDamageValue());
++            $$5.setDetail("Item name", () -> $$1.getHoverName().getString());
++            throw new net.minecraft.ReportedException($$4);
+         }
+     }
+ 
+@@ -267,115 +267,110 @@
+         }
+     }
+ 
+-    public net.minecraft.world.item.ItemStack removeItem(int index, int count) {
+-        net.minecraft.core.NonNullList nonNullList = null;
+-        for (net.minecraft.core.NonNullList nonNullList2 : this.compartments) {
+-            if (index < nonNullList2.size()) {
+-                nonNullList = nonNullList2;
++    public net.minecraft.world.item.ItemStack removeItem(int $$0, int $$1) {
++        net.minecraft.core.NonNullList $$2 = null;
++        for (net.minecraft.core.NonNullList $$3 : this.compartments) {
++            if ($$0 < $$3.size()) {
++                $$2 = $$3;
+                 break;
+             }
+-            index -= nonNullList2.size();
++            $$0 -= $$3.size();
+         }
+-        if (nonNullList != null && !((net.minecraft.world.item.ItemStack)nonNullList.get(index)).isEmpty()) {
+-            return net.minecraft.world.ContainerHelper.removeItem((java.util.List)nonNullList, (int)index, (int)count);
++        if ($$2 != null && !((net.minecraft.world.item.ItemStack)$$2.get($$0)).isEmpty()) {
++            return net.minecraft.world.ContainerHelper.removeItem((java.util.List)$$2, (int)$$0, (int)$$1);
+         }
+         return net.minecraft.world.item.ItemStack.EMPTY;
+     }
+ 
+-    public void removeItem(net.minecraft.world.item.ItemStack stack) {
+-block0:        for (net.minecraft.core.NonNullList nonNullList : this.compartments) {
+-            for (int i = 0; i < nonNullList.size(); ++i) {
+-                if (nonNullList.get(i) != stack) continue;
+-                nonNullList.set(i, (java.lang.Object)net.minecraft.world.item.ItemStack.EMPTY);
++    public void removeItem(net.minecraft.world.item.ItemStack $$0) {
++block0:        for (net.minecraft.core.NonNullList $$1 : this.compartments) {
++            for (int $$2 = 0; $$2 < $$1.size(); ++$$2) {
++                if ($$1.get($$2) != $$0) continue;
++                $$1.set($$2, (java.lang.Object)net.minecraft.world.item.ItemStack.EMPTY);
+                 continue block0;
+             }
+         }
+     }
+ 
+-    public net.minecraft.world.item.ItemStack removeItemNoUpdate(int index) {
+-        net.minecraft.core.NonNullList nonNullList = null;
+-        for (net.minecraft.core.NonNullList nonNullList2 : this.compartments) {
+-            if (index < nonNullList2.size()) {
+-                nonNullList = nonNullList2;
++    public net.minecraft.world.item.ItemStack removeItemNoUpdate(int $$0) {
++        net.minecraft.core.NonNullList $$1 = null;
++        for (net.minecraft.core.NonNullList $$2 : this.compartments) {
++            if ($$0 < $$2.size()) {
++                $$1 = $$2;
+                 break;
+             }
+-            index -= nonNullList2.size();
++            $$0 -= $$2.size();
+         }
+-        if (nonNullList != null && !((net.minecraft.world.item.ItemStack)nonNullList.get(index)).isEmpty()) {
+-            java.util.Iterator iterator = (net.minecraft.world.item.ItemStack)nonNullList.get(index);
+-            nonNullList.set(index, (java.lang.Object)net.minecraft.world.item.ItemStack.EMPTY);
+-            return iterator;
++        if ($$1 != null && !((net.minecraft.world.item.ItemStack)$$1.get($$0)).isEmpty()) {
++            net.minecraft.world.item.ItemStack $$3 = (net.minecraft.world.item.ItemStack)$$1.get($$0);
++            $$1.set($$0, (java.lang.Object)net.minecraft.world.item.ItemStack.EMPTY);
++            return $$3;
+         }
+         return net.minecraft.world.item.ItemStack.EMPTY;
+     }
+ 
+-    public void setItem(int index, net.minecraft.world.item.ItemStack stack) {
+-        net.minecraft.core.NonNullList nonNullList = null;
+-        for (net.minecraft.core.NonNullList nonNullList2 : this.compartments) {
+-            if (index < nonNullList2.size()) {
+-                nonNullList = nonNullList2;
++    public void setItem(int $$0, net.minecraft.world.item.ItemStack $$1) {
++        net.minecraft.core.NonNullList $$2 = null;
++        for (net.minecraft.core.NonNullList $$3 : this.compartments) {
++            if ($$0 < $$3.size()) {
++                $$2 = $$3;
+                 break;
+             }
+-            index -= nonNullList2.size();
++            $$0 -= $$3.size();
+         }
+-        if (nonNullList != null) {
+-            nonNullList.set(index, (java.lang.Object)stack);
++        if ($$2 != null) {
++            $$2.set($$0, (java.lang.Object)$$1);
+         }
+     }
+ 
+-    public float getDestroySpeed(net.minecraft.world.level.block.state.BlockState state) {
+-        return ((net.minecraft.world.item.ItemStack)this.items.get(this.selected)).getDestroySpeed(state);
++    public float getDestroySpeed(net.minecraft.world.level.block.state.BlockState $$0) {
++        return ((net.minecraft.world.item.ItemStack)this.items.get(this.selected)).getDestroySpeed($$0);
+     }
+ 
+-    public net.minecraft.nbt.ListTag save(net.minecraft.nbt.ListTag listTag) {
+-        net.minecraft.nbt.CompoundTag compoundTag;
+-        int n;
+-        for (n = 0;
+- n < this.items.size(); ++n) {
+-            if (((net.minecraft.world.item.ItemStack)this.items.get(n)).isEmpty()) continue;
+-            compoundTag = new net.minecraft.nbt.CompoundTag();
+-            compoundTag.putByte("Slot", (byte)n);
+-            ((net.minecraft.world.item.ItemStack)this.items.get(n)).save(compoundTag);
+-            listTag.add((java.lang.Object)compoundTag);
++    public net.minecraft.nbt.ListTag save(net.minecraft.nbt.ListTag $$0) {
++        for (int $$1 = 0; $$1 < this.items.size(); ++$$1) {
++            if (((net.minecraft.world.item.ItemStack)this.items.get($$1)).isEmpty()) continue;
++            net.minecraft.nbt.CompoundTag $$2 = new net.minecraft.nbt.CompoundTag();
++            $$2.putByte("Slot", (byte)$$1);
++            ((net.minecraft.world.item.ItemStack)this.items.get($$1)).save($$2);
++            $$0.add((java.lang.Object)$$2);
+         }
+-        for (n = 0;
+- n < this.armor.size(); ++n) {
+-            if (((net.minecraft.world.item.ItemStack)this.armor.get(n)).isEmpty()) continue;
+-            compoundTag = new net.minecraft.nbt.CompoundTag();
+-            compoundTag.putByte("Slot", (byte)(n + 100));
+-            ((net.minecraft.world.item.ItemStack)this.armor.get(n)).save(compoundTag);
+-            listTag.add((java.lang.Object)compoundTag);
++        for (int $$3 = 0; $$3 < this.armor.size(); ++$$3) {
++            if (((net.minecraft.world.item.ItemStack)this.armor.get($$3)).isEmpty()) continue;
++            net.minecraft.nbt.CompoundTag $$4 = new net.minecraft.nbt.CompoundTag();
++            $$4.putByte("Slot", (byte)($$3 + 100));
++            ((net.minecraft.world.item.ItemStack)this.armor.get($$3)).save($$4);
++            $$0.add((java.lang.Object)$$4);
+         }
+-        for (n = 0;
+- n < this.offhand.size(); ++n) {
+-            if (((net.minecraft.world.item.ItemStack)this.offhand.get(n)).isEmpty()) continue;
+-            compoundTag = new net.minecraft.nbt.CompoundTag();
+-            compoundTag.putByte("Slot", (byte)(n + 150));
+-            ((net.minecraft.world.item.ItemStack)this.offhand.get(n)).save(compoundTag);
+-            listTag.add((java.lang.Object)compoundTag);
++        for (int $$5 = 0; $$5 < this.offhand.size(); ++$$5) {
++            if (((net.minecraft.world.item.ItemStack)this.offhand.get($$5)).isEmpty()) continue;
++            net.minecraft.nbt.CompoundTag $$6 = new net.minecraft.nbt.CompoundTag();
++            $$6.putByte("Slot", (byte)($$5 + 150));
++            ((net.minecraft.world.item.ItemStack)this.offhand.get($$5)).save($$6);
++            $$0.add((java.lang.Object)$$6);
+         }
+-        return listTag;
++        return $$0;
+     }
+ 
+-    public void load(net.minecraft.nbt.ListTag listTag) {
++    public void load(net.minecraft.nbt.ListTag $$0) {
+         this.items.clear();
+         this.armor.clear();
+         this.offhand.clear();
+-        for (int i = 0; i < listTag.size(); ++i) {
+-            net.minecraft.nbt.CompoundTag compoundTag = listTag.getCompound(i);
+-            int n = compoundTag.getByte("Slot") & 0xFF;
+-            net.minecraft.world.item.ItemStack itemStack = net.minecraft.world.item.ItemStack.of((net.minecraft.nbt.CompoundTag)compoundTag);
+-            if (itemStack.isEmpty()) continue;
+-            if (n >= 0 && n < this.items.size()) {
+-                this.items.set(n, (java.lang.Object)itemStack);
++        for (int $$1 = 0; $$1 < $$0.size(); ++$$1) {
++            net.minecraft.nbt.CompoundTag $$2 = $$0.getCompound($$1);
++            int $$3 = $$2.getByte("Slot") & 0xFF;
++            net.minecraft.world.item.ItemStack $$4 = net.minecraft.world.item.ItemStack.of((net.minecraft.nbt.CompoundTag)$$2);
++            if ($$4.isEmpty()) continue;
++            if ($$3 >= 0 && $$3 < this.items.size()) {
++                this.items.set($$3, (java.lang.Object)$$4);
+                 continue;
+             }
+-            if (n >= 100 && n < this.armor.size() + 100) {
+-                this.armor.set(n - 100, (java.lang.Object)itemStack);
++            if ($$3 >= 100 && $$3 < this.armor.size() + 100) {
++                this.armor.set($$3 - 100, (java.lang.Object)$$4);
+                 continue;
+             }
+-            if (n < 150 || n >= this.offhand.size() + 150) continue;
+-            this.offhand.set(n - 150, (java.lang.Object)itemStack);
++            if ($$3 < 150 || $$3 >= this.offhand.size() + 150) continue;
++            this.offhand.set($$3 - 150, (java.lang.Object)$$4);
+         }
+     }
+ 
+@@ -399,37 +394,37 @@
+         return true;
+     }
+ 
+-    public net.minecraft.world.item.ItemStack getItem(int index) {
+-        net.minecraft.core.NonNullList nonNullList = null;
+-        for (net.minecraft.core.NonNullList nonNullList2 : this.compartments) {
+-            if (index < nonNullList2.size()) {
+-                nonNullList = nonNullList2;
++    public net.minecraft.world.item.ItemStack getItem(int $$0) {
++        net.minecraft.core.NonNullList $$1 = null;
++        for (net.minecraft.core.NonNullList $$2 : this.compartments) {
++            if ($$0 < $$2.size()) {
++                $$1 = $$2;
+                 break;
+             }
+-            index -= nonNullList2.size();
++            $$0 -= $$2.size();
+         }
+-        return nonNullList == null ? net.minecraft.world.item.ItemStack.EMPTY : (net.minecraft.world.item.ItemStack)nonNullList.get(index);
++        return $$1 == null ? net.minecraft.world.item.ItemStack.EMPTY : (net.minecraft.world.item.ItemStack)$$1.get($$0);
+     }
+ 
+     public net.minecraft.network.chat.Component getName() {
+         return net.minecraft.network.chat.Component.translatable((java.lang.String)"container.inventory");
+     }
+ 
+-    public net.minecraft.world.item.ItemStack getArmor(int slot) {
+-        return (net.minecraft.world.item.ItemStack)this.armor.get(slot);
++    public net.minecraft.world.item.ItemStack getArmor(int $$0) {
++        return (net.minecraft.world.item.ItemStack)this.armor.get($$0);
+     }
+ 
+-    public void hurtArmor(net.minecraft.world.damagesource.DamageSource $$0, float $$1, int[] $$2) {
+-        if ($$1 <= 0.0f) {
++    public void hurtArmor(net.minecraft.world.damagesource.DamageSource $$0, float $$12, int[] $$2) {
++        if ($$12 <= 0.0f) {
+             return;
+         }
+-        if (($$1 /= 4.0f) < 1.0f) {
+-            $$1 = 1.0f;
++        if (($$12 /= 4.0f) < 1.0f) {
++            $$12 = 1.0f;
+         }
+         for (int $$3 : $$2) {
+             net.minecraft.world.item.ItemStack $$4 = (net.minecraft.world.item.ItemStack)this.armor.get($$3);
+             if ($$0.isFire() && $$4.getItem().isFireResistant() || !($$4.getItem() instanceof net.minecraft.world.item.ArmorItem)) continue;
+-            $$4.hurtAndBreak((int)$$1, (net.minecraft.world.entity.LivingEntity)this.player, entity -> entity.broadcastBreakEvent(net.minecraft.world.entity.EquipmentSlot.byTypeAndIndex((net.minecraft.world.entity.EquipmentSlot$Type)net.minecraft.world.entity.EquipmentSlot$Type.ARMOR, (int)$$3)));
++            $$4.hurtAndBreak((int)$$12, (net.minecraft.world.entity.LivingEntity)this.player, $$1 -> $$1.broadcastBreakEvent(net.minecraft.world.entity.EquipmentSlot.byTypeAndIndex((net.minecraft.world.entity.EquipmentSlot$Type)net.minecraft.world.entity.EquipmentSlot$Type.ARMOR, (int)$$3)));
+         }
+     }
+ 
+@@ -452,17 +447,17 @@
+         return this.timesChanged;
+     }
+ 
+-    public boolean stillValid(net.minecraft.world.entity.player.Player player) {
++    public boolean stillValid(net.minecraft.world.entity.player.Player $$0) {
+         if (this.player.isRemoved()) {
+             return false;
+         }
+-        return !(player.distanceToSqr((net.minecraft.world.entity.Entity)this.player) > 64.0);
++        return !($$0.distanceToSqr((net.minecraft.world.entity.Entity)this.player) > 64.0);
+     }
+ 
+-    public boolean contains(net.minecraft.world.item.ItemStack stack) {
+-        for (java.util.List list : this.compartments) {
+-            for (net.minecraft.world.item.ItemStack itemStack : list) {
+-                if (itemStack.isEmpty() || !itemStack.sameItem(stack)) continue;
++    public boolean contains(net.minecraft.world.item.ItemStack $$0) {
++        for (java.util.List $$1 : this.compartments) {
++            for (net.minecraft.world.item.ItemStack $$2 : $$1) {
++                if ($$2.isEmpty() || !$$2.sameItem($$0)) continue;
+                 return true;
+             }
+         }
+@@ -479,11 +474,11 @@
+         return false;
+     }
+ 
+-    public void replaceWith(net.minecraft.world.entity.player.Inventory playerInventory) {
+-        for (int i = 0; i < this.getContainerSize(); ++i) {
+-            this.setItem(i, playerInventory.getItem(i));
++    public void replaceWith(net.minecraft.world.entity.player.Inventory $$0) {
++        for (int $$1 = 0; $$1 < this.getContainerSize(); ++$$1) {
++            this.setItem($$1, $$0.getItem($$1));
+         }
+-        this.selected = playerInventory.selected;
++        this.selected = $$0.selected;
+     }
+ 
+     public void clearContent() {
+@@ -492,9 +487,9 @@
+         }
+     }
+ 
+-    public void fillStackedContents(net.minecraft.world.entity.player.StackedContents stackedContent) {
+-        for (net.minecraft.world.item.ItemStack itemStack : this.items) {
+-            stackedContent.accountSimpleStack(itemStack);
++    public void fillStackedContents(net.minecraft.world.entity.player.StackedContents $$0) {
++        for (net.minecraft.world.item.ItemStack $$1 : this.items) {
++            $$0.accountSimpleStack($$1);
+         }
+     }
+ 

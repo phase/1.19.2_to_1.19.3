@@ -1,0 +1,63 @@
+--- net/minecraft/commands/arguments/MessageArgument$ChatMessage.java
++++ net/minecraft/commands/arguments/MessageArgument$ChatMessage.java
+@@ -1,60 +1,0 @@
+-/*
+- * Decompiled with CFR 0.151.
+- */
+-package net.minecraft.commands.arguments;
+-
+-public class net.minecraft.commands.arguments.MessageArgument$ChatMessage
+-extends java.lang.Record
+- {
+-    public net.minecraft.network.chat.PlayerChatMessage signedArgument;
+-
+-    public net.minecraft.commands.arguments.MessageArgument$ChatMessage(net.minecraft.network.chat.PlayerChatMessage $$0) {
+-        this.signedArgument = $$0;
+-    }
+-
+-    public void resolve(net.minecraft.commands.CommandSourceStack $$0, java.util.function.Consumer<net.minecraft.network.chat.PlayerChatMessage> $$1) {
+-        net.minecraft.server.MinecraftServer $$2 = $$0.getServer();
+-        $$0.getChatMessageChainer().append(() -> {
+-            java.util.concurrent.CompletableFuture $$32 = this.filterPlainText($$0, this.signedArgument.signedContent().plain());
+-            java.util.concurrent.CompletableFuture $$4 = $$2.getChatDecorator().decorate($$0.getPlayer(), this.signedArgument);
+-            return java.util.concurrent.CompletableFuture.allOf((java.util.concurrent.CompletableFuture[])new java.util.concurrent.CompletableFuture[]{$$32, $$4}).thenAcceptAsync($$3 -> {
+-                net.minecraft.network.chat.PlayerChatMessage $$4 = ((net.minecraft.network.chat.PlayerChatMessage)$$4.join()).filter(((net.minecraft.server.network.FilteredText)$$32.join()).mask());
+-                $$1.accept((java.lang.Object)$$4);
+-            }, (java.util.concurrent.Executor)$$2);
+-        });
+-    }
+-
+-    public java.util.concurrent.CompletableFuture<net.minecraft.server.network.FilteredText> filterPlainText(net.minecraft.commands.CommandSourceStack $$0, java.lang.String $$1) {
+-        net.minecraft.server.level.ServerPlayer $$2 = $$0.getPlayer();
+-        if ($$2 != null && this.signedArgument.hasSignatureFrom($$2.getUUID())) {
+-            return $$2.getTextFilter().processStreamMessage($$1);
+-        }
+-        return java.util.concurrent.CompletableFuture.completedFuture((java.lang.Object)net.minecraft.server.network.FilteredText.passThrough((java.lang.String)$$1));
+-    }
+-
+-    public void consume(net.minecraft.commands.CommandSourceStack $$0) {
+-        if (!this.signedArgument.signer().isSystem()) {
+-            this.resolve($$0, $$1 -> {
+-                net.minecraft.server.players.PlayerList $$2 = $$0.getServer().getPlayerList();
+-                $$2.broadcastMessageHeader($$1, java.util.Set.of());
+-            });
+-        }
+-    }
+-
+-    public java.lang.String toString() {
+-        return java.lang.runtime.ObjectMethods.bootstrap("toString", new java.lang.invoke.MethodHandle[]{net.minecraft.commands.arguments.MessageArgument$ChatMessage.class, "signedArgument", "signedArgument"}, this);
+-    }
+-
+-    public int hashCode() {
+-        return (int)java.lang.runtime.ObjectMethods.bootstrap("hashCode", new java.lang.invoke.MethodHandle[]{net.minecraft.commands.arguments.MessageArgument$ChatMessage.class, "signedArgument", "signedArgument"}, this);
+-    }
+-
+-    public boolean equals(java.lang.Object $$0) {
+-        return (boolean)java.lang.runtime.ObjectMethods.bootstrap("equals", new java.lang.invoke.MethodHandle[]{net.minecraft.commands.arguments.MessageArgument$ChatMessage.class, "signedArgument", "signedArgument"}, this, $$0);
+-    }
+-
+-    public net.minecraft.network.chat.PlayerChatMessage signedArgument() {
+-        return this.signedArgument;
+-    }
+-}
+-

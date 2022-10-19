@@ -1,0 +1,389 @@
+--- net/minecraft/server/commands/ScoreboardCommand.java
++++ net/minecraft/server/commands/ScoreboardCommand.java
+@@ -15,8 +15,8 @@
+     public net.minecraft.server.commands.ScoreboardCommand() {
+     }
+ 
+-    public static void register(com.mojang.brigadier.CommandDispatcher<net.minecraft.commands.CommandSourceStack> dispatcher) {
+-        dispatcher.register((com.mojang.brigadier.builder.LiteralArgumentBuilder)((com.mojang.brigadier.builder.LiteralArgumentBuilder)((com.mojang.brigadier.builder.LiteralArgumentBuilder)net.minecraft.commands.Commands.literal((java.lang.String)"scoreboard").requires($$0 -> $$0.hasPermission(2))).then(((com.mojang.brigadier.builder.LiteralArgumentBuilder)((com.mojang.brigadier.builder.LiteralArgumentBuilder)((com.mojang.brigadier.builder.LiteralArgumentBuilder)((com.mojang.brigadier.builder.LiteralArgumentBuilder)net.minecraft.commands.Commands.literal((java.lang.String)"objectives").then(net.minecraft.commands.Commands.literal((java.lang.String)"list").executes($$0 -> net.minecraft.server.commands.ScoreboardCommand.listObjectives((net.minecraft.commands.CommandSourceStack)((net.minecraft.commands.CommandSourceStack)$$0.getSource()))))).then(net.minecraft.commands.Commands.literal((java.lang.String)"add").then(net.minecraft.commands.Commands.argument((java.lang.String)"objective", (com.mojang.brigadier.arguments.ArgumentType)com.mojang.brigadier.arguments.StringArgumentType.word()).then(((com.mojang.brigadier.builder.RequiredArgumentBuilder)net.minecraft.commands.Commands.argument((java.lang.String)"criteria", (com.mojang.brigadier.arguments.ArgumentType)net.minecraft.commands.arguments.ObjectiveCriteriaArgument.criteria()).executes($$0 -> net.minecraft.server.commands.ScoreboardCommand.addObjective((net.minecraft.commands.CommandSourceStack)((net.minecraft.commands.CommandSourceStack)$$0.getSource()), (java.lang.String)com.mojang.brigadier.arguments.StringArgumentType.getString((com.mojang.brigadier.context.CommandContext)$$0, (java.lang.String)"objective"), (net.minecraft.world.scores.criteria.ObjectiveCriteria)net.minecraft.commands.arguments.ObjectiveCriteriaArgument.getCriteria((com.mojang.brigadier.context.CommandContext)$$0, (java.lang.String)"criteria"), (net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.literal((java.lang.String)com.mojang.brigadier.arguments.StringArgumentType.getString((com.mojang.brigadier.context.CommandContext)$$0, (java.lang.String)"objective"))))).then(net.minecraft.commands.Commands.argument((java.lang.String)"displayName", (com.mojang.brigadier.arguments.ArgumentType)net.minecraft.commands.arguments.ComponentArgument.textComponent()).executes($$0 -> net.minecraft.server.commands.ScoreboardCommand.addObjective((net.minecraft.commands.CommandSourceStack)((net.minecraft.commands.CommandSourceStack)$$0.getSource()), (java.lang.String)com.mojang.brigadier.arguments.StringArgumentType.getString((com.mojang.brigadier.context.CommandContext)$$0, (java.lang.String)"objective"), (net.minecraft.world.scores.criteria.ObjectiveCriteria)net.minecraft.commands.arguments.ObjectiveCriteriaArgument.getCriteria((com.mojang.brigadier.context.CommandContext)$$0, (java.lang.String)"criteria"), (net.minecraft.network.chat.Component)net.minecraft.commands.arguments.ComponentArgument.getComponent((com.mojang.brigadier.context.CommandContext)$$0, (java.lang.String)"displayName")))))))).then(net.minecraft.commands.Commands.literal((java.lang.String)"modify").then(((com.mojang.brigadier.builder.RequiredArgumentBuilder)net.minecraft.commands.Commands.argument((java.lang.String)"objective", (com.mojang.brigadier.arguments.ArgumentType)net.minecraft.commands.arguments.ObjectiveArgument.objective()).then(net.minecraft.commands.Commands.literal((java.lang.String)"displayname").then(net.minecraft.commands.Commands.argument((java.lang.String)"displayName", (com.mojang.brigadier.arguments.ArgumentType)net.minecraft.commands.arguments.ComponentArgument.textComponent()).executes($$0 -> net.minecraft.server.commands.ScoreboardCommand.setDisplayName((net.minecraft.commands.CommandSourceStack)((net.minecraft.commands.CommandSourceStack)$$0.getSource()), (net.minecraft.world.scores.Objective)net.minecraft.commands.arguments.ObjectiveArgument.getObjective((com.mojang.brigadier.context.CommandContext)$$0, (java.lang.String)"objective"), (net.minecraft.network.chat.Component)net.minecraft.commands.arguments.ComponentArgument.getComponent((com.mojang.brigadier.context.CommandContext)$$0, (java.lang.String)"displayName")))))).then((com.mojang.brigadier.builder.ArgumentBuilder)net.minecraft.server.commands.ScoreboardCommand.createRenderTypeModify())))).then(net.minecraft.commands.Commands.literal((java.lang.String)"remove").then(net.minecraft.commands.Commands.argument((java.lang.String)"objective", (com.mojang.brigadier.arguments.ArgumentType)net.minecraft.commands.arguments.ObjectiveArgument.objective()).executes($$0 -> net.minecraft.server.commands.ScoreboardCommand.removeObjective((net.minecraft.commands.CommandSourceStack)((net.minecraft.commands.CommandSourceStack)$$0.getSource()), (net.minecraft.world.scores.Objective)net.minecraft.commands.arguments.ObjectiveArgument.getObjective((com.mojang.brigadier.context.CommandContext)$$0, (java.lang.String)"objective")))))).then(net.minecraft.commands.Commands.literal((java.lang.String)"setdisplay").then(((com.mojang.brigadier.builder.RequiredArgumentBuilder)net.minecraft.commands.Commands.argument((java.lang.String)"slot", (com.mojang.brigadier.arguments.ArgumentType)net.minecraft.commands.arguments.ScoreboardSlotArgument.displaySlot()).executes($$0 -> net.minecraft.server.commands.ScoreboardCommand.clearDisplaySlot((net.minecraft.commands.CommandSourceStack)((net.minecraft.commands.CommandSourceStack)$$0.getSource()), (int)net.minecraft.commands.arguments.ScoreboardSlotArgument.getDisplaySlot((com.mojang.brigadier.context.CommandContext)$$0, (java.lang.String)"slot")))).then(net.minecraft.commands.Commands.argument((java.lang.String)"objective", (com.mojang.brigadier.arguments.ArgumentType)net.minecraft.commands.arguments.ObjectiveArgument.objective()).executes($$0 -> net.minecraft.server.commands.ScoreboardCommand.setDisplaySlot((net.minecraft.commands.CommandSourceStack)((net.minecraft.commands.CommandSourceStack)$$0.getSource()), (int)net.minecraft.commands.arguments.ScoreboardSlotArgument.getDisplaySlot((com.mojang.brigadier.context.CommandContext)$$0, (java.lang.String)"slot"), (net.minecraft.world.scores.Objective)net.minecraft.commands.arguments.ObjectiveArgument.getObjective((com.mojang.brigadier.context.CommandContext)$$0, (java.lang.String)"objective")))))))).then(((com.mojang.brigadier.builder.LiteralArgumentBuilder)((com.mojang.brigadier.builder.LiteralArgumentBuilder)((com.mojang.brigadier.builder.LiteralArgumentBuilder)((com.mojang.brigadier.builder.LiteralArgumentBuilder)((com.mojang.brigadier.builder.LiteralArgumentBuilder)((com.mojang.brigadier.builder.LiteralArgumentBuilder)((com.mojang.brigadier.builder.LiteralArgumentBuilder)net.minecraft.commands.Commands.literal((java.lang.String)"players").then(((com.mojang.brigadier.builder.LiteralArgumentBuilder)net.minecraft.commands.Commands.literal((java.lang.String)"list").executes($$0 -> net.minecraft.server.commands.ScoreboardCommand.listTrackedPlayers((net.minecraft.commands.CommandSourceStack)((net.minecraft.commands.CommandSourceStack)$$0.getSource())))).then(net.minecraft.commands.Commands.argument((java.lang.String)"target", (com.mojang.brigadier.arguments.ArgumentType)net.minecraft.commands.arguments.ScoreHolderArgument.scoreHolder()).suggests(net.minecraft.commands.arguments.ScoreHolderArgument.SUGGEST_SCORE_HOLDERS).executes($$0 -> net.minecraft.server.commands.ScoreboardCommand.listTrackedPlayerScores((net.minecraft.commands.CommandSourceStack)((net.minecraft.commands.CommandSourceStack)$$0.getSource()), (java.lang.String)net.minecraft.commands.arguments.ScoreHolderArgument.getName((com.mojang.brigadier.context.CommandContext)$$0, (java.lang.String)"target")))))).then(net.minecraft.commands.Commands.literal((java.lang.String)"set").then(net.minecraft.commands.Commands.argument((java.lang.String)"targets", (com.mojang.brigadier.arguments.ArgumentType)net.minecraft.commands.arguments.ScoreHolderArgument.scoreHolders()).suggests(net.minecraft.commands.arguments.ScoreHolderArgument.SUGGEST_SCORE_HOLDERS).then(net.minecraft.commands.Commands.argument((java.lang.String)"objective", (com.mojang.brigadier.arguments.ArgumentType)net.minecraft.commands.arguments.ObjectiveArgument.objective()).then(net.minecraft.commands.Commands.argument((java.lang.String)"score", (com.mojang.brigadier.arguments.ArgumentType)com.mojang.brigadier.arguments.IntegerArgumentType.integer()).executes($$0 -> net.minecraft.server.commands.ScoreboardCommand.setScore((net.minecraft.commands.CommandSourceStack)((net.minecraft.commands.CommandSourceStack)$$0.getSource()), (java.util.Collection)net.minecraft.commands.arguments.ScoreHolderArgument.getNamesWithDefaultWildcard((com.mojang.brigadier.context.CommandContext)$$0, (java.lang.String)"targets"), (net.minecraft.world.scores.Objective)net.minecraft.commands.arguments.ObjectiveArgument.getWritableObjective((com.mojang.brigadier.context.CommandContext)$$0, (java.lang.String)"objective"), (int)com.mojang.brigadier.arguments.IntegerArgumentType.getInteger((com.mojang.brigadier.context.CommandContext)$$0, (java.lang.String)"score")))))))).then(net.minecraft.commands.Commands.literal((java.lang.String)"get").then(net.minecraft.commands.Commands.argument((java.lang.String)"target", (com.mojang.brigadier.arguments.ArgumentType)net.minecraft.commands.arguments.ScoreHolderArgument.scoreHolder()).suggests(net.minecraft.commands.arguments.ScoreHolderArgument.SUGGEST_SCORE_HOLDERS).then(net.minecraft.commands.Commands.argument((java.lang.String)"objective", (com.mojang.brigadier.arguments.ArgumentType)net.minecraft.commands.arguments.ObjectiveArgument.objective()).executes($$0 -> net.minecraft.server.commands.ScoreboardCommand.getScore((net.minecraft.commands.CommandSourceStack)((net.minecraft.commands.CommandSourceStack)$$0.getSource()), (java.lang.String)net.minecraft.commands.arguments.ScoreHolderArgument.getName((com.mojang.brigadier.context.CommandContext)$$0, (java.lang.String)"target"), (net.minecraft.world.scores.Objective)net.minecraft.commands.arguments.ObjectiveArgument.getObjective((com.mojang.brigadier.context.CommandContext)$$0, (java.lang.String)"objective"))))))).then(net.minecraft.commands.Commands.literal((java.lang.String)"add").then(net.minecraft.commands.Commands.argument((java.lang.String)"targets", (com.mojang.brigadier.arguments.ArgumentType)net.minecraft.commands.arguments.ScoreHolderArgument.scoreHolders()).suggests(net.minecraft.commands.arguments.ScoreHolderArgument.SUGGEST_SCORE_HOLDERS).then(net.minecraft.commands.Commands.argument((java.lang.String)"objective", (com.mojang.brigadier.arguments.ArgumentType)net.minecraft.commands.arguments.ObjectiveArgument.objective()).then(net.minecraft.commands.Commands.argument((java.lang.String)"score", (com.mojang.brigadier.arguments.ArgumentType)com.mojang.brigadier.arguments.IntegerArgumentType.integer((int)0)).executes($$0 -> net.minecraft.server.commands.ScoreboardCommand.addScore((net.minecraft.commands.CommandSourceStack)((net.minecraft.commands.CommandSourceStack)$$0.getSource()), (java.util.Collection)net.minecraft.commands.arguments.ScoreHolderArgument.getNamesWithDefaultWildcard((com.mojang.brigadier.context.CommandContext)$$0, (java.lang.String)"targets"), (net.minecraft.world.scores.Objective)net.minecraft.commands.arguments.ObjectiveArgument.getWritableObjective((com.mojang.brigadier.context.CommandContext)$$0, (java.lang.String)"objective"), (int)com.mojang.brigadier.arguments.IntegerArgumentType.getInteger((com.mojang.brigadier.context.CommandContext)$$0, (java.lang.String)"score")))))))).then(net.minecraft.commands.Commands.literal((java.lang.String)"remove").then(net.minecraft.commands.Commands.argument((java.lang.String)"targets", (com.mojang.brigadier.arguments.ArgumentType)net.minecraft.commands.arguments.ScoreHolderArgument.scoreHolders()).suggests(net.minecraft.commands.arguments.ScoreHolderArgument.SUGGEST_SCORE_HOLDERS).then(net.minecraft.commands.Commands.argument((java.lang.String)"objective", (com.mojang.brigadier.arguments.ArgumentType)net.minecraft.commands.arguments.ObjectiveArgument.objective()).then(net.minecraft.commands.Commands.argument((java.lang.String)"score", (com.mojang.brigadier.arguments.ArgumentType)com.mojang.brigadier.arguments.IntegerArgumentType.integer((int)0)).executes($$0 -> net.minecraft.server.commands.ScoreboardCommand.removeScore((net.minecraft.commands.CommandSourceStack)((net.minecraft.commands.CommandSourceStack)$$0.getSource()), (java.util.Collection)net.minecraft.commands.arguments.ScoreHolderArgument.getNamesWithDefaultWildcard((com.mojang.brigadier.context.CommandContext)$$0, (java.lang.String)"targets"), (net.minecraft.world.scores.Objective)net.minecraft.commands.arguments.ObjectiveArgument.getWritableObjective((com.mojang.brigadier.context.CommandContext)$$0, (java.lang.String)"objective"), (int)com.mojang.brigadier.arguments.IntegerArgumentType.getInteger((com.mojang.brigadier.context.CommandContext)$$0, (java.lang.String)"score")))))))).then(net.minecraft.commands.Commands.literal((java.lang.String)"reset").then(((com.mojang.brigadier.builder.RequiredArgumentBuilder)net.minecraft.commands.Commands.argument((java.lang.String)"targets", (com.mojang.brigadier.arguments.ArgumentType)net.minecraft.commands.arguments.ScoreHolderArgument.scoreHolders()).suggests(net.minecraft.commands.arguments.ScoreHolderArgument.SUGGEST_SCORE_HOLDERS).executes($$0 -> net.minecraft.server.commands.ScoreboardCommand.resetScores((net.minecraft.commands.CommandSourceStack)((net.minecraft.commands.CommandSourceStack)$$0.getSource()), (java.util.Collection)net.minecraft.commands.arguments.ScoreHolderArgument.getNamesWithDefaultWildcard((com.mojang.brigadier.context.CommandContext)$$0, (java.lang.String)"targets")))).then(net.minecraft.commands.Commands.argument((java.lang.String)"objective", (com.mojang.brigadier.arguments.ArgumentType)net.minecraft.commands.arguments.ObjectiveArgument.objective()).executes($$0 -> net.minecraft.server.commands.ScoreboardCommand.resetScore((net.minecraft.commands.CommandSourceStack)((net.minecraft.commands.CommandSourceStack)$$0.getSource()), (java.util.Collection)net.minecraft.commands.arguments.ScoreHolderArgument.getNamesWithDefaultWildcard((com.mojang.brigadier.context.CommandContext)$$0, (java.lang.String)"targets"), (net.minecraft.world.scores.Objective)net.minecraft.commands.arguments.ObjectiveArgument.getObjective((com.mojang.brigadier.context.CommandContext)$$0, (java.lang.String)"objective"))))))).then(net.minecraft.commands.Commands.literal((java.lang.String)"enable").then(net.minecraft.commands.Commands.argument((java.lang.String)"targets", (com.mojang.brigadier.arguments.ArgumentType)net.minecraft.commands.arguments.ScoreHolderArgument.scoreHolders()).suggests(net.minecraft.commands.arguments.ScoreHolderArgument.SUGGEST_SCORE_HOLDERS).then(net.minecraft.commands.Commands.argument((java.lang.String)"objective", (com.mojang.brigadier.arguments.ArgumentType)net.minecraft.commands.arguments.ObjectiveArgument.objective()).suggests(($$0, $$1) -> net.minecraft.server.commands.ScoreboardCommand.suggestTriggers((net.minecraft.commands.CommandSourceStack)((net.minecraft.commands.CommandSourceStack)$$0.getSource()), (java.util.Collection)net.minecraft.commands.arguments.ScoreHolderArgument.getNamesWithDefaultWildcard((com.mojang.brigadier.context.CommandContext)$$0, (java.lang.String)"targets"), (com.mojang.brigadier.suggestion.SuggestionsBuilder)$$1)).executes($$0 -> net.minecraft.server.commands.ScoreboardCommand.enableTrigger((net.minecraft.commands.CommandSourceStack)((net.minecraft.commands.CommandSourceStack)$$0.getSource()), (java.util.Collection)net.minecraft.commands.arguments.ScoreHolderArgument.getNamesWithDefaultWildcard((com.mojang.brigadier.context.CommandContext)$$0, (java.lang.String)"targets"), (net.minecraft.world.scores.Objective)net.minecraft.commands.arguments.ObjectiveArgument.getObjective((com.mojang.brigadier.context.CommandContext)$$0, (java.lang.String)"objective"))))))).then(net.minecraft.commands.Commands.literal((java.lang.String)"operation").then(net.minecraft.commands.Commands.argument((java.lang.String)"targets", (com.mojang.brigadier.arguments.ArgumentType)net.minecraft.commands.arguments.ScoreHolderArgument.scoreHolders()).suggests(net.minecraft.commands.arguments.ScoreHolderArgument.SUGGEST_SCORE_HOLDERS).then(net.minecraft.commands.Commands.argument((java.lang.String)"targetObjective", (com.mojang.brigadier.arguments.ArgumentType)net.minecraft.commands.arguments.ObjectiveArgument.objective()).then(net.minecraft.commands.Commands.argument((java.lang.String)"operation", (com.mojang.brigadier.arguments.ArgumentType)net.minecraft.commands.arguments.OperationArgument.operation()).then(net.minecraft.commands.Commands.argument((java.lang.String)"source", (com.mojang.brigadier.arguments.ArgumentType)net.minecraft.commands.arguments.ScoreHolderArgument.scoreHolders()).suggests(net.minecraft.commands.arguments.ScoreHolderArgument.SUGGEST_SCORE_HOLDERS).then(net.minecraft.commands.Commands.argument((java.lang.String)"sourceObjective", (com.mojang.brigadier.arguments.ArgumentType)net.minecraft.commands.arguments.ObjectiveArgument.objective()).executes($$0 -> net.minecraft.server.commands.ScoreboardCommand.performOperation((net.minecraft.commands.CommandSourceStack)((net.minecraft.commands.CommandSourceStack)$$0.getSource()), (java.util.Collection)net.minecraft.commands.arguments.ScoreHolderArgument.getNamesWithDefaultWildcard((com.mojang.brigadier.context.CommandContext)$$0, (java.lang.String)"targets"), (net.minecraft.world.scores.Objective)net.minecraft.commands.arguments.ObjectiveArgument.getWritableObjective((com.mojang.brigadier.context.CommandContext)$$0, (java.lang.String)"targetObjective"), (net.minecraft.commands.arguments.OperationArgument$Operation)net.minecraft.commands.arguments.OperationArgument.getOperation((com.mojang.brigadier.context.CommandContext)$$0, (java.lang.String)"operation"), (java.util.Collection)net.minecraft.commands.arguments.ScoreHolderArgument.getNamesWithDefaultWildcard((com.mojang.brigadier.context.CommandContext)$$0, (java.lang.String)"source"), (net.minecraft.world.scores.Objective)net.minecraft.commands.arguments.ObjectiveArgument.getObjective((com.mojang.brigadier.context.CommandContext)$$0, (java.lang.String)"sourceObjective")))))))))));
++    public static void register(com.mojang.brigadier.CommandDispatcher<net.minecraft.commands.CommandSourceStack> $$02) {
++        $$02.register((com.mojang.brigadier.builder.LiteralArgumentBuilder)((com.mojang.brigadier.builder.LiteralArgumentBuilder)((com.mojang.brigadier.builder.LiteralArgumentBuilder)net.minecraft.commands.Commands.literal((java.lang.String)"scoreboard").requires($$0 -> $$0.hasPermission(2))).then(((com.mojang.brigadier.builder.LiteralArgumentBuilder)((com.mojang.brigadier.builder.LiteralArgumentBuilder)((com.mojang.brigadier.builder.LiteralArgumentBuilder)((com.mojang.brigadier.builder.LiteralArgumentBuilder)net.minecraft.commands.Commands.literal((java.lang.String)"objectives").then(net.minecraft.commands.Commands.literal((java.lang.String)"list").executes($$0 -> net.minecraft.server.commands.ScoreboardCommand.listObjectives((net.minecraft.commands.CommandSourceStack)((net.minecraft.commands.CommandSourceStack)$$0.getSource()))))).then(net.minecraft.commands.Commands.literal((java.lang.String)"add").then(net.minecraft.commands.Commands.argument((java.lang.String)"objective", (com.mojang.brigadier.arguments.ArgumentType)com.mojang.brigadier.arguments.StringArgumentType.word()).then(((com.mojang.brigadier.builder.RequiredArgumentBuilder)net.minecraft.commands.Commands.argument((java.lang.String)"criteria", (com.mojang.brigadier.arguments.ArgumentType)net.minecraft.commands.arguments.ObjectiveCriteriaArgument.criteria()).executes($$0 -> net.minecraft.server.commands.ScoreboardCommand.addObjective((net.minecraft.commands.CommandSourceStack)((net.minecraft.commands.CommandSourceStack)$$0.getSource()), (java.lang.String)com.mojang.brigadier.arguments.StringArgumentType.getString((com.mojang.brigadier.context.CommandContext)$$0, (java.lang.String)"objective"), (net.minecraft.world.scores.criteria.ObjectiveCriteria)net.minecraft.commands.arguments.ObjectiveCriteriaArgument.getCriteria((com.mojang.brigadier.context.CommandContext)$$0, (java.lang.String)"criteria"), (net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.literal((java.lang.String)com.mojang.brigadier.arguments.StringArgumentType.getString((com.mojang.brigadier.context.CommandContext)$$0, (java.lang.String)"objective"))))).then(net.minecraft.commands.Commands.argument((java.lang.String)"displayName", (com.mojang.brigadier.arguments.ArgumentType)net.minecraft.commands.arguments.ComponentArgument.textComponent()).executes($$0 -> net.minecraft.server.commands.ScoreboardCommand.addObjective((net.minecraft.commands.CommandSourceStack)((net.minecraft.commands.CommandSourceStack)$$0.getSource()), (java.lang.String)com.mojang.brigadier.arguments.StringArgumentType.getString((com.mojang.brigadier.context.CommandContext)$$0, (java.lang.String)"objective"), (net.minecraft.world.scores.criteria.ObjectiveCriteria)net.minecraft.commands.arguments.ObjectiveCriteriaArgument.getCriteria((com.mojang.brigadier.context.CommandContext)$$0, (java.lang.String)"criteria"), (net.minecraft.network.chat.Component)net.minecraft.commands.arguments.ComponentArgument.getComponent((com.mojang.brigadier.context.CommandContext)$$0, (java.lang.String)"displayName")))))))).then(net.minecraft.commands.Commands.literal((java.lang.String)"modify").then(((com.mojang.brigadier.builder.RequiredArgumentBuilder)net.minecraft.commands.Commands.argument((java.lang.String)"objective", (com.mojang.brigadier.arguments.ArgumentType)net.minecraft.commands.arguments.ObjectiveArgument.objective()).then(net.minecraft.commands.Commands.literal((java.lang.String)"displayname").then(net.minecraft.commands.Commands.argument((java.lang.String)"displayName", (com.mojang.brigadier.arguments.ArgumentType)net.minecraft.commands.arguments.ComponentArgument.textComponent()).executes($$0 -> net.minecraft.server.commands.ScoreboardCommand.setDisplayName((net.minecraft.commands.CommandSourceStack)((net.minecraft.commands.CommandSourceStack)$$0.getSource()), (net.minecraft.world.scores.Objective)net.minecraft.commands.arguments.ObjectiveArgument.getObjective((com.mojang.brigadier.context.CommandContext)$$0, (java.lang.String)"objective"), (net.minecraft.network.chat.Component)net.minecraft.commands.arguments.ComponentArgument.getComponent((com.mojang.brigadier.context.CommandContext)$$0, (java.lang.String)"displayName")))))).then((com.mojang.brigadier.builder.ArgumentBuilder)net.minecraft.server.commands.ScoreboardCommand.createRenderTypeModify())))).then(net.minecraft.commands.Commands.literal((java.lang.String)"remove").then(net.minecraft.commands.Commands.argument((java.lang.String)"objective", (com.mojang.brigadier.arguments.ArgumentType)net.minecraft.commands.arguments.ObjectiveArgument.objective()).executes($$0 -> net.minecraft.server.commands.ScoreboardCommand.removeObjective((net.minecraft.commands.CommandSourceStack)((net.minecraft.commands.CommandSourceStack)$$0.getSource()), (net.minecraft.world.scores.Objective)net.minecraft.commands.arguments.ObjectiveArgument.getObjective((com.mojang.brigadier.context.CommandContext)$$0, (java.lang.String)"objective")))))).then(net.minecraft.commands.Commands.literal((java.lang.String)"setdisplay").then(((com.mojang.brigadier.builder.RequiredArgumentBuilder)net.minecraft.commands.Commands.argument((java.lang.String)"slot", (com.mojang.brigadier.arguments.ArgumentType)net.minecraft.commands.arguments.ScoreboardSlotArgument.displaySlot()).executes($$0 -> net.minecraft.server.commands.ScoreboardCommand.clearDisplaySlot((net.minecraft.commands.CommandSourceStack)((net.minecraft.commands.CommandSourceStack)$$0.getSource()), (int)net.minecraft.commands.arguments.ScoreboardSlotArgument.getDisplaySlot((com.mojang.brigadier.context.CommandContext)$$0, (java.lang.String)"slot")))).then(net.minecraft.commands.Commands.argument((java.lang.String)"objective", (com.mojang.brigadier.arguments.ArgumentType)net.minecraft.commands.arguments.ObjectiveArgument.objective()).executes($$0 -> net.minecraft.server.commands.ScoreboardCommand.setDisplaySlot((net.minecraft.commands.CommandSourceStack)((net.minecraft.commands.CommandSourceStack)$$0.getSource()), (int)net.minecraft.commands.arguments.ScoreboardSlotArgument.getDisplaySlot((com.mojang.brigadier.context.CommandContext)$$0, (java.lang.String)"slot"), (net.minecraft.world.scores.Objective)net.minecraft.commands.arguments.ObjectiveArgument.getObjective((com.mojang.brigadier.context.CommandContext)$$0, (java.lang.String)"objective")))))))).then(((com.mojang.brigadier.builder.LiteralArgumentBuilder)((com.mojang.brigadier.builder.LiteralArgumentBuilder)((com.mojang.brigadier.builder.LiteralArgumentBuilder)((com.mojang.brigadier.builder.LiteralArgumentBuilder)((com.mojang.brigadier.builder.LiteralArgumentBuilder)((com.mojang.brigadier.builder.LiteralArgumentBuilder)((com.mojang.brigadier.builder.LiteralArgumentBuilder)net.minecraft.commands.Commands.literal((java.lang.String)"players").then(((com.mojang.brigadier.builder.LiteralArgumentBuilder)net.minecraft.commands.Commands.literal((java.lang.String)"list").executes($$0 -> net.minecraft.server.commands.ScoreboardCommand.listTrackedPlayers((net.minecraft.commands.CommandSourceStack)((net.minecraft.commands.CommandSourceStack)$$0.getSource())))).then(net.minecraft.commands.Commands.argument((java.lang.String)"target", (com.mojang.brigadier.arguments.ArgumentType)net.minecraft.commands.arguments.ScoreHolderArgument.scoreHolder()).suggests(net.minecraft.commands.arguments.ScoreHolderArgument.SUGGEST_SCORE_HOLDERS).executes($$0 -> net.minecraft.server.commands.ScoreboardCommand.listTrackedPlayerScores((net.minecraft.commands.CommandSourceStack)((net.minecraft.commands.CommandSourceStack)$$0.getSource()), (java.lang.String)net.minecraft.commands.arguments.ScoreHolderArgument.getName((com.mojang.brigadier.context.CommandContext)$$0, (java.lang.String)"target")))))).then(net.minecraft.commands.Commands.literal((java.lang.String)"set").then(net.minecraft.commands.Commands.argument((java.lang.String)"targets", (com.mojang.brigadier.arguments.ArgumentType)net.minecraft.commands.arguments.ScoreHolderArgument.scoreHolders()).suggests(net.minecraft.commands.arguments.ScoreHolderArgument.SUGGEST_SCORE_HOLDERS).then(net.minecraft.commands.Commands.argument((java.lang.String)"objective", (com.mojang.brigadier.arguments.ArgumentType)net.minecraft.commands.arguments.ObjectiveArgument.objective()).then(net.minecraft.commands.Commands.argument((java.lang.String)"score", (com.mojang.brigadier.arguments.ArgumentType)com.mojang.brigadier.arguments.IntegerArgumentType.integer()).executes($$0 -> net.minecraft.server.commands.ScoreboardCommand.setScore((net.minecraft.commands.CommandSourceStack)((net.minecraft.commands.CommandSourceStack)$$0.getSource()), (java.util.Collection)net.minecraft.commands.arguments.ScoreHolderArgument.getNamesWithDefaultWildcard((com.mojang.brigadier.context.CommandContext)$$0, (java.lang.String)"targets"), (net.minecraft.world.scores.Objective)net.minecraft.commands.arguments.ObjectiveArgument.getWritableObjective((com.mojang.brigadier.context.CommandContext)$$0, (java.lang.String)"objective"), (int)com.mojang.brigadier.arguments.IntegerArgumentType.getInteger((com.mojang.brigadier.context.CommandContext)$$0, (java.lang.String)"score")))))))).then(net.minecraft.commands.Commands.literal((java.lang.String)"get").then(net.minecraft.commands.Commands.argument((java.lang.String)"target", (com.mojang.brigadier.arguments.ArgumentType)net.minecraft.commands.arguments.ScoreHolderArgument.scoreHolder()).suggests(net.minecraft.commands.arguments.ScoreHolderArgument.SUGGEST_SCORE_HOLDERS).then(net.minecraft.commands.Commands.argument((java.lang.String)"objective", (com.mojang.brigadier.arguments.ArgumentType)net.minecraft.commands.arguments.ObjectiveArgument.objective()).executes($$0 -> net.minecraft.server.commands.ScoreboardCommand.getScore((net.minecraft.commands.CommandSourceStack)((net.minecraft.commands.CommandSourceStack)$$0.getSource()), (java.lang.String)net.minecraft.commands.arguments.ScoreHolderArgument.getName((com.mojang.brigadier.context.CommandContext)$$0, (java.lang.String)"target"), (net.minecraft.world.scores.Objective)net.minecraft.commands.arguments.ObjectiveArgument.getObjective((com.mojang.brigadier.context.CommandContext)$$0, (java.lang.String)"objective"))))))).then(net.minecraft.commands.Commands.literal((java.lang.String)"add").then(net.minecraft.commands.Commands.argument((java.lang.String)"targets", (com.mojang.brigadier.arguments.ArgumentType)net.minecraft.commands.arguments.ScoreHolderArgument.scoreHolders()).suggests(net.minecraft.commands.arguments.ScoreHolderArgument.SUGGEST_SCORE_HOLDERS).then(net.minecraft.commands.Commands.argument((java.lang.String)"objective", (com.mojang.brigadier.arguments.ArgumentType)net.minecraft.commands.arguments.ObjectiveArgument.objective()).then(net.minecraft.commands.Commands.argument((java.lang.String)"score", (com.mojang.brigadier.arguments.ArgumentType)com.mojang.brigadier.arguments.IntegerArgumentType.integer((int)0)).executes($$0 -> net.minecraft.server.commands.ScoreboardCommand.addScore((net.minecraft.commands.CommandSourceStack)((net.minecraft.commands.CommandSourceStack)$$0.getSource()), (java.util.Collection)net.minecraft.commands.arguments.ScoreHolderArgument.getNamesWithDefaultWildcard((com.mojang.brigadier.context.CommandContext)$$0, (java.lang.String)"targets"), (net.minecraft.world.scores.Objective)net.minecraft.commands.arguments.ObjectiveArgument.getWritableObjective((com.mojang.brigadier.context.CommandContext)$$0, (java.lang.String)"objective"), (int)com.mojang.brigadier.arguments.IntegerArgumentType.getInteger((com.mojang.brigadier.context.CommandContext)$$0, (java.lang.String)"score")))))))).then(net.minecraft.commands.Commands.literal((java.lang.String)"remove").then(net.minecraft.commands.Commands.argument((java.lang.String)"targets", (com.mojang.brigadier.arguments.ArgumentType)net.minecraft.commands.arguments.ScoreHolderArgument.scoreHolders()).suggests(net.minecraft.commands.arguments.ScoreHolderArgument.SUGGEST_SCORE_HOLDERS).then(net.minecraft.commands.Commands.argument((java.lang.String)"objective", (com.mojang.brigadier.arguments.ArgumentType)net.minecraft.commands.arguments.ObjectiveArgument.objective()).then(net.minecraft.commands.Commands.argument((java.lang.String)"score", (com.mojang.brigadier.arguments.ArgumentType)com.mojang.brigadier.arguments.IntegerArgumentType.integer((int)0)).executes($$0 -> net.minecraft.server.commands.ScoreboardCommand.removeScore((net.minecraft.commands.CommandSourceStack)((net.minecraft.commands.CommandSourceStack)$$0.getSource()), (java.util.Collection)net.minecraft.commands.arguments.ScoreHolderArgument.getNamesWithDefaultWildcard((com.mojang.brigadier.context.CommandContext)$$0, (java.lang.String)"targets"), (net.minecraft.world.scores.Objective)net.minecraft.commands.arguments.ObjectiveArgument.getWritableObjective((com.mojang.brigadier.context.CommandContext)$$0, (java.lang.String)"objective"), (int)com.mojang.brigadier.arguments.IntegerArgumentType.getInteger((com.mojang.brigadier.context.CommandContext)$$0, (java.lang.String)"score")))))))).then(net.minecraft.commands.Commands.literal((java.lang.String)"reset").then(((com.mojang.brigadier.builder.RequiredArgumentBuilder)net.minecraft.commands.Commands.argument((java.lang.String)"targets", (com.mojang.brigadier.arguments.ArgumentType)net.minecraft.commands.arguments.ScoreHolderArgument.scoreHolders()).suggests(net.minecraft.commands.arguments.ScoreHolderArgument.SUGGEST_SCORE_HOLDERS).executes($$0 -> net.minecraft.server.commands.ScoreboardCommand.resetScores((net.minecraft.commands.CommandSourceStack)((net.minecraft.commands.CommandSourceStack)$$0.getSource()), (java.util.Collection)net.minecraft.commands.arguments.ScoreHolderArgument.getNamesWithDefaultWildcard((com.mojang.brigadier.context.CommandContext)$$0, (java.lang.String)"targets")))).then(net.minecraft.commands.Commands.argument((java.lang.String)"objective", (com.mojang.brigadier.arguments.ArgumentType)net.minecraft.commands.arguments.ObjectiveArgument.objective()).executes($$0 -> net.minecraft.server.commands.ScoreboardCommand.resetScore((net.minecraft.commands.CommandSourceStack)((net.minecraft.commands.CommandSourceStack)$$0.getSource()), (java.util.Collection)net.minecraft.commands.arguments.ScoreHolderArgument.getNamesWithDefaultWildcard((com.mojang.brigadier.context.CommandContext)$$0, (java.lang.String)"targets"), (net.minecraft.world.scores.Objective)net.minecraft.commands.arguments.ObjectiveArgument.getObjective((com.mojang.brigadier.context.CommandContext)$$0, (java.lang.String)"objective"))))))).then(net.minecraft.commands.Commands.literal((java.lang.String)"enable").then(net.minecraft.commands.Commands.argument((java.lang.String)"targets", (com.mojang.brigadier.arguments.ArgumentType)net.minecraft.commands.arguments.ScoreHolderArgument.scoreHolders()).suggests(net.minecraft.commands.arguments.ScoreHolderArgument.SUGGEST_SCORE_HOLDERS).then(net.minecraft.commands.Commands.argument((java.lang.String)"objective", (com.mojang.brigadier.arguments.ArgumentType)net.minecraft.commands.arguments.ObjectiveArgument.objective()).suggests(($$0, $$1) -> net.minecraft.server.commands.ScoreboardCommand.suggestTriggers((net.minecraft.commands.CommandSourceStack)((net.minecraft.commands.CommandSourceStack)$$0.getSource()), (java.util.Collection)net.minecraft.commands.arguments.ScoreHolderArgument.getNamesWithDefaultWildcard((com.mojang.brigadier.context.CommandContext)$$0, (java.lang.String)"targets"), (com.mojang.brigadier.suggestion.SuggestionsBuilder)$$1)).executes($$0 -> net.minecraft.server.commands.ScoreboardCommand.enableTrigger((net.minecraft.commands.CommandSourceStack)((net.minecraft.commands.CommandSourceStack)$$0.getSource()), (java.util.Collection)net.minecraft.commands.arguments.ScoreHolderArgument.getNamesWithDefaultWildcard((com.mojang.brigadier.context.CommandContext)$$0, (java.lang.String)"targets"), (net.minecraft.world.scores.Objective)net.minecraft.commands.arguments.ObjectiveArgument.getObjective((com.mojang.brigadier.context.CommandContext)$$0, (java.lang.String)"objective"))))))).then(net.minecraft.commands.Commands.literal((java.lang.String)"operation").then(net.minecraft.commands.Commands.argument((java.lang.String)"targets", (com.mojang.brigadier.arguments.ArgumentType)net.minecraft.commands.arguments.ScoreHolderArgument.scoreHolders()).suggests(net.minecraft.commands.arguments.ScoreHolderArgument.SUGGEST_SCORE_HOLDERS).then(net.minecraft.commands.Commands.argument((java.lang.String)"targetObjective", (com.mojang.brigadier.arguments.ArgumentType)net.minecraft.commands.arguments.ObjectiveArgument.objective()).then(net.minecraft.commands.Commands.argument((java.lang.String)"operation", (com.mojang.brigadier.arguments.ArgumentType)net.minecraft.commands.arguments.OperationArgument.operation()).then(net.minecraft.commands.Commands.argument((java.lang.String)"source", (com.mojang.brigadier.arguments.ArgumentType)net.minecraft.commands.arguments.ScoreHolderArgument.scoreHolders()).suggests(net.minecraft.commands.arguments.ScoreHolderArgument.SUGGEST_SCORE_HOLDERS).then(net.minecraft.commands.Commands.argument((java.lang.String)"sourceObjective", (com.mojang.brigadier.arguments.ArgumentType)net.minecraft.commands.arguments.ObjectiveArgument.objective()).executes($$0 -> net.minecraft.server.commands.ScoreboardCommand.performOperation((net.minecraft.commands.CommandSourceStack)((net.minecraft.commands.CommandSourceStack)$$0.getSource()), (java.util.Collection)net.minecraft.commands.arguments.ScoreHolderArgument.getNamesWithDefaultWildcard((com.mojang.brigadier.context.CommandContext)$$0, (java.lang.String)"targets"), (net.minecraft.world.scores.Objective)net.minecraft.commands.arguments.ObjectiveArgument.getWritableObjective((com.mojang.brigadier.context.CommandContext)$$0, (java.lang.String)"targetObjective"), (net.minecraft.commands.arguments.OperationArgument$Operation)net.minecraft.commands.arguments.OperationArgument.getOperation((com.mojang.brigadier.context.CommandContext)$$0, (java.lang.String)"operation"), (java.util.Collection)net.minecraft.commands.arguments.ScoreHolderArgument.getNamesWithDefaultWildcard((com.mojang.brigadier.context.CommandContext)$$0, (java.lang.String)"source"), (net.minecraft.world.scores.Objective)net.minecraft.commands.arguments.ObjectiveArgument.getObjective((com.mojang.brigadier.context.CommandContext)$$0, (java.lang.String)"sourceObjective")))))))))));
+     }
+ 
+     public static com.mojang.brigadier.builder.LiteralArgumentBuilder<net.minecraft.commands.CommandSourceStack> createRenderTypeModify() {
+@@ -27,232 +27,232 @@
+         return $$0;
+     }
+ 
+-    public static java.util.concurrent.CompletableFuture<com.mojang.brigadier.suggestion.Suggestions> suggestTriggers(net.minecraft.commands.CommandSourceStack source, java.util.Collection<java.lang.String> targets, com.mojang.brigadier.suggestion.SuggestionsBuilder suggestions) {
+-        java.util.ArrayList arrayList = com.google.common.collect.Lists.newArrayList();
+-        net.minecraft.server.ServerScoreboard serverScoreboard = source.getServer().getScoreboard();
+-        for (net.minecraft.world.scores.Objective objective : serverScoreboard.getObjectives()) {
+-            if (objective.getCriteria() != net.minecraft.world.scores.criteria.ObjectiveCriteria.TRIGGER) continue;
+-            boolean bl = false;
+-            for (java.lang.String string : targets) {
+-                if (serverScoreboard.hasPlayerScore(string, objective) && !serverScoreboard.getOrCreatePlayerScore(string, objective).isLocked()) continue;
+-                bl = true;
++    public static java.util.concurrent.CompletableFuture<com.mojang.brigadier.suggestion.Suggestions> suggestTriggers(net.minecraft.commands.CommandSourceStack $$0, java.util.Collection<java.lang.String> $$1, com.mojang.brigadier.suggestion.SuggestionsBuilder $$2) {
++        java.util.ArrayList $$3 = com.google.common.collect.Lists.newArrayList();
++        net.minecraft.server.ServerScoreboard $$4 = $$0.getServer().getScoreboard();
++        for (net.minecraft.world.scores.Objective $$5 : $$4.getObjectives()) {
++            if ($$5.getCriteria() != net.minecraft.world.scores.criteria.ObjectiveCriteria.TRIGGER) continue;
++            boolean $$6 = false;
++            for (java.lang.String $$7 : $$1) {
++                if ($$4.hasPlayerScore($$7, $$5) && !$$4.getOrCreatePlayerScore($$7, $$5).isLocked()) continue;
++                $$6 = true;
+                 break;
+             }
+-            if (!bl) continue;
+-            arrayList.add((java.lang.Object)objective.getName());
++            if (!$$6) continue;
++            $$3.add((java.lang.Object)$$5.getName());
+         }
+-        return net.minecraft.commands.SharedSuggestionProvider.suggest((java.lang.Iterable)arrayList, (com.mojang.brigadier.suggestion.SuggestionsBuilder)suggestions);
++        return net.minecraft.commands.SharedSuggestionProvider.suggest((java.lang.Iterable)$$3, (com.mojang.brigadier.suggestion.SuggestionsBuilder)$$2);
+     }
+ 
+-    public static int getScore(net.minecraft.commands.CommandSourceStack source, java.lang.String player, net.minecraft.world.scores.Objective objective) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
+-        net.minecraft.server.ServerScoreboard serverScoreboard = source.getServer().getScoreboard();
+-        if (!serverScoreboard.hasPlayerScore(player, objective)) {
+-            throw ERROR_NO_VALUE.create((java.lang.Object)objective.getName(), (java.lang.Object)player);
++    public static int getScore(net.minecraft.commands.CommandSourceStack $$0, java.lang.String $$1, net.minecraft.world.scores.Objective $$2) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
++        net.minecraft.server.ServerScoreboard $$3 = $$0.getServer().getScoreboard();
++        if (!$$3.hasPlayerScore($$1, $$2)) {
++            throw ERROR_NO_VALUE.create((java.lang.Object)$$2.getName(), (java.lang.Object)$$1);
+         }
+-        net.minecraft.world.scores.Score score = serverScoreboard.getOrCreatePlayerScore(player, objective);
+-        source.sendSuccess((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"commands.scoreboard.players.get.success", (java.lang.Object[])new java.lang.Object[]{player, score.getScore(), objective.getFormattedDisplayName()}), false);
+-        return score.getScore();
++        net.minecraft.world.scores.Score $$4 = $$3.getOrCreatePlayerScore($$1, $$2);
++        $$0.sendSuccess((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"commands.scoreboard.players.get.success", (java.lang.Object[])new java.lang.Object[]{$$1, $$4.getScore(), $$2.getFormattedDisplayName()}), false);
++        return $$4.getScore();
+     }
+ 
+-    public static int performOperation(net.minecraft.commands.CommandSourceStack source, java.util.Collection<java.lang.String> targetEntities, net.minecraft.world.scores.Objective targetObjectives, net.minecraft.commands.arguments.OperationArgument$Operation operation, java.util.Collection<java.lang.String> sourceEntities, net.minecraft.world.scores.Objective sourceObjective) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
+-        net.minecraft.server.ServerScoreboard serverScoreboard = source.getServer().getScoreboard();
+-        int n = 0;
+-        for (java.lang.String string : targetEntities) {
+-            net.minecraft.world.scores.Score score = serverScoreboard.getOrCreatePlayerScore(string, targetObjectives);
+-            for (java.lang.String string2 : sourceEntities) {
+-                net.minecraft.world.scores.Score score2 = serverScoreboard.getOrCreatePlayerScore(string2, sourceObjective);
+-                operation.apply(score, score2);
++    public static int performOperation(net.minecraft.commands.CommandSourceStack $$0, java.util.Collection<java.lang.String> $$1, net.minecraft.world.scores.Objective $$2, net.minecraft.commands.arguments.OperationArgument$Operation $$3, java.util.Collection<java.lang.String> $$4, net.minecraft.world.scores.Objective $$5) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
++        net.minecraft.server.ServerScoreboard $$6 = $$0.getServer().getScoreboard();
++        int $$7 = 0;
++        for (java.lang.String $$8 : $$1) {
++            net.minecraft.world.scores.Score $$9 = $$6.getOrCreatePlayerScore($$8, $$2);
++            for (java.lang.String $$10 : $$4) {
++                net.minecraft.world.scores.Score $$11 = $$6.getOrCreatePlayerScore($$10, $$5);
++                $$3.apply($$9, $$11);
+             }
+-            n += score.getScore();
++            $$7 += $$9.getScore();
+         }
+-        if (targetEntities.size() == 1) {
+-            source.sendSuccess((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"commands.scoreboard.players.operation.success.single", (java.lang.Object[])new java.lang.Object[]{targetObjectives.getFormattedDisplayName(), targetEntities.iterator().next(), n}), true);
++        if ($$1.size() == 1) {
++            $$0.sendSuccess((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"commands.scoreboard.players.operation.success.single", (java.lang.Object[])new java.lang.Object[]{$$2.getFormattedDisplayName(), $$1.iterator().next(), $$7}), true);
+         } else {
+-            source.sendSuccess((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"commands.scoreboard.players.operation.success.multiple", (java.lang.Object[])new java.lang.Object[]{targetObjectives.getFormattedDisplayName(), targetEntities.size()}), true);
++            $$0.sendSuccess((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"commands.scoreboard.players.operation.success.multiple", (java.lang.Object[])new java.lang.Object[]{$$2.getFormattedDisplayName(), $$1.size()}), true);
+         }
+-        return n;
++        return $$7;
+     }
+ 
+-    public static int enableTrigger(net.minecraft.commands.CommandSourceStack source, java.util.Collection<java.lang.String> targets, net.minecraft.world.scores.Objective objective) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
+-        if (objective.getCriteria() != net.minecraft.world.scores.criteria.ObjectiveCriteria.TRIGGER) {
++    public static int enableTrigger(net.minecraft.commands.CommandSourceStack $$0, java.util.Collection<java.lang.String> $$1, net.minecraft.world.scores.Objective $$2) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
++        if ($$2.getCriteria() != net.minecraft.world.scores.criteria.ObjectiveCriteria.TRIGGER) {
+             throw ERROR_NOT_TRIGGER.create();
+         }
+-        net.minecraft.server.ServerScoreboard serverScoreboard = source.getServer().getScoreboard();
+-        int n = 0;
+-        for (java.lang.String string : targets) {
+-            net.minecraft.world.scores.Score score = serverScoreboard.getOrCreatePlayerScore(string, objective);
+-            if (!score.isLocked()) continue;
+-            score.setLocked(false);
+-            ++n;
++        net.minecraft.server.ServerScoreboard $$3 = $$0.getServer().getScoreboard();
++        int $$4 = 0;
++        for (java.lang.String $$5 : $$1) {
++            net.minecraft.world.scores.Score $$6 = $$3.getOrCreatePlayerScore($$5, $$2);
++            if (!$$6.isLocked()) continue;
++            $$6.setLocked(false);
++            ++$$4;
+         }
+-        if (n == 0) {
++        if ($$4 == 0) {
+             throw ERROR_TRIGGER_ALREADY_ENABLED.create();
+         }
+-        if (targets.size() == 1) {
+-            source.sendSuccess((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"commands.scoreboard.players.enable.success.single", (java.lang.Object[])new java.lang.Object[]{objective.getFormattedDisplayName(), targets.iterator().next()}), true);
++        if ($$1.size() == 1) {
++            $$0.sendSuccess((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"commands.scoreboard.players.enable.success.single", (java.lang.Object[])new java.lang.Object[]{$$2.getFormattedDisplayName(), $$1.iterator().next()}), true);
+         } else {
+-            source.sendSuccess((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"commands.scoreboard.players.enable.success.multiple", (java.lang.Object[])new java.lang.Object[]{objective.getFormattedDisplayName(), targets.size()}), true);
++            $$0.sendSuccess((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"commands.scoreboard.players.enable.success.multiple", (java.lang.Object[])new java.lang.Object[]{$$2.getFormattedDisplayName(), $$1.size()}), true);
+         }
+-        return n;
++        return $$4;
+     }
+ 
+-    public static int resetScores(net.minecraft.commands.CommandSourceStack source, java.util.Collection<java.lang.String> targets) {
+-        net.minecraft.server.ServerScoreboard serverScoreboard = source.getServer().getScoreboard();
+-        for (java.lang.String string : targets) {
+-            serverScoreboard.resetPlayerScore(string, null);
++    public static int resetScores(net.minecraft.commands.CommandSourceStack $$0, java.util.Collection<java.lang.String> $$1) {
++        net.minecraft.server.ServerScoreboard $$2 = $$0.getServer().getScoreboard();
++        for (java.lang.String $$3 : $$1) {
++            $$2.resetPlayerScore($$3, null);
+         }
+-        if (targets.size() == 1) {
+-            source.sendSuccess((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"commands.scoreboard.players.reset.all.single", (java.lang.Object[])new java.lang.Object[]{targets.iterator().next()}), true);
++        if ($$1.size() == 1) {
++            $$0.sendSuccess((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"commands.scoreboard.players.reset.all.single", (java.lang.Object[])new java.lang.Object[]{$$1.iterator().next()}), true);
+         } else {
+-            source.sendSuccess((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"commands.scoreboard.players.reset.all.multiple", (java.lang.Object[])new java.lang.Object[]{targets.size()}), true);
++            $$0.sendSuccess((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"commands.scoreboard.players.reset.all.multiple", (java.lang.Object[])new java.lang.Object[]{$$1.size()}), true);
+         }
+-        return targets.size();
++        return $$1.size();
+     }
+ 
+-    public static int resetScore(net.minecraft.commands.CommandSourceStack source, java.util.Collection<java.lang.String> targets, net.minecraft.world.scores.Objective objective) {
+-        net.minecraft.server.ServerScoreboard serverScoreboard = source.getServer().getScoreboard();
+-        for (java.lang.String string : targets) {
+-            serverScoreboard.resetPlayerScore(string, objective);
++    public static int resetScore(net.minecraft.commands.CommandSourceStack $$0, java.util.Collection<java.lang.String> $$1, net.minecraft.world.scores.Objective $$2) {
++        net.minecraft.server.ServerScoreboard $$3 = $$0.getServer().getScoreboard();
++        for (java.lang.String $$4 : $$1) {
++            $$3.resetPlayerScore($$4, $$2);
+         }
+-        if (targets.size() == 1) {
+-            source.sendSuccess((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"commands.scoreboard.players.reset.specific.single", (java.lang.Object[])new java.lang.Object[]{objective.getFormattedDisplayName(), targets.iterator().next()}), true);
++        if ($$1.size() == 1) {
++            $$0.sendSuccess((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"commands.scoreboard.players.reset.specific.single", (java.lang.Object[])new java.lang.Object[]{$$2.getFormattedDisplayName(), $$1.iterator().next()}), true);
+         } else {
+-            source.sendSuccess((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"commands.scoreboard.players.reset.specific.multiple", (java.lang.Object[])new java.lang.Object[]{objective.getFormattedDisplayName(), targets.size()}), true);
++            $$0.sendSuccess((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"commands.scoreboard.players.reset.specific.multiple", (java.lang.Object[])new java.lang.Object[]{$$2.getFormattedDisplayName(), $$1.size()}), true);
+         }
+-        return targets.size();
++        return $$1.size();
+     }
+ 
+-    public static int setScore(net.minecraft.commands.CommandSourceStack source, java.util.Collection<java.lang.String> targets, net.minecraft.world.scores.Objective objective, int newValue) {
+-        net.minecraft.server.ServerScoreboard serverScoreboard = source.getServer().getScoreboard();
+-        for (java.lang.String string : targets) {
+-            net.minecraft.world.scores.Score score = serverScoreboard.getOrCreatePlayerScore(string, objective);
+-            score.setScore(newValue);
++    public static int setScore(net.minecraft.commands.CommandSourceStack $$0, java.util.Collection<java.lang.String> $$1, net.minecraft.world.scores.Objective $$2, int $$3) {
++        net.minecraft.server.ServerScoreboard $$4 = $$0.getServer().getScoreboard();
++        for (java.lang.String $$5 : $$1) {
++            net.minecraft.world.scores.Score $$6 = $$4.getOrCreatePlayerScore($$5, $$2);
++            $$6.setScore($$3);
+         }
+-        if (targets.size() == 1) {
+-            source.sendSuccess((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"commands.scoreboard.players.set.success.single", (java.lang.Object[])new java.lang.Object[]{objective.getFormattedDisplayName(), targets.iterator().next(), newValue}), true);
++        if ($$1.size() == 1) {
++            $$0.sendSuccess((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"commands.scoreboard.players.set.success.single", (java.lang.Object[])new java.lang.Object[]{$$2.getFormattedDisplayName(), $$1.iterator().next(), $$3}), true);
+         } else {
+-            source.sendSuccess((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"commands.scoreboard.players.set.success.multiple", (java.lang.Object[])new java.lang.Object[]{objective.getFormattedDisplayName(), targets.size(), newValue}), true);
++            $$0.sendSuccess((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"commands.scoreboard.players.set.success.multiple", (java.lang.Object[])new java.lang.Object[]{$$2.getFormattedDisplayName(), $$1.size(), $$3}), true);
+         }
+-        return newValue * targets.size();
++        return $$3 * $$1.size();
+     }
+ 
+-    public static int addScore(net.minecraft.commands.CommandSourceStack source, java.util.Collection<java.lang.String> targets, net.minecraft.world.scores.Objective objective, int amount) {
+-        net.minecraft.server.ServerScoreboard serverScoreboard = source.getServer().getScoreboard();
+-        int n = 0;
+-        for (java.lang.String string : targets) {
+-            net.minecraft.world.scores.Score score = serverScoreboard.getOrCreatePlayerScore(string, objective);
+-            score.setScore(score.getScore() + amount);
+-            n += score.getScore();
++    public static int addScore(net.minecraft.commands.CommandSourceStack $$0, java.util.Collection<java.lang.String> $$1, net.minecraft.world.scores.Objective $$2, int $$3) {
++        net.minecraft.server.ServerScoreboard $$4 = $$0.getServer().getScoreboard();
++        int $$5 = 0;
++        for (java.lang.String $$6 : $$1) {
++            net.minecraft.world.scores.Score $$7 = $$4.getOrCreatePlayerScore($$6, $$2);
++            $$7.setScore($$7.getScore() + $$3);
++            $$5 += $$7.getScore();
+         }
+-        if (targets.size() == 1) {
+-            source.sendSuccess((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"commands.scoreboard.players.add.success.single", (java.lang.Object[])new java.lang.Object[]{amount, objective.getFormattedDisplayName(), targets.iterator().next(), n}), true);
++        if ($$1.size() == 1) {
++            $$0.sendSuccess((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"commands.scoreboard.players.add.success.single", (java.lang.Object[])new java.lang.Object[]{$$3, $$2.getFormattedDisplayName(), $$1.iterator().next(), $$5}), true);
+         } else {
+-            source.sendSuccess((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"commands.scoreboard.players.add.success.multiple", (java.lang.Object[])new java.lang.Object[]{amount, objective.getFormattedDisplayName(), targets.size()}), true);
++            $$0.sendSuccess((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"commands.scoreboard.players.add.success.multiple", (java.lang.Object[])new java.lang.Object[]{$$3, $$2.getFormattedDisplayName(), $$1.size()}), true);
+         }
+-        return n;
++        return $$5;
+     }
+ 
+-    public static int removeScore(net.minecraft.commands.CommandSourceStack source, java.util.Collection<java.lang.String> targets, net.minecraft.world.scores.Objective objective, int amount) {
+-        net.minecraft.server.ServerScoreboard serverScoreboard = source.getServer().getScoreboard();
+-        int n = 0;
+-        for (java.lang.String string : targets) {
+-            net.minecraft.world.scores.Score score = serverScoreboard.getOrCreatePlayerScore(string, objective);
+-            score.setScore(score.getScore() - amount);
+-            n += score.getScore();
++    public static int removeScore(net.minecraft.commands.CommandSourceStack $$0, java.util.Collection<java.lang.String> $$1, net.minecraft.world.scores.Objective $$2, int $$3) {
++        net.minecraft.server.ServerScoreboard $$4 = $$0.getServer().getScoreboard();
++        int $$5 = 0;
++        for (java.lang.String $$6 : $$1) {
++            net.minecraft.world.scores.Score $$7 = $$4.getOrCreatePlayerScore($$6, $$2);
++            $$7.setScore($$7.getScore() - $$3);
++            $$5 += $$7.getScore();
+         }
+-        if (targets.size() == 1) {
+-            source.sendSuccess((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"commands.scoreboard.players.remove.success.single", (java.lang.Object[])new java.lang.Object[]{amount, objective.getFormattedDisplayName(), targets.iterator().next(), n}), true);
++        if ($$1.size() == 1) {
++            $$0.sendSuccess((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"commands.scoreboard.players.remove.success.single", (java.lang.Object[])new java.lang.Object[]{$$3, $$2.getFormattedDisplayName(), $$1.iterator().next(), $$5}), true);
+         } else {
+-            source.sendSuccess((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"commands.scoreboard.players.remove.success.multiple", (java.lang.Object[])new java.lang.Object[]{amount, objective.getFormattedDisplayName(), targets.size()}), true);
++            $$0.sendSuccess((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"commands.scoreboard.players.remove.success.multiple", (java.lang.Object[])new java.lang.Object[]{$$3, $$2.getFormattedDisplayName(), $$1.size()}), true);
+         }
+-        return n;
++        return $$5;
+     }
+ 
+-    public static int listTrackedPlayers(net.minecraft.commands.CommandSourceStack source) {
+-        java.util.Collection collection = source.getServer().getScoreboard().getTrackedPlayers();
+-        if (collection.isEmpty()) {
+-            source.sendSuccess((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"commands.scoreboard.players.list.empty"), false);
++    public static int listTrackedPlayers(net.minecraft.commands.CommandSourceStack $$0) {
++        java.util.Collection $$1 = $$0.getServer().getScoreboard().getTrackedPlayers();
++        if ($$1.isEmpty()) {
++            $$0.sendSuccess((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"commands.scoreboard.players.list.empty"), false);
+         } else {
+-            source.sendSuccess((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"commands.scoreboard.players.list.success", (java.lang.Object[])new java.lang.Object[]{collection.size(), net.minecraft.network.chat.ComponentUtils.formatList((java.util.Collection)collection)}), false);
++            $$0.sendSuccess((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"commands.scoreboard.players.list.success", (java.lang.Object[])new java.lang.Object[]{$$1.size(), net.minecraft.network.chat.ComponentUtils.formatList((java.util.Collection)$$1)}), false);
+         }
+-        return collection.size();
++        return $$1.size();
+     }
+ 
+-    public static int listTrackedPlayerScores(net.minecraft.commands.CommandSourceStack source, java.lang.String player) {
+-        java.util.Map map = source.getServer().getScoreboard().getPlayerScores(player);
+-        if (map.isEmpty()) {
+-            source.sendSuccess((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"commands.scoreboard.players.list.entity.empty", (java.lang.Object[])new java.lang.Object[]{player}), false);
++    public static int listTrackedPlayerScores(net.minecraft.commands.CommandSourceStack $$0, java.lang.String $$1) {
++        java.util.Map $$2 = $$0.getServer().getScoreboard().getPlayerScores($$1);
++        if ($$2.isEmpty()) {
++            $$0.sendSuccess((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"commands.scoreboard.players.list.entity.empty", (java.lang.Object[])new java.lang.Object[]{$$1}), false);
+         } else {
+-            source.sendSuccess((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"commands.scoreboard.players.list.entity.success", (java.lang.Object[])new java.lang.Object[]{player, map.size()}), false);
+-            for (java.util.Map$Entry entry : map.entrySet()) {
+-                source.sendSuccess((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"commands.scoreboard.players.list.entity.entry", (java.lang.Object[])new java.lang.Object[]{((net.minecraft.world.scores.Objective)entry.getKey()).getFormattedDisplayName(), ((net.minecraft.world.scores.Score)entry.getValue()).getScore()}), false);
++            $$0.sendSuccess((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"commands.scoreboard.players.list.entity.success", (java.lang.Object[])new java.lang.Object[]{$$1, $$2.size()}), false);
++            for (java.util.Map$Entry $$3 : $$2.entrySet()) {
++                $$0.sendSuccess((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"commands.scoreboard.players.list.entity.entry", (java.lang.Object[])new java.lang.Object[]{((net.minecraft.world.scores.Objective)$$3.getKey()).getFormattedDisplayName(), ((net.minecraft.world.scores.Score)$$3.getValue()).getScore()}), false);
+             }
+         }
+-        return map.size();
++        return $$2.size();
+     }
+ 
+-    public static int clearDisplaySlot(net.minecraft.commands.CommandSourceStack source, int slotId) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
+-        net.minecraft.server.ServerScoreboard serverScoreboard = source.getServer().getScoreboard();
+-        if (serverScoreboard.getDisplayObjective(slotId) == null) {
++    public static int clearDisplaySlot(net.minecraft.commands.CommandSourceStack $$0, int $$1) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
++        net.minecraft.server.ServerScoreboard $$2 = $$0.getServer().getScoreboard();
++        if ($$2.getDisplayObjective($$1) == null) {
+             throw ERROR_DISPLAY_SLOT_ALREADY_EMPTY.create();
+         }
+-        serverScoreboard.setDisplayObjective(slotId, null);
+-        source.sendSuccess((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"commands.scoreboard.objectives.display.cleared", (java.lang.Object[])new java.lang.Object[]{net.minecraft.world.scores.Scoreboard.getDisplaySlotNames()[slotId]}), true);
++        $$2.setDisplayObjective($$1, null);
++        $$0.sendSuccess((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"commands.scoreboard.objectives.display.cleared", (java.lang.Object[])new java.lang.Object[]{net.minecraft.world.scores.Scoreboard.getDisplaySlotNames()[$$1]}), true);
+         return 0;
+     }
+ 
+-    public static int setDisplaySlot(net.minecraft.commands.CommandSourceStack source, int slotId, net.minecraft.world.scores.Objective objective) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
+-        net.minecraft.server.ServerScoreboard serverScoreboard = source.getServer().getScoreboard();
+-        if (serverScoreboard.getDisplayObjective(slotId) == objective) {
++    public static int setDisplaySlot(net.minecraft.commands.CommandSourceStack $$0, int $$1, net.minecraft.world.scores.Objective $$2) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
++        net.minecraft.server.ServerScoreboard $$3 = $$0.getServer().getScoreboard();
++        if ($$3.getDisplayObjective($$1) == $$2) {
+             throw ERROR_DISPLAY_SLOT_ALREADY_SET.create();
+         }
+-        serverScoreboard.setDisplayObjective(slotId, objective);
+-        source.sendSuccess((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"commands.scoreboard.objectives.display.set", (java.lang.Object[])new java.lang.Object[]{net.minecraft.world.scores.Scoreboard.getDisplaySlotNames()[slotId], objective.getDisplayName()}), true);
++        $$3.setDisplayObjective($$1, $$2);
++        $$0.sendSuccess((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"commands.scoreboard.objectives.display.set", (java.lang.Object[])new java.lang.Object[]{net.minecraft.world.scores.Scoreboard.getDisplaySlotNames()[$$1], $$2.getDisplayName()}), true);
+         return 0;
+     }
+ 
+-    public static int setDisplayName(net.minecraft.commands.CommandSourceStack source, net.minecraft.world.scores.Objective objective, net.minecraft.network.chat.Component displayName) {
+-        if (!objective.getDisplayName().equals((java.lang.Object)displayName)) {
+-            objective.setDisplayName(displayName);
+-            source.sendSuccess((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"commands.scoreboard.objectives.modify.displayname", (java.lang.Object[])new java.lang.Object[]{objective.getName(), objective.getFormattedDisplayName()}), true);
++    public static int setDisplayName(net.minecraft.commands.CommandSourceStack $$0, net.minecraft.world.scores.Objective $$1, net.minecraft.network.chat.Component $$2) {
++        if (!$$1.getDisplayName().equals((java.lang.Object)$$2)) {
++            $$1.setDisplayName($$2);
++            $$0.sendSuccess((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"commands.scoreboard.objectives.modify.displayname", (java.lang.Object[])new java.lang.Object[]{$$1.getName(), $$1.getFormattedDisplayName()}), true);
+         }
+         return 0;
+     }
+ 
+-    public static int setRenderType(net.minecraft.commands.CommandSourceStack source, net.minecraft.world.scores.Objective objective, net.minecraft.world.scores.criteria.ObjectiveCriteria$RenderType renderType) {
+-        if (objective.getRenderType() != renderType) {
+-            objective.setRenderType(renderType);
+-            source.sendSuccess((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"commands.scoreboard.objectives.modify.rendertype", (java.lang.Object[])new java.lang.Object[]{objective.getFormattedDisplayName()}), true);
++    public static int setRenderType(net.minecraft.commands.CommandSourceStack $$0, net.minecraft.world.scores.Objective $$1, net.minecraft.world.scores.criteria.ObjectiveCriteria$RenderType $$2) {
++        if ($$1.getRenderType() != $$2) {
++            $$1.setRenderType($$2);
++            $$0.sendSuccess((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"commands.scoreboard.objectives.modify.rendertype", (java.lang.Object[])new java.lang.Object[]{$$1.getFormattedDisplayName()}), true);
+         }
+         return 0;
+     }
+ 
+-    public static int removeObjective(net.minecraft.commands.CommandSourceStack source, net.minecraft.world.scores.Objective objective) {
+-        net.minecraft.server.ServerScoreboard serverScoreboard = source.getServer().getScoreboard();
+-        serverScoreboard.removeObjective(objective);
+-        source.sendSuccess((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"commands.scoreboard.objectives.remove.success", (java.lang.Object[])new java.lang.Object[]{objective.getFormattedDisplayName()}), true);
+-        return serverScoreboard.getObjectives().size();
++    public static int removeObjective(net.minecraft.commands.CommandSourceStack $$0, net.minecraft.world.scores.Objective $$1) {
++        net.minecraft.server.ServerScoreboard $$2 = $$0.getServer().getScoreboard();
++        $$2.removeObjective($$1);
++        $$0.sendSuccess((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"commands.scoreboard.objectives.remove.success", (java.lang.Object[])new java.lang.Object[]{$$1.getFormattedDisplayName()}), true);
++        return $$2.getObjectives().size();
+     }
+ 
+-    public static int addObjective(net.minecraft.commands.CommandSourceStack source, java.lang.String name, net.minecraft.world.scores.criteria.ObjectiveCriteria criteria, net.minecraft.network.chat.Component displayName) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
+-        net.minecraft.server.ServerScoreboard serverScoreboard = source.getServer().getScoreboard();
+-        if (serverScoreboard.getObjective(name) != null) {
++    public static int addObjective(net.minecraft.commands.CommandSourceStack $$0, java.lang.String $$1, net.minecraft.world.scores.criteria.ObjectiveCriteria $$2, net.minecraft.network.chat.Component $$3) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
++        net.minecraft.server.ServerScoreboard $$4 = $$0.getServer().getScoreboard();
++        if ($$4.getObjective($$1) != null) {
+             throw ERROR_OBJECTIVE_ALREADY_EXISTS.create();
+         }
+-        serverScoreboard.addObjective(name, criteria, displayName, criteria.getDefaultRenderType());
+-        net.minecraft.world.scores.Objective objective = serverScoreboard.getObjective(name);
+-        source.sendSuccess((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"commands.scoreboard.objectives.add.success", (java.lang.Object[])new java.lang.Object[]{objective.getFormattedDisplayName()}), true);
+-        return serverScoreboard.getObjectives().size();
++        $$4.addObjective($$1, $$2, $$3, $$2.getDefaultRenderType());
++        net.minecraft.world.scores.Objective $$5 = $$4.getObjective($$1);
++        $$0.sendSuccess((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"commands.scoreboard.objectives.add.success", (java.lang.Object[])new java.lang.Object[]{$$5.getFormattedDisplayName()}), true);
++        return $$4.getObjectives().size();
+     }
+ 
+-    public static int listObjectives(net.minecraft.commands.CommandSourceStack source) {
+-        java.util.Collection collection = source.getServer().getScoreboard().getObjectives();
+-        if (collection.isEmpty()) {
+-            source.sendSuccess((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"commands.scoreboard.objectives.list.empty"), false);
++    public static int listObjectives(net.minecraft.commands.CommandSourceStack $$0) {
++        java.util.Collection $$1 = $$0.getServer().getScoreboard().getObjectives();
++        if ($$1.isEmpty()) {
++            $$0.sendSuccess((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"commands.scoreboard.objectives.list.empty"), false);
+         } else {
+-            source.sendSuccess((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"commands.scoreboard.objectives.list.success", (java.lang.Object[])new java.lang.Object[]{collection.size(), net.minecraft.network.chat.ComponentUtils.formatList((java.util.Collection)collection, net.minecraft.world.scores.Objective::getFormattedDisplayName)}), false);
++            $$0.sendSuccess((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"commands.scoreboard.objectives.list.success", (java.lang.Object[])new java.lang.Object[]{$$1.size(), net.minecraft.network.chat.ComponentUtils.formatList((java.util.Collection)$$1, net.minecraft.world.scores.Objective::getFormattedDisplayName)}), false);
+         }
+-        return collection.size();
++        return $$1.size();
+     }
+ 
+     public static /* synthetic */ com.mojang.brigadier.Message lambda$static$0(java.lang.Object $$0, java.lang.Object $$1) {

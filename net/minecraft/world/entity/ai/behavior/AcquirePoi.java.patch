@@ -1,0 +1,71 @@
+--- net/minecraft/world/entity/ai/behavior/AcquirePoi.java
++++ net/minecraft/world/entity/ai/behavior/AcquirePoi.java
+@@ -38,46 +38,46 @@
+         return $$2.build();
+     }
+ 
+-    public boolean checkExtraStartConditions(net.minecraft.server.level.ServerLevel level, net.minecraft.world.entity.PathfinderMob owner) {
+-        if (this.onlyIfAdult && owner.isBaby()) {
++    public boolean checkExtraStartConditions(net.minecraft.server.level.ServerLevel $$0, net.minecraft.world.entity.PathfinderMob $$1) {
++        if (this.onlyIfAdult && $$1.isBaby()) {
+             return false;
+         }
+         if (this.nextScheduledStart == 0L) {
+-            this.nextScheduledStart = owner.level.getGameTime() + (long)level.random.nextInt(20);
++            this.nextScheduledStart = $$1.level.getGameTime() + (long)$$0.random.nextInt(20);
+             return false;
+         }
+-        return level.getGameTime() >= this.nextScheduledStart;
++        return $$0.getGameTime() >= this.nextScheduledStart;
+     }
+ 
+-    public void start(net.minecraft.server.level.ServerLevel level, net.minecraft.world.entity.PathfinderMob entity, long gameTime) {
+-        this.nextScheduledStart = gameTime + 20L + (long)level.getRandom().nextInt(20);
+-        net.minecraft.world.entity.ai.village.poi.PoiManager poiManager = level.getPoiManager();
+-        this.batchCache.long2ObjectEntrySet().removeIf($$1 -> !((net.minecraft.world.entity.ai.behavior.AcquirePoi$JitteredLinearRetry)$$1.getValue()).isStillValid(gameTime));
+-        java.util.function.Predicate predicate = $$1 -> {
++    public void start(net.minecraft.server.level.ServerLevel $$0, net.minecraft.world.entity.PathfinderMob $$12, long $$22) {
++        this.nextScheduledStart = $$22 + 20L + (long)$$0.getRandom().nextInt(20);
++        net.minecraft.world.entity.ai.village.poi.PoiManager $$3 = $$0.getPoiManager();
++        this.batchCache.long2ObjectEntrySet().removeIf($$1 -> !((net.minecraft.world.entity.ai.behavior.AcquirePoi$JitteredLinearRetry)$$1.getValue()).isStillValid($$22));
++        java.util.function.Predicate $$42 = $$1 -> {
+             net.minecraft.world.entity.ai.behavior.AcquirePoi$JitteredLinearRetry $$2 = (net.minecraft.world.entity.ai.behavior.AcquirePoi$JitteredLinearRetry)this.batchCache.get($$1.asLong());
+             if ($$2 == null) {
+                 return true;
+             }
+-            if (!$$2.shouldRetry(gameTime)) {
++            if (!$$2.shouldRetry($$22)) {
+                 return false;
+             }
+-            $$2.markAttempt(gameTime);
++            $$2.markAttempt($$22);
+             return true;
+         };
+-        java.util.Set set = (java.util.Set)poiManager.findAllClosestFirstWithType(this.poiType, predicate, entity.blockPosition(), 48, net.minecraft.world.entity.ai.village.poi.PoiManager$Occupancy.HAS_SPACE).limit(5L).collect(java.util.stream.Collectors.toSet());
+-        net.minecraft.world.level.pathfinder.Path path = net.minecraft.world.entity.ai.behavior.AcquirePoi.findPathToPois((net.minecraft.world.entity.Mob)entity, (java.util.Set)set);
+-        if (path != null && path.canReach()) {
+-            net.minecraft.core.BlockPos blockPos = path.getTarget();
+-            poiManager.getType(blockPos).ifPresent($$4 -> {
+-                poiManager.take(this.poiType, ($$1, $$2) -> $$2.equals((java.lang.Object)blockPos), blockPos, 1);
+-                entity.getBrain().setMemory(this.memoryToAcquire, (java.lang.Object)net.minecraft.core.GlobalPos.of((net.minecraft.resources.ResourceKey)level.dimension(), (net.minecraft.core.BlockPos)blockPos));
+-                this.onPoiAcquisitionEvent.ifPresent($$2 -> level.broadcastEntityEvent((net.minecraft.world.entity.Entity)entity, $$2.byteValue()));
++        java.util.Set $$5 = (java.util.Set)$$3.findAllClosestFirstWithType(this.poiType, $$42, $$12.blockPosition(), 48, net.minecraft.world.entity.ai.village.poi.PoiManager$Occupancy.HAS_SPACE).limit(5L).collect(java.util.stream.Collectors.toSet());
++        net.minecraft.world.level.pathfinder.Path $$6 = net.minecraft.world.entity.ai.behavior.AcquirePoi.findPathToPois((net.minecraft.world.entity.Mob)$$12, (java.util.Set)$$5);
++        if ($$6 != null && $$6.canReach()) {
++            net.minecraft.core.BlockPos $$7 = $$6.getTarget();
++            $$3.getType($$7).ifPresent($$4 -> {
++                $$3.take(this.poiType, ($$1, $$2) -> $$2.equals((java.lang.Object)$$7), $$7, 1);
++                $$12.getBrain().setMemory(this.memoryToAcquire, (java.lang.Object)net.minecraft.core.GlobalPos.of((net.minecraft.resources.ResourceKey)$$0.dimension(), (net.minecraft.core.BlockPos)$$7));
++                this.onPoiAcquisitionEvent.ifPresent($$2 -> $$0.broadcastEntityEvent((net.minecraft.world.entity.Entity)$$12, $$2.byteValue()));
+                 this.batchCache.clear();
+-                net.minecraft.network.protocol.game.DebugPackets.sendPoiTicketCountPacket((net.minecraft.server.level.ServerLevel)level, (net.minecraft.core.BlockPos)blockPos);
++                net.minecraft.network.protocol.game.DebugPackets.sendPoiTicketCountPacket((net.minecraft.server.level.ServerLevel)$$0, (net.minecraft.core.BlockPos)$$7);
+             });
+         } else {
+-            for (com.mojang.datafixers.util.Pair pair : set) {
+-                this.batchCache.computeIfAbsent(((net.minecraft.core.BlockPos)pair.getSecond()).asLong(), $$2 -> new net.minecraft.world.entity.ai.behavior.AcquirePoi$JitteredLinearRetry($$0.level.random, gameTime));
++            for (com.mojang.datafixers.util.Pair $$8 : $$5) {
++                this.batchCache.computeIfAbsent(((net.minecraft.core.BlockPos)$$8.getSecond()).asLong(), $$2 -> new net.minecraft.world.entity.ai.behavior.AcquirePoi$JitteredLinearRetry($$0.level.random, $$22));
+             }
+         }
+     }

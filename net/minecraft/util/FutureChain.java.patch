@@ -1,0 +1,43 @@
+--- net/minecraft/util/FutureChain.java
++++ net/minecraft/util/FutureChain.java
+@@ -4,19 +4,25 @@
+ package net.minecraft.util;
+ 
+ public class net.minecraft.util.FutureChain
+-implements net.minecraft.util.TaskChainer
++implements net.minecraft.util.TaskChainer,
++java.lang.AutoCloseable
+  {
+     public static org.slf4j.Logger LOGGER;
+     public java.util.concurrent.CompletableFuture<?> head;
+-    public java.util.concurrent.Executor executor;
++    public java.util.concurrent.Executor checkedExecutor;
++    public volatile boolean closed;
+ 
+     public net.minecraft.util.FutureChain(java.util.concurrent.Executor $$0) {
+         this.head = java.util.concurrent.CompletableFuture.completedFuture(null);
+-        this.executor = $$0;
++        this.checkedExecutor = $$1 -> {
++            if (!this.closed) {
++                $$0.execute($$1);
++            }
++        };
+     }
+ 
+     public void append(net.minecraft.util.TaskChainer$DelayedTask $$02) {
+-        this.head = this.head.thenComposeAsync($$1 -> (java.util.concurrent.CompletionStage)$$02.get(), this.executor).exceptionally($$0 -> {
++        this.head = this.head.thenComposeAsync($$1 -> $$02.submit(this.checkedExecutor), this.checkedExecutor).exceptionally($$0 -> {
+             if ($$0 instanceof java.util.concurrent.CompletionException) {
+                 java.util.concurrent.CompletionException $$1 = (java.util.concurrent.CompletionException)$$0;
+                 $$0 = $$1.getCause();
+@@ -30,6 +36,10 @@
+         });
+     }
+ 
++    public void close() {
++        this.closed = true;
++    }
++
+     static {
+         LOGGER = com.mojang.logging.LogUtils.getLogger();
+     }

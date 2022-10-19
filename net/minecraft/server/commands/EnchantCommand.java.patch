@@ -1,0 +1,72 @@
+--- net/minecraft/server/commands/EnchantCommand.java
++++ net/minecraft/server/commands/EnchantCommand.java
+@@ -14,43 +14,44 @@
+     public net.minecraft.server.commands.EnchantCommand() {
+     }
+ 
+-    public static void register(com.mojang.brigadier.CommandDispatcher<net.minecraft.commands.CommandSourceStack> dispatcher) {
+-        dispatcher.register((com.mojang.brigadier.builder.LiteralArgumentBuilder)((com.mojang.brigadier.builder.LiteralArgumentBuilder)net.minecraft.commands.Commands.literal((java.lang.String)"enchant").requires($$0 -> $$0.hasPermission(2))).then(net.minecraft.commands.Commands.argument((java.lang.String)"targets", (com.mojang.brigadier.arguments.ArgumentType)net.minecraft.commands.arguments.EntityArgument.entities()).then(((com.mojang.brigadier.builder.RequiredArgumentBuilder)net.minecraft.commands.Commands.argument((java.lang.String)"enchantment", (com.mojang.brigadier.arguments.ArgumentType)net.minecraft.commands.arguments.ItemEnchantmentArgument.enchantment()).executes($$0 -> net.minecraft.server.commands.EnchantCommand.enchant((net.minecraft.commands.CommandSourceStack)((net.minecraft.commands.CommandSourceStack)$$0.getSource()), (java.util.Collection)net.minecraft.commands.arguments.EntityArgument.getEntities((com.mojang.brigadier.context.CommandContext)$$0, (java.lang.String)"targets"), (net.minecraft.world.item.enchantment.Enchantment)net.minecraft.commands.arguments.ItemEnchantmentArgument.getEnchantment((com.mojang.brigadier.context.CommandContext)$$0, (java.lang.String)"enchantment"), (int)1))).then(net.minecraft.commands.Commands.argument((java.lang.String)"level", (com.mojang.brigadier.arguments.ArgumentType)com.mojang.brigadier.arguments.IntegerArgumentType.integer((int)0)).executes($$0 -> net.minecraft.server.commands.EnchantCommand.enchant((net.minecraft.commands.CommandSourceStack)((net.minecraft.commands.CommandSourceStack)$$0.getSource()), (java.util.Collection)net.minecraft.commands.arguments.EntityArgument.getEntities((com.mojang.brigadier.context.CommandContext)$$0, (java.lang.String)"targets"), (net.minecraft.world.item.enchantment.Enchantment)net.minecraft.commands.arguments.ItemEnchantmentArgument.getEnchantment((com.mojang.brigadier.context.CommandContext)$$0, (java.lang.String)"enchantment"), (int)com.mojang.brigadier.arguments.IntegerArgumentType.getInteger((com.mojang.brigadier.context.CommandContext)$$0, (java.lang.String)"level")))))));
++    public static void register(com.mojang.brigadier.CommandDispatcher<net.minecraft.commands.CommandSourceStack> $$02, net.minecraft.commands.CommandBuildContext $$1) {
++        $$02.register((com.mojang.brigadier.builder.LiteralArgumentBuilder)((com.mojang.brigadier.builder.LiteralArgumentBuilder)net.minecraft.commands.Commands.literal((java.lang.String)"enchant").requires($$0 -> $$0.hasPermission(2))).then(net.minecraft.commands.Commands.argument((java.lang.String)"targets", (com.mojang.brigadier.arguments.ArgumentType)net.minecraft.commands.arguments.EntityArgument.entities()).then(((com.mojang.brigadier.builder.RequiredArgumentBuilder)net.minecraft.commands.Commands.argument((java.lang.String)"enchantment", (com.mojang.brigadier.arguments.ArgumentType)net.minecraft.commands.arguments.ResourceArgument.resource((net.minecraft.commands.CommandBuildContext)$$1, (net.minecraft.resources.ResourceKey)net.minecraft.core.Registry.ENCHANTMENT_REGISTRY)).executes($$0 -> net.minecraft.server.commands.EnchantCommand.enchant((net.minecraft.commands.CommandSourceStack)((net.minecraft.commands.CommandSourceStack)$$0.getSource()), (java.util.Collection)net.minecraft.commands.arguments.EntityArgument.getEntities((com.mojang.brigadier.context.CommandContext)$$0, (java.lang.String)"targets"), (net.minecraft.core.Holder)net.minecraft.commands.arguments.ResourceArgument.getEnchantment((com.mojang.brigadier.context.CommandContext)$$0, (java.lang.String)"enchantment"), (int)1))).then(net.minecraft.commands.Commands.argument((java.lang.String)"level", (com.mojang.brigadier.arguments.ArgumentType)com.mojang.brigadier.arguments.IntegerArgumentType.integer((int)0)).executes($$0 -> net.minecraft.server.commands.EnchantCommand.enchant((net.minecraft.commands.CommandSourceStack)((net.minecraft.commands.CommandSourceStack)$$0.getSource()), (java.util.Collection)net.minecraft.commands.arguments.EntityArgument.getEntities((com.mojang.brigadier.context.CommandContext)$$0, (java.lang.String)"targets"), (net.minecraft.core.Holder)net.minecraft.commands.arguments.ResourceArgument.getEnchantment((com.mojang.brigadier.context.CommandContext)$$0, (java.lang.String)"enchantment"), (int)com.mojang.brigadier.arguments.IntegerArgumentType.getInteger((com.mojang.brigadier.context.CommandContext)$$0, (java.lang.String)"level")))))));
+     }
+ 
+-    public static int enchant(net.minecraft.commands.CommandSourceStack source, java.util.Collection<? extends net.minecraft.world.entity.Entity> targets, net.minecraft.world.item.enchantment.Enchantment enchantment, int level) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
+-        if (level > enchantment.getMaxLevel()) {
+-            throw ERROR_LEVEL_TOO_HIGH.create((java.lang.Object)level, (java.lang.Object)enchantment.getMaxLevel());
++    public static int enchant(net.minecraft.commands.CommandSourceStack $$0, java.util.Collection<? extends net.minecraft.world.entity.Entity> $$1, net.minecraft.core.Holder<net.minecraft.world.item.enchantment.Enchantment> $$2, int $$3) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
++        net.minecraft.world.item.enchantment.Enchantment $$4 = (net.minecraft.world.item.enchantment.Enchantment)$$2.value();
++        if ($$3 > $$4.getMaxLevel()) {
++            throw ERROR_LEVEL_TOO_HIGH.create((java.lang.Object)$$3, (java.lang.Object)$$4.getMaxLevel());
+         }
+-        int n = 0;
+-        for (net.minecraft.world.entity.Entity entity : targets) {
+-            if (entity instanceof net.minecraft.world.entity.LivingEntity) {
+-                net.minecraft.world.entity.LivingEntity livingEntity = (net.minecraft.world.entity.LivingEntity)entity;
+-                net.minecraft.world.item.ItemStack itemStack = livingEntity.getMainHandItem();
+-                if (!itemStack.isEmpty()) {
+-                    if (enchantment.canEnchant(itemStack) && net.minecraft.world.item.enchantment.EnchantmentHelper.isEnchantmentCompatible((java.util.Collection)net.minecraft.world.item.enchantment.EnchantmentHelper.getEnchantments((net.minecraft.world.item.ItemStack)itemStack).keySet(), (net.minecraft.world.item.enchantment.Enchantment)enchantment)) {
+-                        itemStack.enchant(enchantment, level);
+-                        ++n;
++        int $$5 = 0;
++        for (net.minecraft.world.entity.Entity $$6 : $$1) {
++            if ($$6 instanceof net.minecraft.world.entity.LivingEntity) {
++                net.minecraft.world.entity.LivingEntity $$7 = (net.minecraft.world.entity.LivingEntity)$$6;
++                net.minecraft.world.item.ItemStack $$8 = $$7.getMainHandItem();
++                if (!$$8.isEmpty()) {
++                    if ($$4.canEnchant($$8) && net.minecraft.world.item.enchantment.EnchantmentHelper.isEnchantmentCompatible((java.util.Collection)net.minecraft.world.item.enchantment.EnchantmentHelper.getEnchantments((net.minecraft.world.item.ItemStack)$$8).keySet(), (net.minecraft.world.item.enchantment.Enchantment)$$4)) {
++                        $$8.enchant($$4, $$3);
++                        ++$$5;
+                         continue;
+                     }
+-                    if (targets.size() != 1) continue;
+-                    throw ERROR_INCOMPATIBLE.create((java.lang.Object)itemStack.getItem().getName(itemStack).getString());
++                    if ($$1.size() != 1) continue;
++                    throw ERROR_INCOMPATIBLE.create((java.lang.Object)$$8.getItem().getName($$8).getString());
+                 }
+-                if (targets.size() != 1) continue;
+-                throw ERROR_NO_ITEM.create((java.lang.Object)livingEntity.getName().getString());
++                if ($$1.size() != 1) continue;
++                throw ERROR_NO_ITEM.create((java.lang.Object)$$7.getName().getString());
+             }
+-            if (targets.size() != 1) continue;
+-            throw ERROR_NOT_LIVING_ENTITY.create((java.lang.Object)entity.getName().getString());
++            if ($$1.size() != 1) continue;
++            throw ERROR_NOT_LIVING_ENTITY.create((java.lang.Object)$$6.getName().getString());
+         }
+-        if (n == 0) {
++        if ($$5 == 0) {
+             throw ERROR_NOTHING_HAPPENED.create();
+         }
+-        if (targets.size() == 1) {
+-            source.sendSuccess((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"commands.enchant.success.single", (java.lang.Object[])new java.lang.Object[]{enchantment.getFullname(level), ((net.minecraft.world.entity.Entity)targets.iterator().next()).getDisplayName()}), true);
++        if ($$1.size() == 1) {
++            $$0.sendSuccess((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"commands.enchant.success.single", (java.lang.Object[])new java.lang.Object[]{$$4.getFullname($$3), ((net.minecraft.world.entity.Entity)$$1.iterator().next()).getDisplayName()}), true);
+         } else {
+-            source.sendSuccess((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"commands.enchant.success.multiple", (java.lang.Object[])new java.lang.Object[]{enchantment.getFullname(level), targets.size()}), true);
++            $$0.sendSuccess((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"commands.enchant.success.multiple", (java.lang.Object[])new java.lang.Object[]{$$4.getFullname($$3), $$1.size()}), true);
+         }
+-        return n;
++        return $$5;
+     }
+ 
+     public static /* synthetic */ com.mojang.brigadier.Message lambda$static$3(java.lang.Object $$0, java.lang.Object $$1) {

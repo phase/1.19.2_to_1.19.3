@@ -1,0 +1,73 @@
+--- net/minecraft/world/item/BoatItem.java
++++ net/minecraft/world/item/BoatItem.java
+@@ -16,42 +16,41 @@
+         this.type = $$1;
+     }
+ 
+-    public net.minecraft.world.InteractionResultHolder<net.minecraft.world.item.ItemStack> use(net.minecraft.world.level.Level level, net.minecraft.world.entity.player.Player player, net.minecraft.world.InteractionHand hand) {
+-        net.minecraft.world.phys.Vec3 vec3;
+-        net.minecraft.world.item.ItemStack itemStack = player.getItemInHand(hand);
+-        net.minecraft.world.phys.BlockHitResult blockHitResult = net.minecraft.world.item.BoatItem.getPlayerPOVHitResult((net.minecraft.world.level.Level)level, (net.minecraft.world.entity.player.Player)player, (net.minecraft.world.level.ClipContext$Fluid)net.minecraft.world.level.ClipContext$Fluid.ANY);
+-        if (blockHitResult.getType() == net.minecraft.world.phys.HitResult$Type.MISS) {
+-            return net.minecraft.world.InteractionResultHolder.pass((java.lang.Object)itemStack);
++    public net.minecraft.world.InteractionResultHolder<net.minecraft.world.item.ItemStack> use(net.minecraft.world.level.Level $$0, net.minecraft.world.entity.player.Player $$1, net.minecraft.world.InteractionHand $$2) {
++        net.minecraft.world.item.ItemStack $$3 = $$1.getItemInHand($$2);
++        net.minecraft.world.phys.BlockHitResult $$4 = net.minecraft.world.item.BoatItem.getPlayerPOVHitResult((net.minecraft.world.level.Level)$$0, (net.minecraft.world.entity.player.Player)$$1, (net.minecraft.world.level.ClipContext$Fluid)net.minecraft.world.level.ClipContext$Fluid.ANY);
++        if ($$4.getType() == net.minecraft.world.phys.HitResult$Type.MISS) {
++            return net.minecraft.world.InteractionResultHolder.pass((java.lang.Object)$$3);
+         }
+-        net.minecraft.world.phys.Vec3 vec32 = player.getViewVector(1.0f);
+-        double d = 5.0;
+-        java.util.List list = level.getEntities((net.minecraft.world.entity.Entity)player, player.getBoundingBox().expandTowards(vec32.scale(5.0)).inflate(1.0), ENTITY_PREDICATE);
+-        if (!list.isEmpty()) {
+-            vec3 = player.getEyePosition();
+-            for (net.minecraft.world.entity.Entity entity : list) {
+-                net.minecraft.world.phys.AABB aABB = entity.getBoundingBox().inflate((double)entity.getPickRadius());
+-                if (!aABB.contains(vec3)) continue;
+-                return net.minecraft.world.InteractionResultHolder.pass((java.lang.Object)itemStack);
++        net.minecraft.world.phys.Vec3 $$5 = $$1.getViewVector(1.0f);
++        double $$6 = 5.0;
++        java.util.List $$7 = $$0.getEntities((net.minecraft.world.entity.Entity)$$1, $$1.getBoundingBox().expandTowards($$5.scale(5.0)).inflate(1.0), ENTITY_PREDICATE);
++        if (!$$7.isEmpty()) {
++            net.minecraft.world.phys.Vec3 $$8 = $$1.getEyePosition();
++            for (net.minecraft.world.entity.Entity $$9 : $$7) {
++                net.minecraft.world.phys.AABB $$10 = $$9.getBoundingBox().inflate((double)$$9.getPickRadius());
++                if (!$$10.contains($$8)) continue;
++                return net.minecraft.world.InteractionResultHolder.pass((java.lang.Object)$$3);
+             }
+         }
+-        if (blockHitResult.getType() == net.minecraft.world.phys.HitResult$Type.BLOCK) {
+-            vec3 = this.getBoat(level, (net.minecraft.world.phys.HitResult)blockHitResult);
+-            vec3.setType(this.type);
+-            vec3.setYRot(player.getYRot());
+-            if (!level.noCollision((net.minecraft.world.entity.Entity)vec3, vec3.getBoundingBox())) {
+-                return net.minecraft.world.InteractionResultHolder.fail((java.lang.Object)itemStack);
++        if ($$4.getType() == net.minecraft.world.phys.HitResult$Type.BLOCK) {
++            net.minecraft.world.entity.vehicle.Boat $$11 = this.getBoat($$0, (net.minecraft.world.phys.HitResult)$$4);
++            $$11.setType(this.type);
++            $$11.setYRot($$1.getYRot());
++            if (!$$0.noCollision((net.minecraft.world.entity.Entity)$$11, $$11.getBoundingBox())) {
++                return net.minecraft.world.InteractionResultHolder.fail((java.lang.Object)$$3);
+             }
+-            if (!level.isClientSide) {
+-                level.addFreshEntity((net.minecraft.world.entity.Entity)vec3);
+-                level.gameEvent((net.minecraft.world.entity.Entity)player, net.minecraft.world.level.gameevent.GameEvent.ENTITY_PLACE, blockHitResult.getLocation());
+-                if (!player.getAbilities().instabuild) {
+-                    itemStack.shrink(1);
++            if (!$$0.isClientSide) {
++                $$0.addFreshEntity((net.minecraft.world.entity.Entity)$$11);
++                $$0.gameEvent((net.minecraft.world.entity.Entity)$$1, net.minecraft.world.level.gameevent.GameEvent.ENTITY_PLACE, $$4.getLocation());
++                if (!$$1.getAbilities().instabuild) {
++                    $$3.shrink(1);
+                 }
+             }
+-            player.awardStat(net.minecraft.stats.Stats.ITEM_USED.get((java.lang.Object)this));
+-            return net.minecraft.world.InteractionResultHolder.sidedSuccess((java.lang.Object)itemStack, (boolean)level.isClientSide());
++            $$1.awardStat(net.minecraft.stats.Stats.ITEM_USED.get((java.lang.Object)this));
++            return net.minecraft.world.InteractionResultHolder.sidedSuccess((java.lang.Object)$$3, (boolean)$$0.isClientSide());
+         }
+-        return net.minecraft.world.InteractionResultHolder.pass((java.lang.Object)itemStack);
++        return net.minecraft.world.InteractionResultHolder.pass((java.lang.Object)$$3);
+     }
+ 
+     public net.minecraft.world.entity.vehicle.Boat getBoat(net.minecraft.world.level.Level $$0, net.minecraft.world.phys.HitResult $$1) {

@@ -1,0 +1,178 @@
+--- net/minecraft/server/network/ServerLoginPacketListenerImpl.java
++++ net/minecraft/server/network/ServerLoginPacketListenerImpl.java
+@@ -4,8 +4,8 @@
+ package net.minecraft.server.network;
+ 
+ public class net.minecraft.server.network.ServerLoginPacketListenerImpl
+-implements net.minecraft.network.TickablePacketListener,
+-net.minecraft.network.protocol.login.ServerLoginPacketListener
++implements net.minecraft.network.protocol.login.ServerLoginPacketListener,
++net.minecraft.network.TickablePacketListener
+  {
+     public static java.util.concurrent.atomic.AtomicInteger UNIQUE_THREAD_ID;
+     public static org.slf4j.Logger LOGGER;
+@@ -21,12 +21,12 @@
+     public java.lang.String serverId = "";
+     @javax.annotation.Nullable
+     public net.minecraft.server.level.ServerPlayer delayedAcceptPlayer;
+-    @javax.annotation.Nullable
+-    public net.minecraft.world.entity.player.ProfilePublicKey$Data profilePublicKeyData;
++    public net.minecraft.network.chat.RemoteChatSession$Data chatSessionData;
+ 
+     public net.minecraft.server.network.ServerLoginPacketListenerImpl(net.minecraft.server.MinecraftServer $$0, net.minecraft.network.Connection $$1) {
+         this.state = net.minecraft.server.network.ServerLoginPacketListenerImpl$State.HELLO;
+         this.serverId = "";
++        this.chatSessionData = net.minecraft.network.chat.RemoteChatSession$Data.UNVERIFIED;
+         this.server = $$0;
+         this.connection = $$1;
+         this.nonce = com.google.common.primitives.Ints.toByteArray((int)RANDOM.nextInt());
+@@ -50,27 +50,27 @@
+         return this.connection;
+     }
+ 
+-    public void disconnect(net.minecraft.network.chat.Component reason) {
++    public void disconnect(net.minecraft.network.chat.Component $$0) {
+         try {
+-            LOGGER.info("Disconnecting {}: {}", (java.lang.Object)this.getUserName(), (java.lang.Object)reason.getString());
+-            this.connection.send((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.login.ClientboundLoginDisconnectPacket(reason));
+-            this.connection.disconnect(reason);
++            LOGGER.info("Disconnecting {}: {}", (java.lang.Object)this.getUserName(), (java.lang.Object)$$0.getString());
++            this.connection.send((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.login.ClientboundLoginDisconnectPacket($$0));
++            this.connection.disconnect($$0);
+         }
+-        catch (java.lang.Exception exception) {
+-            LOGGER.error("Error whilst disconnecting player", (java.lang.Throwable)exception);
++        catch (java.lang.Exception $$1) {
++            LOGGER.error("Error whilst disconnecting player", (java.lang.Throwable)$$1);
+         }
+     }
+ 
+     public void handleAcceptedLogin() {
+-        net.minecraft.world.entity.player.ProfilePublicKey $$0;
++        net.minecraft.network.chat.RemoteChatSession $$0;
+ block11:        {
+-            $$0 = null;
++            $$0 = net.minecraft.network.chat.RemoteChatSession.UNVERIFIED;
+             if (!this.gameProfile.isComplete()) {
+                 this.gameProfile = this.createFakeProfile(this.gameProfile);
+             } else {
+                 try {
+                     net.minecraft.util.SignatureValidator $$1 = this.server.getServiceSignatureValidator();
+-                    $$0 = net.minecraft.server.network.ServerLoginPacketListenerImpl.validatePublicKey((net.minecraft.world.entity.player.ProfilePublicKey$Data)this.profilePublicKeyData, (java.util.UUID)this.gameProfile.getId(), (net.minecraft.util.SignatureValidator)$$1, (boolean)this.server.enforceSecureProfile());
++                    $$0 = net.minecraft.server.network.ServerLoginPacketListenerImpl.validateChatSession((net.minecraft.network.chat.RemoteChatSession$Data)this.chatSessionData, (com.mojang.authlib.GameProfile)this.gameProfile, (net.minecraft.util.SignatureValidator)$$1, (boolean)this.server.enforceSecureProfile());
+                 }
+                 catch (net.minecraft.world.entity.player.ProfilePublicKey$ValidationException $$2) {
+                     LOGGER.error("Failed to validate profile key: {}", (java.lang.Object)$$2.getMessage());
+@@ -112,8 +112,8 @@
+         this.server.getPlayerList().placeNewPlayer(this.connection, $$0);
+     }
+ 
+-    public void onDisconnect(net.minecraft.network.chat.Component reason) {
+-        LOGGER.info("{} lost connection: {}", (java.lang.Object)this.getUserName(), (java.lang.Object)reason.getString());
++    public void onDisconnect(net.minecraft.network.chat.Component $$0) {
++        LOGGER.info("{} lost connection: {}", (java.lang.Object)this.getUserName(), (java.lang.Object)$$0.getString());
+     }
+ 
+     public java.lang.String getUserName() {
+@@ -123,28 +123,25 @@
+         return java.lang.String.valueOf((java.lang.Object)this.connection.getRemoteAddress());
+     }
+ 
+-    @javax.annotation.Nullable
+-    public static net.minecraft.world.entity.player.ProfilePublicKey validatePublicKey(@javax.annotation.Nullable net.minecraft.world.entity.player.ProfilePublicKey$Data $$0, java.util.UUID $$1, net.minecraft.util.SignatureValidator $$2, boolean $$3) throws net.minecraft.world.entity.player.ProfilePublicKey$ValidationException {
+-        if ($$0 == null) {
+-            if ($$3) {
+-                throw new net.minecraft.world.entity.player.ProfilePublicKey$ValidationException(net.minecraft.world.entity.player.ProfilePublicKey.MISSING_PROFILE_PUBLIC_KEY);
+-            }
+-            return null;
++    public static net.minecraft.network.chat.RemoteChatSession validateChatSession(net.minecraft.network.chat.RemoteChatSession$Data $$0, com.mojang.authlib.GameProfile $$1, net.minecraft.util.SignatureValidator $$2, boolean $$3) throws net.minecraft.world.entity.player.ProfilePublicKey$ValidationException {
++        net.minecraft.network.chat.RemoteChatSession $$4 = $$0.validate($$1, $$2, java.time.Duration.ZERO);
++        if (!$$4.verifiable() && $$3) {
++            throw new net.minecraft.world.entity.player.ProfilePublicKey$ValidationException(net.minecraft.world.entity.player.ProfilePublicKey.MISSING_PROFILE_PUBLIC_KEY);
+         }
+-        return net.minecraft.world.entity.player.ProfilePublicKey.createValidated((net.minecraft.util.SignatureValidator)$$2, (java.util.UUID)$$1, (net.minecraft.world.entity.player.ProfilePublicKey$Data)$$0, (java.time.Duration)java.time.Duration.ZERO);
++        return $$4;
+     }
+ 
+-    public void handleHello(net.minecraft.network.protocol.login.ServerboundHelloPacket packet) {
++    public void handleHello(net.minecraft.network.protocol.login.ServerboundHelloPacket $$0) {
+         org.apache.commons.lang3.Validate.validState((this.state == net.minecraft.server.network.ServerLoginPacketListenerImpl$State.HELLO ? 1 : 0) != 0, (java.lang.String)"Unexpected hello packet", (java.lang.Object[])new java.lang.Object[0]);
+-        org.apache.commons.lang3.Validate.validState((boolean)net.minecraft.server.network.ServerLoginPacketListenerImpl.isValidUsername((java.lang.String)packet.name()), (java.lang.String)"Invalid characters in username", (java.lang.Object[])new java.lang.Object[0]);
+-        this.profilePublicKeyData = (net.minecraft.world.entity.player.ProfilePublicKey$Data)packet.publicKey().orElse(null);
+-        com.mojang.authlib.GameProfile gameProfile = this.server.getSingleplayerProfile();
+-        if (gameProfile != null && packet.name().equalsIgnoreCase(gameProfile.getName())) {
+-            this.gameProfile = gameProfile;
++        org.apache.commons.lang3.Validate.validState((boolean)net.minecraft.server.network.ServerLoginPacketListenerImpl.isValidUsername((java.lang.String)$$0.name()), (java.lang.String)"Invalid characters in username", (java.lang.Object[])new java.lang.Object[0]);
++        this.chatSessionData = $$0.chatSession();
++        com.mojang.authlib.GameProfile $$1 = this.server.getSingleplayerProfile();
++        if ($$1 != null && $$0.name().equalsIgnoreCase($$1.getName())) {
++            this.gameProfile = $$1;
+             this.state = net.minecraft.server.network.ServerLoginPacketListenerImpl$State.READY_TO_ACCEPT;
+             return;
+         }
+-        this.gameProfile = new com.mojang.authlib.GameProfile(null, packet.name());
++        this.gameProfile = new com.mojang.authlib.GameProfile(null, $$0.name());
+         if (this.server.usesAuthentication() && !this.connection.isMemoryConnection()) {
+             this.state = net.minecraft.server.network.ServerLoginPacketListenerImpl$State.KEY;
+             this.connection.send((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.login.ClientboundHelloPacket("", this.server.getKeyPair().getPublic().getEncoded(), this.nonce));
+@@ -157,38 +154,40 @@
+         return $$02.chars().filter($$0 -> $$0 <= 32 || $$0 >= 127).findAny().isEmpty();
+     }
+ 
+-    public void handleKey(net.minecraft.network.protocol.login.ServerboundKeyPacket packet) {
+-        java.lang.String string;
+-        java.security.PrivateKey privateKey;
++    /*
++     * WARNING - void declaration
++     */
++    public void handleKey(net.minecraft.network.protocol.login.ServerboundKeyPacket $$0) {
++        void $$8;
+         org.apache.commons.lang3.Validate.validState((this.state == net.minecraft.server.network.ServerLoginPacketListenerImpl$State.KEY ? 1 : 0) != 0, (java.lang.String)"Unexpected key packet", (java.lang.Object[])new java.lang.Object[0]);
+         try {
+-            net.minecraft.world.entity.player.ProfilePublicKey profilePublicKey;
+-            privateKey = this.server.getKeyPair().getPrivate();
+-            if (this.profilePublicKeyData != null ? !packet.isChallengeSignatureValid(this.nonce, profilePublicKey = new net.minecraft.world.entity.player.ProfilePublicKey(this.profilePublicKeyData)) : !packet.isNonceValid(this.nonce, privateKey)) {
++            net.minecraft.world.entity.player.ProfilePublicKey $$2;
++            java.security.PrivateKey $$1 = this.server.getKeyPair().getPrivate();
++            if (this.chatSessionData.profilePublicKey() != null ? !$$0.isChallengeSignatureValid(this.nonce, ($$2 = new net.minecraft.world.entity.player.ProfilePublicKey(this.chatSessionData.profilePublicKey())).createSignatureValidator()) : !$$0.isNonceValid(this.nonce, $$1)) {
+                 throw new java.lang.IllegalStateException("Protocol error");
+             }
+-            profilePublicKey = packet.getSecretKey(privateKey);
+-            javax.crypto.Cipher cipher = net.minecraft.util.Crypt.getCipher((int)2, (java.security.Key)profilePublicKey);
+-            javax.crypto.Cipher cipher2 = net.minecraft.util.Crypt.getCipher((int)1, (java.security.Key)profilePublicKey);
+-            string = new java.math.BigInteger(net.minecraft.util.Crypt.digestData((java.lang.String)"", (java.security.PublicKey)this.server.getKeyPair().getPublic(), (javax.crypto.SecretKey)profilePublicKey)).toString(16);
++            javax.crypto.SecretKey $$3 = $$0.getSecretKey($$1);
++            javax.crypto.Cipher $$4 = net.minecraft.util.Crypt.getCipher((int)2, (java.security.Key)$$3);
++            javax.crypto.Cipher $$5 = net.minecraft.util.Crypt.getCipher((int)1, (java.security.Key)$$3);
++            java.lang.String $$6 = new java.math.BigInteger(net.minecraft.util.Crypt.digestData((java.lang.String)"", (java.security.PublicKey)this.server.getKeyPair().getPublic(), (javax.crypto.SecretKey)$$3)).toString(16);
+             this.state = net.minecraft.server.network.ServerLoginPacketListenerImpl$State.AUTHENTICATING;
+-            this.connection.setEncryptionKey(cipher, cipher2);
++            this.connection.setEncryptionKey($$4, $$5);
+         }
+-        catch (net.minecraft.util.CryptException cryptException) {
+-            throw new java.lang.IllegalStateException("Protocol error", (java.lang.Throwable)cryptException);
++        catch (net.minecraft.util.CryptException $$7) {
++            throw new java.lang.IllegalStateException("Protocol error", (java.lang.Throwable)$$7);
+         }
+-        privateKey = new /* Unavailable Anonymous Inner Class!! */;
+-        privateKey.setUncaughtExceptionHandler((java.lang.Thread$UncaughtExceptionHandler)new net.minecraft.DefaultUncaughtExceptionHandler(LOGGER));
+-        privateKey.start();
++        net.minecraft.server.network.ServerLoginPacketListenerImpl$1 $$9 = new /* Unavailable Anonymous Inner Class!! */;
++        $$9.setUncaughtExceptionHandler((java.lang.Thread$UncaughtExceptionHandler)new net.minecraft.DefaultUncaughtExceptionHandler(LOGGER));
++        $$9.start();
+     }
+ 
+-    public void handleCustomQueryPacket(net.minecraft.network.protocol.login.ServerboundCustomQueryPacket packet) {
++    public void handleCustomQueryPacket(net.minecraft.network.protocol.login.ServerboundCustomQueryPacket $$0) {
+         this.disconnect((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"multiplayer.disconnect.unexpected_query_response"));
+     }
+ 
+-    public com.mojang.authlib.GameProfile createFakeProfile(com.mojang.authlib.GameProfile original) {
+-        java.util.UUID uUID = net.minecraft.core.UUIDUtil.createOfflinePlayerUUID((java.lang.String)original.getName());
+-        return new com.mojang.authlib.GameProfile(uUID, original.getName());
++    public com.mojang.authlib.GameProfile createFakeProfile(com.mojang.authlib.GameProfile $$0) {
++        java.util.UUID $$1 = net.minecraft.core.UUIDUtil.createOfflinePlayerUUID((java.lang.String)$$0.getName());
++        return new com.mojang.authlib.GameProfile($$1, $$0.getName());
+     }
+ 
+     static {

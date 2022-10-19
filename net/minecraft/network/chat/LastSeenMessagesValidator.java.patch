@@ -1,0 +1,137 @@
+--- net/minecraft/network/chat/LastSeenMessagesValidator.java
++++ net/minecraft/network/chat/LastSeenMessagesValidator.java
+@@ -5,95 +5,64 @@
+ 
+ public class net.minecraft.network.chat.LastSeenMessagesValidator
+  {
+-    public static int NOT_FOUND = java.lang.Integer.MIN_VALUE;
+-    public net.minecraft.network.chat.LastSeenMessages lastSeenMessages;
+-    public it.unimi.dsi.fastutil.objects.ObjectList<net.minecraft.network.chat.LastSeenMessages$Entry> pendingEntries;
++    public int lastSeenCount;
++    public it.unimi.dsi.fastutil.objects.ObjectList<net.minecraft.network.chat.LastSeenTrackedEntry> trackedMessages;
++    @javax.annotation.Nullable
++    public net.minecraft.network.chat.MessageSignature lastPendingMessage;
+ 
+-    public net.minecraft.network.chat.LastSeenMessagesValidator() {
+-        this.lastSeenMessages = net.minecraft.network.chat.LastSeenMessages.EMPTY;
+-        this.pendingEntries = new it.unimi.dsi.fastutil.objects.ObjectArrayList();
++    public net.minecraft.network.chat.LastSeenMessagesValidator(int $$0) {
++        this.trackedMessages = new it.unimi.dsi.fastutil.objects.ObjectArrayList();
++        this.lastSeenCount = $$0;
++        for (int $$1 = 0; $$1 < $$0; ++$$1) {
++            this.trackedMessages.add(null);
++        }
+     }
+ 
+-    public void addPending(net.minecraft.network.chat.LastSeenMessages$Entry $$0) {
+-        this.pendingEntries.add((java.lang.Object)$$0);
++    public void addPending(net.minecraft.network.chat.MessageSignature $$0) {
++        if (!$$0.equals((java.lang.Object)this.lastPendingMessage)) {
++            this.trackedMessages.add((java.lang.Object)new net.minecraft.network.chat.LastSeenTrackedEntry($$0, true));
++            this.lastPendingMessage = $$0;
++        }
+     }
+ 
+-    public int pendingMessagesCount() {
+-        return this.pendingEntries.size();
++    public int trackedMessagesCount() {
++        return this.trackedMessages.size();
+     }
+ 
+-    public boolean hasDuplicateProfiles(net.minecraft.network.chat.LastSeenMessages $$0) {
+-        java.util.HashSet $$1 = new java.util.HashSet($$0.entries().size());
+-        for (net.minecraft.network.chat.LastSeenMessages$Entry $$2 : $$0.entries()) {
+-            if ($$1.add((java.lang.Object)$$2.profileId())) continue;
++    public boolean applyOffset(int $$0) {
++        int $$1 = this.trackedMessages.size() - this.lastSeenCount;
++        if ($$0 >= 0 && $$0 <= $$1) {
++            this.trackedMessages.removeElements(0, $$0);
+             return true;
+         }
+         return false;
+     }
+ 
+-    public int calculateIndices(java.util.List<net.minecraft.network.chat.LastSeenMessages$Entry> $$0, int[] $$1, @javax.annotation.Nullable net.minecraft.network.chat.LastSeenMessages$Entry $$2) {
+-        java.util.Arrays.fill((int[])$$1, (int)java.lang.Integer.MIN_VALUE);
+-        java.util.List $$3 = this.lastSeenMessages.entries();
+-        int $$4 = $$3.size();
+-        for (int $$5 = $$4 - 1; $$5 >= 0; --$$5) {
+-            int $$6 = $$0.indexOf($$3.get($$5));
+-            if ($$6 == -1) continue;
+-            $$1[$$6] = -$$5 - 1;
++    public java.util.Optional<net.minecraft.network.chat.LastSeenMessages> applyUpdate(net.minecraft.network.chat.LastSeenMessages$Update $$0) {
++        if (!this.applyOffset($$0.offset())) {
++            return java.util.Optional.empty();
+         }
+-        int $$7 = java.lang.Integer.MIN_VALUE;
+-        int $$8 = this.pendingEntries.size();
+-        for (int $$9 = 0; $$9 < $$8; ++$$9) {
+-            net.minecraft.network.chat.LastSeenMessages$Entry $$10 = (net.minecraft.network.chat.LastSeenMessages$Entry)this.pendingEntries.get($$9);
+-            int $$11 = $$0.indexOf((java.lang.Object)$$10);
+-            if ($$11 != -1) {
+-                $$1[$$11] = $$9;
+-            }
+-            if (!$$10.equals((java.lang.Object)$$2)) continue;
+-            $$7 = $$9;
++        it.unimi.dsi.fastutil.objects.ObjectArrayList $$1 = new it.unimi.dsi.fastutil.objects.ObjectArrayList($$0.acknowledged().cardinality());
++        if ($$0.acknowledged().length() > this.lastSeenCount) {
++            return java.util.Optional.empty();
+         }
+-        return $$7;
+-    }
+-
+-    public java.util.Set<net.minecraft.network.chat.LastSeenMessagesValidator$ErrorCondition> validateAndUpdate(net.minecraft.network.chat.LastSeenMessages$Update $$0) {
+-        java.util.EnumSet $$1 = java.util.EnumSet.noneOf(net.minecraft.network.chat.LastSeenMessagesValidator$ErrorCondition.class);
+-        net.minecraft.network.chat.LastSeenMessages $$2 = $$0.lastSeen();
+-        net.minecraft.network.chat.LastSeenMessages$Entry $$3 = (net.minecraft.network.chat.LastSeenMessages$Entry)$$0.lastReceived().orElse(null);
+-        java.util.List $$4 = $$2.entries();
+-        int $$5 = this.lastSeenMessages.entries().size();
+-        int $$6 = java.lang.Integer.MIN_VALUE;
+-        int $$7 = $$4.size();
+-        if ($$7 < $$5) {
+-            $$1.add((java.lang.Object)net.minecraft.network.chat.LastSeenMessagesValidator$ErrorCondition.REMOVED_MESSAGES);
+-        }
+-        int[] $$8 = new int[$$7];
+-        int $$9 = this.calculateIndices($$4, $$8, $$3);
+-        for (int $$10 = $$7 - 1; $$10 >= 0; --$$10) {
+-            int $$11 = $$8[$$10];
+-            if ($$11 != java.lang.Integer.MIN_VALUE) {
+-                if ($$11 < $$6) {
+-                    $$1.add((java.lang.Object)net.minecraft.network.chat.LastSeenMessagesValidator$ErrorCondition.OUT_OF_ORDER);
+-                    continue;
++        for (int $$2 = 0; $$2 < this.lastSeenCount; ++$$2) {
++            boolean $$3 = $$0.acknowledged().get($$2);
++            net.minecraft.network.chat.LastSeenTrackedEntry $$4 = (net.minecraft.network.chat.LastSeenTrackedEntry)this.trackedMessages.get($$2);
++            if ($$3) {
++                if ($$4 == null) {
++                    return java.util.Optional.empty();
+                 }
+-                $$6 = $$11;
++                this.trackedMessages.set($$2, (java.lang.Object)$$4.acknowledge());
++                $$1.add((java.lang.Object)$$4.signature());
+                 continue;
+             }
+-            $$1.add((java.lang.Object)net.minecraft.network.chat.LastSeenMessagesValidator$ErrorCondition.UNKNOWN_MESSAGES);
+-        }
+-        if ($$3 != null) {
+-            if ($$9 == java.lang.Integer.MIN_VALUE || $$9 < $$6) {
+-                $$1.add((java.lang.Object)net.minecraft.network.chat.LastSeenMessagesValidator$ErrorCondition.UNKNOWN_MESSAGES);
+-            } else {
+-                $$6 = $$9;
++            if ($$4 != null && !$$4.pending()) {
++                return java.util.Optional.empty();
+             }
++            this.trackedMessages.set($$2, null);
+         }
+-        if ($$6 >= 0) {
+-            this.pendingEntries.removeElements(0, $$6 + 1);
+-        }
+-        if (this.hasDuplicateProfiles($$2)) {
+-            $$1.add((java.lang.Object)net.minecraft.network.chat.LastSeenMessagesValidator$ErrorCondition.DUPLICATED_PROFILES);
+-        }
+-        this.lastSeenMessages = $$2;
+-        return $$1;
++        return java.util.Optional.of((java.lang.Object)new net.minecraft.network.chat.LastSeenMessages((java.util.List)$$1));
+     }
+ }
+ 

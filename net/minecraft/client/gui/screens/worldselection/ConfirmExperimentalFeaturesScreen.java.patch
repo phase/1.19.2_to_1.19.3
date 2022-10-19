@@ -1,0 +1,69 @@
+--- net/minecraft/client/gui/screens/worldselection/ConfirmExperimentalFeaturesScreen.java
++++ net/minecraft/client/gui/screens/worldselection/ConfirmExperimentalFeaturesScreen.java
+@@ -1,0 +1,66 @@
++/*
++ * Decompiled with CFR 0.151.
++ */
++package net.minecraft.client.gui.screens.worldselection;
++
++public class net.minecraft.client.gui.screens.worldselection.ConfirmExperimentalFeaturesScreen
++extends net.minecraft.client.gui.screens.Screen
++ {
++    public static net.minecraft.network.chat.Component TITLE;
++    public static net.minecraft.network.chat.Component MESSAGE;
++    public static net.minecraft.network.chat.Component DETAILS_BUTTON;
++    public static int MARGIN = 20;
++    public it.unimi.dsi.fastutil.booleans.BooleanConsumer callback;
++    public java.util.Collection<net.minecraft.server.packs.repository.Pack> enabledPacks;
++    public net.minecraft.client.gui.components.MultiLineLabel multilineMessage;
++
++    public net.minecraft.client.gui.screens.worldselection.ConfirmExperimentalFeaturesScreen(java.util.Collection<net.minecraft.server.packs.repository.Pack> $$0, it.unimi.dsi.fastutil.booleans.BooleanConsumer $$1) {
++        super(TITLE);
++        this.multilineMessage = net.minecraft.client.gui.components.MultiLineLabel.EMPTY;
++        this.enabledPacks = $$0;
++        this.callback = $$1;
++    }
++
++    public net.minecraft.network.chat.Component getNarrationMessage() {
++        return net.minecraft.network.chat.CommonComponents.joinForNarration((net.minecraft.network.chat.Component)super.getNarrationMessage(), (net.minecraft.network.chat.Component)MESSAGE);
++    }
++
++    public int messageHeight() {
++        int n = this.multilineMessage.getLineCount();
++        java.util.Objects.requireNonNull((java.lang.Object)this.font);
++        return n * 9;
++    }
++
++    public int titleTop() {
++        int $$0 = (this.height - this.messageHeight()) / 2;
++        java.util.Objects.requireNonNull((java.lang.Object)this.font);
++        return net.minecraft.util.Mth.clamp((int)($$0 - 20 - 9), (int)10, (int)80);
++    }
++
++    public void init() {
++        super.init();
++        this.multilineMessage = net.minecraft.client.gui.components.MultiLineLabel.create((net.minecraft.client.gui.Font)this.font, (net.minecraft.network.chat.FormattedText)MESSAGE, (int)(this.width - 50));
++        int $$02 = net.minecraft.util.Mth.clamp((int)(this.titleTop() + 20 + this.messageHeight() + 20), (int)(this.height / 6 + 96), (int)(this.height - 24));
++        this.addRenderableWidget((net.minecraft.client.gui.components.events.GuiEventListener)new net.minecraft.client.gui.components.Button(this.width / 2 - 50 - 105, $$02, 100, 20, net.minecraft.network.chat.CommonComponents.GUI_PROCEED, $$0 -> this.callback.accept(true)));
++        this.addRenderableWidget((net.minecraft.client.gui.components.events.GuiEventListener)new net.minecraft.client.gui.components.Button(this.width / 2 - 50, $$02, 100, 20, DETAILS_BUTTON, $$0 -> this.minecraft.setScreen((net.minecraft.client.gui.screens.Screen)new net.minecraft.client.gui.screens.worldselection.ConfirmExperimentalFeaturesScreen$DetailsScreen(this))));
++        this.addRenderableWidget((net.minecraft.client.gui.components.events.GuiEventListener)new net.minecraft.client.gui.components.Button(this.width / 2 - 50 + 105, $$02, 100, 20, net.minecraft.network.chat.CommonComponents.GUI_BACK, $$0 -> this.callback.accept(false)));
++    }
++
++    public void render(com.mojang.blaze3d.vertex.PoseStack $$0, int $$1, int $$2, float $$3) {
++        this.renderBackground($$0);
++        net.minecraft.client.gui.screens.worldselection.ConfirmExperimentalFeaturesScreen.drawCenteredString((com.mojang.blaze3d.vertex.PoseStack)$$0, (net.minecraft.client.gui.Font)this.font, (net.minecraft.network.chat.Component)this.title, (int)(this.width / 2), (int)this.titleTop(), (int)0xFFFFFF);
++        this.multilineMessage.renderCentered($$0, this.width / 2, this.titleTop() + 20);
++        super.render($$0, $$1, $$2, $$3);
++    }
++
++    public void onClose() {
++        this.callback.accept(false);
++    }
++
++    static {
++        TITLE = net.minecraft.network.chat.Component.translatable((java.lang.String)"selectWorld.experimental.title");
++        MESSAGE = net.minecraft.network.chat.Component.translatable((java.lang.String)"selectWorld.experimental.message");
++        DETAILS_BUTTON = net.minecraft.network.chat.Component.translatable((java.lang.String)"selectWorld.experimental.details");
++    }
++}
++

@@ -1,0 +1,69 @@
+--- net/minecraft/world/level/gameevent/vibrations/VibrationSelector.java
++++ net/minecraft/world/level/gameevent/vibrations/VibrationSelector.java
+@@ -1,0 +1,66 @@
++/*
++ * Decompiled with CFR 0.151.
++ */
++package net.minecraft.world.level.gameevent.vibrations;
++
++public class net.minecraft.world.level.gameevent.vibrations.VibrationSelector
++ {
++    public static com.mojang.serialization.Codec<net.minecraft.world.level.gameevent.vibrations.VibrationSelector> CODEC;
++    public java.util.Optional<org.apache.commons.lang3.tuple.Pair<net.minecraft.world.level.gameevent.vibrations.VibrationInfo, java.lang.Long>> currentVibrationData;
++
++    public net.minecraft.world.level.gameevent.vibrations.VibrationSelector(java.util.Optional<net.minecraft.world.level.gameevent.vibrations.VibrationInfo> $$0, long $$12) {
++        this.currentVibrationData = $$0.map($$1 -> org.apache.commons.lang3.tuple.Pair.of((java.lang.Object)$$1, (java.lang.Object)$$12));
++    }
++
++    public net.minecraft.world.level.gameevent.vibrations.VibrationSelector() {
++        this.currentVibrationData = java.util.Optional.empty();
++    }
++
++    public void addCandidate(net.minecraft.world.level.gameevent.vibrations.VibrationInfo $$0, long $$1) {
++        if (this.shouldReplaceVibration($$0, $$1)) {
++            this.currentVibrationData = java.util.Optional.of((java.lang.Object)org.apache.commons.lang3.tuple.Pair.of((java.lang.Object)$$0, (java.lang.Object)$$1));
++        }
++    }
++
++    public boolean shouldReplaceVibration(net.minecraft.world.level.gameevent.vibrations.VibrationInfo $$0, long $$1) {
++        if (this.currentVibrationData.isEmpty()) {
++            return true;
++        }
++        org.apache.commons.lang3.tuple.Pair $$2 = (org.apache.commons.lang3.tuple.Pair)this.currentVibrationData.get();
++        long $$3 = (java.lang.Long)$$2.getRight();
++        if ($$1 != $$3) {
++            return false;
++        }
++        net.minecraft.world.level.gameevent.vibrations.VibrationInfo $$4 = (net.minecraft.world.level.gameevent.vibrations.VibrationInfo)$$2.getLeft();
++        if ($$0.distance() < $$4.distance()) {
++            return true;
++        }
++        if ($$0.distance() > $$4.distance()) {
++            return false;
++        }
++        return net.minecraft.world.level.gameevent.vibrations.VibrationListener.getGameEventFrequency((net.minecraft.world.level.gameevent.GameEvent)$$0.gameEvent()) > net.minecraft.world.level.gameevent.vibrations.VibrationListener.getGameEventFrequency((net.minecraft.world.level.gameevent.GameEvent)$$4.gameEvent());
++    }
++
++    public java.util.Optional<net.minecraft.world.level.gameevent.vibrations.VibrationInfo> chosenCandidate(long $$0) {
++        if (this.currentVibrationData.isEmpty()) {
++            return java.util.Optional.empty();
++        }
++        if ((java.lang.Long)((org.apache.commons.lang3.tuple.Pair)this.currentVibrationData.get()).getRight() < $$0) {
++            return java.util.Optional.of((java.lang.Object)((net.minecraft.world.level.gameevent.vibrations.VibrationInfo)((org.apache.commons.lang3.tuple.Pair)this.currentVibrationData.get()).getLeft()));
++        }
++        return java.util.Optional.empty();
++    }
++
++    public void startOver() {
++        this.currentVibrationData = java.util.Optional.empty();
++    }
++
++    public static /* synthetic */ com.mojang.datafixers.kinds.App lambda$static$2(com.mojang.serialization.codecs.RecordCodecBuilder$Instance $$02) {
++        return $$02.group((com.mojang.datafixers.kinds.App)net.minecraft.world.level.gameevent.vibrations.VibrationInfo.CODEC.optionalFieldOf("event").forGetter($$0 -> $$0.currentVibrationData.map(org.apache.commons.lang3.tuple.Pair::getLeft)), (com.mojang.datafixers.kinds.App)com.mojang.serialization.Codec.LONG.fieldOf("tick").forGetter($$0 -> (java.lang.Long)$$0.currentVibrationData.map(org.apache.commons.lang3.tuple.Pair::getRight).orElse((java.lang.Object)-1L))).apply((com.mojang.datafixers.kinds.Applicative)$$02, net.minecraft.world.level.gameevent.vibrations.VibrationSelector::new);
++    }
++
++    static {
++        CODEC = com.mojang.serialization.codecs.RecordCodecBuilder.create($$02 -> $$02.group((com.mojang.datafixers.kinds.App)net.minecraft.world.level.gameevent.vibrations.VibrationInfo.CODEC.optionalFieldOf("event").forGetter($$0 -> $$0.currentVibrationData.map(org.apache.commons.lang3.tuple.Pair::getLeft)), (com.mojang.datafixers.kinds.App)com.mojang.serialization.Codec.LONG.fieldOf("tick").forGetter($$0 -> (java.lang.Long)$$0.currentVibrationData.map(org.apache.commons.lang3.tuple.Pair::getRight).orElse((java.lang.Object)-1L))).apply((com.mojang.datafixers.kinds.Applicative)$$02, net.minecraft.world.level.gameevent.vibrations.VibrationSelector::new));
++    }
++}
++

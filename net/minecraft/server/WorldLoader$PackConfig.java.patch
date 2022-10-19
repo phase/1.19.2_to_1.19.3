@@ -1,0 +1,70 @@
+--- net/minecraft/server/WorldLoader$PackConfig.java
++++ net/minecraft/server/WorldLoader$PackConfig.java
+@@ -7,44 +7,54 @@
+ extends java.lang.Record
+  {
+     public net.minecraft.server.packs.repository.PackRepository packRepository;
+-    public net.minecraft.world.level.DataPackConfig initialDataPacks;
++    public net.minecraft.world.level.WorldDataConfiguration initialDataConfig;
+     public boolean safeMode;
++    public boolean initMode;
+ 
+-    public net.minecraft.server.WorldLoader$PackConfig(net.minecraft.server.packs.repository.PackRepository $$0, net.minecraft.world.level.DataPackConfig $$1, boolean $$2) {
++    public net.minecraft.server.WorldLoader$PackConfig(net.minecraft.server.packs.repository.PackRepository $$0, net.minecraft.world.level.WorldDataConfiguration $$1, boolean $$2, boolean $$3) {
+         this.packRepository = $$0;
+-        this.initialDataPacks = $$1;
++        this.initialDataConfig = $$1;
+         this.safeMode = $$2;
++        this.initMode = $$3;
+     }
+ 
+-    public com.mojang.datafixers.util.Pair<net.minecraft.world.level.DataPackConfig, net.minecraft.server.packs.resources.CloseableResourceManager> createResourceManager() {
+-        net.minecraft.world.level.DataPackConfig $$0 = net.minecraft.server.MinecraftServer.configurePackRepository((net.minecraft.server.packs.repository.PackRepository)this.packRepository, (net.minecraft.world.level.DataPackConfig)this.initialDataPacks, (boolean)this.safeMode);
+-        java.util.List $$1 = this.packRepository.openAllSelected();
+-        net.minecraft.server.packs.resources.MultiPackResourceManager $$2 = new net.minecraft.server.packs.resources.MultiPackResourceManager(net.minecraft.server.packs.PackType.SERVER_DATA, $$1);
+-        return com.mojang.datafixers.util.Pair.of((java.lang.Object)$$0, (java.lang.Object)$$2);
++    public com.mojang.datafixers.util.Pair<net.minecraft.world.level.WorldDataConfiguration, net.minecraft.server.packs.resources.CloseableResourceManager> createResourceManager() {
++        net.minecraft.world.flag.FeatureFlagSet $$0 = this.initMode ? net.minecraft.world.flag.FeatureFlags.REGISTRY.allFlags() : this.initialDataConfig.enabledFeatures();
++        net.minecraft.world.level.WorldDataConfiguration $$1 = net.minecraft.server.MinecraftServer.configurePackRepository((net.minecraft.server.packs.repository.PackRepository)this.packRepository, (net.minecraft.world.level.DataPackConfig)this.initialDataConfig.dataPacks(), (boolean)this.safeMode, (net.minecraft.world.flag.FeatureFlagSet)$$0);
++        if (!this.initMode) {
++            $$1 = $$1.expandFeatures(this.initialDataConfig.enabledFeatures());
++        }
++        java.util.List $$2 = this.packRepository.openAllSelected();
++        net.minecraft.server.packs.resources.MultiPackResourceManager $$3 = new net.minecraft.server.packs.resources.MultiPackResourceManager(net.minecraft.server.packs.PackType.SERVER_DATA, $$2);
++        return com.mojang.datafixers.util.Pair.of((java.lang.Object)$$1, (java.lang.Object)$$3);
+     }
+ 
+     public java.lang.String toString() {
+-        return java.lang.runtime.ObjectMethods.bootstrap("toString", new java.lang.invoke.MethodHandle[]{net.minecraft.server.WorldLoader$PackConfig.class, "packRepository;initialDataPacks;safeMode", "packRepository", "initialDataPacks", "safeMode"}, this);
++        return java.lang.runtime.ObjectMethods.bootstrap("toString", new java.lang.invoke.MethodHandle[]{net.minecraft.server.WorldLoader$PackConfig.class, "packRepository;initialDataConfig;safeMode;initMode", "packRepository", "initialDataConfig", "safeMode", "initMode"}, this);
+     }
+ 
+     public int hashCode() {
+-        return (int)java.lang.runtime.ObjectMethods.bootstrap("hashCode", new java.lang.invoke.MethodHandle[]{net.minecraft.server.WorldLoader$PackConfig.class, "packRepository;initialDataPacks;safeMode", "packRepository", "initialDataPacks", "safeMode"}, this);
++        return (int)java.lang.runtime.ObjectMethods.bootstrap("hashCode", new java.lang.invoke.MethodHandle[]{net.minecraft.server.WorldLoader$PackConfig.class, "packRepository;initialDataConfig;safeMode;initMode", "packRepository", "initialDataConfig", "safeMode", "initMode"}, this);
+     }
+ 
+     public boolean equals(java.lang.Object $$0) {
+-        return (boolean)java.lang.runtime.ObjectMethods.bootstrap("equals", new java.lang.invoke.MethodHandle[]{net.minecraft.server.WorldLoader$PackConfig.class, "packRepository;initialDataPacks;safeMode", "packRepository", "initialDataPacks", "safeMode"}, this, $$0);
++        return (boolean)java.lang.runtime.ObjectMethods.bootstrap("equals", new java.lang.invoke.MethodHandle[]{net.minecraft.server.WorldLoader$PackConfig.class, "packRepository;initialDataConfig;safeMode;initMode", "packRepository", "initialDataConfig", "safeMode", "initMode"}, this, $$0);
+     }
+ 
+     public net.minecraft.server.packs.repository.PackRepository packRepository() {
+         return this.packRepository;
+     }
+ 
+-    public net.minecraft.world.level.DataPackConfig initialDataPacks() {
+-        return this.initialDataPacks;
++    public net.minecraft.world.level.WorldDataConfiguration initialDataConfig() {
++        return this.initialDataConfig;
+     }
+ 
+     public boolean safeMode() {
+         return this.safeMode;
+     }
++
++    public boolean initMode() {
++        return this.initMode;
++    }
+ }
+ 

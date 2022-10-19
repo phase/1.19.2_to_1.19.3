@@ -1,0 +1,309 @@
+--- net/minecraft/client/renderer/entity/LivingEntityRenderer.java
++++ net/minecraft/client/renderer/entity/LivingEntityRenderer.java
+@@ -19,86 +19,85 @@
+         this.shadowRadius = $$2;
+     }
+ 
+-    public boolean addLayer(net.minecraft.client.renderer.entity.layers.RenderLayer<T, M> layer) {
+-        return this.layers.add(layer);
++    public boolean addLayer(net.minecraft.client.renderer.entity.layers.RenderLayer<T, M> $$0) {
++        return this.layers.add($$0);
+     }
+ 
+     public M getModel() {
+         return (M)this.model;
+     }
+ 
+-    public void render(T entity, float entityYaw, float partialTicks, com.mojang.blaze3d.vertex.PoseStack matrixStack, net.minecraft.client.renderer.MultiBufferSource buffer, int packedLight) {
+-        float f;
+-        net.minecraft.core.Direction direction;
+-        matrixStack.pushPose();
+-        this.model.attackTime = this.getAttackAnim(entity, partialTicks);
+-        this.model.riding = entity.isPassenger();
+-        this.model.young = entity.isBaby();
+-        float f2 = net.minecraft.util.Mth.rotLerp((float)partialTicks, (float)((net.minecraft.world.entity.LivingEntity)entity).yBodyRotO, (float)((net.minecraft.world.entity.LivingEntity)entity).yBodyRot);
+-        float f3 = net.minecraft.util.Mth.rotLerp((float)partialTicks, (float)((net.minecraft.world.entity.LivingEntity)entity).yHeadRotO, (float)((net.minecraft.world.entity.LivingEntity)entity).yHeadRot);
+-        float f4 = f3 - f2;
+-        if (entity.isPassenger() && entity.getVehicle() instanceof net.minecraft.world.entity.LivingEntity) {
+-            net.minecraft.world.entity.LivingEntity livingEntity = (net.minecraft.world.entity.LivingEntity)entity.getVehicle();
+-            f2 = net.minecraft.util.Mth.rotLerp((float)partialTicks, (float)livingEntity.yBodyRotO, (float)livingEntity.yBodyRot);
+-            f4 = f3 - f2;
+-            float f5 = net.minecraft.util.Mth.wrapDegrees((float)f4);
+-            if (f5 < -85.0f) {
+-                f5 = -85.0f;
++    public void render(T $$0, float $$1, float $$2, com.mojang.blaze3d.vertex.PoseStack $$3, net.minecraft.client.renderer.MultiBufferSource $$4, int $$5) {
++        net.minecraft.core.Direction $$12;
++        $$3.pushPose();
++        this.model.attackTime = this.getAttackAnim($$0, $$2);
++        this.model.riding = $$0.isPassenger();
++        this.model.young = $$0.isBaby();
++        float $$6 = net.minecraft.util.Mth.rotLerp((float)$$2, (float)((net.minecraft.world.entity.LivingEntity)$$0).yBodyRotO, (float)((net.minecraft.world.entity.LivingEntity)$$0).yBodyRot);
++        float $$7 = net.minecraft.util.Mth.rotLerp((float)$$2, (float)((net.minecraft.world.entity.LivingEntity)$$0).yHeadRotO, (float)((net.minecraft.world.entity.LivingEntity)$$0).yHeadRot);
++        float $$8 = $$7 - $$6;
++        if ($$0.isPassenger() && $$0.getVehicle() instanceof net.minecraft.world.entity.LivingEntity) {
++            net.minecraft.world.entity.LivingEntity $$9 = (net.minecraft.world.entity.LivingEntity)$$0.getVehicle();
++            $$6 = net.minecraft.util.Mth.rotLerp((float)$$2, (float)$$9.yBodyRotO, (float)$$9.yBodyRot);
++            $$8 = $$7 - $$6;
++            float $$10 = net.minecraft.util.Mth.wrapDegrees((float)$$8);
++            if ($$10 < -85.0f) {
++                $$10 = -85.0f;
+             }
+-            if (f5 >= 85.0f) {
+-                f5 = 85.0f;
++            if ($$10 >= 85.0f) {
++                $$10 = 85.0f;
+             }
+-            f2 = f3 - f5;
+-            if (f5 * f5 > 2500.0f) {
+-                f2 += f5 * 0.2f;
++            $$6 = $$7 - $$10;
++            if ($$10 * $$10 > 2500.0f) {
++                $$6 += $$10 * 0.2f;
+             }
+-            f4 = f3 - f2;
++            $$8 = $$7 - $$6;
+         }
+-        float f6 = net.minecraft.util.Mth.lerp((float)partialTicks, (float)((net.minecraft.world.entity.LivingEntity)entity).xRotO, (float)entity.getXRot());
+-        if (net.minecraft.client.renderer.entity.LivingEntityRenderer.isEntityUpsideDown(entity)) {
+-            f6 *= -1.0f;
+-            f4 *= -1.0f;
++        float $$11 = net.minecraft.util.Mth.lerp((float)$$2, (float)((net.minecraft.world.entity.LivingEntity)$$0).xRotO, (float)$$0.getXRot());
++        if (net.minecraft.client.renderer.entity.LivingEntityRenderer.isEntityUpsideDown($$0)) {
++            $$11 *= -1.0f;
++            $$8 *= -1.0f;
+         }
+-        if (entity.hasPose(net.minecraft.world.entity.Pose.SLEEPING) && (direction = entity.getBedOrientation()) != null) {
+-            f = entity.getEyeHeight(net.minecraft.world.entity.Pose.STANDING) - 0.1f;
+-            matrixStack.translate((double)((float)(-direction.getStepX()) * f), 0.0, (double)((float)(-direction.getStepZ()) * f));
++        if ($$0.hasPose(net.minecraft.world.entity.Pose.SLEEPING) && ($$12 = $$0.getBedOrientation()) != null) {
++            float $$13 = $$0.getEyeHeight(net.minecraft.world.entity.Pose.STANDING) - 0.1f;
++            $$3.translate((double)((float)(-$$12.getStepX()) * $$13), 0.0, (double)((float)(-$$12.getStepZ()) * $$13));
+         }
+-        float f7 = this.getBob(entity, partialTicks);
+-        this.setupRotations(entity, matrixStack, f7, f2, partialTicks);
+-        matrixStack.scale(-1.0f, -1.0f, 1.0f);
+-        this.scale(entity, matrixStack, partialTicks);
+-        matrixStack.translate(0.0, (double)-1.501f, 0.0);
+-        f = 0.0f;
+-        float f8 = 0.0f;
+-        if (!entity.isPassenger() && entity.isAlive()) {
+-            f = net.minecraft.util.Mth.lerp((float)partialTicks, (float)((net.minecraft.world.entity.LivingEntity)entity).animationSpeedOld, (float)((net.minecraft.world.entity.LivingEntity)entity).animationSpeed);
+-            f8 = ((net.minecraft.world.entity.LivingEntity)entity).animationPosition - ((net.minecraft.world.entity.LivingEntity)entity).animationSpeed * (1.0f - partialTicks);
+-            if (entity.isBaby()) {
+-                f8 *= 3.0f;
++        float $$14 = this.getBob($$0, $$2);
++        this.setupRotations($$0, $$3, $$14, $$6, $$2);
++        $$3.scale(-1.0f, -1.0f, 1.0f);
++        this.scale($$0, $$3, $$2);
++        $$3.translate(0.0, (double)-1.501f, 0.0);
++        float $$15 = 0.0f;
++        float $$16 = 0.0f;
++        if (!$$0.isPassenger() && $$0.isAlive()) {
++            $$15 = net.minecraft.util.Mth.lerp((float)$$2, (float)((net.minecraft.world.entity.LivingEntity)$$0).animationSpeedOld, (float)((net.minecraft.world.entity.LivingEntity)$$0).animationSpeed);
++            $$16 = ((net.minecraft.world.entity.LivingEntity)$$0).animationPosition - ((net.minecraft.world.entity.LivingEntity)$$0).animationSpeed * (1.0f - $$2);
++            if ($$0.isBaby()) {
++                $$16 *= 3.0f;
+             }
+-            if (f > 1.0f) {
+-                f = 1.0f;
++            if ($$15 > 1.0f) {
++                $$15 = 1.0f;
+             }
+         }
+-        this.model.prepareMobModel(entity, f8, f, partialTicks);
+-        this.model.setupAnim(entity, f8, f, f7, f4, f6);
+-        net.minecraft.client.Minecraft minecraft = net.minecraft.client.Minecraft.getInstance();
+-        boolean bl = this.isBodyVisible(entity);
+-        boolean bl2 = !bl && !entity.isInvisibleTo((net.minecraft.world.entity.player.Player)minecraft.player);
+-        boolean bl3 = minecraft.shouldEntityAppearGlowing(entity);
+-        net.minecraft.client.renderer.RenderType renderType = this.getRenderType(entity, bl, bl2, bl3);
+-        if (renderType != null) {
+-            com.mojang.blaze3d.vertex.VertexConsumer vertexConsumer = buffer.getBuffer(renderType);
+-            int n = net.minecraft.client.renderer.entity.LivingEntityRenderer.getOverlayCoords(entity, (float)this.getWhiteOverlayProgress(entity, partialTicks));
+-            this.model.renderToBuffer(matrixStack, vertexConsumer, packedLight, n, 1.0f, 1.0f, 1.0f, bl2 ? 0.15f : 1.0f);
++        this.model.prepareMobModel($$0, $$16, $$15, $$2);
++        this.model.setupAnim($$0, $$16, $$15, $$14, $$8, $$11);
++        net.minecraft.client.Minecraft $$17 = net.minecraft.client.Minecraft.getInstance();
++        boolean $$18 = this.isBodyVisible($$0);
++        boolean $$19 = !$$18 && !$$0.isInvisibleTo((net.minecraft.world.entity.player.Player)$$17.player);
++        boolean $$20 = $$17.shouldEntityAppearGlowing($$0);
++        net.minecraft.client.renderer.RenderType $$21 = this.getRenderType($$0, $$18, $$19, $$20);
++        if ($$21 != null) {
++            com.mojang.blaze3d.vertex.VertexConsumer $$22 = $$4.getBuffer($$21);
++            int $$23 = net.minecraft.client.renderer.entity.LivingEntityRenderer.getOverlayCoords($$0, (float)this.getWhiteOverlayProgress($$0, $$2));
++            this.model.renderToBuffer($$3, $$22, $$5, $$23, 1.0f, 1.0f, 1.0f, $$19 ? 0.15f : 1.0f);
+         }
+-        if (!entity.isSpectator()) {
+-            for (net.minecraft.client.renderer.entity.layers.RenderLayer renderLayer : this.layers) {
+-                renderLayer.render(matrixStack, buffer, packedLight, entity, f8, f, partialTicks, f7, f4, f6);
++        if (!$$0.isSpectator()) {
++            for (net.minecraft.client.renderer.entity.layers.RenderLayer $$24 : this.layers) {
++                $$24.render($$3, $$4, $$5, $$0, $$16, $$15, $$2, $$14, $$8, $$11);
+             }
+         }
+-        matrixStack.popPose();
+-        super.render(entity, entityYaw, partialTicks, matrixStack, buffer, packedLight);
++        $$3.popPose();
++        super.render($$0, $$1, $$2, $$3, $$4, $$5);
+     }
+ 
+     @javax.annotation.Nullable
+@@ -116,16 +115,16 @@
+         return null;
+     }
+ 
+-    public static int getOverlayCoords(net.minecraft.world.entity.LivingEntity livingEntity, float u) {
+-        return net.minecraft.client.renderer.texture.OverlayTexture.pack((int)net.minecraft.client.renderer.texture.OverlayTexture.u((float)u), (int)net.minecraft.client.renderer.texture.OverlayTexture.v((livingEntity.hurtTime > 0 || livingEntity.deathTime > 0 ? 1 : 0) != 0));
++    public static int getOverlayCoords(net.minecraft.world.entity.LivingEntity $$0, float $$1) {
++        return net.minecraft.client.renderer.texture.OverlayTexture.pack((int)net.minecraft.client.renderer.texture.OverlayTexture.u((float)$$1), (int)net.minecraft.client.renderer.texture.OverlayTexture.v(($$0.hurtTime > 0 || $$0.deathTime > 0 ? 1 : 0) != 0));
+     }
+ 
+-    public boolean isBodyVisible(T livingEntity) {
+-        return !livingEntity.isInvisible();
++    public boolean isBodyVisible(T $$0) {
++        return !$$0.isInvisible();
+     }
+ 
+-    public static float sleepDirectionToRotation(net.minecraft.core.Direction facing) {
+-        switch (net.minecraft.client.renderer.entity.LivingEntityRenderer$1.$SwitchMap$net$minecraft$core$Direction[facing.ordinal()]) {
++    public static float sleepDirectionToRotation(net.minecraft.core.Direction $$0) {
++        switch (net.minecraft.client.renderer.entity.LivingEntityRenderer$1.$SwitchMap$net$minecraft$core$Direction[$$0.ordinal()]) {
+             case 1: {
+                 return 90.0f;
+             }
+@@ -146,87 +145,87 @@
+         return $$0.isFullyFrozen();
+     }
+ 
+-    public void setupRotations(T entityLiving, com.mojang.blaze3d.vertex.PoseStack matrixStack, float ageInTicks, float rotationYaw, float partialTicks) {
+-        if (this.isShaking(entityLiving)) {
+-            rotationYaw += (float)(java.lang.Math.cos((double)((double)((net.minecraft.world.entity.LivingEntity)entityLiving).tickCount * 3.25)) * java.lang.Math.PI * (double)0.4f);
++    public void setupRotations(T $$0, com.mojang.blaze3d.vertex.PoseStack $$1, float $$2, float $$3, float $$4) {
++        if (this.isShaking($$0)) {
++            $$3 += (float)(java.lang.Math.cos((double)((double)((net.minecraft.world.entity.LivingEntity)$$0).tickCount * 3.25)) * java.lang.Math.PI * (double)0.4f);
+         }
+-        if (!entityLiving.hasPose(net.minecraft.world.entity.Pose.SLEEPING)) {
+-            matrixStack.mulPose(com.mojang.math.Vector3f.YP.rotationDegrees(180.0f - rotationYaw));
++        if (!$$0.hasPose(net.minecraft.world.entity.Pose.SLEEPING)) {
++            $$1.mulPose(com.mojang.math.Vector3f.YP.rotationDegrees(180.0f - $$3));
+         }
+-        if (((net.minecraft.world.entity.LivingEntity)entityLiving).deathTime > 0) {
+-            float f = ((float)((net.minecraft.world.entity.LivingEntity)entityLiving).deathTime + partialTicks - 1.0f) / 20.0f * 1.6f;
+-            if ((f = net.minecraft.util.Mth.sqrt((float)f)) > 1.0f) {
+-                f = 1.0f;
++        if (((net.minecraft.world.entity.LivingEntity)$$0).deathTime > 0) {
++            float $$5 = ((float)((net.minecraft.world.entity.LivingEntity)$$0).deathTime + $$4 - 1.0f) / 20.0f * 1.6f;
++            if (($$5 = net.minecraft.util.Mth.sqrt((float)$$5)) > 1.0f) {
++                $$5 = 1.0f;
+             }
+-            matrixStack.mulPose(com.mojang.math.Vector3f.ZP.rotationDegrees(f * this.getFlipDegrees(entityLiving)));
+-        } else if (entityLiving.isAutoSpinAttack()) {
+-            matrixStack.mulPose(com.mojang.math.Vector3f.XP.rotationDegrees(-90.0f - entityLiving.getXRot()));
+-            matrixStack.mulPose(com.mojang.math.Vector3f.YP.rotationDegrees(((float)((net.minecraft.world.entity.LivingEntity)entityLiving).tickCount + partialTicks) * -75.0f));
+-        } else if (entityLiving.hasPose(net.minecraft.world.entity.Pose.SLEEPING)) {
+-            net.minecraft.core.Direction direction = entityLiving.getBedOrientation();
+-            float f = direction != null ? net.minecraft.client.renderer.entity.LivingEntityRenderer.sleepDirectionToRotation((net.minecraft.core.Direction)direction) : rotationYaw;
+-            matrixStack.mulPose(com.mojang.math.Vector3f.YP.rotationDegrees(f));
+-            matrixStack.mulPose(com.mojang.math.Vector3f.ZP.rotationDegrees(this.getFlipDegrees(entityLiving)));
+-            matrixStack.mulPose(com.mojang.math.Vector3f.YP.rotationDegrees(270.0f));
+-        } else if (net.minecraft.client.renderer.entity.LivingEntityRenderer.isEntityUpsideDown(entityLiving)) {
+-            matrixStack.translate(0.0, (double)(entityLiving.getBbHeight() + 0.1f), 0.0);
+-            matrixStack.mulPose(com.mojang.math.Vector3f.ZP.rotationDegrees(180.0f));
++            $$1.mulPose(com.mojang.math.Vector3f.ZP.rotationDegrees($$5 * this.getFlipDegrees($$0)));
++        } else if ($$0.isAutoSpinAttack()) {
++            $$1.mulPose(com.mojang.math.Vector3f.XP.rotationDegrees(-90.0f - $$0.getXRot()));
++            $$1.mulPose(com.mojang.math.Vector3f.YP.rotationDegrees(((float)((net.minecraft.world.entity.LivingEntity)$$0).tickCount + $$4) * -75.0f));
++        } else if ($$0.hasPose(net.minecraft.world.entity.Pose.SLEEPING)) {
++            net.minecraft.core.Direction $$6 = $$0.getBedOrientation();
++            float $$7 = $$6 != null ? net.minecraft.client.renderer.entity.LivingEntityRenderer.sleepDirectionToRotation((net.minecraft.core.Direction)$$6) : $$3;
++            $$1.mulPose(com.mojang.math.Vector3f.YP.rotationDegrees($$7));
++            $$1.mulPose(com.mojang.math.Vector3f.ZP.rotationDegrees(this.getFlipDegrees($$0)));
++            $$1.mulPose(com.mojang.math.Vector3f.YP.rotationDegrees(270.0f));
++        } else if (net.minecraft.client.renderer.entity.LivingEntityRenderer.isEntityUpsideDown($$0)) {
++            $$1.translate(0.0, (double)($$0.getBbHeight() + 0.1f), 0.0);
++            $$1.mulPose(com.mojang.math.Vector3f.ZP.rotationDegrees(180.0f));
+         }
+     }
+ 
+-    public float getAttackAnim(T livingBase, float partialTickTime) {
+-        return livingBase.getAttackAnim(partialTickTime);
++    public float getAttackAnim(T $$0, float $$1) {
++        return $$0.getAttackAnim($$1);
+     }
+ 
+-    public float getBob(T livingBase, float partialTicks) {
+-        return (float)((net.minecraft.world.entity.LivingEntity)livingBase).tickCount + partialTicks;
++    public float getBob(T $$0, float $$1) {
++        return (float)((net.minecraft.world.entity.LivingEntity)$$0).tickCount + $$1;
+     }
+ 
+-    public float getFlipDegrees(T livingEntity) {
++    public float getFlipDegrees(T $$0) {
+         return 90.0f;
+     }
+ 
+-    public float getWhiteOverlayProgress(T livingEntity, float partialTicks) {
++    public float getWhiteOverlayProgress(T $$0, float $$1) {
+         return 0.0f;
+     }
+ 
+-    public void scale(T livingEntity, com.mojang.blaze3d.vertex.PoseStack matrixStack, float partialTickTime) {
++    public void scale(T $$0, com.mojang.blaze3d.vertex.PoseStack $$1, float $$2) {
+     }
+ 
+-    public boolean shouldShowName(T entity) {
+-        boolean bl;
+-        float f;
+-        double d = this.entityRenderDispatcher.distanceToSqr(entity);
+-        float f2 = f = entity.isDiscrete() ? 32.0f : 64.0f;
+-        if (d >= (double)(f * f)) {
++    public boolean shouldShowName(T $$0) {
++        boolean $$5;
++        float $$2;
++        double $$1 = this.entityRenderDispatcher.distanceToSqr($$0);
++        float f = $$2 = $$0.isDiscrete() ? 32.0f : 64.0f;
++        if ($$1 >= (double)($$2 * $$2)) {
+             return false;
+         }
+-        net.minecraft.client.Minecraft minecraft = net.minecraft.client.Minecraft.getInstance();
+-        net.minecraft.client.player.LocalPlayer localPlayer = minecraft.player;
+-        boolean bl2 = bl = !entity.isInvisibleTo((net.minecraft.world.entity.player.Player)localPlayer);
+-        if (entity != localPlayer) {
+-            net.minecraft.world.scores.Team team = entity.getTeam();
+-            net.minecraft.world.scores.Team team2 = localPlayer.getTeam();
+-            if (team != null) {
+-                net.minecraft.world.scores.Team$Visibility visibility = team.getNameTagVisibility();
+-                switch (net.minecraft.client.renderer.entity.LivingEntityRenderer$1.$SwitchMap$net$minecraft$world$scores$Team$Visibility[visibility.ordinal()]) {
++        net.minecraft.client.Minecraft $$3 = net.minecraft.client.Minecraft.getInstance();
++        net.minecraft.client.player.LocalPlayer $$4 = $$3.player;
++        boolean bl = $$5 = !$$0.isInvisibleTo((net.minecraft.world.entity.player.Player)$$4);
++        if ($$0 != $$4) {
++            net.minecraft.world.scores.Team $$6 = $$0.getTeam();
++            net.minecraft.world.scores.Team $$7 = $$4.getTeam();
++            if ($$6 != null) {
++                net.minecraft.world.scores.Team$Visibility $$8 = $$6.getNameTagVisibility();
++                switch (net.minecraft.client.renderer.entity.LivingEntityRenderer$1.$SwitchMap$net$minecraft$world$scores$Team$Visibility[$$8.ordinal()]) {
+                     case 1: {
+-                        return bl;
++                        return $$5;
+                     }
+                     case 2: {
+                         return false;
+                     }
+                     case 3: {
+-                        return team2 == null ? bl : team.isAlliedTo(team2) && (team.canSeeFriendlyInvisibles() || bl);
++                        return $$7 == null ? $$5 : $$6.isAlliedTo($$7) && ($$6.canSeeFriendlyInvisibles() || $$5);
+                     }
+                     case 4: {
+-                        return team2 == null ? bl : !team.isAlliedTo(team2) && bl;
++                        return $$7 == null ? $$5 : !$$6.isAlliedTo($$7) && $$5;
+                     }
+                 }
+                 return true;
+             }
+         }
+-        return net.minecraft.client.Minecraft.renderNames() && entity != minecraft.getCameraEntity() && bl && !entity.isVehicle();
++        return net.minecraft.client.Minecraft.renderNames() && $$0 != $$3.getCameraEntity() && $$5 && !$$0.isVehicle();
+     }
+ 
+     public static boolean isEntityUpsideDown(net.minecraft.world.entity.LivingEntity $$0) {

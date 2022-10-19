@@ -1,0 +1,146 @@
+--- net/minecraft/world/level/block/entity/TheEndGatewayBlockEntity.java
++++ net/minecraft/world/level/block/entity/TheEndGatewayBlockEntity.java
+@@ -70,8 +70,8 @@
+         }
+     }
+ 
+-    public static boolean canEntityTeleport(net.minecraft.world.entity.Entity entity) {
+-        return net.minecraft.world.entity.EntitySelector.NO_SPECTATORS.test((java.lang.Object)entity) && !entity.getRootVehicle().isOnPortalCooldown();
++    public static boolean canEntityTeleport(net.minecraft.world.entity.Entity $$0) {
++        return net.minecraft.world.entity.EntitySelector.NO_SPECTATORS.test((java.lang.Object)$$0) && !$$0.getRootVehicle().isOnPortalCooldown();
+     }
+ 
+     public boolean isSpawning() {
+@@ -82,12 +82,12 @@
+         return this.teleportCooldown > 0;
+     }
+ 
+-    public float getSpawnPercent(float partialTicks) {
+-        return net.minecraft.util.Mth.clamp((float)(((float)this.age + partialTicks) / 200.0f), (float)0.0f, (float)1.0f);
++    public float getSpawnPercent(float $$0) {
++        return net.minecraft.util.Mth.clamp((float)(((float)this.age + $$0) / 200.0f), (float)0.0f, (float)1.0f);
+     }
+ 
+-    public float getCooldownPercent(float partialTicks) {
+-        return 1.0f - net.minecraft.util.Mth.clamp((float)(((float)this.teleportCooldown - partialTicks) / 40.0f), (float)0.0f, (float)1.0f);
++    public float getCooldownPercent(float $$0) {
++        return 1.0f - net.minecraft.util.Mth.clamp((float)(((float)this.teleportCooldown - $$0) / 40.0f), (float)0.0f, (float)1.0f);
+     }
+ 
+     public net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket getUpdatePacket() {
+@@ -106,12 +106,12 @@
+         }
+     }
+ 
+-    public boolean triggerEvent(int id, int type) {
+-        if (id == 1) {
++    public boolean triggerEvent(int $$0, int $$1) {
++        if ($$0 == 1) {
+             this.teleportCooldown = 40;
+             return true;
+         }
+-        return super.triggerEvent(id, type);
++        return super.triggerEvent($$0, $$1);
+     }
+ 
+     public static void teleportEntity(net.minecraft.world.level.Level $$0, net.minecraft.core.BlockPos $$1, net.minecraft.world.level.block.state.BlockState $$2, net.minecraft.world.entity.Entity $$3, net.minecraft.world.level.block.entity.TheEndGatewayBlockEntity $$4) {
+@@ -194,54 +194,54 @@
+         return net.minecraft.world.level.block.entity.TheEndGatewayBlockEntity.getChunk((net.minecraft.world.level.Level)$$0, (net.minecraft.world.phys.Vec3)$$1).getHighestSectionPosition() <= $$0.getMinBuildHeight();
+     }
+ 
+-    public static net.minecraft.core.BlockPos findTallestBlock(net.minecraft.world.level.BlockGetter level, net.minecraft.core.BlockPos pos, int radius, boolean allowBedrock) {
+-        net.minecraft.core.BlockPos blockPos = null;
+-        for (int i = -radius; i <= radius; ++i) {
+-block1:            for (int j = -radius; j <= radius; ++j) {
+-                if (i == 0 && j == 0 && !allowBedrock) continue;
+-                for (int k = level.getMaxBuildHeight() - 1; k > (blockPos == null ? level.getMinBuildHeight() : blockPos.getY()); --k) {
+-                    net.minecraft.core.BlockPos blockPos2 = new net.minecraft.core.BlockPos(pos.getX() + i, k, pos.getZ() + j);
+-                    net.minecraft.world.level.block.state.BlockState blockState = level.getBlockState(blockPos2);
+-                    if (!blockState.isCollisionShapeFullBlock(level, blockPos2) || !allowBedrock && blockState.is(net.minecraft.world.level.block.Blocks.BEDROCK)) continue;
+-                    blockPos = blockPos2;
++    public static net.minecraft.core.BlockPos findTallestBlock(net.minecraft.world.level.BlockGetter $$0, net.minecraft.core.BlockPos $$1, int $$2, boolean $$3) {
++        net.minecraft.core.BlockPos $$4 = null;
++        for (int $$5 = -$$2; $$5 <= $$2; ++$$5) {
++block1:            for (int $$6 = -$$2; $$6 <= $$2; ++$$6) {
++                if ($$5 == 0 && $$6 == 0 && !$$3) continue;
++                for (int $$7 = $$0.getMaxBuildHeight() - 1; $$7 > ($$4 == null ? $$0.getMinBuildHeight() : $$4.getY()); --$$7) {
++                    net.minecraft.core.BlockPos $$8 = new net.minecraft.core.BlockPos($$1.getX() + $$5, $$7, $$1.getZ() + $$6);
++                    net.minecraft.world.level.block.state.BlockState $$9 = $$0.getBlockState($$8);
++                    if (!$$9.isCollisionShapeFullBlock($$0, $$8) || !$$3 && $$9.is(net.minecraft.world.level.block.Blocks.BEDROCK)) continue;
++                    $$4 = $$8;
+                     continue block1;
+                 }
+             }
+         }
+-        return blockPos == null ? pos : blockPos;
++        return $$4 == null ? $$1 : $$4;
+     }
+ 
+-    public static net.minecraft.world.level.chunk.LevelChunk getChunk(net.minecraft.world.level.Level level, net.minecraft.world.phys.Vec3 vec3) {
+-        return level.getChunk(net.minecraft.util.Mth.floor((double)(vec3.x / 16.0)), net.minecraft.util.Mth.floor((double)(vec3.z / 16.0)));
++    public static net.minecraft.world.level.chunk.LevelChunk getChunk(net.minecraft.world.level.Level $$0, net.minecraft.world.phys.Vec3 $$1) {
++        return $$0.getChunk(net.minecraft.util.Mth.floor((double)($$1.x / 16.0)), net.minecraft.util.Mth.floor((double)($$1.z / 16.0)));
+     }
+ 
+     @javax.annotation.Nullable
+-    public static net.minecraft.core.BlockPos findValidSpawnInChunk(net.minecraft.world.level.chunk.LevelChunk chunk) {
+-        net.minecraft.world.level.ChunkPos chunkPos = chunk.getPos();
+-        net.minecraft.core.BlockPos blockPos = new net.minecraft.core.BlockPos(chunkPos.getMinBlockX(), 30, chunkPos.getMinBlockZ());
+-        int n = chunk.getHighestSectionPosition() + 16 - 1;
+-        net.minecraft.core.BlockPos blockPos2 = new net.minecraft.core.BlockPos(chunkPos.getMaxBlockX(), n, chunkPos.getMaxBlockZ());
+-        net.minecraft.core.BlockPos blockPos3 = null;
+-        double d = 0.0;
+-        for (net.minecraft.core.BlockPos blockPos4 : net.minecraft.core.BlockPos.betweenClosed((net.minecraft.core.BlockPos)blockPos, (net.minecraft.core.BlockPos)blockPos2)) {
+-            net.minecraft.world.level.block.state.BlockState blockState = chunk.getBlockState(blockPos4);
+-            net.minecraft.core.BlockPos blockPos5 = blockPos4.above();
+-            net.minecraft.core.BlockPos blockPos6 = blockPos4.above(2);
+-            if (!blockState.is(net.minecraft.world.level.block.Blocks.END_STONE) || chunk.getBlockState(blockPos5).isCollisionShapeFullBlock((net.minecraft.world.level.BlockGetter)chunk, blockPos5) || chunk.getBlockState(blockPos6).isCollisionShapeFullBlock((net.minecraft.world.level.BlockGetter)chunk, blockPos6)) continue;
+-            double d2 = blockPos4.distToCenterSqr(0.0, 0.0, 0.0);
+-            if (blockPos3 != null && !(d2 < d)) continue;
+-            blockPos3 = blockPos4;
+-            d = d2;
++    public static net.minecraft.core.BlockPos findValidSpawnInChunk(net.minecraft.world.level.chunk.LevelChunk $$0) {
++        net.minecraft.world.level.ChunkPos $$1 = $$0.getPos();
++        net.minecraft.core.BlockPos $$2 = new net.minecraft.core.BlockPos($$1.getMinBlockX(), 30, $$1.getMinBlockZ());
++        int $$3 = $$0.getHighestSectionPosition() + 16 - 1;
++        net.minecraft.core.BlockPos $$4 = new net.minecraft.core.BlockPos($$1.getMaxBlockX(), $$3, $$1.getMaxBlockZ());
++        net.minecraft.core.BlockPos $$5 = null;
++        double $$6 = 0.0;
++        for (net.minecraft.core.BlockPos $$7 : net.minecraft.core.BlockPos.betweenClosed((net.minecraft.core.BlockPos)$$2, (net.minecraft.core.BlockPos)$$4)) {
++            net.minecraft.world.level.block.state.BlockState $$8 = $$0.getBlockState($$7);
++            net.minecraft.core.BlockPos $$9 = $$7.above();
++            net.minecraft.core.BlockPos $$10 = $$7.above(2);
++            if (!$$8.is(net.minecraft.world.level.block.Blocks.END_STONE) || $$0.getBlockState($$9).isCollisionShapeFullBlock((net.minecraft.world.level.BlockGetter)$$0, $$9) || $$0.getBlockState($$10).isCollisionShapeFullBlock((net.minecraft.world.level.BlockGetter)$$0, $$10)) continue;
++            double $$11 = $$7.distToCenterSqr(0.0, 0.0, 0.0);
++            if ($$5 != null && !($$11 < $$6)) continue;
++            $$5 = $$7;
++            $$6 = $$11;
+         }
+-        return blockPos3;
++        return $$5;
+     }
+ 
+     public static void spawnGatewayPortal(net.minecraft.server.level.ServerLevel $$0, net.minecraft.core.BlockPos $$1, net.minecraft.world.level.levelgen.feature.configurations.EndGatewayConfiguration $$2) {
+         net.minecraft.world.level.levelgen.feature.Feature.END_GATEWAY.place((net.minecraft.world.level.levelgen.feature.configurations.FeatureConfiguration)$$2, (net.minecraft.world.level.WorldGenLevel)$$0, $$0.getChunkSource().getGenerator(), net.minecraft.util.RandomSource.create(), $$1);
+     }
+ 
+-    public boolean shouldRenderFace(net.minecraft.core.Direction face) {
+-        return net.minecraft.world.level.block.Block.shouldRenderFace((net.minecraft.world.level.block.state.BlockState)this.getBlockState(), (net.minecraft.world.level.BlockGetter)this.level, (net.minecraft.core.BlockPos)this.getBlockPos(), (net.minecraft.core.Direction)face, (net.minecraft.core.BlockPos)this.getBlockPos().relative(face));
++    public boolean shouldRenderFace(net.minecraft.core.Direction $$0) {
++        return net.minecraft.world.level.block.Block.shouldRenderFace((net.minecraft.world.level.block.state.BlockState)this.getBlockState(), (net.minecraft.world.level.BlockGetter)this.level, (net.minecraft.core.BlockPos)this.getBlockPos(), (net.minecraft.core.Direction)$$0, (net.minecraft.core.BlockPos)this.getBlockPos().relative($$0));
+     }
+ 
+     public int getParticleAmount() {
+@@ -252,9 +252,9 @@
+         return $$0;
+     }
+ 
+-    public void setExitPosition(net.minecraft.core.BlockPos exitPortal, boolean bl) {
+-        this.exactTeleport = bl;
+-        this.exitPortal = exitPortal;
++    public void setExitPosition(net.minecraft.core.BlockPos $$0, boolean $$1) {
++        this.exactTeleport = $$1;
++        this.exitPortal = $$0;
+     }
+ 
+     public /* synthetic */ net.minecraft.network.protocol.Packet getUpdatePacket() {

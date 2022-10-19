@@ -1,0 +1,71 @@
+--- net/minecraft/world/level/pathfinder/SwimNodeEvaluator.java
++++ net/minecraft/world/level/pathfinder/SwimNodeEvaluator.java
+@@ -61,45 +61,45 @@
+     }
+ 
+     @javax.annotation.Nullable
+-    public net.minecraft.world.level.pathfinder.Node getNode(int x, int y, int z) {
+-        float f;
+-        net.minecraft.world.level.pathfinder.Node node = null;
+-        net.minecraft.world.level.pathfinder.BlockPathTypes blockPathTypes = this.getCachedBlockType(x, y, z);
+-        if ((this.allowBreaching && blockPathTypes == net.minecraft.world.level.pathfinder.BlockPathTypes.BREACH || blockPathTypes == net.minecraft.world.level.pathfinder.BlockPathTypes.WATER) && (f = this.mob.getPathfindingMalus(blockPathTypes)) >= 0.0f && (node = super.getNode(x, y, z)) != null) {
+-            node.type = blockPathTypes;
+-            node.costMalus = java.lang.Math.max((float)node.costMalus, (float)f);
+-            if (this.level.getFluidState(new net.minecraft.core.BlockPos(x, y, z)).isEmpty()) {
+-                node.costMalus += 8.0f;
++    public net.minecraft.world.level.pathfinder.Node getNode(int $$0, int $$1, int $$2) {
++        float $$5;
++        net.minecraft.world.level.pathfinder.Node $$3 = null;
++        net.minecraft.world.level.pathfinder.BlockPathTypes $$4 = this.getCachedBlockType($$0, $$1, $$2);
++        if ((this.allowBreaching && $$4 == net.minecraft.world.level.pathfinder.BlockPathTypes.BREACH || $$4 == net.minecraft.world.level.pathfinder.BlockPathTypes.WATER) && ($$5 = this.mob.getPathfindingMalus($$4)) >= 0.0f && ($$3 = super.getNode($$0, $$1, $$2)) != null) {
++            $$3.type = $$4;
++            $$3.costMalus = java.lang.Math.max((float)$$3.costMalus, (float)$$5);
++            if (this.level.getFluidState(new net.minecraft.core.BlockPos($$0, $$1, $$2)).isEmpty()) {
++                $$3.costMalus += 8.0f;
+             }
+         }
+-        return node;
++        return $$3;
+     }
+ 
+     public net.minecraft.world.level.pathfinder.BlockPathTypes getCachedBlockType(int $$0, int $$1, int $$2) {
+         return (net.minecraft.world.level.pathfinder.BlockPathTypes)this.pathTypesByPosCache.computeIfAbsent(net.minecraft.core.BlockPos.asLong((int)$$0, (int)$$1, (int)$$2), $$3 -> this.getBlockPathType((net.minecraft.world.level.BlockGetter)this.level, $$0, $$1, $$2));
+     }
+ 
+-    public net.minecraft.world.level.pathfinder.BlockPathTypes getBlockPathType(net.minecraft.world.level.BlockGetter level, int x, int y, int z) {
+-        return this.getBlockPathType(level, x, y, z, this.mob, this.entityWidth, this.entityHeight, this.entityDepth, this.canOpenDoors(), this.canPassDoors());
++    public net.minecraft.world.level.pathfinder.BlockPathTypes getBlockPathType(net.minecraft.world.level.BlockGetter $$0, int $$1, int $$2, int $$3) {
++        return this.getBlockPathType($$0, $$1, $$2, $$3, this.mob, this.entityWidth, this.entityHeight, this.entityDepth, this.canOpenDoors(), this.canPassDoors());
+     }
+ 
+-    public net.minecraft.world.level.pathfinder.BlockPathTypes getBlockPathType(net.minecraft.world.level.BlockGetter blockaccess, int x, int y, int z, net.minecraft.world.entity.Mob entityliving, int xSize, int ySize, int zSize, boolean canBreakDoors, boolean canEnterDoors) {
+-        net.minecraft.core.BlockPos$MutableBlockPos mutableBlockPos = new net.minecraft.core.BlockPos$MutableBlockPos();
+-        for (int i = x; i < x + xSize; ++i) {
+-            for (int j = y; j < y + ySize; ++j) {
+-                for (int k = z; k < z + zSize; ++k) {
+-                    net.minecraft.world.level.material.FluidState fluidState = blockaccess.getFluidState((net.minecraft.core.BlockPos)mutableBlockPos.set(i, j, k));
+-                    net.minecraft.world.level.block.state.BlockState blockState = blockaccess.getBlockState((net.minecraft.core.BlockPos)mutableBlockPos.set(i, j, k));
+-                    if (fluidState.isEmpty() && blockState.isPathfindable(blockaccess, mutableBlockPos.below(), net.minecraft.world.level.pathfinder.PathComputationType.WATER) && blockState.isAir()) {
++    public net.minecraft.world.level.pathfinder.BlockPathTypes getBlockPathType(net.minecraft.world.level.BlockGetter $$0, int $$1, int $$2, int $$3, net.minecraft.world.entity.Mob $$4, int $$5, int $$6, int $$7, boolean $$8, boolean $$9) {
++        net.minecraft.core.BlockPos$MutableBlockPos $$10 = new net.minecraft.core.BlockPos$MutableBlockPos();
++        for (int $$11 = $$1; $$11 < $$1 + $$5; ++$$11) {
++            for (int $$12 = $$2; $$12 < $$2 + $$6; ++$$12) {
++                for (int $$13 = $$3; $$13 < $$3 + $$7; ++$$13) {
++                    net.minecraft.world.level.material.FluidState $$14 = $$0.getFluidState((net.minecraft.core.BlockPos)$$10.set($$11, $$12, $$13));
++                    net.minecraft.world.level.block.state.BlockState $$15 = $$0.getBlockState((net.minecraft.core.BlockPos)$$10.set($$11, $$12, $$13));
++                    if ($$14.isEmpty() && $$15.isPathfindable($$0, $$10.below(), net.minecraft.world.level.pathfinder.PathComputationType.WATER) && $$15.isAir()) {
+                         return net.minecraft.world.level.pathfinder.BlockPathTypes.BREACH;
+                     }
+-                    if (fluidState.is(net.minecraft.tags.FluidTags.WATER)) continue;
++                    if ($$14.is(net.minecraft.tags.FluidTags.WATER)) continue;
+                     return net.minecraft.world.level.pathfinder.BlockPathTypes.BLOCKED;
+                 }
+             }
+         }
+-        net.minecraft.world.level.block.state.BlockState blockState = blockaccess.getBlockState((net.minecraft.core.BlockPos)mutableBlockPos);
+-        if (blockState.isPathfindable(blockaccess, (net.minecraft.core.BlockPos)mutableBlockPos, net.minecraft.world.level.pathfinder.PathComputationType.WATER)) {
++        net.minecraft.world.level.block.state.BlockState $$16 = $$0.getBlockState((net.minecraft.core.BlockPos)$$10);
++        if ($$16.isPathfindable($$0, (net.minecraft.core.BlockPos)$$10, net.minecraft.world.level.pathfinder.PathComputationType.WATER)) {
+             return net.minecraft.world.level.pathfinder.BlockPathTypes.WATER;
+         }
+         return net.minecraft.world.level.pathfinder.BlockPathTypes.BLOCKED;

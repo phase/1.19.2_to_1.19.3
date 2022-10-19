@@ -1,0 +1,66 @@
+--- net/minecraft/network/chat/LocalChatSession.java
++++ net/minecraft/network/chat/LocalChatSession.java
+@@ -1,0 +1,63 @@
++/*
++ * Decompiled with CFR 0.151.
++ */
++package net.minecraft.network.chat;
++
++public class net.minecraft.network.chat.LocalChatSession
++extends java.lang.Record
++ {
++    public java.util.UUID sessionId;
++    @javax.annotation.Nullable
++    public net.minecraft.world.entity.player.ProfileKeyPair keyPair;
++
++    public net.minecraft.network.chat.LocalChatSession(java.util.UUID $$0, @javax.annotation.Nullable net.minecraft.world.entity.player.ProfileKeyPair $$1) {
++        this.sessionId = $$0;
++        this.keyPair = $$1;
++    }
++
++    public static net.minecraft.network.chat.LocalChatSession create(@javax.annotation.Nullable net.minecraft.world.entity.player.ProfileKeyPair $$0) {
++        return new net.minecraft.network.chat.LocalChatSession(java.util.UUID.randomUUID(), $$0);
++    }
++
++    public net.minecraft.network.chat.SignedMessageChain$Encoder createMessageEncoder(java.util.UUID $$0) {
++        net.minecraft.util.Signer $$1 = this.createSigner();
++        if ($$1 != null) {
++            return new net.minecraft.network.chat.SignedMessageChain($$0, this.sessionId).encoder($$1);
++        }
++        return net.minecraft.network.chat.SignedMessageChain$Encoder.UNSIGNED;
++    }
++
++    @javax.annotation.Nullable
++    public net.minecraft.util.Signer createSigner() {
++        if (this.keyPair != null) {
++            return net.minecraft.util.Signer.from((java.security.PrivateKey)this.keyPair.privateKey(), (java.lang.String)"SHA256withRSA");
++        }
++        return null;
++    }
++
++    public net.minecraft.network.chat.RemoteChatSession asRemote() {
++        return new net.minecraft.network.chat.RemoteChatSession(this.sessionId, (net.minecraft.world.entity.player.ProfilePublicKey)net.minecraft.Util.mapNullable((java.lang.Object)this.keyPair, net.minecraft.world.entity.player.ProfileKeyPair::publicKey));
++    }
++
++    public java.lang.String toString() {
++        return java.lang.runtime.ObjectMethods.bootstrap("toString", new java.lang.invoke.MethodHandle[]{net.minecraft.network.chat.LocalChatSession.class, "sessionId;keyPair", "sessionId", "keyPair"}, this);
++    }
++
++    public int hashCode() {
++        return (int)java.lang.runtime.ObjectMethods.bootstrap("hashCode", new java.lang.invoke.MethodHandle[]{net.minecraft.network.chat.LocalChatSession.class, "sessionId;keyPair", "sessionId", "keyPair"}, this);
++    }
++
++    public boolean equals(java.lang.Object $$0) {
++        return (boolean)java.lang.runtime.ObjectMethods.bootstrap("equals", new java.lang.invoke.MethodHandle[]{net.minecraft.network.chat.LocalChatSession.class, "sessionId;keyPair", "sessionId", "keyPair"}, this, $$0);
++    }
++
++    public java.util.UUID sessionId() {
++        return this.sessionId;
++    }
++
++    @javax.annotation.Nullable
++    public net.minecraft.world.entity.player.ProfileKeyPair keyPair() {
++        return this.keyPair;
++    }
++}
++

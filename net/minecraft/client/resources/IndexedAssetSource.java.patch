@@ -1,0 +1,50 @@
+--- net/minecraft/client/resources/IndexedAssetSource.java
++++ net/minecraft/client/resources/IndexedAssetSource.java
+@@ -1,0 +1,47 @@
++/*
++ * Decompiled with CFR 0.151.
++ */
++package net.minecraft.client.resources;
++
++public class net.minecraft.client.resources.IndexedAssetSource
++ {
++    public static org.slf4j.Logger LOGGER;
++    public static com.google.common.base.Splitter PATH_SPLITTER;
++
++    public net.minecraft.client.resources.IndexedAssetSource() {
++    }
++
++    public static java.nio.file.Path createIndexFs(java.nio.file.Path $$0, java.lang.String $$1) {
++        java.nio.file.Path $$2 = $$0.resolve("objects");
++        net.minecraft.server.packs.linkfs.LinkFileSystem$Builder $$3 = net.minecraft.server.packs.linkfs.LinkFileSystem.builder();
++        java.nio.file.Path $$4 = $$0.resolve("indexes/" + $$1 + ".json");
++        try (java.io.BufferedReader $$5 = java.nio.file.Files.newBufferedReader((java.nio.file.Path)$$4, (java.nio.charset.Charset)java.nio.charset.StandardCharsets.UTF_8);
++){
++            com.google.gson.JsonObject $$6 = net.minecraft.util.GsonHelper.parse((java.io.Reader)$$5);
++            com.google.gson.JsonObject $$7 = net.minecraft.util.GsonHelper.getAsJsonObject((com.google.gson.JsonObject)$$6, (java.lang.String)"objects", null);
++            if ($$7 != null) {
++                for (java.util.Map$Entry $$8 : $$7.entrySet()) {
++                    com.google.gson.JsonObject $$9 = (com.google.gson.JsonObject)$$8.getValue();
++                    java.lang.String $$10 = (java.lang.String)$$8.getKey();
++                    java.util.List $$11 = PATH_SPLITTER.splitToList((java.lang.CharSequence)$$10);
++                    java.lang.String $$12 = net.minecraft.util.GsonHelper.getAsString((com.google.gson.JsonObject)$$9, (java.lang.String)"hash");
++                    java.nio.file.Path $$13 = $$2.resolve($$12.substring(0, 2) + "/" + $$12);
++                    $$3.put($$11, $$13);
++                }
++            }
++        }
++        catch (com.google.gson.JsonParseException $$14) {
++            LOGGER.error("Unable to parse resource index file: {}", (java.lang.Object)$$4);
++        }
++        catch (java.io.IOException $$15) {
++            LOGGER.error("Can't open the resource index file: {}", (java.lang.Object)$$4);
++        }
++        return $$3.build("index-" + $$1).getPath("/", new java.lang.String[0]);
++    }
++
++    static {
++        LOGGER = com.mojang.logging.LogUtils.getLogger();
++        PATH_SPLITTER = com.google.common.base.Splitter.on((char)'/');
++    }
++}
++

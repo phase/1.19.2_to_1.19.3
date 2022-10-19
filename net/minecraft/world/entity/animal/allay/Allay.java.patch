@@ -1,0 +1,109 @@
+--- net/minecraft/world/entity/animal/allay/Allay.java
++++ net/minecraft/world/entity/animal/allay/Allay.java
+@@ -17,6 +17,7 @@
+     public static net.minecraft.world.item.crafting.Ingredient DUPLICATION_ITEM;
+     public static int DUPLICATION_COOLDOWN_TICKS = 6000;
+     public static int NUM_OF_DUPLICATION_HEARTS = 3;
++    public static double RIDING_OFFSET = 0.4;
+     public static net.minecraft.network.syncher.EntityDataAccessor<java.lang.Boolean> DATA_DANCING;
+     public static net.minecraft.network.syncher.EntityDataAccessor<java.lang.Boolean> DATA_CAN_DUPLICATE;
+     public static com.google.common.collect.ImmutableList<net.minecraft.world.entity.ai.sensing.SensorType<? extends net.minecraft.world.entity.ai.sensing.Sensor<? super net.minecraft.world.entity.animal.allay.Allay>>> SENSOR_TYPES;
+@@ -42,7 +43,7 @@
+         this.setCanPickUpLoot(this.canPickUpLoot());
+         net.minecraft.world.level.gameevent.EntityPositionSource $$2 = new net.minecraft.world.level.gameevent.EntityPositionSource((net.minecraft.world.entity.Entity)this, this.getEyeHeight());
+         this.vibrationListenerConfig = new net.minecraft.world.entity.animal.allay.Allay$AllayVibrationListenerConfig(this);
+-        this.dynamicVibrationListener = new net.minecraft.world.level.gameevent.DynamicGameEventListener((net.minecraft.world.level.gameevent.GameEventListener)new net.minecraft.world.level.gameevent.vibrations.VibrationListener((net.minecraft.world.level.gameevent.PositionSource)$$2, 16, this.vibrationListenerConfig, null, 0.0f, 0));
++        this.dynamicVibrationListener = new net.minecraft.world.level.gameevent.DynamicGameEventListener((net.minecraft.world.level.gameevent.GameEventListener)new net.minecraft.world.level.gameevent.vibrations.VibrationListener((net.minecraft.world.level.gameevent.PositionSource)$$2, 16, this.vibrationListenerConfig));
+         this.dynamicJukeboxListener = new net.minecraft.world.level.gameevent.DynamicGameEventListener((net.minecraft.world.level.gameevent.GameEventListener)new net.minecraft.world.entity.animal.allay.Allay$JukeboxListener(this, (net.minecraft.world.level.gameevent.PositionSource)$$2, net.minecraft.world.level.gameevent.GameEvent.JUKEBOX_PLAY.getNotificationRadius()));
+     }
+ 
+@@ -176,6 +177,9 @@
+             }
+         } else {
+             ((net.minecraft.world.level.gameevent.vibrations.VibrationListener)this.dynamicVibrationListener.getListener()).tick(this.level);
++            if (this.isPanicking()) {
++                this.setDancing(false);
++            }
+         }
+     }
+ 
+@@ -250,9 +254,31 @@
+ 
+     public boolean wantsToPickUp(net.minecraft.world.item.ItemStack $$0) {
+         net.minecraft.world.item.ItemStack $$1 = this.getItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND);
+-        return !$$1.isEmpty() && $$1.sameItemStackIgnoreDurability($$0) && this.inventory.canAddItem($$0) && this.level.getGameRules().getBoolean(net.minecraft.world.level.GameRules.RULE_MOBGRIEFING);
++        return !$$1.isEmpty() && this.level.getGameRules().getBoolean(net.minecraft.world.level.GameRules.RULE_MOBGRIEFING) && this.inventory.canAddItem($$0) && this.allayConsidersItemEqual($$1, $$0);
+     }
+ 
++    public boolean allayConsidersItemEqual(net.minecraft.world.item.ItemStack $$0, net.minecraft.world.item.ItemStack $$1) {
++        return $$0.sameItemStackIgnoreDurability($$1) && !this.hasNonMatchingPotion($$0, $$1);
++    }
++
++    public boolean hasNonMatchingPotion(net.minecraft.world.item.ItemStack $$0, net.minecraft.world.item.ItemStack $$1) {
++        boolean $$5;
++        boolean $$3;
++        net.minecraft.nbt.CompoundTag $$2 = $$0.getTag();
++        boolean bl = $$3 = $$2 != null && $$2.contains("Potion");
++        if (!$$3) {
++            return false;
++        }
++        net.minecraft.nbt.CompoundTag $$4 = $$1.getTag();
++        boolean bl2 = $$5 = $$4 != null && $$4.contains("Potion");
++        if (!$$5) {
++            return true;
++        }
++        net.minecraft.nbt.Tag $$6 = $$2.get("Potion");
++        net.minecraft.nbt.Tag $$7 = $$4.get("Potion");
++        return $$6 != null && $$7 != null && !$$6.equals((java.lang.Object)$$7);
++    }
++
+     public void pickUpItem(net.minecraft.world.entity.item.ItemEntity $$0) {
+         net.minecraft.world.entity.npc.InventoryCarrier.pickUpItem((net.minecraft.world.entity.Mob)this, (net.minecraft.world.entity.npc.InventoryCarrier)this, (net.minecraft.world.entity.item.ItemEntity)$$0);
+     }
+@@ -279,8 +305,12 @@
+         return (java.lang.Boolean)this.entityData.get(DATA_DANCING);
+     }
+ 
++    public boolean isPanicking() {
++        return this.brain.getMemory(net.minecraft.world.entity.ai.memory.MemoryModuleType.IS_PANICKING).isPresent();
++    }
++
+     public void setDancing(boolean $$0) {
+-        if (this.level.isClientSide) {
++        if (this.level.isClientSide || !this.isEffectiveAi() || $$0 && this.isPanicking()) {
+             return;
+         }
+         this.entityData.set(DATA_DANCING, (java.lang.Object)$$0);
+@@ -303,6 +333,10 @@
+         return net.minecraft.util.Mth.lerp((float)$$0, (float)this.spinningAnimationTicks0, (float)this.spinningAnimationTicks) / 15.0f;
+     }
+ 
++    public boolean equipmentHasChanged(net.minecraft.world.item.ItemStack $$0, net.minecraft.world.item.ItemStack $$1) {
++        return !this.allayConsidersItemEqual($$0, $$1);
++    }
++
+     public void dropEquipment() {
+         super.dropEquipment();
+         this.inventory.removeAllItems().forEach(arg_0 -> ((net.minecraft.world.entity.animal.allay.Allay)this).spawnAtLocation(arg_0));
+@@ -327,7 +361,9 @@
+ 
+     public void readAdditionalSaveData(net.minecraft.nbt.CompoundTag $$02) {
+         super.readAdditionalSaveData($$02);
+-        this.inventory.fromTag($$02.getList("Inventory", 10));
++        if ($$02.contains("Inventory", 10)) {
++            this.inventory.fromTag($$02.getList("Inventory", 10));
++        }
+         if ($$02.contains("listener", 10)) {
+             net.minecraft.world.level.gameevent.vibrations.VibrationListener.codec((net.minecraft.world.level.gameevent.vibrations.VibrationListener$VibrationListenerConfig)this.vibrationListenerConfig).parse(new com.mojang.serialization.Dynamic((com.mojang.serialization.DynamicOps)net.minecraft.nbt.NbtOps.INSTANCE, (java.lang.Object)$$02.getCompound("listener"))).resultOrPartial(arg_0 -> ((org.slf4j.Logger)LOGGER).error(arg_0)).ifPresent($$0 -> this.dynamicVibrationListener.updateListener((net.minecraft.world.level.gameevent.GameEventListener)$$0, this.level));
+         }
+@@ -393,6 +429,10 @@
+         return new net.minecraft.world.phys.Vec3(0.0, (double)this.getEyeHeight() * 0.6, (double)this.getBbWidth() * 0.1);
+     }
+ 
++    public double getMyRidingOffset() {
++        return 0.4;
++    }
++
+     public void handleEntityEvent(byte $$0) {
+         if ($$0 == 18) {
+             for (int $$1 = 0; $$1 < 3; ++$$1) {

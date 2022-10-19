@@ -1,0 +1,29 @@
+--- net/minecraft/data/BlockFamily.java
++++ net/minecraft/data/BlockFamily.java
+@@ -7,6 +7,7 @@
+  {
+     public net.minecraft.world.level.block.Block baseBlock;
+     public java.util.Map<net.minecraft.data.BlockFamily$Variant, net.minecraft.world.level.block.Block> variants;
++    public net.minecraft.world.flag.FeatureFlagSet requiredFeatures;
+     public boolean generateModel;
+     public boolean generateRecipe;
+     @javax.annotation.Nullable
+@@ -16,6 +17,7 @@
+ 
+     public net.minecraft.data.BlockFamily(net.minecraft.world.level.block.Block $$0) {
+         this.variants = com.google.common.collect.Maps.newHashMap();
++        this.requiredFeatures = net.minecraft.world.flag.FeatureFlags.VANILLA_SET;
+         this.generateModel = true;
+         this.generateRecipe = true;
+         this.baseBlock = $$0;
+@@ -37,8 +39,8 @@
+         return this.generateModel;
+     }
+ 
+-    public boolean shouldGenerateRecipe() {
+-        return this.generateRecipe;
++    public boolean shouldGenerateRecipe(net.minecraft.world.flag.FeatureFlagSet $$0) {
++        return this.generateRecipe && this.requiredFeatures.isSubsetOf($$0);
+     }
+ 
+     public java.util.Optional<java.lang.String> getRecipeGroupPrefix() {

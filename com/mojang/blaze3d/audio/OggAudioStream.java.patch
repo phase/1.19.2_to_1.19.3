@@ -1,0 +1,162 @@
+--- com/mojang/blaze3d/audio/OggAudioStream.java
++++ com/mojang/blaze3d/audio/OggAudioStream.java
+@@ -12,34 +12,34 @@
+     public java.io.InputStream input;
+     public java.nio.ByteBuffer buffer;
+ 
+-    public com.mojang.blaze3d.audio.OggAudioStream(java.io.InputStream input) throws java.io.IOException {
++    public com.mojang.blaze3d.audio.OggAudioStream(java.io.InputStream $$0) throws java.io.IOException {
+         this.buffer = org.lwjgl.system.MemoryUtil.memAlloc((int)8192);
+-        this.input = input;
++        this.input = $$0;
+         this.buffer.limit(0);
+-        try (org.lwjgl.system.MemoryStack memoryStack = org.lwjgl.system.MemoryStack.stackPush();
++        try (org.lwjgl.system.MemoryStack $$1 = org.lwjgl.system.MemoryStack.stackPush();
+ ){
+-            java.nio.IntBuffer intBuffer = memoryStack.mallocInt(1);
+-            java.nio.IntBuffer intBuffer2 = memoryStack.mallocInt(1);
++            java.nio.IntBuffer $$2 = $$1.mallocInt(1);
++            java.nio.IntBuffer $$3 = $$1.mallocInt(1);
+             while (this.handle == 0L) {
+                 if (!this.refillFromStream()) {
+                     throw new java.io.IOException("Failed to find Ogg header");
+                 }
+-                int n = this.buffer.position();
++                int $$4 = this.buffer.position();
+                 this.buffer.position(0);
+-                this.handle = org.lwjgl.stb.STBVorbis.stb_vorbis_open_pushdata((java.nio.ByteBuffer)this.buffer, (java.nio.IntBuffer)intBuffer, (java.nio.IntBuffer)intBuffer2, null);
+-                this.buffer.position(n);
+-                int n2 = intBuffer2.get(0);
+-                if (n2 == 1) {
++                this.handle = org.lwjgl.stb.STBVorbis.stb_vorbis_open_pushdata((java.nio.ByteBuffer)this.buffer, (java.nio.IntBuffer)$$2, (java.nio.IntBuffer)$$3, null);
++                this.buffer.position($$4);
++                int $$5 = $$3.get(0);
++                if ($$5 == 1) {
+                     this.forwardBuffer();
+                     continue;
+                 }
+-                if (n2 == 0) continue;
+-                throw new java.io.IOException("Failed to read Ogg file " + n2);
++                if ($$5 == 0) continue;
++                throw new java.io.IOException("Failed to read Ogg file " + $$5);
+             }
+-            this.buffer.position(this.buffer.position() + intBuffer.get(0));
+-            org.lwjgl.stb.STBVorbisInfo sTBVorbisInfo = org.lwjgl.stb.STBVorbisInfo.mallocStack((org.lwjgl.system.MemoryStack)memoryStack);
+-            org.lwjgl.stb.STBVorbis.stb_vorbis_get_info((long)this.handle, (org.lwjgl.stb.STBVorbisInfo)sTBVorbisInfo);
+-            this.audioFormat = new javax.sound.sampled.AudioFormat((float)sTBVorbisInfo.sample_rate(), 16, sTBVorbisInfo.channels(), true, false);
++            this.buffer.position(this.buffer.position() + $$2.get(0));
++            org.lwjgl.stb.STBVorbisInfo $$6 = org.lwjgl.stb.STBVorbisInfo.mallocStack((org.lwjgl.system.MemoryStack)$$1);
++            org.lwjgl.stb.STBVorbis.stb_vorbis_get_info((long)this.handle, (org.lwjgl.stb.STBVorbisInfo)$$6);
++            this.audioFormat = new javax.sound.sampled.AudioFormat((float)$$6.sample_rate(), 16, $$6.channels(), true, false);
+         }
+     }
+ 
+@@ -78,62 +78,61 @@
+         }
+     }
+ 
+-    public boolean readFrame(com.mojang.blaze3d.audio.OggAudioStream$OutputConcat output) throws java.io.IOException {
++    public boolean readFrame(com.mojang.blaze3d.audio.OggAudioStream$OutputConcat $$0) throws java.io.IOException {
+         if (this.handle == 0L) {
+             return false;
+         }
+-        try (org.lwjgl.system.MemoryStack memoryStack = org.lwjgl.system.MemoryStack.stackPush();
++        try (org.lwjgl.system.MemoryStack $$1 = org.lwjgl.system.MemoryStack.stackPush();
+ ){
+-            int n;
+ block14:            {
+-                int n2;
+-                org.lwjgl.PointerBuffer pointerBuffer = memoryStack.mallocPointer(1);
+-                java.nio.IntBuffer intBuffer = memoryStack.mallocInt(1);
+-                java.nio.IntBuffer intBuffer2 = memoryStack.mallocInt(1);
++                int $$7;
++                org.lwjgl.PointerBuffer $$2 = $$1.mallocPointer(1);
++                java.nio.IntBuffer $$3 = $$1.mallocInt(1);
++                java.nio.IntBuffer $$4 = $$1.mallocInt(1);
+                 while (true) {
+-                    n = org.lwjgl.stb.STBVorbis.stb_vorbis_decode_frame_pushdata((long)this.handle, (java.nio.ByteBuffer)this.buffer, (java.nio.IntBuffer)intBuffer, (org.lwjgl.PointerBuffer)pointerBuffer, (java.nio.IntBuffer)intBuffer2);
+-                    this.buffer.position(this.buffer.position() + n);
+-                    int n3 = org.lwjgl.stb.STBVorbis.stb_vorbis_get_error((long)this.handle);
+-                    if (n3 == 1) {
++                    int $$5 = org.lwjgl.stb.STBVorbis.stb_vorbis_decode_frame_pushdata((long)this.handle, (java.nio.ByteBuffer)this.buffer, (java.nio.IntBuffer)$$3, (org.lwjgl.PointerBuffer)$$2, (java.nio.IntBuffer)$$4);
++                    this.buffer.position(this.buffer.position() + $$5);
++                    int $$6 = org.lwjgl.stb.STBVorbis.stb_vorbis_get_error((long)this.handle);
++                    if ($$6 == 1) {
+                         this.forwardBuffer();
+                         if (this.refillFromStream()) continue;
+                         break block14;
+                     }
+-                    if (n3 != 0) {
+-                        throw new java.io.IOException("Failed to read Ogg file " + n3);
++                    if ($$6 != 0) {
++                        throw new java.io.IOException("Failed to read Ogg file " + $$6);
+                     }
+-                    n2 = intBuffer2.get(0);
+-                    if (n2 != 0) break;
++                    $$7 = $$4.get(0);
++                    if ($$7 != 0) break;
+                 }
+-                int n4 = intBuffer.get(0);
+-                org.lwjgl.PointerBuffer pointerBuffer2 = pointerBuffer.getPointerBuffer(n4);
+-                if (n4 == 1) {
+-                    this.convertMono(pointerBuffer2.getFloatBuffer(0, n2), output);
++                int $$8 = $$3.get(0);
++                org.lwjgl.PointerBuffer $$9 = $$2.getPointerBuffer($$8);
++                if ($$8 == 1) {
++                    this.convertMono($$9.getFloatBuffer(0, $$7), $$0);
+                     boolean bl = true;
+                     return bl;
+                 }
+-                if (n4 == 2) {
+-                    this.convertStereo(pointerBuffer2.getFloatBuffer(0, n2), pointerBuffer2.getFloatBuffer(1, n2), output);
++                if ($$8 == 2) {
++                    this.convertStereo($$9.getFloatBuffer(0, $$7), $$9.getFloatBuffer(1, $$7), $$0);
+                     boolean bl = true;
+                     return bl;
+                 }
+-                throw new java.lang.IllegalStateException("Invalid number of channels: " + n4);
++                throw new java.lang.IllegalStateException("Invalid number of channels: " + $$8);
+             }
+-            n = 0;
+-            return n != 0;
++            boolean bl = false;
++            return bl;
+         }
+     }
+ 
+-    public void convertMono(java.nio.FloatBuffer channel, com.mojang.blaze3d.audio.OggAudioStream$OutputConcat output) {
+-        while (channel.hasRemaining()) {
+-            output.put(channel.get());
++    public void convertMono(java.nio.FloatBuffer $$0, com.mojang.blaze3d.audio.OggAudioStream$OutputConcat $$1) {
++        while ($$0.hasRemaining()) {
++            $$1.put($$0.get());
+         }
+     }
+ 
+-    public void convertStereo(java.nio.FloatBuffer leftChannel, java.nio.FloatBuffer rightChannel, com.mojang.blaze3d.audio.OggAudioStream$OutputConcat output) {
+-        while (leftChannel.hasRemaining() && rightChannel.hasRemaining()) {
+-            output.put(leftChannel.get());
+-            output.put(rightChannel.get());
++    public void convertStereo(java.nio.FloatBuffer $$0, java.nio.FloatBuffer $$1, com.mojang.blaze3d.audio.OggAudioStream$OutputConcat $$2) {
++        while ($$0.hasRemaining() && $$1.hasRemaining()) {
++            $$2.put($$0.get());
++            $$2.put($$1.get());
+         }
+     }
+ 
+@@ -150,11 +149,11 @@
+         return this.audioFormat;
+     }
+ 
+-    public java.nio.ByteBuffer read(int size) throws java.io.IOException {
+-        com.mojang.blaze3d.audio.OggAudioStream$OutputConcat outputConcat = new com.mojang.blaze3d.audio.OggAudioStream$OutputConcat(size + 8192);
+-        while (this.readFrame(outputConcat) && outputConcat.byteCount < size) {
++    public java.nio.ByteBuffer read(int $$0) throws java.io.IOException {
++        com.mojang.blaze3d.audio.OggAudioStream$OutputConcat $$1 = new com.mojang.blaze3d.audio.OggAudioStream$OutputConcat($$0 + 8192);
++        while (this.readFrame($$1) && $$1.byteCount < $$0) {
+         }
+-        return outputConcat.get();
++        return $$1.get();
+     }
+ 
+     public java.nio.ByteBuffer readAll() throws java.io.IOException {

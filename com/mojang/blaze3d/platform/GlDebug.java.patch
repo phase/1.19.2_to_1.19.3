@@ -1,0 +1,134 @@
+--- com/mojang/blaze3d/platform/GlDebug.java
++++ com/mojang/blaze3d/platform/GlDebug.java
+@@ -17,12 +17,12 @@
+     public com.mojang.blaze3d.platform.GlDebug() {
+     }
+ 
+-    public static java.lang.String printUnknownToken(int token) {
+-        return "Unknown (0x" + java.lang.Integer.toHexString((int)token).toUpperCase() + ")";
++    public static java.lang.String printUnknownToken(int $$0) {
++        return "Unknown (0x" + java.lang.Integer.toHexString((int)$$0).toUpperCase() + ")";
+     }
+ 
+-    public static java.lang.String sourceToString(int source) {
+-        switch (source) {
++    public static java.lang.String sourceToString(int $$0) {
++        switch ($$0) {
+             case 33350: {
+                 return "API";
+             }
+@@ -42,11 +42,11 @@
+                 return "OTHER";
+             }
+         }
+-        return com.mojang.blaze3d.platform.GlDebug.printUnknownToken((int)source);
++        return com.mojang.blaze3d.platform.GlDebug.printUnknownToken((int)$$0);
+     }
+ 
+-    public static java.lang.String typeToString(int type) {
+-        switch (type) {
++    public static java.lang.String typeToString(int $$0) {
++        switch ($$0) {
+             case 33356: {
+                 return "ERROR";
+             }
+@@ -69,11 +69,11 @@
+                 return "MARKER";
+             }
+         }
+-        return com.mojang.blaze3d.platform.GlDebug.printUnknownToken((int)type);
++        return com.mojang.blaze3d.platform.GlDebug.printUnknownToken((int)$$0);
+     }
+ 
+-    public static java.lang.String severityToString(int severity) {
+-        switch (severity) {
++    public static java.lang.String severityToString(int $$0) {
++        switch ($$0) {
+             case 37190: {
+                 return "HIGH";
+             }
+@@ -87,27 +87,28 @@
+                 return "NOTIFICATION";
+             }
+         }
+-        return com.mojang.blaze3d.platform.GlDebug.printUnknownToken((int)severity);
++        return com.mojang.blaze3d.platform.GlDebug.printUnknownToken((int)$$0);
+     }
+ 
+     /*
+      * WARNING - Removed try catching itself - possible behaviour change.
++     * WARNING - void declaration
+      */
+-    public static void printDebugLog(int source, int type, int id, int severity, int messageLength, long message, long userParam) {
+-        com.mojang.blaze3d.platform.GlDebug$LogEntry logEntry;
+-        java.lang.String string = org.lwjgl.opengl.GLDebugMessageCallback.getMessage((int)messageLength, (long)message);
++    public static void printDebugLog(int $$0, int $$1, int $$2, int $$3, int $$4, long $$5, long $$6) {
++        void $$9;
++        java.lang.String $$7 = org.lwjgl.opengl.GLDebugMessageCallback.getMessage((int)$$4, (long)$$5);
+         java.util.Queue queue = MESSAGE_BUFFER;
+         synchronized (queue) {
+-            logEntry = lastEntry;
+-            if (logEntry == null || !logEntry.isSame(source, type, id, severity, string)) {
+-                logEntry = new com.mojang.blaze3d.platform.GlDebug$LogEntry(source, type, id, severity, string);
+-                MESSAGE_BUFFER.add((java.lang.Object)logEntry);
+-                lastEntry = logEntry;
++            com.mojang.blaze3d.platform.GlDebug$LogEntry $$8 = lastEntry;
++            if ($$8 == null || !$$8.isSame($$0, $$1, $$2, $$3, $$7)) {
++                $$8 = new com.mojang.blaze3d.platform.GlDebug$LogEntry($$0, $$1, $$2, $$3, $$7);
++                MESSAGE_BUFFER.add((java.lang.Object)$$8);
++                lastEntry = $$8;
+             } else {
+-                ++logEntry.count;
++                ++$$8.count;
+             }
+         }
+-        LOGGER.info("OpenGL debug message: {}", (java.lang.Object)logEntry);
++        LOGGER.info("OpenGL debug message: {}", (java.lang.Object)$$9);
+     }
+ 
+     /*
+@@ -128,31 +129,31 @@
+         return debugEnabled;
+     }
+ 
+-    public static void enableDebugCallback(int debugVerbosity, boolean synchronous) {
++    public static void enableDebugCallback(int $$0, boolean $$1) {
+         com.mojang.blaze3d.systems.RenderSystem.assertInInitPhase();
+-        if (debugVerbosity <= 0) {
++        if ($$0 <= 0) {
+             return;
+         }
+-        org.lwjgl.opengl.GLCapabilities gLCapabilities = org.lwjgl.opengl.GL.getCapabilities();
+-        if (gLCapabilities.GL_KHR_debug) {
++        org.lwjgl.opengl.GLCapabilities $$2 = org.lwjgl.opengl.GL.getCapabilities();
++        if ($$2.GL_KHR_debug) {
+             debugEnabled = true;
+             org.lwjgl.opengl.GL11.glEnable((int)37600);
+-            if (synchronous) {
++            if ($$1) {
+                 org.lwjgl.opengl.GL11.glEnable((int)33346);
+             }
+-            for (int i = 0; i < DEBUG_LEVELS.size(); ++i) {
+-                boolean bl = i < debugVerbosity;
+-                org.lwjgl.opengl.KHRDebug.glDebugMessageControl((int)4352, (int)4352, (int)((java.lang.Integer)DEBUG_LEVELS.get(i)), (int[])null, (boolean)bl);
++            for (int $$3 = 0; $$3 < DEBUG_LEVELS.size(); ++$$3) {
++                boolean $$4 = $$3 < $$0;
++                org.lwjgl.opengl.KHRDebug.glDebugMessageControl((int)4352, (int)4352, (int)((java.lang.Integer)DEBUG_LEVELS.get($$3)), (int[])null, (boolean)$$4);
+             }
+             org.lwjgl.opengl.KHRDebug.glDebugMessageCallback((org.lwjgl.opengl.GLDebugMessageCallbackI)((org.lwjgl.opengl.GLDebugMessageCallbackI)com.mojang.blaze3d.platform.GLX.make((java.lang.Object)org.lwjgl.opengl.GLDebugMessageCallback.create(com.mojang.blaze3d.platform.GlDebug::printDebugLog), com.mojang.blaze3d.platform.DebugMemoryUntracker::untrack)), (long)0L);
+-        } else if (gLCapabilities.GL_ARB_debug_output) {
++        } else if ($$2.GL_ARB_debug_output) {
+             debugEnabled = true;
+-            if (synchronous) {
++            if ($$1) {
+                 org.lwjgl.opengl.GL11.glEnable((int)33346);
+             }
+-            for (int i = 0; i < DEBUG_LEVELS_ARB.size(); ++i) {
+-                boolean bl = i < debugVerbosity;
+-                org.lwjgl.opengl.ARBDebugOutput.glDebugMessageControlARB((int)4352, (int)4352, (int)((java.lang.Integer)DEBUG_LEVELS_ARB.get(i)), (int[])null, (boolean)bl);
++            for (int $$5 = 0; $$5 < DEBUG_LEVELS_ARB.size(); ++$$5) {
++                boolean $$6 = $$5 < $$0;
++                org.lwjgl.opengl.ARBDebugOutput.glDebugMessageControlARB((int)4352, (int)4352, (int)((java.lang.Integer)DEBUG_LEVELS_ARB.get($$5)), (int[])null, (boolean)$$6);
+             }
+             org.lwjgl.opengl.ARBDebugOutput.glDebugMessageCallbackARB((org.lwjgl.opengl.GLDebugMessageARBCallbackI)((org.lwjgl.opengl.GLDebugMessageARBCallbackI)com.mojang.blaze3d.platform.GLX.make((java.lang.Object)org.lwjgl.opengl.GLDebugMessageARBCallback.create(com.mojang.blaze3d.platform.GlDebug::printDebugLog), com.mojang.blaze3d.platform.DebugMemoryUntracker::untrack)), (long)0L);
+         }

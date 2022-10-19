@@ -1,0 +1,256 @@
+--- net/minecraft/world/entity/monster/EnderMan.java
++++ net/minecraft/world/entity/monster/EnderMan.java
+@@ -47,19 +47,19 @@
+         return net.minecraft.world.entity.monster.Monster.createMonsterAttributes().add(net.minecraft.world.entity.ai.attributes.Attributes.MAX_HEALTH, 40.0).add(net.minecraft.world.entity.ai.attributes.Attributes.MOVEMENT_SPEED, (double)0.3f).add(net.minecraft.world.entity.ai.attributes.Attributes.ATTACK_DAMAGE, 7.0).add(net.minecraft.world.entity.ai.attributes.Attributes.FOLLOW_RANGE, 64.0);
+     }
+ 
+-    public void setTarget(@javax.annotation.Nullable net.minecraft.world.entity.LivingEntity livingEntity) {
+-        super.setTarget(livingEntity);
+-        net.minecraft.world.entity.ai.attributes.AttributeInstance attributeInstance = this.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.MOVEMENT_SPEED);
+-        if (livingEntity == null) {
++    public void setTarget(@javax.annotation.Nullable net.minecraft.world.entity.LivingEntity $$0) {
++        super.setTarget($$0);
++        net.minecraft.world.entity.ai.attributes.AttributeInstance $$1 = this.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.MOVEMENT_SPEED);
++        if ($$0 == null) {
+             this.targetChangeTime = 0;
+             this.entityData.set(DATA_CREEPY, (java.lang.Object)false);
+             this.entityData.set(DATA_STARED_AT, (java.lang.Object)false);
+-            attributeInstance.removeModifier(SPEED_MODIFIER_ATTACKING);
++            $$1.removeModifier(SPEED_MODIFIER_ATTACKING);
+         } else {
+             this.targetChangeTime = this.tickCount;
+             this.entityData.set(DATA_CREEPY, (java.lang.Object)true);
+-            if (!attributeInstance.hasModifier(SPEED_MODIFIER_ATTACKING)) {
+-                attributeInstance.addTransientModifier(SPEED_MODIFIER_ATTACKING);
++            if (!$$1.hasModifier(SPEED_MODIFIER_ATTACKING)) {
++                $$1.addTransientModifier(SPEED_MODIFIER_ATTACKING);
+             }
+         }
+     }
+@@ -75,16 +75,16 @@
+         this.setRemainingPersistentAngerTime(PERSISTENT_ANGER_TIME.sample(this.random));
+     }
+ 
+-    public void setRemainingPersistentAngerTime(int time) {
+-        this.remainingPersistentAngerTime = time;
++    public void setRemainingPersistentAngerTime(int $$0) {
++        this.remainingPersistentAngerTime = $$0;
+     }
+ 
+     public int getRemainingPersistentAngerTime() {
+         return this.remainingPersistentAngerTime;
+     }
+ 
+-    public void setPersistentAngerTarget(@javax.annotation.Nullable java.util.UUID target) {
+-        this.persistentAngerTarget = target;
++    public void setPersistentAngerTarget(@javax.annotation.Nullable java.util.UUID $$0) {
++        this.persistentAngerTarget = $$0;
+     }
+ 
+     @javax.annotation.Nullable
+@@ -101,48 +101,48 @@
+         }
+     }
+ 
+-    public void onSyncedDataUpdated(net.minecraft.network.syncher.EntityDataAccessor<?> key) {
+-        if (DATA_CREEPY.equals(key) && this.hasBeenStaredAt() && this.level.isClientSide) {
++    public void onSyncedDataUpdated(net.minecraft.network.syncher.EntityDataAccessor<?> $$0) {
++        if (DATA_CREEPY.equals($$0) && this.hasBeenStaredAt() && this.level.isClientSide) {
+             this.playStareSound();
+         }
+-        super.onSyncedDataUpdated(key);
++        super.onSyncedDataUpdated($$0);
+     }
+ 
+-    public void addAdditionalSaveData(net.minecraft.nbt.CompoundTag compound) {
+-        super.addAdditionalSaveData(compound);
+-        net.minecraft.world.level.block.state.BlockState blockState = this.getCarriedBlock();
+-        if (blockState != null) {
+-            compound.put("carriedBlockState", (net.minecraft.nbt.Tag)net.minecraft.nbt.NbtUtils.writeBlockState((net.minecraft.world.level.block.state.BlockState)blockState));
++    public void addAdditionalSaveData(net.minecraft.nbt.CompoundTag $$0) {
++        super.addAdditionalSaveData($$0);
++        net.minecraft.world.level.block.state.BlockState $$1 = this.getCarriedBlock();
++        if ($$1 != null) {
++            $$0.put("carriedBlockState", (net.minecraft.nbt.Tag)net.minecraft.nbt.NbtUtils.writeBlockState((net.minecraft.world.level.block.state.BlockState)$$1));
+         }
+-        this.addPersistentAngerSaveData(compound);
++        this.addPersistentAngerSaveData($$0);
+     }
+ 
+-    public void readAdditionalSaveData(net.minecraft.nbt.CompoundTag compound) {
+-        super.readAdditionalSaveData(compound);
+-        net.minecraft.world.level.block.state.BlockState blockState = null;
+-        if (compound.contains("carriedBlockState", 10) && (blockState = net.minecraft.nbt.NbtUtils.readBlockState((net.minecraft.nbt.CompoundTag)compound.getCompound("carriedBlockState"))).isAir()) {
+-            blockState = null;
++    public void readAdditionalSaveData(net.minecraft.nbt.CompoundTag $$0) {
++        super.readAdditionalSaveData($$0);
++        net.minecraft.world.level.block.state.BlockState $$1 = null;
++        if ($$0.contains("carriedBlockState", 10) && ($$1 = net.minecraft.nbt.NbtUtils.readBlockState((net.minecraft.core.HolderLookup)this.level.holderLookup(net.minecraft.core.Registry.BLOCK_REGISTRY), (net.minecraft.nbt.CompoundTag)$$0.getCompound("carriedBlockState"))).isAir()) {
++            $$1 = null;
+         }
+-        this.setCarriedBlock(blockState);
+-        this.readPersistentAngerSaveData(this.level, compound);
++        this.setCarriedBlock($$1);
++        this.readPersistentAngerSaveData(this.level, $$0);
+     }
+ 
+-    public boolean isLookingAtMe(net.minecraft.world.entity.player.Player player) {
+-        net.minecraft.world.item.ItemStack itemStack = (net.minecraft.world.item.ItemStack)player.getInventory().armor.get(3);
+-        if (itemStack.is(net.minecraft.world.level.block.Blocks.CARVED_PUMPKIN.asItem())) {
++    public boolean isLookingAtMe(net.minecraft.world.entity.player.Player $$0) {
++        net.minecraft.world.item.ItemStack $$1 = (net.minecraft.world.item.ItemStack)$$0.getInventory().armor.get(3);
++        if ($$1.is(net.minecraft.world.level.block.Blocks.CARVED_PUMPKIN.asItem())) {
+             return false;
+         }
+-        net.minecraft.world.phys.Vec3 vec3 = player.getViewVector(1.0f).normalize();
+-        net.minecraft.world.phys.Vec3 vec32 = new net.minecraft.world.phys.Vec3(this.getX() - player.getX(), this.getEyeY() - player.getEyeY(), this.getZ() - player.getZ());
+-        double d = vec32.length();
+-        double d2 = vec3.dot(vec32 = vec32.normalize());
+-        if (d2 > 1.0 - 0.025 / d) {
+-            return player.hasLineOfSight((net.minecraft.world.entity.Entity)this);
++        net.minecraft.world.phys.Vec3 $$2 = $$0.getViewVector(1.0f).normalize();
++        net.minecraft.world.phys.Vec3 $$3 = new net.minecraft.world.phys.Vec3(this.getX() - $$0.getX(), this.getEyeY() - $$0.getEyeY(), this.getZ() - $$0.getZ());
++        double $$4 = $$3.length();
++        double $$5 = $$2.dot($$3 = $$3.normalize());
++        if ($$5 > 1.0 - 0.025 / $$4) {
++            return $$0.hasLineOfSight((net.minecraft.world.entity.Entity)this);
+         }
+         return false;
+     }
+ 
+-    public float getStandingEyeHeight(net.minecraft.world.entity.Pose pose, net.minecraft.world.entity.EntityDimensions size) {
++    public float getStandingEyeHeight(net.minecraft.world.entity.Pose $$0, net.minecraft.world.entity.EntityDimensions $$1) {
+         return 2.55f;
+     }
+ 
+@@ -182,44 +182,44 @@
+         return this.teleport($$0, $$1, $$2);
+     }
+ 
+-    public boolean teleportTowards(net.minecraft.world.entity.Entity target) {
+-        net.minecraft.world.phys.Vec3 vec3 = new net.minecraft.world.phys.Vec3(this.getX() - target.getX(), this.getY(0.5) - target.getEyeY(), this.getZ() - target.getZ());
+-        vec3 = vec3.normalize();
+-        double d = 16.0;
+-        double d2 = this.getX() + (this.random.nextDouble() - 0.5) * 8.0 - vec3.x * 16.0;
+-        double d3 = this.getY() + (double)(this.random.nextInt(16) - 8) - vec3.y * 16.0;
+-        double d4 = this.getZ() + (this.random.nextDouble() - 0.5) * 8.0 - vec3.z * 16.0;
+-        return this.teleport(d2, d3, d4);
++    public boolean teleportTowards(net.minecraft.world.entity.Entity $$0) {
++        net.minecraft.world.phys.Vec3 $$1 = new net.minecraft.world.phys.Vec3(this.getX() - $$0.getX(), this.getY(0.5) - $$0.getEyeY(), this.getZ() - $$0.getZ());
++        $$1 = $$1.normalize();
++        double $$2 = 16.0;
++        double $$3 = this.getX() + (this.random.nextDouble() - 0.5) * 8.0 - $$1.x * 16.0;
++        double $$4 = this.getY() + (double)(this.random.nextInt(16) - 8) - $$1.y * 16.0;
++        double $$5 = this.getZ() + (this.random.nextDouble() - 0.5) * 8.0 - $$1.z * 16.0;
++        return this.teleport($$3, $$4, $$5);
+     }
+ 
+-    public boolean teleport(double x, double y, double z) {
+-        net.minecraft.core.BlockPos$MutableBlockPos mutableBlockPos = new net.minecraft.core.BlockPos$MutableBlockPos(x, y, z);
+-        while (mutableBlockPos.getY() > this.level.getMinBuildHeight() && !this.level.getBlockState((net.minecraft.core.BlockPos)mutableBlockPos).getMaterial().blocksMotion()) {
+-            mutableBlockPos.move(net.minecraft.core.Direction.DOWN);
++    public boolean teleport(double $$0, double $$1, double $$2) {
++        net.minecraft.core.BlockPos$MutableBlockPos $$3 = new net.minecraft.core.BlockPos$MutableBlockPos($$0, $$1, $$2);
++        while ($$3.getY() > this.level.getMinBuildHeight() && !this.level.getBlockState((net.minecraft.core.BlockPos)$$3).getMaterial().blocksMotion()) {
++            $$3.move(net.minecraft.core.Direction.DOWN);
+         }
+-        net.minecraft.world.level.block.state.BlockState blockState = this.level.getBlockState((net.minecraft.core.BlockPos)mutableBlockPos);
+-        boolean bl = blockState.getMaterial().blocksMotion();
+-        boolean bl2 = blockState.getFluidState().is(net.minecraft.tags.FluidTags.WATER);
+-        if (!bl || bl2) {
++        net.minecraft.world.level.block.state.BlockState $$4 = this.level.getBlockState((net.minecraft.core.BlockPos)$$3);
++        boolean $$5 = $$4.getMaterial().blocksMotion();
++        boolean $$6 = $$4.getFluidState().is(net.minecraft.tags.FluidTags.WATER);
++        if (!$$5 || $$6) {
+             return false;
+         }
+-        net.minecraft.world.phys.Vec3 vec3 = this.position();
+-        boolean bl3 = this.randomTeleport(x, y, z, true);
+-        if (bl3) {
+-            this.level.gameEvent(net.minecraft.world.level.gameevent.GameEvent.TELEPORT, vec3, net.minecraft.world.level.gameevent.GameEvent$Context.of((net.minecraft.world.entity.Entity)this));
++        net.minecraft.world.phys.Vec3 $$7 = this.position();
++        boolean $$8 = this.randomTeleport($$0, $$1, $$2, true);
++        if ($$8) {
++            this.level.gameEvent(net.minecraft.world.level.gameevent.GameEvent.TELEPORT, $$7, net.minecraft.world.level.gameevent.GameEvent$Context.of((net.minecraft.world.entity.Entity)this));
+             if (!this.isSilent()) {
+                 this.level.playSound(null, this.xo, this.yo, this.zo, net.minecraft.sounds.SoundEvents.ENDERMAN_TELEPORT, this.getSoundSource(), 1.0f, 1.0f);
+                 this.playSound(net.minecraft.sounds.SoundEvents.ENDERMAN_TELEPORT, 1.0f, 1.0f);
+             }
+         }
+-        return bl3;
++        return $$8;
+     }
+ 
+     public net.minecraft.sounds.SoundEvent getAmbientSound() {
+         return this.isCreepy() ? net.minecraft.sounds.SoundEvents.ENDERMAN_SCREAM : net.minecraft.sounds.SoundEvents.ENDERMAN_AMBIENT;
+     }
+ 
+-    public net.minecraft.sounds.SoundEvent getHurtSound(net.minecraft.world.damagesource.DamageSource damageSource) {
++    public net.minecraft.sounds.SoundEvent getHurtSound(net.minecraft.world.damagesource.DamageSource $$0) {
+         return net.minecraft.sounds.SoundEvents.ENDERMAN_HURT;
+     }
+ 
+@@ -227,16 +227,16 @@
+         return net.minecraft.sounds.SoundEvents.ENDERMAN_DEATH;
+     }
+ 
+-    public void dropCustomDeathLoot(net.minecraft.world.damagesource.DamageSource source, int looting, boolean recentlyHit) {
+-        super.dropCustomDeathLoot(source, looting, recentlyHit);
+-        net.minecraft.world.level.block.state.BlockState blockState = this.getCarriedBlock();
+-        if (blockState != null) {
+-            this.spawnAtLocation((net.minecraft.world.level.ItemLike)blockState.getBlock());
++    public void dropCustomDeathLoot(net.minecraft.world.damagesource.DamageSource $$0, int $$1, boolean $$2) {
++        super.dropCustomDeathLoot($$0, $$1, $$2);
++        net.minecraft.world.level.block.state.BlockState $$3 = this.getCarriedBlock();
++        if ($$3 != null) {
++            this.spawnAtLocation((net.minecraft.world.level.ItemLike)$$3.getBlock());
+         }
+     }
+ 
+-    public void setCarriedBlock(@javax.annotation.Nullable net.minecraft.world.level.block.state.BlockState state) {
+-        this.entityData.set(DATA_CARRY_STATE, (java.lang.Object)java.util.Optional.ofNullable((java.lang.Object)state));
++    public void setCarriedBlock(@javax.annotation.Nullable net.minecraft.world.level.block.state.BlockState $$0) {
++        this.entityData.set(DATA_CARRY_STATE, (java.lang.Object)java.util.Optional.ofNullable((java.lang.Object)$$0));
+     }
+ 
+     @javax.annotation.Nullable
+@@ -244,24 +244,29 @@
+         return (net.minecraft.world.level.block.state.BlockState)((java.util.Optional)this.entityData.get(DATA_CARRY_STATE)).orElse(null);
+     }
+ 
+-    public boolean hurt(net.minecraft.world.damagesource.DamageSource source, float amount) {
+-        if (this.isInvulnerableTo(source)) {
++    public boolean hurt(net.minecraft.world.damagesource.DamageSource $$0, float $$1) {
++        if (this.isInvulnerableTo($$0)) {
+             return false;
+         }
+-        if (source instanceof net.minecraft.world.damagesource.IndirectEntityDamageSource) {
+-            net.minecraft.world.entity.Entity entity = source.getDirectEntity();
+-            boolean bl = entity instanceof net.minecraft.world.entity.projectile.ThrownPotion ? this.hurtWithCleanWater(source, (net.minecraft.world.entity.projectile.ThrownPotion)entity, amount) : false;
+-            for (int i = 0; i < 64; ++i) {
++        if ($$0 instanceof net.minecraft.world.damagesource.IndirectEntityDamageSource) {
++            boolean $$4;
++            net.minecraft.world.entity.Entity $$2 = $$0.getDirectEntity();
++            if ($$2 instanceof net.minecraft.world.entity.projectile.ThrownPotion) {
++                boolean $$3 = this.hurtWithCleanWater($$0, (net.minecraft.world.entity.projectile.ThrownPotion)$$2, $$1);
++            } else {
++                $$4 = false;
++            }
++            for (int $$5 = 0; $$5 < 64; ++$$5) {
+                 if (!this.teleport()) continue;
+                 return true;
+             }
+-            return bl;
++            return $$4;
+         }
+-        boolean bl = super.hurt(source, amount);
+-        if (!this.level.isClientSide() && !(source.getEntity() instanceof net.minecraft.world.entity.LivingEntity) && this.random.nextInt(10) != 0) {
++        boolean $$6 = super.hurt($$0, $$1);
++        if (!this.level.isClientSide() && !($$0.getEntity() instanceof net.minecraft.world.entity.LivingEntity) && this.random.nextInt(10) != 0) {
+             this.teleport();
+         }
+-        return bl;
++        return $$6;
+     }
+ 
+     public boolean hurtWithCleanWater(net.minecraft.world.damagesource.DamageSource $$0, net.minecraft.world.entity.projectile.ThrownPotion $$1, float $$2) {

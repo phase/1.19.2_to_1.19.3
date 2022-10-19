@@ -1,0 +1,63 @@
+--- net/minecraft/world/level/gameevent/GameEventDispatcher.java
++++ net/minecraft/world/level/gameevent/GameEventDispatcher.java
+@@ -1,1 +1,59 @@
+-// Failed to decompile net/minecraft/world/level/gameevent/GameEventDispatcher.class
++/*
++ * Decompiled with CFR 0.151.
++ */
++package net.minecraft.world.level.gameevent;
++
++public class net.minecraft.world.level.gameevent.GameEventDispatcher
++ {
++    public net.minecraft.server.level.ServerLevel level;
++
++    public net.minecraft.world.level.gameevent.GameEventDispatcher(net.minecraft.server.level.ServerLevel $$0) {
++        this.level = $$0;
++    }
++
++    public void post(net.minecraft.world.level.gameevent.GameEvent $$0, net.minecraft.world.phys.Vec3 $$1, net.minecraft.world.level.gameevent.GameEvent$Context $$2) {
++        int $$3 = $$0.getNotificationRadius();
++        net.minecraft.core.BlockPos $$4 = new net.minecraft.core.BlockPos($$1);
++        int $$5 = net.minecraft.core.SectionPos.blockToSectionCoord((int)($$4.getX() - $$3));
++        int $$6 = net.minecraft.core.SectionPos.blockToSectionCoord((int)($$4.getY() - $$3));
++        int $$7 = net.minecraft.core.SectionPos.blockToSectionCoord((int)($$4.getZ() - $$3));
++        int $$8 = net.minecraft.core.SectionPos.blockToSectionCoord((int)($$4.getX() + $$3));
++        int $$9 = net.minecraft.core.SectionPos.blockToSectionCoord((int)($$4.getY() + $$3));
++        int $$10 = net.minecraft.core.SectionPos.blockToSectionCoord((int)($$4.getZ() + $$3));
++        java.util.ArrayList $$11 = new java.util.ArrayList();
++        net.minecraft.world.level.gameevent.GameEventListenerRegistry$ListenerVisitor $$12 = (arg_0, arg_1) -> this.lambda$post$0((java.util.List)$$11, $$0, $$1, $$2, arg_0, arg_1);
++        boolean $$13 = false;
++        for (int $$14 = $$5; $$14 <= $$8; ++$$14) {
++            for (int $$15 = $$7; $$15 <= $$10; ++$$15) {
++                net.minecraft.world.level.chunk.LevelChunk $$16 = this.level.getChunkSource().getChunkNow($$14, $$15);
++                if ($$16 == null) continue;
++                for (int $$17 = $$6; $$17 <= $$9; ++$$17) {
++                    $$13 |= $$16.getListenerRegistry($$17).visitInRangeListeners($$0, $$1, $$2, $$12);
++                }
++            }
++        }
++        if (!$$11.isEmpty()) {
++            this.handleGameEventMessagesInQueue((java.util.List)$$11);
++        }
++        if ($$13) {
++            net.minecraft.network.protocol.game.DebugPackets.sendGameEventInfo((net.minecraft.world.level.Level)this.level, (net.minecraft.world.level.gameevent.GameEvent)$$0, (net.minecraft.world.phys.Vec3)$$1);
++        }
++    }
++
++    public void handleGameEventMessagesInQueue(java.util.List<net.minecraft.world.level.gameevent.GameEvent$ListenerInfo> $$0) {
++        java.util.Collections.sort($$0);
++        for (net.minecraft.world.level.gameevent.GameEvent$ListenerInfo $$1 : $$0) {
++            net.minecraft.world.level.gameevent.GameEventListener $$2 = $$1.recipient();
++            $$2.handleGameEvent(this.level, $$1.gameEvent(), $$1.context(), $$1.source());
++        }
++    }
++
++    public /* synthetic */ void lambda$post$0(java.util.List $$0, net.minecraft.world.level.gameevent.GameEvent $$1, net.minecraft.world.phys.Vec3 $$2, net.minecraft.world.level.gameevent.GameEvent$Context $$3, net.minecraft.world.level.gameevent.GameEventListener $$4, net.minecraft.world.phys.Vec3 $$5) {
++        if ($$4.getDeliveryMode() == net.minecraft.world.level.gameevent.GameEventListener$DeliveryMode.BY_DISTANCE) {
++            $$0.add((java.lang.Object)new net.minecraft.world.level.gameevent.GameEvent$ListenerInfo($$1, $$2, $$3, $$4, $$5));
++        } else {
++            $$4.handleGameEvent(this.level, $$1, $$3, $$2);
++        }
++    }
++}
++

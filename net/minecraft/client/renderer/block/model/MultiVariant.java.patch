@@ -1,0 +1,32 @@
+--- net/minecraft/client/renderer/block/model/MultiVariant.java
++++ net/minecraft/client/renderer/block/model/MultiVariant.java
+@@ -35,21 +35,21 @@
+         return (java.util.Collection)this.getVariants().stream().map(net.minecraft.client.renderer.block.model.Variant::getModelLocation).collect(java.util.stream.Collectors.toSet());
+     }
+ 
+-    public java.util.Collection<net.minecraft.client.resources.model.Material> getMaterials(java.util.function.Function<net.minecraft.resources.ResourceLocation, net.minecraft.client.resources.model.UnbakedModel> modelGetter, java.util.Set<com.mojang.datafixers.util.Pair<java.lang.String, java.lang.String>> missingTextureErrors) {
+-        return (java.util.Collection)this.getVariants().stream().map(net.minecraft.client.renderer.block.model.Variant::getModelLocation).distinct().flatMap($$2 -> ((net.minecraft.client.resources.model.UnbakedModel)modelGetter.apply($$2)).getMaterials(modelGetter, missingTextureErrors).stream()).collect(java.util.stream.Collectors.toSet());
++    public void resolveParents(java.util.function.Function<net.minecraft.resources.ResourceLocation, net.minecraft.client.resources.model.UnbakedModel> $$0) {
++        this.getVariants().stream().map(net.minecraft.client.renderer.block.model.Variant::getModelLocation).distinct().forEach($$1 -> ((net.minecraft.client.resources.model.UnbakedModel)$$0.apply($$1)).resolveParents($$0));
+     }
+ 
+     @javax.annotation.Nullable
+-    public net.minecraft.client.resources.model.BakedModel bake(net.minecraft.client.resources.model.ModelBakery modelBakery, java.util.function.Function<net.minecraft.client.resources.model.Material, net.minecraft.client.renderer.texture.TextureAtlasSprite> spriteGetter, net.minecraft.client.resources.model.ModelState transform, net.minecraft.resources.ResourceLocation location) {
++    public net.minecraft.client.resources.model.BakedModel bake(net.minecraft.client.resources.model.ModelBaker $$0, java.util.function.Function<net.minecraft.client.resources.model.Material, net.minecraft.client.renderer.texture.TextureAtlasSprite> $$1, net.minecraft.client.resources.model.ModelState $$2, net.minecraft.resources.ResourceLocation $$3) {
+         if (this.getVariants().isEmpty()) {
+             return null;
+         }
+-        net.minecraft.client.resources.model.WeightedBakedModel$Builder builder = new net.minecraft.client.resources.model.WeightedBakedModel$Builder();
+-        for (net.minecraft.client.renderer.block.model.Variant variant : this.getVariants()) {
+-            net.minecraft.client.resources.model.BakedModel bakedModel = modelBakery.bake(variant.getModelLocation(), (net.minecraft.client.resources.model.ModelState)variant);
+-            builder.add(bakedModel, variant.getWeight());
++        net.minecraft.client.resources.model.WeightedBakedModel$Builder $$4 = new net.minecraft.client.resources.model.WeightedBakedModel$Builder();
++        for (net.minecraft.client.renderer.block.model.Variant $$5 : this.getVariants()) {
++            net.minecraft.client.resources.model.BakedModel $$6 = $$0.bake($$5.getModelLocation(), (net.minecraft.client.resources.model.ModelState)$$5);
++            $$4.add($$6, $$5.getWeight());
+         }
+-        return builder.build();
++        return $$4.build();
+     }
+ }
+ 

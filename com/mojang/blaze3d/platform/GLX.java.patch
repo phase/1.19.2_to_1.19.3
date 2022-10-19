@@ -1,0 +1,111 @@
+--- com/mojang/blaze3d/platform/GLX.java
++++ com/mojang/blaze3d/platform/GLX.java
+@@ -20,14 +20,14 @@
+         return com.mojang.blaze3d.platform.GlStateManager._getString((int)7937) + " GL version " + com.mojang.blaze3d.platform.GlStateManager._getString((int)7938) + ", " + com.mojang.blaze3d.platform.GlStateManager._getString((int)7936);
+     }
+ 
+-    public static int _getRefreshRate(com.mojang.blaze3d.platform.Window window) {
++    public static int _getRefreshRate(com.mojang.blaze3d.platform.Window $$0) {
+         com.mojang.blaze3d.systems.RenderSystem.assertOnRenderThread();
+-        long l = org.lwjgl.glfw.GLFW.glfwGetWindowMonitor((long)window.getWindow());
+-        if (l == 0L) {
+-            l = org.lwjgl.glfw.GLFW.glfwGetPrimaryMonitor();
++        long $$1 = org.lwjgl.glfw.GLFW.glfwGetWindowMonitor((long)$$0.getWindow());
++        if ($$1 == 0L) {
++            $$1 = org.lwjgl.glfw.GLFW.glfwGetPrimaryMonitor();
+         }
+-        org.lwjgl.glfw.GLFWVidMode gLFWVidMode = l == 0L ? null : org.lwjgl.glfw.GLFW.glfwGetVideoMode((long)l);
+-        return gLFWVidMode == null ? 0 : gLFWVidMode.refreshRate();
++        org.lwjgl.glfw.GLFWVidMode $$2 = $$1 == 0L ? null : org.lwjgl.glfw.GLFW.glfwGetVideoMode((long)$$1);
++        return $$2 == null ? 0 : $$2.refreshRate();
+     }
+ 
+     public static java.lang.String _getLWJGLVersion() {
+@@ -41,45 +41,45 @@
+     public static java.util.function.LongSupplier _initGlfw() {
+         void $$4;
+         com.mojang.blaze3d.systems.RenderSystem.assertInInitPhase();
+-        com.mojang.blaze3d.platform.Window.checkGlfwError((errorId, string) -> {
+-            throw new java.lang.IllegalStateException(java.lang.String.format((java.util.Locale)java.util.Locale.ROOT, (java.lang.String)"GLFW error before init: [0x%X]%s", (java.lang.Object[])new java.lang.Object[]{errorId, string}));
++        com.mojang.blaze3d.platform.Window.checkGlfwError(($$0, $$1) -> {
++            throw new java.lang.IllegalStateException(java.lang.String.format((java.util.Locale)java.util.Locale.ROOT, (java.lang.String)"GLFW error before init: [0x%X]%s", (java.lang.Object[])new java.lang.Object[]{$$0, $$1}));
+         });
+-        java.util.ArrayList $$0 = com.google.common.collect.Lists.newArrayList();
+-        org.lwjgl.glfw.GLFWErrorCallback $$1 = org.lwjgl.glfw.GLFW.glfwSetErrorCallback((arg_0, arg_1) -> com.mojang.blaze3d.platform.GLX.lambda$_initGlfw$1((java.util.List)$$0, arg_0, arg_1));
++        java.util.ArrayList $$02 = com.google.common.collect.Lists.newArrayList();
++        org.lwjgl.glfw.GLFWErrorCallback $$12 = org.lwjgl.glfw.GLFW.glfwSetErrorCallback((arg_0, arg_1) -> com.mojang.blaze3d.platform.GLX.lambda$_initGlfw$1((java.util.List)$$02, arg_0, arg_1));
+         if (org.lwjgl.glfw.GLFW.glfwInit()) {
+             java.util.function.LongSupplier $$2 = () -> (long)(org.lwjgl.glfw.GLFW.glfwGetTime() * 1.0E9);
+-            for (java.lang.String $$3 : $$0) {
++            for (java.lang.String $$3 : $$02) {
+                 LOGGER.error("GLFW error collected during initialization: {}", (java.lang.Object)$$3);
+             }
+         } else {
+-            throw new java.lang.IllegalStateException("Failed to initialize GLFW, errors: " + com.google.common.base.Joiner.on((java.lang.String)",").join((java.lang.Iterable)$$0));
++            throw new java.lang.IllegalStateException("Failed to initialize GLFW, errors: " + com.google.common.base.Joiner.on((java.lang.String)",").join((java.lang.Iterable)$$02));
+         }
+-        com.mojang.blaze3d.systems.RenderSystem.setErrorCallback((org.lwjgl.glfw.GLFWErrorCallbackI)$$1);
++        com.mojang.blaze3d.systems.RenderSystem.setErrorCallback((org.lwjgl.glfw.GLFWErrorCallbackI)$$12);
+         return $$4;
+     }
+ 
+-    public static void _setGlfwErrorCallback(org.lwjgl.glfw.GLFWErrorCallbackI errorCallback) {
++    public static void _setGlfwErrorCallback(org.lwjgl.glfw.GLFWErrorCallbackI $$0) {
+         com.mojang.blaze3d.systems.RenderSystem.assertInInitPhase();
+-        org.lwjgl.glfw.GLFWErrorCallback gLFWErrorCallback = org.lwjgl.glfw.GLFW.glfwSetErrorCallback((org.lwjgl.glfw.GLFWErrorCallbackI)errorCallback);
+-        if (gLFWErrorCallback != null) {
+-            gLFWErrorCallback.free();
++        org.lwjgl.glfw.GLFWErrorCallback $$1 = org.lwjgl.glfw.GLFW.glfwSetErrorCallback((org.lwjgl.glfw.GLFWErrorCallbackI)$$0);
++        if ($$1 != null) {
++            $$1.free();
+         }
+     }
+ 
+-    public static boolean _shouldClose(com.mojang.blaze3d.platform.Window window) {
+-        return org.lwjgl.glfw.GLFW.glfwWindowShouldClose((long)window.getWindow());
++    public static boolean _shouldClose(com.mojang.blaze3d.platform.Window $$0) {
++        return org.lwjgl.glfw.GLFW.glfwWindowShouldClose((long)$$0.getWindow());
+     }
+ 
+-    public static void _init(int debugVerbosity, boolean synchronous) {
++    public static void _init(int $$0, boolean $$1) {
+         com.mojang.blaze3d.systems.RenderSystem.assertInInitPhase();
+         try {
+-            oshi.hardware.CentralProcessor centralProcessor = new oshi.SystemInfo().getHardware().getProcessor();
+-            cpuInfo = java.lang.String.format((java.util.Locale)java.util.Locale.ROOT, (java.lang.String)"%dx %s", (java.lang.Object[])new java.lang.Object[]{centralProcessor.getLogicalProcessorCount(), centralProcessor.getProcessorIdentifier().getName()}).replaceAll("\\s+", " ");
++            oshi.hardware.CentralProcessor $$2 = new oshi.SystemInfo().getHardware().getProcessor();
++            cpuInfo = java.lang.String.format((java.util.Locale)java.util.Locale.ROOT, (java.lang.String)"%dx %s", (java.lang.Object[])new java.lang.Object[]{$$2.getLogicalProcessorCount(), $$2.getProcessorIdentifier().getName()}).replaceAll("\\s+", " ");
+         }
+         catch (java.lang.Throwable throwable) {
+             // empty catch block
+         }
+-        com.mojang.blaze3d.platform.GlDebug.enableDebugCallback((int)debugVerbosity, (boolean)synchronous);
++        com.mojang.blaze3d.platform.GlDebug.enableDebugCallback((int)$$0, (boolean)$$1);
+     }
+ 
+     public static java.lang.String _getCpuInfo() {
+@@ -130,17 +130,17 @@
+         com.mojang.blaze3d.platform.GlStateManager._enableTexture();
+     }
+ 
+-    public static <T> T make(java.util.function.Supplier<T> supplier) {
+-        return (T)supplier.get();
++    public static <T> T make(java.util.function.Supplier<T> $$0) {
++        return (T)$$0.get();
+     }
+ 
+-    public static <T> T make(T value, java.util.function.Consumer<T> consumer) {
+-        consumer.accept(value);
+-        return value;
++    public static <T> T make(T $$0, java.util.function.Consumer<T> $$1) {
++        $$1.accept($$0);
++        return $$0;
+     }
+ 
+-    public static /* synthetic */ void lambda$_initGlfw$1(java.util.List list, int errorId, long l) {
+-        list.add((java.lang.Object)java.lang.String.format((java.util.Locale)java.util.Locale.ROOT, (java.lang.String)"GLFW error during init: [0x%X]%s", (java.lang.Object[])new java.lang.Object[]{errorId, l}));
++    public static /* synthetic */ void lambda$_initGlfw$1(java.util.List $$0, int $$1, long $$2) {
++        $$0.add((java.lang.Object)java.lang.String.format((java.util.Locale)java.util.Locale.ROOT, (java.lang.String)"GLFW error during init: [0x%X]%s", (java.lang.Object[])new java.lang.Object[]{$$1, $$2}));
+     }
+ 
+     static {

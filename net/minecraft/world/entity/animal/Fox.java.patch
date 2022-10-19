@@ -1,0 +1,551 @@
+--- net/minecraft/world/entity/animal/Fox.java
++++ net/minecraft/world/entity/animal/Fox.java
+@@ -49,17 +49,17 @@
+     }
+ 
+     public void registerGoals() {
+-        this.landTargetGoal = new net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal((net.minecraft.world.entity.Mob)this, net.minecraft.world.entity.animal.Animal.class, 10, false, false, livingEntity -> livingEntity instanceof net.minecraft.world.entity.animal.Chicken || livingEntity instanceof net.minecraft.world.entity.animal.Rabbit);
++        this.landTargetGoal = new net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal((net.minecraft.world.entity.Mob)this, net.minecraft.world.entity.animal.Animal.class, 10, false, false, $$0 -> $$0 instanceof net.minecraft.world.entity.animal.Chicken || $$0 instanceof net.minecraft.world.entity.animal.Rabbit);
+         this.turtleEggTargetGoal = new net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal((net.minecraft.world.entity.Mob)this, net.minecraft.world.entity.animal.Turtle.class, 10, false, false, net.minecraft.world.entity.animal.Turtle.BABY_ON_LAND_SELECTOR);
+-        this.fishTargetGoal = new net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal((net.minecraft.world.entity.Mob)this, net.minecraft.world.entity.animal.AbstractFish.class, 20, false, false, livingEntity -> livingEntity instanceof net.minecraft.world.entity.animal.AbstractSchoolingFish);
++        this.fishTargetGoal = new net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal((net.minecraft.world.entity.Mob)this, net.minecraft.world.entity.animal.AbstractFish.class, 20, false, false, $$0 -> $$0 instanceof net.minecraft.world.entity.animal.AbstractSchoolingFish);
+         this.goalSelector.addGoal(0, (net.minecraft.world.entity.ai.goal.Goal)new net.minecraft.world.entity.animal.Fox$FoxFloatGoal(this));
+         this.goalSelector.addGoal(0, (net.minecraft.world.entity.ai.goal.Goal)new net.minecraft.world.entity.ai.goal.ClimbOnTopOfPowderSnowGoal((net.minecraft.world.entity.Mob)this, this.level));
+         this.goalSelector.addGoal(1, (net.minecraft.world.entity.ai.goal.Goal)new net.minecraft.world.entity.animal.Fox$FaceplantGoal(this));
+         this.goalSelector.addGoal(2, (net.minecraft.world.entity.ai.goal.Goal)new net.minecraft.world.entity.animal.Fox$FoxPanicGoal(this, 2.2));
+         this.goalSelector.addGoal(3, (net.minecraft.world.entity.ai.goal.Goal)new net.minecraft.world.entity.animal.Fox$FoxBreedGoal(this, 1.0));
+-        this.goalSelector.addGoal(4, (net.minecraft.world.entity.ai.goal.Goal)new net.minecraft.world.entity.ai.goal.AvoidEntityGoal((net.minecraft.world.entity.PathfinderMob)this, net.minecraft.world.entity.player.Player.class, 16.0f, 1.6, 1.4, livingEntity -> AVOID_PLAYERS.test(livingEntity) && !this.trusts(livingEntity.getUUID()) && !this.isDefending()));
+-        this.goalSelector.addGoal(4, (net.minecraft.world.entity.ai.goal.Goal)new net.minecraft.world.entity.ai.goal.AvoidEntityGoal((net.minecraft.world.entity.PathfinderMob)this, net.minecraft.world.entity.animal.Wolf.class, 8.0f, 1.6, 1.4, livingEntity -> !((net.minecraft.world.entity.animal.Wolf)livingEntity).isTame() && !this.isDefending()));
+-        this.goalSelector.addGoal(4, (net.minecraft.world.entity.ai.goal.Goal)new net.minecraft.world.entity.ai.goal.AvoidEntityGoal((net.minecraft.world.entity.PathfinderMob)this, net.minecraft.world.entity.animal.PolarBear.class, 8.0f, 1.6, 1.4, livingEntity -> !this.isDefending()));
++        this.goalSelector.addGoal(4, (net.minecraft.world.entity.ai.goal.Goal)new net.minecraft.world.entity.ai.goal.AvoidEntityGoal((net.minecraft.world.entity.PathfinderMob)this, net.minecraft.world.entity.player.Player.class, 16.0f, 1.6, 1.4, $$0 -> AVOID_PLAYERS.test($$0) && !this.trusts($$0.getUUID()) && !this.isDefending()));
++        this.goalSelector.addGoal(4, (net.minecraft.world.entity.ai.goal.Goal)new net.minecraft.world.entity.ai.goal.AvoidEntityGoal((net.minecraft.world.entity.PathfinderMob)this, net.minecraft.world.entity.animal.Wolf.class, 8.0f, 1.6, 1.4, $$0 -> !((net.minecraft.world.entity.animal.Wolf)$$0).isTame() && !this.isDefending()));
++        this.goalSelector.addGoal(4, (net.minecraft.world.entity.ai.goal.Goal)new net.minecraft.world.entity.ai.goal.AvoidEntityGoal((net.minecraft.world.entity.PathfinderMob)this, net.minecraft.world.entity.animal.PolarBear.class, 8.0f, 1.6, 1.4, $$0 -> !this.isDefending()));
+         this.goalSelector.addGoal(5, (net.minecraft.world.entity.ai.goal.Goal)new net.minecraft.world.entity.animal.Fox$StalkPreyGoal(this));
+         this.goalSelector.addGoal(6, (net.minecraft.world.entity.ai.goal.Goal)new net.minecraft.world.entity.animal.Fox$FoxPounceGoal(this));
+         this.goalSelector.addGoal(6, (net.minecraft.world.entity.ai.goal.Goal)new net.minecraft.world.entity.animal.Fox$SeekShelterGoal(this, 1.25));
+@@ -73,10 +73,10 @@
+         this.goalSelector.addGoal(11, (net.minecraft.world.entity.ai.goal.Goal)new net.minecraft.world.entity.animal.Fox$FoxSearchForItemsGoal(this));
+         this.goalSelector.addGoal(12, (net.minecraft.world.entity.ai.goal.Goal)new net.minecraft.world.entity.animal.Fox$FoxLookAtPlayerGoal(this, (net.minecraft.world.entity.Mob)this, net.minecraft.world.entity.player.Player.class, 24.0f));
+         this.goalSelector.addGoal(13, (net.minecraft.world.entity.ai.goal.Goal)new net.minecraft.world.entity.animal.Fox$PerchAndSearchGoal(this));
+-        this.targetSelector.addGoal(3, (net.minecraft.world.entity.ai.goal.Goal)new net.minecraft.world.entity.animal.Fox$DefendTrustedTargetGoal(this, net.minecraft.world.entity.LivingEntity.class, false, false, livingEntity -> TRUSTED_TARGET_SELECTOR.test(livingEntity) && !this.trusts(livingEntity.getUUID())));
++        this.targetSelector.addGoal(3, (net.minecraft.world.entity.ai.goal.Goal)new net.minecraft.world.entity.animal.Fox$DefendTrustedTargetGoal(this, net.minecraft.world.entity.LivingEntity.class, false, false, $$0 -> TRUSTED_TARGET_SELECTOR.test($$0) && !this.trusts($$0.getUUID())));
+     }
+ 
+-    public net.minecraft.sounds.SoundEvent getEatingSound(net.minecraft.world.item.ItemStack itemStack) {
++    public net.minecraft.sounds.SoundEvent getEatingSound(net.minecraft.world.item.ItemStack $$0) {
+         return net.minecraft.sounds.SoundEvents.FOX_EAT;
+     }
+ 
+@@ -117,8 +117,8 @@
+         return this.isDeadOrDying();
+     }
+ 
+-    public boolean canEat(net.minecraft.world.item.ItemStack stack) {
+-        return stack.getItem().isEdible() && this.getTarget() == null && this.onGround && !this.isSleeping();
++    public boolean canEat(net.minecraft.world.item.ItemStack $$0) {
++        return $$0.getItem().isEdible() && this.getTarget() == null && this.onGround && !this.isSleeping();
+     }
+ 
+     public void populateDefaultEquipmentSlots(net.minecraft.util.RandomSource $$0, net.minecraft.world.DifficultyInstance $$1) {
+@@ -142,17 +142,17 @@
+         }
+     }
+ 
+-    public void handleEntityEvent(byte id) {
+-        if (id == 45) {
+-            net.minecraft.world.item.ItemStack itemStack = this.getItemBySlot(net.minecraft.world.entity.EquipmentSlot.MAINHAND);
+-            if (!itemStack.isEmpty()) {
+-                for (int i = 0; i < 8; ++i) {
+-                    net.minecraft.world.phys.Vec3 vec3 = new net.minecraft.world.phys.Vec3(((double)this.random.nextFloat() - 0.5) * 0.1, java.lang.Math.random() * 0.1 + 0.1, 0.0).xRot(-this.getXRot() * ((float)java.lang.Math.PI / 180)).yRot(-this.getYRot() * ((float)java.lang.Math.PI / 180));
+-                    this.level.addParticle((net.minecraft.core.particles.ParticleOptions)new net.minecraft.core.particles.ItemParticleOption(net.minecraft.core.particles.ParticleTypes.ITEM, itemStack), this.getX() + this.getLookAngle().x / 2.0, this.getY(), this.getZ() + this.getLookAngle().z / 2.0, vec3.x, vec3.y + 0.05, vec3.z);
++    public void handleEntityEvent(byte $$0) {
++        if ($$0 == 45) {
++            net.minecraft.world.item.ItemStack $$1 = this.getItemBySlot(net.minecraft.world.entity.EquipmentSlot.MAINHAND);
++            if (!$$1.isEmpty()) {
++                for (int $$2 = 0; $$2 < 8; ++$$2) {
++                    net.minecraft.world.phys.Vec3 $$3 = new net.minecraft.world.phys.Vec3(((double)this.random.nextFloat() - 0.5) * 0.1, java.lang.Math.random() * 0.1 + 0.1, 0.0).xRot(-this.getXRot() * ((float)java.lang.Math.PI / 180)).yRot(-this.getYRot() * ((float)java.lang.Math.PI / 180));
++                    this.level.addParticle((net.minecraft.core.particles.ParticleOptions)new net.minecraft.core.particles.ItemParticleOption(net.minecraft.core.particles.ParticleTypes.ITEM, $$1), this.getX() + this.getLookAngle().x / 2.0, this.getY(), this.getZ() + this.getLookAngle().z / 2.0, $$3.x, $$3.y + 0.05, $$3.z);
+                 }
+             }
+         } else {
+-            super.handleEntityEvent(id);
++            super.handleEntityEvent($$0);
+         }
+     }
+ 
+@@ -160,9 +160,12 @@
+         return net.minecraft.world.entity.Mob.createMobAttributes().add(net.minecraft.world.entity.ai.attributes.Attributes.MOVEMENT_SPEED, (double)0.3f).add(net.minecraft.world.entity.ai.attributes.Attributes.MAX_HEALTH, 10.0).add(net.minecraft.world.entity.ai.attributes.Attributes.FOLLOW_RANGE, 32.0).add(net.minecraft.world.entity.ai.attributes.Attributes.ATTACK_DAMAGE, 2.0);
+     }
+ 
++    @javax.annotation.Nullable
+     public net.minecraft.world.entity.animal.Fox getBreedOffspring(net.minecraft.server.level.ServerLevel $$0, net.minecraft.world.entity.AgeableMob $$1) {
+         net.minecraft.world.entity.animal.Fox $$2 = (net.minecraft.world.entity.animal.Fox)net.minecraft.world.entity.EntityType.FOX.create((net.minecraft.world.level.Level)$$0);
+-        $$2.setFoxType(this.random.nextBoolean() ? this.getFoxType() : ((net.minecraft.world.entity.animal.Fox)$$1).getFoxType());
++        if ($$2 != null) {
++            $$2.setFoxType(this.random.nextBoolean() ? this.getFoxType() : ((net.minecraft.world.entity.animal.Fox)$$1).getFoxType());
++        }
+         return $$2;
+     }
+ 
+@@ -171,28 +174,28 @@
+     }
+ 
+     @javax.annotation.Nullable
+-    public net.minecraft.world.entity.SpawnGroupData finalizeSpawn(net.minecraft.world.level.ServerLevelAccessor level, net.minecraft.world.DifficultyInstance difficulty, net.minecraft.world.entity.MobSpawnType reason, @javax.annotation.Nullable net.minecraft.world.entity.SpawnGroupData spawnData, @javax.annotation.Nullable net.minecraft.nbt.CompoundTag dataTag) {
+-        net.minecraft.core.Holder holder = level.getBiome(this.blockPosition());
+-        net.minecraft.world.entity.animal.Fox$Type type = net.minecraft.world.entity.animal.Fox$Type.byBiome((net.minecraft.core.Holder)holder);
+-        boolean bl = false;
+-        if (spawnData instanceof net.minecraft.world.entity.animal.Fox$FoxGroupData) {
+-            net.minecraft.world.entity.animal.Fox$FoxGroupData foxGroupData = (net.minecraft.world.entity.animal.Fox$FoxGroupData)spawnData;
+-            type = foxGroupData.type;
+-            if (foxGroupData.getGroupSize() >= 2) {
+-                bl = true;
++    public net.minecraft.world.entity.SpawnGroupData finalizeSpawn(net.minecraft.world.level.ServerLevelAccessor $$0, net.minecraft.world.DifficultyInstance $$1, net.minecraft.world.entity.MobSpawnType $$2, @javax.annotation.Nullable net.minecraft.world.entity.SpawnGroupData $$3, @javax.annotation.Nullable net.minecraft.nbt.CompoundTag $$4) {
++        net.minecraft.core.Holder $$5 = $$0.getBiome(this.blockPosition());
++        net.minecraft.world.entity.animal.Fox$Type $$6 = net.minecraft.world.entity.animal.Fox$Type.byBiome((net.minecraft.core.Holder)$$5);
++        boolean $$7 = false;
++        if ($$3 instanceof net.minecraft.world.entity.animal.Fox$FoxGroupData) {
++            net.minecraft.world.entity.animal.Fox$FoxGroupData $$8 = (net.minecraft.world.entity.animal.Fox$FoxGroupData)$$3;
++            $$6 = $$8.type;
++            if ($$8.getGroupSize() >= 2) {
++                $$7 = true;
+             }
+         } else {
+-            spawnData = new net.minecraft.world.entity.animal.Fox$FoxGroupData(type);
++            $$3 = new net.minecraft.world.entity.animal.Fox$FoxGroupData($$6);
+         }
+-        this.setFoxType(type);
+-        if (bl) {
++        this.setFoxType($$6);
++        if ($$7) {
+             this.setAge(-24000);
+         }
+-        if (level instanceof net.minecraft.server.level.ServerLevel) {
++        if ($$0 instanceof net.minecraft.server.level.ServerLevel) {
+             this.setTargetGoals();
+         }
+-        this.populateDefaultEquipmentSlots(level.getRandom(), difficulty);
+-        return super.finalizeSpawn(level, difficulty, reason, spawnData, dataTag);
++        this.populateDefaultEquipmentSlots($$0.getRandom(), $$1);
++        return super.finalizeSpawn($$0, $$1, $$2, $$3, $$4);
+     }
+ 
+     public void setTargetGoals() {
+@@ -214,9 +217,9 @@
+         super.usePlayerItem($$0, $$1, $$2);
+     }
+ 
+-    public float getStandingEyeHeight(net.minecraft.world.entity.Pose pose, net.minecraft.world.entity.EntityDimensions size) {
++    public float getStandingEyeHeight(net.minecraft.world.entity.Pose $$0, net.minecraft.world.entity.EntityDimensions $$1) {
+         if (this.isBaby()) {
+-            return size.height * 0.85f;
++            return $$1.height * 0.85f;
+         }
+         return 0.4f;
+     }
+@@ -225,8 +228,8 @@
+         return net.minecraft.world.entity.animal.Fox$Type.byId((int)((java.lang.Integer)this.entityData.get(DATA_TYPE_ID)));
+     }
+ 
+-    public void setFoxType(net.minecraft.world.entity.animal.Fox$Type type) {
+-        this.entityData.set(DATA_TYPE_ID, (java.lang.Object)type.getId());
++    public void setFoxType(net.minecraft.world.entity.animal.Fox$Type $$0) {
++        this.entityData.set(DATA_TYPE_ID, (java.lang.Object)$$0.getId());
+     }
+ 
+     public java.util.List<java.util.UUID> getTrustedUUIDs() {
+@@ -236,39 +239,39 @@
+         return $$0;
+     }
+ 
+-    public void addTrustedUUID(@javax.annotation.Nullable java.util.UUID uuid) {
++    public void addTrustedUUID(@javax.annotation.Nullable java.util.UUID $$0) {
+         if (((java.util.Optional)this.entityData.get(DATA_TRUSTED_ID_0)).isPresent()) {
+-            this.entityData.set(DATA_TRUSTED_ID_1, (java.lang.Object)java.util.Optional.ofNullable((java.lang.Object)uuid));
++            this.entityData.set(DATA_TRUSTED_ID_1, (java.lang.Object)java.util.Optional.ofNullable((java.lang.Object)$$0));
+         } else {
+-            this.entityData.set(DATA_TRUSTED_ID_0, (java.lang.Object)java.util.Optional.ofNullable((java.lang.Object)uuid));
++            this.entityData.set(DATA_TRUSTED_ID_0, (java.lang.Object)java.util.Optional.ofNullable((java.lang.Object)$$0));
+         }
+     }
+ 
+-    public void addAdditionalSaveData(net.minecraft.nbt.CompoundTag compound) {
+-        super.addAdditionalSaveData(compound);
+-        java.util.List list = this.getTrustedUUIDs();
+-        net.minecraft.nbt.ListTag listTag = new net.minecraft.nbt.ListTag();
+-        for (java.util.UUID uUID : list) {
+-            if (uUID == null) continue;
+-            listTag.add((java.lang.Object)net.minecraft.nbt.NbtUtils.createUUID((java.util.UUID)uUID));
++    public void addAdditionalSaveData(net.minecraft.nbt.CompoundTag $$0) {
++        super.addAdditionalSaveData($$0);
++        java.util.List $$1 = this.getTrustedUUIDs();
++        net.minecraft.nbt.ListTag $$2 = new net.minecraft.nbt.ListTag();
++        for (java.util.UUID $$3 : $$1) {
++            if ($$3 == null) continue;
++            $$2.add((java.lang.Object)net.minecraft.nbt.NbtUtils.createUUID((java.util.UUID)$$3));
+         }
+-        compound.put("Trusted", (net.minecraft.nbt.Tag)listTag);
+-        compound.putBoolean("Sleeping", this.isSleeping());
+-        compound.putString("Type", this.getFoxType().getName());
+-        compound.putBoolean("Sitting", this.isSitting());
+-        compound.putBoolean("Crouching", this.isCrouching());
++        $$0.put("Trusted", (net.minecraft.nbt.Tag)$$2);
++        $$0.putBoolean("Sleeping", this.isSleeping());
++        $$0.putString("Type", this.getFoxType().getName());
++        $$0.putBoolean("Sitting", this.isSitting());
++        $$0.putBoolean("Crouching", this.isCrouching());
+     }
+ 
+-    public void readAdditionalSaveData(net.minecraft.nbt.CompoundTag compound) {
+-        super.readAdditionalSaveData(compound);
+-        net.minecraft.nbt.ListTag listTag = compound.getList("Trusted", 11);
+-        for (int i = 0; i < listTag.size(); ++i) {
+-            this.addTrustedUUID(net.minecraft.nbt.NbtUtils.loadUUID((net.minecraft.nbt.Tag)listTag.get(i)));
++    public void readAdditionalSaveData(net.minecraft.nbt.CompoundTag $$0) {
++        super.readAdditionalSaveData($$0);
++        net.minecraft.nbt.ListTag $$1 = $$0.getList("Trusted", 11);
++        for (int $$2 = 0; $$2 < $$1.size(); ++$$2) {
++            this.addTrustedUUID(net.minecraft.nbt.NbtUtils.loadUUID((net.minecraft.nbt.Tag)$$1.get($$2)));
+         }
+-        this.setSleeping(compound.getBoolean("Sleeping"));
+-        this.setFoxType(net.minecraft.world.entity.animal.Fox$Type.byName((java.lang.String)compound.getString("Type")));
+-        this.setSitting(compound.getBoolean("Sitting"));
+-        this.setIsCrouching(compound.getBoolean("Crouching"));
++        this.setSleeping($$0.getBoolean("Sleeping"));
++        this.setFoxType(net.minecraft.world.entity.animal.Fox$Type.byName((java.lang.String)$$0.getString("Type")));
++        this.setSitting($$0.getBoolean("Sitting"));
++        this.setIsCrouching($$0.getBoolean("Crouching"));
+         if (this.level instanceof net.minecraft.server.level.ServerLevel) {
+             this.setTargetGoals();
+         }
+@@ -278,89 +281,89 @@
+         return this.getFlag(1);
+     }
+ 
+-    public void setSitting(boolean sitting) {
+-        this.setFlag(1, sitting);
++    public void setSitting(boolean $$0) {
++        this.setFlag(1, $$0);
+     }
+ 
+     public boolean isFaceplanted() {
+         return this.getFlag(64);
+     }
+ 
+-    public void setFaceplanted(boolean faceplanted) {
+-        this.setFlag(64, faceplanted);
++    public void setFaceplanted(boolean $$0) {
++        this.setFlag(64, $$0);
+     }
+ 
+     public boolean isDefending() {
+         return this.getFlag(128);
+     }
+ 
+-    public void setDefending(boolean defending) {
+-        this.setFlag(128, defending);
++    public void setDefending(boolean $$0) {
++        this.setFlag(128, $$0);
+     }
+ 
+     public boolean isSleeping() {
+         return this.getFlag(32);
+     }
+ 
+-    public void setSleeping(boolean sleeping) {
+-        this.setFlag(32, sleeping);
++    public void setSleeping(boolean $$0) {
++        this.setFlag(32, $$0);
+     }
+ 
+-    public void setFlag(int flagId, boolean value) {
+-        if (value) {
+-            this.entityData.set(DATA_FLAGS_ID, (java.lang.Object)((byte)((java.lang.Byte)this.entityData.get(DATA_FLAGS_ID) | flagId)));
++    public void setFlag(int $$0, boolean $$1) {
++        if ($$1) {
++            this.entityData.set(DATA_FLAGS_ID, (java.lang.Object)((byte)((java.lang.Byte)this.entityData.get(DATA_FLAGS_ID) | $$0)));
+         } else {
+-            this.entityData.set(DATA_FLAGS_ID, (java.lang.Object)((byte)((java.lang.Byte)this.entityData.get(DATA_FLAGS_ID) & ~flagId)));
++            this.entityData.set(DATA_FLAGS_ID, (java.lang.Object)((byte)((java.lang.Byte)this.entityData.get(DATA_FLAGS_ID) & ~$$0)));
+         }
+     }
+ 
+-    public boolean getFlag(int flagId) {
+-        return ((java.lang.Byte)this.entityData.get(DATA_FLAGS_ID) & flagId) != 0;
++    public boolean getFlag(int $$0) {
++        return ((java.lang.Byte)this.entityData.get(DATA_FLAGS_ID) & $$0) != 0;
+     }
+ 
+-    public boolean canTakeItem(net.minecraft.world.item.ItemStack itemstack) {
+-        net.minecraft.world.entity.EquipmentSlot equipmentSlot = net.minecraft.world.entity.Mob.getEquipmentSlotForItem((net.minecraft.world.item.ItemStack)itemstack);
+-        if (!this.getItemBySlot(equipmentSlot).isEmpty()) {
++    public boolean canTakeItem(net.minecraft.world.item.ItemStack $$0) {
++        net.minecraft.world.entity.EquipmentSlot $$1 = net.minecraft.world.entity.Mob.getEquipmentSlotForItem((net.minecraft.world.item.ItemStack)$$0);
++        if (!this.getItemBySlot($$1).isEmpty()) {
+             return false;
+         }
+-        return equipmentSlot == net.minecraft.world.entity.EquipmentSlot.MAINHAND && super.canTakeItem(itemstack);
++        return $$1 == net.minecraft.world.entity.EquipmentSlot.MAINHAND && super.canTakeItem($$0);
+     }
+ 
+-    public boolean canHoldItem(net.minecraft.world.item.ItemStack stack) {
+-        net.minecraft.world.item.Item item = stack.getItem();
+-        net.minecraft.world.item.ItemStack itemStack = this.getItemBySlot(net.minecraft.world.entity.EquipmentSlot.MAINHAND);
+-        return itemStack.isEmpty() || this.ticksSinceEaten > 0 && item.isEdible() && !itemStack.getItem().isEdible();
++    public boolean canHoldItem(net.minecraft.world.item.ItemStack $$0) {
++        net.minecraft.world.item.Item $$1 = $$0.getItem();
++        net.minecraft.world.item.ItemStack $$2 = this.getItemBySlot(net.minecraft.world.entity.EquipmentSlot.MAINHAND);
++        return $$2.isEmpty() || this.ticksSinceEaten > 0 && $$1.isEdible() && !$$2.getItem().isEdible();
+     }
+ 
+-    public void spitOutItem(net.minecraft.world.item.ItemStack stack) {
+-        if (stack.isEmpty() || this.level.isClientSide) {
++    public void spitOutItem(net.minecraft.world.item.ItemStack $$0) {
++        if ($$0.isEmpty() || this.level.isClientSide) {
+             return;
+         }
+-        net.minecraft.world.entity.item.ItemEntity itemEntity = new net.minecraft.world.entity.item.ItemEntity(this.level, this.getX() + this.getLookAngle().x, this.getY() + 1.0, this.getZ() + this.getLookAngle().z, stack);
+-        itemEntity.setPickUpDelay(40);
+-        itemEntity.setThrower(this.getUUID());
++        net.minecraft.world.entity.item.ItemEntity $$1 = new net.minecraft.world.entity.item.ItemEntity(this.level, this.getX() + this.getLookAngle().x, this.getY() + 1.0, this.getZ() + this.getLookAngle().z, $$0);
++        $$1.setPickUpDelay(40);
++        $$1.setThrower(this.getUUID());
+         this.playSound(net.minecraft.sounds.SoundEvents.FOX_SPIT, 1.0f, 1.0f);
+-        this.level.addFreshEntity((net.minecraft.world.entity.Entity)itemEntity);
++        this.level.addFreshEntity((net.minecraft.world.entity.Entity)$$1);
+     }
+ 
+-    public void dropItemStack(net.minecraft.world.item.ItemStack stack) {
+-        net.minecraft.world.entity.item.ItemEntity itemEntity = new net.minecraft.world.entity.item.ItemEntity(this.level, this.getX(), this.getY(), this.getZ(), stack);
+-        this.level.addFreshEntity((net.minecraft.world.entity.Entity)itemEntity);
++    public void dropItemStack(net.minecraft.world.item.ItemStack $$0) {
++        net.minecraft.world.entity.item.ItemEntity $$1 = new net.minecraft.world.entity.item.ItemEntity(this.level, this.getX(), this.getY(), this.getZ(), $$0);
++        this.level.addFreshEntity((net.minecraft.world.entity.Entity)$$1);
+     }
+ 
+-    public void pickUpItem(net.minecraft.world.entity.item.ItemEntity itemEntity) {
+-        net.minecraft.world.item.ItemStack itemStack = itemEntity.getItem();
+-        if (this.canHoldItem(itemStack)) {
+-            int n = itemStack.getCount();
+-            if (n > 1) {
+-                this.dropItemStack(itemStack.split(n - 1));
++    public void pickUpItem(net.minecraft.world.entity.item.ItemEntity $$0) {
++        net.minecraft.world.item.ItemStack $$1 = $$0.getItem();
++        if (this.canHoldItem($$1)) {
++            int $$2 = $$1.getCount();
++            if ($$2 > 1) {
++                this.dropItemStack($$1.split($$2 - 1));
+             }
+             this.spitOutItem(this.getItemBySlot(net.minecraft.world.entity.EquipmentSlot.MAINHAND));
+-            this.onItemPickup(itemEntity);
+-            this.setItemSlot(net.minecraft.world.entity.EquipmentSlot.MAINHAND, itemStack.split(1));
++            this.onItemPickup($$0);
++            this.setItemSlot(net.minecraft.world.entity.EquipmentSlot.MAINHAND, $$1.split(1));
+             this.setGuaranteedDrop(net.minecraft.world.entity.EquipmentSlot.MAINHAND);
+-            this.take((net.minecraft.world.entity.Entity)itemEntity, itemStack.getCount());
+-            itemEntity.discard();
++            this.take((net.minecraft.world.entity.Entity)$$0, $$1.getCount());
++            $$0.discard();
+             this.ticksSinceEaten = 0;
+         }
+     }
+@@ -394,20 +397,20 @@
+         }
+     }
+ 
+-    public boolean isFood(net.minecraft.world.item.ItemStack stack) {
+-        return stack.is(net.minecraft.tags.ItemTags.FOX_FOOD);
++    public boolean isFood(net.minecraft.world.item.ItemStack $$0) {
++        return $$0.is(net.minecraft.tags.ItemTags.FOX_FOOD);
+     }
+ 
+-    public void onOffspringSpawnedFromEgg(net.minecraft.world.entity.player.Player player, net.minecraft.world.entity.Mob child) {
+-        ((net.minecraft.world.entity.animal.Fox)child).addTrustedUUID(player.getUUID());
++    public void onOffspringSpawnedFromEgg(net.minecraft.world.entity.player.Player $$0, net.minecraft.world.entity.Mob $$1) {
++        ((net.minecraft.world.entity.animal.Fox)$$1).addTrustedUUID($$0.getUUID());
+     }
+ 
+     public boolean isPouncing() {
+         return this.getFlag(16);
+     }
+ 
+-    public void setIsPouncing(boolean isPouncing) {
+-        this.setFlag(16, isPouncing);
++    public void setIsPouncing(boolean $$0) {
++        this.setFlag(16, $$0);
+     }
+ 
+     public boolean isJumping() {
+@@ -418,39 +421,39 @@
+         return this.crouchAmount == 3.0f;
+     }
+ 
+-    public void setIsCrouching(boolean isCrouching) {
+-        this.setFlag(4, isCrouching);
++    public void setIsCrouching(boolean $$0) {
++        this.setFlag(4, $$0);
+     }
+ 
+     public boolean isCrouching() {
+         return this.getFlag(4);
+     }
+ 
+-    public void setIsInterested(boolean isInterested) {
+-        this.setFlag(8, isInterested);
++    public void setIsInterested(boolean $$0) {
++        this.setFlag(8, $$0);
+     }
+ 
+     public boolean isInterested() {
+         return this.getFlag(8);
+     }
+ 
+-    public float getHeadRollAngle(float partialTick) {
+-        return net.minecraft.util.Mth.lerp((float)partialTick, (float)this.interestedAngleO, (float)this.interestedAngle) * 0.11f * (float)java.lang.Math.PI;
++    public float getHeadRollAngle(float $$0) {
++        return net.minecraft.util.Mth.lerp((float)$$0, (float)this.interestedAngleO, (float)this.interestedAngle) * 0.11f * (float)java.lang.Math.PI;
+     }
+ 
+-    public float getCrouchAmount(float partialTick) {
+-        return net.minecraft.util.Mth.lerp((float)partialTick, (float)this.crouchAmountO, (float)this.crouchAmount);
++    public float getCrouchAmount(float $$0) {
++        return net.minecraft.util.Mth.lerp((float)$$0, (float)this.crouchAmountO, (float)this.crouchAmount);
+     }
+ 
+-    public void setTarget(@javax.annotation.Nullable net.minecraft.world.entity.LivingEntity livingEntity) {
+-        if (this.isDefending() && livingEntity == null) {
++    public void setTarget(@javax.annotation.Nullable net.minecraft.world.entity.LivingEntity $$0) {
++        if (this.isDefending() && $$0 == null) {
+             this.setDefending(false);
+         }
+-        super.setTarget(livingEntity);
++        super.setTarget($$0);
+     }
+ 
+-    public int calculateFallDamage(float distance, float damageMultiplier) {
+-        return net.minecraft.util.Mth.ceil((float)((distance - 5.0f) * damageMultiplier));
++    public int calculateFallDamage(float $$0, float $$1) {
++        return net.minecraft.util.Mth.ceil((float)(($$0 - 5.0f) * $$1));
+     }
+ 
+     public void wakeUp() {
+@@ -492,7 +495,7 @@
+     }
+ 
+     @javax.annotation.Nullable
+-    public net.minecraft.sounds.SoundEvent getHurtSound(net.minecraft.world.damagesource.DamageSource damageSource) {
++    public net.minecraft.sounds.SoundEvent getHurtSound(net.minecraft.world.damagesource.DamageSource $$0) {
+         return net.minecraft.sounds.SoundEvents.FOX_HURT;
+     }
+ 
+@@ -501,29 +504,29 @@
+         return net.minecraft.sounds.SoundEvents.FOX_DEATH;
+     }
+ 
+-    public boolean trusts(java.util.UUID uuid) {
+-        return this.getTrustedUUIDs().contains((java.lang.Object)uuid);
++    public boolean trusts(java.util.UUID $$0) {
++        return this.getTrustedUUIDs().contains((java.lang.Object)$$0);
+     }
+ 
+-    public void dropAllDeathLoot(net.minecraft.world.damagesource.DamageSource damageSource) {
+-        net.minecraft.world.item.ItemStack itemStack = this.getItemBySlot(net.minecraft.world.entity.EquipmentSlot.MAINHAND);
+-        if (!itemStack.isEmpty()) {
+-            this.spawnAtLocation(itemStack);
++    public void dropAllDeathLoot(net.minecraft.world.damagesource.DamageSource $$0) {
++        net.minecraft.world.item.ItemStack $$1 = this.getItemBySlot(net.minecraft.world.entity.EquipmentSlot.MAINHAND);
++        if (!$$1.isEmpty()) {
++            this.spawnAtLocation($$1);
+             this.setItemSlot(net.minecraft.world.entity.EquipmentSlot.MAINHAND, net.minecraft.world.item.ItemStack.EMPTY);
+         }
+-        super.dropAllDeathLoot(damageSource);
++        super.dropAllDeathLoot($$0);
+     }
+ 
+-    public static boolean isPathClear(net.minecraft.world.entity.animal.Fox fox, net.minecraft.world.entity.LivingEntity livingEntity) {
+-        double d = livingEntity.getZ() - fox.getZ();
+-        double d2 = livingEntity.getX() - fox.getX();
+-        double d3 = d / d2;
+-        int n = 6;
+-        for (int i = 0; i < 6; ++i) {
+-            double d4 = d3 == 0.0 ? 0.0 : d * (double)((float)i / 6.0f);
+-            double d5 = d3 == 0.0 ? d2 * (double)((float)i / 6.0f) : d4 / d3;
+-            for (int j = 1; j < 4; ++j) {
+-                if (fox.level.getBlockState(new net.minecraft.core.BlockPos(fox.getX() + d5, fox.getY() + (double)j, fox.getZ() + d4)).getMaterial().isReplaceable()) continue;
++    public static boolean isPathClear(net.minecraft.world.entity.animal.Fox $$0, net.minecraft.world.entity.LivingEntity $$1) {
++        double $$2 = $$1.getZ() - $$0.getZ();
++        double $$3 = $$1.getX() - $$0.getX();
++        double $$4 = $$2 / $$3;
++        int $$5 = 6;
++        for (int $$6 = 0; $$6 < 6; ++$$6) {
++            double $$7 = $$4 == 0.0 ? 0.0 : $$2 * (double)((float)$$6 / 6.0f);
++            double $$8 = $$4 == 0.0 ? $$3 * (double)((float)$$6 / 6.0f) : $$7 / $$4;
++            for (int $$9 = 1; $$9 < 4; ++$$9) {
++                if ($$0.level.getBlockState(new net.minecraft.core.BlockPos($$0.getX() + $$8, $$0.getY() + (double)$$9, $$0.getZ() + $$7)).canBeReplaced()) continue;
+                 return false;
+             }
+         }
+@@ -534,28 +537,29 @@
+         return new net.minecraft.world.phys.Vec3(0.0, (double)(0.55f * this.getEyeHeight()), (double)(this.getBbWidth() * 0.4f));
+     }
+ 
++    @javax.annotation.Nullable
+     public /* synthetic */ net.minecraft.world.entity.AgeableMob getBreedOffspring(net.minecraft.server.level.ServerLevel serverLevel, net.minecraft.world.entity.AgeableMob ageableMob) {
+         return this.getBreedOffspring(serverLevel, ageableMob);
+     }
+ 
+-    public static /* synthetic */ boolean lambda$static$3(net.minecraft.world.entity.Entity entity) {
+-        return !entity.isDiscrete() && net.minecraft.world.entity.EntitySelector.NO_CREATIVE_OR_SPECTATOR.test((java.lang.Object)entity);
++    public static /* synthetic */ boolean lambda$static$3(net.minecraft.world.entity.Entity $$0) {
++        return !$$0.isDiscrete() && net.minecraft.world.entity.EntitySelector.NO_CREATIVE_OR_SPECTATOR.test((java.lang.Object)$$0);
+     }
+ 
+-    public static /* synthetic */ boolean lambda$static$2(net.minecraft.world.entity.Entity entity) {
+-        return entity instanceof net.minecraft.world.entity.animal.Chicken || entity instanceof net.minecraft.world.entity.animal.Rabbit;
++    public static /* synthetic */ boolean lambda$static$2(net.minecraft.world.entity.Entity $$0) {
++        return $$0 instanceof net.minecraft.world.entity.animal.Chicken || $$0 instanceof net.minecraft.world.entity.animal.Rabbit;
+     }
+ 
+-    public static /* synthetic */ boolean lambda$static$1(net.minecraft.world.entity.Entity entity) {
+-        if (entity instanceof net.minecraft.world.entity.LivingEntity) {
+-            net.minecraft.world.entity.LivingEntity livingEntity = (net.minecraft.world.entity.LivingEntity)entity;
+-            return livingEntity.getLastHurtMob() != null && livingEntity.getLastHurtMobTimestamp() < livingEntity.tickCount + 600;
++    public static /* synthetic */ boolean lambda$static$1(net.minecraft.world.entity.Entity $$0) {
++        if ($$0 instanceof net.minecraft.world.entity.LivingEntity) {
++            net.minecraft.world.entity.LivingEntity $$1 = (net.minecraft.world.entity.LivingEntity)$$0;
++            return $$1.getLastHurtMob() != null && $$1.getLastHurtMobTimestamp() < $$1.tickCount + 600;
+         }
+         return false;
+     }
+ 
+-    public static /* synthetic */ boolean lambda$static$0(net.minecraft.world.entity.item.ItemEntity itemEntity) {
+-        return !itemEntity.hasPickUpDelay() && itemEntity.isAlive();
++    public static /* synthetic */ boolean lambda$static$0(net.minecraft.world.entity.item.ItemEntity $$0) {
++        return !$$0.hasPickUpDelay() && $$0.isAlive();
+     }
+ 
+     public static /* synthetic */ boolean access$000(net.minecraft.world.entity.animal.Fox $$0) {
+@@ -587,16 +591,16 @@
+         DATA_FLAGS_ID = net.minecraft.network.syncher.SynchedEntityData.defineId(net.minecraft.world.entity.animal.Fox.class, (net.minecraft.network.syncher.EntityDataSerializer)net.minecraft.network.syncher.EntityDataSerializers.BYTE);
+         DATA_TRUSTED_ID_0 = net.minecraft.network.syncher.SynchedEntityData.defineId(net.minecraft.world.entity.animal.Fox.class, (net.minecraft.network.syncher.EntityDataSerializer)net.minecraft.network.syncher.EntityDataSerializers.OPTIONAL_UUID);
+         DATA_TRUSTED_ID_1 = net.minecraft.network.syncher.SynchedEntityData.defineId(net.minecraft.world.entity.animal.Fox.class, (net.minecraft.network.syncher.EntityDataSerializer)net.minecraft.network.syncher.EntityDataSerializers.OPTIONAL_UUID);
+-        ALLOWED_ITEMS = itemEntity -> !itemEntity.hasPickUpDelay() && itemEntity.isAlive();
+-        TRUSTED_TARGET_SELECTOR = entity -> {
+-            if (entity instanceof net.minecraft.world.entity.LivingEntity) {
+-                net.minecraft.world.entity.LivingEntity livingEntity = (net.minecraft.world.entity.LivingEntity)entity;
+-                return livingEntity.getLastHurtMob() != null && livingEntity.getLastHurtMobTimestamp() < livingEntity.tickCount + 600;
++        ALLOWED_ITEMS = $$0 -> !$$0.hasPickUpDelay() && $$0.isAlive();
++        TRUSTED_TARGET_SELECTOR = $$0 -> {
++            if ($$0 instanceof net.minecraft.world.entity.LivingEntity) {
++                net.minecraft.world.entity.LivingEntity $$1 = (net.minecraft.world.entity.LivingEntity)$$0;
++                return $$1.getLastHurtMob() != null && $$1.getLastHurtMobTimestamp() < $$1.tickCount + 600;
+             }
+             return false;
+         };
+-        STALKABLE_PREY = entity -> entity instanceof net.minecraft.world.entity.animal.Chicken || entity instanceof net.minecraft.world.entity.animal.Rabbit;
+-        AVOID_PLAYERS = entity -> !entity.isDiscrete() && net.minecraft.world.entity.EntitySelector.NO_CREATIVE_OR_SPECTATOR.test(entity);
++        STALKABLE_PREY = $$0 -> $$0 instanceof net.minecraft.world.entity.animal.Chicken || $$0 instanceof net.minecraft.world.entity.animal.Rabbit;
++        AVOID_PLAYERS = $$0 -> !$$0.isDiscrete() && net.minecraft.world.entity.EntitySelector.NO_CREATIVE_OR_SPECTATOR.test($$0);
+     }
+ }
+ 

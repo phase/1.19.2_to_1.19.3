@@ -1,0 +1,329 @@
+--- net/minecraft/FileUtil.java
++++ net/minecraft/FileUtil.java
+@@ -8,72 +8,72 @@
+     public static java.util.regex.Pattern COPY_COUNTER_PATTERN;
+     public static int MAX_FILE_NAME = 255;
+     public static java.util.regex.Pattern RESERVED_WINDOWS_FILENAMES;
++    public static java.util.regex.Pattern STRICT_PATH_SEGMENT_CHECK;
+ 
+     public net.minecraft.FileUtil() {
+     }
+ 
+-    public static java.lang.String findAvailableName(java.nio.file.Path dirPath, java.lang.String fileName, java.lang.String fileFormat) throws java.io.IOException {
+-        for (char string : net.minecraft.SharedConstants.ILLEGAL_FILE_CHARACTERS) {
+-            fileName = fileName.replace(string, '_');
++    public static java.lang.String findAvailableName(java.nio.file.Path $$0, java.lang.String $$1, java.lang.String $$2) throws java.io.IOException {
++        for (char $$3 : net.minecraft.SharedConstants.ILLEGAL_FILE_CHARACTERS) {
++            $$1 = $$1.replace($$3, '_');
+         }
+-        if (RESERVED_WINDOWS_FILENAMES.matcher((java.lang.CharSequence)(fileName = fileName.replaceAll("[./\"]", "_"))).matches()) {
+-            fileName = "_" + fileName + "_";
++        if (RESERVED_WINDOWS_FILENAMES.matcher((java.lang.CharSequence)($$1 = $$1.replaceAll("[./\"]", "_"))).matches()) {
++            $$1 = "_" + $$1 + "_";
+         }
+-        java.util.regex.Matcher matcher = COPY_COUNTER_PATTERN.matcher((java.lang.CharSequence)fileName);
+-        int n = 0;
+-        if (matcher.matches()) {
+-            fileName = matcher.group("name");
+-            n = java.lang.Integer.parseInt((java.lang.String)matcher.group("count"));
++        java.util.regex.Matcher $$4 = COPY_COUNTER_PATTERN.matcher((java.lang.CharSequence)$$1);
++        int $$5 = 0;
++        if ($$4.matches()) {
++            $$1 = $$4.group("name");
++            $$5 = java.lang.Integer.parseInt((java.lang.String)$$4.group("count"));
+         }
+-        if (fileName.length() > 255 - fileFormat.length()) {
+-            fileName = fileName.substring(0, 255 - fileFormat.length());
++        if ($$1.length() > 255 - $$2.length()) {
++            $$1 = $$1.substring(0, 255 - $$2.length());
+         }
+         while (true) {
+-            java.lang.String string;
+-            java.lang.String string2 = fileName;
+-            if (n != 0) {
+-                string = " (" + n + ")";
+-                int path = 255 - string.length();
+-                if (string2.length() > path) {
+-                    string2 = string2.substring(0, path);
++            java.lang.String $$6 = $$1;
++            if ($$5 != 0) {
++                java.lang.String $$7 = " (" + $$5 + ")";
++                int $$8 = 255 - $$7.length();
++                if ($$6.length() > $$8) {
++                    $$6 = $$6.substring(0, $$8);
+                 }
+-                string2 = string2 + string;
++                $$6 = $$6 + $$7;
+             }
+-            string2 = string2 + fileFormat;
+-            string = dirPath.resolve(string2);
++            $$6 = $$6 + $$2;
++            java.nio.file.Path $$9 = $$0.resolve($$6);
+             try {
+-                java.nio.file.Path path = java.nio.file.Files.createDirectory((java.nio.file.Path)string, (java.nio.file.attribute.FileAttribute[])new java.nio.file.attribute.FileAttribute[0]);
+-                java.nio.file.Files.deleteIfExists((java.nio.file.Path)path);
+-                return dirPath.relativize(path).toString();
++                java.nio.file.Path $$10 = java.nio.file.Files.createDirectory((java.nio.file.Path)$$9, (java.nio.file.attribute.FileAttribute[])new java.nio.file.attribute.FileAttribute[0]);
++                java.nio.file.Files.deleteIfExists((java.nio.file.Path)$$10);
++                return $$0.relativize($$10).toString();
+             }
+-            catch (java.nio.file.FileAlreadyExistsException n2) {
+-                ++n;
++            catch (java.nio.file.FileAlreadyExistsException $$11) {
++                ++$$5;
+                 continue;
+             }
+             break;
+         }
+     }
+ 
+-    public static boolean isPathNormalized(java.nio.file.Path path) {
+-        java.nio.file.Path path2 = path.normalize();
+-        return path2.equals((java.lang.Object)path);
++    public static boolean isPathNormalized(java.nio.file.Path $$0) {
++        java.nio.file.Path $$1 = $$0.normalize();
++        return $$1.equals((java.lang.Object)$$0);
+     }
+ 
+-    public static boolean isPathPortable(java.nio.file.Path path) {
+-        for (java.nio.file.Path path2 : path) {
+-            if (!RESERVED_WINDOWS_FILENAMES.matcher((java.lang.CharSequence)path2.toString()).matches()) continue;
++    public static boolean isPathPortable(java.nio.file.Path $$0) {
++        for (java.nio.file.Path $$1 : $$0) {
++            if (!RESERVED_WINDOWS_FILENAMES.matcher((java.lang.CharSequence)$$1.toString()).matches()) continue;
+             return false;
+         }
+         return true;
+     }
+ 
+-    public static java.nio.file.Path createPathToResource(java.nio.file.Path dirPath, java.lang.String locationPath, java.lang.String fileFormat) {
+-        java.lang.String string = locationPath + fileFormat;
+-        java.nio.file.Path path = java.nio.file.Paths.get((java.lang.String)string, (java.lang.String[])new java.lang.String[0]);
+-        if (path.endsWith(fileFormat)) {
+-            throw new java.nio.file.InvalidPathException(string, "empty resource name");
++    public static java.nio.file.Path createPathToResource(java.nio.file.Path $$0, java.lang.String $$1, java.lang.String $$2) {
++        java.lang.String $$3 = $$1 + $$2;
++        java.nio.file.Path $$4 = java.nio.file.Paths.get((java.lang.String)$$3, (java.lang.String[])new java.lang.String[0]);
++        if ($$4.endsWith($$2)) {
++            throw new java.nio.file.InvalidPathException($$3, "empty resource name");
+         }
+-        return dirPath.resolve(path);
++        return $$0.resolve($$4);
+     }
+ 
+     public static java.lang.String getFullResourcePath(java.lang.String $$0) {
+@@ -84,9 +84,214 @@
+         return org.apache.commons.io.FilenameUtils.normalize((java.lang.String)$$0).replace((java.lang.CharSequence)java.io.File.separator, (java.lang.CharSequence)"/");
+     }
+ 
++    /*
++     * Exception decompiling
++     */
++    public static com.mojang.serialization.DataResult<java.util.List<java.lang.String>> decomposePath(java.lang.String $$0) {
++        /*
++         * This method has failed to decompile.  When submitting a bug report, please provide this stack trace, and (if you hold appropriate legal rights) the relevant class file.
++
++         * org.benf.cfr.reader.bytecode.analysis.opgraph.op4rewriters.SwitchStringRewriter$TooOptimisticMatchException
++         *     at org.benf.cfr.reader.bytecode.analysis.opgraph.op4rewriters.SwitchStringRewriter.getString(SwitchStringRewriter.java:404)
++         *     at org.benf.cfr.reader.bytecode.analysis.opgraph.op4rewriters.SwitchStringRewriter.access$600(SwitchStringRewriter.java:53)
++         *     at org.benf.cfr.reader.bytecode.analysis.opgraph.op4rewriters.SwitchStringRewriter$SwitchStringMatchResultCollector.collectMatches(SwitchStringRewriter.java:368)
++         *     at org.benf.cfr.reader.bytecode.analysis.opgraph.op4rewriters.matchutil.ResetAfterTest.match(ResetAfterTest.java:24)
++         *     at org.benf.cfr.reader.bytecode.analysis.opgraph.op4rewriters.matchutil.KleeneN.match(KleeneN.java:24)
++         *     at org.benf.cfr.reader.bytecode.analysis.opgraph.op4rewriters.matchutil.MatchSequence.match(MatchSequence.java:26)
++         *     at org.benf.cfr.reader.bytecode.analysis.opgraph.op4rewriters.matchutil.ResetAfterTest.match(ResetAfterTest.java:23)
++         *     at org.benf.cfr.reader.bytecode.analysis.opgraph.op4rewriters.SwitchStringRewriter.rewriteComplex(SwitchStringRewriter.java:201)
++         *     at org.benf.cfr.reader.bytecode.analysis.opgraph.op4rewriters.SwitchStringRewriter.rewrite(SwitchStringRewriter.java:73)
++         *     at org.benf.cfr.reader.bytecode.CodeAnalyser.getAnalysisInner(CodeAnalyser.java:876)
++         *     at org.benf.cfr.reader.bytecode.CodeAnalyser.getAnalysisOrWrapFail(CodeAnalyser.java:278)
++         *     at org.benf.cfr.reader.bytecode.CodeAnalyser.getAnalysis(CodeAnalyser.java:201)
++         *     at org.benf.cfr.reader.entities.attributes.AttributeCode.analyse(AttributeCode.java:94)
++         *     at org.benf.cfr.reader.entities.Method.dump(Method.java:598)
++         *     at org.benf.cfr.reader.entities.classfilehelpers.AbstractClassFileDumper.dumpMethods(AbstractClassFileDumper.java:194)
++         *     at org.benf.cfr.reader.entities.classfilehelpers.ClassFileDumperNormal.dump(ClassFileDumperNormal.java:77)
++         *     at org.benf.cfr.reader.entities.ClassFile.dump(ClassFile.java:1154)
++         *     at com.moonsworth.lunar.magnify.cfr.CfrDecompiler.decompile(CfrDecompiler.java:45)
++         *     at com.moonsworth.lunar.magnify.DecompilerService.decompileCfr(DecompilerService.java:74)
++         *     at com.moonsworth.lunar.magnify.DecompilerService.decompile(DecompilerService.java:47)
++         *     at com.moonsworth.lunar.gradle.kotlin.SourceDiffKt$decompileJar$1.apply(sourceDiff.kt:72)
++         *     at com.moonsworth.lunar.gradle.kotlin.SourceDiffKt$decompileJar$1.apply(sourceDiff.kt)
++         *     at java.base/java.util.stream.ReferencePipeline$3$1.accept(ReferencePipeline.java:197)
++         *     at java.base/java.util.Spliterators$ArraySpliterator.forEachRemaining(Spliterators.java:992)
++         *     at java.base/java.util.stream.AbstractPipeline.copyInto(AbstractPipeline.java:509)
++         *     at java.base/java.util.stream.AbstractPipeline.wrapAndCopyInto(AbstractPipeline.java:499)
++         *     at java.base/java.util.stream.ReduceOps$ReduceTask.doLeaf(ReduceOps.java:960)
++         *     at java.base/java.util.stream.ReduceOps$ReduceTask.doLeaf(ReduceOps.java:934)
++         *     at java.base/java.util.stream.AbstractTask.compute(AbstractTask.java:327)
++         *     at java.base/java.util.concurrent.CountedCompleter.exec(CountedCompleter.java:754)
++         *     at java.base/java.util.concurrent.ForkJoinTask.doExec(ForkJoinTask.java:373)
++         *     at java.base/java.util.concurrent.ForkJoinPool.helpComplete(ForkJoinPool.java:1950)
++         *     at java.base/java.util.concurrent.ForkJoinTask.awaitDone(ForkJoinTask.java:433)
++         *     at java.base/java.util.concurrent.ForkJoinTask.invoke(ForkJoinTask.java:687)
++         *     at java.base/java.util.stream.ReduceOps$ReduceOp.evaluateParallel(ReduceOps.java:927)
++         *     at java.base/java.util.stream.AbstractPipeline.evaluate(AbstractPipeline.java:233)
++         *     at java.base/java.util.stream.ReferencePipeline.collect(ReferencePipeline.java:682)
++         *     at com.moonsworth.lunar.gradle.kotlin.SourceDiffKt.decompileJar(sourceDiff.kt:80)
++         *     at com.moonsworth.lunar.gradle.kotlin.SourceDiffKt.decompileJar$default(sourceDiff.kt:64)
++         *     at com.moonsworth.lunar.gradle.kotlin.SourceDiffKt.diff(sourceDiff.kt:37)
++         *     at com.moonsworth.lunar.gradle.kotlin.SourceDiffKt.diff(sourceDiff.kt:19)
++         *     at com.moonsworth.lunar.gradle.kotlin.DiffMinecraft.run(tasks.kt:39)
++         *     at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
++         *     at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77)
++         *     at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
++         *     at java.base/java.lang.reflect.Method.invoke(Method.java:568)
++         *     at org.gradle.internal.reflect.JavaMethod.invoke(JavaMethod.java:125)
++         *     at org.gradle.api.internal.project.taskfactory.StandardTaskAction.doExecute(StandardTaskAction.java:58)
++         *     at org.gradle.api.internal.project.taskfactory.StandardTaskAction.execute(StandardTaskAction.java:51)
++         *     at org.gradle.api.internal.project.taskfactory.StandardTaskAction.execute(StandardTaskAction.java:29)
++         *     at org.gradle.api.internal.tasks.execution.TaskExecution$3.run(TaskExecution.java:236)
++         *     at org.gradle.internal.operations.DefaultBuildOperationRunner$1.execute(DefaultBuildOperationRunner.java:29)
++         *     at org.gradle.internal.operations.DefaultBuildOperationRunner$1.execute(DefaultBuildOperationRunner.java:26)
++         *     at org.gradle.internal.operations.DefaultBuildOperationRunner$2.execute(DefaultBuildOperationRunner.java:66)
++         *     at org.gradle.internal.operations.DefaultBuildOperationRunner$2.execute(DefaultBuildOperationRunner.java:59)
++         *     at org.gradle.internal.operations.DefaultBuildOperationRunner.execute(DefaultBuildOperationRunner.java:157)
++         *     at org.gradle.internal.operations.DefaultBuildOperationRunner.execute(DefaultBuildOperationRunner.java:59)
++         *     at org.gradle.internal.operations.DefaultBuildOperationRunner.run(DefaultBuildOperationRunner.java:47)
++         *     at org.gradle.internal.operations.DefaultBuildOperationExecutor.run(DefaultBuildOperationExecutor.java:68)
++         *     at org.gradle.api.internal.tasks.execution.TaskExecution.executeAction(TaskExecution.java:221)
++         *     at org.gradle.api.internal.tasks.execution.TaskExecution.executeActions(TaskExecution.java:204)
++         *     at org.gradle.api.internal.tasks.execution.TaskExecution.executeWithPreviousOutputFiles(TaskExecution.java:187)
++         *     at org.gradle.api.internal.tasks.execution.TaskExecution.execute(TaskExecution.java:165)
++         *     at org.gradle.internal.execution.steps.ExecuteStep.executeInternal(ExecuteStep.java:89)
++         *     at org.gradle.internal.execution.steps.ExecuteStep.access$000(ExecuteStep.java:40)
++         *     at org.gradle.internal.execution.steps.ExecuteStep$1.call(ExecuteStep.java:53)
++         *     at org.gradle.internal.execution.steps.ExecuteStep$1.call(ExecuteStep.java:50)
++         *     at org.gradle.internal.operations.DefaultBuildOperationRunner$CallableBuildOperationWorker.execute(DefaultBuildOperationRunner.java:204)
++         *     at org.gradle.internal.operations.DefaultBuildOperationRunner$CallableBuildOperationWorker.execute(DefaultBuildOperationRunner.java:199)
++         *     at org.gradle.internal.operations.DefaultBuildOperationRunner$2.execute(DefaultBuildOperationRunner.java:66)
++         *     at org.gradle.internal.operations.DefaultBuildOperationRunner$2.execute(DefaultBuildOperationRunner.java:59)
++         *     at org.gradle.internal.operations.DefaultBuildOperationRunner.execute(DefaultBuildOperationRunner.java:157)
++         *     at org.gradle.internal.operations.DefaultBuildOperationRunner.execute(DefaultBuildOperationRunner.java:59)
++         *     at org.gradle.internal.operations.DefaultBuildOperationRunner.call(DefaultBuildOperationRunner.java:53)
++         *     at org.gradle.internal.operations.DefaultBuildOperationExecutor.call(DefaultBuildOperationExecutor.java:73)
++         *     at org.gradle.internal.execution.steps.ExecuteStep.execute(ExecuteStep.java:50)
++         *     at org.gradle.internal.execution.steps.ExecuteStep.execute(ExecuteStep.java:40)
++         *     at org.gradle.internal.execution.steps.RemovePreviousOutputsStep.execute(RemovePreviousOutputsStep.java:68)
++         *     at org.gradle.internal.execution.steps.RemovePreviousOutputsStep.execute(RemovePreviousOutputsStep.java:38)
++         *     at org.gradle.internal.execution.steps.CancelExecutionStep.execute(CancelExecutionStep.java:41)
++         *     at org.gradle.internal.execution.steps.TimeoutStep.executeWithoutTimeout(TimeoutStep.java:74)
++         *     at org.gradle.internal.execution.steps.TimeoutStep.execute(TimeoutStep.java:55)
++         *     at org.gradle.internal.execution.steps.CreateOutputsStep.execute(CreateOutputsStep.java:51)
++         *     at org.gradle.internal.execution.steps.CreateOutputsStep.execute(CreateOutputsStep.java:29)
++         *     at org.gradle.internal.execution.steps.CaptureStateAfterExecutionStep.executeDelegateBroadcastingChanges(CaptureStateAfterExecutionStep.java:124)
++         *     at org.gradle.internal.execution.steps.CaptureStateAfterExecutionStep.execute(CaptureStateAfterExecutionStep.java:80)
++         *     at org.gradle.internal.execution.steps.CaptureStateAfterExecutionStep.execute(CaptureStateAfterExecutionStep.java:58)
++         *     at org.gradle.internal.execution.steps.ResolveInputChangesStep.execute(ResolveInputChangesStep.java:48)
++         *     at org.gradle.internal.execution.steps.ResolveInputChangesStep.execute(ResolveInputChangesStep.java:36)
++         *     at org.gradle.internal.execution.steps.BuildCacheStep.executeWithoutCache(BuildCacheStep.java:181)
++         *     at org.gradle.internal.execution.steps.BuildCacheStep.lambda$execute$1(BuildCacheStep.java:71)
++         *     at org.gradle.internal.Either$Right.fold(Either.java:175)
++         *     at org.gradle.internal.execution.caching.CachingState.fold(CachingState.java:59)
++         *     at org.gradle.internal.execution.steps.BuildCacheStep.execute(BuildCacheStep.java:69)
++         *     at org.gradle.internal.execution.steps.BuildCacheStep.execute(BuildCacheStep.java:47)
++         *     at org.gradle.internal.execution.steps.StoreExecutionStateStep.execute(StoreExecutionStateStep.java:36)
++         *     at org.gradle.internal.execution.steps.StoreExecutionStateStep.execute(StoreExecutionStateStep.java:25)
++         *     at org.gradle.internal.execution.steps.RecordOutputsStep.execute(RecordOutputsStep.java:36)
++         *     at org.gradle.internal.execution.steps.RecordOutputsStep.execute(RecordOutputsStep.java:22)
++         *     at org.gradle.internal.execution.steps.SkipUpToDateStep.executeBecause(SkipUpToDateStep.java:110)
++         *     at org.gradle.internal.execution.steps.SkipUpToDateStep.lambda$execute$2(SkipUpToDateStep.java:56)
++         *     at java.base/java.util.Optional.orElseGet(Optional.java:364)
++         *     at org.gradle.internal.execution.steps.SkipUpToDateStep.execute(SkipUpToDateStep.java:56)
++         *     at org.gradle.internal.execution.steps.SkipUpToDateStep.execute(SkipUpToDateStep.java:38)
++         *     at org.gradle.internal.execution.steps.ResolveChangesStep.execute(ResolveChangesStep.java:73)
++         *     at org.gradle.internal.execution.steps.ResolveChangesStep.execute(ResolveChangesStep.java:44)
++         *     at org.gradle.internal.execution.steps.legacy.MarkSnapshottingInputsFinishedStep.execute(MarkSnapshottingInputsFinishedStep.java:37)
++         *     at org.gradle.internal.execution.steps.legacy.MarkSnapshottingInputsFinishedStep.execute(MarkSnapshottingInputsFinishedStep.java:27)
++         *     at org.gradle.internal.execution.steps.ResolveCachingStateStep.execute(ResolveCachingStateStep.java:89)
++         *     at org.gradle.internal.execution.steps.ResolveCachingStateStep.execute(ResolveCachingStateStep.java:50)
++         *     at org.gradle.internal.execution.steps.ValidateStep.execute(ValidateStep.java:114)
++         *     at org.gradle.internal.execution.steps.ValidateStep.execute(ValidateStep.java:57)
++         *     at org.gradle.internal.execution.steps.CaptureStateBeforeExecutionStep.execute(CaptureStateBeforeExecutionStep.java:76)
++         *     at org.gradle.internal.execution.steps.CaptureStateBeforeExecutionStep.execute(CaptureStateBeforeExecutionStep.java:50)
++         *     at org.gradle.internal.execution.steps.SkipEmptyWorkStep.executeWithNoEmptySources(SkipEmptyWorkStep.java:254)
++         *     at org.gradle.internal.execution.steps.SkipEmptyWorkStep.execute(SkipEmptyWorkStep.java:91)
++         *     at org.gradle.internal.execution.steps.SkipEmptyWorkStep.execute(SkipEmptyWorkStep.java:56)
++         *     at org.gradle.internal.execution.steps.RemoveUntrackedExecutionStateStep.execute(RemoveUntrackedExecutionStateStep.java:32)
++         *     at org.gradle.internal.execution.steps.RemoveUntrackedExecutionStateStep.execute(RemoveUntrackedExecutionStateStep.java:21)
++         *     at org.gradle.internal.execution.steps.legacy.MarkSnapshottingInputsStartedStep.execute(MarkSnapshottingInputsStartedStep.java:38)
++         *     at org.gradle.internal.execution.steps.LoadPreviousExecutionStateStep.execute(LoadPreviousExecutionStateStep.java:43)
++         *     at org.gradle.internal.execution.steps.LoadPreviousExecutionStateStep.execute(LoadPreviousExecutionStateStep.java:31)
++         *     at org.gradle.internal.execution.steps.AssignWorkspaceStep.lambda$execute$0(AssignWorkspaceStep.java:40)
++         *     at org.gradle.api.internal.tasks.execution.TaskExecution$4.withWorkspace(TaskExecution.java:281)
++         *     at org.gradle.internal.execution.steps.AssignWorkspaceStep.execute(AssignWorkspaceStep.java:40)
++         *     at org.gradle.internal.execution.steps.AssignWorkspaceStep.execute(AssignWorkspaceStep.java:30)
++         *     at org.gradle.internal.execution.steps.IdentityCacheStep.execute(IdentityCacheStep.java:37)
++         *     at org.gradle.internal.execution.steps.IdentityCacheStep.execute(IdentityCacheStep.java:27)
++         *     at org.gradle.internal.execution.steps.IdentifyStep.execute(IdentifyStep.java:44)
++         *     at org.gradle.internal.execution.steps.IdentifyStep.execute(IdentifyStep.java:33)
++         *     at org.gradle.internal.execution.impl.DefaultExecutionEngine$1.execute(DefaultExecutionEngine.java:76)
++         *     at org.gradle.api.internal.tasks.execution.ExecuteActionsTaskExecuter.executeIfValid(ExecuteActionsTaskExecuter.java:139)
++         *     at org.gradle.api.internal.tasks.execution.ExecuteActionsTaskExecuter.execute(ExecuteActionsTaskExecuter.java:128)
++         *     at org.gradle.api.internal.tasks.execution.CleanupStaleOutputsExecuter.execute(CleanupStaleOutputsExecuter.java:77)
++         *     at org.gradle.api.internal.tasks.execution.FinalizePropertiesTaskExecuter.execute(FinalizePropertiesTaskExecuter.java:46)
++         *     at org.gradle.api.internal.tasks.execution.ResolveTaskExecutionModeExecuter.execute(ResolveTaskExecutionModeExecuter.java:51)
++         *     at org.gradle.api.internal.tasks.execution.SkipTaskWithNoActionsExecuter.execute(SkipTaskWithNoActionsExecuter.java:57)
++         *     at org.gradle.api.internal.tasks.execution.SkipOnlyIfTaskExecuter.execute(SkipOnlyIfTaskExecuter.java:56)
++         *     at org.gradle.api.internal.tasks.execution.CatchExceptionTaskExecuter.execute(CatchExceptionTaskExecuter.java:36)
++         *     at org.gradle.api.internal.tasks.execution.EventFiringTaskExecuter$1.executeTask(EventFiringTaskExecuter.java:77)
++         *     at org.gradle.api.internal.tasks.execution.EventFiringTaskExecuter$1.call(EventFiringTaskExecuter.java:55)
++         *     at org.gradle.api.internal.tasks.execution.EventFiringTaskExecuter$1.call(EventFiringTaskExecuter.java:52)
++         *     at org.gradle.internal.operations.DefaultBuildOperationRunner$CallableBuildOperationWorker.execute(DefaultBuildOperationRunner.java:204)
++         *     at org.gradle.internal.operations.DefaultBuildOperationRunner$CallableBuildOperationWorker.execute(DefaultBuildOperationRunner.java:199)
++         *     at org.gradle.internal.operations.DefaultBuildOperationRunner$2.execute(DefaultBuildOperationRunner.java:66)
++         *     at org.gradle.internal.operations.DefaultBuildOperationRunner$2.execute(DefaultBuildOperationRunner.java:59)
++         *     at org.gradle.internal.operations.DefaultBuildOperationRunner.execute(DefaultBuildOperationRunner.java:157)
++         *     at org.gradle.internal.operations.DefaultBuildOperationRunner.execute(DefaultBuildOperationRunner.java:59)
++         *     at org.gradle.internal.operations.DefaultBuildOperationRunner.call(DefaultBuildOperationRunner.java:53)
++         *     at org.gradle.internal.operations.DefaultBuildOperationExecutor.call(DefaultBuildOperationExecutor.java:73)
++         *     at org.gradle.api.internal.tasks.execution.EventFiringTaskExecuter.execute(EventFiringTaskExecuter.java:52)
++         *     at org.gradle.execution.plan.LocalTaskNodeExecutor.execute(LocalTaskNodeExecutor.java:69)
++         *     at org.gradle.execution.taskgraph.DefaultTaskExecutionGraph$InvokeNodeExecutorsAction.execute(DefaultTaskExecutionGraph.java:327)
++         *     at org.gradle.execution.taskgraph.DefaultTaskExecutionGraph$InvokeNodeExecutorsAction.execute(DefaultTaskExecutionGraph.java:314)
++         *     at org.gradle.execution.taskgraph.DefaultTaskExecutionGraph$BuildOperationAwareExecutionAction.execute(DefaultTaskExecutionGraph.java:307)
++         *     at org.gradle.execution.taskgraph.DefaultTaskExecutionGraph$BuildOperationAwareExecutionAction.execute(DefaultTaskExecutionGraph.java:293)
++         *     at org.gradle.execution.plan.DefaultPlanExecutor$ExecutorWorker.execute(DefaultPlanExecutor.java:417)
++         *     at org.gradle.execution.plan.DefaultPlanExecutor$ExecutorWorker.run(DefaultPlanExecutor.java:339)
++         *     at org.gradle.internal.concurrent.ExecutorPolicy$CatchAndRecordFailures.onExecute(ExecutorPolicy.java:64)
++         *     at org.gradle.internal.concurrent.ManagedExecutorImpl$1.run(ManagedExecutorImpl.java:48)
++         *     at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1136)
++         *     at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:635)
++         *     at java.base/java.lang.Thread.run(Thread.java:833)
++         */
++        throw new IllegalStateException("Decompilation failed");
++    }
++
++    public static java.nio.file.Path resolvePath(java.nio.file.Path $$0, java.util.List<java.lang.String> $$1) {
++        int $$2 = $$1.size();
++        return switch ($$2) {
++            case 0 -> $$0;
++            case 1 -> $$0.resolve((java.lang.String)$$1.get(0));
++            default -> {
++                java.lang.String[] $$3 = new java.lang.String[$$2 - 1];
++                for (int $$4 = 1; $$4 < $$2; ++$$4) {
++                    $$3[$$4 - 1] = (java.lang.String)$$1.get($$4);
++                }
++                yield $$0.resolve($$0.getFileSystem().getPath((java.lang.String)$$1.get(0), $$3));
++            }
++        };
++    }
++
++    public static boolean isValidStrictPathSegment(java.lang.String $$0) {
++        return STRICT_PATH_SEGMENT_CHECK.matcher((java.lang.CharSequence)$$0).matches();
++    }
++
++    public static void validatePath(java.lang.String ... $$0) {
++        if ($$0.length == 0) {
++            throw new java.lang.IllegalArgumentException("Path must have at least one element");
++        }
++        for (java.lang.String $$1 : $$0) {
++            if (!$$1.equals((java.lang.Object)"..") && !$$1.equals((java.lang.Object)".") && net.minecraft.FileUtil.isValidStrictPathSegment((java.lang.String)$$1)) continue;
++            throw new java.lang.IllegalArgumentException("Illegal segment " + $$1 + " in path " + java.util.Arrays.toString((java.lang.Object[])$$0));
++        }
++    }
++
+     static {
+         COPY_COUNTER_PATTERN = java.util.regex.Pattern.compile((java.lang.String)"(<name>.*) \\((<count>\\d*)\\)", (int)66);
+         RESERVED_WINDOWS_FILENAMES = java.util.regex.Pattern.compile((java.lang.String)".*\\.|(?:COM|CLOCK\\$|CON|PRN|AUX|NUL|COM[1-9]|LPT[1-9])(?:\\..*)?", (int)2);
++        STRICT_PATH_SEGMENT_CHECK = java.util.regex.Pattern.compile((java.lang.String)"[._a-z0-9]+");
+     }
+ }
+ 

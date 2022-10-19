@@ -1,0 +1,76 @@
+--- net/minecraft/client/gui/screens/worldselection/EditWorldScreen.java
++++ net/minecraft/client/gui/screens/worldselection/EditWorldScreen.java
+@@ -53,12 +53,13 @@
+             this.minecraft.setScreen((net.minecraft.client.gui.screens.Screen)net.minecraft.client.gui.screens.worldselection.OptimizeWorldScreen.create((net.minecraft.client.Minecraft)this.minecraft, (it.unimi.dsi.fastutil.booleans.BooleanConsumer)this.callback, (com.mojang.datafixers.DataFixer)this.minecraft.getFixerUpper(), (net.minecraft.world.level.storage.LevelStorageSource$LevelStorageAccess)this.levelAccess, (boolean)$$1));
+         }, (net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"optimizeWorld.confirm.title"), (net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"optimizeWorld.confirm.description"), true))));
+         this.addRenderableWidget((net.minecraft.client.gui.components.events.GuiEventListener)new net.minecraft.client.gui.components.Button(this.width / 2 - 100, this.height / 4 + 120 + 5, 200, 20, (net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"selectWorld.edit.export_worldgen_settings"), $$02 -> {
+-            com.mojang.serialization.DataResult $$7;
++            com.mojang.serialization.DataResult $$8;
+             try (net.minecraft.server.WorldStem $$1 = this.minecraft.createWorldOpenFlows().loadWorldStem(this.levelAccess, false);
+ ){
+-                net.minecraft.resources.RegistryOps $$2 = net.minecraft.resources.RegistryOps.create((com.mojang.serialization.DynamicOps)com.mojang.serialization.JsonOps.INSTANCE, (net.minecraft.core.RegistryAccess)$$1.registryAccess());
+-                com.mojang.serialization.DataResult $$3 = net.minecraft.world.level.levelgen.WorldGenSettings.CODEC.encodeStart((com.mojang.serialization.DynamicOps)$$2, (java.lang.Object)$$1.worldData().worldGenSettings());
+-                com.mojang.serialization.DataResult $$4 = $$3.flatMap($$0 -> {
++                net.minecraft.core.RegistryAccess$Frozen $$2 = $$1.registries().compositeAccess();
++                net.minecraft.resources.RegistryOps $$3 = net.minecraft.resources.RegistryOps.create((com.mojang.serialization.DynamicOps)com.mojang.serialization.JsonOps.INSTANCE, (net.minecraft.core.RegistryAccess)$$2);
++                com.mojang.serialization.DataResult $$4 = net.minecraft.world.level.levelgen.WorldGenSettings.encode((com.mojang.serialization.DynamicOps)$$3, (net.minecraft.world.level.levelgen.WorldOptions)$$1.worldData().worldGenOptions(), (net.minecraft.core.RegistryAccess)$$2);
++                com.mojang.serialization.DataResult $$5 = $$4.flatMap($$0 -> {
+                     java.nio.file.Path $$1 = this.levelAccess.getLevelPath(net.minecraft.world.level.storage.LevelResource.ROOT).resolve("worldgen_settings_export.json");
+                     try (com.google.gson.stream.JsonWriter $$2 = WORLD_GEN_SETTINGS_GSON.newJsonWriter((java.io.Writer)java.nio.file.Files.newBufferedWriter((java.nio.file.Path)$$1, (java.nio.charset.Charset)java.nio.charset.StandardCharsets.UTF_8, (java.nio.file.OpenOption[])new java.nio.file.OpenOption[0]));
+ ){
+@@ -70,14 +71,14 @@
+                     return com.mojang.serialization.DataResult.success((java.lang.Object)$$1.toString());
+                 });
+             }
+-            catch (java.lang.Exception $$6) {
+-                LOGGER.warn("Could not parse level data", (java.lang.Throwable)$$6);
+-                $$7 = com.mojang.serialization.DataResult.error((java.lang.String)("Could not parse level data: " + $$6.getMessage()));
++            catch (java.lang.Exception $$7) {
++                LOGGER.warn("Could not parse level data", (java.lang.Throwable)$$7);
++                $$8 = com.mojang.serialization.DataResult.error((java.lang.String)("Could not parse level data: " + $$7.getMessage()));
+             }
+-            net.minecraft.network.chat.MutableComponent $$8 = net.minecraft.network.chat.Component.literal((java.lang.String)((java.lang.String)$$7.get().map(java.util.function.Function.identity(), com.mojang.serialization.DataResult$PartialResult::message)));
+-            net.minecraft.network.chat.MutableComponent $$9 = net.minecraft.network.chat.Component.translatable((java.lang.String)($$7.result().isPresent() ? "selectWorld.edit.export_worldgen_settings.success" : "selectWorld.edit.export_worldgen_settings.failure"));
+-            $$7.error().ifPresent($$0 -> LOGGER.error("Error exporting world settings: {}", $$0));
+-            this.minecraft.getToasts().addToast((net.minecraft.client.gui.components.toasts.Toast)net.minecraft.client.gui.components.toasts.SystemToast.multiline((net.minecraft.client.Minecraft)this.minecraft, (net.minecraft.client.gui.components.toasts.SystemToast$SystemToastIds)net.minecraft.client.gui.components.toasts.SystemToast$SystemToastIds.WORLD_GEN_SETTINGS_TRANSFER, (net.minecraft.network.chat.Component)$$9, (net.minecraft.network.chat.Component)$$8));
++            net.minecraft.network.chat.MutableComponent $$9 = net.minecraft.network.chat.Component.literal((java.lang.String)((java.lang.String)$$8.get().map(java.util.function.Function.identity(), com.mojang.serialization.DataResult$PartialResult::message)));
++            net.minecraft.network.chat.MutableComponent $$10 = net.minecraft.network.chat.Component.translatable((java.lang.String)($$8.result().isPresent() ? "selectWorld.edit.export_worldgen_settings.success" : "selectWorld.edit.export_worldgen_settings.failure"));
++            $$8.error().ifPresent($$0 -> LOGGER.error("Error exporting world settings: {}", $$0));
++            this.minecraft.getToasts().addToast((net.minecraft.client.gui.components.toasts.Toast)net.minecraft.client.gui.components.toasts.SystemToast.multiline((net.minecraft.client.Minecraft)this.minecraft, (net.minecraft.client.gui.components.toasts.SystemToast$SystemToastIds)net.minecraft.client.gui.components.toasts.SystemToast$SystemToastIds.WORLD_GEN_SETTINGS_TRANSFER, (net.minecraft.network.chat.Component)$$10, (net.minecraft.network.chat.Component)$$9));
+         }));
+         this.renameButton = (net.minecraft.client.gui.components.Button)this.addRenderableWidget((net.minecraft.client.gui.components.events.GuiEventListener)new net.minecraft.client.gui.components.Button(this.width / 2 - 100, this.height / 4 + 144 + 5, 98, 20, (net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"selectWorld.edit.save"), $$0 -> this.onRename()));
+         this.addRenderableWidget((net.minecraft.client.gui.components.events.GuiEventListener)new net.minecraft.client.gui.components.Button(this.width / 2 + 2, this.height / 4 + 144 + 5, 98, 20, net.minecraft.network.chat.CommonComponents.GUI_CANCEL, $$0 -> this.callback.accept(false)));
+@@ -93,10 +94,10 @@
+         this.setInitialFocus((net.minecraft.client.gui.components.events.GuiEventListener)this.nameEdit);
+     }
+ 
+-    public void resize(net.minecraft.client.Minecraft minecraft, int width, int height) {
+-        java.lang.String string = this.nameEdit.getValue();
+-        this.init(minecraft, width, height);
+-        this.nameEdit.setValue(string);
++    public void resize(net.minecraft.client.Minecraft $$0, int $$1, int $$2) {
++        java.lang.String $$3 = this.nameEdit.getValue();
++        this.init($$0, $$1, $$2);
++        this.nameEdit.setValue($$3);
+     }
+ 
+     public void onClose() {
+@@ -155,12 +156,12 @@
+         return true;
+     }
+ 
+-    public void render(com.mojang.blaze3d.vertex.PoseStack matrixStack, int mouseX, int mouseY, float partialTicks) {
+-        this.renderBackground(matrixStack);
+-        net.minecraft.client.gui.screens.worldselection.EditWorldScreen.drawCenteredString((com.mojang.blaze3d.vertex.PoseStack)matrixStack, (net.minecraft.client.gui.Font)this.font, (net.minecraft.network.chat.Component)this.title, (int)(this.width / 2), (int)15, (int)0xFFFFFF);
+-        net.minecraft.client.gui.screens.worldselection.EditWorldScreen.drawString((com.mojang.blaze3d.vertex.PoseStack)matrixStack, (net.minecraft.client.gui.Font)this.font, (net.minecraft.network.chat.Component)NAME_LABEL, (int)(this.width / 2 - 100), (int)24, (int)0xA0A0A0);
+-        this.nameEdit.render(matrixStack, mouseX, mouseY, partialTicks);
+-        super.render(matrixStack, mouseX, mouseY, partialTicks);
++    public void render(com.mojang.blaze3d.vertex.PoseStack $$0, int $$1, int $$2, float $$3) {
++        this.renderBackground($$0);
++        net.minecraft.client.gui.screens.worldselection.EditWorldScreen.drawCenteredString((com.mojang.blaze3d.vertex.PoseStack)$$0, (net.minecraft.client.gui.Font)this.font, (net.minecraft.network.chat.Component)this.title, (int)(this.width / 2), (int)15, (int)0xFFFFFF);
++        net.minecraft.client.gui.screens.worldselection.EditWorldScreen.drawString((com.mojang.blaze3d.vertex.PoseStack)$$0, (net.minecraft.client.gui.Font)this.font, (net.minecraft.network.chat.Component)NAME_LABEL, (int)(this.width / 2 - 100), (int)24, (int)0xA0A0A0);
++        this.nameEdit.render($$0, $$1, $$2, $$3);
++        super.render($$0, $$1, $$2, $$3);
+     }
+ 
+     static {

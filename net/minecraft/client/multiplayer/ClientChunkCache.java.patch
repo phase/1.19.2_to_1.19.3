@@ -1,0 +1,121 @@
+--- net/minecraft/client/multiplayer/ClientChunkCache.java
++++ net/minecraft/client/multiplayer/ClientChunkCache.java
+@@ -14,7 +14,7 @@
+ 
+     public net.minecraft.client.multiplayer.ClientChunkCache(net.minecraft.client.multiplayer.ClientLevel $$0, int $$1) {
+         this.level = $$0;
+-        this.emptyChunk = new net.minecraft.world.level.chunk.EmptyLevelChunk((net.minecraft.world.level.Level)$$0, new net.minecraft.world.level.ChunkPos(0, 0), $$0.registryAccess().registryOrThrow(net.minecraft.core.Registry.BIOME_REGISTRY).getHolderOrThrow(net.minecraft.world.level.biome.Biomes.PLAINS));
++        this.emptyChunk = new net.minecraft.world.level.chunk.EmptyLevelChunk((net.minecraft.world.level.Level)$$0, new net.minecraft.world.level.ChunkPos(0, 0), (net.minecraft.core.Holder)$$0.registryAccess().registryOrThrow(net.minecraft.core.Registry.BIOME_REGISTRY).getHolderOrThrow(net.minecraft.world.level.biome.Biomes.PLAINS));
+         this.lightEngine = new net.minecraft.world.level.lighting.LevelLightEngine((net.minecraft.world.level.chunk.LightChunkGetter)this, true, $$0.dimensionType().hasSkyLight());
+         this.storage = new net.minecraft.client.multiplayer.ClientChunkCache$Storage(this, net.minecraft.client.multiplayer.ClientChunkCache.calculateStorageRange((int)$$1));
+     }
+@@ -23,32 +23,32 @@
+         return this.lightEngine;
+     }
+ 
+-    public static boolean isValidChunk(@javax.annotation.Nullable net.minecraft.world.level.chunk.LevelChunk chunk, int x, int z) {
+-        if (chunk == null) {
++    public static boolean isValidChunk(@javax.annotation.Nullable net.minecraft.world.level.chunk.LevelChunk $$0, int $$1, int $$2) {
++        if ($$0 == null) {
+             return false;
+         }
+-        net.minecraft.world.level.ChunkPos chunkPos = chunk.getPos();
+-        return chunkPos.x == x && chunkPos.z == z;
++        net.minecraft.world.level.ChunkPos $$3 = $$0.getPos();
++        return $$3.x == $$1 && $$3.z == $$2;
+     }
+ 
+-    public void drop(int x, int z) {
+-        if (!this.storage.inRange(x, z)) {
++    public void drop(int $$0, int $$1) {
++        if (!this.storage.inRange($$0, $$1)) {
+             return;
+         }
+-        int n = this.storage.getIndex(x, z);
+-        net.minecraft.world.level.chunk.LevelChunk levelChunk = this.storage.getChunk(n);
+-        if (net.minecraft.client.multiplayer.ClientChunkCache.isValidChunk((net.minecraft.world.level.chunk.LevelChunk)levelChunk, (int)x, (int)z)) {
+-            this.storage.replace(n, levelChunk, null);
++        int $$2 = this.storage.getIndex($$0, $$1);
++        net.minecraft.world.level.chunk.LevelChunk $$3 = this.storage.getChunk($$2);
++        if (net.minecraft.client.multiplayer.ClientChunkCache.isValidChunk((net.minecraft.world.level.chunk.LevelChunk)$$3, (int)$$0, (int)$$1)) {
++            this.storage.replace($$2, $$3, null);
+         }
+     }
+ 
+     @javax.annotation.Nullable
+-    public net.minecraft.world.level.chunk.LevelChunk getChunk(int chunkX, int chunkZ, net.minecraft.world.level.chunk.ChunkStatus requiredStatus, boolean load) {
+-        net.minecraft.world.level.chunk.LevelChunk levelChunk;
+-        if (this.storage.inRange(chunkX, chunkZ) && net.minecraft.client.multiplayer.ClientChunkCache.isValidChunk((net.minecraft.world.level.chunk.LevelChunk)(levelChunk = this.storage.getChunk(this.storage.getIndex(chunkX, chunkZ))), (int)chunkX, (int)chunkZ)) {
+-            return levelChunk;
++    public net.minecraft.world.level.chunk.LevelChunk getChunk(int $$0, int $$1, net.minecraft.world.level.chunk.ChunkStatus $$2, boolean $$3) {
++        net.minecraft.world.level.chunk.LevelChunk $$4;
++        if (this.storage.inRange($$0, $$1) && net.minecraft.client.multiplayer.ClientChunkCache.isValidChunk((net.minecraft.world.level.chunk.LevelChunk)($$4 = this.storage.getChunk(this.storage.getIndex($$0, $$1))), (int)$$0, (int)$$1)) {
++            return $$4;
+         }
+-        if (load) {
++        if ($$3) {
+             return this.emptyChunk;
+         }
+         return null;
+@@ -81,31 +81,31 @@
+     public void tick(java.util.function.BooleanSupplier $$0, boolean $$1) {
+     }
+ 
+-    public void updateViewCenter(int x, int z) {
+-        this.storage.viewCenterX = x;
+-        this.storage.viewCenterZ = z;
++    public void updateViewCenter(int $$0, int $$1) {
++        this.storage.viewCenterX = $$0;
++        this.storage.viewCenterZ = $$1;
+     }
+ 
+-    public void updateViewRadius(int viewDistance) {
+-        int n = this.storage.chunkRadius;
+-        int n2 = net.minecraft.client.multiplayer.ClientChunkCache.calculateStorageRange((int)viewDistance);
+-        if (n != n2) {
+-            net.minecraft.client.multiplayer.ClientChunkCache$Storage storage = new net.minecraft.client.multiplayer.ClientChunkCache$Storage(this, n2);
+-            storage.viewCenterX = this.storage.viewCenterX;
+-            storage.viewCenterZ = this.storage.viewCenterZ;
+-            for (int i = 0; i < this.storage.chunks.length(); ++i) {
+-                net.minecraft.world.level.chunk.LevelChunk levelChunk = (net.minecraft.world.level.chunk.LevelChunk)this.storage.chunks.get(i);
+-                if (levelChunk == null) continue;
+-                net.minecraft.world.level.ChunkPos chunkPos = levelChunk.getPos();
+-                if (!storage.inRange(chunkPos.x, chunkPos.z)) continue;
+-                storage.replace(storage.getIndex(chunkPos.x, chunkPos.z), levelChunk);
++    public void updateViewRadius(int $$0) {
++        int $$1 = this.storage.chunkRadius;
++        int $$2 = net.minecraft.client.multiplayer.ClientChunkCache.calculateStorageRange((int)$$0);
++        if ($$1 != $$2) {
++            net.minecraft.client.multiplayer.ClientChunkCache$Storage $$3 = new net.minecraft.client.multiplayer.ClientChunkCache$Storage(this, $$2);
++            $$3.viewCenterX = this.storage.viewCenterX;
++            $$3.viewCenterZ = this.storage.viewCenterZ;
++            for (int $$4 = 0; $$4 < this.storage.chunks.length(); ++$$4) {
++                net.minecraft.world.level.chunk.LevelChunk $$5 = (net.minecraft.world.level.chunk.LevelChunk)this.storage.chunks.get($$4);
++                if ($$5 == null) continue;
++                net.minecraft.world.level.ChunkPos $$6 = $$5.getPos();
++                if (!$$3.inRange($$6.x, $$6.z)) continue;
++                $$3.replace($$3.getIndex($$6.x, $$6.z), $$5);
+             }
+-            this.storage = storage;
++            this.storage = $$3;
+         }
+     }
+ 
+-    public static int calculateStorageRange(int viewDistance) {
+-        return java.lang.Math.max((int)2, (int)viewDistance) + 3;
++    public static int calculateStorageRange(int $$0) {
++        return java.lang.Math.max((int)2, (int)$$0) + 3;
+     }
+ 
+     public java.lang.String gatherStats() {
+@@ -116,8 +116,8 @@
+         return this.storage.chunkCount;
+     }
+ 
+-    public void onLightUpdate(net.minecraft.world.level.LightLayer type, net.minecraft.core.SectionPos pos) {
+-        net.minecraft.client.Minecraft.getInstance().levelRenderer.setSectionDirty(pos.x(), pos.y(), pos.z());
++    public void onLightUpdate(net.minecraft.world.level.LightLayer $$0, net.minecraft.core.SectionPos $$1) {
++        net.minecraft.client.Minecraft.getInstance().levelRenderer.setSectionDirty($$1.x(), $$1.y(), $$1.z());
+     }
+ 
+     @javax.annotation.Nullable

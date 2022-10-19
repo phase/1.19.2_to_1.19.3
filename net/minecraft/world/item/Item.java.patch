@@ -1,0 +1,325 @@
+--- net/minecraft/world/item/Item.java
++++ net/minecraft/world/item/Item.java
+@@ -4,7 +4,8 @@
+ package net.minecraft.world.item;
+ 
+ public class net.minecraft.world.item.Item
+-implements net.minecraft.world.level.ItemLike
++implements net.minecraft.world.flag.FeatureElement,
++net.minecraft.world.level.ItemLike
+  {
+     public static org.slf4j.Logger LOGGER;
+     public static java.util.Map<net.minecraft.world.level.block.Block, net.minecraft.world.item.Item> BY_BLOCK;
+@@ -14,8 +15,6 @@
+     public static int EAT_DURATION = 32;
+     public static int MAX_BAR_WIDTH = 13;
+     public net.minecraft.core.Holder$Reference<net.minecraft.world.item.Item> builtInRegistryHolder;
+-    @javax.annotation.Nullable
+-    public net.minecraft.world.item.CreativeModeTab category;
+     public net.minecraft.world.item.Rarity rarity;
+     public int maxStackSize;
+     public int maxDamage;
+@@ -26,32 +25,33 @@
+     public java.lang.String descriptionId;
+     @javax.annotation.Nullable
+     public net.minecraft.world.food.FoodProperties foodProperties;
++    public net.minecraft.world.flag.FeatureFlagSet requiredFeatures;
+ 
+-    public static int getId(net.minecraft.world.item.Item item) {
+-        return item == null ? 0 : net.minecraft.core.Registry.ITEM.getId((java.lang.Object)item);
++    public static int getId(net.minecraft.world.item.Item $$0) {
++        return $$0 == null ? 0 : net.minecraft.core.Registry.ITEM.getId((java.lang.Object)$$0);
+     }
+ 
+-    public static net.minecraft.world.item.Item byId(int id) {
+-        return (net.minecraft.world.item.Item)net.minecraft.core.Registry.ITEM.byId(id);
++    public static net.minecraft.world.item.Item byId(int $$0) {
++        return (net.minecraft.world.item.Item)net.minecraft.core.Registry.ITEM.byId($$0);
+     }
+ 
+     @java.lang.Deprecated
+-    public static net.minecraft.world.item.Item byBlock(net.minecraft.world.level.block.Block block) {
+-        return (net.minecraft.world.item.Item)BY_BLOCK.getOrDefault((java.lang.Object)block, (java.lang.Object)net.minecraft.world.item.Items.AIR);
++    public static net.minecraft.world.item.Item byBlock(net.minecraft.world.level.block.Block $$0) {
++        return (net.minecraft.world.item.Item)BY_BLOCK.getOrDefault((java.lang.Object)$$0, (java.lang.Object)net.minecraft.world.item.Items.AIR);
+     }
+ 
+-    public net.minecraft.world.item.Item(net.minecraft.world.item.Item$Properties properties) {
+-        java.lang.String string;
++    public net.minecraft.world.item.Item(net.minecraft.world.item.Item$Properties $$0) {
++        java.lang.String $$1;
+         this.builtInRegistryHolder = net.minecraft.core.Registry.ITEM.createIntrusiveHolder((java.lang.Object)this);
+-        this.category = properties.category;
+-        this.rarity = properties.rarity;
+-        this.craftingRemainingItem = properties.craftingRemainingItem;
+-        this.maxDamage = properties.maxDamage;
+-        this.maxStackSize = properties.maxStackSize;
+-        this.foodProperties = properties.foodProperties;
+-        this.isFireResistant = properties.isFireResistant;
+-        if (net.minecraft.SharedConstants.IS_RUNNING_IN_IDE && !(string = this.getClass().getSimpleName()).endsWith("Item")) {
+-            LOGGER.error("Item classes should end with Item and {} doesn't.", (java.lang.Object)string);
++        this.rarity = $$0.rarity;
++        this.craftingRemainingItem = $$0.craftingRemainingItem;
++        this.maxDamage = $$0.maxDamage;
++        this.maxStackSize = $$0.maxStackSize;
++        this.foodProperties = $$0.foodProperties;
++        this.isFireResistant = $$0.isFireResistant;
++        this.requiredFeatures = $$0.requiredFeatures;
++        if (net.minecraft.SharedConstants.IS_RUNNING_IN_IDE && !($$1 = this.getClass().getSimpleName()).endsWith("Item")) {
++            LOGGER.error("Item classes should end with Item and {} doesn't.", (java.lang.Object)$$1);
+         }
+     }
+ 
+@@ -60,7 +60,7 @@
+         return this.builtInRegistryHolder;
+     }
+ 
+-    public void onUseTick(net.minecraft.world.level.Level level, net.minecraft.world.entity.LivingEntity livingEntity, net.minecraft.world.item.ItemStack stack, int remainingUseDuration) {
++    public void onUseTick(net.minecraft.world.level.Level $$0, net.minecraft.world.entity.LivingEntity $$1, net.minecraft.world.item.ItemStack $$2, int $$3) {
+     }
+ 
+     public void onDestroyed(net.minecraft.world.entity.item.ItemEntity $$0) {
+@@ -69,7 +69,7 @@
+     public void verifyTagAfterLoad(net.minecraft.nbt.CompoundTag $$0) {
+     }
+ 
+-    public boolean canAttackBlock(net.minecraft.world.level.block.state.BlockState state, net.minecraft.world.level.Level level, net.minecraft.core.BlockPos pos, net.minecraft.world.entity.player.Player player) {
++    public boolean canAttackBlock(net.minecraft.world.level.block.state.BlockState $$0, net.minecraft.world.level.Level $$1, net.minecraft.core.BlockPos $$2, net.minecraft.world.entity.player.Player $$3) {
+         return true;
+     }
+ 
+@@ -77,31 +77,31 @@
+         return this;
+     }
+ 
+-    public net.minecraft.world.InteractionResult useOn(net.minecraft.world.item.context.UseOnContext context) {
++    public net.minecraft.world.InteractionResult useOn(net.minecraft.world.item.context.UseOnContext $$0) {
+         return net.minecraft.world.InteractionResult.PASS;
+     }
+ 
+-    public float getDestroySpeed(net.minecraft.world.item.ItemStack stack, net.minecraft.world.level.block.state.BlockState state) {
++    public float getDestroySpeed(net.minecraft.world.item.ItemStack $$0, net.minecraft.world.level.block.state.BlockState $$1) {
+         return 1.0f;
+     }
+ 
+-    public net.minecraft.world.InteractionResultHolder<net.minecraft.world.item.ItemStack> use(net.minecraft.world.level.Level level, net.minecraft.world.entity.player.Player player, net.minecraft.world.InteractionHand usedHand) {
++    public net.minecraft.world.InteractionResultHolder<net.minecraft.world.item.ItemStack> use(net.minecraft.world.level.Level $$0, net.minecraft.world.entity.player.Player $$1, net.minecraft.world.InteractionHand $$2) {
+         if (this.isEdible()) {
+-            net.minecraft.world.item.ItemStack itemStack = player.getItemInHand(usedHand);
+-            if (player.canEat(this.getFoodProperties().canAlwaysEat())) {
+-                player.startUsingItem(usedHand);
+-                return net.minecraft.world.InteractionResultHolder.consume((java.lang.Object)itemStack);
++            net.minecraft.world.item.ItemStack $$3 = $$1.getItemInHand($$2);
++            if ($$1.canEat(this.getFoodProperties().canAlwaysEat())) {
++                $$1.startUsingItem($$2);
++                return net.minecraft.world.InteractionResultHolder.consume((java.lang.Object)$$3);
+             }
+-            return net.minecraft.world.InteractionResultHolder.fail((java.lang.Object)itemStack);
++            return net.minecraft.world.InteractionResultHolder.fail((java.lang.Object)$$3);
+         }
+-        return net.minecraft.world.InteractionResultHolder.pass((java.lang.Object)player.getItemInHand(usedHand));
++        return net.minecraft.world.InteractionResultHolder.pass((java.lang.Object)$$1.getItemInHand($$2));
+     }
+ 
+-    public net.minecraft.world.item.ItemStack finishUsingItem(net.minecraft.world.item.ItemStack stack, net.minecraft.world.level.Level level, net.minecraft.world.entity.LivingEntity livingEntity) {
++    public net.minecraft.world.item.ItemStack finishUsingItem(net.minecraft.world.item.ItemStack $$0, net.minecraft.world.level.Level $$1, net.minecraft.world.entity.LivingEntity $$2) {
+         if (this.isEdible()) {
+-            return livingEntity.eat(level, stack);
++            return $$2.eat($$1, $$0);
+         }
+-        return stack;
++        return $$0;
+     }
+ 
+     public int getMaxStackSize() {
+@@ -137,19 +137,19 @@
+         return false;
+     }
+ 
+-    public boolean hurtEnemy(net.minecraft.world.item.ItemStack stack, net.minecraft.world.entity.LivingEntity target, net.minecraft.world.entity.LivingEntity attacker) {
++    public boolean hurtEnemy(net.minecraft.world.item.ItemStack $$0, net.minecraft.world.entity.LivingEntity $$1, net.minecraft.world.entity.LivingEntity $$2) {
+         return false;
+     }
+ 
+-    public boolean mineBlock(net.minecraft.world.item.ItemStack stack, net.minecraft.world.level.Level level, net.minecraft.world.level.block.state.BlockState state, net.minecraft.core.BlockPos pos, net.minecraft.world.entity.LivingEntity miningEntity) {
++    public boolean mineBlock(net.minecraft.world.item.ItemStack $$0, net.minecraft.world.level.Level $$1, net.minecraft.world.level.block.state.BlockState $$2, net.minecraft.core.BlockPos $$3, net.minecraft.world.entity.LivingEntity $$4) {
+         return false;
+     }
+ 
+-    public boolean isCorrectToolForDrops(net.minecraft.world.level.block.state.BlockState block) {
++    public boolean isCorrectToolForDrops(net.minecraft.world.level.block.state.BlockState $$0) {
+         return false;
+     }
+ 
+-    public net.minecraft.world.InteractionResult interactLivingEntity(net.minecraft.world.item.ItemStack stack, net.minecraft.world.entity.player.Player player, net.minecraft.world.entity.LivingEntity interactionTarget, net.minecraft.world.InteractionHand usedHand) {
++    public net.minecraft.world.InteractionResult interactLivingEntity(net.minecraft.world.item.ItemStack $$0, net.minecraft.world.entity.player.Player $$1, net.minecraft.world.entity.LivingEntity $$2, net.minecraft.world.InteractionHand $$3) {
+         return net.minecraft.world.InteractionResult.PASS;
+     }
+ 
+@@ -172,7 +172,7 @@
+         return this.getOrCreateDescriptionId();
+     }
+ 
+-    public java.lang.String getDescriptionId(net.minecraft.world.item.ItemStack stack) {
++    public java.lang.String getDescriptionId(net.minecraft.world.item.ItemStack $$0) {
+         return this.getDescriptionId();
+     }
+ 
+@@ -189,47 +189,47 @@
+         return this.craftingRemainingItem != null;
+     }
+ 
+-    public void inventoryTick(net.minecraft.world.item.ItemStack stack, net.minecraft.world.level.Level level, net.minecraft.world.entity.Entity entity, int slotId, boolean isSelected) {
++    public void inventoryTick(net.minecraft.world.item.ItemStack $$0, net.minecraft.world.level.Level $$1, net.minecraft.world.entity.Entity $$2, int $$3, boolean $$4) {
+     }
+ 
+-    public void onCraftedBy(net.minecraft.world.item.ItemStack stack, net.minecraft.world.level.Level level, net.minecraft.world.entity.player.Player player) {
++    public void onCraftedBy(net.minecraft.world.item.ItemStack $$0, net.minecraft.world.level.Level $$1, net.minecraft.world.entity.player.Player $$2) {
+     }
+ 
+     public boolean isComplex() {
+         return false;
+     }
+ 
+-    public net.minecraft.world.item.UseAnim getUseAnimation(net.minecraft.world.item.ItemStack stack) {
+-        return stack.getItem().isEdible() ? net.minecraft.world.item.UseAnim.EAT : net.minecraft.world.item.UseAnim.NONE;
++    public net.minecraft.world.item.UseAnim getUseAnimation(net.minecraft.world.item.ItemStack $$0) {
++        return $$0.getItem().isEdible() ? net.minecraft.world.item.UseAnim.EAT : net.minecraft.world.item.UseAnim.NONE;
+     }
+ 
+-    public int getUseDuration(net.minecraft.world.item.ItemStack stack) {
+-        if (stack.getItem().isEdible()) {
++    public int getUseDuration(net.minecraft.world.item.ItemStack $$0) {
++        if ($$0.getItem().isEdible()) {
+             return this.getFoodProperties().isFastFood() ? 16 : 32;
+         }
+         return 0;
+     }
+ 
+-    public void releaseUsing(net.minecraft.world.item.ItemStack stack, net.minecraft.world.level.Level level, net.minecraft.world.entity.LivingEntity livingEntity, int timeCharged) {
++    public void releaseUsing(net.minecraft.world.item.ItemStack $$0, net.minecraft.world.level.Level $$1, net.minecraft.world.entity.LivingEntity $$2, int $$3) {
+     }
+ 
+-    public void appendHoverText(net.minecraft.world.item.ItemStack stack, @javax.annotation.Nullable net.minecraft.world.level.Level level, java.util.List<net.minecraft.network.chat.Component> tooltipComponents, net.minecraft.world.item.TooltipFlag isAdvanced) {
++    public void appendHoverText(net.minecraft.world.item.ItemStack $$0, @javax.annotation.Nullable net.minecraft.world.level.Level $$1, java.util.List<net.minecraft.network.chat.Component> $$2, net.minecraft.world.item.TooltipFlag $$3) {
+     }
+ 
+     public java.util.Optional<net.minecraft.world.inventory.tooltip.TooltipComponent> getTooltipImage(net.minecraft.world.item.ItemStack $$0) {
+         return java.util.Optional.empty();
+     }
+ 
+-    public net.minecraft.network.chat.Component getName(net.minecraft.world.item.ItemStack stack) {
+-        return net.minecraft.network.chat.Component.translatable((java.lang.String)this.getDescriptionId(stack));
++    public net.minecraft.network.chat.Component getName(net.minecraft.world.item.ItemStack $$0) {
++        return net.minecraft.network.chat.Component.translatable((java.lang.String)this.getDescriptionId($$0));
+     }
+ 
+-    public boolean isFoil(net.minecraft.world.item.ItemStack stack) {
+-        return stack.isEnchanted();
++    public boolean isFoil(net.minecraft.world.item.ItemStack $$0) {
++        return $$0.isEnchanted();
+     }
+ 
+-    public net.minecraft.world.item.Rarity getRarity(net.minecraft.world.item.ItemStack stack) {
+-        if (!stack.isEnchanted()) {
++    public net.minecraft.world.item.Rarity getRarity(net.minecraft.world.item.ItemStack $$0) {
++        if (!$$0.isEnchanted()) {
+             return this.rarity;
+         }
+         switch (net.minecraft.world.item.Item$1.$SwitchMap$net$minecraft$world$item$Rarity[this.rarity.ordinal()]) {
+@@ -244,55 +244,39 @@
+         return this.rarity;
+     }
+ 
+-    public boolean isEnchantable(net.minecraft.world.item.ItemStack stack) {
++    public boolean isEnchantable(net.minecraft.world.item.ItemStack $$0) {
+         return this.getMaxStackSize() == 1 && this.canBeDepleted();
+     }
+ 
+-    public static net.minecraft.world.phys.BlockHitResult getPlayerPOVHitResult(net.minecraft.world.level.Level level, net.minecraft.world.entity.player.Player player, net.minecraft.world.level.ClipContext$Fluid fluidMode) {
+-        float f = player.getXRot();
+-        float f2 = player.getYRot();
+-        net.minecraft.world.phys.Vec3 vec3 = player.getEyePosition();
+-        float f3 = net.minecraft.util.Mth.cos((float)(-f2 * ((float)java.lang.Math.PI / 180) - (float)java.lang.Math.PI));
+-        float f4 = net.minecraft.util.Mth.sin((float)(-f2 * ((float)java.lang.Math.PI / 180) - (float)java.lang.Math.PI));
+-        float f5 = -net.minecraft.util.Mth.cos((float)(-f * ((float)java.lang.Math.PI / 180)));
+-        float f6 = net.minecraft.util.Mth.sin((float)(-f * ((float)java.lang.Math.PI / 180)));
+-        float f7 = f4 * f5;
+-        float f8 = f6;
+-        float f9 = f3 * f5;
+-        double d = 5.0;
+-        net.minecraft.world.phys.Vec3 vec32 = vec3.add((double)f7 * 5.0, (double)f8 * 5.0, (double)f9 * 5.0);
+-        return level.clip(new net.minecraft.world.level.ClipContext(vec3, vec32, net.minecraft.world.level.ClipContext$Block.OUTLINE, fluidMode, (net.minecraft.world.entity.Entity)player));
++    public static net.minecraft.world.phys.BlockHitResult getPlayerPOVHitResult(net.minecraft.world.level.Level $$0, net.minecraft.world.entity.player.Player $$1, net.minecraft.world.level.ClipContext$Fluid $$2) {
++        float $$3 = $$1.getXRot();
++        float $$4 = $$1.getYRot();
++        net.minecraft.world.phys.Vec3 $$5 = $$1.getEyePosition();
++        float $$6 = net.minecraft.util.Mth.cos((float)(-$$4 * ((float)java.lang.Math.PI / 180) - (float)java.lang.Math.PI));
++        float $$7 = net.minecraft.util.Mth.sin((float)(-$$4 * ((float)java.lang.Math.PI / 180) - (float)java.lang.Math.PI));
++        float $$8 = -net.minecraft.util.Mth.cos((float)(-$$3 * ((float)java.lang.Math.PI / 180)));
++        float $$9 = net.minecraft.util.Mth.sin((float)(-$$3 * ((float)java.lang.Math.PI / 180)));
++        float $$10 = $$7 * $$8;
++        float $$11 = $$9;
++        float $$12 = $$6 * $$8;
++        double $$13 = 5.0;
++        net.minecraft.world.phys.Vec3 $$14 = $$5.add((double)$$10 * 5.0, (double)$$11 * 5.0, (double)$$12 * 5.0);
++        return $$0.clip(new net.minecraft.world.level.ClipContext($$5, $$14, net.minecraft.world.level.ClipContext$Block.OUTLINE, $$2, (net.minecraft.world.entity.Entity)$$1));
+     }
+ 
+     public int getEnchantmentValue() {
+         return 0;
+     }
+ 
+-    public void fillItemCategory(net.minecraft.world.item.CreativeModeTab category, net.minecraft.core.NonNullList<net.minecraft.world.item.ItemStack> items) {
+-        if (this.allowedIn(category)) {
+-            items.add((java.lang.Object)new net.minecraft.world.item.ItemStack((net.minecraft.world.level.ItemLike)this));
+-        }
+-    }
+-
+-    public boolean allowedIn(net.minecraft.world.item.CreativeModeTab $$0) {
+-        net.minecraft.world.item.CreativeModeTab $$1 = this.getItemCategory();
+-        return $$1 != null && ($$0 == net.minecraft.world.item.CreativeModeTab.TAB_SEARCH || $$0 == $$1);
+-    }
+-
+-    @javax.annotation.Nullable
+-    public net.minecraft.world.item.CreativeModeTab getItemCategory() {
+-        return this.category;
+-    }
+-
+-    public boolean isValidRepairItem(net.minecraft.world.item.ItemStack stack, net.minecraft.world.item.ItemStack repairCandidate) {
++    public boolean isValidRepairItem(net.minecraft.world.item.ItemStack $$0, net.minecraft.world.item.ItemStack $$1) {
+         return false;
+     }
+ 
+-    public com.google.common.collect.Multimap<net.minecraft.world.entity.ai.attributes.Attribute, net.minecraft.world.entity.ai.attributes.AttributeModifier> getDefaultAttributeModifiers(net.minecraft.world.entity.EquipmentSlot slot) {
++    public com.google.common.collect.Multimap<net.minecraft.world.entity.ai.attributes.Attribute, net.minecraft.world.entity.ai.attributes.AttributeModifier> getDefaultAttributeModifiers(net.minecraft.world.entity.EquipmentSlot $$0) {
+         return com.google.common.collect.ImmutableMultimap.of();
+     }
+ 
+-    public boolean useOnRelease(net.minecraft.world.item.ItemStack stack) {
++    public boolean useOnRelease(net.minecraft.world.item.ItemStack $$0) {
+         return false;
+     }
+ 
+@@ -321,8 +305,8 @@
+         return this.isFireResistant;
+     }
+ 
+-    public boolean canBeHurtBy(net.minecraft.world.damagesource.DamageSource damageSource) {
+-        return !this.isFireResistant || !damageSource.isFire();
++    public boolean canBeHurtBy(net.minecraft.world.damagesource.DamageSource $$0) {
++        return !this.isFireResistant || !$$0.isFire();
+     }
+ 
+     @javax.annotation.Nullable
+@@ -334,6 +318,10 @@
+         return true;
+     }
+ 
++    public net.minecraft.world.flag.FeatureFlagSet requiredFeatures() {
++        return this.requiredFeatures;
++    }
++
+     static {
+         LOGGER = com.mojang.logging.LogUtils.getLogger();
+         BY_BLOCK = com.google.common.collect.Maps.newHashMap();

@@ -1,0 +1,119 @@
+--- net/minecraft/world/level/storage/loot/LootTable.java
++++ net/minecraft/world/level/storage/loot/LootTable.java
+@@ -13,42 +13,45 @@
+     public net.minecraft.world.level.storage.loot.functions.LootItemFunction[] functions;
+     public java.util.function.BiFunction<net.minecraft.world.item.ItemStack, net.minecraft.world.level.storage.loot.LootContext, net.minecraft.world.item.ItemStack> compositeFunction;
+ 
+-    public net.minecraft.world.level.storage.loot.LootTable(net.minecraft.world.level.storage.loot.parameters.LootContextParamSet paramSet, net.minecraft.world.level.storage.loot.LootPool[] pools, net.minecraft.world.level.storage.loot.functions.LootItemFunction[] functions) {
+-        this.paramSet = paramSet;
+-        this.pools = pools;
+-        this.functions = functions;
+-        this.compositeFunction = net.minecraft.world.level.storage.loot.functions.LootItemFunctions.compose((java.util.function.BiFunction[])functions);
++    public net.minecraft.world.level.storage.loot.LootTable(net.minecraft.world.level.storage.loot.parameters.LootContextParamSet $$0, net.minecraft.world.level.storage.loot.LootPool[] $$1, net.minecraft.world.level.storage.loot.functions.LootItemFunction[] $$2) {
++        this.paramSet = $$0;
++        this.pools = $$1;
++        this.functions = $$2;
++        this.compositeFunction = net.minecraft.world.level.storage.loot.functions.LootItemFunctions.compose((java.util.function.BiFunction[])$$2);
+     }
+ 
+-    public static java.util.function.Consumer<net.minecraft.world.item.ItemStack> createStackSplitter(java.util.function.Consumer<net.minecraft.world.item.ItemStack> stackConsumer) {
+-        return $$1 -> {
+-            if ($$1.getCount() < $$1.getMaxStackSize()) {
+-                stackConsumer.accept($$1);
++    public static java.util.function.Consumer<net.minecraft.world.item.ItemStack> createStackSplitter(net.minecraft.world.level.storage.loot.LootContext $$0, java.util.function.Consumer<net.minecraft.world.item.ItemStack> $$1) {
++        return $$2 -> {
++            if (!$$2.isItemEnabled($$0.getLevel().enabledFeatures())) {
++                return;
++            }
++            if ($$2.getCount() < $$2.getMaxStackSize()) {
++                $$1.accept($$2);
+             } else {
+-                net.minecraft.world.item.ItemStack $$3;
+-                for (int $$2 = $$1.getCount(); $$2 > 0; $$2 -= $$3.getCount()) {
+-                    $$3 = $$1.copy();
+-                    $$3.setCount(java.lang.Math.min((int)$$1.getMaxStackSize(), (int)$$2));
+-                    stackConsumer.accept((java.lang.Object)$$3);
++                net.minecraft.world.item.ItemStack $$4;
++                for (int $$3 = $$2.getCount(); $$3 > 0; $$3 -= $$4.getCount()) {
++                    $$4 = $$2.copy();
++                    $$4.setCount(java.lang.Math.min((int)$$2.getMaxStackSize(), (int)$$3));
++                    $$1.accept((java.lang.Object)$$4);
+                 }
+             }
+         };
+     }
+ 
+-    public void getRandomItemsRaw(net.minecraft.world.level.storage.loot.LootContext context, java.util.function.Consumer<net.minecraft.world.item.ItemStack> stacksOut) {
+-        if (context.addVisitedTable(this)) {
+-            java.util.function.Consumer consumer = net.minecraft.world.level.storage.loot.functions.LootItemFunction.decorate((java.util.function.BiFunction)this.compositeFunction, stacksOut, (net.minecraft.world.level.storage.loot.LootContext)context);
+-            for (net.minecraft.world.level.storage.loot.LootPool lootPool : this.pools) {
+-                lootPool.addRandomItems(consumer, context);
++    public void getRandomItemsRaw(net.minecraft.world.level.storage.loot.LootContext $$0, java.util.function.Consumer<net.minecraft.world.item.ItemStack> $$1) {
++        if ($$0.addVisitedTable(this)) {
++            java.util.function.Consumer $$2 = net.minecraft.world.level.storage.loot.functions.LootItemFunction.decorate((java.util.function.BiFunction)this.compositeFunction, $$1, (net.minecraft.world.level.storage.loot.LootContext)$$0);
++            for (net.minecraft.world.level.storage.loot.LootPool $$3 : this.pools) {
++                $$3.addRandomItems($$2, $$0);
+             }
+-            context.removeVisitedTable(this);
++            $$0.removeVisitedTable(this);
+         } else {
+             LOGGER.warn("Detected infinite loop in loot tables");
+         }
+     }
+ 
+-    public void getRandomItems(net.minecraft.world.level.storage.loot.LootContext contextData, java.util.function.Consumer<net.minecraft.world.item.ItemStack> stacksOut) {
+-        this.getRandomItemsRaw(contextData, net.minecraft.world.level.storage.loot.LootTable.createStackSplitter(stacksOut));
++    public void getRandomItems(net.minecraft.world.level.storage.loot.LootContext $$0, java.util.function.Consumer<net.minecraft.world.item.ItemStack> $$1) {
++        this.getRandomItemsRaw($$0, net.minecraft.world.level.storage.loot.LootTable.createStackSplitter((net.minecraft.world.level.storage.loot.LootContext)$$0, $$1));
+     }
+ 
+     public it.unimi.dsi.fastutil.objects.ObjectArrayList<net.minecraft.world.item.ItemStack> getRandomItems(net.minecraft.world.level.storage.loot.LootContext $$0) {
+@@ -61,33 +64,30 @@
+         return this.paramSet;
+     }
+ 
+-    public void validate(net.minecraft.world.level.storage.loot.ValidationContext validator) {
+-        int n;
+-        for (n = 0;
+- n < this.pools.length; ++n) {
+-            this.pools[n].validate(validator.forChild(".pools[" + n + "]"));
++    public void validate(net.minecraft.world.level.storage.loot.ValidationContext $$0) {
++        for (int $$1 = 0; $$1 < this.pools.length; ++$$1) {
++            this.pools[$$1].validate($$0.forChild(".pools[" + $$1 + "]"));
+         }
+-        for (n = 0;
+- n < this.functions.length; ++n) {
+-            this.functions[n].validate(validator.forChild(".functions[" + n + "]"));
++        for (int $$2 = 0; $$2 < this.functions.length; ++$$2) {
++            this.functions[$$2].validate($$0.forChild(".functions[" + $$2 + "]"));
+         }
+     }
+ 
+-    public void fill(net.minecraft.world.Container container, net.minecraft.world.level.storage.loot.LootContext context) {
+-        it.unimi.dsi.fastutil.objects.ObjectArrayList objectArrayList = this.getRandomItems(context);
+-        net.minecraft.util.RandomSource randomSource = context.getRandom();
+-        java.util.List list = this.getAvailableSlots(container, randomSource);
+-        this.shuffleAndSplitItems(objectArrayList, list.size(), randomSource);
+-        for (net.minecraft.world.item.ItemStack itemStack : objectArrayList) {
+-            if (list.isEmpty()) {
++    public void fill(net.minecraft.world.Container $$0, net.minecraft.world.level.storage.loot.LootContext $$1) {
++        it.unimi.dsi.fastutil.objects.ObjectArrayList $$2 = this.getRandomItems($$1);
++        net.minecraft.util.RandomSource $$3 = $$1.getRandom();
++        java.util.List $$4 = this.getAvailableSlots($$0, $$3);
++        this.shuffleAndSplitItems($$2, $$4.size(), $$3);
++        for (net.minecraft.world.item.ItemStack $$5 : $$2) {
++            if ($$4.isEmpty()) {
+                 LOGGER.warn("Tried to over-fill a container");
+                 return;
+             }
+-            if (itemStack.isEmpty()) {
+-                container.setItem(((java.lang.Integer)list.remove(list.size() - 1)).intValue(), net.minecraft.world.item.ItemStack.EMPTY);
++            if ($$5.isEmpty()) {
++                $$0.setItem(((java.lang.Integer)$$4.remove($$4.size() - 1)).intValue(), net.minecraft.world.item.ItemStack.EMPTY);
+                 continue;
+             }
+-            container.setItem(((java.lang.Integer)list.remove(list.size() - 1)).intValue(), itemStack);
++            $$0.setItem(((java.lang.Integer)$$4.remove($$4.size() - 1)).intValue(), $$5);
+         }
+     }
+ 

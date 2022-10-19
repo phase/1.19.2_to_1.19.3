@@ -1,0 +1,172 @@
+--- net/minecraft/world/level/portal/PortalForcer.java
++++ net/minecraft/world/level/portal/PortalForcer.java
+@@ -37,99 +37,97 @@
+         });
+     }
+ 
+-    public java.util.Optional<net.minecraft.BlockUtil$FoundRectangle> createPortal(net.minecraft.core.BlockPos pos, net.minecraft.core.Direction$Axis axis) {
+-        int n;
+-        int n2;
+-        int n3;
+-        net.minecraft.core.Direction direction = net.minecraft.core.Direction.get((net.minecraft.core.Direction$AxisDirection)net.minecraft.core.Direction$AxisDirection.POSITIVE, (net.minecraft.core.Direction$Axis)axis);
+-        double d = -1.0;
+-        net.minecraft.core.BlockPos blockPos = null;
+-        double d2 = -1.0;
+-        net.minecraft.core.BlockPos blockPos2 = null;
+-        net.minecraft.world.level.border.WorldBorder worldBorder = this.level.getWorldBorder();
+-        int n4 = java.lang.Math.min((int)this.level.getMaxBuildHeight(), (int)(this.level.getMinBuildHeight() + this.level.getLogicalHeight())) - 1;
+-        net.minecraft.core.BlockPos$MutableBlockPos mutableBlockPos = pos.mutable();
+-        for (net.minecraft.core.BlockPos$MutableBlockPos mutableBlockPos2 : net.minecraft.core.BlockPos.spiralAround((net.minecraft.core.BlockPos)pos, (int)16, (net.minecraft.core.Direction)net.minecraft.core.Direction.EAST, (net.minecraft.core.Direction)net.minecraft.core.Direction.SOUTH)) {
+-            int n5 = java.lang.Math.min((int)n4, (int)this.level.getHeight(net.minecraft.world.level.levelgen.Heightmap$Types.MOTION_BLOCKING, mutableBlockPos2.getX(), mutableBlockPos2.getZ()));
+-            n3 = 1;
+-            if (!worldBorder.isWithinBounds((net.minecraft.core.BlockPos)mutableBlockPos2) || !worldBorder.isWithinBounds((net.minecraft.core.BlockPos)mutableBlockPos2.move(direction, 1))) continue;
+-            mutableBlockPos2.move(direction.getOpposite(), 1);
+-            for (n2 = n5;
+- n2 >= this.level.getMinBuildHeight(); --n2) {
+-                int n6;
+-                mutableBlockPos2.setY(n2);
+-                if (!this.level.isEmptyBlock((net.minecraft.core.BlockPos)mutableBlockPos2)) continue;
+-                n = n2;
+-                while (n2 > this.level.getMinBuildHeight() && this.level.isEmptyBlock((net.minecraft.core.BlockPos)mutableBlockPos2.move(net.minecraft.core.Direction.DOWN))) {
+-                    --n2;
++    public java.util.Optional<net.minecraft.BlockUtil$FoundRectangle> createPortal(net.minecraft.core.BlockPos $$0, net.minecraft.core.Direction$Axis $$1) {
++        net.minecraft.core.Direction $$2 = net.minecraft.core.Direction.get((net.minecraft.core.Direction$AxisDirection)net.minecraft.core.Direction$AxisDirection.POSITIVE, (net.minecraft.core.Direction$Axis)$$1);
++        double $$3 = -1.0;
++        net.minecraft.core.BlockPos $$4 = null;
++        double $$5 = -1.0;
++        net.minecraft.core.BlockPos $$6 = null;
++        net.minecraft.world.level.border.WorldBorder $$7 = this.level.getWorldBorder();
++        int $$8 = java.lang.Math.min((int)this.level.getMaxBuildHeight(), (int)(this.level.getMinBuildHeight() + this.level.getLogicalHeight())) - 1;
++        net.minecraft.core.BlockPos$MutableBlockPos $$9 = $$0.mutable();
++        for (net.minecraft.core.BlockPos$MutableBlockPos $$10 : net.minecraft.core.BlockPos.spiralAround((net.minecraft.core.BlockPos)$$0, (int)16, (net.minecraft.core.Direction)net.minecraft.core.Direction.EAST, (net.minecraft.core.Direction)net.minecraft.core.Direction.SOUTH)) {
++            int $$11 = java.lang.Math.min((int)$$8, (int)this.level.getHeight(net.minecraft.world.level.levelgen.Heightmap$Types.MOTION_BLOCKING, $$10.getX(), $$10.getZ()));
++            boolean $$12 = true;
++            if (!$$7.isWithinBounds((net.minecraft.core.BlockPos)$$10) || !$$7.isWithinBounds((net.minecraft.core.BlockPos)$$10.move($$2, 1))) continue;
++            $$10.move($$2.getOpposite(), 1);
++            for (int $$13 = $$11; $$13 >= this.level.getMinBuildHeight(); --$$13) {
++                int $$15;
++                $$10.setY($$13);
++                if (!this.canPortalReplaceBlock($$10)) continue;
++                int $$14 = $$13;
++                while ($$13 > this.level.getMinBuildHeight() && this.canPortalReplaceBlock($$10.move(net.minecraft.core.Direction.DOWN))) {
++                    --$$13;
+                 }
+-                if (n2 + 4 > n4 || (n6 = n - n2) > 0 && n6 < 3) continue;
+-                mutableBlockPos2.setY(n2);
+-                if (!this.canHostFrame((net.minecraft.core.BlockPos)mutableBlockPos2, mutableBlockPos, direction, 0)) continue;
+-                double d3 = pos.distSqr((net.minecraft.core.Vec3i)mutableBlockPos2);
+-                if (this.canHostFrame((net.minecraft.core.BlockPos)mutableBlockPos2, mutableBlockPos, direction, -1) && this.canHostFrame((net.minecraft.core.BlockPos)mutableBlockPos2, mutableBlockPos, direction, 1) && (d == -1.0 || d > d3)) {
+-                    d = d3;
+-                    blockPos = mutableBlockPos2.immutable();
++                if ($$13 + 4 > $$8 || ($$15 = $$14 - $$13) > 0 && $$15 < 3) continue;
++                $$10.setY($$13);
++                if (!this.canHostFrame((net.minecraft.core.BlockPos)$$10, $$9, $$2, 0)) continue;
++                double $$16 = $$0.distSqr((net.minecraft.core.Vec3i)$$10);
++                if (this.canHostFrame((net.minecraft.core.BlockPos)$$10, $$9, $$2, -1) && this.canHostFrame((net.minecraft.core.BlockPos)$$10, $$9, $$2, 1) && ($$3 == -1.0 || $$3 > $$16)) {
++                    $$3 = $$16;
++                    $$4 = $$10.immutable();
+                 }
+-                if (d != -1.0 || d2 != -1.0 && !(d2 > d3)) continue;
+-                d2 = d3;
+-                blockPos2 = mutableBlockPos2.immutable();
++                if ($$3 != -1.0 || $$5 != -1.0 && !($$5 > $$16)) continue;
++                $$5 = $$16;
++                $$6 = $$10.immutable();
+             }
+         }
+-        if (d == -1.0 && d2 != -1.0) {
+-            blockPos = blockPos2;
+-            d = d2;
++        if ($$3 == -1.0 && $$5 != -1.0) {
++            $$4 = $$6;
++            $$3 = $$5;
+         }
+-        if (d == -1.0) {
+-            int n7 = n4 - 9;
+-            int n8 = java.lang.Math.max((int)(this.level.getMinBuildHeight() - -1), (int)70);
+-            if (n7 < n8) {
++        if ($$3 == -1.0) {
++            int $$18 = $$8 - 9;
++            int $$17 = java.lang.Math.max((int)(this.level.getMinBuildHeight() - -1), (int)70);
++            if ($$18 < $$17) {
+                 return java.util.Optional.empty();
+             }
+-            blockPos = new net.minecraft.core.BlockPos(pos.getX(), net.minecraft.util.Mth.clamp((int)pos.getY(), (int)n8, (int)n7), pos.getZ()).immutable();
+-            net.minecraft.core.Direction direction2 = direction.getClockWise();
+-            if (!worldBorder.isWithinBounds(blockPos)) {
++            $$4 = new net.minecraft.core.BlockPos($$0.getX(), net.minecraft.util.Mth.clamp((int)$$0.getY(), (int)$$17, (int)$$18), $$0.getZ()).immutable();
++            net.minecraft.core.Direction $$19 = $$2.getClockWise();
++            if (!$$7.isWithinBounds($$4)) {
+                 return java.util.Optional.empty();
+             }
+-            for (n3 = -1;
+- n3 < 2; ++n3) {
+-                for (n2 = 0;
+- n2 < 2; ++n2) {
+-                    for (n = -1;
+- n < 3; ++n) {
+-                        net.minecraft.world.level.block.state.BlockState blockState = n < 0 ? net.minecraft.world.level.block.Blocks.OBSIDIAN.defaultBlockState() : net.minecraft.world.level.block.Blocks.AIR.defaultBlockState();
+-                        mutableBlockPos.setWithOffset((net.minecraft.core.Vec3i)blockPos, n2 * direction.getStepX() + n3 * direction2.getStepX(), n, n2 * direction.getStepZ() + n3 * direction2.getStepZ());
+-                        this.level.setBlockAndUpdate((net.minecraft.core.BlockPos)mutableBlockPos, blockState);
++            for (int $$20 = -1; $$20 < 2; ++$$20) {
++                for (int $$21 = 0; $$21 < 2; ++$$21) {
++                    for (int $$22 = -1; $$22 < 3; ++$$22) {
++                        net.minecraft.world.level.block.state.BlockState $$23 = $$22 < 0 ? net.minecraft.world.level.block.Blocks.OBSIDIAN.defaultBlockState() : net.minecraft.world.level.block.Blocks.AIR.defaultBlockState();
++                        $$9.setWithOffset((net.minecraft.core.Vec3i)$$4, $$21 * $$2.getStepX() + $$20 * $$19.getStepX(), $$22, $$21 * $$2.getStepZ() + $$20 * $$19.getStepZ());
++                        this.level.setBlockAndUpdate((net.minecraft.core.BlockPos)$$9, $$23);
+                     }
+                 }
+             }
+         }
+-        for (int i = -1; i < 3; ++i) {
+-            for (int j = -1; j < 4; ++j) {
+-                if (i != -1 && i != 2 && j != -1 && j != 3) continue;
+-                mutableBlockPos.setWithOffset(blockPos, i * direction.getStepX(), j, i * direction.getStepZ());
+-                this.level.setBlock((net.minecraft.core.BlockPos)mutableBlockPos, net.minecraft.world.level.block.Blocks.OBSIDIAN.defaultBlockState(), 3);
++        for (int $$24 = -1; $$24 < 3; ++$$24) {
++            for (int $$25 = -1; $$25 < 4; ++$$25) {
++                if ($$24 != -1 && $$24 != 2 && $$25 != -1 && $$25 != 3) continue;
++                $$9.setWithOffset($$4, $$24 * $$2.getStepX(), $$25, $$24 * $$2.getStepZ());
++                this.level.setBlock((net.minecraft.core.BlockPos)$$9, net.minecraft.world.level.block.Blocks.OBSIDIAN.defaultBlockState(), 3);
+             }
+         }
+-        net.minecraft.world.level.block.state.BlockState blockState = (net.minecraft.world.level.block.state.BlockState)net.minecraft.world.level.block.Blocks.NETHER_PORTAL.defaultBlockState().setValue((net.minecraft.world.level.block.state.properties.Property)net.minecraft.world.level.block.NetherPortalBlock.AXIS, (java.lang.Comparable)axis);
+-        for (int i = 0; i < 2; ++i) {
+-            for (int j = 0; j < 3; ++j) {
+-                mutableBlockPos.setWithOffset((net.minecraft.core.Vec3i)blockPos, i * direction.getStepX(), j, i * direction.getStepZ());
+-                this.level.setBlock((net.minecraft.core.BlockPos)mutableBlockPos, blockState, 18);
++        net.minecraft.world.level.block.state.BlockState $$26 = (net.minecraft.world.level.block.state.BlockState)net.minecraft.world.level.block.Blocks.NETHER_PORTAL.defaultBlockState().setValue((net.minecraft.world.level.block.state.properties.Property)net.minecraft.world.level.block.NetherPortalBlock.AXIS, (java.lang.Comparable)$$1);
++        for (int $$27 = 0; $$27 < 2; ++$$27) {
++            for (int $$28 = 0; $$28 < 3; ++$$28) {
++                $$9.setWithOffset((net.minecraft.core.Vec3i)$$4, $$27 * $$2.getStepX(), $$28, $$27 * $$2.getStepZ());
++                this.level.setBlock((net.minecraft.core.BlockPos)$$9, $$26, 18);
+             }
+         }
+-        return java.util.Optional.of((java.lang.Object)new net.minecraft.BlockUtil$FoundRectangle(blockPos.immutable(), 2, 3));
++        return java.util.Optional.of((java.lang.Object)new net.minecraft.BlockUtil$FoundRectangle($$4.immutable(), 2, 3));
+     }
+ 
+-    public boolean canHostFrame(net.minecraft.core.BlockPos originalPos, net.minecraft.core.BlockPos$MutableBlockPos offsetPos, net.minecraft.core.Direction direction, int offsetScale) {
+-        net.minecraft.core.Direction direction2 = direction.getClockWise();
+-        for (int i = -1; i < 3; ++i) {
+-            for (int j = -1; j < 4; ++j) {
+-                offsetPos.setWithOffset((net.minecraft.core.Vec3i)originalPos, direction.getStepX() * i + direction2.getStepX() * offsetScale, j, direction.getStepZ() * i + direction2.getStepZ() * offsetScale);
+-                if (j < 0 && !this.level.getBlockState((net.minecraft.core.BlockPos)offsetPos).getMaterial().isSolid()) {
++    public boolean canPortalReplaceBlock(net.minecraft.core.BlockPos$MutableBlockPos $$0) {
++        net.minecraft.world.level.block.state.BlockState $$1 = this.level.getBlockState((net.minecraft.core.BlockPos)$$0);
++        return $$1.canBeReplaced() && $$1.getFluidState().isEmpty();
++    }
++
++    public boolean canHostFrame(net.minecraft.core.BlockPos $$0, net.minecraft.core.BlockPos$MutableBlockPos $$1, net.minecraft.core.Direction $$2, int $$3) {
++        net.minecraft.core.Direction $$4 = $$2.getClockWise();
++        for (int $$5 = -1; $$5 < 3; ++$$5) {
++            for (int $$6 = -1; $$6 < 4; ++$$6) {
++                $$1.setWithOffset((net.minecraft.core.Vec3i)$$0, $$2.getStepX() * $$5 + $$4.getStepX() * $$3, $$6, $$2.getStepZ() * $$5 + $$4.getStepZ() * $$3);
++                if ($$6 < 0 && !this.level.getBlockState((net.minecraft.core.BlockPos)$$1).getMaterial().isSolid()) {
+                     return false;
+                 }
+-                if (j < 0 || this.level.isEmptyBlock((net.minecraft.core.BlockPos)offsetPos)) continue;
++                if ($$6 < 0 || this.canPortalReplaceBlock($$1)) continue;
+                 return false;
+             }
+         }

@@ -1,0 +1,78 @@
+--- net/minecraft/client/gui/screens/debug/GameModeSwitcherScreen.java
++++ net/minecraft/client/gui/screens/debug/GameModeSwitcherScreen.java
+@@ -47,32 +47,32 @@
+         }
+     }
+ 
+-    public void render(com.mojang.blaze3d.vertex.PoseStack matrixStack, int mouseX, int mouseY, float partialTicks) {
++    public void render(com.mojang.blaze3d.vertex.PoseStack $$0, int $$12, int $$2, float $$3) {
+         if (this.checkToClose()) {
+             return;
+         }
+         com.mojang.blaze3d.systems.RenderSystem.setShader(net.minecraft.client.renderer.GameRenderer::getPositionTexShader);
+-        matrixStack.pushPose();
++        $$0.pushPose();
+         com.mojang.blaze3d.systems.RenderSystem.enableBlend();
+         com.mojang.blaze3d.systems.RenderSystem.setShaderTexture((int)0, (net.minecraft.resources.ResourceLocation)GAMEMODE_SWITCHER_LOCATION);
+-        int n = this.width / 2 - 62;
+-        int n2 = this.height / 2 - 31 - 27;
+-        net.minecraft.client.gui.screens.debug.GameModeSwitcherScreen.blit((com.mojang.blaze3d.vertex.PoseStack)matrixStack, (int)n, (int)n2, (float)0.0f, (float)0.0f, (int)125, (int)75, (int)128, (int)128);
+-        matrixStack.popPose();
+-        super.render(matrixStack, mouseX, mouseY, partialTicks);
+-        this.currentlyHovered.ifPresent($$1 -> net.minecraft.client.gui.screens.debug.GameModeSwitcherScreen.drawCenteredString((com.mojang.blaze3d.vertex.PoseStack)matrixStack, (net.minecraft.client.gui.Font)this.font, (net.minecraft.network.chat.Component)$$1.getName(), (int)(this.width / 2), (int)(this.height / 2 - 31 - 20), (int)-1));
+-        net.minecraft.client.gui.screens.debug.GameModeSwitcherScreen.drawCenteredString((com.mojang.blaze3d.vertex.PoseStack)matrixStack, (net.minecraft.client.gui.Font)this.font, (net.minecraft.network.chat.Component)SELECT_KEY, (int)(this.width / 2), (int)(this.height / 2 + 5), (int)0xFFFFFF);
++        int $$4 = this.width / 2 - 62;
++        int $$5 = this.height / 2 - 31 - 27;
++        net.minecraft.client.gui.screens.debug.GameModeSwitcherScreen.blit((com.mojang.blaze3d.vertex.PoseStack)$$0, (int)$$4, (int)$$5, (float)0.0f, (float)0.0f, (int)125, (int)75, (int)128, (int)128);
++        $$0.popPose();
++        super.render($$0, $$12, $$2, $$3);
++        this.currentlyHovered.ifPresent($$1 -> net.minecraft.client.gui.screens.debug.GameModeSwitcherScreen.drawCenteredString((com.mojang.blaze3d.vertex.PoseStack)$$0, (net.minecraft.client.gui.Font)this.font, (net.minecraft.network.chat.Component)$$1.getName(), (int)(this.width / 2), (int)(this.height / 2 - 31 - 20), (int)-1));
++        net.minecraft.client.gui.screens.debug.GameModeSwitcherScreen.drawCenteredString((com.mojang.blaze3d.vertex.PoseStack)$$0, (net.minecraft.client.gui.Font)this.font, (net.minecraft.network.chat.Component)SELECT_KEY, (int)(this.width / 2), (int)(this.height / 2 + 5), (int)0xFFFFFF);
+         if (!this.setFirstMousePos) {
+-            this.firstMouseX = mouseX;
+-            this.firstMouseY = mouseY;
++            this.firstMouseX = $$12;
++            this.firstMouseY = $$2;
+             this.setFirstMousePos = true;
+         }
+-        boolean bl = this.firstMouseX == mouseX && this.firstMouseY == mouseY;
+-        for (net.minecraft.client.gui.screens.debug.GameModeSwitcherScreen$GameModeSlot gameModeSlot : this.slots) {
+-            gameModeSlot.render(matrixStack, mouseX, mouseY, partialTicks);
+-            this.currentlyHovered.ifPresent($$1 -> gameModeSlot.setSelected($$1 == $$0.icon));
+-            if (bl || !gameModeSlot.isHoveredOrFocused()) continue;
+-            this.currentlyHovered = java.util.Optional.of((java.lang.Object)gameModeSlot.icon);
++        boolean $$6 = this.firstMouseX == $$12 && this.firstMouseY == $$2;
++        for (net.minecraft.client.gui.screens.debug.GameModeSwitcherScreen$GameModeSlot $$7 : this.slots) {
++            $$7.render($$0, $$12, $$2, $$3);
++            this.currentlyHovered.ifPresent($$1 -> $$7.setSelected($$1 == $$0.icon));
++            if ($$6 || !$$7.isHoveredOrFocused()) continue;
++            this.currentlyHovered = java.util.Optional.of((java.lang.Object)$$7.icon);
+         }
+     }
+ 
+@@ -87,7 +87,7 @@
+         java.util.Optional $$2 = net.minecraft.client.gui.screens.debug.GameModeSwitcherScreen$GameModeIcon.getFromGameType((net.minecraft.world.level.GameType)$$0.gameMode.getPlayerMode());
+         net.minecraft.client.gui.screens.debug.GameModeSwitcherScreen$GameModeIcon $$3 = (net.minecraft.client.gui.screens.debug.GameModeSwitcherScreen$GameModeIcon)$$1.get();
+         if ($$2.isPresent() && $$0.player.hasPermissions(2) && $$3 != $$2.get()) {
+-            $$0.player.commandUnsigned($$3.getCommand());
++            $$0.player.connection.sendUnsignedCommand($$3.getCommand());
+         }
+     }
+ 
+@@ -100,13 +100,13 @@
+         return false;
+     }
+ 
+-    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+-        if (keyCode == 293 && this.currentlyHovered.isPresent()) {
++    public boolean keyPressed(int $$0, int $$1, int $$2) {
++        if ($$0 == 293 && this.currentlyHovered.isPresent()) {
+             this.setFirstMousePos = false;
+             this.currentlyHovered = ((net.minecraft.client.gui.screens.debug.GameModeSwitcherScreen$GameModeIcon)this.currentlyHovered.get()).getNext();
+             return true;
+         }
+-        return super.keyPressed(keyCode, scanCode, modifiers);
++        return super.keyPressed($$0, $$1, $$2);
+     }
+ 
+     public boolean isPauseScreen() {

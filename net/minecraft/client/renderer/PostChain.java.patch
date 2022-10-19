@@ -1,0 +1,292 @@
+--- net/minecraft/client/renderer/PostChain.java
++++ net/minecraft/client/renderer/PostChain.java
+@@ -93,144 +93,142 @@
+         }
+     }
+ 
+-    public void parsePassNode(net.minecraft.client.renderer.texture.TextureManager textureManager, com.google.gson.JsonElement json) throws java.io.IOException {
+-        com.google.gson.JsonArray jsonArray;
+-        java.lang.String string;
+-        com.google.gson.JsonObject jsonObject = net.minecraft.util.GsonHelper.convertToJsonObject((com.google.gson.JsonElement)json, (java.lang.String)"pass");
+-        java.lang.String string2 = net.minecraft.util.GsonHelper.getAsString((com.google.gson.JsonObject)jsonObject, (java.lang.String)"name");
+-        java.lang.String string3 = net.minecraft.util.GsonHelper.getAsString((com.google.gson.JsonObject)jsonObject, (java.lang.String)"intarget");
+-        java.lang.String string4 = net.minecraft.util.GsonHelper.getAsString((com.google.gson.JsonObject)jsonObject, (java.lang.String)"outtarget");
+-        com.mojang.blaze3d.pipeline.RenderTarget renderTarget = this.getRenderTarget(string3);
+-        com.mojang.blaze3d.pipeline.RenderTarget renderTarget2 = this.getRenderTarget(string4);
+-        if (renderTarget == null) {
+-            throw new net.minecraft.server.ChainedJsonException("Input target '" + string3 + "' does not exist");
++    public void parsePassNode(net.minecraft.client.renderer.texture.TextureManager $$0, com.google.gson.JsonElement $$1) throws java.io.IOException {
++        com.google.gson.JsonArray $$27;
++        com.google.gson.JsonObject $$2 = net.minecraft.util.GsonHelper.convertToJsonObject((com.google.gson.JsonElement)$$1, (java.lang.String)"pass");
++        java.lang.String $$3 = net.minecraft.util.GsonHelper.getAsString((com.google.gson.JsonObject)$$2, (java.lang.String)"name");
++        java.lang.String $$4 = net.minecraft.util.GsonHelper.getAsString((com.google.gson.JsonObject)$$2, (java.lang.String)"intarget");
++        java.lang.String $$5 = net.minecraft.util.GsonHelper.getAsString((com.google.gson.JsonObject)$$2, (java.lang.String)"outtarget");
++        com.mojang.blaze3d.pipeline.RenderTarget $$6 = this.getRenderTarget($$4);
++        com.mojang.blaze3d.pipeline.RenderTarget $$7 = this.getRenderTarget($$5);
++        if ($$6 == null) {
++            throw new net.minecraft.server.ChainedJsonException("Input target '" + $$4 + "' does not exist");
+         }
+-        if (renderTarget2 == null) {
+-            throw new net.minecraft.server.ChainedJsonException("Output target '" + string4 + "' does not exist");
++        if ($$7 == null) {
++            throw new net.minecraft.server.ChainedJsonException("Output target '" + $$5 + "' does not exist");
+         }
+-        net.minecraft.client.renderer.PostPass postPass = this.addPass(string2, renderTarget, renderTarget2);
+-        com.google.gson.JsonArray jsonArray2 = net.minecraft.util.GsonHelper.getAsJsonArray((com.google.gson.JsonObject)jsonObject, (java.lang.String)"auxtargets", null);
+-        if (jsonArray2 != null) {
+-            int n = 0;
+-            for (com.google.gson.JsonElement jsonElement : jsonArray2) {
+-                java.lang.Object object;
++        net.minecraft.client.renderer.PostPass $$8 = this.addPass($$3, $$6, $$7);
++        com.google.gson.JsonArray $$9 = net.minecraft.util.GsonHelper.getAsJsonArray((com.google.gson.JsonObject)$$2, (java.lang.String)"auxtargets", null);
++        if ($$9 != null) {
++            int $$10 = 0;
++            for (com.google.gson.JsonElement $$11 : $$9) {
+                 try {
+-                    java.lang.String string5;
+-                    boolean bl;
+-                    com.google.gson.JsonObject jsonObject2 = net.minecraft.util.GsonHelper.convertToJsonObject((com.google.gson.JsonElement)jsonElement, (java.lang.String)"auxtarget");
+-                    object = net.minecraft.util.GsonHelper.getAsString((com.google.gson.JsonObject)jsonObject2, (java.lang.String)"name");
+-                    string = net.minecraft.util.GsonHelper.getAsString((com.google.gson.JsonObject)jsonObject2, (java.lang.String)"id");
+-                    if (string.endsWith(":depth")) {
+-                        bl = true;
+-                        string5 = string.substring(0, string.lastIndexOf(58));
++                    java.lang.String $$18;
++                    boolean $$17;
++                    com.google.gson.JsonObject $$12 = net.minecraft.util.GsonHelper.convertToJsonObject((com.google.gson.JsonElement)$$11, (java.lang.String)"auxtarget");
++                    java.lang.String $$13 = net.minecraft.util.GsonHelper.getAsString((com.google.gson.JsonObject)$$12, (java.lang.String)"name");
++                    java.lang.String $$14 = net.minecraft.util.GsonHelper.getAsString((com.google.gson.JsonObject)$$12, (java.lang.String)"id");
++                    if ($$14.endsWith(":depth")) {
++                        boolean $$15 = true;
++                        java.lang.String $$16 = $$14.substring(0, $$14.lastIndexOf(58));
+                     } else {
+-                        bl = false;
+-                        string5 = string;
++                        $$17 = false;
++                        $$18 = $$14;
+                     }
+-                    com.mojang.blaze3d.pipeline.RenderTarget renderTarget3 = this.getRenderTarget(string5);
+-                    if (renderTarget3 == null) {
+-                        if (bl) {
+-                            throw new net.minecraft.server.ChainedJsonException("Render target '" + string5 + "' can't be used as depth buffer");
++                    com.mojang.blaze3d.pipeline.RenderTarget $$19 = this.getRenderTarget($$18);
++                    if ($$19 == null) {
++                        if ($$17) {
++                            throw new net.minecraft.server.ChainedJsonException("Render target '" + $$18 + "' can't be used as depth buffer");
+                         }
+-                        net.minecraft.resources.ResourceLocation resourceLocation = new net.minecraft.resources.ResourceLocation("textures/effect/" + string5 + ".png");
+-                        this.resourceManager.getResource(resourceLocation).orElseThrow(() -> new net.minecraft.server.ChainedJsonException("Render target or texture '" + string5 + "' does not exist"));
+-                        com.mojang.blaze3d.systems.RenderSystem.setShaderTexture((int)0, (net.minecraft.resources.ResourceLocation)resourceLocation);
+-                        textureManager.bindForSetup(resourceLocation);
+-                        net.minecraft.client.renderer.texture.AbstractTexture abstractTexture = textureManager.getTexture(resourceLocation);
+-                        int n2 = net.minecraft.util.GsonHelper.getAsInt((com.google.gson.JsonObject)jsonObject2, (java.lang.String)"width");
+-                        int n3 = net.minecraft.util.GsonHelper.getAsInt((com.google.gson.JsonObject)jsonObject2, (java.lang.String)"height");
+-                        boolean bl2 = net.minecraft.util.GsonHelper.getAsBoolean((com.google.gson.JsonObject)jsonObject2, (java.lang.String)"bilinear");
+-                        if (bl2) {
++                        net.minecraft.resources.ResourceLocation $$20 = new net.minecraft.resources.ResourceLocation("textures/effect/" + $$18 + ".png");
++                        this.resourceManager.getResource($$20).orElseThrow(() -> new net.minecraft.server.ChainedJsonException("Render target or texture '" + $$18 + "' does not exist"));
++                        com.mojang.blaze3d.systems.RenderSystem.setShaderTexture((int)0, (net.minecraft.resources.ResourceLocation)$$20);
++                        $$0.bindForSetup($$20);
++                        net.minecraft.client.renderer.texture.AbstractTexture $$21 = $$0.getTexture($$20);
++                        int $$22 = net.minecraft.util.GsonHelper.getAsInt((com.google.gson.JsonObject)$$12, (java.lang.String)"width");
++                        int $$23 = net.minecraft.util.GsonHelper.getAsInt((com.google.gson.JsonObject)$$12, (java.lang.String)"height");
++                        boolean $$24 = net.minecraft.util.GsonHelper.getAsBoolean((com.google.gson.JsonObject)$$12, (java.lang.String)"bilinear");
++                        if ($$24) {
+                             com.mojang.blaze3d.systems.RenderSystem.texParameter((int)3553, (int)10241, (int)9729);
+                             com.mojang.blaze3d.systems.RenderSystem.texParameter((int)3553, (int)10240, (int)9729);
+                         } else {
+                             com.mojang.blaze3d.systems.RenderSystem.texParameter((int)3553, (int)10241, (int)9728);
+                             com.mojang.blaze3d.systems.RenderSystem.texParameter((int)3553, (int)10240, (int)9728);
+                         }
+-                        postPass.addAuxAsset((java.lang.String)object, () -> ((net.minecraft.client.renderer.texture.AbstractTexture)abstractTexture).getId(), n2, n3);
+-                    } else if (bl) {
+-                        postPass.addAuxAsset((java.lang.String)object, () -> ((com.mojang.blaze3d.pipeline.RenderTarget)renderTarget3).getDepthTextureId(), renderTarget3.width, renderTarget3.height);
++                        $$8.addAuxAsset($$13, () -> ((net.minecraft.client.renderer.texture.AbstractTexture)$$21).getId(), $$22, $$23);
++                    } else if ($$17) {
++                        $$8.addAuxAsset($$13, () -> ((com.mojang.blaze3d.pipeline.RenderTarget)$$19).getDepthTextureId(), $$19.width, $$19.height);
+                     } else {
+-                        postPass.addAuxAsset((java.lang.String)object, () -> ((com.mojang.blaze3d.pipeline.RenderTarget)renderTarget3).getColorTextureId(), renderTarget3.width, renderTarget3.height);
++                        $$8.addAuxAsset($$13, () -> ((com.mojang.blaze3d.pipeline.RenderTarget)$$19).getColorTextureId(), $$19.width, $$19.height);
+                     }
+                 }
+-                catch (java.lang.Exception exception) {
+-                    object = net.minecraft.server.ChainedJsonException.forException((java.lang.Exception)exception);
+-                    object.prependJsonKey("auxtargets[" + n + "]");
+-                    throw object;
++                catch (java.lang.Exception $$25) {
++                    net.minecraft.server.ChainedJsonException $$26 = net.minecraft.server.ChainedJsonException.forException((java.lang.Exception)$$25);
++                    $$26.prependJsonKey("auxtargets[" + $$10 + "]");
++                    throw $$26;
+                 }
+-                ++n;
++                ++$$10;
+             }
+         }
+-        if ((jsonArray = net.minecraft.util.GsonHelper.getAsJsonArray((com.google.gson.JsonObject)jsonObject, (java.lang.String)"uniforms", null)) != null) {
+-            int n = 0;
+-            for (com.google.gson.JsonObject jsonObject2 : jsonArray) {
++        if (($$27 = net.minecraft.util.GsonHelper.getAsJsonArray((com.google.gson.JsonObject)$$2, (java.lang.String)"uniforms", null)) != null) {
++            int $$28 = 0;
++            for (com.google.gson.JsonElement $$29 : $$27) {
+                 try {
+-                    this.parseUniformNode((com.google.gson.JsonElement)jsonObject2);
++                    this.parseUniformNode($$29);
+                 }
+-                catch (java.lang.Exception exception) {
+-                    string = net.minecraft.server.ChainedJsonException.forException((java.lang.Exception)exception);
+-                    string.prependJsonKey("uniforms[" + n + "]");
+-                    throw string;
++                catch (java.lang.Exception $$30) {
++                    net.minecraft.server.ChainedJsonException $$31 = net.minecraft.server.ChainedJsonException.forException((java.lang.Exception)$$30);
++                    $$31.prependJsonKey("uniforms[" + $$28 + "]");
++                    throw $$31;
+                 }
+-                ++n;
++                ++$$28;
+             }
+         }
+     }
+ 
+-    public void parseUniformNode(com.google.gson.JsonElement json) throws net.minecraft.server.ChainedJsonException {
+-        com.google.gson.JsonObject jsonObject = net.minecraft.util.GsonHelper.convertToJsonObject((com.google.gson.JsonElement)json, (java.lang.String)"uniform");
+-        java.lang.String string = net.minecraft.util.GsonHelper.getAsString((com.google.gson.JsonObject)jsonObject, (java.lang.String)"name");
+-        com.mojang.blaze3d.shaders.Uniform uniform = ((net.minecraft.client.renderer.PostPass)this.passes.get(this.passes.size() - 1)).getEffect().getUniform(string);
+-        if (uniform == null) {
+-            throw new net.minecraft.server.ChainedJsonException("Uniform '" + string + "' does not exist");
++    public void parseUniformNode(com.google.gson.JsonElement $$0) throws net.minecraft.server.ChainedJsonException {
++        com.google.gson.JsonObject $$1 = net.minecraft.util.GsonHelper.convertToJsonObject((com.google.gson.JsonElement)$$0, (java.lang.String)"uniform");
++        java.lang.String $$2 = net.minecraft.util.GsonHelper.getAsString((com.google.gson.JsonObject)$$1, (java.lang.String)"name");
++        com.mojang.blaze3d.shaders.Uniform $$3 = ((net.minecraft.client.renderer.PostPass)this.passes.get(this.passes.size() - 1)).getEffect().getUniform($$2);
++        if ($$3 == null) {
++            throw new net.minecraft.server.ChainedJsonException("Uniform '" + $$2 + "' does not exist");
+         }
+-        float[] fArray = new float[4];
+-        int n = 0;
+-        com.google.gson.JsonArray jsonArray = net.minecraft.util.GsonHelper.getAsJsonArray((com.google.gson.JsonObject)jsonObject, (java.lang.String)"values");
+-        for (com.google.gson.JsonElement jsonElement : jsonArray) {
++        float[] $$4 = new float[4];
++        int $$5 = 0;
++        com.google.gson.JsonArray $$6 = net.minecraft.util.GsonHelper.getAsJsonArray((com.google.gson.JsonObject)$$1, (java.lang.String)"values");
++        for (com.google.gson.JsonElement $$7 : $$6) {
+             try {
+-                fArray[n] = net.minecraft.util.GsonHelper.convertToFloat((com.google.gson.JsonElement)jsonElement, (java.lang.String)"value");
++                $$4[$$5] = net.minecraft.util.GsonHelper.convertToFloat((com.google.gson.JsonElement)$$7, (java.lang.String)"value");
+             }
+-            catch (java.lang.Exception exception) {
+-                net.minecraft.server.ChainedJsonException chainedJsonException = net.minecraft.server.ChainedJsonException.forException((java.lang.Exception)exception);
+-                chainedJsonException.prependJsonKey("values[" + n + "]");
+-                throw chainedJsonException;
++            catch (java.lang.Exception $$8) {
++                net.minecraft.server.ChainedJsonException $$9 = net.minecraft.server.ChainedJsonException.forException((java.lang.Exception)$$8);
++                $$9.prependJsonKey("values[" + $$5 + "]");
++                throw $$9;
+             }
+-            ++n;
++            ++$$5;
+         }
+-        switch (n) {
++        switch ($$5) {
+             case 0: {
+                 break;
+             }
+             case 1: {
+-                uniform.set(fArray[0]);
++                $$3.set($$4[0]);
+                 break;
+             }
+             case 2: {
+-                uniform.set(fArray[0], fArray[1]);
++                $$3.set($$4[0], $$4[1]);
+                 break;
+             }
+             case 3: {
+-                uniform.set(fArray[0], fArray[1], fArray[2]);
++                $$3.set($$4[0], $$4[1], $$4[2]);
+                 break;
+             }
+             case 4: {
+-                uniform.set(fArray[0], fArray[1], fArray[2], fArray[3]);
++                $$3.set($$4[0], $$4[1], $$4[2], $$4[3]);
+             }
+         }
+     }
+ 
+-    public com.mojang.blaze3d.pipeline.RenderTarget getTempTarget(java.lang.String attributeName) {
+-        return (com.mojang.blaze3d.pipeline.RenderTarget)this.customRenderTargets.get((java.lang.Object)attributeName);
++    public com.mojang.blaze3d.pipeline.RenderTarget getTempTarget(java.lang.String $$0) {
++        return (com.mojang.blaze3d.pipeline.RenderTarget)this.customRenderTargets.get((java.lang.Object)$$0);
+     }
+ 
+-    public void addTempTarget(java.lang.String name, int width, int height) {
+-        com.mojang.blaze3d.pipeline.TextureTarget textureTarget = new com.mojang.blaze3d.pipeline.TextureTarget(width, height, true, net.minecraft.client.Minecraft.ON_OSX);
+-        textureTarget.setClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+-        this.customRenderTargets.put((java.lang.Object)name, (java.lang.Object)textureTarget);
+-        if (width == this.screenWidth && height == this.screenHeight) {
+-            this.fullSizedTargets.add((java.lang.Object)textureTarget);
++    public void addTempTarget(java.lang.String $$0, int $$1, int $$2) {
++        com.mojang.blaze3d.pipeline.TextureTarget $$3 = new com.mojang.blaze3d.pipeline.TextureTarget($$1, $$2, true, net.minecraft.client.Minecraft.ON_OSX);
++        $$3.setClearColor(0.0f, 0.0f, 0.0f, 0.0f);
++        this.customRenderTargets.put((java.lang.Object)$$0, (java.lang.Object)$$3);
++        if ($$1 == this.screenWidth && $$2 == this.screenHeight) {
++            this.fullSizedTargets.add((java.lang.Object)$$3);
+         }
+     }
+ 
+@@ -244,41 +242,41 @@
+         this.passes.clear();
+     }
+ 
+-    public net.minecraft.client.renderer.PostPass addPass(java.lang.String programName, com.mojang.blaze3d.pipeline.RenderTarget framebuffer, com.mojang.blaze3d.pipeline.RenderTarget framebufferOut) throws java.io.IOException {
+-        net.minecraft.client.renderer.PostPass postPass = new net.minecraft.client.renderer.PostPass(this.resourceManager, programName, framebuffer, framebufferOut);
+-        this.passes.add(this.passes.size(), (java.lang.Object)postPass);
+-        return postPass;
++    public net.minecraft.client.renderer.PostPass addPass(java.lang.String $$0, com.mojang.blaze3d.pipeline.RenderTarget $$1, com.mojang.blaze3d.pipeline.RenderTarget $$2) throws java.io.IOException {
++        net.minecraft.client.renderer.PostPass $$3 = new net.minecraft.client.renderer.PostPass(this.resourceManager, $$0, $$1, $$2);
++        this.passes.add(this.passes.size(), (java.lang.Object)$$3);
++        return $$3;
+     }
+ 
+     public void updateOrthoMatrix() {
+         this.shaderOrthoMatrix = com.mojang.math.Matrix4f.orthographic((float)0.0f, (float)this.screenTarget.width, (float)this.screenTarget.height, (float)0.0f, (float)0.1f, (float)1000.0f);
+     }
+ 
+-    public void resize(int width, int height) {
++    public void resize(int $$0, int $$1) {
+         this.screenWidth = this.screenTarget.width;
+         this.screenHeight = this.screenTarget.height;
+         this.updateOrthoMatrix();
+-        for (net.minecraft.client.renderer.PostPass postPass : this.passes) {
+-            postPass.setOrthoMatrix(this.shaderOrthoMatrix);
++        for (net.minecraft.client.renderer.PostPass $$2 : this.passes) {
++            $$2.setOrthoMatrix(this.shaderOrthoMatrix);
+         }
+-        for (net.minecraft.client.renderer.PostPass postPass : this.fullSizedTargets) {
+-            postPass.resize(width, height, net.minecraft.client.Minecraft.ON_OSX);
++        for (com.mojang.blaze3d.pipeline.RenderTarget $$3 : this.fullSizedTargets) {
++            $$3.resize($$0, $$1, net.minecraft.client.Minecraft.ON_OSX);
+         }
+     }
+ 
+-    public void process(float partialTicks) {
+-        if (partialTicks < this.lastStamp) {
++    public void process(float $$0) {
++        if ($$0 < this.lastStamp) {
+             this.time += 1.0f - this.lastStamp;
+-            this.time += partialTicks;
++            this.time += $$0;
+         } else {
+-            this.time += partialTicks - this.lastStamp;
++            this.time += $$0 - this.lastStamp;
+         }
+-        this.lastStamp = partialTicks;
++        this.lastStamp = $$0;
+         while (this.time > 20.0f) {
+             this.time -= 20.0f;
+         }
+-        for (net.minecraft.client.renderer.PostPass postPass : this.passes) {
+-            postPass.process(this.time / 20.0f);
++        for (net.minecraft.client.renderer.PostPass $$1 : this.passes) {
++            $$1.process(this.time / 20.0f);
+         }
+     }
+ 

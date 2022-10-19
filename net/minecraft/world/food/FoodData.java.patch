@@ -1,0 +1,132 @@
+--- net/minecraft/world/food/FoodData.java
++++ net/minecraft/world/food/FoodData.java
+@@ -17,50 +17,50 @@
+         this.saturationLevel = 5.0f;
+     }
+ 
+-    public void eat(int foodLevelModifier, float saturationLevelModifier) {
+-        this.foodLevel = java.lang.Math.min((int)(foodLevelModifier + this.foodLevel), (int)20);
+-        this.saturationLevel = java.lang.Math.min((float)(this.saturationLevel + (float)foodLevelModifier * saturationLevelModifier * 2.0f), (float)this.foodLevel);
++    public void eat(int $$0, float $$1) {
++        this.foodLevel = java.lang.Math.min((int)($$0 + this.foodLevel), (int)20);
++        this.saturationLevel = java.lang.Math.min((float)(this.saturationLevel + (float)$$0 * $$1 * 2.0f), (float)this.foodLevel);
+     }
+ 
+-    public void eat(net.minecraft.world.item.Item item, net.minecraft.world.item.ItemStack stack) {
+-        if (item.isEdible()) {
+-            net.minecraft.world.food.FoodProperties foodProperties = item.getFoodProperties();
+-            this.eat(foodProperties.getNutrition(), foodProperties.getSaturationModifier());
++    public void eat(net.minecraft.world.item.Item $$0, net.minecraft.world.item.ItemStack $$1) {
++        if ($$0.isEdible()) {
++            net.minecraft.world.food.FoodProperties $$2 = $$0.getFoodProperties();
++            this.eat($$2.getNutrition(), $$2.getSaturationModifier());
+         }
+     }
+ 
+-    public void tick(net.minecraft.world.entity.player.Player player) {
+-        boolean bl;
+-        net.minecraft.world.Difficulty difficulty = player.level.getDifficulty();
++    public void tick(net.minecraft.world.entity.player.Player $$0) {
++        boolean $$2;
++        net.minecraft.world.Difficulty $$1 = $$0.level.getDifficulty();
+         this.lastFoodLevel = this.foodLevel;
+         if (this.exhaustionLevel > 4.0f) {
+             this.exhaustionLevel -= 4.0f;
+             if (this.saturationLevel > 0.0f) {
+                 this.saturationLevel = java.lang.Math.max((float)(this.saturationLevel - 1.0f), (float)0.0f);
+-            } else if (difficulty != net.minecraft.world.Difficulty.PEACEFUL) {
++            } else if ($$1 != net.minecraft.world.Difficulty.PEACEFUL) {
+                 this.foodLevel = java.lang.Math.max((int)(this.foodLevel - 1), (int)0);
+             }
+         }
+-        if ((bl = player.level.getGameRules().getBoolean(net.minecraft.world.level.GameRules.RULE_NATURAL_REGENERATION)) && this.saturationLevel > 0.0f && player.isHurt() && this.foodLevel >= 20) {
++        if (($$2 = $$0.level.getGameRules().getBoolean(net.minecraft.world.level.GameRules.RULE_NATURAL_REGENERATION)) && this.saturationLevel > 0.0f && $$0.isHurt() && this.foodLevel >= 20) {
+             ++this.tickTimer;
+             if (this.tickTimer >= 10) {
+-                float f = java.lang.Math.min((float)this.saturationLevel, (float)6.0f);
+-                player.heal(f / 6.0f);
+-                this.addExhaustion(f);
++                float $$3 = java.lang.Math.min((float)this.saturationLevel, (float)6.0f);
++                $$0.heal($$3 / 6.0f);
++                this.addExhaustion($$3);
+                 this.tickTimer = 0;
+             }
+-        } else if (bl && this.foodLevel >= 18 && player.isHurt()) {
++        } else if ($$2 && this.foodLevel >= 18 && $$0.isHurt()) {
+             ++this.tickTimer;
+             if (this.tickTimer >= 80) {
+-                player.heal(1.0f);
++                $$0.heal(1.0f);
+                 this.addExhaustion(6.0f);
+                 this.tickTimer = 0;
+             }
+         } else if (this.foodLevel <= 0) {
+             ++this.tickTimer;
+             if (this.tickTimer >= 80) {
+-                if (player.getHealth() > 10.0f || difficulty == net.minecraft.world.Difficulty.HARD || player.getHealth() > 1.0f && difficulty == net.minecraft.world.Difficulty.NORMAL) {
+-                    player.hurt(net.minecraft.world.damagesource.DamageSource.STARVE, 1.0f);
++                if ($$0.getHealth() > 10.0f || $$1 == net.minecraft.world.Difficulty.HARD || $$0.getHealth() > 1.0f && $$1 == net.minecraft.world.Difficulty.NORMAL) {
++                    $$0.hurt(net.minecraft.world.damagesource.DamageSource.STARVE, 1.0f);
+                 }
+                 this.tickTimer = 0;
+             }
+@@ -69,20 +69,20 @@
+         }
+     }
+ 
+-    public void readAdditionalSaveData(net.minecraft.nbt.CompoundTag compoundTag) {
+-        if (compoundTag.contains("foodLevel", 99)) {
+-            this.foodLevel = compoundTag.getInt("foodLevel");
+-            this.tickTimer = compoundTag.getInt("foodTickTimer");
+-            this.saturationLevel = compoundTag.getFloat("foodSaturationLevel");
+-            this.exhaustionLevel = compoundTag.getFloat("foodExhaustionLevel");
++    public void readAdditionalSaveData(net.minecraft.nbt.CompoundTag $$0) {
++        if ($$0.contains("foodLevel", 99)) {
++            this.foodLevel = $$0.getInt("foodLevel");
++            this.tickTimer = $$0.getInt("foodTickTimer");
++            this.saturationLevel = $$0.getFloat("foodSaturationLevel");
++            this.exhaustionLevel = $$0.getFloat("foodExhaustionLevel");
+         }
+     }
+ 
+-    public void addAdditionalSaveData(net.minecraft.nbt.CompoundTag compoundTag) {
+-        compoundTag.putInt("foodLevel", this.foodLevel);
+-        compoundTag.putInt("foodTickTimer", this.tickTimer);
+-        compoundTag.putFloat("foodSaturationLevel", this.saturationLevel);
+-        compoundTag.putFloat("foodExhaustionLevel", this.exhaustionLevel);
++    public void addAdditionalSaveData(net.minecraft.nbt.CompoundTag $$0) {
++        $$0.putInt("foodLevel", this.foodLevel);
++        $$0.putInt("foodTickTimer", this.tickTimer);
++        $$0.putFloat("foodSaturationLevel", this.saturationLevel);
++        $$0.putFloat("foodExhaustionLevel", this.exhaustionLevel);
+     }
+ 
+     public int getFoodLevel() {
+@@ -97,8 +97,8 @@
+         return this.foodLevel < 20;
+     }
+ 
+-    public void addExhaustion(float exhaustion) {
+-        this.exhaustionLevel = java.lang.Math.min((float)(this.exhaustionLevel + exhaustion), (float)40.0f);
++    public void addExhaustion(float $$0) {
++        this.exhaustionLevel = java.lang.Math.min((float)(this.exhaustionLevel + $$0), (float)40.0f);
+     }
+ 
+     public float getExhaustionLevel() {
+@@ -109,12 +109,12 @@
+         return this.saturationLevel;
+     }
+ 
+-    public void setFoodLevel(int foodLevel) {
+-        this.foodLevel = foodLevel;
++    public void setFoodLevel(int $$0) {
++        this.foodLevel = $$0;
+     }
+ 
+-    public void setSaturation(float saturationLevel) {
+-        this.saturationLevel = saturationLevel;
++    public void setSaturation(float $$0) {
++        this.saturationLevel = $$0;
+     }
+ 
+     public void setExhaustion(float $$0) {

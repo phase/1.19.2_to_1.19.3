@@ -1,0 +1,30 @@
+--- net/minecraft/client/renderer/PanoramaRenderer.java
++++ net/minecraft/client/renderer/PanoramaRenderer.java
+@@ -7,16 +7,23 @@
+  {
+     public net.minecraft.client.Minecraft minecraft;
+     public net.minecraft.client.renderer.CubeMap cubeMap;
+-    public float time;
++    public float spin;
++    public float bob;
+ 
+     public net.minecraft.client.renderer.PanoramaRenderer(net.minecraft.client.renderer.CubeMap $$0) {
+         this.cubeMap = $$0;
+         this.minecraft = net.minecraft.client.Minecraft.getInstance();
+     }
+ 
+-    public void render(float deltaT, float alpha) {
+-        this.time += deltaT;
+-        this.cubeMap.render(this.minecraft, net.minecraft.util.Mth.sin((float)(this.time * 0.001f)) * 5.0f + 25.0f, -this.time * 0.1f, alpha);
++    public void render(float $$0, float $$1) {
++        float $$2 = (float)((double)$$0 * (java.lang.Double)this.minecraft.options.panoramaSpeed().get());
++        this.spin = net.minecraft.client.renderer.PanoramaRenderer.wrap((float)(this.spin + $$2 * 0.1f), (float)360.0f);
++        this.bob = net.minecraft.client.renderer.PanoramaRenderer.wrap((float)(this.bob + $$2 * 0.001f), (float)((float)java.lang.Math.PI * 2));
++        this.cubeMap.render(this.minecraft, net.minecraft.util.Mth.sin((float)this.bob) * 5.0f + 25.0f, -this.spin, $$1);
+     }
++
++    public static float wrap(float $$0, float $$1) {
++        return $$0 > $$1 ? $$0 - $$1 : $$0;
++    }
+ }
+ 

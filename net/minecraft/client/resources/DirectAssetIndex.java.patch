@@ -1,0 +1,67 @@
+--- net/minecraft/client/resources/DirectAssetIndex.java
++++ net/minecraft/client/resources/DirectAssetIndex.java
+@@ -1,64 +1,0 @@
+-/*
+- * Decompiled with CFR 0.151.
+- */
+-package net.minecraft.client.resources;
+-
+-public class net.minecraft.client.resources.DirectAssetIndex
+-extends net.minecraft.client.resources.AssetIndex
+- {
+-    public static org.slf4j.Logger LOGGER;
+-    public java.io.File assetsDirectory;
+-
+-    public net.minecraft.client.resources.DirectAssetIndex(java.io.File assetsDirectory) {
+-        this.assetsDirectory = assetsDirectory;
+-    }
+-
+-    public java.io.File getFile(net.minecraft.resources.ResourceLocation location) {
+-        return new java.io.File(this.assetsDirectory, location.toString().replace(':', '/'));
+-    }
+-
+-    public java.io.File getRootFile(java.lang.String child) {
+-        return new java.io.File(this.assetsDirectory, child);
+-    }
+-
+-    public java.util.Collection<net.minecraft.resources.ResourceLocation> getFiles(java.lang.String $$02, java.lang.String $$1, java.util.function.Predicate<net.minecraft.resources.ResourceLocation> $$22) {
+-block10:        {
+-            java.util.Collection collection;
+-block9:            {
+-                java.nio.file.Path $$3 = this.assetsDirectory.toPath().resolve($$1);
+-                java.util.stream.Stream $$42 = java.nio.file.Files.walk((java.nio.file.Path)$$3.resolve($$02), (java.nio.file.FileVisitOption[])new java.nio.file.FileVisitOption[0]);
+-                try {
+-                    collection = (java.util.Collection)$$42.filter($$0 -> java.nio.file.Files.isRegularFile((java.nio.file.Path)$$0, (java.nio.file.LinkOption[])new java.nio.file.LinkOption[0])).filter($$0 -> !$$0.endsWith(".mcmeta")).map($$2 -> new net.minecraft.resources.ResourceLocation($$1, $$3.relativize($$2).toString().replaceAll("\\\\", "/"))).filter($$22).collect(java.util.stream.Collectors.toList());
+-                    if ($$42 == null) break block9;
+-                }
+-                catch (java.lang.Throwable throwable) {
+-                    try {
+-                        if ($$42 != null) {
+-                            try {
+-                                $$42.close();
+-                            }
+-                            catch (java.lang.Throwable throwable2) {
+-                                throwable.addSuppressed(throwable2);
+-                            }
+-                        }
+-                        throw throwable;
+-                    }
+-                    catch (java.nio.file.NoSuchFileException $$42) {
+-                        break block10;
+-                    }
+-                    catch (java.io.IOException $$5) {
+-                        LOGGER.warn("Unable to getFiles on {}", (java.lang.Object)$$02, (java.lang.Object)((java.lang.Object)$$5));
+-                    }
+-                }
+-                $$42.close();
+-            }
+-            return collection;
+-        }
+-        return java.util.Collections.emptyList();
+-    }
+-
+-    static {
+-        LOGGER = com.mojang.logging.LogUtils.getLogger();
+-    }
+-}
+-

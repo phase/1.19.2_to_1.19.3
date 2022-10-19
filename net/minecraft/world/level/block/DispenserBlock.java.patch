@@ -1,0 +1,195 @@
+--- net/minecraft/world/level/block/DispenserBlock.java
++++ net/minecraft/world/level/block/DispenserBlock.java
+@@ -11,8 +11,8 @@
+     public static java.util.Map<net.minecraft.world.item.Item, net.minecraft.core.dispenser.DispenseItemBehavior> DISPENSER_REGISTRY;
+     public static int TRIGGER_DURATION = 4;
+ 
+-    public static void registerBehavior(net.minecraft.world.level.ItemLike item, net.minecraft.core.dispenser.DispenseItemBehavior behavior) {
+-        DISPENSER_REGISTRY.put((java.lang.Object)item.asItem(), (java.lang.Object)behavior);
++    public static void registerBehavior(net.minecraft.world.level.ItemLike $$0, net.minecraft.core.dispenser.DispenseItemBehavior $$1) {
++        DISPENSER_REGISTRY.put((java.lang.Object)$$0.asItem(), (java.lang.Object)$$1);
+     }
+ 
+     public net.minecraft.world.level.block.DispenserBlock(net.minecraft.world.level.block.state.BlockBehaviour$Properties $$0) {
+@@ -20,50 +20,50 @@
+         this.registerDefaultState((net.minecraft.world.level.block.state.BlockState)((net.minecraft.world.level.block.state.BlockState)((net.minecraft.world.level.block.state.BlockState)this.stateDefinition.any()).setValue((net.minecraft.world.level.block.state.properties.Property)FACING, (java.lang.Comparable)net.minecraft.core.Direction.NORTH)).setValue((net.minecraft.world.level.block.state.properties.Property)TRIGGERED, (java.lang.Comparable)java.lang.Boolean.valueOf((boolean)false)));
+     }
+ 
+-    public net.minecraft.world.InteractionResult use(net.minecraft.world.level.block.state.BlockState state, net.minecraft.world.level.Level level, net.minecraft.core.BlockPos pos, net.minecraft.world.entity.player.Player player, net.minecraft.world.InteractionHand hand, net.minecraft.world.phys.BlockHitResult hit) {
+-        if (level.isClientSide) {
++    public net.minecraft.world.InteractionResult use(net.minecraft.world.level.block.state.BlockState $$0, net.minecraft.world.level.Level $$1, net.minecraft.core.BlockPos $$2, net.minecraft.world.entity.player.Player $$3, net.minecraft.world.InteractionHand $$4, net.minecraft.world.phys.BlockHitResult $$5) {
++        if ($$1.isClientSide) {
+             return net.minecraft.world.InteractionResult.SUCCESS;
+         }
+-        net.minecraft.world.level.block.entity.BlockEntity blockEntity = level.getBlockEntity(pos);
+-        if (blockEntity instanceof net.minecraft.world.level.block.entity.DispenserBlockEntity) {
+-            player.openMenu((net.minecraft.world.MenuProvider)((net.minecraft.world.level.block.entity.DispenserBlockEntity)blockEntity));
+-            if (blockEntity instanceof net.minecraft.world.level.block.entity.DropperBlockEntity) {
+-                player.awardStat(net.minecraft.stats.Stats.INSPECT_DROPPER);
++        net.minecraft.world.level.block.entity.BlockEntity $$6 = $$1.getBlockEntity($$2);
++        if ($$6 instanceof net.minecraft.world.level.block.entity.DispenserBlockEntity) {
++            $$3.openMenu((net.minecraft.world.MenuProvider)((net.minecraft.world.level.block.entity.DispenserBlockEntity)$$6));
++            if ($$6 instanceof net.minecraft.world.level.block.entity.DropperBlockEntity) {
++                $$3.awardStat(net.minecraft.stats.Stats.INSPECT_DROPPER);
+             } else {
+-                player.awardStat(net.minecraft.stats.Stats.INSPECT_DISPENSER);
++                $$3.awardStat(net.minecraft.stats.Stats.INSPECT_DISPENSER);
+             }
+         }
+         return net.minecraft.world.InteractionResult.CONSUME;
+     }
+ 
+-    public void dispenseFrom(net.minecraft.server.level.ServerLevel level, net.minecraft.core.BlockPos pos) {
+-        net.minecraft.core.BlockSourceImpl blockSourceImpl = new net.minecraft.core.BlockSourceImpl(level, pos);
+-        net.minecraft.world.level.block.entity.DispenserBlockEntity dispenserBlockEntity = (net.minecraft.world.level.block.entity.DispenserBlockEntity)blockSourceImpl.getEntity();
+-        int n = dispenserBlockEntity.getRandomSlot(level.random);
+-        if (n < 0) {
+-            level.levelEvent(1001, pos, 0);
+-            level.gameEvent(null, net.minecraft.world.level.gameevent.GameEvent.DISPENSE_FAIL, pos);
++    public void dispenseFrom(net.minecraft.server.level.ServerLevel $$0, net.minecraft.core.BlockPos $$1) {
++        net.minecraft.core.BlockSourceImpl $$2 = new net.minecraft.core.BlockSourceImpl($$0, $$1);
++        net.minecraft.world.level.block.entity.DispenserBlockEntity $$3 = (net.minecraft.world.level.block.entity.DispenserBlockEntity)$$2.getEntity();
++        int $$4 = $$3.getRandomSlot($$0.random);
++        if ($$4 < 0) {
++            $$0.levelEvent(1001, $$1, 0);
++            $$0.gameEvent(null, net.minecraft.world.level.gameevent.GameEvent.DISPENSE_FAIL, $$1);
+             return;
+         }
+-        net.minecraft.world.item.ItemStack itemStack = dispenserBlockEntity.getItem(n);
+-        net.minecraft.core.dispenser.DispenseItemBehavior dispenseItemBehavior = this.getDispenseMethod(itemStack);
+-        if (dispenseItemBehavior != net.minecraft.core.dispenser.DispenseItemBehavior.NOOP) {
+-            dispenserBlockEntity.setItem(n, dispenseItemBehavior.dispense((net.minecraft.core.BlockSource)blockSourceImpl, itemStack));
++        net.minecraft.world.item.ItemStack $$5 = $$3.getItem($$4);
++        net.minecraft.core.dispenser.DispenseItemBehavior $$6 = this.getDispenseMethod($$5);
++        if ($$6 != net.minecraft.core.dispenser.DispenseItemBehavior.NOOP) {
++            $$3.setItem($$4, $$6.dispense((net.minecraft.core.BlockSource)$$2, $$5));
+         }
+     }
+ 
+-    public net.minecraft.core.dispenser.DispenseItemBehavior getDispenseMethod(net.minecraft.world.item.ItemStack stack) {
+-        return (net.minecraft.core.dispenser.DispenseItemBehavior)DISPENSER_REGISTRY.get((java.lang.Object)stack.getItem());
++    public net.minecraft.core.dispenser.DispenseItemBehavior getDispenseMethod(net.minecraft.world.item.ItemStack $$0) {
++        return (net.minecraft.core.dispenser.DispenseItemBehavior)DISPENSER_REGISTRY.get((java.lang.Object)$$0.getItem());
+     }
+ 
+-    public void neighborChanged(net.minecraft.world.level.block.state.BlockState state, net.minecraft.world.level.Level level, net.minecraft.core.BlockPos pos, net.minecraft.world.level.block.Block block, net.minecraft.core.BlockPos fromPos, boolean isMoving) {
+-        boolean bl = level.hasNeighborSignal(pos) || level.hasNeighborSignal(pos.above());
+-        boolean bl2 = (java.lang.Boolean)state.getValue((net.minecraft.world.level.block.state.properties.Property)TRIGGERED);
+-        if (bl && !bl2) {
+-            level.scheduleTick(pos, (net.minecraft.world.level.block.Block)this, 4);
+-            level.setBlock(pos, (net.minecraft.world.level.block.state.BlockState)state.setValue((net.minecraft.world.level.block.state.properties.Property)TRIGGERED, (java.lang.Comparable)java.lang.Boolean.valueOf((boolean)true)), 4);
+-        } else if (!bl && bl2) {
+-            level.setBlock(pos, (net.minecraft.world.level.block.state.BlockState)state.setValue((net.minecraft.world.level.block.state.properties.Property)TRIGGERED, (java.lang.Comparable)java.lang.Boolean.valueOf((boolean)false)), 4);
++    public void neighborChanged(net.minecraft.world.level.block.state.BlockState $$0, net.minecraft.world.level.Level $$1, net.minecraft.core.BlockPos $$2, net.minecraft.world.level.block.Block $$3, net.minecraft.core.BlockPos $$4, boolean $$5) {
++        boolean $$6 = $$1.hasNeighborSignal($$2) || $$1.hasNeighborSignal($$2.above());
++        boolean $$7 = (java.lang.Boolean)$$0.getValue((net.minecraft.world.level.block.state.properties.Property)TRIGGERED);
++        if ($$6 && !$$7) {
++            $$1.scheduleTick($$2, (net.minecraft.world.level.block.Block)this, 4);
++            $$1.setBlock($$2, (net.minecraft.world.level.block.state.BlockState)$$0.setValue((net.minecraft.world.level.block.state.properties.Property)TRIGGERED, (java.lang.Comparable)java.lang.Boolean.valueOf((boolean)true)), 4);
++        } else if (!$$6 && $$7) {
++            $$1.setBlock($$2, (net.minecraft.world.level.block.state.BlockState)$$0.setValue((net.minecraft.world.level.block.state.properties.Property)TRIGGERED, (java.lang.Comparable)java.lang.Boolean.valueOf((boolean)false)), 4);
+         }
+     }
+ 
+@@ -75,69 +75,69 @@
+         return new net.minecraft.world.level.block.entity.DispenserBlockEntity($$0, $$1);
+     }
+ 
+-    public net.minecraft.world.level.block.state.BlockState getStateForPlacement(net.minecraft.world.item.context.BlockPlaceContext context) {
+-        return (net.minecraft.world.level.block.state.BlockState)this.defaultBlockState().setValue((net.minecraft.world.level.block.state.properties.Property)FACING, (java.lang.Comparable)context.getNearestLookingDirection().getOpposite());
++    public net.minecraft.world.level.block.state.BlockState getStateForPlacement(net.minecraft.world.item.context.BlockPlaceContext $$0) {
++        return (net.minecraft.world.level.block.state.BlockState)this.defaultBlockState().setValue((net.minecraft.world.level.block.state.properties.Property)FACING, (java.lang.Comparable)$$0.getNearestLookingDirection().getOpposite());
+     }
+ 
+-    public void setPlacedBy(net.minecraft.world.level.Level level, net.minecraft.core.BlockPos pos, net.minecraft.world.level.block.state.BlockState state, net.minecraft.world.entity.LivingEntity placer, net.minecraft.world.item.ItemStack stack) {
+-        net.minecraft.world.level.block.entity.BlockEntity blockEntity;
+-        if (stack.hasCustomHoverName() && (blockEntity = level.getBlockEntity(pos)) instanceof net.minecraft.world.level.block.entity.DispenserBlockEntity) {
+-            ((net.minecraft.world.level.block.entity.DispenserBlockEntity)blockEntity).setCustomName(stack.getHoverName());
++    public void setPlacedBy(net.minecraft.world.level.Level $$0, net.minecraft.core.BlockPos $$1, net.minecraft.world.level.block.state.BlockState $$2, net.minecraft.world.entity.LivingEntity $$3, net.minecraft.world.item.ItemStack $$4) {
++        net.minecraft.world.level.block.entity.BlockEntity $$5;
++        if ($$4.hasCustomHoverName() && ($$5 = $$0.getBlockEntity($$1)) instanceof net.minecraft.world.level.block.entity.DispenserBlockEntity) {
++            ((net.minecraft.world.level.block.entity.DispenserBlockEntity)$$5).setCustomName($$4.getHoverName());
+         }
+     }
+ 
+-    public void onRemove(net.minecraft.world.level.block.state.BlockState state, net.minecraft.world.level.Level level, net.minecraft.core.BlockPos pos, net.minecraft.world.level.block.state.BlockState newState, boolean isMoving) {
+-        if (state.is(newState.getBlock())) {
++    public void onRemove(net.minecraft.world.level.block.state.BlockState $$0, net.minecraft.world.level.Level $$1, net.minecraft.core.BlockPos $$2, net.minecraft.world.level.block.state.BlockState $$3, boolean $$4) {
++        if ($$0.is($$3.getBlock())) {
+             return;
+         }
+-        net.minecraft.world.level.block.entity.BlockEntity blockEntity = level.getBlockEntity(pos);
+-        if (blockEntity instanceof net.minecraft.world.level.block.entity.DispenserBlockEntity) {
+-            net.minecraft.world.Containers.dropContents((net.minecraft.world.level.Level)level, (net.minecraft.core.BlockPos)pos, (net.minecraft.world.Container)((net.minecraft.world.level.block.entity.DispenserBlockEntity)blockEntity));
+-            level.updateNeighbourForOutputSignal(pos, (net.minecraft.world.level.block.Block)this);
++        net.minecraft.world.level.block.entity.BlockEntity $$5 = $$1.getBlockEntity($$2);
++        if ($$5 instanceof net.minecraft.world.level.block.entity.DispenserBlockEntity) {
++            net.minecraft.world.Containers.dropContents((net.minecraft.world.level.Level)$$1, (net.minecraft.core.BlockPos)$$2, (net.minecraft.world.Container)((net.minecraft.world.level.block.entity.DispenserBlockEntity)$$5));
++            $$1.updateNeighbourForOutputSignal($$2, (net.minecraft.world.level.block.Block)this);
+         }
+-        super.onRemove(state, level, pos, newState, isMoving);
++        super.onRemove($$0, $$1, $$2, $$3, $$4);
+     }
+ 
+-    public static net.minecraft.core.Position getDispensePosition(net.minecraft.core.BlockSource blockSource) {
+-        net.minecraft.core.Direction direction = (net.minecraft.core.Direction)blockSource.getBlockState().getValue((net.minecraft.world.level.block.state.properties.Property)FACING);
+-        double d = blockSource.x() + 0.7 * (double)direction.getStepX();
+-        double d2 = blockSource.y() + 0.7 * (double)direction.getStepY();
+-        double d3 = blockSource.z() + 0.7 * (double)direction.getStepZ();
+-        return new net.minecraft.core.PositionImpl(d, d2, d3);
++    public static net.minecraft.core.Position getDispensePosition(net.minecraft.core.BlockSource $$0) {
++        net.minecraft.core.Direction $$1 = (net.minecraft.core.Direction)$$0.getBlockState().getValue((net.minecraft.world.level.block.state.properties.Property)FACING);
++        double $$2 = $$0.x() + 0.7 * (double)$$1.getStepX();
++        double $$3 = $$0.y() + 0.7 * (double)$$1.getStepY();
++        double $$4 = $$0.z() + 0.7 * (double)$$1.getStepZ();
++        return new net.minecraft.core.PositionImpl($$2, $$3, $$4);
+     }
+ 
+-    public boolean hasAnalogOutputSignal(net.minecraft.world.level.block.state.BlockState state) {
++    public boolean hasAnalogOutputSignal(net.minecraft.world.level.block.state.BlockState $$0) {
+         return true;
+     }
+ 
+-    public int getAnalogOutputSignal(net.minecraft.world.level.block.state.BlockState blockState, net.minecraft.world.level.Level level, net.minecraft.core.BlockPos pos) {
+-        return net.minecraft.world.inventory.AbstractContainerMenu.getRedstoneSignalFromBlockEntity((net.minecraft.world.level.block.entity.BlockEntity)level.getBlockEntity(pos));
++    public int getAnalogOutputSignal(net.minecraft.world.level.block.state.BlockState $$0, net.minecraft.world.level.Level $$1, net.minecraft.core.BlockPos $$2) {
++        return net.minecraft.world.inventory.AbstractContainerMenu.getRedstoneSignalFromBlockEntity((net.minecraft.world.level.block.entity.BlockEntity)$$1.getBlockEntity($$2));
+     }
+ 
+-    public net.minecraft.world.level.block.RenderShape getRenderShape(net.minecraft.world.level.block.state.BlockState state) {
++    public net.minecraft.world.level.block.RenderShape getRenderShape(net.minecraft.world.level.block.state.BlockState $$0) {
+         return net.minecraft.world.level.block.RenderShape.MODEL;
+     }
+ 
+-    public net.minecraft.world.level.block.state.BlockState rotate(net.minecraft.world.level.block.state.BlockState state, net.minecraft.world.level.block.Rotation rotation) {
+-        return (net.minecraft.world.level.block.state.BlockState)state.setValue((net.minecraft.world.level.block.state.properties.Property)FACING, (java.lang.Comparable)rotation.rotate((net.minecraft.core.Direction)state.getValue((net.minecraft.world.level.block.state.properties.Property)FACING)));
++    public net.minecraft.world.level.block.state.BlockState rotate(net.minecraft.world.level.block.state.BlockState $$0, net.minecraft.world.level.block.Rotation $$1) {
++        return (net.minecraft.world.level.block.state.BlockState)$$0.setValue((net.minecraft.world.level.block.state.properties.Property)FACING, (java.lang.Comparable)$$1.rotate((net.minecraft.core.Direction)$$0.getValue((net.minecraft.world.level.block.state.properties.Property)FACING)));
+     }
+ 
+-    public net.minecraft.world.level.block.state.BlockState mirror(net.minecraft.world.level.block.state.BlockState state, net.minecraft.world.level.block.Mirror mirror) {
+-        return state.rotate(mirror.getRotation((net.minecraft.core.Direction)state.getValue((net.minecraft.world.level.block.state.properties.Property)FACING)));
++    public net.minecraft.world.level.block.state.BlockState mirror(net.minecraft.world.level.block.state.BlockState $$0, net.minecraft.world.level.block.Mirror $$1) {
++        return $$0.rotate($$1.getRotation((net.minecraft.core.Direction)$$0.getValue((net.minecraft.world.level.block.state.properties.Property)FACING)));
+     }
+ 
+-    public void createBlockStateDefinition(net.minecraft.world.level.block.state.StateDefinition$Builder<net.minecraft.world.level.block.Block, net.minecraft.world.level.block.state.BlockState> builder) {
+-        builder.add(new net.minecraft.world.level.block.state.properties.Property[]{FACING, TRIGGERED});
++    public void createBlockStateDefinition(net.minecraft.world.level.block.state.StateDefinition$Builder<net.minecraft.world.level.block.Block, net.minecraft.world.level.block.state.BlockState> $$0) {
++        $$0.add(new net.minecraft.world.level.block.state.properties.Property[]{FACING, TRIGGERED});
+     }
+ 
+-    public static /* synthetic */ void lambda$static$0(it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap map) {
+-        map.defaultReturnValue((java.lang.Object)new net.minecraft.core.dispenser.DefaultDispenseItemBehavior());
++    public static /* synthetic */ void lambda$static$0(it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap $$0) {
++        $$0.defaultReturnValue((java.lang.Object)new net.minecraft.core.dispenser.DefaultDispenseItemBehavior());
+     }
+ 
+     static {
+         FACING = net.minecraft.world.level.block.DirectionalBlock.FACING;
+         TRIGGERED = net.minecraft.world.level.block.state.properties.BlockStateProperties.TRIGGERED;
+-        DISPENSER_REGISTRY = (java.util.Map)net.minecraft.Util.make((java.lang.Object)new it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap(), map -> map.defaultReturnValue((java.lang.Object)new net.minecraft.core.dispenser.DefaultDispenseItemBehavior()));
++        DISPENSER_REGISTRY = (java.util.Map)net.minecraft.Util.make((java.lang.Object)new it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap(), $$0 -> $$0.defaultReturnValue((java.lang.Object)new net.minecraft.core.dispenser.DefaultDispenseItemBehavior()));
+     }
+ }
+ 

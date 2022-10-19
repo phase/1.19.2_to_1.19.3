@@ -1,0 +1,124 @@
+--- net/minecraft/world/level/PathNavigationRegion.java
++++ net/minecraft/world/level/PathNavigationRegion.java
+@@ -14,57 +14,51 @@
+     public net.minecraft.world.level.Level level;
+     public java.util.function.Supplier<net.minecraft.core.Holder<net.minecraft.world.level.biome.Biome>> plains;
+ 
+-    public net.minecraft.world.level.PathNavigationRegion(net.minecraft.world.level.Level level, net.minecraft.core.BlockPos centerPos, net.minecraft.core.BlockPos offsetPos) {
+-        int n;
+-        int n2;
+-        this.level = level;
+-        this.plains = com.google.common.base.Suppliers.memoize(() -> level.registryAccess().registryOrThrow(net.minecraft.core.Registry.BIOME_REGISTRY).getHolderOrThrow(net.minecraft.world.level.biome.Biomes.PLAINS));
+-        this.centerX = net.minecraft.core.SectionPos.blockToSectionCoord((int)centerPos.getX());
+-        this.centerZ = net.minecraft.core.SectionPos.blockToSectionCoord((int)centerPos.getZ());
+-        int n3 = net.minecraft.core.SectionPos.blockToSectionCoord((int)offsetPos.getX());
+-        int n4 = net.minecraft.core.SectionPos.blockToSectionCoord((int)offsetPos.getZ());
+-        this.chunks = new net.minecraft.world.level.chunk.ChunkAccess[n3 - this.centerX + 1][n4 - this.centerZ + 1];
+-        net.minecraft.world.level.chunk.ChunkSource chunkSource = level.getChunkSource();
++    public net.minecraft.world.level.PathNavigationRegion(net.minecraft.world.level.Level $$0, net.minecraft.core.BlockPos $$1, net.minecraft.core.BlockPos $$2) {
++        this.level = $$0;
++        this.plains = com.google.common.base.Suppliers.memoize(() -> $$0.registryAccess().registryOrThrow(net.minecraft.core.Registry.BIOME_REGISTRY).getHolderOrThrow(net.minecraft.world.level.biome.Biomes.PLAINS));
++        this.centerX = net.minecraft.core.SectionPos.blockToSectionCoord((int)$$1.getX());
++        this.centerZ = net.minecraft.core.SectionPos.blockToSectionCoord((int)$$1.getZ());
++        int $$3 = net.minecraft.core.SectionPos.blockToSectionCoord((int)$$2.getX());
++        int $$4 = net.minecraft.core.SectionPos.blockToSectionCoord((int)$$2.getZ());
++        this.chunks = new net.minecraft.world.level.chunk.ChunkAccess[$$3 - this.centerX + 1][$$4 - this.centerZ + 1];
++        net.minecraft.world.level.chunk.ChunkSource $$5 = $$0.getChunkSource();
+         this.allEmpty = true;
+-        for (n2 = this.centerX;
+- n2 <= n3; ++n2) {
+-            for (n = this.centerZ;
+- n <= n4; ++n) {
+-                this.chunks[n2 - this.centerX][n - this.centerZ] = chunkSource.getChunkNow(n2, n);
++        for (int $$6 = this.centerX; $$6 <= $$3; ++$$6) {
++            for (int $$7 = this.centerZ; $$7 <= $$4; ++$$7) {
++                this.chunks[$$6 - this.centerX][$$7 - this.centerZ] = $$5.getChunkNow($$6, $$7);
+             }
+         }
+-        for (n2 = net.minecraft.core.SectionPos.blockToSectionCoord((int)centerPos.getX());
+- n2 <= net.minecraft.core.SectionPos.blockToSectionCoord((int)offsetPos.getX()); ++n2) {
+-            for (n = net.minecraft.core.SectionPos.blockToSectionCoord((int)centerPos.getZ());
+- n <= net.minecraft.core.SectionPos.blockToSectionCoord((int)offsetPos.getZ()); ++n) {
+-                net.minecraft.world.level.chunk.ChunkAccess chunkAccess = this.chunks[n2 - this.centerX][n - this.centerZ];
+-                if (chunkAccess == null || chunkAccess.isYSpaceEmpty(centerPos.getY(), offsetPos.getY())) continue;
++        for (int $$8 = net.minecraft.core.SectionPos.blockToSectionCoord((int)$$1.getX()); $$8 <= net.minecraft.core.SectionPos.blockToSectionCoord((int)$$2.getX()); ++$$8) {
++            for (int $$9 = net.minecraft.core.SectionPos.blockToSectionCoord((int)$$1.getZ()); $$9 <= net.minecraft.core.SectionPos.blockToSectionCoord((int)$$2.getZ()); ++$$9) {
++                net.minecraft.world.level.chunk.ChunkAccess $$10 = this.chunks[$$8 - this.centerX][$$9 - this.centerZ];
++                if ($$10 == null || $$10.isYSpaceEmpty($$1.getY(), $$2.getY())) continue;
+                 this.allEmpty = false;
+                 return;
+             }
+         }
+     }
+ 
+-    public net.minecraft.world.level.chunk.ChunkAccess getChunk(net.minecraft.core.BlockPos pos) {
+-        return this.getChunk(net.minecraft.core.SectionPos.blockToSectionCoord((int)pos.getX()), net.minecraft.core.SectionPos.blockToSectionCoord((int)pos.getZ()));
++    public net.minecraft.world.level.chunk.ChunkAccess getChunk(net.minecraft.core.BlockPos $$0) {
++        return this.getChunk(net.minecraft.core.SectionPos.blockToSectionCoord((int)$$0.getX()), net.minecraft.core.SectionPos.blockToSectionCoord((int)$$0.getZ()));
+     }
+ 
+-    public net.minecraft.world.level.chunk.ChunkAccess getChunk(int x, int z) {
+-        int n = x - this.centerX;
+-        int n2 = z - this.centerZ;
+-        if (n < 0 || n >= this.chunks.length || n2 < 0 || n2 >= this.chunks[n].length) {
+-            return new net.minecraft.world.level.chunk.EmptyLevelChunk(this.level, new net.minecraft.world.level.ChunkPos(x, z), (net.minecraft.core.Holder)this.plains.get());
++    public net.minecraft.world.level.chunk.ChunkAccess getChunk(int $$0, int $$1) {
++        int $$2 = $$0 - this.centerX;
++        int $$3 = $$1 - this.centerZ;
++        if ($$2 < 0 || $$2 >= this.chunks.length || $$3 < 0 || $$3 >= this.chunks[$$2].length) {
++            return new net.minecraft.world.level.chunk.EmptyLevelChunk(this.level, new net.minecraft.world.level.ChunkPos($$0, $$1), (net.minecraft.core.Holder)this.plains.get());
+         }
+-        net.minecraft.world.level.chunk.ChunkAccess chunkAccess = this.chunks[n][n2];
+-        return chunkAccess != null ? chunkAccess : new net.minecraft.world.level.chunk.EmptyLevelChunk(this.level, new net.minecraft.world.level.ChunkPos(x, z), (net.minecraft.core.Holder)this.plains.get());
++        net.minecraft.world.level.chunk.ChunkAccess $$4 = this.chunks[$$2][$$3];
++        return $$4 != null ? $$4 : new net.minecraft.world.level.chunk.EmptyLevelChunk(this.level, new net.minecraft.world.level.ChunkPos($$0, $$1), (net.minecraft.core.Holder)this.plains.get());
+     }
+ 
+     public net.minecraft.world.level.border.WorldBorder getWorldBorder() {
+         return this.level.getWorldBorder();
+     }
+ 
+-    public net.minecraft.world.level.BlockGetter getChunkForCollisions(int chunkX, int chunkZ) {
+-        return this.getChunk(chunkX, chunkZ);
++    public net.minecraft.world.level.BlockGetter getChunkForCollisions(int $$0, int $$1) {
++        return this.getChunk($$0, $$1);
+     }
+ 
+     public java.util.List<net.minecraft.world.phys.shapes.VoxelShape> getEntityCollisions(@javax.annotation.Nullable net.minecraft.world.entity.Entity $$0, net.minecraft.world.phys.AABB $$1) {
+@@ -72,25 +66,25 @@
+     }
+ 
+     @javax.annotation.Nullable
+-    public net.minecraft.world.level.block.entity.BlockEntity getBlockEntity(net.minecraft.core.BlockPos pos) {
+-        net.minecraft.world.level.chunk.ChunkAccess chunkAccess = this.getChunk(pos);
+-        return chunkAccess.getBlockEntity(pos);
++    public net.minecraft.world.level.block.entity.BlockEntity getBlockEntity(net.minecraft.core.BlockPos $$0) {
++        net.minecraft.world.level.chunk.ChunkAccess $$1 = this.getChunk($$0);
++        return $$1.getBlockEntity($$0);
+     }
+ 
+-    public net.minecraft.world.level.block.state.BlockState getBlockState(net.minecraft.core.BlockPos pos) {
+-        if (this.isOutsideBuildHeight(pos)) {
++    public net.minecraft.world.level.block.state.BlockState getBlockState(net.minecraft.core.BlockPos $$0) {
++        if (this.isOutsideBuildHeight($$0)) {
+             return net.minecraft.world.level.block.Blocks.AIR.defaultBlockState();
+         }
+-        net.minecraft.world.level.chunk.ChunkAccess chunkAccess = this.getChunk(pos);
+-        return chunkAccess.getBlockState(pos);
++        net.minecraft.world.level.chunk.ChunkAccess $$1 = this.getChunk($$0);
++        return $$1.getBlockState($$0);
+     }
+ 
+-    public net.minecraft.world.level.material.FluidState getFluidState(net.minecraft.core.BlockPos pos) {
+-        if (this.isOutsideBuildHeight(pos)) {
++    public net.minecraft.world.level.material.FluidState getFluidState(net.minecraft.core.BlockPos $$0) {
++        if (this.isOutsideBuildHeight($$0)) {
+             return net.minecraft.world.level.material.Fluids.EMPTY.defaultFluidState();
+         }
+-        net.minecraft.world.level.chunk.ChunkAccess chunkAccess = this.getChunk(pos);
+-        return chunkAccess.getFluidState(pos);
++        net.minecraft.world.level.chunk.ChunkAccess $$1 = this.getChunk($$0);
++        return $$1.getFluidState($$0);
+     }
+ 
+     public int getMinBuildHeight() {

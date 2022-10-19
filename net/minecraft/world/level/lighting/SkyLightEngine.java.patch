@@ -1,0 +1,230 @@
+--- net/minecraft/world/level/lighting/SkyLightEngine.java
++++ net/minecraft/world/level/lighting/SkyLightEngine.java
+@@ -13,132 +13,137 @@
+         super($$0, net.minecraft.world.level.LightLayer.SKY, (net.minecraft.world.level.lighting.LayerLightSectionStorage)new net.minecraft.world.level.lighting.SkyLightSectionStorage($$0));
+     }
+ 
+-    public int computeLevelFromNeighbor(long startPos, long endPos, int startLevel) {
+-        boolean bl;
+-        net.minecraft.world.phys.shapes.VoxelShape voxelShape;
+-        int n;
+-        int n2;
+-        if (endPos == java.lang.Long.MAX_VALUE || startPos == java.lang.Long.MAX_VALUE) {
++    public int computeLevelFromNeighbor(long $$0, long $$1, int $$2) {
++        boolean $$19;
++        net.minecraft.world.phys.shapes.VoxelShape $$17;
++        int $$13;
++        int $$12;
++        if ($$1 == java.lang.Long.MAX_VALUE || $$0 == java.lang.Long.MAX_VALUE) {
+             return 15;
+         }
+-        if (startLevel >= 15) {
+-            return startLevel;
++        if ($$2 >= 15) {
++            return $$2;
+         }
+-        org.apache.commons.lang3.mutable.MutableInt mutableInt = new org.apache.commons.lang3.mutable.MutableInt();
+-        net.minecraft.world.level.block.state.BlockState blockState = this.getStateAndOpacity(endPos, mutableInt);
+-        if (mutableInt.getValue() >= 15) {
++        org.apache.commons.lang3.mutable.MutableInt $$3 = new org.apache.commons.lang3.mutable.MutableInt();
++        net.minecraft.world.level.block.state.BlockState $$4 = this.getStateAndOpacity($$1, $$3);
++        if ($$3.getValue() >= 15) {
+             return 15;
+         }
+-        int n3 = net.minecraft.core.BlockPos.getX((long)startPos);
+-        int n4 = net.minecraft.core.BlockPos.getY((long)startPos);
+-        int n5 = net.minecraft.core.BlockPos.getZ((long)startPos);
+-        int n6 = net.minecraft.core.BlockPos.getX((long)endPos);
+-        int n7 = net.minecraft.core.BlockPos.getY((long)endPos);
+-        int n8 = net.minecraft.core.BlockPos.getZ((long)endPos);
+-        int n9 = java.lang.Integer.signum((int)(n6 - n3));
+-        net.minecraft.core.Direction direction = net.minecraft.core.Direction.fromNormal((int)n9, (int)(n2 = java.lang.Integer.signum((int)(n7 - n4))), (int)(n = java.lang.Integer.signum((int)(n8 - n5))));
+-        if (direction == null) {
+-            throw new java.lang.IllegalStateException(java.lang.String.format((java.util.Locale)java.util.Locale.ROOT, (java.lang.String)"Light was spread in illegal direction %d, %d, %d", (java.lang.Object[])new java.lang.Object[]{n9, n2, n}));
++        int $$5 = net.minecraft.core.BlockPos.getX((long)$$0);
++        int $$6 = net.minecraft.core.BlockPos.getY((long)$$0);
++        int $$7 = net.minecraft.core.BlockPos.getZ((long)$$0);
++        int $$8 = net.minecraft.core.BlockPos.getX((long)$$1);
++        int $$9 = net.minecraft.core.BlockPos.getY((long)$$1);
++        int $$10 = net.minecraft.core.BlockPos.getZ((long)$$1);
++        int $$11 = java.lang.Integer.signum((int)($$8 - $$5));
++        net.minecraft.core.Direction $$14 = net.minecraft.core.Direction.fromNormal((int)$$11, (int)($$12 = java.lang.Integer.signum((int)($$9 - $$6))), (int)($$13 = java.lang.Integer.signum((int)($$10 - $$7))));
++        if ($$14 == null) {
++            throw new java.lang.IllegalStateException(java.lang.String.format((java.util.Locale)java.util.Locale.ROOT, (java.lang.String)"Light was spread in illegal direction %d, %d, %d", (java.lang.Object[])new java.lang.Object[]{$$11, $$12, $$13}));
+         }
+-        net.minecraft.world.level.block.state.BlockState blockState2 = this.getStateAndOpacity(startPos, null);
+-        net.minecraft.world.phys.shapes.VoxelShape voxelShape2 = this.getShape(blockState2, startPos, direction);
+-        if (net.minecraft.world.phys.shapes.Shapes.faceShapeOccludes((net.minecraft.world.phys.shapes.VoxelShape)voxelShape2, (net.minecraft.world.phys.shapes.VoxelShape)(voxelShape = this.getShape(blockState, endPos, direction.getOpposite())))) {
++        net.minecraft.world.level.block.state.BlockState $$15 = this.getStateAndOpacity($$0, null);
++        net.minecraft.world.phys.shapes.VoxelShape $$16 = this.getShape($$15, $$0, $$14);
++        if (net.minecraft.world.phys.shapes.Shapes.faceShapeOccludes((net.minecraft.world.phys.shapes.VoxelShape)$$16, (net.minecraft.world.phys.shapes.VoxelShape)($$17 = this.getShape($$4, $$1, $$14.getOpposite())))) {
+             return 15;
+         }
+-        boolean bl2 = n3 == n6 && n5 == n8;
+-        boolean bl3 = bl = bl2 && n4 > n7;
+-        if (bl && startLevel == 0 && mutableInt.getValue() == 0) {
++        boolean $$18 = $$5 == $$8 && $$7 == $$10;
++        boolean bl = $$19 = $$18 && $$6 > $$9;
++        if ($$19 && $$2 == 0 && $$3.getValue() == 0) {
+             return 0;
+         }
+-        return startLevel + java.lang.Math.max((int)1, (int)mutableInt.getValue());
++        return $$2 + java.lang.Math.max((int)1, (int)$$3.getValue());
+     }
+ 
+-    public void checkNeighborsAfterUpdate(long pos, int level, boolean isDecreasing) {
+-        long l;
+-        long l2;
+-        int n;
+-        long l3 = net.minecraft.core.SectionPos.blockToSection((long)pos);
+-        int n2 = net.minecraft.core.BlockPos.getY((long)pos);
+-        int n3 = net.minecraft.core.SectionPos.sectionRelative((int)n2);
+-        int n4 = net.minecraft.core.SectionPos.blockToSectionCoord((int)n2);
+-        if (n3 != 0) {
+-            n = 0;
++    public void checkNeighborsAfterUpdate(long $$0, int $$1, boolean $$2) {
++        long $$12;
++        long $$13;
++        int $$9;
++        long $$3 = net.minecraft.core.SectionPos.blockToSection((long)$$0);
++        int $$4 = net.minecraft.core.BlockPos.getY((long)$$0);
++        int $$5 = net.minecraft.core.SectionPos.sectionRelative((int)$$4);
++        int $$6 = net.minecraft.core.SectionPos.blockToSectionCoord((int)$$4);
++        if ($$5 != 0) {
++            boolean $$7 = false;
+         } else {
+-            int n5 = 0;
+-            while (!((net.minecraft.world.level.lighting.SkyLightSectionStorage)this.storage).storingLightForSection(net.minecraft.core.SectionPos.offset((long)l3, (int)0, (int)(-n5 - 1), (int)0)) && ((net.minecraft.world.level.lighting.SkyLightSectionStorage)this.storage).hasSectionsBelow(n4 - n5 - 1)) {
+-                ++n5;
++            int $$8 = 0;
++            while (!((net.minecraft.world.level.lighting.SkyLightSectionStorage)this.storage).storingLightForSection(net.minecraft.core.SectionPos.offset((long)$$3, (int)0, (int)(-$$8 - 1), (int)0)) && ((net.minecraft.world.level.lighting.SkyLightSectionStorage)this.storage).hasSectionsBelow($$6 - $$8 - 1)) {
++                ++$$8;
+             }
+-            n = n5;
++            $$9 = $$8;
+         }
+-        long l4 = net.minecraft.core.BlockPos.offset((long)pos, (int)0, (int)(-1 - n * 16), (int)0);
+-        long l5 = net.minecraft.core.SectionPos.blockToSection((long)l4);
+-        if (l3 == l5 || ((net.minecraft.world.level.lighting.SkyLightSectionStorage)this.storage).storingLightForSection(l5)) {
+-            this.checkNeighbor(pos, l4, level, isDecreasing);
++        long $$10 = net.minecraft.core.BlockPos.offset((long)$$0, (int)0, (int)(-1 - $$9 * 16), (int)0);
++        long $$11 = net.minecraft.core.SectionPos.blockToSection((long)$$10);
++        if ($$3 == $$11 || ((net.minecraft.world.level.lighting.SkyLightSectionStorage)this.storage).storingLightForSection($$11)) {
++            this.checkNeighbor($$0, $$10, $$1, $$2);
+         }
+-        if (l3 == (l2 = net.minecraft.core.SectionPos.blockToSection((long)(l = net.minecraft.core.BlockPos.offset((long)pos, (net.minecraft.core.Direction)net.minecraft.core.Direction.UP)))) || ((net.minecraft.world.level.lighting.SkyLightSectionStorage)this.storage).storingLightForSection(l2)) {
+-            this.checkNeighbor(pos, l, level, isDecreasing);
++        if ($$3 == ($$13 = net.minecraft.core.SectionPos.blockToSection((long)($$12 = net.minecraft.core.BlockPos.offset((long)$$0, (net.minecraft.core.Direction)net.minecraft.core.Direction.UP)))) || ((net.minecraft.world.level.lighting.SkyLightSectionStorage)this.storage).storingLightForSection($$13)) {
++            this.checkNeighbor($$0, $$12, $$1, $$2);
+         }
+-block1:        for (net.minecraft.core.Direction direction : HORIZONTALS) {
+-            int n6 = 0;
++block1:        for (net.minecraft.core.Direction $$14 : HORIZONTALS) {
++            int $$15 = 0;
+             do {
+-                long l6;
+-                long l7;
+-                if (l3 == (l7 = net.minecraft.core.SectionPos.blockToSection((long)(l6 = net.minecraft.core.BlockPos.offset((long)pos, (int)direction.getStepX(), (int)(-n6), (int)direction.getStepZ()))))) {
+-                    this.checkNeighbor(pos, l6, level, isDecreasing);
++                long $$16;
++                long $$17;
++                if ($$3 == ($$17 = net.minecraft.core.SectionPos.blockToSection((long)($$16 = net.minecraft.core.BlockPos.offset((long)$$0, (int)$$14.getStepX(), (int)(-$$15), (int)$$14.getStepZ()))))) {
++                    this.checkNeighbor($$0, $$16, $$1, $$2);
+                     continue block1;
+                 }
+-                if (!((net.minecraft.world.level.lighting.SkyLightSectionStorage)this.storage).storingLightForSection(l7)) continue;
+-                long l8 = net.minecraft.core.BlockPos.offset((long)pos, (int)0, (int)(-n6), (int)0);
+-                this.checkNeighbor(l8, l6, level, isDecreasing);
+-            } while (++n6 <= n * 16);
++                if (!((net.minecraft.world.level.lighting.SkyLightSectionStorage)this.storage).storingLightForSection($$17)) continue;
++                long $$18 = net.minecraft.core.BlockPos.offset((long)$$0, (int)0, (int)(-$$15), (int)0);
++                this.checkNeighbor($$18, $$16, $$1, $$2);
++            } while (++$$15 <= $$9 * 16);
+         }
+     }
+ 
+-    public int getComputedLevel(long pos, long excludedSourcePos, int level) {
+-        int n = level;
+-        long l = net.minecraft.core.SectionPos.blockToSection((long)pos);
+-        net.minecraft.world.level.chunk.DataLayer dataLayer = ((net.minecraft.world.level.lighting.SkyLightSectionStorage)this.storage).getDataLayer(l, true);
+-        for (net.minecraft.core.Direction direction : DIRECTIONS) {
+-            int n2;
+-            long l2 = net.minecraft.core.BlockPos.offset((long)pos, (net.minecraft.core.Direction)direction);
+-            if (l2 == excludedSourcePos) continue;
+-            long l3 = net.minecraft.core.SectionPos.blockToSection((long)l2);
+-            net.minecraft.world.level.chunk.DataLayer dataLayer2 = l == l3 ? dataLayer : ((net.minecraft.world.level.lighting.SkyLightSectionStorage)this.storage).getDataLayer(l3, true);
+-            if (dataLayer2 != null) {
+-                n2 = this.getLevel(dataLayer2, l2);
++    public int getComputedLevel(long $$0, long $$1, int $$2) {
++        int $$3 = $$2;
++        long $$4 = net.minecraft.core.SectionPos.blockToSection((long)$$0);
++        net.minecraft.world.level.chunk.DataLayer $$5 = ((net.minecraft.world.level.lighting.SkyLightSectionStorage)this.storage).getDataLayer($$4, true);
++        for (net.minecraft.core.Direction $$6 : DIRECTIONS) {
++            int $$12;
++            net.minecraft.world.level.chunk.DataLayer $$10;
++            long $$7 = net.minecraft.core.BlockPos.offset((long)$$0, (net.minecraft.core.Direction)$$6);
++            if ($$7 == $$1) continue;
++            long $$8 = net.minecraft.core.SectionPos.blockToSection((long)$$7);
++            if ($$4 == $$8) {
++                net.minecraft.world.level.chunk.DataLayer $$9 = $$5;
+             } else {
+-                if (direction == net.minecraft.core.Direction.DOWN) continue;
+-                n2 = 15 - ((net.minecraft.world.level.lighting.SkyLightSectionStorage)this.storage).getLightValue(l2, true);
++                $$10 = ((net.minecraft.world.level.lighting.SkyLightSectionStorage)this.storage).getDataLayer($$8, true);
+             }
+-            int n3 = this.computeLevelFromNeighbor(l2, pos, n2);
+-            if (n > n3) {
+-                n = n3;
++            if ($$10 != null) {
++                int $$11 = this.getLevel($$10, $$7);
++            } else {
++                if ($$6 == net.minecraft.core.Direction.DOWN) continue;
++                $$12 = 15 - ((net.minecraft.world.level.lighting.SkyLightSectionStorage)this.storage).getLightValue($$7, true);
+             }
+-            if (n != 0) continue;
+-            return n;
++            int $$13 = this.computeLevelFromNeighbor($$7, $$0, $$12);
++            if ($$3 > $$13) {
++                $$3 = $$13;
++            }
++            if ($$3 != 0) continue;
++            return $$3;
+         }
+-        return n;
++        return $$3;
+     }
+ 
+-    public void checkNode(long levelPos) {
++    public void checkNode(long $$0) {
+         ((net.minecraft.world.level.lighting.SkyLightSectionStorage)this.storage).runAllUpdates();
+-        long l = net.minecraft.core.SectionPos.blockToSection((long)levelPos);
+-        if (((net.minecraft.world.level.lighting.SkyLightSectionStorage)this.storage).storingLightForSection(l)) {
+-            super.checkNode(levelPos);
++        long $$1 = net.minecraft.core.SectionPos.blockToSection((long)$$0);
++        if (((net.minecraft.world.level.lighting.SkyLightSectionStorage)this.storage).storingLightForSection($$1)) {
++            super.checkNode($$0);
+         } else {
+-            levelPos = net.minecraft.core.BlockPos.getFlatIndex((long)levelPos);
+-            while (!((net.minecraft.world.level.lighting.SkyLightSectionStorage)this.storage).storingLightForSection(l) && !((net.minecraft.world.level.lighting.SkyLightSectionStorage)this.storage).isAboveData(l)) {
+-                l = net.minecraft.core.SectionPos.offset((long)l, (net.minecraft.core.Direction)net.minecraft.core.Direction.UP);
+-                levelPos = net.minecraft.core.BlockPos.offset((long)levelPos, (int)0, (int)16, (int)0);
++            $$0 = net.minecraft.core.BlockPos.getFlatIndex((long)$$0);
++            while (!((net.minecraft.world.level.lighting.SkyLightSectionStorage)this.storage).storingLightForSection($$1) && !((net.minecraft.world.level.lighting.SkyLightSectionStorage)this.storage).isAboveData($$1)) {
++                $$1 = net.minecraft.core.SectionPos.offset((long)$$1, (net.minecraft.core.Direction)net.minecraft.core.Direction.UP);
++                $$0 = net.minecraft.core.BlockPos.offset((long)$$0, (int)0, (int)16, (int)0);
+             }
+-            if (((net.minecraft.world.level.lighting.SkyLightSectionStorage)this.storage).storingLightForSection(l)) {
+-                super.checkNode(levelPos);
++            if (((net.minecraft.world.level.lighting.SkyLightSectionStorage)this.storage).storingLightForSection($$1)) {
++                super.checkNode($$0);
+             }
+         }
+     }
+ 
+-    public java.lang.String getDebugData(long sectionPos) {
+-        return super.getDebugData(sectionPos) + (((net.minecraft.world.level.lighting.SkyLightSectionStorage)this.storage).isAboveData(sectionPos) ? "*" : "");
++    public java.lang.String getDebugData(long $$0) {
++        return super.getDebugData($$0) + (((net.minecraft.world.level.lighting.SkyLightSectionStorage)this.storage).isAboveData($$0) ? "*" : "");
+     }
+ 
+     static {

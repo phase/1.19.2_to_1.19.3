@@ -1,0 +1,93 @@
+--- net/minecraft/client/renderer/blockentity/BlockEntityRenderDispatcher.java
++++ net/minecraft/client/renderer/blockentity/BlockEntityRenderDispatcher.java
+@@ -26,8 +26,8 @@
+     }
+ 
+     @javax.annotation.Nullable
+-    public <E extends net.minecraft.world.level.block.entity.BlockEntity> net.minecraft.client.renderer.blockentity.BlockEntityRenderer<E> getRenderer(E blockEntity) {
+-        return (net.minecraft.client.renderer.blockentity.BlockEntityRenderer)this.renderers.get((java.lang.Object)blockEntity.getType());
++    public <E extends net.minecraft.world.level.block.entity.BlockEntity> net.minecraft.client.renderer.blockentity.BlockEntityRenderer<E> getRenderer(E $$0) {
++        return (net.minecraft.client.renderer.blockentity.BlockEntityRenderer)this.renderers.get((java.lang.Object)$$0.getType());
+     }
+ 
+     public void prepare(net.minecraft.world.level.Level $$0, net.minecraft.client.Camera $$1, net.minecraft.world.phys.HitResult $$2) {
+@@ -38,50 +38,55 @@
+         this.cameraHitResult = $$2;
+     }
+ 
+-    public <E extends net.minecraft.world.level.block.entity.BlockEntity> void render(E blockEntity, float partialTicks, com.mojang.blaze3d.vertex.PoseStack matrixStack, net.minecraft.client.renderer.MultiBufferSource buffer) {
+-        net.minecraft.client.renderer.blockentity.BlockEntityRenderer blockEntityRenderer = this.getRenderer(blockEntity);
+-        if (blockEntityRenderer == null) {
++    public <E extends net.minecraft.world.level.block.entity.BlockEntity> void render(E $$0, float $$1, com.mojang.blaze3d.vertex.PoseStack $$2, net.minecraft.client.renderer.MultiBufferSource $$3) {
++        net.minecraft.client.renderer.blockentity.BlockEntityRenderer $$4 = this.getRenderer($$0);
++        if ($$4 == null) {
+             return;
+         }
+-        if (!blockEntity.hasLevel() || !blockEntity.getType().isValid(blockEntity.getBlockState())) {
++        if (!$$0.hasLevel() || !$$0.getType().isValid($$0.getBlockState())) {
+             return;
+         }
+-        if (!blockEntityRenderer.shouldRender(blockEntity, this.camera.getPosition())) {
++        if (!$$4.shouldRender($$0, this.camera.getPosition())) {
+             return;
+         }
+-        net.minecraft.client.renderer.blockentity.BlockEntityRenderDispatcher.tryRender(blockEntity, () -> net.minecraft.client.renderer.blockentity.BlockEntityRenderDispatcher.setupAndRender((net.minecraft.client.renderer.blockentity.BlockEntityRenderer)blockEntityRenderer, (net.minecraft.world.level.block.entity.BlockEntity)blockEntity, (float)partialTicks, (com.mojang.blaze3d.vertex.PoseStack)matrixStack, (net.minecraft.client.renderer.MultiBufferSource)buffer));
++        net.minecraft.client.renderer.blockentity.BlockEntityRenderDispatcher.tryRender($$0, () -> net.minecraft.client.renderer.blockentity.BlockEntityRenderDispatcher.setupAndRender((net.minecraft.client.renderer.blockentity.BlockEntityRenderer)$$4, (net.minecraft.world.level.block.entity.BlockEntity)$$0, (float)$$1, (com.mojang.blaze3d.vertex.PoseStack)$$2, (net.minecraft.client.renderer.MultiBufferSource)$$3));
+     }
+ 
+-    public static <T extends net.minecraft.world.level.block.entity.BlockEntity> void setupAndRender(net.minecraft.client.renderer.blockentity.BlockEntityRenderer<T> renderer, T blockEntity, float partialTicks, com.mojang.blaze3d.vertex.PoseStack matrixStack, net.minecraft.client.renderer.MultiBufferSource buffer) {
+-        net.minecraft.world.level.Level level = blockEntity.getLevel();
+-        int n = level != null ? net.minecraft.client.renderer.LevelRenderer.getLightColor((net.minecraft.world.level.BlockAndTintGetter)level, (net.minecraft.core.BlockPos)blockEntity.getBlockPos()) : 0xF000F0;
+-        renderer.render(blockEntity, partialTicks, matrixStack, buffer, n, net.minecraft.client.renderer.texture.OverlayTexture.NO_OVERLAY);
++    public static <T extends net.minecraft.world.level.block.entity.BlockEntity> void setupAndRender(net.minecraft.client.renderer.blockentity.BlockEntityRenderer<T> $$0, T $$1, float $$2, com.mojang.blaze3d.vertex.PoseStack $$3, net.minecraft.client.renderer.MultiBufferSource $$4) {
++        int $$7;
++        net.minecraft.world.level.Level $$5 = $$1.getLevel();
++        if ($$5 != null) {
++            int $$6 = net.minecraft.client.renderer.LevelRenderer.getLightColor((net.minecraft.world.level.BlockAndTintGetter)$$5, (net.minecraft.core.BlockPos)$$1.getBlockPos());
++        } else {
++            $$7 = 0xF000F0;
++        }
++        $$0.render($$1, $$2, $$3, $$4, $$7, net.minecraft.client.renderer.texture.OverlayTexture.NO_OVERLAY);
+     }
+ 
+-    public <E extends net.minecraft.world.level.block.entity.BlockEntity> boolean renderItem(E blockEntity, com.mojang.blaze3d.vertex.PoseStack matrixStack, net.minecraft.client.renderer.MultiBufferSource buffer, int combinedLight, int combinedOverlay) {
+-        net.minecraft.client.renderer.blockentity.BlockEntityRenderer blockEntityRenderer = this.getRenderer(blockEntity);
+-        if (blockEntityRenderer == null) {
++    public <E extends net.minecraft.world.level.block.entity.BlockEntity> boolean renderItem(E $$0, com.mojang.blaze3d.vertex.PoseStack $$1, net.minecraft.client.renderer.MultiBufferSource $$2, int $$3, int $$4) {
++        net.minecraft.client.renderer.blockentity.BlockEntityRenderer $$5 = this.getRenderer($$0);
++        if ($$5 == null) {
+             return true;
+         }
+-        net.minecraft.client.renderer.blockentity.BlockEntityRenderDispatcher.tryRender(blockEntity, () -> blockEntityRenderer.render(blockEntity, 0.0f, matrixStack, buffer, combinedLight, combinedOverlay));
++        net.minecraft.client.renderer.blockentity.BlockEntityRenderDispatcher.tryRender($$0, () -> $$5.render($$0, 0.0f, $$1, $$2, $$3, $$4));
+         return false;
+     }
+ 
+-    public static void tryRender(net.minecraft.world.level.block.entity.BlockEntity blockEntity, java.lang.Runnable runnable) {
++    public static void tryRender(net.minecraft.world.level.block.entity.BlockEntity $$0, java.lang.Runnable $$1) {
+         try {
+-            runnable.run();
++            $$1.run();
+         }
+-        catch (java.lang.Throwable throwable) {
+-            net.minecraft.CrashReport crashReport = net.minecraft.CrashReport.forThrowable((java.lang.Throwable)throwable, (java.lang.String)"Rendering Block Entity");
+-            net.minecraft.CrashReportCategory crashReportCategory = crashReport.addCategory("Block Entity Details");
+-            blockEntity.fillCrashReportCategory(crashReportCategory);
+-            throw new net.minecraft.ReportedException(crashReport);
++        catch (java.lang.Throwable $$2) {
++            net.minecraft.CrashReport $$3 = net.minecraft.CrashReport.forThrowable((java.lang.Throwable)$$2, (java.lang.String)"Rendering Block Entity");
++            net.minecraft.CrashReportCategory $$4 = $$3.addCategory("Block Entity Details");
++            $$0.fillCrashReportCategory($$4);
++            throw new net.minecraft.ReportedException($$3);
+         }
+     }
+ 
+-    public void setLevel(@javax.annotation.Nullable net.minecraft.world.level.Level level) {
+-        this.level = level;
+-        if (level == null) {
++    public void setLevel(@javax.annotation.Nullable net.minecraft.world.level.Level $$0) {
++        this.level = $$0;
++        if ($$0 == null) {
+             this.camera = null;
+         }
+     }

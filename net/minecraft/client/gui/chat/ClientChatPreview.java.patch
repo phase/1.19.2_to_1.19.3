@@ -1,0 +1,91 @@
+--- net/minecraft/client/gui/chat/ClientChatPreview.java
++++ net/minecraft/client/gui/chat/ClientChatPreview.java
+@@ -1,88 +1,0 @@
+-/*
+- * Decompiled with CFR 0.151.
+- */
+-package net.minecraft.client.gui.chat;
+-
+-public class net.minecraft.client.gui.chat.ClientChatPreview
+- {
+-    public static long PREVIEW_VALID_AFTER_MS = 200L;
+-    @javax.annotation.Nullable
+-    public java.lang.String lastQuery;
+-    @javax.annotation.Nullable
+-    public java.lang.String scheduledRequest;
+-    public net.minecraft.client.gui.chat.ChatPreviewRequests requests;
+-    @javax.annotation.Nullable
+-    public net.minecraft.client.gui.chat.ClientChatPreview$Preview preview;
+-
+-    public net.minecraft.client.gui.chat.ClientChatPreview(net.minecraft.client.Minecraft $$0) {
+-        this.requests = new net.minecraft.client.gui.chat.ChatPreviewRequests($$0);
+-    }
+-
+-    public void tick() {
+-        java.lang.String $$0 = this.scheduledRequest;
+-        if ($$0 != null && this.requests.trySendRequest($$0, net.minecraft.Util.getMillis())) {
+-            this.scheduledRequest = null;
+-        }
+-    }
+-
+-    public void update(java.lang.String $$0) {
+-        if (!($$0 = net.minecraft.client.gui.chat.ClientChatPreview.normalizeQuery((java.lang.String)$$0)).isEmpty()) {
+-            if (!$$0.equals((java.lang.Object)this.lastQuery)) {
+-                this.lastQuery = $$0;
+-                this.sendOrScheduleRequest($$0);
+-            }
+-        } else {
+-            this.clear();
+-        }
+-    }
+-
+-    public void sendOrScheduleRequest(java.lang.String $$0) {
+-        this.scheduledRequest = !this.requests.trySendRequest($$0, net.minecraft.Util.getMillis()) ? $$0 : null;
+-    }
+-
+-    public void disable() {
+-        this.clear();
+-    }
+-
+-    public void clear() {
+-        this.lastQuery = null;
+-        this.scheduledRequest = null;
+-        this.preview = null;
+-        this.requests.clear();
+-    }
+-
+-    public void handleResponse(int $$0, @javax.annotation.Nullable net.minecraft.network.chat.Component $$1) {
+-        java.lang.String $$2 = this.requests.handleResponse($$0);
+-        if ($$2 != null) {
+-            this.preview = new net.minecraft.client.gui.chat.ClientChatPreview$Preview(net.minecraft.Util.getMillis(), $$2, $$1);
+-        }
+-    }
+-
+-    public boolean hasScheduledRequest() {
+-        return this.scheduledRequest != null || this.preview != null && !this.preview.isPreviewValid();
+-    }
+-
+-    public boolean queryEquals(java.lang.String $$0) {
+-        return net.minecraft.client.gui.chat.ClientChatPreview.normalizeQuery((java.lang.String)$$0).equals((java.lang.Object)this.lastQuery);
+-    }
+-
+-    @javax.annotation.Nullable
+-    public net.minecraft.client.gui.chat.ClientChatPreview$Preview peek() {
+-        return this.preview;
+-    }
+-
+-    @javax.annotation.Nullable
+-    public net.minecraft.client.gui.chat.ClientChatPreview$Preview pull(java.lang.String $$0) {
+-        if (this.preview != null && this.preview.canPull($$0)) {
+-            net.minecraft.client.gui.chat.ClientChatPreview$Preview $$1 = this.preview;
+-            this.preview = null;
+-            return $$1;
+-        }
+-        return null;
+-    }
+-
+-    public static java.lang.String normalizeQuery(java.lang.String $$0) {
+-        return org.apache.commons.lang3.StringUtils.normalizeSpace((java.lang.String)$$0.trim());
+-    }
+-}
+-

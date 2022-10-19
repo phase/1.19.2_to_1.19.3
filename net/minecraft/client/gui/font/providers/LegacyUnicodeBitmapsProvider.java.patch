@@ -1,0 +1,191 @@
+--- net/minecraft/client/gui/font/providers/LegacyUnicodeBitmapsProvider.java
++++ net/minecraft/client/gui/font/providers/LegacyUnicodeBitmapsProvider.java
+@@ -11,59 +11,77 @@
+     public static int CODEPOINTS_PER_SHEET = 256;
+     public static int TEXTURE_SIZE = 256;
+     public static byte NO_GLYPH = 0;
+-    public net.minecraft.server.packs.resources.ResourceManager resourceManager;
++    public static int TOTAL_CODEPOINTS = 65536;
+     public byte[] sizes;
+-    public java.lang.String texturePattern;
+-    public java.util.Map<net.minecraft.resources.ResourceLocation, com.mojang.blaze3d.platform.NativeImage> textures;
++    public net.minecraft.client.gui.font.providers.LegacyUnicodeBitmapsProvider$Sheet[] sheets;
+ 
+     public net.minecraft.client.gui.font.providers.LegacyUnicodeBitmapsProvider(net.minecraft.server.packs.resources.ResourceManager $$0, byte[] $$1, java.lang.String $$2) {
+-        this.textures = com.google.common.collect.Maps.newHashMap();
+-        this.resourceManager = $$0;
++        this.sheets = new net.minecraft.client.gui.font.providers.LegacyUnicodeBitmapsProvider$Sheet[256];
+         this.sizes = $$1;
+-        this.texturePattern = $$2;
+-        for (int $$3 = 0; $$3 < 256; ++$$3) {
+-            int $$4 = $$3 * 256;
+-            net.minecraft.resources.ResourceLocation $$5 = this.getSheetLocation($$4);
+-            try (java.io.InputStream $$6 = this.resourceManager.open($$5);
+-                 com.mojang.blaze3d.platform.NativeImage $$7 = com.mojang.blaze3d.platform.NativeImage.read((com.mojang.blaze3d.platform.NativeImage$Format)com.mojang.blaze3d.platform.NativeImage$Format.RGBA, (java.io.InputStream)$$6);
+-){
+-                if ($$7.getWidth() == 256 && $$7.getHeight() == 256) {
+-                    for (int $$8 = 0; $$8 < 256; ++$$8) {
+-                        byte $$9 = $$1[$$4 + $$8];
+-                        if ($$9 == 0 || net.minecraft.client.gui.font.providers.LegacyUnicodeBitmapsProvider.getLeft((byte)$$9) <= net.minecraft.client.gui.font.providers.LegacyUnicodeBitmapsProvider.getRight((byte)$$9)) continue;
+-                        $$1[$$4 + $$8] = 0;
++        java.util.HashSet $$32 = new java.util.HashSet();
++        for (int $$4 = 0; $$4 < 256; ++$$4) {
++            int $$5 = $$4 * 256;
++            $$32.add((java.lang.Object)net.minecraft.client.gui.font.providers.LegacyUnicodeBitmapsProvider.getSheetLocation((java.lang.String)$$2, (int)$$5));
++        }
++        java.lang.String $$6 = net.minecraft.client.gui.font.providers.LegacyUnicodeBitmapsProvider.getCommonSearchPrefix((java.util.Set)$$32);
++        java.util.HashMap $$7 = new java.util.HashMap();
++        $$0.listResources($$6, arg_0 -> ((java.util.Set)$$32).contains(arg_0)).forEach((arg_0, arg_1) -> net.minecraft.client.gui.font.providers.LegacyUnicodeBitmapsProvider.lambda$new$1((java.util.Map)$$7, arg_0, arg_1));
++        java.util.ArrayList $$8 = new java.util.ArrayList(256);
++        for (int $$9 = 0; $$9 < 256; ++$$9) {
++            int $$10 = $$9 * 256;
++            int $$11 = $$9;
++            net.minecraft.resources.ResourceLocation $$12 = net.minecraft.client.gui.font.providers.LegacyUnicodeBitmapsProvider.getSheetLocation((java.lang.String)$$2, (int)$$10);
++            java.util.concurrent.CompletableFuture $$13 = (java.util.concurrent.CompletableFuture)$$7.get((java.lang.Object)$$12);
++            if ($$13 == null) continue;
++            $$8.add((java.lang.Object)$$13.thenAcceptAsync($$3 -> {
++                if ($$3 == null) {
++                    return;
++                }
++                if ($$3.getWidth() == 256 && $$3.getHeight() == 256) {
++                    for (int $$4 = 0; $$4 < 256; ++$$4) {
++                        byte $$5 = $$1[$$10 + $$4];
++                        if ($$5 == 0 || net.minecraft.client.gui.font.providers.LegacyUnicodeBitmapsProvider.getLeft((byte)$$5) <= net.minecraft.client.gui.font.providers.LegacyUnicodeBitmapsProvider.getRight((byte)$$5)) continue;
++                        $$0[$$1 + $$4] = 0;
+                     }
+-                    continue;
++                    this.sheets[$$2] = new net.minecraft.client.gui.font.providers.LegacyUnicodeBitmapsProvider$Sheet($$1, $$3);
++                } else {
++                    $$3.close();
++                    java.util.Arrays.fill((byte[])$$1, (int)$$10, (int)($$10 + 256), (byte)0);
+                 }
+-            }
+-            catch (java.io.IOException iOException) {
+-                // empty catch block
+-            }
+-            java.util.Arrays.fill((byte[])$$1, (int)$$4, (int)($$4 + 256), (byte)0);
++            }, (java.util.concurrent.Executor)net.minecraft.Util.backgroundExecutor()));
+         }
++        java.util.concurrent.CompletableFuture.allOf((java.util.concurrent.CompletableFuture[])((java.util.concurrent.CompletableFuture[])$$8.toArray(java.util.concurrent.CompletableFuture[]::new))).join();
+     }
+ 
++    public static java.lang.String getCommonSearchPrefix(java.util.Set<net.minecraft.resources.ResourceLocation> $$0) {
++        java.lang.String $$1 = org.apache.commons.lang3.StringUtils.getCommonPrefix((java.lang.String[])((java.lang.String[])$$0.stream().map(net.minecraft.resources.ResourceLocation::getPath).toArray(java.lang.String[]::new)));
++        int $$2 = $$1.lastIndexOf("/");
++        if ($$2 == -1) {
++            return "";
++        }
++        return $$1.substring(0, $$2);
++    }
++
+     public void close() {
+-        this.textures.values().forEach(com.mojang.blaze3d.platform.NativeImage::close);
++        for (net.minecraft.client.gui.font.providers.LegacyUnicodeBitmapsProvider$Sheet $$0 : this.sheets) {
++            if ($$0 == null) continue;
++            $$0.close();
++        }
+     }
+ 
+-    public net.minecraft.resources.ResourceLocation getSheetLocation(int $$0) {
+-        net.minecraft.resources.ResourceLocation $$1 = new net.minecraft.resources.ResourceLocation(java.lang.String.format((java.util.Locale)java.util.Locale.ROOT, (java.lang.String)this.texturePattern, (java.lang.Object[])new java.lang.Object[]{java.lang.String.format((java.util.Locale)java.util.Locale.ROOT, (java.lang.String)"%02x", (java.lang.Object[])new java.lang.Object[]{$$0 / 256})}));
+-        return new net.minecraft.resources.ResourceLocation($$1.getNamespace(), "textures/" + $$1.getPath());
++    public static net.minecraft.resources.ResourceLocation getSheetLocation(java.lang.String $$0, int $$1) {
++        net.minecraft.resources.ResourceLocation $$2 = new net.minecraft.resources.ResourceLocation(java.lang.String.format((java.util.Locale)java.util.Locale.ROOT, (java.lang.String)$$0, (java.lang.Object[])new java.lang.Object[]{java.lang.String.format((java.lang.String)"%02x", (java.lang.Object[])new java.lang.Object[]{$$1 / 256})}));
++        return $$2.withPrefix("textures/");
+     }
+ 
+     @javax.annotation.Nullable
+     public com.mojang.blaze3d.font.GlyphInfo getGlyph(int $$0) {
+-        com.mojang.blaze3d.platform.NativeImage $$2;
+         if ($$0 < 0 || $$0 >= this.sizes.length) {
+             return null;
+         }
+-        byte $$1 = this.sizes[$$0];
+-        if ($$1 != 0 && ($$2 = (com.mojang.blaze3d.platform.NativeImage)this.textures.computeIfAbsent((java.lang.Object)this.getSheetLocation($$0), arg_0 -> this.loadTexture(arg_0))) != null) {
+-            int $$3 = net.minecraft.client.gui.font.providers.LegacyUnicodeBitmapsProvider.getLeft((byte)$$1);
+-            return new net.minecraft.client.gui.font.providers.LegacyUnicodeBitmapsProvider$Glyph($$0 % 16 * 16 + $$3, ($$0 & 0xFF) / 16 * 16, net.minecraft.client.gui.font.providers.LegacyUnicodeBitmapsProvider.getRight((byte)$$1) - $$3, 16, $$2);
+-        }
+-        return null;
++        int $$1 = $$0 / 256;
++        net.minecraft.client.gui.font.providers.LegacyUnicodeBitmapsProvider$Sheet $$2 = this.sheets[$$1];
++        return $$2 != null ? $$2.getGlyph($$0) : null;
+     }
+ 
+     public it.unimi.dsi.fastutil.ints.IntSet getSupportedGlyphs() {
+@@ -75,37 +93,6 @@
+         return $$0;
+     }
+ 
+-    @javax.annotation.Nullable
+-    public com.mojang.blaze3d.platform.NativeImage loadTexture(net.minecraft.resources.ResourceLocation $$0) {
+-        com.mojang.blaze3d.platform.NativeImage nativeImage;
+-block8:        {
+-            java.io.InputStream $$1 = this.resourceManager.open($$0);
+-            try {
+-                nativeImage = com.mojang.blaze3d.platform.NativeImage.read((com.mojang.blaze3d.platform.NativeImage$Format)com.mojang.blaze3d.platform.NativeImage$Format.RGBA, (java.io.InputStream)$$1);
+-                if ($$1 == null) break block8;
+-            }
+-            catch (java.lang.Throwable throwable) {
+-                try {
+-                    if ($$1 != null) {
+-                        try {
+-                            $$1.close();
+-                        }
+-                        catch (java.lang.Throwable throwable2) {
+-                            throwable.addSuppressed(throwable2);
+-                        }
+-                    }
+-                    throw throwable;
+-                }
+-                catch (java.io.IOException $$2) {
+-                    LOGGER.error("Couldn't load texture {}", (java.lang.Object)$$0, (java.lang.Object)((java.lang.Object)$$2));
+-                    return null;
+-                }
+-            }
+-            $$1.close();
+-        }
+-        return nativeImage;
+-    }
+-
+     public static int getLeft(byte $$0) {
+         return $$0 >> 4 & 0xF;
+     }
+@@ -114,6 +101,38 @@
+         return ($$0 & 0xF) + 1;
+     }
+ 
++    public static /* synthetic */ void lambda$new$1(java.util.Map $$0, net.minecraft.resources.ResourceLocation $$1, net.minecraft.server.packs.resources.Resource $$2) {
++        $$0.put((java.lang.Object)$$1, (java.lang.Object)java.util.concurrent.CompletableFuture.supplyAsync(() -> {
++            com.mojang.blaze3d.platform.NativeImage nativeImage;
++block8:            {
++                java.io.InputStream $$2 = $$2.open();
++                try {
++                    nativeImage = com.mojang.blaze3d.platform.NativeImage.read((com.mojang.blaze3d.platform.NativeImage$Format)com.mojang.blaze3d.platform.NativeImage$Format.RGBA, (java.io.InputStream)$$2);
++                    if ($$2 == null) break block8;
++                }
++                catch (java.lang.Throwable throwable) {
++                    try {
++                        if ($$2 != null) {
++                            try {
++                                $$2.close();
++                            }
++                            catch (java.lang.Throwable throwable2) {
++                                throwable.addSuppressed(throwable2);
++                            }
++                        }
++                        throw throwable;
++                    }
++                    catch (java.io.IOException $$3) {
++                        LOGGER.error("Failed to read resource {} from pack {}", (java.lang.Object)$$1, (java.lang.Object)$$2.sourcePackId());
++                        return null;
++                    }
++                }
++                $$2.close();
++            }
++            return nativeImage;
++        }, (java.util.concurrent.Executor)net.minecraft.Util.backgroundExecutor()));
++    }
++
+     static {
+         LOGGER = com.mojang.logging.LogUtils.getLogger();
+     }

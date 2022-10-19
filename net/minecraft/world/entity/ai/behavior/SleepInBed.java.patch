@@ -1,0 +1,75 @@
+--- net/minecraft/world/entity/ai/behavior/SleepInBed.java
++++ net/minecraft/world/entity/ai/behavior/SleepInBed.java
+@@ -13,48 +13,48 @@
+         super((java.util.Map)com.google.common.collect.ImmutableMap.of((java.lang.Object)net.minecraft.world.entity.ai.memory.MemoryModuleType.HOME, (java.lang.Object)net.minecraft.world.entity.ai.memory.MemoryStatus.VALUE_PRESENT, (java.lang.Object)net.minecraft.world.entity.ai.memory.MemoryModuleType.LAST_WOKEN, (java.lang.Object)net.minecraft.world.entity.ai.memory.MemoryStatus.REGISTERED));
+     }
+ 
+-    public boolean checkExtraStartConditions(net.minecraft.server.level.ServerLevel level, net.minecraft.world.entity.LivingEntity owner) {
+-        long l;
+-        if (owner.isPassenger()) {
++    public boolean checkExtraStartConditions(net.minecraft.server.level.ServerLevel $$0, net.minecraft.world.entity.LivingEntity $$1) {
++        long $$5;
++        if ($$1.isPassenger()) {
+             return false;
+         }
+-        net.minecraft.world.entity.ai.Brain brain = owner.getBrain();
+-        net.minecraft.core.GlobalPos globalPos = (net.minecraft.core.GlobalPos)brain.getMemory(net.minecraft.world.entity.ai.memory.MemoryModuleType.HOME).get();
+-        if (level.dimension() != globalPos.dimension()) {
++        net.minecraft.world.entity.ai.Brain $$2 = $$1.getBrain();
++        net.minecraft.core.GlobalPos $$3 = (net.minecraft.core.GlobalPos)$$2.getMemory(net.minecraft.world.entity.ai.memory.MemoryModuleType.HOME).get();
++        if ($$0.dimension() != $$3.dimension()) {
+             return false;
+         }
+-        java.util.Optional optional = brain.getMemory(net.minecraft.world.entity.ai.memory.MemoryModuleType.LAST_WOKEN);
+-        if (optional.isPresent() && (l = level.getGameTime() - (java.lang.Long)optional.get()) > 0L && l < 100L) {
++        java.util.Optional $$4 = $$2.getMemory(net.minecraft.world.entity.ai.memory.MemoryModuleType.LAST_WOKEN);
++        if ($$4.isPresent() && ($$5 = $$0.getGameTime() - (java.lang.Long)$$4.get()) > 0L && $$5 < 100L) {
+             return false;
+         }
+-        net.minecraft.world.level.block.state.BlockState blockState = level.getBlockState(globalPos.pos());
+-        return globalPos.pos().closerToCenterThan((net.minecraft.core.Position)owner.position(), 2.0) && blockState.is(net.minecraft.tags.BlockTags.BEDS) && (java.lang.Boolean)blockState.getValue((net.minecraft.world.level.block.state.properties.Property)net.minecraft.world.level.block.BedBlock.OCCUPIED) == false;
++        net.minecraft.world.level.block.state.BlockState $$6 = $$0.getBlockState($$3.pos());
++        return $$3.pos().closerToCenterThan((net.minecraft.core.Position)$$1.position(), 2.0) && $$6.is(net.minecraft.tags.BlockTags.BEDS) && (java.lang.Boolean)$$6.getValue((net.minecraft.world.level.block.state.properties.Property)net.minecraft.world.level.block.BedBlock.OCCUPIED) == false;
+     }
+ 
+-    public boolean canStillUse(net.minecraft.server.level.ServerLevel level, net.minecraft.world.entity.LivingEntity entity, long gameTime) {
+-        java.util.Optional optional = entity.getBrain().getMemory(net.minecraft.world.entity.ai.memory.MemoryModuleType.HOME);
+-        if (!optional.isPresent()) {
++    public boolean canStillUse(net.minecraft.server.level.ServerLevel $$0, net.minecraft.world.entity.LivingEntity $$1, long $$2) {
++        java.util.Optional $$3 = $$1.getBrain().getMemory(net.minecraft.world.entity.ai.memory.MemoryModuleType.HOME);
++        if (!$$3.isPresent()) {
+             return false;
+         }
+-        net.minecraft.core.BlockPos blockPos = ((net.minecraft.core.GlobalPos)optional.get()).pos();
+-        return entity.getBrain().isActive(net.minecraft.world.entity.schedule.Activity.REST) && entity.getY() > (double)blockPos.getY() + 0.4 && blockPos.closerToCenterThan((net.minecraft.core.Position)entity.position(), 1.14);
++        net.minecraft.core.BlockPos $$4 = ((net.minecraft.core.GlobalPos)$$3.get()).pos();
++        return $$1.getBrain().isActive(net.minecraft.world.entity.schedule.Activity.REST) && $$1.getY() > (double)$$4.getY() + 0.4 && $$4.closerToCenterThan((net.minecraft.core.Position)$$1.position(), 1.14);
+     }
+ 
+-    public void start(net.minecraft.server.level.ServerLevel level, net.minecraft.world.entity.LivingEntity entity, long gameTime) {
+-        if (gameTime > this.nextOkStartTime) {
+-            net.minecraft.world.entity.ai.behavior.InteractWithDoor.closeDoorsThatIHaveOpenedOrPassedThrough((net.minecraft.server.level.ServerLevel)level, (net.minecraft.world.entity.LivingEntity)entity, null, null);
+-            entity.startSleeping(((net.minecraft.core.GlobalPos)entity.getBrain().getMemory(net.minecraft.world.entity.ai.memory.MemoryModuleType.HOME).get()).pos());
++    public void start(net.minecraft.server.level.ServerLevel $$0, net.minecraft.world.entity.LivingEntity $$1, long $$2) {
++        if ($$2 > this.nextOkStartTime) {
++            net.minecraft.world.entity.ai.behavior.InteractWithDoor.closeDoorsThatIHaveOpenedOrPassedThrough((net.minecraft.server.level.ServerLevel)$$0, (net.minecraft.world.entity.LivingEntity)$$1, null, null);
++            $$1.startSleeping(((net.minecraft.core.GlobalPos)$$1.getBrain().getMemory(net.minecraft.world.entity.ai.memory.MemoryModuleType.HOME).get()).pos());
+         }
+     }
+ 
+-    public boolean timedOut(long gameTime) {
++    public boolean timedOut(long $$0) {
+         return false;
+     }
+ 
+-    public void stop(net.minecraft.server.level.ServerLevel level, net.minecraft.world.entity.LivingEntity entity, long gameTime) {
+-        if (entity.isSleeping()) {
+-            entity.stopSleeping();
+-            this.nextOkStartTime = gameTime + 40L;
++    public void stop(net.minecraft.server.level.ServerLevel $$0, net.minecraft.world.entity.LivingEntity $$1, long $$2) {
++        if ($$1.isSleeping()) {
++            $$1.stopSleeping();
++            this.nextOkStartTime = $$2 + 40L;
+         }
+     }
+ }

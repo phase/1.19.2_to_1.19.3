@@ -1,0 +1,232 @@
+--- net/minecraft/client/gui/screens/inventory/LoomScreen.java
++++ net/minecraft/client/gui/screens/inventory/LoomScreen.java
+@@ -27,12 +27,12 @@
+     public boolean scrolling;
+     public int startRow;
+ 
+-    public net.minecraft.client.gui.screens.inventory.LoomScreen(net.minecraft.world.inventory.LoomMenu loomMenu, net.minecraft.world.entity.player.Inventory playerInventory, net.minecraft.network.chat.Component title) {
+-        super((net.minecraft.world.inventory.AbstractContainerMenu)loomMenu, playerInventory, title);
++    public net.minecraft.client.gui.screens.inventory.LoomScreen(net.minecraft.world.inventory.LoomMenu $$0, net.minecraft.world.entity.player.Inventory $$1, net.minecraft.network.chat.Component $$2) {
++        super((net.minecraft.world.inventory.AbstractContainerMenu)$$0, $$1, $$2);
+         this.bannerStack = net.minecraft.world.item.ItemStack.EMPTY;
+         this.dyeStack = net.minecraft.world.item.ItemStack.EMPTY;
+         this.patternStack = net.minecraft.world.item.ItemStack.EMPTY;
+-        loomMenu.registerUpdateListener(() -> this.containerChanged());
++        $$0.registerUpdateListener(() -> this.containerChanged());
+         this.titleLabelY -= 2;
+     }
+ 
+@@ -41,71 +41,78 @@
+         this.flag = this.minecraft.getEntityModels().bakeLayer(net.minecraft.client.model.geom.ModelLayers.BANNER).getChild("flag");
+     }
+ 
+-    public void render(com.mojang.blaze3d.vertex.PoseStack matrixStack, int mouseX, int mouseY, float partialTicks) {
+-        super.render(matrixStack, mouseX, mouseY, partialTicks);
+-        this.renderTooltip(matrixStack, mouseX, mouseY);
++    public void render(com.mojang.blaze3d.vertex.PoseStack $$0, int $$1, int $$2, float $$3) {
++        super.render($$0, $$1, $$2, $$3);
++        this.renderTooltip($$0, $$1, $$2);
+     }
+ 
+     public int totalRowCount() {
+         return net.minecraft.util.Mth.positiveCeilDiv((int)((net.minecraft.world.inventory.LoomMenu)this.menu).getSelectablePatterns().size(), (int)4);
+     }
+ 
+-    public void renderBg(com.mojang.blaze3d.vertex.PoseStack matrixStack, float partialTicks, int x, int y) {
+-        this.renderBackground(matrixStack);
++    public void renderBg(com.mojang.blaze3d.vertex.PoseStack $$0, float $$1, int $$2, int $$3) {
++        this.renderBackground($$0);
+         com.mojang.blaze3d.systems.RenderSystem.setShader(net.minecraft.client.renderer.GameRenderer::getPositionTexShader);
+         com.mojang.blaze3d.systems.RenderSystem.setShaderTexture((int)0, (net.minecraft.resources.ResourceLocation)BG_LOCATION);
+-        int n = this.leftPos;
+-        int n2 = this.topPos;
+-        this.blit(matrixStack, n, n2, 0, 0, this.imageWidth, this.imageHeight);
+-        net.minecraft.world.inventory.Slot slot = ((net.minecraft.world.inventory.LoomMenu)this.menu).getBannerSlot();
+-        net.minecraft.world.inventory.Slot slot2 = ((net.minecraft.world.inventory.LoomMenu)this.menu).getDyeSlot();
+-        net.minecraft.world.inventory.Slot slot3 = ((net.minecraft.world.inventory.LoomMenu)this.menu).getPatternSlot();
+-        net.minecraft.world.inventory.Slot slot4 = ((net.minecraft.world.inventory.LoomMenu)this.menu).getResultSlot();
+-        if (!slot.hasItem()) {
+-            this.blit(matrixStack, n + slot.x, n2 + slot.y, this.imageWidth, 0, 16, 16);
++        int $$4 = this.leftPos;
++        int $$5 = this.topPos;
++        this.blit($$0, $$4, $$5, 0, 0, this.imageWidth, this.imageHeight);
++        net.minecraft.world.inventory.Slot $$6 = ((net.minecraft.world.inventory.LoomMenu)this.menu).getBannerSlot();
++        net.minecraft.world.inventory.Slot $$7 = ((net.minecraft.world.inventory.LoomMenu)this.menu).getDyeSlot();
++        net.minecraft.world.inventory.Slot $$8 = ((net.minecraft.world.inventory.LoomMenu)this.menu).getPatternSlot();
++        net.minecraft.world.inventory.Slot $$9 = ((net.minecraft.world.inventory.LoomMenu)this.menu).getResultSlot();
++        if (!$$6.hasItem()) {
++            this.blit($$0, $$4 + $$6.x, $$5 + $$6.y, this.imageWidth, 0, 16, 16);
+         }
+-        if (!slot2.hasItem()) {
+-            this.blit(matrixStack, n + slot2.x, n2 + slot2.y, this.imageWidth + 16, 0, 16, 16);
++        if (!$$7.hasItem()) {
++            this.blit($$0, $$4 + $$7.x, $$5 + $$7.y, this.imageWidth + 16, 0, 16, 16);
+         }
+-        if (!slot3.hasItem()) {
+-            this.blit(matrixStack, n + slot3.x, n2 + slot3.y, this.imageWidth + 32, 0, 16, 16);
++        if (!$$8.hasItem()) {
++            this.blit($$0, $$4 + $$8.x, $$5 + $$8.y, this.imageWidth + 32, 0, 16, 16);
+         }
+-        int n3 = (int)(41.0f * this.scrollOffs);
+-        this.blit(matrixStack, n + 119, n2 + 13 + n3, 232 + (this.displayPatterns ? 0 : 12), 0, 12, 15);
++        int $$10 = (int)(41.0f * this.scrollOffs);
++        this.blit($$0, $$4 + 119, $$5 + 13 + $$10, 232 + (this.displayPatterns ? 0 : 12), 0, 12, 15);
+         com.mojang.blaze3d.platform.Lighting.setupForFlatItems();
+         if (this.resultBannerPatterns != null && !this.hasMaxPatterns) {
+-            net.minecraft.client.renderer.MultiBufferSource$BufferSource bufferSource = this.minecraft.renderBuffers().bufferSource();
+-            matrixStack.pushPose();
+-            matrixStack.translate((double)(n + 139), (double)(n2 + 52), 0.0);
+-            matrixStack.scale(24.0f, -24.0f, 1.0f);
+-            matrixStack.translate(0.5, 0.5, 0.5);
+-            float f = 0.6666667f;
+-            matrixStack.scale(0.6666667f, -0.6666667f, -0.6666667f);
++            net.minecraft.client.renderer.MultiBufferSource$BufferSource $$11 = this.minecraft.renderBuffers().bufferSource();
++            $$0.pushPose();
++            $$0.translate((double)($$4 + 139), (double)($$5 + 52), 0.0);
++            $$0.scale(24.0f, -24.0f, 1.0f);
++            $$0.translate(0.5, 0.5, 0.5);
++            float $$12 = 0.6666667f;
++            $$0.scale(0.6666667f, -0.6666667f, -0.6666667f);
+             this.flag.xRot = 0.0f;
+             this.flag.y = -32.0f;
+-            net.minecraft.client.renderer.blockentity.BannerRenderer.renderPatterns((com.mojang.blaze3d.vertex.PoseStack)matrixStack, (net.minecraft.client.renderer.MultiBufferSource)bufferSource, (int)0xF000F0, (int)net.minecraft.client.renderer.texture.OverlayTexture.NO_OVERLAY, (net.minecraft.client.model.geom.ModelPart)this.flag, (net.minecraft.client.resources.model.Material)net.minecraft.client.resources.model.ModelBakery.BANNER_BASE, (boolean)true, (java.util.List)this.resultBannerPatterns);
+-            matrixStack.popPose();
+-            bufferSource.endBatch();
++            net.minecraft.client.renderer.blockentity.BannerRenderer.renderPatterns((com.mojang.blaze3d.vertex.PoseStack)$$0, (net.minecraft.client.renderer.MultiBufferSource)$$11, (int)0xF000F0, (int)net.minecraft.client.renderer.texture.OverlayTexture.NO_OVERLAY, (net.minecraft.client.model.geom.ModelPart)this.flag, (net.minecraft.client.resources.model.Material)net.minecraft.client.resources.model.ModelBakery.BANNER_BASE, (boolean)true, (java.util.List)this.resultBannerPatterns);
++            $$0.popPose();
++            $$11.endBatch();
+         } else if (this.hasMaxPatterns) {
+-            this.blit(matrixStack, n + slot4.x - 2, n2 + slot4.y - 2, this.imageWidth, 17, 17, 16);
++            this.blit($$0, $$4 + $$9.x - 2, $$5 + $$9.y - 2, this.imageWidth, 17, 17, 16);
+         }
+         if (this.displayPatterns) {
+-            int n4 = n + 60;
+-            int n5 = n2 + 13;
+-            java.util.List list = ((net.minecraft.world.inventory.LoomMenu)this.menu).getSelectablePatterns();
+-block0:            for (int i = 0; i < 4; ++i) {
+-                for (int j = 0; j < 4; ++j) {
+-                    boolean bl;
+-                    int n6 = i + this.startRow;
+-                    int n7 = n6 * 4 + j;
+-                    if (n7 >= list.size()) break block0;
++            int $$13 = $$4 + 60;
++            int $$14 = $$5 + 13;
++            java.util.List $$15 = ((net.minecraft.world.inventory.LoomMenu)this.menu).getSelectablePatterns();
++block0:            for (int $$16 = 0; $$16 < 4; ++$$16) {
++                for (int $$17 = 0; $$17 < 4; ++$$17) {
++                    int $$25;
++                    boolean $$22;
++                    int $$18 = $$16 + this.startRow;
++                    int $$19 = $$18 * 4 + $$17;
++                    if ($$19 >= $$15.size()) break block0;
+                     com.mojang.blaze3d.systems.RenderSystem.setShaderTexture((int)0, (net.minecraft.resources.ResourceLocation)BG_LOCATION);
+-                    int n8 = n4 + j * 14;
+-                    int n9 = n5 + i * 14;
+-                    boolean bl2 = bl = x >= n8 && y >= n9 && x < n8 + 14 && y < n9 + 14;
+-                    int n10 = n7 == ((net.minecraft.world.inventory.LoomMenu)this.menu).getSelectedBannerPatternIndex() ? this.imageHeight + 14 : (bl ? this.imageHeight + 28 : this.imageHeight);
+-                    this.blit(matrixStack, n8, n9, 0, n10, 14, 14);
+-                    this.renderPattern((net.minecraft.core.Holder)list.get(n7), n8, n9);
++                    int $$20 = $$13 + $$17 * 14;
++                    int $$21 = $$14 + $$16 * 14;
++                    boolean bl = $$22 = $$2 >= $$20 && $$3 >= $$21 && $$2 < $$20 + 14 && $$3 < $$21 + 14;
++                    if ($$19 == ((net.minecraft.world.inventory.LoomMenu)this.menu).getSelectedBannerPatternIndex()) {
++                        int $$23 = this.imageHeight + 14;
++                    } else if ($$22) {
++                        int $$24 = this.imageHeight + 28;
++                    } else {
++                        $$25 = this.imageHeight;
++                    }
++                    this.blit($$0, $$20, $$21, 0, $$25, 14, 14);
++                    this.renderPattern((net.minecraft.core.Holder)$$15.get($$19), $$20, $$21);
+                 }
+             }
+         }
+@@ -135,57 +142,57 @@
+         $$8.endBatch();
+     }
+ 
+-    public boolean mouseClicked(double mouseX, double mouseY, int button) {
++    public boolean mouseClicked(double $$0, double $$1, int $$2) {
+         this.scrolling = false;
+         if (this.displayPatterns) {
+-            int n = this.leftPos + 60;
+-            int n2 = this.topPos + 13;
+-            for (int i = 0; i < 4; ++i) {
+-                for (int j = 0; j < 4; ++j) {
+-                    double d = mouseX - (double)(n + j * 14);
+-                    double d2 = mouseY - (double)(n2 + i * 14);
+-                    int n3 = i + this.startRow;
+-                    int n4 = n3 * 4 + j;
+-                    if (!(d >= 0.0) || !(d2 >= 0.0) || !(d < 14.0) || !(d2 < 14.0) || !((net.minecraft.world.inventory.LoomMenu)this.menu).clickMenuButton((net.minecraft.world.entity.player.Player)this.minecraft.player, n4)) continue;
++            int $$3 = this.leftPos + 60;
++            int $$4 = this.topPos + 13;
++            for (int $$5 = 0; $$5 < 4; ++$$5) {
++                for (int $$6 = 0; $$6 < 4; ++$$6) {
++                    double $$7 = $$0 - (double)($$3 + $$6 * 14);
++                    double $$8 = $$1 - (double)($$4 + $$5 * 14);
++                    int $$9 = $$5 + this.startRow;
++                    int $$10 = $$9 * 4 + $$6;
++                    if (!($$7 >= 0.0) || !($$8 >= 0.0) || !($$7 < 14.0) || !($$8 < 14.0) || !((net.minecraft.world.inventory.LoomMenu)this.menu).clickMenuButton((net.minecraft.world.entity.player.Player)this.minecraft.player, $$10)) continue;
+                     net.minecraft.client.Minecraft.getInstance().getSoundManager().play((net.minecraft.client.resources.sounds.SoundInstance)net.minecraft.client.resources.sounds.SimpleSoundInstance.forUI((net.minecraft.sounds.SoundEvent)net.minecraft.sounds.SoundEvents.UI_LOOM_SELECT_PATTERN, (float)1.0f));
+-                    this.minecraft.gameMode.handleInventoryButtonClick(((net.minecraft.world.inventory.LoomMenu)this.menu).containerId, n4);
++                    this.minecraft.gameMode.handleInventoryButtonClick(((net.minecraft.world.inventory.LoomMenu)this.menu).containerId, $$10);
+                     return true;
+                 }
+             }
+-            n = this.leftPos + 119;
+-            n2 = this.topPos + 9;
+-            if (mouseX >= (double)n && mouseX < (double)(n + 12) && mouseY >= (double)n2 && mouseY < (double)(n2 + 56)) {
++            $$3 = this.leftPos + 119;
++            $$4 = this.topPos + 9;
++            if ($$0 >= (double)$$3 && $$0 < (double)($$3 + 12) && $$1 >= (double)$$4 && $$1 < (double)($$4 + 56)) {
+                 this.scrolling = true;
+             }
+         }
+-        return super.mouseClicked(mouseX, mouseY, button);
++        return super.mouseClicked($$0, $$1, $$2);
+     }
+ 
+-    public boolean mouseDragged(double mouseX, double mouseY, int button, double dragX, double dragY) {
+-        int n = this.totalRowCount() - 4;
+-        if (this.scrolling && this.displayPatterns && n > 0) {
+-            int n2 = this.topPos + 13;
+-            int n3 = n2 + 56;
+-            this.scrollOffs = ((float)mouseY - (float)n2 - 7.5f) / ((float)(n3 - n2) - 15.0f);
++    public boolean mouseDragged(double $$0, double $$1, int $$2, double $$3, double $$4) {
++        int $$5 = this.totalRowCount() - 4;
++        if (this.scrolling && this.displayPatterns && $$5 > 0) {
++            int $$6 = this.topPos + 13;
++            int $$7 = $$6 + 56;
++            this.scrollOffs = ((float)$$1 - (float)$$6 - 7.5f) / ((float)($$7 - $$6) - 15.0f);
+             this.scrollOffs = net.minecraft.util.Mth.clamp((float)this.scrollOffs, (float)0.0f, (float)1.0f);
+-            this.startRow = java.lang.Math.max((int)((int)((double)(this.scrollOffs * (float)n) + 0.5)), (int)0);
++            this.startRow = java.lang.Math.max((int)((int)((double)(this.scrollOffs * (float)$$5) + 0.5)), (int)0);
+             return true;
+         }
+-        return super.mouseDragged(mouseX, mouseY, button, dragX, dragY);
++        return super.mouseDragged($$0, $$1, $$2, $$3, $$4);
+     }
+ 
+-    public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
+-        int n = this.totalRowCount() - 4;
+-        if (this.displayPatterns && n > 0) {
+-            float f = (float)delta / (float)n;
+-            this.scrollOffs = net.minecraft.util.Mth.clamp((float)(this.scrollOffs - f), (float)0.0f, (float)1.0f);
+-            this.startRow = java.lang.Math.max((int)((int)(this.scrollOffs * (float)n + 0.5f)), (int)0);
++    public boolean mouseScrolled(double $$0, double $$1, double $$2) {
++        int $$3 = this.totalRowCount() - 4;
++        if (this.displayPatterns && $$3 > 0) {
++            float $$4 = (float)$$2 / (float)$$3;
++            this.scrollOffs = net.minecraft.util.Mth.clamp((float)(this.scrollOffs - $$4), (float)0.0f, (float)1.0f);
++            this.startRow = java.lang.Math.max((int)((int)(this.scrollOffs * (float)$$3 + 0.5f)), (int)0);
+         }
+         return true;
+     }
+ 
+-    public boolean hasClickedOutside(double mouseX, double mouseY, int guiLeft, int guiTop, int mouseButton) {
+-        return mouseX < (double)guiLeft || mouseY < (double)guiTop || mouseX >= (double)(guiLeft + this.imageWidth) || mouseY >= (double)(guiTop + this.imageHeight);
++    public boolean hasClickedOutside(double $$0, double $$1, int $$2, int $$3, int $$4) {
++        return $$0 < (double)$$2 || $$1 < (double)$$3 || $$0 >= (double)($$2 + this.imageWidth) || $$1 >= (double)($$3 + this.imageHeight);
+     }
+ 
+     public void containerChanged() {

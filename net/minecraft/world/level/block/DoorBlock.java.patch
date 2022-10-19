@@ -1,0 +1,308 @@
+--- net/minecraft/world/level/block/DoorBlock.java
++++ net/minecraft/world/level/block/DoorBlock.java
+@@ -16,136 +16,132 @@
+     public static net.minecraft.world.phys.shapes.VoxelShape NORTH_AABB;
+     public static net.minecraft.world.phys.shapes.VoxelShape WEST_AABB;
+     public static net.minecraft.world.phys.shapes.VoxelShape EAST_AABB;
++    public net.minecraft.sounds.SoundEvent closeSound;
++    public net.minecraft.sounds.SoundEvent openSound;
+ 
+-    public net.minecraft.world.level.block.DoorBlock(net.minecraft.world.level.block.state.BlockBehaviour$Properties $$0) {
++    public net.minecraft.world.level.block.DoorBlock(net.minecraft.world.level.block.state.BlockBehaviour$Properties $$0, net.minecraft.sounds.SoundEvent $$1, net.minecraft.sounds.SoundEvent $$2) {
+         super($$0);
+         this.registerDefaultState((net.minecraft.world.level.block.state.BlockState)((net.minecraft.world.level.block.state.BlockState)((net.minecraft.world.level.block.state.BlockState)((net.minecraft.world.level.block.state.BlockState)((net.minecraft.world.level.block.state.BlockState)((net.minecraft.world.level.block.state.BlockState)this.stateDefinition.any()).setValue((net.minecraft.world.level.block.state.properties.Property)FACING, (java.lang.Comparable)net.minecraft.core.Direction.NORTH)).setValue((net.minecraft.world.level.block.state.properties.Property)OPEN, (java.lang.Comparable)java.lang.Boolean.valueOf((boolean)false))).setValue((net.minecraft.world.level.block.state.properties.Property)HINGE, (java.lang.Comparable)net.minecraft.world.level.block.state.properties.DoorHingeSide.LEFT)).setValue((net.minecraft.world.level.block.state.properties.Property)POWERED, (java.lang.Comparable)java.lang.Boolean.valueOf((boolean)false))).setValue((net.minecraft.world.level.block.state.properties.Property)HALF, (java.lang.Comparable)net.minecraft.world.level.block.state.properties.DoubleBlockHalf.LOWER));
++        this.closeSound = $$1;
++        this.openSound = $$2;
+     }
+ 
+-    public net.minecraft.world.phys.shapes.VoxelShape getShape(net.minecraft.world.level.block.state.BlockState state, net.minecraft.world.level.BlockGetter level, net.minecraft.core.BlockPos pos, net.minecraft.world.phys.shapes.CollisionContext context) {
+-        net.minecraft.core.Direction direction = (net.minecraft.core.Direction)state.getValue((net.minecraft.world.level.block.state.properties.Property)FACING);
+-        boolean bl = (java.lang.Boolean)state.getValue((net.minecraft.world.level.block.state.properties.Property)OPEN) == false;
+-        boolean bl2 = state.getValue((net.minecraft.world.level.block.state.properties.Property)HINGE) == net.minecraft.world.level.block.state.properties.DoorHingeSide.RIGHT;
+-        switch (net.minecraft.world.level.block.DoorBlock$1.$SwitchMap$net$minecraft$core$Direction[direction.ordinal()]) {
++    public net.minecraft.world.phys.shapes.VoxelShape getShape(net.minecraft.world.level.block.state.BlockState $$0, net.minecraft.world.level.BlockGetter $$1, net.minecraft.core.BlockPos $$2, net.minecraft.world.phys.shapes.CollisionContext $$3) {
++        net.minecraft.core.Direction $$4 = (net.minecraft.core.Direction)$$0.getValue((net.minecraft.world.level.block.state.properties.Property)FACING);
++        boolean $$5 = (java.lang.Boolean)$$0.getValue((net.minecraft.world.level.block.state.properties.Property)OPEN) == false;
++        boolean $$6 = $$0.getValue((net.minecraft.world.level.block.state.properties.Property)HINGE) == net.minecraft.world.level.block.state.properties.DoorHingeSide.RIGHT;
++        switch (net.minecraft.world.level.block.DoorBlock$1.$SwitchMap$net$minecraft$core$Direction[$$4.ordinal()]) {
+             default: {
+-                return bl ? EAST_AABB : (bl2 ? NORTH_AABB : SOUTH_AABB);
++                return $$5 ? EAST_AABB : ($$6 ? NORTH_AABB : SOUTH_AABB);
+             }
+             case 2: {
+-                return bl ? SOUTH_AABB : (bl2 ? EAST_AABB : WEST_AABB);
++                return $$5 ? SOUTH_AABB : ($$6 ? EAST_AABB : WEST_AABB);
+             }
+             case 3: {
+-                return bl ? WEST_AABB : (bl2 ? SOUTH_AABB : NORTH_AABB);
++                return $$5 ? WEST_AABB : ($$6 ? SOUTH_AABB : NORTH_AABB);
+             }
+             case 4: 
+         }
+-        return bl ? NORTH_AABB : (bl2 ? WEST_AABB : EAST_AABB);
++        return $$5 ? NORTH_AABB : ($$6 ? WEST_AABB : EAST_AABB);
+     }
+ 
+-    public net.minecraft.world.level.block.state.BlockState updateShape(net.minecraft.world.level.block.state.BlockState state, net.minecraft.core.Direction facing, net.minecraft.world.level.block.state.BlockState facingState, net.minecraft.world.level.LevelAccessor level, net.minecraft.core.BlockPos currentPos, net.minecraft.core.BlockPos facingPos) {
+-        net.minecraft.world.level.block.state.properties.DoubleBlockHalf doubleBlockHalf = (net.minecraft.world.level.block.state.properties.DoubleBlockHalf)state.getValue((net.minecraft.world.level.block.state.properties.Property)HALF);
+-        if (facing.getAxis() == net.minecraft.core.Direction$Axis.Y && doubleBlockHalf == net.minecraft.world.level.block.state.properties.DoubleBlockHalf.LOWER == (facing == net.minecraft.core.Direction.UP)) {
+-            if (facingState.is((net.minecraft.world.level.block.Block)this) && facingState.getValue((net.minecraft.world.level.block.state.properties.Property)HALF) != doubleBlockHalf) {
+-                return (net.minecraft.world.level.block.state.BlockState)((net.minecraft.world.level.block.state.BlockState)((net.minecraft.world.level.block.state.BlockState)((net.minecraft.world.level.block.state.BlockState)state.setValue((net.minecraft.world.level.block.state.properties.Property)FACING, (java.lang.Comparable)((net.minecraft.core.Direction)facingState.getValue((net.minecraft.world.level.block.state.properties.Property)FACING)))).setValue((net.minecraft.world.level.block.state.properties.Property)OPEN, (java.lang.Comparable)((java.lang.Boolean)facingState.getValue((net.minecraft.world.level.block.state.properties.Property)OPEN)))).setValue((net.minecraft.world.level.block.state.properties.Property)HINGE, (java.lang.Comparable)((net.minecraft.world.level.block.state.properties.DoorHingeSide)facingState.getValue((net.minecraft.world.level.block.state.properties.Property)HINGE)))).setValue((net.minecraft.world.level.block.state.properties.Property)POWERED, (java.lang.Comparable)((java.lang.Boolean)facingState.getValue((net.minecraft.world.level.block.state.properties.Property)POWERED)));
++    public net.minecraft.world.level.block.state.BlockState updateShape(net.minecraft.world.level.block.state.BlockState $$0, net.minecraft.core.Direction $$1, net.minecraft.world.level.block.state.BlockState $$2, net.minecraft.world.level.LevelAccessor $$3, net.minecraft.core.BlockPos $$4, net.minecraft.core.BlockPos $$5) {
++        net.minecraft.world.level.block.state.properties.DoubleBlockHalf $$6 = (net.minecraft.world.level.block.state.properties.DoubleBlockHalf)$$0.getValue((net.minecraft.world.level.block.state.properties.Property)HALF);
++        if ($$1.getAxis() == net.minecraft.core.Direction$Axis.Y && $$6 == net.minecraft.world.level.block.state.properties.DoubleBlockHalf.LOWER == ($$1 == net.minecraft.core.Direction.UP)) {
++            if ($$2.is((net.minecraft.world.level.block.Block)this) && $$2.getValue((net.minecraft.world.level.block.state.properties.Property)HALF) != $$6) {
++                return (net.minecraft.world.level.block.state.BlockState)((net.minecraft.world.level.block.state.BlockState)((net.minecraft.world.level.block.state.BlockState)((net.minecraft.world.level.block.state.BlockState)$$0.setValue((net.minecraft.world.level.block.state.properties.Property)FACING, (java.lang.Comparable)((net.minecraft.core.Direction)$$2.getValue((net.minecraft.world.level.block.state.properties.Property)FACING)))).setValue((net.minecraft.world.level.block.state.properties.Property)OPEN, (java.lang.Comparable)((java.lang.Boolean)$$2.getValue((net.minecraft.world.level.block.state.properties.Property)OPEN)))).setValue((net.minecraft.world.level.block.state.properties.Property)HINGE, (java.lang.Comparable)((net.minecraft.world.level.block.state.properties.DoorHingeSide)$$2.getValue((net.minecraft.world.level.block.state.properties.Property)HINGE)))).setValue((net.minecraft.world.level.block.state.properties.Property)POWERED, (java.lang.Comparable)((java.lang.Boolean)$$2.getValue((net.minecraft.world.level.block.state.properties.Property)POWERED)));
+             }
+             return net.minecraft.world.level.block.Blocks.AIR.defaultBlockState();
+         }
+-        if (doubleBlockHalf == net.minecraft.world.level.block.state.properties.DoubleBlockHalf.LOWER && facing == net.minecraft.core.Direction.DOWN && !state.canSurvive((net.minecraft.world.level.LevelReader)level, currentPos)) {
++        if ($$6 == net.minecraft.world.level.block.state.properties.DoubleBlockHalf.LOWER && $$1 == net.minecraft.core.Direction.DOWN && !$$0.canSurvive((net.minecraft.world.level.LevelReader)$$3, $$4)) {
+             return net.minecraft.world.level.block.Blocks.AIR.defaultBlockState();
+         }
+-        return super.updateShape(state, facing, facingState, level, currentPos, facingPos);
++        return super.updateShape($$0, $$1, $$2, $$3, $$4, $$5);
+     }
+ 
+-    public void playerWillDestroy(net.minecraft.world.level.Level level, net.minecraft.core.BlockPos pos, net.minecraft.world.level.block.state.BlockState state, net.minecraft.world.entity.player.Player player) {
+-        if (!level.isClientSide && player.isCreative()) {
+-            net.minecraft.world.level.block.DoublePlantBlock.preventCreativeDropFromBottomPart((net.minecraft.world.level.Level)level, (net.minecraft.core.BlockPos)pos, (net.minecraft.world.level.block.state.BlockState)state, (net.minecraft.world.entity.player.Player)player);
++    public void playerWillDestroy(net.minecraft.world.level.Level $$0, net.minecraft.core.BlockPos $$1, net.minecraft.world.level.block.state.BlockState $$2, net.minecraft.world.entity.player.Player $$3) {
++        if (!$$0.isClientSide && $$3.isCreative()) {
++            net.minecraft.world.level.block.DoublePlantBlock.preventCreativeDropFromBottomPart((net.minecraft.world.level.Level)$$0, (net.minecraft.core.BlockPos)$$1, (net.minecraft.world.level.block.state.BlockState)$$2, (net.minecraft.world.entity.player.Player)$$3);
+         }
+-        super.playerWillDestroy(level, pos, state, player);
++        super.playerWillDestroy($$0, $$1, $$2, $$3);
+     }
+ 
+-    public boolean isPathfindable(net.minecraft.world.level.block.state.BlockState state, net.minecraft.world.level.BlockGetter level, net.minecraft.core.BlockPos pos, net.minecraft.world.level.pathfinder.PathComputationType type) {
+-        switch (net.minecraft.world.level.block.DoorBlock$1.$SwitchMap$net$minecraft$world$level$pathfinder$PathComputationType[type.ordinal()]) {
++    public boolean isPathfindable(net.minecraft.world.level.block.state.BlockState $$0, net.minecraft.world.level.BlockGetter $$1, net.minecraft.core.BlockPos $$2, net.minecraft.world.level.pathfinder.PathComputationType $$3) {
++        switch (net.minecraft.world.level.block.DoorBlock$1.$SwitchMap$net$minecraft$world$level$pathfinder$PathComputationType[$$3.ordinal()]) {
+             case 1: {
+-                return (java.lang.Boolean)state.getValue((net.minecraft.world.level.block.state.properties.Property)OPEN);
++                return (java.lang.Boolean)$$0.getValue((net.minecraft.world.level.block.state.properties.Property)OPEN);
+             }
+             case 2: {
+                 return false;
+             }
+             case 3: {
+-                return (java.lang.Boolean)state.getValue((net.minecraft.world.level.block.state.properties.Property)OPEN);
++                return (java.lang.Boolean)$$0.getValue((net.minecraft.world.level.block.state.properties.Property)OPEN);
+             }
+         }
+         return false;
+     }
+ 
+-    public int getCloseSound() {
+-        return this.material == net.minecraft.world.level.material.Material.METAL ? 1011 : 1012;
+-    }
+-
+-    public int getOpenSound() {
+-        return this.material == net.minecraft.world.level.material.Material.METAL ? 1005 : 1006;
+-    }
+-
+     @javax.annotation.Nullable
+-    public net.minecraft.world.level.block.state.BlockState getStateForPlacement(net.minecraft.world.item.context.BlockPlaceContext context) {
+-        net.minecraft.core.BlockPos blockPos = context.getClickedPos();
+-        net.minecraft.world.level.Level level = context.getLevel();
+-        if (blockPos.getY() < level.getMaxBuildHeight() - 1 && level.getBlockState(blockPos.above()).canBeReplaced(context)) {
+-            boolean bl = level.hasNeighborSignal(blockPos) || level.hasNeighborSignal(blockPos.above());
+-            return (net.minecraft.world.level.block.state.BlockState)((net.minecraft.world.level.block.state.BlockState)((net.minecraft.world.level.block.state.BlockState)((net.minecraft.world.level.block.state.BlockState)((net.minecraft.world.level.block.state.BlockState)this.defaultBlockState().setValue((net.minecraft.world.level.block.state.properties.Property)FACING, (java.lang.Comparable)context.getHorizontalDirection())).setValue((net.minecraft.world.level.block.state.properties.Property)HINGE, (java.lang.Comparable)this.getHinge(context))).setValue((net.minecraft.world.level.block.state.properties.Property)POWERED, (java.lang.Comparable)java.lang.Boolean.valueOf((boolean)bl))).setValue((net.minecraft.world.level.block.state.properties.Property)OPEN, (java.lang.Comparable)java.lang.Boolean.valueOf((boolean)bl))).setValue((net.minecraft.world.level.block.state.properties.Property)HALF, (java.lang.Comparable)net.minecraft.world.level.block.state.properties.DoubleBlockHalf.LOWER);
++    public net.minecraft.world.level.block.state.BlockState getStateForPlacement(net.minecraft.world.item.context.BlockPlaceContext $$0) {
++        net.minecraft.core.BlockPos $$1 = $$0.getClickedPos();
++        net.minecraft.world.level.Level $$2 = $$0.getLevel();
++        if ($$1.getY() < $$2.getMaxBuildHeight() - 1 && $$2.getBlockState($$1.above()).canBeReplaced($$0)) {
++            boolean $$3 = $$2.hasNeighborSignal($$1) || $$2.hasNeighborSignal($$1.above());
++            return (net.minecraft.world.level.block.state.BlockState)((net.minecraft.world.level.block.state.BlockState)((net.minecraft.world.level.block.state.BlockState)((net.minecraft.world.level.block.state.BlockState)((net.minecraft.world.level.block.state.BlockState)this.defaultBlockState().setValue((net.minecraft.world.level.block.state.properties.Property)FACING, (java.lang.Comparable)$$0.getHorizontalDirection())).setValue((net.minecraft.world.level.block.state.properties.Property)HINGE, (java.lang.Comparable)this.getHinge($$0))).setValue((net.minecraft.world.level.block.state.properties.Property)POWERED, (java.lang.Comparable)java.lang.Boolean.valueOf((boolean)$$3))).setValue((net.minecraft.world.level.block.state.properties.Property)OPEN, (java.lang.Comparable)java.lang.Boolean.valueOf((boolean)$$3))).setValue((net.minecraft.world.level.block.state.properties.Property)HALF, (java.lang.Comparable)net.minecraft.world.level.block.state.properties.DoubleBlockHalf.LOWER);
+         }
+         return null;
+     }
+ 
+-    public void setPlacedBy(net.minecraft.world.level.Level level, net.minecraft.core.BlockPos pos, net.minecraft.world.level.block.state.BlockState state, net.minecraft.world.entity.LivingEntity placer, net.minecraft.world.item.ItemStack stack) {
+-        level.setBlock(pos.above(), (net.minecraft.world.level.block.state.BlockState)state.setValue((net.minecraft.world.level.block.state.properties.Property)HALF, (java.lang.Comparable)net.minecraft.world.level.block.state.properties.DoubleBlockHalf.UPPER), 3);
++    public void setPlacedBy(net.minecraft.world.level.Level $$0, net.minecraft.core.BlockPos $$1, net.minecraft.world.level.block.state.BlockState $$2, net.minecraft.world.entity.LivingEntity $$3, net.minecraft.world.item.ItemStack $$4) {
++        $$0.setBlock($$1.above(), (net.minecraft.world.level.block.state.BlockState)$$2.setValue((net.minecraft.world.level.block.state.properties.Property)HALF, (java.lang.Comparable)net.minecraft.world.level.block.state.properties.DoubleBlockHalf.UPPER), 3);
+     }
+ 
+-    public net.minecraft.world.level.block.state.properties.DoorHingeSide getHinge(net.minecraft.world.item.context.BlockPlaceContext context) {
+-        boolean bl;
+-        net.minecraft.world.level.Level level = context.getLevel();
+-        net.minecraft.core.BlockPos blockPos = context.getClickedPos();
+-        net.minecraft.core.Direction direction = context.getHorizontalDirection();
+-        net.minecraft.core.BlockPos blockPos2 = blockPos.above();
+-        net.minecraft.core.Direction direction2 = direction.getCounterClockWise();
+-        net.minecraft.core.BlockPos blockPos3 = blockPos.relative(direction2);
+-        net.minecraft.world.level.block.state.BlockState blockState = level.getBlockState(blockPos3);
+-        net.minecraft.core.BlockPos blockPos4 = blockPos2.relative(direction2);
+-        net.minecraft.world.level.block.state.BlockState blockState2 = level.getBlockState(blockPos4);
+-        net.minecraft.core.Direction direction3 = direction.getClockWise();
+-        net.minecraft.core.BlockPos blockPos5 = blockPos.relative(direction3);
+-        net.minecraft.world.level.block.state.BlockState blockState3 = level.getBlockState(blockPos5);
+-        net.minecraft.core.BlockPos blockPos6 = blockPos2.relative(direction3);
+-        net.minecraft.world.level.block.state.BlockState blockState4 = level.getBlockState(blockPos6);
+-        int n = (blockState.isCollisionShapeFullBlock((net.minecraft.world.level.BlockGetter)level, blockPos3) ? -1 : 0) + (blockState2.isCollisionShapeFullBlock((net.minecraft.world.level.BlockGetter)level, blockPos4) ? -1 : 0) + (blockState3.isCollisionShapeFullBlock((net.minecraft.world.level.BlockGetter)level, blockPos5) ? 1 : 0) + (blockState4.isCollisionShapeFullBlock((net.minecraft.world.level.BlockGetter)level, blockPos6) ? 1 : 0);
+-        boolean bl2 = blockState.is((net.minecraft.world.level.block.Block)this) && blockState.getValue((net.minecraft.world.level.block.state.properties.Property)HALF) == net.minecraft.world.level.block.state.properties.DoubleBlockHalf.LOWER;
+-        boolean bl3 = bl = blockState3.is((net.minecraft.world.level.block.Block)this) && blockState3.getValue((net.minecraft.world.level.block.state.properties.Property)HALF) == net.minecraft.world.level.block.state.properties.DoubleBlockHalf.LOWER;
+-        if (bl2 && !bl || n > 0) {
++    public net.minecraft.world.level.block.state.properties.DoorHingeSide getHinge(net.minecraft.world.item.context.BlockPlaceContext $$0) {
++        boolean $$17;
++        net.minecraft.world.level.Level $$1 = $$0.getLevel();
++        net.minecraft.core.BlockPos $$2 = $$0.getClickedPos();
++        net.minecraft.core.Direction $$3 = $$0.getHorizontalDirection();
++        net.minecraft.core.BlockPos $$4 = $$2.above();
++        net.minecraft.core.Direction $$5 = $$3.getCounterClockWise();
++        net.minecraft.core.BlockPos $$6 = $$2.relative($$5);
++        net.minecraft.world.level.block.state.BlockState $$7 = $$1.getBlockState($$6);
++        net.minecraft.core.BlockPos $$8 = $$4.relative($$5);
++        net.minecraft.world.level.block.state.BlockState $$9 = $$1.getBlockState($$8);
++        net.minecraft.core.Direction $$10 = $$3.getClockWise();
++        net.minecraft.core.BlockPos $$11 = $$2.relative($$10);
++        net.minecraft.world.level.block.state.BlockState $$12 = $$1.getBlockState($$11);
++        net.minecraft.core.BlockPos $$13 = $$4.relative($$10);
++        net.minecraft.world.level.block.state.BlockState $$14 = $$1.getBlockState($$13);
++        int $$15 = ($$7.isCollisionShapeFullBlock((net.minecraft.world.level.BlockGetter)$$1, $$6) ? -1 : 0) + ($$9.isCollisionShapeFullBlock((net.minecraft.world.level.BlockGetter)$$1, $$8) ? -1 : 0) + ($$12.isCollisionShapeFullBlock((net.minecraft.world.level.BlockGetter)$$1, $$11) ? 1 : 0) + ($$14.isCollisionShapeFullBlock((net.minecraft.world.level.BlockGetter)$$1, $$13) ? 1 : 0);
++        boolean $$16 = $$7.is((net.minecraft.world.level.block.Block)this) && $$7.getValue((net.minecraft.world.level.block.state.properties.Property)HALF) == net.minecraft.world.level.block.state.properties.DoubleBlockHalf.LOWER;
++        boolean bl = $$17 = $$12.is((net.minecraft.world.level.block.Block)this) && $$12.getValue((net.minecraft.world.level.block.state.properties.Property)HALF) == net.minecraft.world.level.block.state.properties.DoubleBlockHalf.LOWER;
++        if ($$16 && !$$17 || $$15 > 0) {
+             return net.minecraft.world.level.block.state.properties.DoorHingeSide.RIGHT;
+         }
+-        if (bl && !bl2 || n < 0) {
++        if ($$17 && !$$16 || $$15 < 0) {
+             return net.minecraft.world.level.block.state.properties.DoorHingeSide.LEFT;
+         }
+-        int n2 = direction.getStepX();
+-        int n3 = direction.getStepZ();
+-        net.minecraft.world.phys.Vec3 vec3 = context.getClickLocation();
+-        double d = vec3.x - (double)blockPos.getX();
+-        double d2 = vec3.z - (double)blockPos.getZ();
+-        return n2 < 0 && d2 < 0.5 || n2 > 0 && d2 > 0.5 || n3 < 0 && d > 0.5 || n3 > 0 && d < 0.5 ? net.minecraft.world.level.block.state.properties.DoorHingeSide.RIGHT : net.minecraft.world.level.block.state.properties.DoorHingeSide.LEFT;
++        int $$18 = $$3.getStepX();
++        int $$19 = $$3.getStepZ();
++        net.minecraft.world.phys.Vec3 $$20 = $$0.getClickLocation();
++        double $$21 = $$20.x - (double)$$2.getX();
++        double $$22 = $$20.z - (double)$$2.getZ();
++        return $$18 < 0 && $$22 < 0.5 || $$18 > 0 && $$22 > 0.5 || $$19 < 0 && $$21 > 0.5 || $$19 > 0 && $$21 < 0.5 ? net.minecraft.world.level.block.state.properties.DoorHingeSide.RIGHT : net.minecraft.world.level.block.state.properties.DoorHingeSide.LEFT;
+     }
+ 
+-    public net.minecraft.world.InteractionResult use(net.minecraft.world.level.block.state.BlockState state, net.minecraft.world.level.Level level, net.minecraft.core.BlockPos pos, net.minecraft.world.entity.player.Player player, net.minecraft.world.InteractionHand hand, net.minecraft.world.phys.BlockHitResult hit) {
++    public net.minecraft.world.InteractionResult use(net.minecraft.world.level.block.state.BlockState $$0, net.minecraft.world.level.Level $$1, net.minecraft.core.BlockPos $$2, net.minecraft.world.entity.player.Player $$3, net.minecraft.world.InteractionHand $$4, net.minecraft.world.phys.BlockHitResult $$5) {
+         if (this.material == net.minecraft.world.level.material.Material.METAL) {
+             return net.minecraft.world.InteractionResult.PASS;
+         }
+-        state = (net.minecraft.world.level.block.state.BlockState)state.cycle((net.minecraft.world.level.block.state.properties.Property)OPEN);
+-        level.setBlock(pos, state, 10);
+-        level.levelEvent(player, (java.lang.Boolean)state.getValue((net.minecraft.world.level.block.state.properties.Property)OPEN) != false ? this.getOpenSound() : this.getCloseSound(), pos, 0);
+-        level.gameEvent((net.minecraft.world.entity.Entity)player, this.isOpen(state) ? net.minecraft.world.level.gameevent.GameEvent.BLOCK_OPEN : net.minecraft.world.level.gameevent.GameEvent.BLOCK_CLOSE, pos);
+-        return net.minecraft.world.InteractionResult.sidedSuccess((boolean)level.isClientSide);
++        $$0 = (net.minecraft.world.level.block.state.BlockState)$$0.cycle((net.minecraft.world.level.block.state.properties.Property)OPEN);
++        $$1.setBlock($$2, $$0, 10);
++        this.playSound((net.minecraft.world.entity.Entity)$$3, $$1, $$2, ((java.lang.Boolean)$$0.getValue((net.minecraft.world.level.block.state.properties.Property)OPEN)).booleanValue());
++        $$1.gameEvent((net.minecraft.world.entity.Entity)$$3, this.isOpen($$0) ? net.minecraft.world.level.gameevent.GameEvent.BLOCK_OPEN : net.minecraft.world.level.gameevent.GameEvent.BLOCK_CLOSE, $$2);
++        return net.minecraft.world.InteractionResult.sidedSuccess((boolean)$$1.isClientSide);
+     }
+ 
+-    public boolean isOpen(net.minecraft.world.level.block.state.BlockState state) {
+-        return (java.lang.Boolean)state.getValue((net.minecraft.world.level.block.state.properties.Property)OPEN);
++    public boolean isOpen(net.minecraft.world.level.block.state.BlockState $$0) {
++        return (java.lang.Boolean)$$0.getValue((net.minecraft.world.level.block.state.properties.Property)OPEN);
+     }
+ 
+     public void setOpen(@javax.annotation.Nullable net.minecraft.world.entity.Entity $$0, net.minecraft.world.level.Level $$1, net.minecraft.world.level.block.state.BlockState $$2, net.minecraft.core.BlockPos $$3, boolean $$4) {
+@@ -153,64 +149,64 @@
+             return;
+         }
+         $$1.setBlock($$3, (net.minecraft.world.level.block.state.BlockState)$$2.setValue((net.minecraft.world.level.block.state.properties.Property)OPEN, (java.lang.Comparable)java.lang.Boolean.valueOf((boolean)$$4)), 10);
+-        this.playSound($$1, $$3, $$4);
++        this.playSound($$0, $$1, $$3, $$4);
+         $$1.gameEvent($$0, $$4 ? net.minecraft.world.level.gameevent.GameEvent.BLOCK_OPEN : net.minecraft.world.level.gameevent.GameEvent.BLOCK_CLOSE, $$3);
+     }
+ 
+-    public void neighborChanged(net.minecraft.world.level.block.state.BlockState state, net.minecraft.world.level.Level level, net.minecraft.core.BlockPos pos, net.minecraft.world.level.block.Block block, net.minecraft.core.BlockPos fromPos, boolean isMoving) {
+-        boolean bl;
+-        boolean bl2 = level.hasNeighborSignal(pos) || level.hasNeighborSignal(pos.relative(state.getValue((net.minecraft.world.level.block.state.properties.Property)HALF) == net.minecraft.world.level.block.state.properties.DoubleBlockHalf.LOWER ? net.minecraft.core.Direction.UP : net.minecraft.core.Direction.DOWN)) ? true : (bl = false);
+-        if (!this.defaultBlockState().is(block) && bl != (java.lang.Boolean)state.getValue((net.minecraft.world.level.block.state.properties.Property)POWERED)) {
+-            if (bl != (java.lang.Boolean)state.getValue((net.minecraft.world.level.block.state.properties.Property)OPEN)) {
+-                this.playSound(level, pos, bl);
+-                level.gameEvent(null, bl ? net.minecraft.world.level.gameevent.GameEvent.BLOCK_OPEN : net.minecraft.world.level.gameevent.GameEvent.BLOCK_CLOSE, pos);
++    public void neighborChanged(net.minecraft.world.level.block.state.BlockState $$0, net.minecraft.world.level.Level $$1, net.minecraft.core.BlockPos $$2, net.minecraft.world.level.block.Block $$3, net.minecraft.core.BlockPos $$4, boolean $$5) {
++        boolean $$6;
++        boolean bl = $$1.hasNeighborSignal($$2) || $$1.hasNeighborSignal($$2.relative($$0.getValue((net.minecraft.world.level.block.state.properties.Property)HALF) == net.minecraft.world.level.block.state.properties.DoubleBlockHalf.LOWER ? net.minecraft.core.Direction.UP : net.minecraft.core.Direction.DOWN)) ? true : ($$6 = false);
++        if (!this.defaultBlockState().is($$3) && $$6 != (java.lang.Boolean)$$0.getValue((net.minecraft.world.level.block.state.properties.Property)POWERED)) {
++            if ($$6 != (java.lang.Boolean)$$0.getValue((net.minecraft.world.level.block.state.properties.Property)OPEN)) {
++                this.playSound(null, $$1, $$2, $$6);
++                $$1.gameEvent(null, $$6 ? net.minecraft.world.level.gameevent.GameEvent.BLOCK_OPEN : net.minecraft.world.level.gameevent.GameEvent.BLOCK_CLOSE, $$2);
+             }
+-            level.setBlock(pos, (net.minecraft.world.level.block.state.BlockState)((net.minecraft.world.level.block.state.BlockState)state.setValue((net.minecraft.world.level.block.state.properties.Property)POWERED, (java.lang.Comparable)java.lang.Boolean.valueOf((boolean)bl))).setValue((net.minecraft.world.level.block.state.properties.Property)OPEN, (java.lang.Comparable)java.lang.Boolean.valueOf((boolean)bl)), 2);
++            $$1.setBlock($$2, (net.minecraft.world.level.block.state.BlockState)((net.minecraft.world.level.block.state.BlockState)$$0.setValue((net.minecraft.world.level.block.state.properties.Property)POWERED, (java.lang.Comparable)java.lang.Boolean.valueOf((boolean)$$6))).setValue((net.minecraft.world.level.block.state.properties.Property)OPEN, (java.lang.Comparable)java.lang.Boolean.valueOf((boolean)$$6)), 2);
+         }
+     }
+ 
+-    public boolean canSurvive(net.minecraft.world.level.block.state.BlockState state, net.minecraft.world.level.LevelReader level, net.minecraft.core.BlockPos pos) {
+-        net.minecraft.core.BlockPos blockPos = pos.below();
+-        net.minecraft.world.level.block.state.BlockState blockState = level.getBlockState(blockPos);
+-        if (state.getValue((net.minecraft.world.level.block.state.properties.Property)HALF) == net.minecraft.world.level.block.state.properties.DoubleBlockHalf.LOWER) {
+-            return blockState.isFaceSturdy((net.minecraft.world.level.BlockGetter)level, blockPos, net.minecraft.core.Direction.UP);
++    public boolean canSurvive(net.minecraft.world.level.block.state.BlockState $$0, net.minecraft.world.level.LevelReader $$1, net.minecraft.core.BlockPos $$2) {
++        net.minecraft.core.BlockPos $$3 = $$2.below();
++        net.minecraft.world.level.block.state.BlockState $$4 = $$1.getBlockState($$3);
++        if ($$0.getValue((net.minecraft.world.level.block.state.properties.Property)HALF) == net.minecraft.world.level.block.state.properties.DoubleBlockHalf.LOWER) {
++            return $$4.isFaceSturdy((net.minecraft.world.level.BlockGetter)$$1, $$3, net.minecraft.core.Direction.UP);
+         }
+-        return blockState.is((net.minecraft.world.level.block.Block)this);
++        return $$4.is((net.minecraft.world.level.block.Block)this);
+     }
+ 
+-    public void playSound(net.minecraft.world.level.Level level, net.minecraft.core.BlockPos pos, boolean isOpening) {
+-        level.levelEvent(null, isOpening ? this.getOpenSound() : this.getCloseSound(), pos, 0);
++    public void playSound(@javax.annotation.Nullable net.minecraft.world.entity.Entity $$0, net.minecraft.world.level.Level $$1, net.minecraft.core.BlockPos $$2, boolean $$3) {
++        $$1.playSound($$0, $$2, $$3 ? this.openSound : this.closeSound, net.minecraft.sounds.SoundSource.BLOCKS, 1.0f, $$1.getRandom().nextFloat() * 0.1f + 0.9f);
+     }
+ 
+-    public net.minecraft.world.level.material.PushReaction getPistonPushReaction(net.minecraft.world.level.block.state.BlockState state) {
++    public net.minecraft.world.level.material.PushReaction getPistonPushReaction(net.minecraft.world.level.block.state.BlockState $$0) {
+         return net.minecraft.world.level.material.PushReaction.DESTROY;
+     }
+ 
+-    public net.minecraft.world.level.block.state.BlockState rotate(net.minecraft.world.level.block.state.BlockState state, net.minecraft.world.level.block.Rotation rotation) {
+-        return (net.minecraft.world.level.block.state.BlockState)state.setValue((net.minecraft.world.level.block.state.properties.Property)FACING, (java.lang.Comparable)rotation.rotate((net.minecraft.core.Direction)state.getValue((net.minecraft.world.level.block.state.properties.Property)FACING)));
++    public net.minecraft.world.level.block.state.BlockState rotate(net.minecraft.world.level.block.state.BlockState $$0, net.minecraft.world.level.block.Rotation $$1) {
++        return (net.minecraft.world.level.block.state.BlockState)$$0.setValue((net.minecraft.world.level.block.state.properties.Property)FACING, (java.lang.Comparable)$$1.rotate((net.minecraft.core.Direction)$$0.getValue((net.minecraft.world.level.block.state.properties.Property)FACING)));
+     }
+ 
+-    public net.minecraft.world.level.block.state.BlockState mirror(net.minecraft.world.level.block.state.BlockState state, net.minecraft.world.level.block.Mirror mirror) {
+-        if (mirror == net.minecraft.world.level.block.Mirror.NONE) {
+-            return state;
++    public net.minecraft.world.level.block.state.BlockState mirror(net.minecraft.world.level.block.state.BlockState $$0, net.minecraft.world.level.block.Mirror $$1) {
++        if ($$1 == net.minecraft.world.level.block.Mirror.NONE) {
++            return $$0;
+         }
+-        return (net.minecraft.world.level.block.state.BlockState)state.rotate(mirror.getRotation((net.minecraft.core.Direction)state.getValue((net.minecraft.world.level.block.state.properties.Property)FACING))).cycle((net.minecraft.world.level.block.state.properties.Property)HINGE);
++        return (net.minecraft.world.level.block.state.BlockState)$$0.rotate($$1.getRotation((net.minecraft.core.Direction)$$0.getValue((net.minecraft.world.level.block.state.properties.Property)FACING))).cycle((net.minecraft.world.level.block.state.properties.Property)HINGE);
+     }
+ 
+-    public long getSeed(net.minecraft.world.level.block.state.BlockState state, net.minecraft.core.BlockPos pos) {
+-        return net.minecraft.util.Mth.getSeed((int)pos.getX(), (int)pos.below(state.getValue((net.minecraft.world.level.block.state.properties.Property)HALF) == net.minecraft.world.level.block.state.properties.DoubleBlockHalf.LOWER ? 0 : 1).getY(), (int)pos.getZ());
++    public long getSeed(net.minecraft.world.level.block.state.BlockState $$0, net.minecraft.core.BlockPos $$1) {
++        return net.minecraft.util.Mth.getSeed((int)$$1.getX(), (int)$$1.below($$0.getValue((net.minecraft.world.level.block.state.properties.Property)HALF) == net.minecraft.world.level.block.state.properties.DoubleBlockHalf.LOWER ? 0 : 1).getY(), (int)$$1.getZ());
+     }
+ 
+-    public void createBlockStateDefinition(net.minecraft.world.level.block.state.StateDefinition$Builder<net.minecraft.world.level.block.Block, net.minecraft.world.level.block.state.BlockState> builder) {
+-        builder.add(new net.minecraft.world.level.block.state.properties.Property[]{HALF, FACING, OPEN, HINGE, POWERED});
++    public void createBlockStateDefinition(net.minecraft.world.level.block.state.StateDefinition$Builder<net.minecraft.world.level.block.Block, net.minecraft.world.level.block.state.BlockState> $$0) {
++        $$0.add(new net.minecraft.world.level.block.state.properties.Property[]{HALF, FACING, OPEN, HINGE, POWERED});
+     }
+ 
+-    public static boolean isWoodenDoor(net.minecraft.world.level.Level level, net.minecraft.core.BlockPos pos) {
+-        return net.minecraft.world.level.block.DoorBlock.isWoodenDoor((net.minecraft.world.level.block.state.BlockState)level.getBlockState(pos));
++    public static boolean isWoodenDoor(net.minecraft.world.level.Level $$0, net.minecraft.core.BlockPos $$1) {
++        return net.minecraft.world.level.block.DoorBlock.isWoodenDoor((net.minecraft.world.level.block.state.BlockState)$$0.getBlockState($$1));
+     }
+ 
+-    public static boolean isWoodenDoor(net.minecraft.world.level.block.state.BlockState state) {
+-        return state.getBlock() instanceof net.minecraft.world.level.block.DoorBlock && (state.getMaterial() == net.minecraft.world.level.material.Material.WOOD || state.getMaterial() == net.minecraft.world.level.material.Material.NETHER_WOOD);
++    public static boolean isWoodenDoor(net.minecraft.world.level.block.state.BlockState $$0) {
++        return $$0.getBlock() instanceof net.minecraft.world.level.block.DoorBlock && ($$0.getMaterial() == net.minecraft.world.level.material.Material.WOOD || $$0.getMaterial() == net.minecraft.world.level.material.Material.NETHER_WOOD);
+     }
+ 
+     static {

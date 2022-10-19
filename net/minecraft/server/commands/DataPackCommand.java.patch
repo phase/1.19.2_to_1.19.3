@@ -1,0 +1,172 @@
+--- net/minecraft/server/commands/DataPackCommand.java
++++ net/minecraft/server/commands/DataPackCommand.java
+@@ -8,91 +8,103 @@
+     public static com.mojang.brigadier.exceptions.DynamicCommandExceptionType ERROR_UNKNOWN_PACK;
+     public static com.mojang.brigadier.exceptions.DynamicCommandExceptionType ERROR_PACK_ALREADY_ENABLED;
+     public static com.mojang.brigadier.exceptions.DynamicCommandExceptionType ERROR_PACK_ALREADY_DISABLED;
++    public static com.mojang.brigadier.exceptions.Dynamic2CommandExceptionType ERROR_PACK_FEATURES_NOT_ENABLED;
+     public static com.mojang.brigadier.suggestion.SuggestionProvider<net.minecraft.commands.CommandSourceStack> SELECTED_PACKS;
+     public static com.mojang.brigadier.suggestion.SuggestionProvider<net.minecraft.commands.CommandSourceStack> UNSELECTED_PACKS;
+ 
+     public net.minecraft.server.commands.DataPackCommand() {
+     }
+ 
+-    public static void register(com.mojang.brigadier.CommandDispatcher<net.minecraft.commands.CommandSourceStack> dispatcher) {
+-        dispatcher.register((com.mojang.brigadier.builder.LiteralArgumentBuilder)((com.mojang.brigadier.builder.LiteralArgumentBuilder)((com.mojang.brigadier.builder.LiteralArgumentBuilder)((com.mojang.brigadier.builder.LiteralArgumentBuilder)net.minecraft.commands.Commands.literal((java.lang.String)"datapack").requires($$0 -> $$0.hasPermission(2))).then(net.minecraft.commands.Commands.literal((java.lang.String)"enable").then(((com.mojang.brigadier.builder.RequiredArgumentBuilder)((com.mojang.brigadier.builder.RequiredArgumentBuilder)((com.mojang.brigadier.builder.RequiredArgumentBuilder)((com.mojang.brigadier.builder.RequiredArgumentBuilder)net.minecraft.commands.Commands.argument((java.lang.String)"name", (com.mojang.brigadier.arguments.ArgumentType)com.mojang.brigadier.arguments.StringArgumentType.string()).suggests(UNSELECTED_PACKS).executes($$0 -> net.minecraft.server.commands.DataPackCommand.enablePack((net.minecraft.commands.CommandSourceStack)((net.minecraft.commands.CommandSourceStack)$$0.getSource()), (net.minecraft.server.packs.repository.Pack)net.minecraft.server.commands.DataPackCommand.getPack((com.mojang.brigadier.context.CommandContext)$$0, (java.lang.String)"name", (boolean)true), ($$02, $$1) -> $$1.getDefaultPosition().insert($$02, (java.lang.Object)$$1, $$0 -> $$0, false)))).then(net.minecraft.commands.Commands.literal((java.lang.String)"after").then(net.minecraft.commands.Commands.argument((java.lang.String)"existing", (com.mojang.brigadier.arguments.ArgumentType)com.mojang.brigadier.arguments.StringArgumentType.string()).suggests(SELECTED_PACKS).executes($$0 -> net.minecraft.server.commands.DataPackCommand.enablePack((net.minecraft.commands.CommandSourceStack)((net.minecraft.commands.CommandSourceStack)$$0.getSource()), (net.minecraft.server.packs.repository.Pack)net.minecraft.server.commands.DataPackCommand.getPack((com.mojang.brigadier.context.CommandContext)$$0, (java.lang.String)"name", (boolean)true), ($$1, $$2) -> $$1.add($$1.indexOf((java.lang.Object)net.minecraft.server.commands.DataPackCommand.getPack((com.mojang.brigadier.context.CommandContext)$$0, (java.lang.String)"existing", (boolean)false)) + 1, (java.lang.Object)$$2)))))).then(net.minecraft.commands.Commands.literal((java.lang.String)"before").then(net.minecraft.commands.Commands.argument((java.lang.String)"existing", (com.mojang.brigadier.arguments.ArgumentType)com.mojang.brigadier.arguments.StringArgumentType.string()).suggests(SELECTED_PACKS).executes($$0 -> net.minecraft.server.commands.DataPackCommand.enablePack((net.minecraft.commands.CommandSourceStack)((net.minecraft.commands.CommandSourceStack)$$0.getSource()), (net.minecraft.server.packs.repository.Pack)net.minecraft.server.commands.DataPackCommand.getPack((com.mojang.brigadier.context.CommandContext)$$0, (java.lang.String)"name", (boolean)true), ($$1, $$2) -> $$1.add($$1.indexOf((java.lang.Object)net.minecraft.server.commands.DataPackCommand.getPack((com.mojang.brigadier.context.CommandContext)$$0, (java.lang.String)"existing", (boolean)false)), (java.lang.Object)$$2)))))).then(net.minecraft.commands.Commands.literal((java.lang.String)"last").executes($$0 -> net.minecraft.server.commands.DataPackCommand.enablePack((net.minecraft.commands.CommandSourceStack)((net.minecraft.commands.CommandSourceStack)$$0.getSource()), (net.minecraft.server.packs.repository.Pack)net.minecraft.server.commands.DataPackCommand.getPack((com.mojang.brigadier.context.CommandContext)$$0, (java.lang.String)"name", (boolean)true), java.util.List::add)))).then(net.minecraft.commands.Commands.literal((java.lang.String)"first").executes($$02 -> net.minecraft.server.commands.DataPackCommand.enablePack((net.minecraft.commands.CommandSourceStack)((net.minecraft.commands.CommandSourceStack)$$02.getSource()), (net.minecraft.server.packs.repository.Pack)net.minecraft.server.commands.DataPackCommand.getPack((com.mojang.brigadier.context.CommandContext)$$02, (java.lang.String)"name", (boolean)true), ($$0, $$1) -> $$0.add(0, (java.lang.Object)$$1))))))).then(net.minecraft.commands.Commands.literal((java.lang.String)"disable").then(net.minecraft.commands.Commands.argument((java.lang.String)"name", (com.mojang.brigadier.arguments.ArgumentType)com.mojang.brigadier.arguments.StringArgumentType.string()).suggests(SELECTED_PACKS).executes($$0 -> net.minecraft.server.commands.DataPackCommand.disablePack((net.minecraft.commands.CommandSourceStack)((net.minecraft.commands.CommandSourceStack)$$0.getSource()), (net.minecraft.server.packs.repository.Pack)net.minecraft.server.commands.DataPackCommand.getPack((com.mojang.brigadier.context.CommandContext)$$0, (java.lang.String)"name", (boolean)false)))))).then(((com.mojang.brigadier.builder.LiteralArgumentBuilder)((com.mojang.brigadier.builder.LiteralArgumentBuilder)net.minecraft.commands.Commands.literal((java.lang.String)"list").executes($$0 -> net.minecraft.server.commands.DataPackCommand.listPacks((net.minecraft.commands.CommandSourceStack)((net.minecraft.commands.CommandSourceStack)$$0.getSource())))).then(net.minecraft.commands.Commands.literal((java.lang.String)"available").executes($$0 -> net.minecraft.server.commands.DataPackCommand.listAvailablePacks((net.minecraft.commands.CommandSourceStack)((net.minecraft.commands.CommandSourceStack)$$0.getSource()))))).then(net.minecraft.commands.Commands.literal((java.lang.String)"enabled").executes($$0 -> net.minecraft.server.commands.DataPackCommand.listEnabledPacks((net.minecraft.commands.CommandSourceStack)((net.minecraft.commands.CommandSourceStack)$$0.getSource()))))));
++    public static void register(com.mojang.brigadier.CommandDispatcher<net.minecraft.commands.CommandSourceStack> $$03) {
++        $$03.register((com.mojang.brigadier.builder.LiteralArgumentBuilder)((com.mojang.brigadier.builder.LiteralArgumentBuilder)((com.mojang.brigadier.builder.LiteralArgumentBuilder)((com.mojang.brigadier.builder.LiteralArgumentBuilder)net.minecraft.commands.Commands.literal((java.lang.String)"datapack").requires($$0 -> $$0.hasPermission(2))).then(net.minecraft.commands.Commands.literal((java.lang.String)"enable").then(((com.mojang.brigadier.builder.RequiredArgumentBuilder)((com.mojang.brigadier.builder.RequiredArgumentBuilder)((com.mojang.brigadier.builder.RequiredArgumentBuilder)((com.mojang.brigadier.builder.RequiredArgumentBuilder)net.minecraft.commands.Commands.argument((java.lang.String)"name", (com.mojang.brigadier.arguments.ArgumentType)com.mojang.brigadier.arguments.StringArgumentType.string()).suggests(UNSELECTED_PACKS).executes($$0 -> net.minecraft.server.commands.DataPackCommand.enablePack((net.minecraft.commands.CommandSourceStack)((net.minecraft.commands.CommandSourceStack)$$0.getSource()), (net.minecraft.server.packs.repository.Pack)net.minecraft.server.commands.DataPackCommand.getPack((com.mojang.brigadier.context.CommandContext)$$0, (java.lang.String)"name", (boolean)true), ($$02, $$1) -> $$1.getDefaultPosition().insert($$02, (java.lang.Object)$$1, $$0 -> $$0, false)))).then(net.minecraft.commands.Commands.literal((java.lang.String)"after").then(net.minecraft.commands.Commands.argument((java.lang.String)"existing", (com.mojang.brigadier.arguments.ArgumentType)com.mojang.brigadier.arguments.StringArgumentType.string()).suggests(SELECTED_PACKS).executes($$0 -> net.minecraft.server.commands.DataPackCommand.enablePack((net.minecraft.commands.CommandSourceStack)((net.minecraft.commands.CommandSourceStack)$$0.getSource()), (net.minecraft.server.packs.repository.Pack)net.minecraft.server.commands.DataPackCommand.getPack((com.mojang.brigadier.context.CommandContext)$$0, (java.lang.String)"name", (boolean)true), ($$1, $$2) -> $$1.add($$1.indexOf((java.lang.Object)net.minecraft.server.commands.DataPackCommand.getPack((com.mojang.brigadier.context.CommandContext)$$0, (java.lang.String)"existing", (boolean)false)) + 1, (java.lang.Object)$$2)))))).then(net.minecraft.commands.Commands.literal((java.lang.String)"before").then(net.minecraft.commands.Commands.argument((java.lang.String)"existing", (com.mojang.brigadier.arguments.ArgumentType)com.mojang.brigadier.arguments.StringArgumentType.string()).suggests(SELECTED_PACKS).executes($$0 -> net.minecraft.server.commands.DataPackCommand.enablePack((net.minecraft.commands.CommandSourceStack)((net.minecraft.commands.CommandSourceStack)$$0.getSource()), (net.minecraft.server.packs.repository.Pack)net.minecraft.server.commands.DataPackCommand.getPack((com.mojang.brigadier.context.CommandContext)$$0, (java.lang.String)"name", (boolean)true), ($$1, $$2) -> $$1.add($$1.indexOf((java.lang.Object)net.minecraft.server.commands.DataPackCommand.getPack((com.mojang.brigadier.context.CommandContext)$$0, (java.lang.String)"existing", (boolean)false)), (java.lang.Object)$$2)))))).then(net.minecraft.commands.Commands.literal((java.lang.String)"last").executes($$0 -> net.minecraft.server.commands.DataPackCommand.enablePack((net.minecraft.commands.CommandSourceStack)((net.minecraft.commands.CommandSourceStack)$$0.getSource()), (net.minecraft.server.packs.repository.Pack)net.minecraft.server.commands.DataPackCommand.getPack((com.mojang.brigadier.context.CommandContext)$$0, (java.lang.String)"name", (boolean)true), java.util.List::add)))).then(net.minecraft.commands.Commands.literal((java.lang.String)"first").executes($$02 -> net.minecraft.server.commands.DataPackCommand.enablePack((net.minecraft.commands.CommandSourceStack)((net.minecraft.commands.CommandSourceStack)$$02.getSource()), (net.minecraft.server.packs.repository.Pack)net.minecraft.server.commands.DataPackCommand.getPack((com.mojang.brigadier.context.CommandContext)$$02, (java.lang.String)"name", (boolean)true), ($$0, $$1) -> $$0.add(0, (java.lang.Object)$$1))))))).then(net.minecraft.commands.Commands.literal((java.lang.String)"disable").then(net.minecraft.commands.Commands.argument((java.lang.String)"name", (com.mojang.brigadier.arguments.ArgumentType)com.mojang.brigadier.arguments.StringArgumentType.string()).suggests(SELECTED_PACKS).executes($$0 -> net.minecraft.server.commands.DataPackCommand.disablePack((net.minecraft.commands.CommandSourceStack)((net.minecraft.commands.CommandSourceStack)$$0.getSource()), (net.minecraft.server.packs.repository.Pack)net.minecraft.server.commands.DataPackCommand.getPack((com.mojang.brigadier.context.CommandContext)$$0, (java.lang.String)"name", (boolean)false)))))).then(((com.mojang.brigadier.builder.LiteralArgumentBuilder)((com.mojang.brigadier.builder.LiteralArgumentBuilder)net.minecraft.commands.Commands.literal((java.lang.String)"list").executes($$0 -> net.minecraft.server.commands.DataPackCommand.listPacks((net.minecraft.commands.CommandSourceStack)((net.minecraft.commands.CommandSourceStack)$$0.getSource())))).then(net.minecraft.commands.Commands.literal((java.lang.String)"available").executes($$0 -> net.minecraft.server.commands.DataPackCommand.listAvailablePacks((net.minecraft.commands.CommandSourceStack)((net.minecraft.commands.CommandSourceStack)$$0.getSource()))))).then(net.minecraft.commands.Commands.literal((java.lang.String)"enabled").executes($$0 -> net.minecraft.server.commands.DataPackCommand.listEnabledPacks((net.minecraft.commands.CommandSourceStack)((net.minecraft.commands.CommandSourceStack)$$0.getSource()))))));
+     }
+ 
+-    public static int enablePack(net.minecraft.commands.CommandSourceStack source, net.minecraft.server.packs.repository.Pack pack, net.minecraft.server.commands.DataPackCommand$Inserter priorityCallback) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
+-        net.minecraft.server.packs.repository.PackRepository packRepository = source.getServer().getPackRepository();
+-        java.util.ArrayList arrayList = com.google.common.collect.Lists.newArrayList((java.lang.Iterable)packRepository.getSelectedPacks());
+-        priorityCallback.apply((java.util.List)arrayList, pack);
+-        source.sendSuccess((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"commands.datapack.modify.enable", (java.lang.Object[])new java.lang.Object[]{pack.getChatLink(true)}), true);
+-        net.minecraft.server.commands.ReloadCommand.reloadPacks((java.util.Collection)((java.util.Collection)arrayList.stream().map(net.minecraft.server.packs.repository.Pack::getId).collect(java.util.stream.Collectors.toList())), (net.minecraft.commands.CommandSourceStack)source);
+-        return arrayList.size();
++    public static int enablePack(net.minecraft.commands.CommandSourceStack $$0, net.minecraft.server.packs.repository.Pack $$1, net.minecraft.server.commands.DataPackCommand$Inserter $$2) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
++        net.minecraft.server.packs.repository.PackRepository $$3 = $$0.getServer().getPackRepository();
++        java.util.ArrayList $$4 = com.google.common.collect.Lists.newArrayList((java.lang.Iterable)$$3.getSelectedPacks());
++        $$2.apply((java.util.List)$$4, $$1);
++        $$0.sendSuccess((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"commands.datapack.modify.enable", (java.lang.Object[])new java.lang.Object[]{$$1.getChatLink(true)}), true);
++        net.minecraft.server.commands.ReloadCommand.reloadPacks((java.util.Collection)((java.util.Collection)$$4.stream().map(net.minecraft.server.packs.repository.Pack::getId).collect(java.util.stream.Collectors.toList())), (net.minecraft.commands.CommandSourceStack)$$0);
++        return $$4.size();
+     }
+ 
+-    public static int disablePack(net.minecraft.commands.CommandSourceStack source, net.minecraft.server.packs.repository.Pack pack) {
+-        net.minecraft.server.packs.repository.PackRepository packRepository = source.getServer().getPackRepository();
+-        java.util.ArrayList arrayList = com.google.common.collect.Lists.newArrayList((java.lang.Iterable)packRepository.getSelectedPacks());
+-        arrayList.remove((java.lang.Object)pack);
+-        source.sendSuccess((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"commands.datapack.modify.disable", (java.lang.Object[])new java.lang.Object[]{pack.getChatLink(true)}), true);
+-        net.minecraft.server.commands.ReloadCommand.reloadPacks((java.util.Collection)((java.util.Collection)arrayList.stream().map(net.minecraft.server.packs.repository.Pack::getId).collect(java.util.stream.Collectors.toList())), (net.minecraft.commands.CommandSourceStack)source);
+-        return arrayList.size();
++    public static int disablePack(net.minecraft.commands.CommandSourceStack $$0, net.minecraft.server.packs.repository.Pack $$1) {
++        net.minecraft.server.packs.repository.PackRepository $$2 = $$0.getServer().getPackRepository();
++        java.util.ArrayList $$3 = com.google.common.collect.Lists.newArrayList((java.lang.Iterable)$$2.getSelectedPacks());
++        $$3.remove((java.lang.Object)$$1);
++        $$0.sendSuccess((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"commands.datapack.modify.disable", (java.lang.Object[])new java.lang.Object[]{$$1.getChatLink(true)}), true);
++        net.minecraft.server.commands.ReloadCommand.reloadPacks((java.util.Collection)((java.util.Collection)$$3.stream().map(net.minecraft.server.packs.repository.Pack::getId).collect(java.util.stream.Collectors.toList())), (net.minecraft.commands.CommandSourceStack)$$0);
++        return $$3.size();
+     }
+ 
+-    public static int listPacks(net.minecraft.commands.CommandSourceStack source) {
+-        return net.minecraft.server.commands.DataPackCommand.listEnabledPacks((net.minecraft.commands.CommandSourceStack)source) + net.minecraft.server.commands.DataPackCommand.listAvailablePacks((net.minecraft.commands.CommandSourceStack)source);
++    public static int listPacks(net.minecraft.commands.CommandSourceStack $$0) {
++        return net.minecraft.server.commands.DataPackCommand.listEnabledPacks((net.minecraft.commands.CommandSourceStack)$$0) + net.minecraft.server.commands.DataPackCommand.listAvailablePacks((net.minecraft.commands.CommandSourceStack)$$0);
+     }
+ 
+-    public static int listAvailablePacks(net.minecraft.commands.CommandSourceStack source) {
+-        net.minecraft.server.packs.repository.PackRepository packRepository = source.getServer().getPackRepository();
+-        packRepository.reload();
+-        java.util.Collection collection = packRepository.getSelectedPacks();
+-        java.util.Collection collection2 = packRepository.getAvailablePacks();
+-        java.util.List list = (java.util.List)collection2.stream().filter($$1 -> !collection.contains($$1)).collect(java.util.stream.Collectors.toList());
+-        if (list.isEmpty()) {
+-            source.sendSuccess((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"commands.datapack.list.available.none"), false);
++    public static int listAvailablePacks(net.minecraft.commands.CommandSourceStack $$02) {
++        net.minecraft.server.packs.repository.PackRepository $$1 = $$02.getServer().getPackRepository();
++        $$1.reload();
++        java.util.Collection $$22 = $$1.getSelectedPacks();
++        java.util.Collection $$3 = $$1.getAvailablePacks();
++        net.minecraft.world.flag.FeatureFlagSet $$4 = $$02.enabledFeatures();
++        java.util.List $$5 = $$3.stream().filter($$2 -> !$$22.contains($$2) && $$2.getRequestedFeatures().isSubsetOf($$4)).toList();
++        if ($$5.isEmpty()) {
++            $$02.sendSuccess((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"commands.datapack.list.available.none"), false);
+         } else {
+-            source.sendSuccess((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"commands.datapack.list.available.success", (java.lang.Object[])new java.lang.Object[]{list.size(), net.minecraft.network.chat.ComponentUtils.formatList((java.util.Collection)list, $$0 -> $$0.getChatLink(false))}), false);
++            $$02.sendSuccess((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"commands.datapack.list.available.success", (java.lang.Object[])new java.lang.Object[]{$$5.size(), net.minecraft.network.chat.ComponentUtils.formatList((java.util.Collection)$$5, $$0 -> $$0.getChatLink(false))}), false);
+         }
+-        return list.size();
++        return $$5.size();
+     }
+ 
+-    public static int listEnabledPacks(net.minecraft.commands.CommandSourceStack source) {
+-        net.minecraft.server.packs.repository.PackRepository packRepository = source.getServer().getPackRepository();
+-        packRepository.reload();
+-        java.util.Collection collection = packRepository.getSelectedPacks();
+-        if (collection.isEmpty()) {
+-            source.sendSuccess((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"commands.datapack.list.enabled.none"), false);
++    public static int listEnabledPacks(net.minecraft.commands.CommandSourceStack $$02) {
++        net.minecraft.server.packs.repository.PackRepository $$1 = $$02.getServer().getPackRepository();
++        $$1.reload();
++        java.util.Collection $$2 = $$1.getSelectedPacks();
++        if ($$2.isEmpty()) {
++            $$02.sendSuccess((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"commands.datapack.list.enabled.none"), false);
+         } else {
+-            source.sendSuccess((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"commands.datapack.list.enabled.success", (java.lang.Object[])new java.lang.Object[]{collection.size(), net.minecraft.network.chat.ComponentUtils.formatList((java.util.Collection)collection, $$0 -> $$0.getChatLink(true))}), false);
++            $$02.sendSuccess((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"commands.datapack.list.enabled.success", (java.lang.Object[])new java.lang.Object[]{$$2.size(), net.minecraft.network.chat.ComponentUtils.formatList((java.util.Collection)$$2, $$0 -> $$0.getChatLink(true))}), false);
+         }
+-        return collection.size();
++        return $$2.size();
+     }
+ 
+-    public static net.minecraft.server.packs.repository.Pack getPack(com.mojang.brigadier.context.CommandContext<net.minecraft.commands.CommandSourceStack> context, java.lang.String name, boolean enabling) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
+-        java.lang.String string = com.mojang.brigadier.arguments.StringArgumentType.getString(context, (java.lang.String)name);
+-        net.minecraft.server.packs.repository.PackRepository packRepository = ((net.minecraft.commands.CommandSourceStack)context.getSource()).getServer().getPackRepository();
+-        net.minecraft.server.packs.repository.Pack pack = packRepository.getPack(string);
+-        if (pack == null) {
+-            throw ERROR_UNKNOWN_PACK.create((java.lang.Object)string);
++    public static net.minecraft.server.packs.repository.Pack getPack(com.mojang.brigadier.context.CommandContext<net.minecraft.commands.CommandSourceStack> $$0, java.lang.String $$1, boolean $$2) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
++        java.lang.String $$3 = com.mojang.brigadier.arguments.StringArgumentType.getString($$0, (java.lang.String)$$1);
++        net.minecraft.server.packs.repository.PackRepository $$4 = ((net.minecraft.commands.CommandSourceStack)$$0.getSource()).getServer().getPackRepository();
++        net.minecraft.server.packs.repository.Pack $$5 = $$4.getPack($$3);
++        if ($$5 == null) {
++            throw ERROR_UNKNOWN_PACK.create((java.lang.Object)$$3);
+         }
+-        boolean bl = packRepository.getSelectedPacks().contains((java.lang.Object)pack);
+-        if (enabling && bl) {
+-            throw ERROR_PACK_ALREADY_ENABLED.create((java.lang.Object)string);
++        boolean $$6 = $$4.getSelectedPacks().contains((java.lang.Object)$$5);
++        if ($$2 && $$6) {
++            throw ERROR_PACK_ALREADY_ENABLED.create((java.lang.Object)$$3);
+         }
+-        if (!enabling && !bl) {
+-            throw ERROR_PACK_ALREADY_DISABLED.create((java.lang.Object)string);
++        if (!$$2 && !$$6) {
++            throw ERROR_PACK_ALREADY_DISABLED.create((java.lang.Object)$$3);
+         }
+-        return pack;
++        net.minecraft.world.flag.FeatureFlagSet $$7 = ((net.minecraft.commands.CommandSourceStack)$$0.getSource()).enabledFeatures();
++        net.minecraft.world.flag.FeatureFlagSet $$8 = $$5.getRequestedFeatures();
++        if (!$$8.isSubsetOf($$7)) {
++            throw ERROR_PACK_FEATURES_NOT_ENABLED.create((java.lang.Object)$$3, (java.lang.Object)net.minecraft.world.flag.FeatureFlags.printMissingFlags((net.minecraft.world.flag.FeatureFlagSet)$$7, (net.minecraft.world.flag.FeatureFlagSet)$$8));
++        }
++        return $$5;
+     }
+ 
+-    public static /* synthetic */ java.util.concurrent.CompletableFuture lambda$static$5(com.mojang.brigadier.context.CommandContext $$0, com.mojang.brigadier.suggestion.SuggestionsBuilder $$12) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
++    public static /* synthetic */ java.util.concurrent.CompletableFuture lambda$static$7(com.mojang.brigadier.context.CommandContext $$0, com.mojang.brigadier.suggestion.SuggestionsBuilder $$12) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
+         net.minecraft.server.packs.repository.PackRepository $$2 = ((net.minecraft.commands.CommandSourceStack)$$0.getSource()).getServer().getPackRepository();
+         java.util.Collection $$3 = $$2.getSelectedIds();
+-        return net.minecraft.commands.SharedSuggestionProvider.suggest((java.util.stream.Stream)$$2.getAvailableIds().stream().filter($$1 -> !$$3.contains($$1)).map(com.mojang.brigadier.arguments.StringArgumentType::escapeIfRequired), (com.mojang.brigadier.suggestion.SuggestionsBuilder)$$12);
++        net.minecraft.world.flag.FeatureFlagSet $$4 = ((net.minecraft.commands.CommandSourceStack)$$0.getSource()).enabledFeatures();
++        return net.minecraft.commands.SharedSuggestionProvider.suggest((java.util.stream.Stream)$$2.getAvailablePacks().stream().filter($$1 -> $$1.getRequestedFeatures().isSubsetOf($$4)).map(net.minecraft.server.packs.repository.Pack::getId).filter($$1 -> !$$3.contains($$1)).map(com.mojang.brigadier.arguments.StringArgumentType::escapeIfRequired), (com.mojang.brigadier.suggestion.SuggestionsBuilder)$$12);
+     }
+ 
+-    public static /* synthetic */ java.util.concurrent.CompletableFuture lambda$static$3(com.mojang.brigadier.context.CommandContext $$0, com.mojang.brigadier.suggestion.SuggestionsBuilder $$1) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
++    public static /* synthetic */ java.util.concurrent.CompletableFuture lambda$static$4(com.mojang.brigadier.context.CommandContext $$0, com.mojang.brigadier.suggestion.SuggestionsBuilder $$1) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
+         return net.minecraft.commands.SharedSuggestionProvider.suggest((java.util.stream.Stream)((net.minecraft.commands.CommandSourceStack)$$0.getSource()).getServer().getPackRepository().getSelectedIds().stream().map(com.mojang.brigadier.arguments.StringArgumentType::escapeIfRequired), (com.mojang.brigadier.suggestion.SuggestionsBuilder)$$1);
+     }
+ 
++    public static /* synthetic */ com.mojang.brigadier.Message lambda$static$3(java.lang.Object $$0, java.lang.Object $$1) {
++        return net.minecraft.network.chat.Component.translatable((java.lang.String)"commands.datapack.enable.failed.no_flags", (java.lang.Object[])new java.lang.Object[]{$$0, $$1});
++    }
++
+     public static /* synthetic */ com.mojang.brigadier.Message lambda$static$2(java.lang.Object $$0) {
+         return net.minecraft.network.chat.Component.translatable((java.lang.String)"commands.datapack.disable.failed", (java.lang.Object[])new java.lang.Object[]{$$0});
+     }
+@@ -109,11 +121,13 @@
+         ERROR_UNKNOWN_PACK = new com.mojang.brigadier.exceptions.DynamicCommandExceptionType($$0 -> net.minecraft.network.chat.Component.translatable((java.lang.String)"commands.datapack.unknown", (java.lang.Object[])new java.lang.Object[]{$$0}));
+         ERROR_PACK_ALREADY_ENABLED = new com.mojang.brigadier.exceptions.DynamicCommandExceptionType($$0 -> net.minecraft.network.chat.Component.translatable((java.lang.String)"commands.datapack.enable.failed", (java.lang.Object[])new java.lang.Object[]{$$0}));
+         ERROR_PACK_ALREADY_DISABLED = new com.mojang.brigadier.exceptions.DynamicCommandExceptionType($$0 -> net.minecraft.network.chat.Component.translatable((java.lang.String)"commands.datapack.disable.failed", (java.lang.Object[])new java.lang.Object[]{$$0}));
++        ERROR_PACK_FEATURES_NOT_ENABLED = new com.mojang.brigadier.exceptions.Dynamic2CommandExceptionType(($$0, $$1) -> net.minecraft.network.chat.Component.translatable((java.lang.String)"commands.datapack.enable.failed.no_flags", (java.lang.Object[])new java.lang.Object[]{$$0, $$1}));
+         SELECTED_PACKS = ($$0, $$1) -> net.minecraft.commands.SharedSuggestionProvider.suggest((java.util.stream.Stream)((net.minecraft.commands.CommandSourceStack)$$0.getSource()).getServer().getPackRepository().getSelectedIds().stream().map(com.mojang.brigadier.arguments.StringArgumentType::escapeIfRequired), (com.mojang.brigadier.suggestion.SuggestionsBuilder)$$1);
+         UNSELECTED_PACKS = ($$0, $$12) -> {
+             net.minecraft.server.packs.repository.PackRepository $$2 = ((net.minecraft.commands.CommandSourceStack)$$0.getSource()).getServer().getPackRepository();
+             java.util.Collection $$3 = $$2.getSelectedIds();
+-            return net.minecraft.commands.SharedSuggestionProvider.suggest((java.util.stream.Stream)$$2.getAvailableIds().stream().filter($$1 -> !$$3.contains($$1)).map(com.mojang.brigadier.arguments.StringArgumentType::escapeIfRequired), (com.mojang.brigadier.suggestion.SuggestionsBuilder)$$12);
++            net.minecraft.world.flag.FeatureFlagSet $$4 = ((net.minecraft.commands.CommandSourceStack)$$0.getSource()).enabledFeatures();
++            return net.minecraft.commands.SharedSuggestionProvider.suggest((java.util.stream.Stream)$$2.getAvailablePacks().stream().filter($$1 -> $$1.getRequestedFeatures().isSubsetOf($$4)).map(net.minecraft.server.packs.repository.Pack::getId).filter($$1 -> !$$3.contains($$1)).map(com.mojang.brigadier.arguments.StringArgumentType::escapeIfRequired), (com.mojang.brigadier.suggestion.SuggestionsBuilder)$$12);
+         };
+     }
+ }

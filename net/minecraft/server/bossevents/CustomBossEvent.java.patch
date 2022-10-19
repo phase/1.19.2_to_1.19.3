@@ -1,0 +1,168 @@
+--- net/minecraft/server/bossevents/CustomBossEvent.java
++++ net/minecraft/server/bossevents/CustomBossEvent.java
+@@ -23,18 +23,18 @@
+         return this.id;
+     }
+ 
+-    public void addPlayer(net.minecraft.server.level.ServerPlayer player) {
+-        super.addPlayer(player);
+-        this.players.add((java.lang.Object)player.getUUID());
++    public void addPlayer(net.minecraft.server.level.ServerPlayer $$0) {
++        super.addPlayer($$0);
++        this.players.add((java.lang.Object)$$0.getUUID());
+     }
+ 
+-    public void addOfflinePlayer(java.util.UUID player) {
+-        this.players.add((java.lang.Object)player);
++    public void addOfflinePlayer(java.util.UUID $$0) {
++        this.players.add((java.lang.Object)$$0);
+     }
+ 
+-    public void removePlayer(net.minecraft.server.level.ServerPlayer player) {
+-        super.removePlayer(player);
+-        this.players.remove((java.lang.Object)player.getUUID());
++    public void removePlayer(net.minecraft.server.level.ServerPlayer $$0) {
++        super.removePlayer($$0);
++        this.players.remove((java.lang.Object)$$0.getUUID());
+     }
+ 
+     public void removeAllPlayers() {
+@@ -50,56 +50,55 @@
+         return this.max;
+     }
+ 
+-    public void setValue(int value) {
+-        this.value = value;
+-        this.setProgress(net.minecraft.util.Mth.clamp((float)((float)value / (float)this.max), (float)0.0f, (float)1.0f));
++    public void setValue(int $$0) {
++        this.value = $$0;
++        this.setProgress(net.minecraft.util.Mth.clamp((float)((float)$$0 / (float)this.max), (float)0.0f, (float)1.0f));
+     }
+ 
+-    public void setMax(int max) {
+-        this.max = max;
+-        this.setProgress(net.minecraft.util.Mth.clamp((float)((float)this.value / (float)max), (float)0.0f, (float)1.0f));
++    public void setMax(int $$0) {
++        this.max = $$0;
++        this.setProgress(net.minecraft.util.Mth.clamp((float)((float)this.value / (float)$$0), (float)0.0f, (float)1.0f));
+     }
+ 
+     public net.minecraft.network.chat.Component getDisplayName() {
+         return net.minecraft.network.chat.ComponentUtils.wrapInSquareBrackets((net.minecraft.network.chat.Component)this.getName()).withStyle($$0 -> $$0.withColor(this.getColor().getFormatting()).withHoverEvent(new net.minecraft.network.chat.HoverEvent(net.minecraft.network.chat.HoverEvent$Action.SHOW_TEXT, (java.lang.Object)net.minecraft.network.chat.Component.literal((java.lang.String)this.getTextId().toString()))).withInsertion(this.getTextId().toString()));
+     }
+ 
+-    public boolean setPlayers(java.util.Collection<net.minecraft.server.level.ServerPlayer> serverPlayerList) {
+-        boolean bl;
+-        java.util.HashSet hashSet = com.google.common.collect.Sets.newHashSet();
+-        java.util.HashSet hashSet2 = com.google.common.collect.Sets.newHashSet();
+-        for (java.util.UUID uUID : this.players) {
+-            bl = false;
+-            for (net.minecraft.server.level.ServerPlayer serverPlayer : serverPlayerList) {
+-                if (!serverPlayer.getUUID().equals((java.lang.Object)uUID)) continue;
+-                bl = true;
++    public boolean setPlayers(java.util.Collection<net.minecraft.server.level.ServerPlayer> $$0) {
++        java.util.HashSet $$1 = com.google.common.collect.Sets.newHashSet();
++        java.util.HashSet $$2 = com.google.common.collect.Sets.newHashSet();
++        for (java.util.UUID $$3 : this.players) {
++            boolean $$4 = false;
++            for (net.minecraft.server.level.ServerPlayer $$5 : $$0) {
++                if (!$$5.getUUID().equals((java.lang.Object)$$3)) continue;
++                $$4 = true;
+                 break;
+             }
+-            if (bl) continue;
+-            hashSet.add((java.lang.Object)uUID);
++            if ($$4) continue;
++            $$1.add((java.lang.Object)$$3);
+         }
+-        for (java.util.UUID uUID : serverPlayerList) {
+-            bl = false;
+-            for (net.minecraft.server.level.ServerPlayer serverPlayer : this.players) {
+-                if (!uUID.getUUID().equals((java.lang.Object)serverPlayer)) continue;
+-                bl = true;
++        for (net.minecraft.server.level.ServerPlayer $$6 : $$0) {
++            boolean $$7 = false;
++            for (java.util.UUID $$8 : this.players) {
++                if (!$$6.getUUID().equals((java.lang.Object)$$8)) continue;
++                $$7 = true;
+                 break;
+             }
+-            if (bl) continue;
+-            hashSet2.add((java.lang.Object)uUID);
++            if ($$7) continue;
++            $$2.add((java.lang.Object)$$6);
+         }
+-        for (java.util.UUID uUID : hashSet) {
+-            for (java.util.Iterator iterator : this.getPlayers()) {
+-                if (!iterator.getUUID().equals((java.lang.Object)uUID)) continue;
+-                this.removePlayer((net.minecraft.server.level.ServerPlayer)iterator);
++        for (java.util.UUID $$9 : $$1) {
++            for (net.minecraft.server.level.ServerPlayer $$10 : this.getPlayers()) {
++                if (!$$10.getUUID().equals((java.lang.Object)$$9)) continue;
++                this.removePlayer($$10);
+                 break;
+             }
+-            this.players.remove((java.lang.Object)uUID);
++            this.players.remove((java.lang.Object)$$9);
+         }
+-        for (java.util.UUID uUID : hashSet2) {
+-            this.addPlayer((net.minecraft.server.level.ServerPlayer)uUID);
++        for (net.minecraft.server.level.ServerPlayer $$11 : $$2) {
++            this.addPlayer($$11);
+         }
+-        return !hashSet.isEmpty() || !hashSet2.isEmpty();
++        return !$$1.isEmpty() || !$$2.isEmpty();
+     }
+ 
+     public net.minecraft.nbt.CompoundTag save() {
+@@ -121,31 +120,31 @@
+         return $$0;
+     }
+ 
+-    public static net.minecraft.server.bossevents.CustomBossEvent load(net.minecraft.nbt.CompoundTag nbt, net.minecraft.resources.ResourceLocation id) {
+-        net.minecraft.server.bossevents.CustomBossEvent customBossEvent = new net.minecraft.server.bossevents.CustomBossEvent(id, (net.minecraft.network.chat.Component)net.minecraft.network.chat.Component$Serializer.fromJson((java.lang.String)nbt.getString("Name")));
+-        customBossEvent.setVisible(nbt.getBoolean("Visible"));
+-        customBossEvent.setValue(nbt.getInt("Value"));
+-        customBossEvent.setMax(nbt.getInt("Max"));
+-        customBossEvent.setColor(net.minecraft.world.BossEvent$BossBarColor.byName((java.lang.String)nbt.getString("Color")));
+-        customBossEvent.setOverlay(net.minecraft.world.BossEvent$BossBarOverlay.byName((java.lang.String)nbt.getString("Overlay")));
+-        customBossEvent.setDarkenScreen(nbt.getBoolean("DarkenScreen"));
+-        customBossEvent.setPlayBossMusic(nbt.getBoolean("PlayBossMusic"));
+-        customBossEvent.setCreateWorldFog(nbt.getBoolean("CreateWorldFog"));
+-        net.minecraft.nbt.ListTag listTag = nbt.getList("Players", 11);
+-        for (int i = 0; i < listTag.size(); ++i) {
+-            customBossEvent.addOfflinePlayer(net.minecraft.nbt.NbtUtils.loadUUID((net.minecraft.nbt.Tag)listTag.get(i)));
++    public static net.minecraft.server.bossevents.CustomBossEvent load(net.minecraft.nbt.CompoundTag $$0, net.minecraft.resources.ResourceLocation $$1) {
++        net.minecraft.server.bossevents.CustomBossEvent $$2 = new net.minecraft.server.bossevents.CustomBossEvent($$1, (net.minecraft.network.chat.Component)net.minecraft.network.chat.Component$Serializer.fromJson((java.lang.String)$$0.getString("Name")));
++        $$2.setVisible($$0.getBoolean("Visible"));
++        $$2.setValue($$0.getInt("Value"));
++        $$2.setMax($$0.getInt("Max"));
++        $$2.setColor(net.minecraft.world.BossEvent$BossBarColor.byName((java.lang.String)$$0.getString("Color")));
++        $$2.setOverlay(net.minecraft.world.BossEvent$BossBarOverlay.byName((java.lang.String)$$0.getString("Overlay")));
++        $$2.setDarkenScreen($$0.getBoolean("DarkenScreen"));
++        $$2.setPlayBossMusic($$0.getBoolean("PlayBossMusic"));
++        $$2.setCreateWorldFog($$0.getBoolean("CreateWorldFog"));
++        net.minecraft.nbt.ListTag $$3 = $$0.getList("Players", 11);
++        for (int $$4 = 0; $$4 < $$3.size(); ++$$4) {
++            $$2.addOfflinePlayer(net.minecraft.nbt.NbtUtils.loadUUID((net.minecraft.nbt.Tag)$$3.get($$4)));
+         }
+-        return customBossEvent;
++        return $$2;
+     }
+ 
+-    public void onPlayerConnect(net.minecraft.server.level.ServerPlayer player) {
+-        if (this.players.contains((java.lang.Object)player.getUUID())) {
+-            this.addPlayer(player);
++    public void onPlayerConnect(net.minecraft.server.level.ServerPlayer $$0) {
++        if (this.players.contains((java.lang.Object)$$0.getUUID())) {
++            this.addPlayer($$0);
+         }
+     }
+ 
+-    public void onPlayerDisconnect(net.minecraft.server.level.ServerPlayer player) {
+-        super.removePlayer(player);
++    public void onPlayerDisconnect(net.minecraft.server.level.ServerPlayer $$0) {
++        super.removePlayer($$0);
+     }
+ }
+ 

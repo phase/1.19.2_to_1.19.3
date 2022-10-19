@@ -1,0 +1,64 @@
+--- net/minecraft/server/dedicated/DedicatedServerProperties$WorldDimensionData.java
++++ net/minecraft/server/dedicated/DedicatedServerProperties$WorldDimensionData.java
+@@ -1,0 +1,61 @@
++/*
++ * Decompiled with CFR 0.151.
++ */
++package net.minecraft.server.dedicated;
++
++public class net.minecraft.server.dedicated.DedicatedServerProperties$WorldDimensionData
++extends java.lang.Record
++ {
++    public com.google.gson.JsonObject generatorSettings;
++    public java.lang.String levelType;
++    public static java.util.Map<java.lang.String, net.minecraft.resources.ResourceKey<net.minecraft.world.level.levelgen.presets.WorldPreset>> LEGACY_PRESET_NAMES;
++
++    public net.minecraft.server.dedicated.DedicatedServerProperties$WorldDimensionData(com.google.gson.JsonObject $$0, java.lang.String $$1) {
++        this.generatorSettings = $$0;
++        this.levelType = $$1;
++    }
++
++    public net.minecraft.world.level.levelgen.WorldDimensions create(net.minecraft.core.RegistryAccess $$02) {
++        net.minecraft.core.Registry $$1 = $$02.registryOrThrow(net.minecraft.core.Registry.WORLD_PRESET_REGISTRY);
++        net.minecraft.core.Holder$Reference $$2 = (net.minecraft.core.Holder$Reference)$$1.getHolder(net.minecraft.world.level.levelgen.presets.WorldPresets.NORMAL).or(() -> $$1.holders().findAny()).orElseThrow(() -> new java.lang.IllegalStateException("Invalid datapack contents: can't find default preset"));
++        net.minecraft.core.Holder $$3 = (net.minecraft.core.Holder)java.util.Optional.ofNullable((java.lang.Object)net.minecraft.resources.ResourceLocation.tryParse((java.lang.String)this.levelType)).map($$0 -> net.minecraft.resources.ResourceKey.create((net.minecraft.resources.ResourceKey)net.minecraft.core.Registry.WORLD_PRESET_REGISTRY, (net.minecraft.resources.ResourceLocation)$$0)).or(() -> java.util.Optional.ofNullable((java.lang.Object)((net.minecraft.resources.ResourceKey)LEGACY_PRESET_NAMES.get((java.lang.Object)this.levelType)))).flatMap(arg_0 -> ((net.minecraft.core.Registry)$$1).getHolder(arg_0)).orElseGet(() -> {
++            net.minecraft.server.dedicated.DedicatedServerProperties.LOGGER.warn("Failed to parse level-type {}, defaulting to {}", (java.lang.Object)this.levelType, (java.lang.Object)$$2.key().location());
++            return $$2;
++        });
++        net.minecraft.world.level.levelgen.WorldDimensions $$4 = ((net.minecraft.world.level.levelgen.presets.WorldPreset)$$3.value()).createWorldDimensions();
++        if ($$3.is(net.minecraft.world.level.levelgen.presets.WorldPresets.FLAT)) {
++            net.minecraft.resources.RegistryOps $$5 = net.minecraft.resources.RegistryOps.create((com.mojang.serialization.DynamicOps)com.mojang.serialization.JsonOps.INSTANCE, (net.minecraft.core.RegistryAccess)$$02);
++            java.util.Optional $$6 = net.minecraft.world.level.levelgen.flat.FlatLevelGeneratorSettings.CODEC.parse(new com.mojang.serialization.Dynamic((com.mojang.serialization.DynamicOps)$$5, (java.lang.Object)this.generatorSettings())).resultOrPartial(arg_0 -> ((org.slf4j.Logger)net.minecraft.server.dedicated.DedicatedServerProperties.LOGGER).error(arg_0));
++            if ($$6.isPresent()) {
++                net.minecraft.core.Registry $$7 = $$02.registryOrThrow(net.minecraft.core.Registry.STRUCTURE_SET_REGISTRY);
++                return $$4.replaceOverworldGenerator($$02, (net.minecraft.world.level.chunk.ChunkGenerator)new net.minecraft.world.level.levelgen.FlatLevelSource($$7, (net.minecraft.world.level.levelgen.flat.FlatLevelGeneratorSettings)$$6.get()));
++            }
++        }
++        return $$4;
++    }
++
++    public java.lang.String toString() {
++        return java.lang.runtime.ObjectMethods.bootstrap("toString", new java.lang.invoke.MethodHandle[]{net.minecraft.server.dedicated.DedicatedServerProperties$WorldDimensionData.class, "generatorSettings;levelType", "generatorSettings", "levelType"}, this);
++    }
++
++    public int hashCode() {
++        return (int)java.lang.runtime.ObjectMethods.bootstrap("hashCode", new java.lang.invoke.MethodHandle[]{net.minecraft.server.dedicated.DedicatedServerProperties$WorldDimensionData.class, "generatorSettings;levelType", "generatorSettings", "levelType"}, this);
++    }
++
++    public boolean equals(java.lang.Object $$0) {
++        return (boolean)java.lang.runtime.ObjectMethods.bootstrap("equals", new java.lang.invoke.MethodHandle[]{net.minecraft.server.dedicated.DedicatedServerProperties$WorldDimensionData.class, "generatorSettings;levelType", "generatorSettings", "levelType"}, this, $$0);
++    }
++
++    public com.google.gson.JsonObject generatorSettings() {
++        return this.generatorSettings;
++    }
++
++    public java.lang.String levelType() {
++        return this.levelType;
++    }
++
++    static {
++        LEGACY_PRESET_NAMES = java.util.Map.of((java.lang.Object)"default", (java.lang.Object)net.minecraft.world.level.levelgen.presets.WorldPresets.NORMAL, (java.lang.Object)"largebiomes", (java.lang.Object)net.minecraft.world.level.levelgen.presets.WorldPresets.LARGE_BIOMES);
++    }
++}
++

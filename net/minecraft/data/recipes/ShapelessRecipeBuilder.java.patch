@@ -1,0 +1,91 @@
+--- net/minecraft/data/recipes/ShapelessRecipeBuilder.java
++++ net/minecraft/data/recipes/ShapelessRecipeBuilder.java
+@@ -4,8 +4,10 @@
+ package net.minecraft.data.recipes;
+ 
+ public class net.minecraft.data.recipes.ShapelessRecipeBuilder
++extends net.minecraft.data.recipes.CraftingRecipeBuilder
+ implements net.minecraft.data.recipes.RecipeBuilder
+  {
++    public net.minecraft.data.recipes.RecipeCategory category;
+     public net.minecraft.world.item.Item result;
+     public int count;
+     public java.util.List<net.minecraft.world.item.crafting.Ingredient> ingredients;
+@@ -13,43 +15,44 @@
+     @javax.annotation.Nullable
+     public java.lang.String group;
+ 
+-    public net.minecraft.data.recipes.ShapelessRecipeBuilder(net.minecraft.world.level.ItemLike result, int count) {
++    public net.minecraft.data.recipes.ShapelessRecipeBuilder(net.minecraft.data.recipes.RecipeCategory $$0, net.minecraft.world.level.ItemLike $$1, int $$2) {
+         this.ingredients = com.google.common.collect.Lists.newArrayList();
+         this.advancement = net.minecraft.advancements.Advancement$Builder.advancement();
+-        this.result = result.asItem();
+-        this.count = count;
++        this.category = $$0;
++        this.result = $$1.asItem();
++        this.count = $$2;
+     }
+ 
+-    public static net.minecraft.data.recipes.ShapelessRecipeBuilder shapeless(net.minecraft.world.level.ItemLike result) {
+-        return new net.minecraft.data.recipes.ShapelessRecipeBuilder(result, 1);
++    public static net.minecraft.data.recipes.ShapelessRecipeBuilder shapeless(net.minecraft.data.recipes.RecipeCategory $$0, net.minecraft.world.level.ItemLike $$1) {
++        return new net.minecraft.data.recipes.ShapelessRecipeBuilder($$0, $$1, 1);
+     }
+ 
+-    public static net.minecraft.data.recipes.ShapelessRecipeBuilder shapeless(net.minecraft.world.level.ItemLike result, int count) {
+-        return new net.minecraft.data.recipes.ShapelessRecipeBuilder(result, count);
++    public static net.minecraft.data.recipes.ShapelessRecipeBuilder shapeless(net.minecraft.data.recipes.RecipeCategory $$0, net.minecraft.world.level.ItemLike $$1, int $$2) {
++        return new net.minecraft.data.recipes.ShapelessRecipeBuilder($$0, $$1, $$2);
+     }
+ 
+     public net.minecraft.data.recipes.ShapelessRecipeBuilder requires(net.minecraft.tags.TagKey<net.minecraft.world.item.Item> $$0) {
+         return this.requires(net.minecraft.world.item.crafting.Ingredient.of($$0));
+     }
+ 
+-    public net.minecraft.data.recipes.ShapelessRecipeBuilder requires(net.minecraft.world.level.ItemLike item) {
+-        return this.requires(item, 1);
++    public net.minecraft.data.recipes.ShapelessRecipeBuilder requires(net.minecraft.world.level.ItemLike $$0) {
++        return this.requires($$0, 1);
+     }
+ 
+-    public net.minecraft.data.recipes.ShapelessRecipeBuilder requires(net.minecraft.world.level.ItemLike item, int quantity) {
+-        for (int i = 0; i < quantity; ++i) {
+-            this.requires(net.minecraft.world.item.crafting.Ingredient.of((net.minecraft.world.level.ItemLike[])new net.minecraft.world.level.ItemLike[]{item}));
++    public net.minecraft.data.recipes.ShapelessRecipeBuilder requires(net.minecraft.world.level.ItemLike $$0, int $$1) {
++        for (int $$2 = 0; $$2 < $$1; ++$$2) {
++            this.requires(net.minecraft.world.item.crafting.Ingredient.of((net.minecraft.world.level.ItemLike[])new net.minecraft.world.level.ItemLike[]{$$0}));
+         }
+         return this;
+     }
+ 
+-    public net.minecraft.data.recipes.ShapelessRecipeBuilder requires(net.minecraft.world.item.crafting.Ingredient ingredient) {
+-        return this.requires(ingredient, 1);
++    public net.minecraft.data.recipes.ShapelessRecipeBuilder requires(net.minecraft.world.item.crafting.Ingredient $$0) {
++        return this.requires($$0, 1);
+     }
+ 
+-    public net.minecraft.data.recipes.ShapelessRecipeBuilder requires(net.minecraft.world.item.crafting.Ingredient ingredient, int quantity) {
+-        for (int i = 0; i < quantity; ++i) {
+-            this.ingredients.add((java.lang.Object)ingredient);
++    public net.minecraft.data.recipes.ShapelessRecipeBuilder requires(net.minecraft.world.item.crafting.Ingredient $$0, int $$1) {
++        for (int $$2 = 0; $$2 < $$1; ++$$2) {
++            this.ingredients.add((java.lang.Object)$$0);
+         }
+         return this;
+     }
+@@ -71,12 +74,12 @@
+     public void save(java.util.function.Consumer<net.minecraft.data.recipes.FinishedRecipe> $$0, net.minecraft.resources.ResourceLocation $$1) {
+         this.ensureValid($$1);
+         this.advancement.parent(ROOT_RECIPE_ADVANCEMENT).addCriterion("has_the_recipe", (net.minecraft.advancements.CriterionTriggerInstance)net.minecraft.advancements.critereon.RecipeUnlockedTrigger.unlocked((net.minecraft.resources.ResourceLocation)$$1)).rewards(net.minecraft.advancements.AdvancementRewards$Builder.recipe((net.minecraft.resources.ResourceLocation)$$1)).requirements(net.minecraft.advancements.RequirementsStrategy.OR);
+-        $$0.accept((java.lang.Object)new net.minecraft.data.recipes.ShapelessRecipeBuilder$Result($$1, this.result, this.count, this.group == null ? "" : this.group, this.ingredients, this.advancement, new net.minecraft.resources.ResourceLocation($$1.getNamespace(), "recipes/" + this.result.getItemCategory().getRecipeFolderName() + "/" + $$1.getPath())));
++        $$0.accept((java.lang.Object)new net.minecraft.data.recipes.ShapelessRecipeBuilder$Result($$1, this.result, this.count, this.group == null ? "" : this.group, net.minecraft.data.recipes.ShapelessRecipeBuilder.determineBookCategory((net.minecraft.data.recipes.RecipeCategory)this.category), this.ingredients, this.advancement, $$1.withPrefix("recipes/" + this.category.getFolderName() + "/")));
+     }
+ 
+-    public void ensureValid(net.minecraft.resources.ResourceLocation id) {
++    public void ensureValid(net.minecraft.resources.ResourceLocation $$0) {
+         if (this.advancement.getCriteria().isEmpty()) {
+-            throw new java.lang.IllegalStateException("No way of obtaining recipe " + id);
++            throw new java.lang.IllegalStateException("No way of obtaining recipe " + $$0);
+         }
+     }
+ 

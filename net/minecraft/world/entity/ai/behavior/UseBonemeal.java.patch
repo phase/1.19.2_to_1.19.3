@@ -1,0 +1,130 @@
+--- net/minecraft/world/entity/ai/behavior/UseBonemeal.java
++++ net/minecraft/world/entity/ai/behavior/UseBonemeal.java
+@@ -17,82 +17,82 @@
+         this.cropPos = java.util.Optional.empty();
+     }
+ 
+-    public boolean checkExtraStartConditions(net.minecraft.server.level.ServerLevel level, net.minecraft.world.entity.npc.Villager owner) {
+-        if (owner.tickCount % 10 != 0 || this.lastBonemealingSession != 0L && this.lastBonemealingSession + 160L > (long)owner.tickCount) {
++    public boolean checkExtraStartConditions(net.minecraft.server.level.ServerLevel $$0, net.minecraft.world.entity.npc.Villager $$1) {
++        if ($$1.tickCount % 10 != 0 || this.lastBonemealingSession != 0L && this.lastBonemealingSession + 160L > (long)$$1.tickCount) {
+             return false;
+         }
+-        if (owner.getInventory().countItem(net.minecraft.world.item.Items.BONE_MEAL) <= 0) {
++        if ($$1.getInventory().countItem(net.minecraft.world.item.Items.BONE_MEAL) <= 0) {
+             return false;
+         }
+-        this.cropPos = this.pickNextTarget(level, owner);
++        this.cropPos = this.pickNextTarget($$0, $$1);
+         return this.cropPos.isPresent();
+     }
+ 
+-    public boolean canStillUse(net.minecraft.server.level.ServerLevel level, net.minecraft.world.entity.npc.Villager entity, long gameTime) {
++    public boolean canStillUse(net.minecraft.server.level.ServerLevel $$0, net.minecraft.world.entity.npc.Villager $$1, long $$2) {
+         return this.timeWorkedSoFar < 80 && this.cropPos.isPresent();
+     }
+ 
+-    public java.util.Optional<net.minecraft.core.BlockPos> pickNextTarget(net.minecraft.server.level.ServerLevel level, net.minecraft.world.entity.npc.Villager villager) {
+-        net.minecraft.core.BlockPos$MutableBlockPos mutableBlockPos = new net.minecraft.core.BlockPos$MutableBlockPos();
+-        java.util.Optional optional = java.util.Optional.empty();
+-        int n = 0;
+-        for (int i = -1; i <= 1; ++i) {
+-            for (int j = -1; j <= 1; ++j) {
+-                for (int k = -1; k <= 1; ++k) {
+-                    mutableBlockPos.setWithOffset((net.minecraft.core.Vec3i)villager.blockPosition(), i, j, k);
+-                    if (!this.validPos((net.minecraft.core.BlockPos)mutableBlockPos, level) || level.random.nextInt(++n) != 0) continue;
+-                    optional = java.util.Optional.of((java.lang.Object)mutableBlockPos.immutable());
++    public java.util.Optional<net.minecraft.core.BlockPos> pickNextTarget(net.minecraft.server.level.ServerLevel $$0, net.minecraft.world.entity.npc.Villager $$1) {
++        net.minecraft.core.BlockPos$MutableBlockPos $$2 = new net.minecraft.core.BlockPos$MutableBlockPos();
++        java.util.Optional $$3 = java.util.Optional.empty();
++        int $$4 = 0;
++        for (int $$5 = -1; $$5 <= 1; ++$$5) {
++            for (int $$6 = -1; $$6 <= 1; ++$$6) {
++                for (int $$7 = -1; $$7 <= 1; ++$$7) {
++                    $$2.setWithOffset((net.minecraft.core.Vec3i)$$1.blockPosition(), $$5, $$6, $$7);
++                    if (!this.validPos((net.minecraft.core.BlockPos)$$2, $$0) || $$0.random.nextInt(++$$4) != 0) continue;
++                    $$3 = java.util.Optional.of((java.lang.Object)$$2.immutable());
+                 }
+             }
+         }
+-        return optional;
++        return $$3;
+     }
+ 
+-    public boolean validPos(net.minecraft.core.BlockPos pos, net.minecraft.server.level.ServerLevel level) {
+-        net.minecraft.world.level.block.state.BlockState blockState = level.getBlockState(pos);
+-        net.minecraft.world.level.block.Block block = blockState.getBlock();
+-        return block instanceof net.minecraft.world.level.block.CropBlock && !((net.minecraft.world.level.block.CropBlock)block).isMaxAge(blockState);
++    public boolean validPos(net.minecraft.core.BlockPos $$0, net.minecraft.server.level.ServerLevel $$1) {
++        net.minecraft.world.level.block.state.BlockState $$2 = $$1.getBlockState($$0);
++        net.minecraft.world.level.block.Block $$3 = $$2.getBlock();
++        return $$3 instanceof net.minecraft.world.level.block.CropBlock && !((net.minecraft.world.level.block.CropBlock)$$3).isMaxAge($$2);
+     }
+ 
+-    public void start(net.minecraft.server.level.ServerLevel level, net.minecraft.world.entity.npc.Villager entity, long gameTime) {
+-        this.setCurrentCropAsTarget(entity);
+-        entity.setItemSlot(net.minecraft.world.entity.EquipmentSlot.MAINHAND, new net.minecraft.world.item.ItemStack((net.minecraft.world.level.ItemLike)net.minecraft.world.item.Items.BONE_MEAL));
+-        this.nextWorkCycleTime = gameTime;
++    public void start(net.minecraft.server.level.ServerLevel $$0, net.minecraft.world.entity.npc.Villager $$1, long $$2) {
++        this.setCurrentCropAsTarget($$1);
++        $$1.setItemSlot(net.minecraft.world.entity.EquipmentSlot.MAINHAND, new net.minecraft.world.item.ItemStack((net.minecraft.world.level.ItemLike)net.minecraft.world.item.Items.BONE_MEAL));
++        this.nextWorkCycleTime = $$2;
+         this.timeWorkedSoFar = 0;
+     }
+ 
+-    public void setCurrentCropAsTarget(net.minecraft.world.entity.npc.Villager villager) {
++    public void setCurrentCropAsTarget(net.minecraft.world.entity.npc.Villager $$0) {
+         this.cropPos.ifPresent($$1 -> {
+             net.minecraft.world.entity.ai.behavior.BlockPosTracker $$2 = new net.minecraft.world.entity.ai.behavior.BlockPosTracker($$1);
+-            villager.getBrain().setMemory(net.minecraft.world.entity.ai.memory.MemoryModuleType.LOOK_TARGET, (java.lang.Object)$$2);
+-            villager.getBrain().setMemory(net.minecraft.world.entity.ai.memory.MemoryModuleType.WALK_TARGET, (java.lang.Object)new net.minecraft.world.entity.ai.memory.WalkTarget((net.minecraft.world.entity.ai.behavior.PositionTracker)$$2, 0.5f, 1));
++            $$0.getBrain().setMemory(net.minecraft.world.entity.ai.memory.MemoryModuleType.LOOK_TARGET, (java.lang.Object)$$2);
++            $$0.getBrain().setMemory(net.minecraft.world.entity.ai.memory.MemoryModuleType.WALK_TARGET, (java.lang.Object)new net.minecraft.world.entity.ai.memory.WalkTarget((net.minecraft.world.entity.ai.behavior.PositionTracker)$$2, 0.5f, 1));
+         });
+     }
+ 
+-    public void stop(net.minecraft.server.level.ServerLevel level, net.minecraft.world.entity.npc.Villager entity, long gameTime) {
+-        entity.setItemSlot(net.minecraft.world.entity.EquipmentSlot.MAINHAND, net.minecraft.world.item.ItemStack.EMPTY);
+-        this.lastBonemealingSession = entity.tickCount;
++    public void stop(net.minecraft.server.level.ServerLevel $$0, net.minecraft.world.entity.npc.Villager $$1, long $$2) {
++        $$1.setItemSlot(net.minecraft.world.entity.EquipmentSlot.MAINHAND, net.minecraft.world.item.ItemStack.EMPTY);
++        this.lastBonemealingSession = $$1.tickCount;
+     }
+ 
+-    public void tick(net.minecraft.server.level.ServerLevel level, net.minecraft.world.entity.npc.Villager owner, long gameTime) {
+-        net.minecraft.core.BlockPos blockPos = (net.minecraft.core.BlockPos)this.cropPos.get();
+-        if (gameTime < this.nextWorkCycleTime || !blockPos.closerToCenterThan((net.minecraft.core.Position)owner.position(), 1.0)) {
++    public void tick(net.minecraft.server.level.ServerLevel $$0, net.minecraft.world.entity.npc.Villager $$1, long $$2) {
++        net.minecraft.core.BlockPos $$3 = (net.minecraft.core.BlockPos)this.cropPos.get();
++        if ($$2 < this.nextWorkCycleTime || !$$3.closerToCenterThan((net.minecraft.core.Position)$$1.position(), 1.0)) {
+             return;
+         }
+-        net.minecraft.world.item.ItemStack itemStack = net.minecraft.world.item.ItemStack.EMPTY;
+-        net.minecraft.world.SimpleContainer simpleContainer = owner.getInventory();
+-        int n = simpleContainer.getContainerSize();
+-        for (int i = 0; i < n; ++i) {
+-            net.minecraft.world.item.ItemStack itemStack2 = simpleContainer.getItem(i);
+-            if (!itemStack2.is(net.minecraft.world.item.Items.BONE_MEAL)) continue;
+-            itemStack = itemStack2;
++        net.minecraft.world.item.ItemStack $$4 = net.minecraft.world.item.ItemStack.EMPTY;
++        net.minecraft.world.SimpleContainer $$5 = $$1.getInventory();
++        int $$6 = $$5.getContainerSize();
++        for (int $$7 = 0; $$7 < $$6; ++$$7) {
++            net.minecraft.world.item.ItemStack $$8 = $$5.getItem($$7);
++            if (!$$8.is(net.minecraft.world.item.Items.BONE_MEAL)) continue;
++            $$4 = $$8;
+             break;
+         }
+-        if (!itemStack.isEmpty() && net.minecraft.world.item.BoneMealItem.growCrop((net.minecraft.world.item.ItemStack)itemStack, (net.minecraft.world.level.Level)level, (net.minecraft.core.BlockPos)blockPos)) {
+-            level.levelEvent(1505, blockPos, 0);
+-            this.cropPos = this.pickNextTarget(level, owner);
+-            this.setCurrentCropAsTarget(owner);
+-            this.nextWorkCycleTime = gameTime + 40L;
++        if (!$$4.isEmpty() && net.minecraft.world.item.BoneMealItem.growCrop((net.minecraft.world.item.ItemStack)$$4, (net.minecraft.world.level.Level)$$0, (net.minecraft.core.BlockPos)$$3)) {
++            $$0.levelEvent(1505, $$3, 0);
++            this.cropPos = this.pickNextTarget($$0, $$1);
++            this.setCurrentCropAsTarget($$1);
++            this.nextWorkCycleTime = $$2 + 40L;
+         }
+         ++this.timeWorkedSoFar;
+     }

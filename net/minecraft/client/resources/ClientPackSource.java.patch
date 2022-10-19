@@ -1,0 +1,270 @@
+--- net/minecraft/client/resources/ClientPackSource.java
++++ net/minecraft/client/resources/ClientPackSource.java
+@@ -4,232 +4,62 @@
+ package net.minecraft.client.resources;
+ 
+ public class net.minecraft.client.resources.ClientPackSource
+-implements net.minecraft.server.packs.repository.RepositorySource
++extends net.minecraft.server.packs.repository.BuiltInPackSource
+  {
+-    public static net.minecraft.server.packs.metadata.pack.PackMetadataSection BUILT_IN;
+-    public static org.slf4j.Logger LOGGER;
+-    public static java.util.regex.Pattern SHA1;
+-    public static int MAX_PACK_SIZE_BYTES = 0xFA00000;
+-    public static int MAX_KEPT_PACKS = 10;
+-    public static java.lang.String VANILLA_ID = "vanilla";
+-    public static java.lang.String SERVER_ID = "server";
+-    public static java.lang.String PROGRAMMER_ART_ID = "programer_art";
+-    public static java.lang.String PROGRAMMER_ART_NAME = "Programmer Art";
+-    public static net.minecraft.network.chat.Component APPLYING_PACK_TEXT;
+-    public net.minecraft.server.packs.VanillaPackResources vanillaPack;
+-    public java.io.File serverPackDir;
+-    public java.util.concurrent.locks.ReentrantLock downloadLock;
+-    public net.minecraft.client.resources.AssetIndex assetIndex;
++    public static net.minecraft.server.packs.metadata.pack.PackMetadataSection VERSION_METADATA_SECTION;
++    public static net.minecraft.server.packs.BuiltInMetadata BUILT_IN_METADATA;
++    public static net.minecraft.network.chat.Component VANILLA_NAME;
++    public static java.util.Map<java.lang.String, net.minecraft.network.chat.Component> SPECIAL_PACK_NAMES;
++    public static net.minecraft.resources.ResourceLocation PACKS_DIR;
+     @javax.annotation.Nullable
+-    public java.util.concurrent.CompletableFuture<?> currentDownload;
+-    @javax.annotation.Nullable
+-    public net.minecraft.server.packs.repository.Pack serverPack;
++    public java.nio.file.Path externalAssetDir;
+ 
+-    public net.minecraft.client.resources.ClientPackSource(java.io.File serverPackDirectory, net.minecraft.client.resources.AssetIndex assetIndex) {
+-        this.downloadLock = new java.util.concurrent.locks.ReentrantLock();
+-        this.serverPackDir = serverPackDirectory;
+-        this.assetIndex = assetIndex;
+-        this.vanillaPack = new net.minecraft.client.resources.DefaultClientPackResources(BUILT_IN, assetIndex);
++    public net.minecraft.client.resources.ClientPackSource(java.nio.file.Path $$0) {
++        super(net.minecraft.server.packs.PackType.CLIENT_RESOURCES, net.minecraft.client.resources.ClientPackSource.createVanillaPackSource((java.nio.file.Path)$$0), PACKS_DIR);
++        this.externalAssetDir = this.findExplodedAssetPacks($$0);
+     }
+ 
+-    public void loadPacks(java.util.function.Consumer<net.minecraft.server.packs.repository.Pack> infoConsumer, net.minecraft.server.packs.repository.Pack$PackConstructor infoFactory) {
+-        net.minecraft.server.packs.repository.Pack pack;
+-        net.minecraft.server.packs.repository.Pack pack2 = net.minecraft.server.packs.repository.Pack.create((java.lang.String)"vanilla", (boolean)true, () -> this.vanillaPack, (net.minecraft.server.packs.repository.Pack$PackConstructor)infoFactory, (net.minecraft.server.packs.repository.Pack$Position)net.minecraft.server.packs.repository.Pack$Position.BOTTOM, (net.minecraft.server.packs.repository.PackSource)net.minecraft.server.packs.repository.PackSource.BUILT_IN);
+-        if (pack2 != null) {
+-            infoConsumer.accept((java.lang.Object)pack2);
++    @javax.annotation.Nullable
++    public java.nio.file.Path findExplodedAssetPacks(java.nio.file.Path $$0) {
++        java.nio.file.Path $$1;
++        if (net.minecraft.SharedConstants.IS_RUNNING_IN_IDE && $$0.getFileSystem() == java.nio.file.FileSystems.getDefault() && java.nio.file.Files.isDirectory((java.nio.file.Path)($$1 = $$0.getParent().resolve("resourcepacks")), (java.nio.file.LinkOption[])new java.nio.file.LinkOption[0])) {
++            return $$1;
+         }
+-        if (this.serverPack != null) {
+-            infoConsumer.accept((java.lang.Object)this.serverPack);
+-        }
+-        if ((pack = this.createProgrammerArtPack(infoFactory)) != null) {
+-            infoConsumer.accept((java.lang.Object)pack);
+-        }
++        return null;
+     }
+ 
+-    public net.minecraft.server.packs.VanillaPackResources getVanillaPack() {
+-        return this.vanillaPack;
++    public static net.minecraft.server.packs.VanillaPackResources createVanillaPackSource(java.nio.file.Path $$0) {
++        return new net.minecraft.server.packs.VanillaPackResourcesBuilder().setMetadata(BUILT_IN_METADATA).exposeNamespace(new java.lang.String[]{"minecraft", "realms"}).applyDevelopmentConfig().pushJarResources().pushAssetPath(net.minecraft.server.packs.PackType.CLIENT_RESOURCES, $$0).build();
+     }
+ 
+-    public static java.util.Map<java.lang.String, java.lang.String> getDownloadHeaders() {
+-        java.util.HashMap $$0 = com.google.common.collect.Maps.newHashMap();
+-        $$0.put((java.lang.Object)"X-Minecraft-Username", (java.lang.Object)net.minecraft.client.Minecraft.getInstance().getUser().getName());
+-        $$0.put((java.lang.Object)"X-Minecraft-UUID", (java.lang.Object)net.minecraft.client.Minecraft.getInstance().getUser().getUuid());
+-        $$0.put((java.lang.Object)"X-Minecraft-Version", (java.lang.Object)net.minecraft.SharedConstants.getCurrentVersion().getName());
+-        $$0.put((java.lang.Object)"X-Minecraft-Version-ID", (java.lang.Object)net.minecraft.SharedConstants.getCurrentVersion().getId());
+-        $$0.put((java.lang.Object)"X-Minecraft-Pack-Format", (java.lang.Object)java.lang.String.valueOf((int)net.minecraft.server.packs.PackType.CLIENT_RESOURCES.getVersion((com.mojang.bridge.game.GameVersion)net.minecraft.SharedConstants.getCurrentVersion())));
+-        $$0.put((java.lang.Object)"User-Agent", (java.lang.Object)("Minecraft Java/" + net.minecraft.SharedConstants.getCurrentVersion().getName()));
+-        return $$0;
++    public net.minecraft.network.chat.Component getPackTitle(java.lang.String $$0) {
++        net.minecraft.network.chat.Component $$1 = (net.minecraft.network.chat.Component)SPECIAL_PACK_NAMES.get((java.lang.Object)$$0);
++        return $$1 != null ? $$1 : net.minecraft.network.chat.Component.literal((java.lang.String)$$0);
+     }
+ 
+-    /*
+-     * WARNING - Removed try catching itself - possible behaviour change.
+-     */
+-    public java.util.concurrent.CompletableFuture<?> downloadAndSelectResourcePack(java.net.URL $$02, java.lang.String $$1, boolean $$2) {
+-        java.lang.String $$3 = com.google.common.hash.Hashing.sha1().hashString((java.lang.CharSequence)$$02.toString(), java.nio.charset.StandardCharsets.UTF_8).toString();
+-        java.lang.String $$42 = SHA1.matcher((java.lang.CharSequence)$$1).matches() ? $$1 : "";
+-        this.downloadLock.lock();
+-        try {
+-            java.util.concurrent.CompletableFuture $$10;
+-            net.minecraft.client.Minecraft $$5 = net.minecraft.client.Minecraft.getInstance();
+-            java.io.File $$6 = new java.io.File(this.serverPackDir, $$3);
+-            if ($$6.exists()) {
+-                java.util.concurrent.CompletableFuture $$7 = java.util.concurrent.CompletableFuture.completedFuture((java.lang.Object)"");
+-            } else {
+-                net.minecraft.client.gui.screens.ProgressScreen $$8 = new net.minecraft.client.gui.screens.ProgressScreen($$2);
+-                java.util.Map $$9 = net.minecraft.client.resources.ClientPackSource.getDownloadHeaders();
+-                $$5.executeBlocking(() -> $$5.setScreen((net.minecraft.client.gui.screens.Screen)$$8));
+-                $$10 = net.minecraft.util.HttpUtil.downloadTo((java.io.File)$$6, (java.net.URL)$$02, (java.util.Map)$$9, (int)0xFA00000, (net.minecraft.util.ProgressListener)$$8, (java.net.Proxy)$$5.getProxy());
+-            }
+-            java.util.concurrent.CompletableFuture completableFuture = this.currentDownload = $$10.thenCompose($$4 -> {
+-                if (!this.checkHash($$42, $$6)) {
+-                    return net.minecraft.Util.failedFuture((java.lang.Throwable)new java.lang.RuntimeException("Hash check failure for file " + $$6 + ", see log"));
+-                }
+-                $$5.execute(() -> {
+-                    if (!$$2) {
+-                        $$5.setScreen((net.minecraft.client.gui.screens.Screen)new net.minecraft.client.gui.screens.GenericDirtMessageScreen(APPLYING_PACK_TEXT));
+-                    }
+-                });
+-                return this.setServerPack($$6, net.minecraft.server.packs.repository.PackSource.SERVER);
+-            }).exceptionallyCompose($$22 -> this.clearServerPack().thenAcceptAsync($$2 -> {
+-                LOGGER.warn("Pack application failed: {}, deleting file {}", (java.lang.Object)$$22.getMessage(), (java.lang.Object)$$6);
+-                net.minecraft.client.resources.ClientPackSource.deleteQuietly((java.io.File)$$6);
+-            }, (java.util.concurrent.Executor)net.minecraft.Util.ioPool()).thenAcceptAsync($$12 -> $$5.setScreen((net.minecraft.client.gui.screens.Screen)new net.minecraft.client.gui.screens.ConfirmScreen($$1 -> {
+-                if ($$1) {
+-                    $$5.setScreen(null);
+-                } else {
+-                    net.minecraft.client.multiplayer.ClientPacketListener $$2 = $$5.getConnection();
+-                    if ($$2 != null) {
+-                        $$2.getConnection().disconnect((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"connect.aborted"));
+-                    }
+-                }
+-            }, (net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"multiplayer.texturePrompt.failure.line1"), (net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"multiplayer.texturePrompt.failure.line2"), net.minecraft.network.chat.CommonComponents.GUI_PROCEED, (net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"menu.disconnect"))), (java.util.concurrent.Executor)$$5)).thenAcceptAsync($$0 -> this.clearOldDownloads(), (java.util.concurrent.Executor)net.minecraft.Util.ioPool());
+-            return completableFuture;
+-        }
+-        finally {
+-            this.downloadLock.unlock();
+-        }
+-    }
+-
+-    public static void deleteQuietly(java.io.File file) {
+-        try {
+-            java.nio.file.Files.delete((java.nio.file.Path)file.toPath());
+-        }
+-        catch (java.io.IOException iOException) {
+-            LOGGER.warn("Failed to delete file {}: {}", (java.lang.Object)file, (java.lang.Object)iOException.getMessage());
+-        }
+-    }
+-
+-    public java.util.concurrent.CompletableFuture<java.lang.Void> clearServerPack() {
+-        this.downloadLock.lock();
+-        try {
+-            if (this.currentDownload != null) {
+-                this.currentDownload.cancel(true);
+-            }
+-            this.currentDownload = null;
+-            if (this.serverPack != null) {
+-                this.serverPack = null;
+-                java.util.concurrent.CompletableFuture completableFuture = net.minecraft.client.Minecraft.getInstance().delayTextureReload();
+-                return completableFuture;
+-            }
+-        }
+-        finally {
+-            this.downloadLock.unlock();
+-        }
+-        return java.util.concurrent.CompletableFuture.completedFuture(null);
+-    }
+-
+-    public boolean checkHash(java.lang.String expectedHash, java.io.File file) {
+-        try {
+-            java.lang.String string = com.google.common.io.Files.asByteSource((java.io.File)file).hash(com.google.common.hash.Hashing.sha1()).toString();
+-            if (expectedHash.isEmpty()) {
+-                LOGGER.info("Found file {} without verification hash", (java.lang.Object)file);
+-                return true;
+-            }
+-            if (string.toLowerCase(java.util.Locale.ROOT).equals((java.lang.Object)expectedHash.toLowerCase(java.util.Locale.ROOT))) {
+-                LOGGER.info("Found file {} matching requested hash {}", (java.lang.Object)file, (java.lang.Object)expectedHash);
+-                return true;
+-            }
+-            LOGGER.warn("File {} had wrong hash (expected {}, found {}).", new java.lang.Object[]{file, expectedHash, string});
+-        }
+-        catch (java.io.IOException iOException) {
+-            LOGGER.warn("File {} couldn't be hashed.", (java.lang.Object)file, (java.lang.Object)((java.lang.Object)iOException));
+-        }
+-        return false;
+-    }
+-
+-    public void clearOldDownloads() {
+-        if (!this.serverPackDir.isDirectory()) {
+-            return;
+-        }
+-        try {
+-            java.util.ArrayList $$0 = com.google.common.collect.Lists.newArrayList((java.lang.Iterable)org.apache.commons.io.FileUtils.listFiles((java.io.File)this.serverPackDir, (org.apache.commons.io.filefilter.IOFileFilter)org.apache.commons.io.filefilter.TrueFileFilter.TRUE, null));
+-            $$0.sort(org.apache.commons.io.comparator.LastModifiedFileComparator.LASTMODIFIED_REVERSE);
+-            int $$1 = 0;
+-            for (java.io.File $$2 : $$0) {
+-                if ($$1++ < 10) continue;
+-                LOGGER.info("Deleting old server resource pack {}", (java.lang.Object)$$2.getName());
+-                org.apache.commons.io.FileUtils.deleteQuietly((java.io.File)$$2);
+-            }
+-        }
+-        catch (java.lang.Exception $$3) {
+-            LOGGER.error("Error while deleting old server resource pack : {}", (java.lang.Object)$$3.getMessage());
+-        }
+-    }
+-
+-    public java.util.concurrent.CompletableFuture<java.lang.Void> loadBundledResourcePack(net.minecraft.world.level.storage.LevelStorageSource$LevelStorageAccess $$0) {
+-        java.nio.file.Path $$1 = $$0.getLevelPath(net.minecraft.world.level.storage.LevelResource.MAP_RESOURCE_FILE);
+-        if (java.nio.file.Files.exists((java.nio.file.Path)$$1, (java.nio.file.LinkOption[])new java.nio.file.LinkOption[0]) && !java.nio.file.Files.isDirectory((java.nio.file.Path)$$1, (java.nio.file.LinkOption[])new java.nio.file.LinkOption[0])) {
+-            return this.setServerPack($$1.toFile(), net.minecraft.server.packs.repository.PackSource.WORLD);
+-        }
+-        return java.util.concurrent.CompletableFuture.completedFuture(null);
+-    }
+-
+-    public java.util.concurrent.CompletableFuture<java.lang.Void> setServerPack(java.io.File file, net.minecraft.server.packs.repository.PackSource packSource) {
+-        net.minecraft.server.packs.metadata.pack.PackMetadataSection packMetadataSection;
+-        try (net.minecraft.server.packs.FilePackResources filePackResources = new net.minecraft.server.packs.FilePackResources(file);
+-){
+-            packMetadataSection = (net.minecraft.server.packs.metadata.pack.PackMetadataSection)filePackResources.getMetadataSection((net.minecraft.server.packs.metadata.MetadataSectionSerializer)net.minecraft.server.packs.metadata.pack.PackMetadataSection.SERIALIZER);
+-        }
+-        catch (java.io.IOException iOException) {
+-            return net.minecraft.Util.failedFuture((java.lang.Throwable)new java.io.IOException(java.lang.String.format((java.util.Locale)java.util.Locale.ROOT, (java.lang.String)"Invalid resourcepack at %s", (java.lang.Object[])new java.lang.Object[]{file}), (java.lang.Throwable)iOException));
+-        }
+-        LOGGER.info("Applying server pack {}", (java.lang.Object)file);
+-        this.serverPack = new net.minecraft.server.packs.repository.Pack("server", true, () -> new net.minecraft.server.packs.FilePackResources(file), (net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"resourcePack.server.name"), packMetadataSection.getDescription(), net.minecraft.server.packs.repository.PackCompatibility.forMetadata((net.minecraft.server.packs.metadata.pack.PackMetadataSection)packMetadataSection, (net.minecraft.server.packs.PackType)net.minecraft.server.packs.PackType.CLIENT_RESOURCES), net.minecraft.server.packs.repository.Pack$Position.TOP, true, packSource);
+-        return net.minecraft.client.Minecraft.getInstance().delayTextureReload();
+-    }
+-
+     @javax.annotation.Nullable
+-    public net.minecraft.server.packs.repository.Pack createProgrammerArtPack(net.minecraft.server.packs.repository.Pack$PackConstructor $$0) {
+-        java.io.File $$3;
+-        net.minecraft.server.packs.repository.Pack $$1 = null;
+-        java.io.File $$2 = this.assetIndex.getFile(new net.minecraft.resources.ResourceLocation("resourcepacks/programmer_art.zip"));
+-        if ($$2 != null && $$2.isFile()) {
+-            $$1 = net.minecraft.client.resources.ClientPackSource.createProgrammerArtPack((net.minecraft.server.packs.repository.Pack$PackConstructor)$$0, () -> net.minecraft.client.resources.ClientPackSource.createProgrammerArtZipPack((java.io.File)$$2));
+-        }
+-        if ($$1 == null && net.minecraft.SharedConstants.IS_RUNNING_IN_IDE && ($$3 = this.assetIndex.getRootFile("../resourcepacks/programmer_art")) != null && $$3.isDirectory()) {
+-            $$1 = net.minecraft.client.resources.ClientPackSource.createProgrammerArtPack((net.minecraft.server.packs.repository.Pack$PackConstructor)$$0, () -> net.minecraft.client.resources.ClientPackSource.createProgrammerArtDirPack((java.io.File)$$3));
+-        }
+-        return $$1;
++    public net.minecraft.server.packs.repository.Pack createVanillaPack(net.minecraft.server.packs.PackResources $$0) {
++        return net.minecraft.server.packs.repository.Pack.readMetaAndCreate((java.lang.String)"vanilla", (net.minecraft.network.chat.Component)VANILLA_NAME, (boolean)true, $$1 -> $$0, (net.minecraft.server.packs.PackType)net.minecraft.server.packs.PackType.CLIENT_RESOURCES, (net.minecraft.server.packs.repository.Pack$Position)net.minecraft.server.packs.repository.Pack$Position.BOTTOM, (net.minecraft.server.packs.repository.PackSource)net.minecraft.server.packs.repository.PackSource.BUILT_IN);
+     }
+ 
+     @javax.annotation.Nullable
+-    public static net.minecraft.server.packs.repository.Pack createProgrammerArtPack(net.minecraft.server.packs.repository.Pack$PackConstructor packConstructor, java.util.function.Supplier<net.minecraft.server.packs.PackResources> resources) {
+-        return net.minecraft.server.packs.repository.Pack.create((java.lang.String)"programer_art", (boolean)false, resources, (net.minecraft.server.packs.repository.Pack$PackConstructor)packConstructor, (net.minecraft.server.packs.repository.Pack$Position)net.minecraft.server.packs.repository.Pack$Position.TOP, (net.minecraft.server.packs.repository.PackSource)net.minecraft.server.packs.repository.PackSource.BUILT_IN);
++    public net.minecraft.server.packs.repository.Pack createBuiltinPack(java.lang.String $$0, net.minecraft.server.packs.repository.Pack$ResourcesSupplier $$1, net.minecraft.network.chat.Component $$2) {
++        return net.minecraft.server.packs.repository.Pack.readMetaAndCreate((java.lang.String)$$0, (net.minecraft.network.chat.Component)$$2, (boolean)false, (net.minecraft.server.packs.repository.Pack$ResourcesSupplier)$$1, (net.minecraft.server.packs.PackType)net.minecraft.server.packs.PackType.CLIENT_RESOURCES, (net.minecraft.server.packs.repository.Pack$Position)net.minecraft.server.packs.repository.Pack$Position.TOP, (net.minecraft.server.packs.repository.PackSource)net.minecraft.server.packs.repository.PackSource.BUILT_IN);
+     }
+ 
+-    public static net.minecraft.server.packs.FolderPackResources createProgrammerArtDirPack(java.io.File file) {
+-        return new /* Unavailable Anonymous Inner Class!! */;
++    public void populatePackList(java.util.function.BiConsumer<java.lang.String, java.util.function.Function<java.lang.String, net.minecraft.server.packs.repository.Pack>> $$0) {
++        super.populatePackList($$0);
++        if (this.externalAssetDir != null) {
++            this.discoverPacksInPath(this.externalAssetDir, $$0);
++        }
+     }
+ 
+-    public static net.minecraft.server.packs.PackResources createProgrammerArtZipPack(java.io.File file) {
+-        return new /* Unavailable Anonymous Inner Class!! */;
+-    }
+-
+     static {
+-        BUILT_IN = new net.minecraft.server.packs.metadata.pack.PackMetadataSection((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"resourcePack.vanilla.description"), net.minecraft.server.packs.PackType.CLIENT_RESOURCES.getVersion((com.mojang.bridge.game.GameVersion)net.minecraft.SharedConstants.getCurrentVersion()));
+-        LOGGER = com.mojang.logging.LogUtils.getLogger();
+-        SHA1 = java.util.regex.Pattern.compile((java.lang.String)"^[a-fA-F0-9]{40}$");
+-        APPLYING_PACK_TEXT = net.minecraft.network.chat.Component.translatable((java.lang.String)"multiplayer.applyingPack");
++        VERSION_METADATA_SECTION = new net.minecraft.server.packs.metadata.pack.PackMetadataSection((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"resourcePack.vanilla.description"), net.minecraft.server.packs.PackType.CLIENT_RESOURCES.getVersion((com.mojang.bridge.game.GameVersion)net.minecraft.SharedConstants.getCurrentVersion()));
++        BUILT_IN_METADATA = net.minecraft.server.packs.BuiltInMetadata.of((net.minecraft.server.packs.metadata.MetadataSectionSerializer)net.minecraft.server.packs.metadata.pack.PackMetadataSection.TYPE, (java.lang.Object)VERSION_METADATA_SECTION);
++        VANILLA_NAME = net.minecraft.network.chat.Component.translatable((java.lang.String)"resourcePack.vanilla.name");
++        SPECIAL_PACK_NAMES = java.util.Map.of((java.lang.Object)"programmer_art", (java.lang.Object)net.minecraft.network.chat.Component.translatable((java.lang.String)"resourcePack.programmer_art.name"));
++        PACKS_DIR = new net.minecraft.resources.ResourceLocation("minecraft", "resourcepacks");
+     }
+ }
+ 

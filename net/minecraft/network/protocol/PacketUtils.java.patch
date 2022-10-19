@@ -1,0 +1,38 @@
+--- net/minecraft/network/protocol/PacketUtils.java
++++ net/minecraft/network/protocol/PacketUtils.java
+@@ -10,25 +10,25 @@
+     public net.minecraft.network.protocol.PacketUtils() {
+     }
+ 
+-    public static <T extends net.minecraft.network.PacketListener> void ensureRunningOnSameThread(net.minecraft.network.protocol.Packet<T> packet, T processor, net.minecraft.server.level.ServerLevel level) throws net.minecraft.server.RunningOnDifferentThreadException {
+-        net.minecraft.network.protocol.PacketUtils.ensureRunningOnSameThread(packet, processor, (net.minecraft.util.thread.BlockableEventLoop)level.getServer());
++    public static <T extends net.minecraft.network.PacketListener> void ensureRunningOnSameThread(net.minecraft.network.protocol.Packet<T> $$0, T $$1, net.minecraft.server.level.ServerLevel $$2) throws net.minecraft.server.RunningOnDifferentThreadException {
++        net.minecraft.network.protocol.PacketUtils.ensureRunningOnSameThread($$0, $$1, (net.minecraft.util.thread.BlockableEventLoop)$$2.getServer());
+     }
+ 
+-    public static <T extends net.minecraft.network.PacketListener> void ensureRunningOnSameThread(net.minecraft.network.protocol.Packet<T> packet, T processor, net.minecraft.util.thread.BlockableEventLoop<?> executor) throws net.minecraft.server.RunningOnDifferentThreadException {
+-        if (!executor.isSameThread()) {
+-            executor.executeIfPossible(() -> {
+-                if (processor.getConnection().isConnected()) {
++    public static <T extends net.minecraft.network.PacketListener> void ensureRunningOnSameThread(net.minecraft.network.protocol.Packet<T> $$0, T $$1, net.minecraft.util.thread.BlockableEventLoop<?> $$2) throws net.minecraft.server.RunningOnDifferentThreadException {
++        if (!$$2.isSameThread()) {
++            $$2.executeIfPossible(() -> {
++                if ($$1.getConnection().isConnected()) {
+                     try {
+-                        packet.handle(processor);
++                        $$0.handle($$1);
+                     }
+                     catch (java.lang.Exception $$2) {
+-                        if (processor.shouldPropagateHandlingExceptions()) {
++                        if ($$1.shouldPropagateHandlingExceptions()) {
+                             throw $$2;
+                         }
+-                        LOGGER.error("Failed to handle packet {}, suppressing error", (java.lang.Object)packet, (java.lang.Object)((java.lang.Object)$$2));
++                        LOGGER.error("Failed to handle packet {}, suppressing error", (java.lang.Object)$$0, (java.lang.Object)((java.lang.Object)$$2));
+                     }
+                 } else {
+-                    LOGGER.debug("Ignoring packet due to disconnection: {}", (java.lang.Object)packet);
++                    LOGGER.debug("Ignoring packet due to disconnection: {}", (java.lang.Object)$$0);
+                 }
+             });
+             throw net.minecraft.server.RunningOnDifferentThreadException.RUNNING_ON_DIFFERENT_THREAD;

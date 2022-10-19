@@ -1,0 +1,155 @@
+--- net/minecraft/server/level/ServerPlayerGameMode.java
++++ net/minecraft/server/level/ServerPlayerGameMode.java
+@@ -33,7 +33,10 @@
+         if ($$0 == this.gameModeForPlayer) {
+             return false;
+         }
+-        this.setGameModeForPlayer($$0, this.gameModeForPlayer);
++        this.setGameModeForPlayer($$0, this.previousGameModeForPlayer);
++        this.player.onUpdateAbilities();
++        this.player.server.getPlayerList().broadcastAll((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ClientboundPlayerInfoUpdatePacket(net.minecraft.network.protocol.game.ClientboundPlayerInfoUpdatePacket$Action.UPDATE_GAME_MODE, this.player));
++        this.level.updateSleepingPlayerList();
+         return true;
+     }
+ 
+@@ -41,9 +44,6 @@
+         this.previousGameModeForPlayer = $$1;
+         this.gameModeForPlayer = $$0;
+         $$0.updatePlayerAbilities(this.player.getAbilities());
+-        this.player.onUpdateAbilities();
+-        this.player.server.getPlayerList().broadcastAll((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ClientboundPlayerInfoPacket(net.minecraft.network.protocol.game.ClientboundPlayerInfoPacket$Action.UPDATE_GAME_MODE, new net.minecraft.server.level.ServerPlayer[]{this.player}));
+-        this.level.updateSleepingPlayerList();
+     }
+ 
+     public net.minecraft.world.level.GameType getGameModeForPlayer() {
+@@ -190,71 +190,71 @@
+         }
+     }
+ 
+-    public boolean destroyBlock(net.minecraft.core.BlockPos pos) {
+-        net.minecraft.world.level.block.state.BlockState blockState = this.level.getBlockState(pos);
+-        if (!this.player.getMainHandItem().getItem().canAttackBlock(blockState, (net.minecraft.world.level.Level)this.level, pos, (net.minecraft.world.entity.player.Player)this.player)) {
++    public boolean destroyBlock(net.minecraft.core.BlockPos $$0) {
++        net.minecraft.world.level.block.state.BlockState $$1 = this.level.getBlockState($$0);
++        if (!this.player.getMainHandItem().getItem().canAttackBlock($$1, (net.minecraft.world.level.Level)this.level, $$0, (net.minecraft.world.entity.player.Player)this.player)) {
+             return false;
+         }
+-        net.minecraft.world.level.block.entity.BlockEntity blockEntity = this.level.getBlockEntity(pos);
+-        net.minecraft.world.level.block.Block block = blockState.getBlock();
+-        if (block instanceof net.minecraft.world.level.block.GameMasterBlock && !this.player.canUseGameMasterBlocks()) {
+-            this.level.sendBlockUpdated(pos, blockState, blockState, 3);
++        net.minecraft.world.level.block.entity.BlockEntity $$2 = this.level.getBlockEntity($$0);
++        net.minecraft.world.level.block.Block $$3 = $$1.getBlock();
++        if ($$3 instanceof net.minecraft.world.level.block.GameMasterBlock && !this.player.canUseGameMasterBlocks()) {
++            this.level.sendBlockUpdated($$0, $$1, $$1, 3);
+             return false;
+         }
+-        if (this.player.blockActionRestricted((net.minecraft.world.level.Level)this.level, pos, this.gameModeForPlayer)) {
++        if (this.player.blockActionRestricted((net.minecraft.world.level.Level)this.level, $$0, this.gameModeForPlayer)) {
+             return false;
+         }
+-        block.playerWillDestroy((net.minecraft.world.level.Level)this.level, pos, blockState, (net.minecraft.world.entity.player.Player)this.player);
+-        boolean bl = this.level.removeBlock(pos, false);
+-        if (bl) {
+-            block.destroy((net.minecraft.world.level.LevelAccessor)this.level, pos, blockState);
++        $$3.playerWillDestroy((net.minecraft.world.level.Level)this.level, $$0, $$1, (net.minecraft.world.entity.player.Player)this.player);
++        boolean $$4 = this.level.removeBlock($$0, false);
++        if ($$4) {
++            $$3.destroy((net.minecraft.world.level.LevelAccessor)this.level, $$0, $$1);
+         }
+         if (this.isCreative()) {
+             return true;
+         }
+-        net.minecraft.world.item.ItemStack itemStack = this.player.getMainHandItem();
+-        net.minecraft.world.item.ItemStack itemStack2 = itemStack.copy();
+-        boolean bl2 = this.player.hasCorrectToolForDrops(blockState);
+-        itemStack.mineBlock((net.minecraft.world.level.Level)this.level, blockState, pos, (net.minecraft.world.entity.player.Player)this.player);
+-        if (bl && bl2) {
+-            block.playerDestroy((net.minecraft.world.level.Level)this.level, (net.minecraft.world.entity.player.Player)this.player, pos, blockState, blockEntity, itemStack2);
++        net.minecraft.world.item.ItemStack $$5 = this.player.getMainHandItem();
++        net.minecraft.world.item.ItemStack $$6 = $$5.copy();
++        boolean $$7 = this.player.hasCorrectToolForDrops($$1);
++        $$5.mineBlock((net.minecraft.world.level.Level)this.level, $$1, $$0, (net.minecraft.world.entity.player.Player)this.player);
++        if ($$4 && $$7) {
++            $$3.playerDestroy((net.minecraft.world.level.Level)this.level, (net.minecraft.world.entity.player.Player)this.player, $$0, $$1, $$2, $$6);
+         }
+         return true;
+     }
+ 
+-    public net.minecraft.world.InteractionResult useItem(net.minecraft.server.level.ServerPlayer player, net.minecraft.world.level.Level level, net.minecraft.world.item.ItemStack stack, net.minecraft.world.InteractionHand hand) {
++    public net.minecraft.world.InteractionResult useItem(net.minecraft.server.level.ServerPlayer $$0, net.minecraft.world.level.Level $$1, net.minecraft.world.item.ItemStack $$2, net.minecraft.world.InteractionHand $$3) {
+         if (this.gameModeForPlayer == net.minecraft.world.level.GameType.SPECTATOR) {
+             return net.minecraft.world.InteractionResult.PASS;
+         }
+-        if (player.getCooldowns().isOnCooldown(stack.getItem())) {
++        if ($$0.getCooldowns().isOnCooldown($$2.getItem())) {
+             return net.minecraft.world.InteractionResult.PASS;
+         }
+-        int n = stack.getCount();
+-        int n2 = stack.getDamageValue();
+-        net.minecraft.world.InteractionResultHolder interactionResultHolder = stack.use(level, (net.minecraft.world.entity.player.Player)player, hand);
+-        net.minecraft.world.item.ItemStack itemStack = (net.minecraft.world.item.ItemStack)interactionResultHolder.getObject();
+-        if (itemStack == stack && itemStack.getCount() == n && itemStack.getUseDuration() <= 0 && itemStack.getDamageValue() == n2) {
+-            return interactionResultHolder.getResult();
++        int $$4 = $$2.getCount();
++        int $$5 = $$2.getDamageValue();
++        net.minecraft.world.InteractionResultHolder $$6 = $$2.use($$1, (net.minecraft.world.entity.player.Player)$$0, $$3);
++        net.minecraft.world.item.ItemStack $$7 = (net.minecraft.world.item.ItemStack)$$6.getObject();
++        if ($$7 == $$2 && $$7.getCount() == $$4 && $$7.getUseDuration() <= 0 && $$7.getDamageValue() == $$5) {
++            return $$6.getResult();
+         }
+-        if (interactionResultHolder.getResult() == net.minecraft.world.InteractionResult.FAIL && itemStack.getUseDuration() > 0 && !player.isUsingItem()) {
+-            return interactionResultHolder.getResult();
++        if ($$6.getResult() == net.minecraft.world.InteractionResult.FAIL && $$7.getUseDuration() > 0 && !$$0.isUsingItem()) {
++            return $$6.getResult();
+         }
+-        if (stack != itemStack) {
+-            player.setItemInHand(hand, itemStack);
++        if ($$2 != $$7) {
++            $$0.setItemInHand($$3, $$7);
+         }
+         if (this.isCreative()) {
+-            itemStack.setCount(n);
+-            if (itemStack.isDamageableItem() && itemStack.getDamageValue() != n2) {
+-                itemStack.setDamageValue(n2);
++            $$7.setCount($$4);
++            if ($$7.isDamageableItem() && $$7.getDamageValue() != $$5) {
++                $$7.setDamageValue($$5);
+             }
+         }
+-        if (itemStack.isEmpty()) {
+-            player.setItemInHand(hand, net.minecraft.world.item.ItemStack.EMPTY);
++        if ($$7.isEmpty()) {
++            $$0.setItemInHand($$3, net.minecraft.world.item.ItemStack.EMPTY);
+         }
+-        if (!player.isUsingItem()) {
+-            player.inventoryMenu.sendAllDataToRemote();
++        if (!$$0.isUsingItem()) {
++            $$0.inventoryMenu.sendAllDataToRemote();
+         }
+-        return interactionResultHolder.getResult();
++        return $$6.getResult();
+     }
+ 
+     public net.minecraft.world.InteractionResult useItemOn(net.minecraft.server.level.ServerPlayer $$0, net.minecraft.world.level.Level $$1, net.minecraft.world.item.ItemStack $$2, net.minecraft.world.InteractionHand $$3, net.minecraft.world.phys.BlockHitResult $$4) {
+@@ -262,6 +262,9 @@
+         net.minecraft.world.InteractionResult $$11;
+         net.minecraft.core.BlockPos $$5 = $$4.getBlockPos();
+         net.minecraft.world.level.block.state.BlockState $$6 = $$1.getBlockState($$5);
++        if (!$$6.getBlock().isEnabled($$1.enabledFeatures())) {
++            return net.minecraft.world.InteractionResult.FAIL;
++        }
+         if (this.gameModeForPlayer == net.minecraft.world.level.GameType.SPECTATOR) {
+             net.minecraft.world.MenuProvider $$7 = $$6.getMenuProvider($$1, $$5);
+             if ($$7 != null) {
+@@ -294,8 +297,8 @@
+         return $$15;
+     }
+ 
+-    public void setLevel(net.minecraft.server.level.ServerLevel serverLevel) {
+-        this.level = serverLevel;
++    public void setLevel(net.minecraft.server.level.ServerLevel $$0) {
++        this.level = $$0;
+     }
+ 
+     static {

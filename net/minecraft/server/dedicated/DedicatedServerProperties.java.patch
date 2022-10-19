@@ -1,0 +1,98 @@
+--- net/minecraft/server/dedicated/DedicatedServerProperties.java
++++ net/minecraft/server/dedicated/DedicatedServerProperties.java
+@@ -8,6 +8,7 @@
+  {
+     public static org.slf4j.Logger LOGGER;
+     public static java.util.regex.Pattern SHA1;
++    public static com.google.common.base.Splitter COMMA_SPLITTER;
+     public boolean onlineMode;
+     public boolean preventProxyConnections;
+     public java.lang.String serverIp;
+@@ -54,13 +55,12 @@
+     public int entityBroadcastRangePercentage;
+     public java.lang.String textFilteringConfig;
+     public java.util.Optional<net.minecraft.server.MinecraftServer$ServerResourcePackInfo> serverResourcePackInfo;
+-    public boolean previewsChat;
++    public net.minecraft.world.level.DataPackConfig initialDataPackConfiguration;
+     public net.minecraft.server.dedicated.Settings$MutableValue<java.lang.Integer> playerIdleTimeout;
+     public net.minecraft.server.dedicated.Settings$MutableValue<java.lang.Boolean> whiteList;
+     public boolean enforceSecureProfile;
+-    public net.minecraft.server.dedicated.DedicatedServerProperties$WorldGenProperties worldGenProperties;
+-    @javax.annotation.Nullable
+-    public net.minecraft.world.level.levelgen.WorldGenSettings worldGenSettings;
++    public net.minecraft.server.dedicated.DedicatedServerProperties$WorldDimensionData worldDimensionData;
++    public net.minecraft.world.level.levelgen.WorldOptions worldOptions;
+ 
+     public net.minecraft.server.dedicated.DedicatedServerProperties(java.util.Properties $$02) {
+         super($$02);
+@@ -108,12 +108,16 @@
+         this.hideOnlinePlayers = this.get("hide-online-players", false);
+         this.entityBroadcastRangePercentage = this.get("entity-broadcast-range-percentage", $$0 -> net.minecraft.util.Mth.clamp((int)$$0, (int)10, (int)1000), 100);
+         this.textFilteringConfig = this.get("text-filtering-config", "");
+-        this.previewsChat = this.get("previews-chat", false);
+         this.playerIdleTimeout = this.getMutable("player-idle-timeout", 0);
+         this.whiteList = this.getMutable("white-list", false);
+         this.enforceSecureProfile = this.get("enforce-secure-profile", true);
+-        this.worldGenProperties = new net.minecraft.server.dedicated.DedicatedServerProperties$WorldGenProperties(this.get("level-seed", ""), (com.google.gson.JsonObject)this.get("generator-settings", $$0 -> net.minecraft.util.GsonHelper.parse((java.lang.String)(!$$0.isEmpty() ? $$0 : "{}")), (java.lang.Object)new com.google.gson.JsonObject()), this.get("generate-structures", true), (java.lang.String)this.get("level-type", $$0 -> $$0.toLowerCase(java.util.Locale.ROOT), (java.lang.Object)net.minecraft.world.level.levelgen.presets.WorldPresets.NORMAL.location().toString()));
++        java.lang.String $$1 = this.get("level-seed", "");
++        boolean $$2 = this.get("generate-structures", true);
++        long $$3 = net.minecraft.world.level.levelgen.WorldOptions.parseSeed((java.lang.String)$$1).orElse(net.minecraft.util.RandomSource.create().nextLong());
++        this.worldOptions = new net.minecraft.world.level.levelgen.WorldOptions($$3, $$2, false);
++        this.worldDimensionData = new net.minecraft.server.dedicated.DedicatedServerProperties$WorldDimensionData((com.google.gson.JsonObject)this.get("generator-settings", $$0 -> net.minecraft.util.GsonHelper.parse((java.lang.String)(!$$0.isEmpty() ? $$0 : "{}")), (java.lang.Object)new com.google.gson.JsonObject()), (java.lang.String)this.get("level-type", $$0 -> $$0.toLowerCase(java.util.Locale.ROOT), (java.lang.Object)net.minecraft.world.level.levelgen.presets.WorldPresets.NORMAL.location().toString()));
+         this.serverResourcePackInfo = net.minecraft.server.dedicated.DedicatedServerProperties.getServerPackInfo((java.lang.String)this.get("resource-pack", ""), (java.lang.String)this.get("resource-pack-sha1", ""), (java.lang.String)this.getLegacyString("resource-pack-hash"), (boolean)this.get("require-resource-pack", false), (java.lang.String)this.get("resource-pack-prompt", ""));
++        this.initialDataPackConfiguration = net.minecraft.server.dedicated.DedicatedServerProperties.getDatapackConfig((java.lang.String)this.get("initial-enabled-packs", java.lang.String.join((java.lang.CharSequence)",", (java.lang.Iterable)net.minecraft.world.level.WorldDataConfiguration.DEFAULT.dataPacks().getEnabled())), (java.lang.String)this.get("initial-disabled-packs", java.lang.String.join((java.lang.CharSequence)",", (java.lang.Iterable)net.minecraft.world.level.WorldDataConfiguration.DEFAULT.dataPacks().getDisabled())));
+     }
+ 
+     public static net.minecraft.server.dedicated.DedicatedServerProperties fromFile(java.nio.file.Path $$0) {
+@@ -121,9 +125,7 @@
+     }
+ 
+     public net.minecraft.server.dedicated.DedicatedServerProperties reload(net.minecraft.core.RegistryAccess $$0, java.util.Properties $$1) {
+-        net.minecraft.server.dedicated.DedicatedServerProperties $$2 = new net.minecraft.server.dedicated.DedicatedServerProperties($$1);
+-        $$2.getWorldGenSettings($$0);
+-        return $$2;
++        return new net.minecraft.server.dedicated.DedicatedServerProperties($$1);
+     }
+ 
+     @javax.annotation.Nullable
+@@ -164,13 +166,27 @@
+         return java.util.Optional.of((java.lang.Object)new net.minecraft.server.MinecraftServer$ServerResourcePackInfo($$0, $$7, $$3, $$8));
+     }
+ 
+-    public net.minecraft.world.level.levelgen.WorldGenSettings getWorldGenSettings(net.minecraft.core.RegistryAccess $$0) {
+-        if (this.worldGenSettings == null) {
+-            this.worldGenSettings = this.worldGenProperties.create($$0);
+-        }
+-        return this.worldGenSettings;
++    public static net.minecraft.world.level.DataPackConfig getDatapackConfig(java.lang.String $$0, java.lang.String $$1) {
++        java.util.List $$2 = COMMA_SPLITTER.splitToList((java.lang.CharSequence)$$0);
++        java.util.List $$3 = COMMA_SPLITTER.splitToList((java.lang.CharSequence)$$1);
++        return new net.minecraft.world.level.DataPackConfig($$2, $$3);
+     }
+ 
++    public static net.minecraft.world.flag.FeatureFlagSet getFeatures(java.lang.String $$02) {
++        return net.minecraft.world.flag.FeatureFlags.REGISTRY.fromNames((java.lang.Iterable)COMMA_SPLITTER.splitToStream((java.lang.CharSequence)$$02).mapMulti(($$0, $$1) -> {
++            net.minecraft.resources.ResourceLocation $$2 = net.minecraft.resources.ResourceLocation.tryParse((java.lang.String)$$0);
++            if ($$2 == null) {
++                LOGGER.warn("Invalid resource location {}, ignoring", $$0);
++            } else {
++                $$1.accept((java.lang.Object)$$2);
++            }
++        }).collect(java.util.stream.Collectors.toList()));
++    }
++
++    public net.minecraft.world.level.levelgen.WorldDimensions createDimensions(net.minecraft.core.RegistryAccess $$0) {
++        return this.worldDimensionData.create($$0);
++    }
++
+     public /* synthetic */ net.minecraft.server.dedicated.Settings reload(net.minecraft.core.RegistryAccess registryAccess, java.util.Properties properties) {
+         return this.reload(registryAccess, properties);
+     }
+@@ -178,6 +194,7 @@
+     static {
+         LOGGER = com.mojang.logging.LogUtils.getLogger();
+         SHA1 = java.util.regex.Pattern.compile((java.lang.String)"^[a-fA-F0-9]{40}$");
++        COMMA_SPLITTER = com.google.common.base.Splitter.on((char)',').trimResults();
+     }
+ }
+ 

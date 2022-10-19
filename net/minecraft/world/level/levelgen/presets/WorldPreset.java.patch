@@ -1,0 +1,34 @@
+--- net/minecraft/world/level/levelgen/presets/WorldPreset.java
++++ net/minecraft/world/level/levelgen/presets/WorldPreset.java
+@@ -14,27 +14,19 @@
+     }
+ 
+     public net.minecraft.core.Registry<net.minecraft.world.level.dimension.LevelStem> createRegistry() {
+-        net.minecraft.core.MappedRegistry $$0 = new net.minecraft.core.MappedRegistry(net.minecraft.core.Registry.LEVEL_STEM_REGISTRY, com.mojang.serialization.Lifecycle.experimental(), null);
+-        net.minecraft.world.level.dimension.LevelStem.keysInOrder((java.util.stream.Stream)this.dimensions.keySet().stream()).forEach(arg_0 -> this.lambda$createRegistry$2((net.minecraft.core.WritableRegistry)$$0, arg_0));
++        net.minecraft.core.MappedRegistry $$0 = new net.minecraft.core.MappedRegistry(net.minecraft.core.Registry.LEVEL_STEM_REGISTRY, com.mojang.serialization.Lifecycle.experimental());
++        net.minecraft.world.level.levelgen.WorldDimensions.keysInOrder((java.util.stream.Stream)this.dimensions.keySet().stream()).forEach(arg_0 -> this.lambda$createRegistry$2((net.minecraft.core.WritableRegistry)$$0, arg_0));
+         return $$0.freeze();
+     }
+ 
+-    public net.minecraft.world.level.levelgen.WorldGenSettings createWorldGenSettings(long $$0, boolean $$1, boolean $$2) {
+-        return new net.minecraft.world.level.levelgen.WorldGenSettings($$0, $$1, $$2, this.createRegistry());
++    public net.minecraft.world.level.levelgen.WorldDimensions createWorldDimensions() {
++        return new net.minecraft.world.level.levelgen.WorldDimensions(this.createRegistry());
+     }
+ 
+-    public net.minecraft.world.level.levelgen.WorldGenSettings recreateWorldGenSettings(net.minecraft.world.level.levelgen.WorldGenSettings $$0) {
+-        return this.createWorldGenSettings($$0.seed(), $$0.generateStructures(), $$0.generateBonusChest());
+-    }
+-
+     public java.util.Optional<net.minecraft.world.level.dimension.LevelStem> overworld() {
+         return java.util.Optional.ofNullable((java.lang.Object)((net.minecraft.world.level.dimension.LevelStem)this.dimensions.get((java.lang.Object)net.minecraft.world.level.dimension.LevelStem.OVERWORLD)));
+     }
+ 
+-    public net.minecraft.world.level.dimension.LevelStem overworldOrThrow() {
+-        return (net.minecraft.world.level.dimension.LevelStem)this.overworld().orElseThrow(() -> new java.lang.IllegalStateException("Can't find overworld in this preset"));
+-    }
+-
+     public static com.mojang.serialization.DataResult<net.minecraft.world.level.levelgen.presets.WorldPreset> requireOverworld(net.minecraft.world.level.levelgen.presets.WorldPreset $$0) {
+         if ($$0.overworld().isEmpty()) {
+             return com.mojang.serialization.DataResult.error((java.lang.String)"Missing overworld dimension");

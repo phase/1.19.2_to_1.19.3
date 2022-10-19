@@ -1,0 +1,134 @@
+--- net/minecraft/world/entity/vehicle/MinecartTNT.java
++++ net/minecraft/world/entity/vehicle/MinecartTNT.java
+@@ -14,8 +14,8 @@
+         this.fuse = -1;
+     }
+ 
+-    public net.minecraft.world.entity.vehicle.MinecartTNT(net.minecraft.world.level.Level level, double x, double y, double z) {
+-        super(net.minecraft.world.entity.EntityType.TNT_MINECART, level, x, y, z);
++    public net.minecraft.world.entity.vehicle.MinecartTNT(net.minecraft.world.level.Level $$0, double $$1, double $$2, double $$3) {
++        super(net.minecraft.world.entity.EntityType.TNT_MINECART, $$0, $$1, $$2, $$3);
+         this.fuse = -1;
+     }
+ 
+@@ -41,38 +41,38 @@
+         }
+     }
+ 
+-    public boolean hurt(net.minecraft.world.damagesource.DamageSource source, float amount) {
+-        net.minecraft.world.entity.projectile.AbstractArrow abstractArrow;
+-        net.minecraft.world.entity.Entity entity = source.getDirectEntity();
+-        if (entity instanceof net.minecraft.world.entity.projectile.AbstractArrow && (abstractArrow = (net.minecraft.world.entity.projectile.AbstractArrow)entity).isOnFire()) {
+-            this.explode(abstractArrow.getDeltaMovement().lengthSqr());
++    public boolean hurt(net.minecraft.world.damagesource.DamageSource $$0, float $$1) {
++        net.minecraft.world.entity.projectile.AbstractArrow $$3;
++        net.minecraft.world.entity.Entity $$2 = $$0.getDirectEntity();
++        if ($$2 instanceof net.minecraft.world.entity.projectile.AbstractArrow && ($$3 = (net.minecraft.world.entity.projectile.AbstractArrow)$$2).isOnFire()) {
++            this.explode($$3.getDeltaMovement().lengthSqr());
+         }
+-        return super.hurt(source, amount);
++        return super.hurt($$0, $$1);
+     }
+ 
+-    public void destroy(net.minecraft.world.damagesource.DamageSource source) {
+-        double d = this.getDeltaMovement().horizontalDistanceSqr();
+-        if (source.isFire() || source.isExplosion() || d >= (double)0.01f) {
++    public void destroy(net.minecraft.world.damagesource.DamageSource $$0) {
++        double $$1 = this.getDeltaMovement().horizontalDistanceSqr();
++        if ($$0.isFire() || $$0.isExplosion() || $$1 >= (double)0.01f) {
+             if (this.fuse < 0) {
+                 this.primeFuse();
+                 this.fuse = this.random.nextInt(20) + this.random.nextInt(20);
+             }
+             return;
+         }
+-        super.destroy(source);
++        super.destroy($$0);
+     }
+ 
+     public net.minecraft.world.item.Item getDropItem() {
+         return net.minecraft.world.item.Items.TNT_MINECART;
+     }
+ 
+-    public void explode(double radiusModifier) {
++    public void explode(double $$0) {
+         if (!this.level.isClientSide) {
+-            double d = java.lang.Math.sqrt((double)radiusModifier);
+-            if (d > 5.0) {
+-                d = 5.0;
++            double $$1 = java.lang.Math.sqrt((double)$$0);
++            if ($$1 > 5.0) {
++                $$1 = 5.0;
+             }
+-            this.level.explode((net.minecraft.world.entity.Entity)this, this.getX(), this.getY(), this.getZ(), (float)(4.0 + this.random.nextDouble() * 1.5 * d), net.minecraft.world.level.Explosion$BlockInteraction.BREAK);
++            this.level.explode((net.minecraft.world.entity.Entity)this, this.getX(), this.getY(), this.getZ(), (float)(4.0 + this.random.nextDouble() * 1.5 * $$1), net.minecraft.world.level.Explosion$BlockInteraction.BREAK);
+             this.discard();
+         }
+     }
+@@ -85,17 +85,17 @@
+         return super.causeFallDamage($$0, $$1, $$2);
+     }
+ 
+-    public void activateMinecart(int x, int y, int z, boolean receivingPower) {
+-        if (receivingPower && this.fuse < 0) {
++    public void activateMinecart(int $$0, int $$1, int $$2, boolean $$3) {
++        if ($$3 && this.fuse < 0) {
+             this.primeFuse();
+         }
+     }
+ 
+-    public void handleEntityEvent(byte id) {
+-        if (id == 10) {
++    public void handleEntityEvent(byte $$0) {
++        if ($$0 == 10) {
+             this.primeFuse();
+         } else {
+-            super.handleEntityEvent(id);
++            super.handleEntityEvent($$0);
+         }
+     }
+ 
+@@ -117,30 +117,30 @@
+         return this.fuse > -1;
+     }
+ 
+-    public float getBlockExplosionResistance(net.minecraft.world.level.Explosion explosion, net.minecraft.world.level.BlockGetter level, net.minecraft.core.BlockPos pos, net.minecraft.world.level.block.state.BlockState blockState, net.minecraft.world.level.material.FluidState fluidState, float explosionPower) {
+-        if (this.isPrimed() && (blockState.is(net.minecraft.tags.BlockTags.RAILS) || level.getBlockState(pos.above()).is(net.minecraft.tags.BlockTags.RAILS))) {
++    public float getBlockExplosionResistance(net.minecraft.world.level.Explosion $$0, net.minecraft.world.level.BlockGetter $$1, net.minecraft.core.BlockPos $$2, net.minecraft.world.level.block.state.BlockState $$3, net.minecraft.world.level.material.FluidState $$4, float $$5) {
++        if (this.isPrimed() && ($$3.is(net.minecraft.tags.BlockTags.RAILS) || $$1.getBlockState($$2.above()).is(net.minecraft.tags.BlockTags.RAILS))) {
+             return 0.0f;
+         }
+-        return super.getBlockExplosionResistance(explosion, level, pos, blockState, fluidState, explosionPower);
++        return super.getBlockExplosionResistance($$0, $$1, $$2, $$3, $$4, $$5);
+     }
+ 
+-    public boolean shouldBlockExplode(net.minecraft.world.level.Explosion explosion, net.minecraft.world.level.BlockGetter level, net.minecraft.core.BlockPos pos, net.minecraft.world.level.block.state.BlockState blockState, float explosionPower) {
+-        if (this.isPrimed() && (blockState.is(net.minecraft.tags.BlockTags.RAILS) || level.getBlockState(pos.above()).is(net.minecraft.tags.BlockTags.RAILS))) {
++    public boolean shouldBlockExplode(net.minecraft.world.level.Explosion $$0, net.minecraft.world.level.BlockGetter $$1, net.minecraft.core.BlockPos $$2, net.minecraft.world.level.block.state.BlockState $$3, float $$4) {
++        if (this.isPrimed() && ($$3.is(net.minecraft.tags.BlockTags.RAILS) || $$1.getBlockState($$2.above()).is(net.minecraft.tags.BlockTags.RAILS))) {
+             return false;
+         }
+-        return super.shouldBlockExplode(explosion, level, pos, blockState, explosionPower);
++        return super.shouldBlockExplode($$0, $$1, $$2, $$3, $$4);
+     }
+ 
+-    public void readAdditionalSaveData(net.minecraft.nbt.CompoundTag compound) {
+-        super.readAdditionalSaveData(compound);
+-        if (compound.contains("TNTFuse", 99)) {
+-            this.fuse = compound.getInt("TNTFuse");
++    public void readAdditionalSaveData(net.minecraft.nbt.CompoundTag $$0) {
++        super.readAdditionalSaveData($$0);
++        if ($$0.contains("TNTFuse", 99)) {
++            this.fuse = $$0.getInt("TNTFuse");
+         }
+     }
+ 
+-    public void addAdditionalSaveData(net.minecraft.nbt.CompoundTag compound) {
+-        super.addAdditionalSaveData(compound);
+-        compound.putInt("TNTFuse", this.fuse);
++    public void addAdditionalSaveData(net.minecraft.nbt.CompoundTag $$0) {
++        super.addAdditionalSaveData($$0);
++        $$0.putInt("TNTFuse", this.fuse);
+     }
+ }
+ 

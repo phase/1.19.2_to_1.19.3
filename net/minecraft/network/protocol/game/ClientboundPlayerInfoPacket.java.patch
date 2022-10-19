@@ -1,0 +1,63 @@
+--- net/minecraft/network/protocol/game/ClientboundPlayerInfoPacket.java
++++ net/minecraft/network/protocol/game/ClientboundPlayerInfoPacket.java
+@@ -1,60 +1,0 @@
+-/*
+- * Decompiled with CFR 0.151.
+- */
+-package net.minecraft.network.protocol.game;
+-
+-public class net.minecraft.network.protocol.game.ClientboundPlayerInfoPacket
+-implements net.minecraft.network.protocol.Packet<net.minecraft.network.protocol.game.ClientGamePacketListener>
+- {
+-    public net.minecraft.network.protocol.game.ClientboundPlayerInfoPacket$Action action;
+-    public java.util.List<net.minecraft.network.protocol.game.ClientboundPlayerInfoPacket$PlayerUpdate> entries;
+-
+-    public net.minecraft.network.protocol.game.ClientboundPlayerInfoPacket(net.minecraft.network.protocol.game.ClientboundPlayerInfoPacket$Action action, net.minecraft.server.level.ServerPlayer ... players) {
+-        this.action = action;
+-        this.entries = com.google.common.collect.Lists.newArrayListWithCapacity((int)players.length);
+-        for (net.minecraft.server.level.ServerPlayer serverPlayer : players) {
+-            this.entries.add((java.lang.Object)net.minecraft.network.protocol.game.ClientboundPlayerInfoPacket.createPlayerUpdate((net.minecraft.server.level.ServerPlayer)serverPlayer));
+-        }
+-    }
+-
+-    public net.minecraft.network.protocol.game.ClientboundPlayerInfoPacket(net.minecraft.network.protocol.game.ClientboundPlayerInfoPacket$Action $$0, java.util.Collection<net.minecraft.server.level.ServerPlayer> $$1) {
+-        this.action = $$0;
+-        this.entries = com.google.common.collect.Lists.newArrayListWithCapacity((int)$$1.size());
+-        for (net.minecraft.server.level.ServerPlayer $$2 : $$1) {
+-            this.entries.add((java.lang.Object)net.minecraft.network.protocol.game.ClientboundPlayerInfoPacket.createPlayerUpdate((net.minecraft.server.level.ServerPlayer)$$2));
+-        }
+-    }
+-
+-    public net.minecraft.network.protocol.game.ClientboundPlayerInfoPacket(net.minecraft.network.FriendlyByteBuf $$0) {
+-        this.action = (net.minecraft.network.protocol.game.ClientboundPlayerInfoPacket$Action)$$0.readEnum(net.minecraft.network.protocol.game.ClientboundPlayerInfoPacket$Action.class);
+-        this.entries = $$0.readList(arg_0 -> ((net.minecraft.network.protocol.game.ClientboundPlayerInfoPacket$Action)this.action).read(arg_0));
+-    }
+-
+-    public static net.minecraft.network.protocol.game.ClientboundPlayerInfoPacket$PlayerUpdate createPlayerUpdate(net.minecraft.server.level.ServerPlayer $$0) {
+-        net.minecraft.world.entity.player.ProfilePublicKey $$1 = $$0.getProfilePublicKey();
+-        net.minecraft.world.entity.player.ProfilePublicKey$Data $$2 = $$1 != null ? $$1.data() : null;
+-        return new net.minecraft.network.protocol.game.ClientboundPlayerInfoPacket$PlayerUpdate($$0.getGameProfile(), $$0.latency, $$0.gameMode.getGameModeForPlayer(), $$0.getTabListDisplayName(), $$2);
+-    }
+-
+-    public void write(net.minecraft.network.FriendlyByteBuf buffer) {
+-        buffer.writeEnum((java.lang.Enum)this.action);
+-        buffer.writeCollection((java.util.Collection)this.entries, (arg_0, arg_1) -> ((net.minecraft.network.protocol.game.ClientboundPlayerInfoPacket$Action)this.action).write(arg_0, arg_1));
+-    }
+-
+-    public void handle(net.minecraft.network.protocol.game.ClientGamePacketListener handler) {
+-        handler.handlePlayerInfo(this);
+-    }
+-
+-    public java.util.List<net.minecraft.network.protocol.game.ClientboundPlayerInfoPacket$PlayerUpdate> getEntries() {
+-        return this.entries;
+-    }
+-
+-    public net.minecraft.network.protocol.game.ClientboundPlayerInfoPacket$Action getAction() {
+-        return this.action;
+-    }
+-
+-    public java.lang.String toString() {
+-        return com.google.common.base.MoreObjects.toStringHelper((java.lang.Object)this).add("action", (java.lang.Object)this.action).add("entries", (java.lang.Object)this.entries).toString();
+-    }
+-}
+-

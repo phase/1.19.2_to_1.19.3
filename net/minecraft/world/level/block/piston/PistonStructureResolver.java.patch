@@ -1,0 +1,174 @@
+--- net/minecraft/world/level/block/piston/PistonStructureResolver.java
++++ net/minecraft/world/level/block/piston/PistonStructureResolver.java
+@@ -15,19 +15,19 @@
+     public java.util.List<net.minecraft.core.BlockPos> toDestroy;
+     public net.minecraft.core.Direction pistonDirection;
+ 
+-    public net.minecraft.world.level.block.piston.PistonStructureResolver(net.minecraft.world.level.Level level, net.minecraft.core.BlockPos pistonPos, net.minecraft.core.Direction pistonDirection, boolean extending) {
++    public net.minecraft.world.level.block.piston.PistonStructureResolver(net.minecraft.world.level.Level $$0, net.minecraft.core.BlockPos $$1, net.minecraft.core.Direction $$2, boolean $$3) {
+         this.toPush = com.google.common.collect.Lists.newArrayList();
+         this.toDestroy = com.google.common.collect.Lists.newArrayList();
+-        this.level = level;
+-        this.pistonPos = pistonPos;
+-        this.pistonDirection = pistonDirection;
+-        this.extending = extending;
+-        if (extending) {
+-            this.pushDirection = pistonDirection;
+-            this.startPos = pistonPos.relative(pistonDirection);
++        this.level = $$0;
++        this.pistonPos = $$1;
++        this.pistonDirection = $$2;
++        this.extending = $$3;
++        if ($$3) {
++            this.pushDirection = $$2;
++            this.startPos = $$1.relative($$2);
+         } else {
+-            this.pushDirection = pistonDirection.getOpposite();
+-            this.startPos = pistonPos.relative(pistonDirection, 2);
++            this.pushDirection = $$2.getOpposite();
++            this.startPos = $$1.relative($$2, 2);
+         }
+     }
+ 
+@@ -67,91 +67,89 @@
+         return net.minecraft.world.level.block.piston.PistonStructureResolver.isSticky((net.minecraft.world.level.block.state.BlockState)$$0) || net.minecraft.world.level.block.piston.PistonStructureResolver.isSticky((net.minecraft.world.level.block.state.BlockState)$$1);
+     }
+ 
+-    public boolean addBlockLine(net.minecraft.core.BlockPos originPos, net.minecraft.core.Direction direction) {
+-        int n;
+-        net.minecraft.world.level.block.state.BlockState blockState = this.level.getBlockState(originPos);
+-        if (blockState.isAir()) {
++    public boolean addBlockLine(net.minecraft.core.BlockPos $$0, net.minecraft.core.Direction $$1) {
++        net.minecraft.world.level.block.state.BlockState $$2 = this.level.getBlockState($$0);
++        if ($$2.isAir()) {
+             return true;
+         }
+-        if (!net.minecraft.world.level.block.piston.PistonBaseBlock.isPushable((net.minecraft.world.level.block.state.BlockState)blockState, (net.minecraft.world.level.Level)this.level, (net.minecraft.core.BlockPos)originPos, (net.minecraft.core.Direction)this.pushDirection, (boolean)false, (net.minecraft.core.Direction)direction)) {
++        if (!net.minecraft.world.level.block.piston.PistonBaseBlock.isPushable((net.minecraft.world.level.block.state.BlockState)$$2, (net.minecraft.world.level.Level)this.level, (net.minecraft.core.BlockPos)$$0, (net.minecraft.core.Direction)this.pushDirection, (boolean)false, (net.minecraft.core.Direction)$$1)) {
+             return true;
+         }
+-        if (originPos.equals((java.lang.Object)this.pistonPos)) {
++        if ($$0.equals((java.lang.Object)this.pistonPos)) {
+             return true;
+         }
+-        if (this.toPush.contains((java.lang.Object)originPos)) {
++        if (this.toPush.contains((java.lang.Object)$$0)) {
+             return true;
+         }
+-        int n2 = 1;
+-        if (n2 + this.toPush.size() > 12) {
++        int $$3 = 1;
++        if ($$3 + this.toPush.size() > 12) {
+             return false;
+         }
+-        while (net.minecraft.world.level.block.piston.PistonStructureResolver.isSticky((net.minecraft.world.level.block.state.BlockState)blockState)) {
+-            net.minecraft.core.BlockPos blockPos = originPos.relative(this.pushDirection.getOpposite(), n2);
+-            net.minecraft.world.level.block.state.BlockState blockState2 = blockState;
+-            blockState = this.level.getBlockState(blockPos);
+-            if (blockState.isAir() || !net.minecraft.world.level.block.piston.PistonStructureResolver.canStickToEachOther((net.minecraft.world.level.block.state.BlockState)blockState2, (net.minecraft.world.level.block.state.BlockState)blockState) || !net.minecraft.world.level.block.piston.PistonBaseBlock.isPushable((net.minecraft.world.level.block.state.BlockState)blockState, (net.minecraft.world.level.Level)this.level, (net.minecraft.core.BlockPos)blockPos, (net.minecraft.core.Direction)this.pushDirection, (boolean)false, (net.minecraft.core.Direction)this.pushDirection.getOpposite()) || blockPos.equals((java.lang.Object)this.pistonPos)) break;
+-            if (++n2 + this.toPush.size() <= 12) continue;
++        while (net.minecraft.world.level.block.piston.PistonStructureResolver.isSticky((net.minecraft.world.level.block.state.BlockState)$$2)) {
++            net.minecraft.core.BlockPos $$4 = $$0.relative(this.pushDirection.getOpposite(), $$3);
++            net.minecraft.world.level.block.state.BlockState $$5 = $$2;
++            $$2 = this.level.getBlockState($$4);
++            if ($$2.isAir() || !net.minecraft.world.level.block.piston.PistonStructureResolver.canStickToEachOther((net.minecraft.world.level.block.state.BlockState)$$5, (net.minecraft.world.level.block.state.BlockState)$$2) || !net.minecraft.world.level.block.piston.PistonBaseBlock.isPushable((net.minecraft.world.level.block.state.BlockState)$$2, (net.minecraft.world.level.Level)this.level, (net.minecraft.core.BlockPos)$$4, (net.minecraft.core.Direction)this.pushDirection, (boolean)false, (net.minecraft.core.Direction)this.pushDirection.getOpposite()) || $$4.equals((java.lang.Object)this.pistonPos)) break;
++            if (++$$3 + this.toPush.size() <= 12) continue;
+             return false;
+         }
+-        int n3 = 0;
+-        for (n = n2 - 1;
+- n >= 0; --n) {
+-            this.toPush.add((java.lang.Object)originPos.relative(this.pushDirection.getOpposite(), n));
+-            ++n3;
++        int $$6 = 0;
++        for (int $$7 = $$3 - 1; $$7 >= 0; --$$7) {
++            this.toPush.add((java.lang.Object)$$0.relative(this.pushDirection.getOpposite(), $$7));
++            ++$$6;
+         }
+-        n = 1;
++        int $$8 = 1;
+         while (true) {
+-            net.minecraft.core.BlockPos blockPos;
+-            int n4;
+-            if ((n4 = this.toPush.indexOf((java.lang.Object)(blockPos = originPos.relative(this.pushDirection, n)))) > -1) {
+-                this.reorderListAtCollision(n3, n4);
+-                for (int i = 0; i <= n4 + n3; ++i) {
+-                    net.minecraft.core.BlockPos blockPos2 = (net.minecraft.core.BlockPos)this.toPush.get(i);
+-                    if (!net.minecraft.world.level.block.piston.PistonStructureResolver.isSticky((net.minecraft.world.level.block.state.BlockState)this.level.getBlockState(blockPos2)) || this.addBranchingBlocks(blockPos2)) continue;
++            net.minecraft.core.BlockPos $$9;
++            int $$10;
++            if (($$10 = this.toPush.indexOf((java.lang.Object)($$9 = $$0.relative(this.pushDirection, $$8)))) > -1) {
++                this.reorderListAtCollision($$6, $$10);
++                for (int $$11 = 0; $$11 <= $$10 + $$6; ++$$11) {
++                    net.minecraft.core.BlockPos $$12 = (net.minecraft.core.BlockPos)this.toPush.get($$11);
++                    if (!net.minecraft.world.level.block.piston.PistonStructureResolver.isSticky((net.minecraft.world.level.block.state.BlockState)this.level.getBlockState($$12)) || this.addBranchingBlocks($$12)) continue;
+                     return false;
+                 }
+                 return true;
+             }
+-            blockState = this.level.getBlockState(blockPos);
+-            if (blockState.isAir()) {
++            $$2 = this.level.getBlockState($$9);
++            if ($$2.isAir()) {
+                 return true;
+             }
+-            if (!net.minecraft.world.level.block.piston.PistonBaseBlock.isPushable((net.minecraft.world.level.block.state.BlockState)blockState, (net.minecraft.world.level.Level)this.level, (net.minecraft.core.BlockPos)blockPos, (net.minecraft.core.Direction)this.pushDirection, (boolean)true, (net.minecraft.core.Direction)this.pushDirection) || blockPos.equals((java.lang.Object)this.pistonPos)) {
++            if (!net.minecraft.world.level.block.piston.PistonBaseBlock.isPushable((net.minecraft.world.level.block.state.BlockState)$$2, (net.minecraft.world.level.Level)this.level, (net.minecraft.core.BlockPos)$$9, (net.minecraft.core.Direction)this.pushDirection, (boolean)true, (net.minecraft.core.Direction)this.pushDirection) || $$9.equals((java.lang.Object)this.pistonPos)) {
+                 return false;
+             }
+-            if (blockState.getPistonPushReaction() == net.minecraft.world.level.material.PushReaction.DESTROY) {
+-                this.toDestroy.add((java.lang.Object)blockPos);
++            if ($$2.getPistonPushReaction() == net.minecraft.world.level.material.PushReaction.DESTROY) {
++                this.toDestroy.add((java.lang.Object)$$9);
+                 return true;
+             }
+             if (this.toPush.size() >= 12) {
+                 return false;
+             }
+-            this.toPush.add((java.lang.Object)blockPos);
+-            ++n3;
+-            ++n;
++            this.toPush.add((java.lang.Object)$$9);
++            ++$$6;
++            ++$$8;
+         }
+     }
+ 
+-    public void reorderListAtCollision(int offsets, int index) {
+-        java.util.ArrayList arrayList = com.google.common.collect.Lists.newArrayList();
+-        java.util.ArrayList arrayList2 = com.google.common.collect.Lists.newArrayList();
+-        java.util.ArrayList arrayList3 = com.google.common.collect.Lists.newArrayList();
+-        arrayList.addAll((java.util.Collection)this.toPush.subList(0, index));
+-        arrayList2.addAll((java.util.Collection)this.toPush.subList(this.toPush.size() - offsets, this.toPush.size()));
+-        arrayList3.addAll((java.util.Collection)this.toPush.subList(index, this.toPush.size() - offsets));
++    public void reorderListAtCollision(int $$0, int $$1) {
++        java.util.ArrayList $$2 = com.google.common.collect.Lists.newArrayList();
++        java.util.ArrayList $$3 = com.google.common.collect.Lists.newArrayList();
++        java.util.ArrayList $$4 = com.google.common.collect.Lists.newArrayList();
++        $$2.addAll((java.util.Collection)this.toPush.subList(0, $$1));
++        $$3.addAll((java.util.Collection)this.toPush.subList(this.toPush.size() - $$0, this.toPush.size()));
++        $$4.addAll((java.util.Collection)this.toPush.subList($$1, this.toPush.size() - $$0));
+         this.toPush.clear();
+-        this.toPush.addAll((java.util.Collection)arrayList);
+-        this.toPush.addAll((java.util.Collection)arrayList2);
+-        this.toPush.addAll((java.util.Collection)arrayList3);
++        this.toPush.addAll((java.util.Collection)$$2);
++        this.toPush.addAll((java.util.Collection)$$3);
++        this.toPush.addAll((java.util.Collection)$$4);
+     }
+ 
+-    public boolean addBranchingBlocks(net.minecraft.core.BlockPos fromPos) {
+-        net.minecraft.world.level.block.state.BlockState blockState = this.level.getBlockState(fromPos);
+-        for (net.minecraft.core.Direction direction : net.minecraft.core.Direction.values()) {
+-            net.minecraft.core.BlockPos blockPos;
+-            net.minecraft.world.level.block.state.BlockState blockState2;
+-            if (direction.getAxis() == this.pushDirection.getAxis() || !net.minecraft.world.level.block.piston.PistonStructureResolver.canStickToEachOther((net.minecraft.world.level.block.state.BlockState)(blockState2 = this.level.getBlockState(blockPos = fromPos.relative(direction))), (net.minecraft.world.level.block.state.BlockState)blockState) || this.addBlockLine(blockPos, direction)) continue;
++    public boolean addBranchingBlocks(net.minecraft.core.BlockPos $$0) {
++        net.minecraft.world.level.block.state.BlockState $$1 = this.level.getBlockState($$0);
++        for (net.minecraft.core.Direction $$2 : net.minecraft.core.Direction.values()) {
++            net.minecraft.core.BlockPos $$3;
++            net.minecraft.world.level.block.state.BlockState $$4;
++            if ($$2.getAxis() == this.pushDirection.getAxis() || !net.minecraft.world.level.block.piston.PistonStructureResolver.canStickToEachOther((net.minecraft.world.level.block.state.BlockState)($$4 = this.level.getBlockState($$3 = $$0.relative($$2))), (net.minecraft.world.level.block.state.BlockState)$$1) || this.addBlockLine($$3, $$2)) continue;
+             return false;
+         }
+         return true;

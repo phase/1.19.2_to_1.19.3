@@ -1,0 +1,121 @@
+--- net/minecraft/client/renderer/texture/Stitcher$Region.java
++++ net/minecraft/client/renderer/texture/Stitcher$Region.java
+@@ -3,26 +3,24 @@
+  */
+ package net.minecraft.client.renderer.texture;
+ 
+-public class net.minecraft.client.renderer.texture.Stitcher$Region
++public class net.minecraft.client.renderer.texture.Stitcher$Region<T extends net.minecraft.client.renderer.texture.Stitcher$Entry>
+  {
+     public int originX;
+     public int originY;
+     public int width;
+     public int height;
+-    public java.util.List<net.minecraft.client.renderer.texture.Stitcher$Region> subSlots;
+-    public net.minecraft.client.renderer.texture.Stitcher$Holder holder;
++    @javax.annotation.Nullable
++    public java.util.List<net.minecraft.client.renderer.texture.Stitcher$Region<T>> subSlots;
++    @javax.annotation.Nullable
++    public net.minecraft.client.renderer.texture.Stitcher$Holder<T> holder;
+ 
+-    public net.minecraft.client.renderer.texture.Stitcher$Region(int originX, int originY, int width, int height) {
+-        this.originX = originX;
+-        this.originY = originY;
+-        this.width = width;
+-        this.height = height;
++    public net.minecraft.client.renderer.texture.Stitcher$Region(int $$0, int $$1, int $$2, int $$3) {
++        this.originX = $$0;
++        this.originY = $$1;
++        this.width = $$2;
++        this.height = $$3;
+     }
+ 
+-    public net.minecraft.client.renderer.texture.Stitcher$Holder getHolder() {
+-        return this.holder;
+-    }
+-
+     public int getX() {
+         return this.originX;
+     }
+@@ -31,53 +29,53 @@
+         return this.originY;
+     }
+ 
+-    public boolean add(net.minecraft.client.renderer.texture.Stitcher$Holder holder) {
++    public boolean add(net.minecraft.client.renderer.texture.Stitcher$Holder<T> $$0) {
+         if (this.holder != null) {
+             return false;
+         }
+-        int n = holder.width;
+-        int n2 = holder.height;
+-        if (n > this.width || n2 > this.height) {
++        int $$1 = $$0.width;
++        int $$2 = $$0.height;
++        if ($$1 > this.width || $$2 > this.height) {
+             return false;
+         }
+-        if (n == this.width && n2 == this.height) {
+-            this.holder = holder;
++        if ($$1 == this.width && $$2 == this.height) {
++            this.holder = $$0;
+             return true;
+         }
+         if (this.subSlots == null) {
+-            this.subSlots = com.google.common.collect.Lists.newArrayListWithCapacity((int)1);
+-            this.subSlots.add((java.lang.Object)new net.minecraft.client.renderer.texture.Stitcher$Region(this.originX, this.originY, n, n2));
+-            int n3 = this.width - n;
+-            int n4 = this.height - n2;
+-            if (n4 > 0 && n3 > 0) {
+-                int n5;
+-                int n6 = java.lang.Math.max((int)this.height, (int)n3);
+-                if (n6 >= (n5 = java.lang.Math.max((int)this.width, (int)n4))) {
+-                    this.subSlots.add((java.lang.Object)new net.minecraft.client.renderer.texture.Stitcher$Region(this.originX, this.originY + n2, n, n4));
+-                    this.subSlots.add((java.lang.Object)new net.minecraft.client.renderer.texture.Stitcher$Region(this.originX + n, this.originY, n3, this.height));
++            this.subSlots = new java.util.ArrayList(1);
++            this.subSlots.add((java.lang.Object)new net.minecraft.client.renderer.texture.Stitcher$Region(this.originX, this.originY, $$1, $$2));
++            int $$3 = this.width - $$1;
++            int $$4 = this.height - $$2;
++            if ($$4 > 0 && $$3 > 0) {
++                int $$6;
++                int $$5 = java.lang.Math.max((int)this.height, (int)$$3);
++                if ($$5 >= ($$6 = java.lang.Math.max((int)this.width, (int)$$4))) {
++                    this.subSlots.add((java.lang.Object)new net.minecraft.client.renderer.texture.Stitcher$Region(this.originX, this.originY + $$2, $$1, $$4));
++                    this.subSlots.add((java.lang.Object)new net.minecraft.client.renderer.texture.Stitcher$Region(this.originX + $$1, this.originY, $$3, this.height));
+                 } else {
+-                    this.subSlots.add((java.lang.Object)new net.minecraft.client.renderer.texture.Stitcher$Region(this.originX + n, this.originY, n3, n2));
+-                    this.subSlots.add((java.lang.Object)new net.minecraft.client.renderer.texture.Stitcher$Region(this.originX, this.originY + n2, this.width, n4));
++                    this.subSlots.add((java.lang.Object)new net.minecraft.client.renderer.texture.Stitcher$Region(this.originX + $$1, this.originY, $$3, $$2));
++                    this.subSlots.add((java.lang.Object)new net.minecraft.client.renderer.texture.Stitcher$Region(this.originX, this.originY + $$2, this.width, $$4));
+                 }
+-            } else if (n3 == 0) {
+-                this.subSlots.add((java.lang.Object)new net.minecraft.client.renderer.texture.Stitcher$Region(this.originX, this.originY + n2, n, n4));
+-            } else if (n4 == 0) {
+-                this.subSlots.add((java.lang.Object)new net.minecraft.client.renderer.texture.Stitcher$Region(this.originX + n, this.originY, n3, n2));
++            } else if ($$3 == 0) {
++                this.subSlots.add((java.lang.Object)new net.minecraft.client.renderer.texture.Stitcher$Region(this.originX, this.originY + $$2, $$1, $$4));
++            } else if ($$4 == 0) {
++                this.subSlots.add((java.lang.Object)new net.minecraft.client.renderer.texture.Stitcher$Region(this.originX + $$1, this.originY, $$3, $$2));
+             }
+         }
+-        for (net.minecraft.client.renderer.texture.Stitcher$Region region : this.subSlots) {
+-            if (!region.add(holder)) continue;
++        for (net.minecraft.client.renderer.texture.Stitcher$Region $$7 : this.subSlots) {
++            if (!$$7.add($$0)) continue;
+             return true;
+         }
+         return false;
+     }
+ 
+-    public void walk(java.util.function.Consumer<net.minecraft.client.renderer.texture.Stitcher$Region> slots) {
++    public void walk(net.minecraft.client.renderer.texture.Stitcher$SpriteLoader<T> $$0) {
+         if (this.holder != null) {
+-            slots.accept((java.lang.Object)this);
++            $$0.load(this.holder.entry, this.getX(), this.getY());
+         } else if (this.subSlots != null) {
+-            for (net.minecraft.client.renderer.texture.Stitcher$Region region : this.subSlots) {
+-                region.walk(slots);
++            for (net.minecraft.client.renderer.texture.Stitcher$Region $$1 : this.subSlots) {
++                $$1.walk($$0);
+             }
+         }
+     }

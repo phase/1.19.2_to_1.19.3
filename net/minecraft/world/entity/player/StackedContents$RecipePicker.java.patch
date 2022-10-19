@@ -1,0 +1,248 @@
+--- net/minecraft/world/entity/player/StackedContents$RecipePicker.java
++++ net/minecraft/world/entity/player/StackedContents$RecipePicker.java
+@@ -14,68 +14,66 @@
+     public it.unimi.dsi.fastutil.ints.IntList path;
+     public /* synthetic */ net.minecraft.world.entity.player.StackedContents this$0;
+ 
+-    public net.minecraft.world.entity.player.StackedContents$RecipePicker(net.minecraft.world.entity.player.StackedContents stackedContents, net.minecraft.world.item.crafting.Recipe<?> recipe) {
++    public net.minecraft.world.entity.player.StackedContents$RecipePicker(net.minecraft.world.entity.player.StackedContents stackedContents, net.minecraft.world.item.crafting.Recipe<?> $$0) {
+         this.this$0 = stackedContents;
+         this.ingredients = com.google.common.collect.Lists.newArrayList();
+         this.path = new it.unimi.dsi.fastutil.ints.IntArrayList();
+-        this.recipe = recipe;
+-        this.ingredients.addAll((java.util.Collection)recipe.getIngredients());
++        this.recipe = $$0;
++        this.ingredients.addAll((java.util.Collection)$$0.getIngredients());
+         this.ingredients.removeIf(net.minecraft.world.item.crafting.Ingredient::isEmpty);
+         this.ingredientCount = this.ingredients.size();
+         this.items = this.getUniqueAvailableIngredientItems();
+         this.itemCount = this.items.length;
+         this.data = new java.util.BitSet(this.ingredientCount + this.itemCount + this.ingredientCount + this.ingredientCount * this.itemCount);
+-        for (int i = 0; i < this.ingredients.size(); ++i) {
+-            it.unimi.dsi.fastutil.ints.IntList intList = ((net.minecraft.world.item.crafting.Ingredient)this.ingredients.get(i)).getStackingIds();
+-            for (int j = 0; j < this.itemCount; ++j) {
+-                if (!intList.contains(this.items[j])) continue;
+-                this.data.set(this.getIndex(true, j, i));
++        for (int $$1 = 0; $$1 < this.ingredients.size(); ++$$1) {
++            it.unimi.dsi.fastutil.ints.IntList $$2 = ((net.minecraft.world.item.crafting.Ingredient)this.ingredients.get($$1)).getStackingIds();
++            for (int $$3 = 0; $$3 < this.itemCount; ++$$3) {
++                if (!$$2.contains(this.items[$$3])) continue;
++                this.data.set(this.getIndex(true, $$3, $$1));
+             }
+         }
+     }
+ 
+-    public boolean tryPick(int amount, @javax.annotation.Nullable it.unimi.dsi.fastutil.ints.IntList stackingIndexList) {
+-        int n;
+-        int n2;
+-        if (amount <= 0) {
++    public boolean tryPick(int $$0, @javax.annotation.Nullable it.unimi.dsi.fastutil.ints.IntList $$1) {
++        boolean $$6;
++        if ($$0 <= 0) {
+             return true;
+         }
+-        int n3 = 0;
+-        while (this.dfs(amount)) {
+-            this.this$0.take(this.items[this.path.getInt(0)], amount);
+-            n2 = this.path.size() - 1;
+-            this.setSatisfied(this.path.getInt(n2));
+-            for (n = 0;
+- n < n2; ++n) {
+-                this.toggleResidual((n & 1) == 0, this.path.get(n).intValue(), this.path.get(n + 1).intValue());
++        int $$2 = 0;
++        while (this.dfs($$0)) {
++            this.this$0.take(this.items[this.path.getInt(0)], $$0);
++            int $$3 = this.path.size() - 1;
++            this.setSatisfied(this.path.getInt($$3));
++            for (int $$4 = 0; $$4 < $$3; ++$$4) {
++                this.toggleResidual(($$4 & 1) == 0, this.path.get($$4).intValue(), this.path.get($$4 + 1).intValue());
+             }
+             this.path.clear();
+             this.data.clear(0, this.ingredientCount + this.itemCount);
+-            ++n3;
++            ++$$2;
+         }
+-        n2 = n3 == this.ingredientCount ? 1 : 0;
+-        int n4 = n = n2 != 0 && stackingIndexList != null ? 1 : 0;
+-        if (n != 0) {
+-            stackingIndexList.clear();
++        boolean $$5 = $$2 == this.ingredientCount;
++        boolean bl = $$6 = $$5 && $$1 != null;
++        if ($$6) {
++            $$1.clear();
+         }
+         this.data.clear(0, this.ingredientCount + this.itemCount + this.ingredientCount);
+-        int n5 = 0;
+-        net.minecraft.core.NonNullList nonNullList = this.recipe.getIngredients();
+-        for (int i = 0; i < nonNullList.size(); ++i) {
+-            if (n != 0 && ((net.minecraft.world.item.crafting.Ingredient)nonNullList.get(i)).isEmpty()) {
+-                stackingIndexList.add(0);
++        int $$7 = 0;
++        net.minecraft.core.NonNullList $$8 = this.recipe.getIngredients();
++        for (int $$9 = 0; $$9 < $$8.size(); ++$$9) {
++            if ($$6 && ((net.minecraft.world.item.crafting.Ingredient)$$8.get($$9)).isEmpty()) {
++                $$1.add(0);
+                 continue;
+             }
+-            for (int j = 0; j < this.itemCount; ++j) {
+-                if (!this.hasResidual(false, n5, j)) continue;
+-                this.toggleResidual(true, j, n5);
+-                this.this$0.put(this.items[j], amount);
+-                if (n == 0) continue;
+-                stackingIndexList.add(this.items[j]);
++            for (int $$10 = 0; $$10 < this.itemCount; ++$$10) {
++                if (!this.hasResidual(false, $$7, $$10)) continue;
++                this.toggleResidual(true, $$10, $$7);
++                this.this$0.put(this.items[$$10], $$0);
++                if (!$$6) continue;
++                $$1.add(this.items[$$10]);
+             }
+-            ++n5;
++            ++$$7;
+         }
+-        return n2 != 0;
++        return $$5;
+     }
+ 
+     public int[] getUniqueAvailableIngredientItems() {
+@@ -91,26 +89,25 @@
+         return $$0.toIntArray();
+     }
+ 
+-    public boolean dfs(int amount) {
+-        int n = this.itemCount;
+-        for (int i = 0; i < n; ++i) {
+-            if (this.this$0.contents.get(this.items[i]) < amount) continue;
+-            this.visit(false, i);
++    public boolean dfs(int $$0) {
++        int $$1 = this.itemCount;
++        for (int $$2 = 0; $$2 < $$1; ++$$2) {
++            if (this.this$0.contents.get(this.items[$$2]) < $$0) continue;
++            this.visit(false, $$2);
+             while (!this.path.isEmpty()) {
+-                int n2;
+-                int n3 = this.path.size();
+-                boolean bl = (n3 & 1) == 1;
+-                int n4 = this.path.getInt(n3 - 1);
+-                if (!bl && !this.isSatisfied(n4)) break;
+-                int n5 = bl ? this.ingredientCount : n;
+-                for (n2 = 0;
+- n2 < n5; ++n2) {
+-                    if (this.hasVisited(bl, n2) || !this.hasConnection(bl, n4, n2) || !this.hasResidual(bl, n4, n2)) continue;
+-                    this.visit(bl, n2);
++                int $$8;
++                int $$3 = this.path.size();
++                boolean $$4 = ($$3 & 1) == 1;
++                int $$5 = this.path.getInt($$3 - 1);
++                if (!$$4 && !this.isSatisfied($$5)) break;
++                int $$6 = $$4 ? this.ingredientCount : $$1;
++                for (int $$7 = 0; $$7 < $$6; ++$$7) {
++                    if (this.hasVisited($$4, $$7) || !this.hasConnection($$4, $$5, $$7) || !this.hasResidual($$4, $$5, $$7)) continue;
++                    this.visit($$4, $$7);
+                     break;
+                 }
+-                if ((n2 = this.path.size()) != n3) continue;
+-                this.path.removeInt(n2 - 1);
++                if (($$8 = this.path.size()) != $$3) continue;
++                this.path.removeInt($$8 - 1);
+             }
+             if (this.path.isEmpty()) continue;
+             return true;
+@@ -118,64 +115,64 @@
+         return false;
+     }
+ 
+-    public boolean isSatisfied(int stackingIndex) {
+-        return this.data.get(this.getSatisfiedIndex(stackingIndex));
++    public boolean isSatisfied(int $$0) {
++        return this.data.get(this.getSatisfiedIndex($$0));
+     }
+ 
+-    public void setSatisfied(int stackingIndex) {
+-        this.data.set(this.getSatisfiedIndex(stackingIndex));
++    public void setSatisfied(int $$0) {
++        this.data.set(this.getSatisfiedIndex($$0));
+     }
+ 
+-    public int getSatisfiedIndex(int stackingIndex) {
+-        return this.ingredientCount + this.itemCount + stackingIndex;
++    public int getSatisfiedIndex(int $$0) {
++        return this.ingredientCount + this.itemCount + $$0;
+     }
+ 
+-    public boolean hasConnection(boolean isIngredientPath, int stackingIndex, int pathIndex) {
+-        return this.data.get(this.getIndex(isIngredientPath, stackingIndex, pathIndex));
++    public boolean hasConnection(boolean $$0, int $$1, int $$2) {
++        return this.data.get(this.getIndex($$0, $$1, $$2));
+     }
+ 
+-    public boolean hasResidual(boolean isIngredientPath, int stackingIndex, int pathIndex) {
+-        return isIngredientPath != this.data.get(1 + this.getIndex(isIngredientPath, stackingIndex, pathIndex));
++    public boolean hasResidual(boolean $$0, int $$1, int $$2) {
++        return $$0 != this.data.get(1 + this.getIndex($$0, $$1, $$2));
+     }
+ 
+-    public void toggleResidual(boolean isIngredientPath, int stackingIndex, int pathIndex) {
+-        this.data.flip(1 + this.getIndex(isIngredientPath, stackingIndex, pathIndex));
++    public void toggleResidual(boolean $$0, int $$1, int $$2) {
++        this.data.flip(1 + this.getIndex($$0, $$1, $$2));
+     }
+ 
+-    public int getIndex(boolean isIngredientPath, int stackingIndex, int pathIndex) {
+-        int n = isIngredientPath ? stackingIndex * this.ingredientCount + pathIndex : pathIndex * this.ingredientCount + stackingIndex;
+-        return this.ingredientCount + this.itemCount + this.ingredientCount + 2 * n;
++    public int getIndex(boolean $$0, int $$1, int $$2) {
++        int $$3 = $$0 ? $$1 * this.ingredientCount + $$2 : $$2 * this.ingredientCount + $$1;
++        return this.ingredientCount + this.itemCount + this.ingredientCount + 2 * $$3;
+     }
+ 
+-    public void visit(boolean isIngredientPath, int pathIndex) {
+-        this.data.set(this.getVisitedIndex(isIngredientPath, pathIndex));
+-        this.path.add(pathIndex);
++    public void visit(boolean $$0, int $$1) {
++        this.data.set(this.getVisitedIndex($$0, $$1));
++        this.path.add($$1);
+     }
+ 
+-    public boolean hasVisited(boolean isIngredientPath, int pathIndex) {
+-        return this.data.get(this.getVisitedIndex(isIngredientPath, pathIndex));
++    public boolean hasVisited(boolean $$0, int $$1) {
++        return this.data.get(this.getVisitedIndex($$0, $$1));
+     }
+ 
+-    public int getVisitedIndex(boolean isIngredientPath, int pathIndex) {
+-        return (isIngredientPath ? 0 : this.ingredientCount) + pathIndex;
++    public int getVisitedIndex(boolean $$0, int $$1) {
++        return ($$0 ? 0 : this.ingredientCount) + $$1;
+     }
+ 
+-    public int tryPickAll(int amount, @javax.annotation.Nullable it.unimi.dsi.fastutil.ints.IntList stackingIndexList) {
+-        int n;
+-        int n2 = 0;
+-        int n3 = java.lang.Math.min((int)amount, (int)this.getMinIngredientCount()) + 1;
++    public int tryPickAll(int $$0, @javax.annotation.Nullable it.unimi.dsi.fastutil.ints.IntList $$1) {
++        int $$4;
++        int $$2 = 0;
++        int $$3 = java.lang.Math.min((int)$$0, (int)this.getMinIngredientCount()) + 1;
+         while (true) {
+-            if (this.tryPick(n = (n2 + n3) / 2, null)) {
+-                if (n3 - n2 <= 1) break;
+-                n2 = n;
++            if (this.tryPick($$4 = ($$2 + $$3) / 2, null)) {
++                if ($$3 - $$2 <= 1) break;
++                $$2 = $$4;
+                 continue;
+             }
+-            n3 = n;
++            $$3 = $$4;
+         }
+-        if (n > 0) {
+-            this.tryPick(n, stackingIndexList);
++        if ($$4 > 0) {
++            this.tryPick($$4, $$1);
+         }
+-        return n;
++        return $$4;
+     }
+ 
+     public int getMinIngredientCount() {

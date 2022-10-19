@@ -1,0 +1,98 @@
+--- net/minecraft/client/multiplayer/ServerStatusPinger$1.java
++++ net/minecraft/client/multiplayer/ServerStatusPinger$1.java
+@@ -23,49 +23,48 @@
+         this.val$address = inetSocketAddress;
+     }
+ 
+-    public void handleStatusResponse(net.minecraft.network.protocol.status.ClientboundStatusResponsePacket packet) {
+-        java.lang.String string;
++    public void handleStatusResponse(net.minecraft.network.protocol.status.ClientboundStatusResponsePacket $$0) {
+         if (this.receivedPing) {
+             this.val$connection.disconnect((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"multiplayer.status.unrequested"));
+             return;
+         }
+         this.receivedPing = true;
+-        net.minecraft.network.protocol.status.ServerStatus serverStatus = packet.getStatus();
+-        this.val$data.motd = serverStatus.getDescription() != null ? serverStatus.getDescription() : net.minecraft.network.chat.CommonComponents.EMPTY;
+-        if (serverStatus.getVersion() != null) {
+-            this.val$data.version = net.minecraft.network.chat.Component.literal((java.lang.String)serverStatus.getVersion().getName());
+-            this.val$data.protocol = serverStatus.getVersion().getProtocol();
++        net.minecraft.network.protocol.status.ServerStatus $$1 = $$0.getStatus();
++        this.val$data.motd = $$1.getDescription() != null ? $$1.getDescription() : net.minecraft.network.chat.CommonComponents.EMPTY;
++        if ($$1.getVersion() != null) {
++            this.val$data.version = net.minecraft.network.chat.Component.literal((java.lang.String)$$1.getVersion().getName());
++            this.val$data.protocol = $$1.getVersion().getProtocol();
+         } else {
+             this.val$data.version = net.minecraft.network.chat.Component.translatable((java.lang.String)"multiplayer.status.old");
+             this.val$data.protocol = 0;
+         }
+-        if (serverStatus.getPlayers() != null) {
+-            this.val$data.status = net.minecraft.client.multiplayer.ServerStatusPinger.formatPlayerCount((int)serverStatus.getPlayers().getNumPlayers(), (int)serverStatus.getPlayers().getMaxPlayers());
+-            string = com.google.common.collect.Lists.newArrayList();
+-            com.mojang.authlib.GameProfile[] gameProfileArray = serverStatus.getPlayers().getSample();
+-            if (gameProfileArray != null && gameProfileArray.length > 0) {
+-                for (com.mojang.authlib.GameProfile gameProfile : gameProfileArray) {
+-                    string.add((java.lang.Object)net.minecraft.network.chat.Component.literal((java.lang.String)gameProfile.getName()));
++        if ($$1.getPlayers() != null) {
++            this.val$data.status = net.minecraft.client.multiplayer.ServerStatusPinger.formatPlayerCount((int)$$1.getPlayers().getNumPlayers(), (int)$$1.getPlayers().getMaxPlayers());
++            java.util.ArrayList $$2 = com.google.common.collect.Lists.newArrayList();
++            com.mojang.authlib.GameProfile[] $$3 = $$1.getPlayers().getSample();
++            if ($$3 != null && $$3.length > 0) {
++                for (com.mojang.authlib.GameProfile $$4 : $$3) {
++                    $$2.add((java.lang.Object)net.minecraft.network.chat.Component.literal((java.lang.String)$$4.getName()));
+                 }
+-                if (gameProfileArray.length < serverStatus.getPlayers().getNumPlayers()) {
+-                    string.add((java.lang.Object)net.minecraft.network.chat.Component.translatable((java.lang.String)"multiplayer.status.and_more", (java.lang.Object[])new java.lang.Object[]{serverStatus.getPlayers().getNumPlayers() - gameProfileArray.length}));
++                if ($$3.length < $$1.getPlayers().getNumPlayers()) {
++                    $$2.add((java.lang.Object)net.minecraft.network.chat.Component.translatable((java.lang.String)"multiplayer.status.and_more", (java.lang.Object[])new java.lang.Object[]{$$1.getPlayers().getNumPlayers() - $$3.length}));
+                 }
+-                this.val$data.playerList = string;
++                this.val$data.playerList = $$2;
+             }
+         } else {
+             this.val$data.status = net.minecraft.network.chat.Component.translatable((java.lang.String)"multiplayer.status.unknown").withStyle(net.minecraft.ChatFormatting.DARK_GRAY);
+         }
+-        string = serverStatus.getFavicon();
+-        if (string != null) {
++        java.lang.String $$5 = $$1.getFavicon();
++        if ($$5 != null) {
+             try {
+-                string = net.minecraft.client.multiplayer.ServerData.parseFavicon((java.lang.String)string);
++                $$5 = net.minecraft.client.multiplayer.ServerData.parseFavicon((java.lang.String)$$5);
+             }
+-            catch (java.text.ParseException parseException) {
+-                net.minecraft.client.multiplayer.ServerStatusPinger.LOGGER.error("Invalid server icon", (java.lang.Throwable)parseException);
++            catch (java.text.ParseException $$6) {
++                net.minecraft.client.multiplayer.ServerStatusPinger.LOGGER.error("Invalid server icon", (java.lang.Throwable)$$6);
+             }
+         }
+-        if (!java.util.Objects.equals((java.lang.Object)string, (java.lang.Object)this.val$data.getIconB64())) {
+-            this.val$data.setIconB64(string);
++        if (!java.util.Objects.equals((java.lang.Object)$$5, (java.lang.Object)this.val$data.getIconB64())) {
++            this.val$data.setIconB64($$5);
+             this.val$onPersistentDataChange.run();
+         }
+         this.pingStart = net.minecraft.Util.getMillis();
+@@ -73,16 +72,16 @@
+         this.success = true;
+     }
+ 
+-    public void handlePongResponse(net.minecraft.network.protocol.status.ClientboundPongResponsePacket packet) {
+-        long l = this.pingStart;
+-        long l2 = net.minecraft.Util.getMillis();
+-        this.val$data.ping = l2 - l;
++    public void handlePongResponse(net.minecraft.network.protocol.status.ClientboundPongResponsePacket $$0) {
++        long $$1 = this.pingStart;
++        long $$2 = net.minecraft.Util.getMillis();
++        this.val$data.ping = $$2 - $$1;
+         this.val$connection.disconnect((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"multiplayer.status.finished"));
+     }
+ 
+-    public void onDisconnect(net.minecraft.network.chat.Component reason) {
++    public void onDisconnect(net.minecraft.network.chat.Component $$0) {
+         if (!this.success) {
+-            this.this$0.onPingFailed(reason, this.val$data);
++            this.this$0.onPingFailed($$0, this.val$data);
+             this.this$0.pingLegacyServer(this.val$address, this.val$data);
+         }
+     }

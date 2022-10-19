@@ -1,0 +1,77 @@
+--- net/minecraft/client/renderer/debug/NeighborsUpdateRenderer.java
++++ net/minecraft/client/renderer/debug/NeighborsUpdateRenderer.java
+@@ -14,44 +14,42 @@
+         this.minecraft = $$0;
+     }
+ 
+-    public void addUpdate(long levelTime, net.minecraft.core.BlockPos pos) {
+-        java.util.Map map = (java.util.Map)this.lastUpdate.computeIfAbsent((java.lang.Object)levelTime, $$0 -> com.google.common.collect.Maps.newHashMap());
+-        int n = (java.lang.Integer)map.getOrDefault((java.lang.Object)pos, (java.lang.Object)0);
+-        map.put((java.lang.Object)pos, (java.lang.Object)(n + 1));
++    public void addUpdate(long $$02, net.minecraft.core.BlockPos $$1) {
++        java.util.Map $$2 = (java.util.Map)this.lastUpdate.computeIfAbsent((java.lang.Object)$$02, $$0 -> com.google.common.collect.Maps.newHashMap());
++        int $$3 = (java.lang.Integer)$$2.getOrDefault((java.lang.Object)$$1, (java.lang.Object)0);
++        $$2.put((java.lang.Object)$$1, (java.lang.Object)($$3 + 1));
+     }
+ 
+-    public void render(com.mojang.blaze3d.vertex.PoseStack matrixStack, net.minecraft.client.renderer.MultiBufferSource buffer, double camX, double camY, double camZ) {
+-        java.util.Map map;
+-        java.lang.Long l;
+-        long l2 = this.minecraft.level.getGameTime();
+-        int n = 200;
+-        double d = 0.0025;
+-        java.util.HashSet hashSet = com.google.common.collect.Sets.newHashSet();
+-        java.util.HashMap hashMap = com.google.common.collect.Maps.newHashMap();
+-        com.mojang.blaze3d.vertex.VertexConsumer vertexConsumer = buffer.getBuffer(net.minecraft.client.renderer.RenderType.lines());
+-        java.util.Iterator iterator = this.lastUpdate.entrySet().iterator();
+-        while (iterator.hasNext()) {
+-            java.util.Map$Entry entry = (java.util.Map$Entry)iterator.next();
+-            l = (java.lang.Long)entry.getKey();
+-            map = (java.util.Map)entry.getValue();
+-            long l3 = l2 - l;
+-            if (l3 > 200L) {
+-                iterator.remove();
++    public void render(com.mojang.blaze3d.vertex.PoseStack $$0, net.minecraft.client.renderer.MultiBufferSource $$1, double $$2, double $$3, double $$4) {
++        long $$5 = this.minecraft.level.getGameTime();
++        int $$6 = 200;
++        double $$7 = 0.0025;
++        java.util.HashSet $$8 = com.google.common.collect.Sets.newHashSet();
++        java.util.HashMap $$9 = com.google.common.collect.Maps.newHashMap();
++        com.mojang.blaze3d.vertex.VertexConsumer $$10 = $$1.getBuffer(net.minecraft.client.renderer.RenderType.lines());
++        java.util.Iterator $$11 = this.lastUpdate.entrySet().iterator();
++        while ($$11.hasNext()) {
++            java.util.Map$Entry $$12 = (java.util.Map$Entry)$$11.next();
++            java.lang.Long $$13 = (java.lang.Long)$$12.getKey();
++            java.util.Map $$14 = (java.util.Map)$$12.getValue();
++            long $$15 = $$5 - $$13;
++            if ($$15 > 200L) {
++                $$11.remove();
+                 continue;
+             }
+-            for (java.util.Map$Entry entry2 : map.entrySet()) {
+-                net.minecraft.core.BlockPos blockPos = (net.minecraft.core.BlockPos)entry2.getKey();
+-                java.lang.Integer n2 = (java.lang.Integer)entry2.getValue();
+-                if (!hashSet.add((java.lang.Object)blockPos)) continue;
+-                net.minecraft.world.phys.AABB aABB = new net.minecraft.world.phys.AABB(net.minecraft.core.BlockPos.ZERO).inflate(0.002).deflate(0.0025 * (double)l3).move((double)blockPos.getX(), (double)blockPos.getY(), (double)blockPos.getZ()).move(-camX, -camY, -camZ);
+-                net.minecraft.client.renderer.LevelRenderer.renderLineBox((com.mojang.blaze3d.vertex.PoseStack)matrixStack, (com.mojang.blaze3d.vertex.VertexConsumer)vertexConsumer, (double)aABB.minX, (double)aABB.minY, (double)aABB.minZ, (double)aABB.maxX, (double)aABB.maxY, (double)aABB.maxZ, (float)1.0f, (float)1.0f, (float)1.0f, (float)1.0f);
+-                hashMap.put((java.lang.Object)blockPos, (java.lang.Object)n2);
++            for (java.util.Map$Entry $$16 : $$14.entrySet()) {
++                net.minecraft.core.BlockPos $$17 = (net.minecraft.core.BlockPos)$$16.getKey();
++                java.lang.Integer $$18 = (java.lang.Integer)$$16.getValue();
++                if (!$$8.add((java.lang.Object)$$17)) continue;
++                net.minecraft.world.phys.AABB $$19 = new net.minecraft.world.phys.AABB(net.minecraft.core.BlockPos.ZERO).inflate(0.002).deflate(0.0025 * (double)$$15).move((double)$$17.getX(), (double)$$17.getY(), (double)$$17.getZ()).move(-$$2, -$$3, -$$4);
++                net.minecraft.client.renderer.LevelRenderer.renderLineBox((com.mojang.blaze3d.vertex.PoseStack)$$0, (com.mojang.blaze3d.vertex.VertexConsumer)$$10, (double)$$19.minX, (double)$$19.minY, (double)$$19.minZ, (double)$$19.maxX, (double)$$19.maxY, (double)$$19.maxZ, (float)1.0f, (float)1.0f, (float)1.0f, (float)1.0f);
++                $$9.put((java.lang.Object)$$17, (java.lang.Object)$$18);
+             }
+         }
+-        for (java.util.Map$Entry entry : hashMap.entrySet()) {
+-            l = (net.minecraft.core.BlockPos)entry.getKey();
+-            map = (java.lang.Integer)entry.getValue();
+-            net.minecraft.client.renderer.debug.DebugRenderer.renderFloatingText((java.lang.String)java.lang.String.valueOf((java.lang.Object)map), (int)l.getX(), (int)l.getY(), (int)l.getZ(), (int)-1);
++        for (java.util.Map$Entry $$20 : $$9.entrySet()) {
++            net.minecraft.core.BlockPos $$21 = (net.minecraft.core.BlockPos)$$20.getKey();
++            java.lang.Integer $$22 = (java.lang.Integer)$$20.getValue();
++            net.minecraft.client.renderer.debug.DebugRenderer.renderFloatingText((java.lang.String)java.lang.String.valueOf((java.lang.Object)$$22), (int)$$21.getX(), (int)$$21.getY(), (int)$$21.getZ(), (int)-1);
+         }
+     }
+ }

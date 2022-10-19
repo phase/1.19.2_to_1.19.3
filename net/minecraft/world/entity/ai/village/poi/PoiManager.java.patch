@@ -1,0 +1,159 @@
+--- net/minecraft/world/entity/ai/village/poi/PoiManager.java
++++ net/minecraft/world/entity/ai/village/poi/PoiManager.java
+@@ -21,23 +21,23 @@
+         ((net.minecraft.world.entity.ai.village.poi.PoiSection)this.getOrCreate(net.minecraft.core.SectionPos.asLong((net.minecraft.core.BlockPos)$$0))).add($$0, $$1);
+     }
+ 
+-    public void remove(net.minecraft.core.BlockPos pos) {
+-        this.getOrLoad(net.minecraft.core.SectionPos.asLong((net.minecraft.core.BlockPos)pos)).ifPresent($$1 -> $$1.remove(pos));
++    public void remove(net.minecraft.core.BlockPos $$0) {
++        this.getOrLoad(net.minecraft.core.SectionPos.asLong((net.minecraft.core.BlockPos)$$0)).ifPresent($$1 -> $$1.remove($$0));
+     }
+ 
+-    public long getCountInRange(java.util.function.Predicate<net.minecraft.core.Holder<net.minecraft.world.entity.ai.village.poi.PoiType>> predicate, net.minecraft.core.BlockPos pos, int distance, net.minecraft.world.entity.ai.village.poi.PoiManager$Occupancy status) {
+-        return this.getInRange(predicate, pos, distance, status).count();
++    public long getCountInRange(java.util.function.Predicate<net.minecraft.core.Holder<net.minecraft.world.entity.ai.village.poi.PoiType>> $$0, net.minecraft.core.BlockPos $$1, int $$2, net.minecraft.world.entity.ai.village.poi.PoiManager$Occupancy $$3) {
++        return this.getInRange($$0, $$1, $$2, $$3).count();
+     }
+ 
+     public boolean existsAtPosition(net.minecraft.resources.ResourceKey<net.minecraft.world.entity.ai.village.poi.PoiType> $$0, net.minecraft.core.BlockPos $$12) {
+         return this.exists($$12, $$1 -> $$1.is($$0));
+     }
+ 
+-    public java.util.stream.Stream<net.minecraft.world.entity.ai.village.poi.PoiRecord> getInSquare(java.util.function.Predicate<net.minecraft.core.Holder<net.minecraft.world.entity.ai.village.poi.PoiType>> typePredicate, net.minecraft.core.BlockPos pos, int distance, net.minecraft.world.entity.ai.village.poi.PoiManager$Occupancy status) {
+-        int n = java.lang.Math.floorDiv((int)distance, (int)16) + 1;
+-        return net.minecraft.world.level.ChunkPos.rangeClosed((net.minecraft.world.level.ChunkPos)new net.minecraft.world.level.ChunkPos(pos), (int)n).flatMap($$2 -> this.getInChunk(typePredicate, $$2, status)).filter($$2 -> {
++    public java.util.stream.Stream<net.minecraft.world.entity.ai.village.poi.PoiRecord> getInSquare(java.util.function.Predicate<net.minecraft.core.Holder<net.minecraft.world.entity.ai.village.poi.PoiType>> $$0, net.minecraft.core.BlockPos $$1, int $$22, net.minecraft.world.entity.ai.village.poi.PoiManager$Occupancy $$3) {
++        int $$4 = java.lang.Math.floorDiv((int)$$22, (int)16) + 1;
++        return net.minecraft.world.level.ChunkPos.rangeClosed((net.minecraft.world.level.ChunkPos)new net.minecraft.world.level.ChunkPos($$1), (int)$$4).flatMap($$2 -> this.getInChunk($$0, $$2, $$3)).filter($$2 -> {
+             net.minecraft.core.BlockPos $$3 = $$2.getPos();
+-            return java.lang.Math.abs((int)($$3.getX() - pos.getX())) <= distance && java.lang.Math.abs((int)($$3.getZ() - pos.getZ())) <= distance;
++            return java.lang.Math.abs((int)($$3.getX() - $$1.getX())) <= $$22 && java.lang.Math.abs((int)($$3.getZ() - $$1.getZ())) <= $$22;
+         });
+     }
+ 
+@@ -47,12 +47,12 @@
+     }
+ 
+     @net.minecraft.util.VisibleForDebug
+-    public java.util.stream.Stream<net.minecraft.world.entity.ai.village.poi.PoiRecord> getInChunk(java.util.function.Predicate<net.minecraft.core.Holder<net.minecraft.world.entity.ai.village.poi.PoiType>> predicate, net.minecraft.world.level.ChunkPos posChunk, net.minecraft.world.entity.ai.village.poi.PoiManager$Occupancy status) {
+-        return java.util.stream.IntStream.range((int)this.levelHeightAccessor.getMinSection(), (int)this.levelHeightAccessor.getMaxSection()).boxed().map($$1 -> this.getOrLoad(net.minecraft.core.SectionPos.of((net.minecraft.world.level.ChunkPos)posChunk, (int)$$1).asLong())).filter(java.util.Optional::isPresent).flatMap($$2 -> ((net.minecraft.world.entity.ai.village.poi.PoiSection)$$2.get()).getRecords(predicate, status));
++    public java.util.stream.Stream<net.minecraft.world.entity.ai.village.poi.PoiRecord> getInChunk(java.util.function.Predicate<net.minecraft.core.Holder<net.minecraft.world.entity.ai.village.poi.PoiType>> $$0, net.minecraft.world.level.ChunkPos $$12, net.minecraft.world.entity.ai.village.poi.PoiManager$Occupancy $$22) {
++        return java.util.stream.IntStream.range((int)this.levelHeightAccessor.getMinSection(), (int)this.levelHeightAccessor.getMaxSection()).boxed().map($$1 -> this.getOrLoad(net.minecraft.core.SectionPos.of((net.minecraft.world.level.ChunkPos)$$12, (int)$$1).asLong())).filter(java.util.Optional::isPresent).flatMap($$2 -> ((net.minecraft.world.entity.ai.village.poi.PoiSection)$$2.get()).getRecords($$0, $$22));
+     }
+ 
+-    public java.util.stream.Stream<net.minecraft.core.BlockPos> findAll(java.util.function.Predicate<net.minecraft.core.Holder<net.minecraft.world.entity.ai.village.poi.PoiType>> typePredicate, java.util.function.Predicate<net.minecraft.core.BlockPos> posPredicate, net.minecraft.core.BlockPos pos, int distance, net.minecraft.world.entity.ai.village.poi.PoiManager$Occupancy status) {
+-        return this.getInRange(typePredicate, pos, distance, status).map(net.minecraft.world.entity.ai.village.poi.PoiRecord::getPos).filter(posPredicate);
++    public java.util.stream.Stream<net.minecraft.core.BlockPos> findAll(java.util.function.Predicate<net.minecraft.core.Holder<net.minecraft.world.entity.ai.village.poi.PoiType>> $$0, java.util.function.Predicate<net.minecraft.core.BlockPos> $$1, net.minecraft.core.BlockPos $$2, int $$3, net.minecraft.world.entity.ai.village.poi.PoiManager$Occupancy $$4) {
++        return this.getInRange($$0, $$2, $$3, $$4).map(net.minecraft.world.entity.ai.village.poi.PoiRecord::getPos).filter($$1);
+     }
+ 
+     public java.util.stream.Stream<com.mojang.datafixers.util.Pair<net.minecraft.core.Holder<net.minecraft.world.entity.ai.village.poi.PoiType>, net.minecraft.core.BlockPos>> findAllWithType(java.util.function.Predicate<net.minecraft.core.Holder<net.minecraft.world.entity.ai.village.poi.PoiType>> $$02, java.util.function.Predicate<net.minecraft.core.BlockPos> $$12, net.minecraft.core.BlockPos $$2, int $$3, net.minecraft.world.entity.ai.village.poi.PoiManager$Occupancy $$4) {
+@@ -63,8 +63,8 @@
+         return this.findAllWithType($$0, $$12, $$2, $$3, $$4).sorted(java.util.Comparator.comparingDouble($$1 -> ((net.minecraft.core.BlockPos)$$1.getSecond()).distSqr((net.minecraft.core.Vec3i)$$2)));
+     }
+ 
+-    public java.util.Optional<net.minecraft.core.BlockPos> find(java.util.function.Predicate<net.minecraft.core.Holder<net.minecraft.world.entity.ai.village.poi.PoiType>> typePredicate, java.util.function.Predicate<net.minecraft.core.BlockPos> posPredicate, net.minecraft.core.BlockPos pos, int distance, net.minecraft.world.entity.ai.village.poi.PoiManager$Occupancy status) {
+-        return this.findAll(typePredicate, posPredicate, pos, distance, status).findFirst();
++    public java.util.Optional<net.minecraft.core.BlockPos> find(java.util.function.Predicate<net.minecraft.core.Holder<net.minecraft.world.entity.ai.village.poi.PoiType>> $$0, java.util.function.Predicate<net.minecraft.core.BlockPos> $$1, net.minecraft.core.BlockPos $$2, int $$3, net.minecraft.world.entity.ai.village.poi.PoiManager$Occupancy $$4) {
++        return this.findAll($$0, $$1, $$2, $$3, $$4).findFirst();
+     }
+ 
+     public java.util.Optional<net.minecraft.core.BlockPos> findClosest(java.util.function.Predicate<net.minecraft.core.Holder<net.minecraft.world.entity.ai.village.poi.PoiType>> $$0, net.minecraft.core.BlockPos $$12, int $$2, net.minecraft.world.entity.ai.village.poi.PoiManager$Occupancy $$3) {
+@@ -91,16 +91,16 @@
+         return $$6.stream().filter($$1 -> $$12.test((java.lang.Object)$$1.getPos())).findFirst().map(net.minecraft.world.entity.ai.village.poi.PoiRecord::getPos);
+     }
+ 
+-    public boolean release(net.minecraft.core.BlockPos pos) {
+-        return (java.lang.Boolean)this.getOrLoad(net.minecraft.core.SectionPos.asLong((net.minecraft.core.BlockPos)pos)).map($$1 -> $$1.release(pos)).orElseThrow(() -> (java.lang.IllegalStateException)net.minecraft.Util.pauseInIde((java.lang.Throwable)new java.lang.IllegalStateException("POI never registered at " + pos)));
++    public boolean release(net.minecraft.core.BlockPos $$0) {
++        return (java.lang.Boolean)this.getOrLoad(net.minecraft.core.SectionPos.asLong((net.minecraft.core.BlockPos)$$0)).map($$1 -> $$1.release($$0)).orElseThrow(() -> (java.lang.IllegalStateException)net.minecraft.Util.pauseInIde((java.lang.Throwable)new java.lang.IllegalStateException("POI never registered at " + $$0)));
+     }
+ 
+-    public boolean exists(net.minecraft.core.BlockPos pos, java.util.function.Predicate<net.minecraft.core.Holder<net.minecraft.world.entity.ai.village.poi.PoiType>> predicate) {
+-        return (java.lang.Boolean)this.getOrLoad(net.minecraft.core.SectionPos.asLong((net.minecraft.core.BlockPos)pos)).map($$2 -> $$2.exists(pos, predicate)).orElse((java.lang.Object)false);
++    public boolean exists(net.minecraft.core.BlockPos $$0, java.util.function.Predicate<net.minecraft.core.Holder<net.minecraft.world.entity.ai.village.poi.PoiType>> $$1) {
++        return (java.lang.Boolean)this.getOrLoad(net.minecraft.core.SectionPos.asLong((net.minecraft.core.BlockPos)$$0)).map($$2 -> $$2.exists($$0, $$1)).orElse((java.lang.Object)false);
+     }
+ 
+-    public java.util.Optional<net.minecraft.core.Holder<net.minecraft.world.entity.ai.village.poi.PoiType>> getType(net.minecraft.core.BlockPos pos) {
+-        return this.getOrLoad(net.minecraft.core.SectionPos.asLong((net.minecraft.core.BlockPos)pos)).flatMap($$1 -> $$1.getType(pos));
++    public java.util.Optional<net.minecraft.core.Holder<net.minecraft.world.entity.ai.village.poi.PoiType>> getType(net.minecraft.core.BlockPos $$0) {
++        return this.getOrLoad(net.minecraft.core.SectionPos.asLong((net.minecraft.core.BlockPos)$$0)).flatMap($$1 -> $$1.getType($$0));
+     }
+ 
+     @java.lang.Deprecated
+@@ -109,9 +109,9 @@
+         return (java.lang.Integer)this.getOrLoad(net.minecraft.core.SectionPos.asLong((net.minecraft.core.BlockPos)$$0)).map($$1 -> $$1.getFreeTickets($$0)).orElse((java.lang.Object)0);
+     }
+ 
+-    public int sectionsToVillage(net.minecraft.core.SectionPos sectionPos) {
++    public int sectionsToVillage(net.minecraft.core.SectionPos $$0) {
+         this.distanceTracker.runAllUpdates();
+-        return this.distanceTracker.getLevel(sectionPos.asLong());
++        return this.distanceTracker.getLevel($$0.asLong());
+     }
+ 
+     public boolean isVillageCenter(long $$0) {
+@@ -127,42 +127,42 @@
+         this.distanceTracker.runAllUpdates();
+     }
+ 
+-    public void setDirty(long sectionPos) {
+-        super.setDirty(sectionPos);
+-        this.distanceTracker.update(sectionPos, this.distanceTracker.getLevelFromSource(sectionPos), false);
++    public void setDirty(long $$0) {
++        super.setDirty($$0);
++        this.distanceTracker.update($$0, this.distanceTracker.getLevelFromSource($$0), false);
+     }
+ 
+     public void onSectionLoad(long $$0) {
+         this.distanceTracker.update($$0, this.distanceTracker.getLevelFromSource($$0), false);
+     }
+ 
+-    public void checkConsistencyWithBlocks(net.minecraft.world.level.ChunkPos pos, net.minecraft.world.level.chunk.LevelChunkSection section) {
+-        net.minecraft.core.SectionPos sectionPos = net.minecraft.core.SectionPos.of((net.minecraft.world.level.ChunkPos)pos, (int)net.minecraft.core.SectionPos.blockToSectionCoord((int)section.bottomBlockY()));
+-        net.minecraft.Util.ifElse((java.util.Optional)this.getOrLoad(sectionPos.asLong()), $$22 -> $$22.refresh($$2 -> {
+-            if (net.minecraft.world.entity.ai.village.poi.PoiManager.mayHavePoi((net.minecraft.world.level.chunk.LevelChunkSection)section)) {
+-                this.updateFromSection(section, sectionPos, $$2);
++    public void checkConsistencyWithBlocks(net.minecraft.world.level.ChunkPos $$0, net.minecraft.world.level.chunk.LevelChunkSection $$1) {
++        net.minecraft.core.SectionPos $$2 = net.minecraft.core.SectionPos.of((net.minecraft.world.level.ChunkPos)$$0, (int)net.minecraft.core.SectionPos.blockToSectionCoord((int)$$1.bottomBlockY()));
++        net.minecraft.Util.ifElse((java.util.Optional)this.getOrLoad($$2.asLong()), $$22 -> $$22.refresh($$2 -> {
++            if (net.minecraft.world.entity.ai.village.poi.PoiManager.mayHavePoi((net.minecraft.world.level.chunk.LevelChunkSection)$$1)) {
++                this.updateFromSection($$1, $$2, $$2);
+             }
+         }), () -> {
+-            if (net.minecraft.world.entity.ai.village.poi.PoiManager.mayHavePoi((net.minecraft.world.level.chunk.LevelChunkSection)section)) {
+-                net.minecraft.world.entity.ai.village.poi.PoiSection $$2 = (net.minecraft.world.entity.ai.village.poi.PoiSection)this.getOrCreate(sectionPos.asLong());
+-                this.updateFromSection(section, sectionPos, (arg_0, arg_1) -> ((net.minecraft.world.entity.ai.village.poi.PoiSection)$$2).add(arg_0, arg_1));
++            if (net.minecraft.world.entity.ai.village.poi.PoiManager.mayHavePoi((net.minecraft.world.level.chunk.LevelChunkSection)$$1)) {
++                net.minecraft.world.entity.ai.village.poi.PoiSection $$2 = (net.minecraft.world.entity.ai.village.poi.PoiSection)this.getOrCreate($$2.asLong());
++                this.updateFromSection($$1, $$2, (arg_0, arg_1) -> ((net.minecraft.world.entity.ai.village.poi.PoiSection)$$2).add(arg_0, arg_1));
+             }
+         });
+     }
+ 
+-    public static boolean mayHavePoi(net.minecraft.world.level.chunk.LevelChunkSection section) {
+-        return section.maybeHas(arg_0 -> ((java.util.Set)net.minecraft.world.entity.ai.village.poi.PoiTypes.ALL_STATES).contains(arg_0));
++    public static boolean mayHavePoi(net.minecraft.world.level.chunk.LevelChunkSection $$0) {
++        return $$0.maybeHas(arg_0 -> ((java.util.Set)net.minecraft.world.entity.ai.village.poi.PoiTypes.ALL_STATES).contains(arg_0));
+     }
+ 
+-    public void updateFromSection(net.minecraft.world.level.chunk.LevelChunkSection section, net.minecraft.core.SectionPos sectionPos, java.util.function.BiConsumer<net.minecraft.core.BlockPos, net.minecraft.core.Holder<net.minecraft.world.entity.ai.village.poi.PoiType>> posToTypeConsumer) {
+-        sectionPos.blocksInside().forEach($$22 -> {
+-            net.minecraft.world.level.block.state.BlockState $$3 = section.getBlockState(net.minecraft.core.SectionPos.sectionRelative((int)$$22.getX()), net.minecraft.core.SectionPos.sectionRelative((int)$$22.getY()), net.minecraft.core.SectionPos.sectionRelative((int)$$22.getZ()));
+-            net.minecraft.world.entity.ai.village.poi.PoiTypes.forState((net.minecraft.world.level.block.state.BlockState)$$3).ifPresent($$2 -> posToTypeConsumer.accept($$22, $$2));
++    public void updateFromSection(net.minecraft.world.level.chunk.LevelChunkSection $$0, net.minecraft.core.SectionPos $$1, java.util.function.BiConsumer<net.minecraft.core.BlockPos, net.minecraft.core.Holder<net.minecraft.world.entity.ai.village.poi.PoiType>> $$2) {
++        $$1.blocksInside().forEach($$22 -> {
++            net.minecraft.world.level.block.state.BlockState $$3 = $$0.getBlockState(net.minecraft.core.SectionPos.sectionRelative((int)$$22.getX()), net.minecraft.core.SectionPos.sectionRelative((int)$$22.getY()), net.minecraft.core.SectionPos.sectionRelative((int)$$22.getZ()));
++            net.minecraft.world.entity.ai.village.poi.PoiTypes.forState((net.minecraft.world.level.block.state.BlockState)$$3).ifPresent($$2 -> $$2.accept($$22, $$2));
+         });
+     }
+ 
+-    public void ensureLoadedAndValid(net.minecraft.world.level.LevelReader levelReader, net.minecraft.core.BlockPos pos, int coordinateOffset) {
+-        net.minecraft.core.SectionPos.aroundChunk((net.minecraft.world.level.ChunkPos)new net.minecraft.world.level.ChunkPos(pos), (int)java.lang.Math.floorDiv((int)coordinateOffset, (int)16), (int)this.levelHeightAccessor.getMinSection(), (int)this.levelHeightAccessor.getMaxSection()).map($$0 -> com.mojang.datafixers.util.Pair.of((java.lang.Object)$$0, (java.lang.Object)this.getOrLoad($$0.asLong()))).filter($$0 -> (java.lang.Boolean)((java.util.Optional)$$0.getSecond()).map(net.minecraft.world.entity.ai.village.poi.PoiSection::isValid).orElse((java.lang.Object)false) == false).map($$0 -> ((net.minecraft.core.SectionPos)$$0.getFirst()).chunk()).filter($$0 -> this.loadedChunks.add($$0.toLong())).forEach($$1 -> levelReader.getChunk($$1.x, $$1.z, net.minecraft.world.level.chunk.ChunkStatus.EMPTY));
++    public void ensureLoadedAndValid(net.minecraft.world.level.LevelReader $$02, net.minecraft.core.BlockPos $$12, int $$2) {
++        net.minecraft.core.SectionPos.aroundChunk((net.minecraft.world.level.ChunkPos)new net.minecraft.world.level.ChunkPos($$12), (int)java.lang.Math.floorDiv((int)$$2, (int)16), (int)this.levelHeightAccessor.getMinSection(), (int)this.levelHeightAccessor.getMaxSection()).map($$0 -> com.mojang.datafixers.util.Pair.of((java.lang.Object)$$0, (java.lang.Object)this.getOrLoad($$0.asLong()))).filter($$0 -> (java.lang.Boolean)((java.util.Optional)$$0.getSecond()).map(net.minecraft.world.entity.ai.village.poi.PoiSection::isValid).orElse((java.lang.Object)false) == false).map($$0 -> ((net.minecraft.core.SectionPos)$$0.getFirst()).chunk()).filter($$0 -> this.loadedChunks.add($$0.toLong())).forEach($$1 -> $$02.getChunk($$1.x, $$1.z, net.minecraft.world.level.chunk.ChunkStatus.EMPTY));
+     }
+ }
+ 

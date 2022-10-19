@@ -1,0 +1,228 @@
+--- net/minecraft/client/MouseHandler.java
++++ net/minecraft/client/MouseHandler.java
+@@ -33,29 +33,29 @@
+         this.minecraft = $$0;
+     }
+ 
+-    public void onPress(long handle, int button, int action, int mods) {
+-        boolean bl;
+-        if (handle != this.minecraft.getWindow().getWindow()) {
++    public void onPress(long $$0, int $$1, int $$2, int $$3) {
++        boolean $$4;
++        if ($$0 != this.minecraft.getWindow().getWindow()) {
+             return;
+         }
+-        boolean bl2 = bl = action == 1;
+-        if (net.minecraft.client.Minecraft.ON_OSX && button == 0) {
+-            if (bl) {
+-                if ((mods & 2) == 2) {
+-                    button = 1;
++        boolean bl = $$4 = $$2 == 1;
++        if (net.minecraft.client.Minecraft.ON_OSX && $$1 == 0) {
++            if ($$4) {
++                if (($$3 & 2) == 2) {
++                    $$1 = 1;
+                     ++this.fakeRightMouse;
+                 }
+             } else if (this.fakeRightMouse > 0) {
+-                button = 1;
++                $$1 = 1;
+                 --this.fakeRightMouse;
+             }
+         }
+-        int n = button;
+-        if (bl) {
++        int $$5 = $$1;
++        if ($$4) {
+             if (((java.lang.Boolean)this.minecraft.options.touchscreen().get()).booleanValue() && this.clickDepth++ > 0) {
+                 return;
+             }
+-            this.activeButton = n;
++            this.activeButton = $$5;
+             this.mousePressedTime = com.mojang.blaze3d.Blaze3D.getTime();
+         } else if (this.activeButton != -1) {
+             if (((java.lang.Boolean)this.minecraft.options.touchscreen().get()).booleanValue() && --this.clickDepth > 0) {
+@@ -63,89 +63,89 @@
+             }
+             this.activeButton = -1;
+         }
+-        boolean[] blArray = new boolean[]{false};
++        boolean[] $$6 = new boolean[]{false};
+         if (this.minecraft.getOverlay() == null) {
+             if (this.minecraft.screen == null) {
+-                if (!this.mouseGrabbed && bl) {
++                if (!this.mouseGrabbed && $$4) {
+                     this.grabMouse();
+                 }
+             } else {
+-                double d = this.xpos * (double)this.minecraft.getWindow().getGuiScaledWidth() / (double)this.minecraft.getWindow().getScreenWidth();
+-                double d2 = this.ypos * (double)this.minecraft.getWindow().getGuiScaledHeight() / (double)this.minecraft.getWindow().getScreenHeight();
+-                net.minecraft.client.gui.screens.Screen screen = this.minecraft.screen;
+-                if (bl) {
+-                    screen.afterMouseAction();
++                double $$7 = this.xpos * (double)this.minecraft.getWindow().getGuiScaledWidth() / (double)this.minecraft.getWindow().getScreenWidth();
++                double $$8 = this.ypos * (double)this.minecraft.getWindow().getGuiScaledHeight() / (double)this.minecraft.getWindow().getScreenHeight();
++                net.minecraft.client.gui.screens.Screen $$9 = this.minecraft.screen;
++                if ($$4) {
++                    $$9.afterMouseAction();
+                     net.minecraft.client.gui.screens.Screen.wrapScreenError(() -> {
+-                        $$0[0] = screen.mouseClicked(d, d2, n);
+-                    }, (java.lang.String)"mouseClicked event handler", (java.lang.String)screen.getClass().getCanonicalName());
++                        $$0[0] = $$9.mouseClicked($$7, $$8, $$5);
++                    }, (java.lang.String)"mouseClicked event handler", (java.lang.String)$$9.getClass().getCanonicalName());
+                 } else {
+                     net.minecraft.client.gui.screens.Screen.wrapScreenError(() -> {
+-                        $$0[0] = screen.mouseReleased(d, d2, n);
+-                    }, (java.lang.String)"mouseReleased event handler", (java.lang.String)screen.getClass().getCanonicalName());
++                        $$0[0] = $$9.mouseReleased($$7, $$8, $$5);
++                    }, (java.lang.String)"mouseReleased event handler", (java.lang.String)$$9.getClass().getCanonicalName());
+                 }
+             }
+         }
+-        if (!blArray[0] && (this.minecraft.screen == null || this.minecraft.screen.passEvents) && this.minecraft.getOverlay() == null) {
+-            if (n == 0) {
+-                this.isLeftPressed = bl;
+-            } else if (n == 2) {
+-                this.isMiddlePressed = bl;
+-            } else if (n == 1) {
+-                this.isRightPressed = bl;
++        if (!$$6[0] && (this.minecraft.screen == null || this.minecraft.screen.passEvents) && this.minecraft.getOverlay() == null) {
++            if ($$5 == 0) {
++                this.isLeftPressed = $$4;
++            } else if ($$5 == 2) {
++                this.isMiddlePressed = $$4;
++            } else if ($$5 == 1) {
++                this.isRightPressed = $$4;
+             }
+-            net.minecraft.client.KeyMapping.set((com.mojang.blaze3d.platform.InputConstants$Key)com.mojang.blaze3d.platform.InputConstants$Type.MOUSE.getOrCreate(n), (boolean)bl);
+-            if (bl) {
+-                if (this.minecraft.player.isSpectator() && n == 2) {
++            net.minecraft.client.KeyMapping.set((com.mojang.blaze3d.platform.InputConstants$Key)com.mojang.blaze3d.platform.InputConstants$Type.MOUSE.getOrCreate($$5), (boolean)$$4);
++            if ($$4) {
++                if (this.minecraft.player.isSpectator() && $$5 == 2) {
+                     this.minecraft.gui.getSpectatorGui().onMouseMiddleClick();
+                 } else {
+-                    net.minecraft.client.KeyMapping.click((com.mojang.blaze3d.platform.InputConstants$Key)com.mojang.blaze3d.platform.InputConstants$Type.MOUSE.getOrCreate(n));
++                    net.minecraft.client.KeyMapping.click((com.mojang.blaze3d.platform.InputConstants$Key)com.mojang.blaze3d.platform.InputConstants$Type.MOUSE.getOrCreate($$5));
+                 }
+             }
+         }
+     }
+ 
+-    public void onScroll(long handle, double xoffset, double yoffset) {
+-        if (handle == net.minecraft.client.Minecraft.getInstance().getWindow().getWindow()) {
+-            double d = ((java.lang.Boolean)this.minecraft.options.discreteMouseScroll().get() != false ? java.lang.Math.signum((double)yoffset) : yoffset) * (java.lang.Double)this.minecraft.options.mouseWheelSensitivity().get();
++    public void onScroll(long $$0, double $$1, double $$2) {
++        if ($$0 == net.minecraft.client.Minecraft.getInstance().getWindow().getWindow()) {
++            double $$3 = ((java.lang.Boolean)this.minecraft.options.discreteMouseScroll().get() != false ? java.lang.Math.signum((double)$$2) : $$2) * (java.lang.Double)this.minecraft.options.mouseWheelSensitivity().get();
+             if (this.minecraft.getOverlay() == null) {
+                 if (this.minecraft.screen != null) {
+-                    double d2 = this.xpos * (double)this.minecraft.getWindow().getGuiScaledWidth() / (double)this.minecraft.getWindow().getScreenWidth();
+-                    double d3 = this.ypos * (double)this.minecraft.getWindow().getGuiScaledHeight() / (double)this.minecraft.getWindow().getScreenHeight();
+-                    this.minecraft.screen.mouseScrolled(d2, d3, d);
++                    double $$4 = this.xpos * (double)this.minecraft.getWindow().getGuiScaledWidth() / (double)this.minecraft.getWindow().getScreenWidth();
++                    double $$5 = this.ypos * (double)this.minecraft.getWindow().getGuiScaledHeight() / (double)this.minecraft.getWindow().getScreenHeight();
++                    this.minecraft.screen.mouseScrolled($$4, $$5, $$3);
+                     this.minecraft.screen.afterMouseAction();
+                 } else if (this.minecraft.player != null) {
+-                    if (this.accumulatedScroll != 0.0 && java.lang.Math.signum((double)d) != java.lang.Math.signum((double)this.accumulatedScroll)) {
++                    if (this.accumulatedScroll != 0.0 && java.lang.Math.signum((double)$$3) != java.lang.Math.signum((double)this.accumulatedScroll)) {
+                         this.accumulatedScroll = 0.0;
+                     }
+-                    this.accumulatedScroll += d;
+-                    int n = (int)this.accumulatedScroll;
+-                    if (n == 0) {
++                    this.accumulatedScroll += $$3;
++                    int $$6 = (int)this.accumulatedScroll;
++                    if ($$6 == 0) {
+                         return;
+                     }
+-                    this.accumulatedScroll -= (double)n;
++                    this.accumulatedScroll -= (double)$$6;
+                     if (this.minecraft.player.isSpectator()) {
+                         if (this.minecraft.gui.getSpectatorGui().isMenuActive()) {
+-                            this.minecraft.gui.getSpectatorGui().onMouseScrolled(-n);
++                            this.minecraft.gui.getSpectatorGui().onMouseScrolled(-$$6);
+                         } else {
+-                            float f = net.minecraft.util.Mth.clamp((float)(this.minecraft.player.getAbilities().getFlyingSpeed() + (float)n * 0.005f), (float)0.0f, (float)0.2f);
+-                            this.minecraft.player.getAbilities().setFlyingSpeed(f);
++                            float $$7 = net.minecraft.util.Mth.clamp((float)(this.minecraft.player.getAbilities().getFlyingSpeed() + (float)$$6 * 0.005f), (float)0.0f, (float)0.2f);
++                            this.minecraft.player.getAbilities().setFlyingSpeed($$7);
+                         }
+                     } else {
+-                        this.minecraft.player.getInventory().swapPaint((double)n);
++                        this.minecraft.player.getInventory().swapPaint((double)$$6);
+                     }
+                 }
+             }
+         }
+     }
+ 
+-    public void onDrop(long window, java.util.List<java.nio.file.Path> paths) {
++    public void onDrop(long $$0, java.util.List<java.nio.file.Path> $$1) {
+         if (this.minecraft.screen != null) {
+-            this.minecraft.screen.onFilesDrop(paths);
++            this.minecraft.screen.onFilesDrop($$1);
+         }
+     }
+ 
+-    public void setup(long handle) {
+-        com.mojang.blaze3d.platform.InputConstants.setupMouseCallbacks((long)handle, ($$0, $$1, $$2) -> this.minecraft.execute(() -> this.onMove($$0, $$1, $$2)), ($$0, $$1, $$2, $$3) -> this.minecraft.execute(() -> this.onPress($$0, $$1, $$2, $$3)), ($$0, $$1, $$2) -> this.minecraft.execute(() -> this.onScroll($$0, $$1, $$2)), ($$0, $$1, $$2) -> {
++    public void setup(long $$02) {
++        com.mojang.blaze3d.platform.InputConstants.setupMouseCallbacks((long)$$02, ($$0, $$1, $$2) -> this.minecraft.execute(() -> this.onMove($$0, $$1, $$2)), ($$0, $$1, $$2, $$3) -> this.minecraft.execute(() -> this.onPress($$0, $$1, $$2, $$3)), ($$0, $$1, $$2) -> this.minecraft.execute(() -> this.onScroll($$0, $$1, $$2)), ($$0, $$1, $$2) -> {
+             java.nio.file.Path[] $$3 = new java.nio.file.Path[$$1];
+             for (int $$4 = 0; $$4 < $$1; ++$$4) {
+                 $$3[$$4] = java.nio.file.Paths.get((java.lang.String)org.lwjgl.glfw.GLFWDropCallback.getName((long)$$2, (int)$$4), (java.lang.String[])new java.lang.String[0]);
+@@ -154,35 +154,35 @@
+         });
+     }
+ 
+-    public void onMove(long handle, double xpos, double ypos) {
+-        net.minecraft.client.gui.screens.Screen screen;
+-        if (handle != net.minecraft.client.Minecraft.getInstance().getWindow().getWindow()) {
++    public void onMove(long $$0, double $$1, double $$2) {
++        net.minecraft.client.gui.screens.Screen $$3;
++        if ($$0 != net.minecraft.client.Minecraft.getInstance().getWindow().getWindow()) {
+             return;
+         }
+         if (this.ignoreFirstMove) {
+-            this.xpos = xpos;
+-            this.ypos = ypos;
++            this.xpos = $$1;
++            this.ypos = $$2;
+             this.ignoreFirstMove = false;
+         }
+-        if ((screen = this.minecraft.screen) != null && this.minecraft.getOverlay() == null) {
+-            double d = xpos * (double)this.minecraft.getWindow().getGuiScaledWidth() / (double)this.minecraft.getWindow().getScreenWidth();
+-            double d2 = ypos * (double)this.minecraft.getWindow().getGuiScaledHeight() / (double)this.minecraft.getWindow().getScreenHeight();
+-            net.minecraft.client.gui.screens.Screen.wrapScreenError(() -> screen.mouseMoved(d, d2), (java.lang.String)"mouseMoved event handler", (java.lang.String)screen.getClass().getCanonicalName());
++        if (($$3 = this.minecraft.screen) != null && this.minecraft.getOverlay() == null) {
++            double $$4 = $$1 * (double)this.minecraft.getWindow().getGuiScaledWidth() / (double)this.minecraft.getWindow().getScreenWidth();
++            double $$5 = $$2 * (double)this.minecraft.getWindow().getGuiScaledHeight() / (double)this.minecraft.getWindow().getScreenHeight();
++            net.minecraft.client.gui.screens.Screen.wrapScreenError(() -> $$3.mouseMoved($$4, $$5), (java.lang.String)"mouseMoved event handler", (java.lang.String)$$3.getClass().getCanonicalName());
+             if (this.activeButton != -1 && this.mousePressedTime > 0.0) {
+-                double d3 = (xpos - this.xpos) * (double)this.minecraft.getWindow().getGuiScaledWidth() / (double)this.minecraft.getWindow().getScreenWidth();
+-                double d4 = (ypos - this.ypos) * (double)this.minecraft.getWindow().getGuiScaledHeight() / (double)this.minecraft.getWindow().getScreenHeight();
+-                net.minecraft.client.gui.screens.Screen.wrapScreenError(() -> screen.mouseDragged(d, d2, this.activeButton, d3, d4), (java.lang.String)"mouseDragged event handler", (java.lang.String)screen.getClass().getCanonicalName());
++                double $$6 = ($$1 - this.xpos) * (double)this.minecraft.getWindow().getGuiScaledWidth() / (double)this.minecraft.getWindow().getScreenWidth();
++                double $$7 = ($$2 - this.ypos) * (double)this.minecraft.getWindow().getGuiScaledHeight() / (double)this.minecraft.getWindow().getScreenHeight();
++                net.minecraft.client.gui.screens.Screen.wrapScreenError(() -> $$3.mouseDragged($$4, $$5, this.activeButton, $$6, $$7), (java.lang.String)"mouseDragged event handler", (java.lang.String)$$3.getClass().getCanonicalName());
+             }
+-            screen.afterMouseMove();
++            $$3.afterMouseMove();
+         }
+         this.minecraft.getProfiler().push("mouse");
+         if (this.isMouseGrabbed() && this.minecraft.isWindowActive()) {
+-            this.accumulatedDX += xpos - this.xpos;
+-            this.accumulatedDY += ypos - this.ypos;
++            this.accumulatedDX += $$1 - this.xpos;
++            this.accumulatedDY += $$2 - this.ypos;
+         }
+         this.turnPlayer();
+-        this.xpos = xpos;
+-        this.ypos = ypos;
++        this.xpos = $$1;
++        this.ypos = $$2;
+         this.minecraft.getProfiler().pop();
+     }
+ 

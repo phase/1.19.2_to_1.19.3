@@ -1,0 +1,119 @@
+--- net/minecraft/world/item/PotionItem.java
++++ net/minecraft/world/item/PotionItem.java
+@@ -16,38 +16,38 @@
+         return net.minecraft.world.item.alchemy.PotionUtils.setPotion((net.minecraft.world.item.ItemStack)super.getDefaultInstance(), (net.minecraft.world.item.alchemy.Potion)net.minecraft.world.item.alchemy.Potions.WATER);
+     }
+ 
+-    public net.minecraft.world.item.ItemStack finishUsingItem(net.minecraft.world.item.ItemStack stack, net.minecraft.world.level.Level level, net.minecraft.world.entity.LivingEntity entityLiving) {
+-        net.minecraft.world.entity.player.Player player;
+-        net.minecraft.world.entity.player.Player player2 = player = entityLiving instanceof net.minecraft.world.entity.player.Player ? (net.minecraft.world.entity.player.Player)entityLiving : null;
+-        if (player instanceof net.minecraft.server.level.ServerPlayer) {
+-            net.minecraft.advancements.CriteriaTriggers.CONSUME_ITEM.trigger((net.minecraft.server.level.ServerPlayer)player, stack);
++    public net.minecraft.world.item.ItemStack finishUsingItem(net.minecraft.world.item.ItemStack $$0, net.minecraft.world.level.Level $$1, net.minecraft.world.entity.LivingEntity $$2) {
++        net.minecraft.world.entity.player.Player $$3;
++        net.minecraft.world.entity.player.Player player = $$3 = $$2 instanceof net.minecraft.world.entity.player.Player ? (net.minecraft.world.entity.player.Player)$$2 : null;
++        if ($$3 instanceof net.minecraft.server.level.ServerPlayer) {
++            net.minecraft.advancements.CriteriaTriggers.CONSUME_ITEM.trigger((net.minecraft.server.level.ServerPlayer)$$3, $$0);
+         }
+-        if (!level.isClientSide) {
+-            java.util.List list = net.minecraft.world.item.alchemy.PotionUtils.getMobEffects((net.minecraft.world.item.ItemStack)stack);
+-            for (net.minecraft.world.effect.MobEffectInstance mobEffectInstance : list) {
+-                if (mobEffectInstance.getEffect().isInstantenous()) {
+-                    mobEffectInstance.getEffect().applyInstantenousEffect((net.minecraft.world.entity.Entity)player, (net.minecraft.world.entity.Entity)player, entityLiving, mobEffectInstance.getAmplifier(), 1.0);
++        if (!$$1.isClientSide) {
++            java.util.List $$4 = net.minecraft.world.item.alchemy.PotionUtils.getMobEffects((net.minecraft.world.item.ItemStack)$$0);
++            for (net.minecraft.world.effect.MobEffectInstance $$5 : $$4) {
++                if ($$5.getEffect().isInstantenous()) {
++                    $$5.getEffect().applyInstantenousEffect((net.minecraft.world.entity.Entity)$$3, (net.minecraft.world.entity.Entity)$$3, $$2, $$5.getAmplifier(), 1.0);
+                     continue;
+                 }
+-                entityLiving.addEffect(new net.minecraft.world.effect.MobEffectInstance(mobEffectInstance));
++                $$2.addEffect(new net.minecraft.world.effect.MobEffectInstance($$5));
+             }
+         }
+-        if (player != null) {
+-            player.awardStat(net.minecraft.stats.Stats.ITEM_USED.get((java.lang.Object)this));
+-            if (!player.getAbilities().instabuild) {
+-                stack.shrink(1);
++        if ($$3 != null) {
++            $$3.awardStat(net.minecraft.stats.Stats.ITEM_USED.get((java.lang.Object)this));
++            if (!$$3.getAbilities().instabuild) {
++                $$0.shrink(1);
+             }
+         }
+-        if (player == null || !player.getAbilities().instabuild) {
+-            if (stack.isEmpty()) {
++        if ($$3 == null || !$$3.getAbilities().instabuild) {
++            if ($$0.isEmpty()) {
+                 return new net.minecraft.world.item.ItemStack((net.minecraft.world.level.ItemLike)net.minecraft.world.item.Items.GLASS_BOTTLE);
+             }
+-            if (player != null) {
+-                player.getInventory().add(new net.minecraft.world.item.ItemStack((net.minecraft.world.level.ItemLike)net.minecraft.world.item.Items.GLASS_BOTTLE));
++            if ($$3 != null) {
++                $$3.getInventory().add(new net.minecraft.world.item.ItemStack((net.minecraft.world.level.ItemLike)net.minecraft.world.item.Items.GLASS_BOTTLE));
+             }
+         }
+-        entityLiving.gameEvent(net.minecraft.world.level.gameevent.GameEvent.DRINK);
+-        return stack;
++        $$2.gameEvent(net.minecraft.world.level.gameevent.GameEvent.DRINK);
++        return $$0;
+     }
+ 
+     public net.minecraft.world.InteractionResult useOn(net.minecraft.world.item.context.UseOnContext $$0) {
+@@ -57,7 +57,7 @@
+         net.minecraft.world.item.ItemStack $$4 = $$0.getItemInHand();
+         net.minecraft.world.level.block.state.BlockState $$5 = $$1.getBlockState($$2);
+         if ($$0.getClickedFace() != net.minecraft.core.Direction.DOWN && $$5.is(net.minecraft.tags.BlockTags.CONVERTABLE_TO_MUD) && net.minecraft.world.item.alchemy.PotionUtils.getPotion((net.minecraft.world.item.ItemStack)$$4) == net.minecraft.world.item.alchemy.Potions.WATER) {
+-            $$1.playSound(null, $$2, net.minecraft.sounds.SoundEvents.GENERIC_SPLASH, net.minecraft.sounds.SoundSource.PLAYERS, 1.0f, 1.0f);
++            $$1.playSound(null, $$2, net.minecraft.sounds.SoundEvents.GENERIC_SPLASH, net.minecraft.sounds.SoundSource.BLOCKS, 1.0f, 1.0f);
+             $$3.setItemInHand($$0.getHand(), net.minecraft.world.item.ItemUtils.createFilledResult((net.minecraft.world.item.ItemStack)$$4, (net.minecraft.world.entity.player.Player)$$3, (net.minecraft.world.item.ItemStack)new net.minecraft.world.item.ItemStack((net.minecraft.world.level.ItemLike)net.minecraft.world.item.Items.GLASS_BOTTLE)));
+             $$3.awardStat(net.minecraft.stats.Stats.ITEM_USED.get((java.lang.Object)$$4.getItem()));
+             if (!$$1.isClientSide) {
+@@ -74,37 +74,28 @@
+         return net.minecraft.world.InteractionResult.PASS;
+     }
+ 
+-    public int getUseDuration(net.minecraft.world.item.ItemStack stack) {
++    public int getUseDuration(net.minecraft.world.item.ItemStack $$0) {
+         return 32;
+     }
+ 
+-    public net.minecraft.world.item.UseAnim getUseAnimation(net.minecraft.world.item.ItemStack stack) {
++    public net.minecraft.world.item.UseAnim getUseAnimation(net.minecraft.world.item.ItemStack $$0) {
+         return net.minecraft.world.item.UseAnim.DRINK;
+     }
+ 
+-    public net.minecraft.world.InteractionResultHolder<net.minecraft.world.item.ItemStack> use(net.minecraft.world.level.Level level, net.minecraft.world.entity.player.Player player, net.minecraft.world.InteractionHand hand) {
+-        return net.minecraft.world.item.ItemUtils.startUsingInstantly((net.minecraft.world.level.Level)level, (net.minecraft.world.entity.player.Player)player, (net.minecraft.world.InteractionHand)hand);
++    public net.minecraft.world.InteractionResultHolder<net.minecraft.world.item.ItemStack> use(net.minecraft.world.level.Level $$0, net.minecraft.world.entity.player.Player $$1, net.minecraft.world.InteractionHand $$2) {
++        return net.minecraft.world.item.ItemUtils.startUsingInstantly((net.minecraft.world.level.Level)$$0, (net.minecraft.world.entity.player.Player)$$1, (net.minecraft.world.InteractionHand)$$2);
+     }
+ 
+-    public java.lang.String getDescriptionId(net.minecraft.world.item.ItemStack stack) {
+-        return net.minecraft.world.item.alchemy.PotionUtils.getPotion((net.minecraft.world.item.ItemStack)stack).getName(this.getDescriptionId() + ".effect.");
++    public java.lang.String getDescriptionId(net.minecraft.world.item.ItemStack $$0) {
++        return net.minecraft.world.item.alchemy.PotionUtils.getPotion((net.minecraft.world.item.ItemStack)$$0).getName(this.getDescriptionId() + ".effect.");
+     }
+ 
+-    public void appendHoverText(net.minecraft.world.item.ItemStack stack, @javax.annotation.Nullable net.minecraft.world.level.Level level, java.util.List<net.minecraft.network.chat.Component> tooltip, net.minecraft.world.item.TooltipFlag flag) {
+-        net.minecraft.world.item.alchemy.PotionUtils.addPotionTooltip((net.minecraft.world.item.ItemStack)stack, tooltip, (float)1.0f);
++    public void appendHoverText(net.minecraft.world.item.ItemStack $$0, @javax.annotation.Nullable net.minecraft.world.level.Level $$1, java.util.List<net.minecraft.network.chat.Component> $$2, net.minecraft.world.item.TooltipFlag $$3) {
++        net.minecraft.world.item.alchemy.PotionUtils.addPotionTooltip((net.minecraft.world.item.ItemStack)$$0, $$2, (float)1.0f);
+     }
+ 
+-    public boolean isFoil(net.minecraft.world.item.ItemStack stack) {
+-        return super.isFoil(stack) || !net.minecraft.world.item.alchemy.PotionUtils.getMobEffects((net.minecraft.world.item.ItemStack)stack).isEmpty();
++    public boolean isFoil(net.minecraft.world.item.ItemStack $$0) {
++        return super.isFoil($$0) || !net.minecraft.world.item.alchemy.PotionUtils.getMobEffects((net.minecraft.world.item.ItemStack)$$0).isEmpty();
+     }
+-
+-    public void fillItemCategory(net.minecraft.world.item.CreativeModeTab group, net.minecraft.core.NonNullList<net.minecraft.world.item.ItemStack> items) {
+-        if (this.allowedIn(group)) {
+-            for (net.minecraft.world.item.alchemy.Potion potion : net.minecraft.core.Registry.POTION) {
+-                if (potion == net.minecraft.world.item.alchemy.Potions.EMPTY) continue;
+-                items.add((java.lang.Object)net.minecraft.world.item.alchemy.PotionUtils.setPotion((net.minecraft.world.item.ItemStack)new net.minecraft.world.item.ItemStack((net.minecraft.world.level.ItemLike)this), (net.minecraft.world.item.alchemy.Potion)potion));
+-            }
+-        }
+-    }
+ }
+ 

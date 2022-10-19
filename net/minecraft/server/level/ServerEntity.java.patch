@@ -1,0 +1,115 @@
+--- net/minecraft/server/level/ServerEntity.java
++++ net/minecraft/server/level/ServerEntity.java
+@@ -138,66 +138,66 @@
+         }
+     }
+ 
+-    public void removePairing(net.minecraft.server.level.ServerPlayer player) {
+-        this.entity.stopSeenByPlayer(player);
+-        player.connection.send((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ClientboundRemoveEntitiesPacket(new int[]{this.entity.getId()}));
++    public void removePairing(net.minecraft.server.level.ServerPlayer $$0) {
++        this.entity.stopSeenByPlayer($$0);
++        $$0.connection.send((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ClientboundRemoveEntitiesPacket(new int[]{this.entity.getId()}));
+     }
+ 
+-    public void addPairing(net.minecraft.server.level.ServerPlayer player) {
+-        this.sendPairingData(arg_0 -> ((net.minecraft.server.network.ServerGamePacketListenerImpl)player.connection).send(arg_0));
+-        this.entity.startSeenByPlayer(player);
++    public void addPairing(net.minecraft.server.level.ServerPlayer $$0) {
++        this.sendPairingData(arg_0 -> ((net.minecraft.server.network.ServerGamePacketListenerImpl)$$0.connection).send(arg_0));
++        this.entity.startSeenByPlayer($$0);
+     }
+ 
+-    public void sendPairingData(java.util.function.Consumer<net.minecraft.network.protocol.Packet<?>> packetConsumer) {
+-        java.util.Collection collection;
++    public void sendPairingData(java.util.function.Consumer<net.minecraft.network.protocol.Packet<?>> $$0) {
++        net.minecraft.world.entity.Mob $$9;
+         if (this.entity.isRemoved()) {
+             LOGGER.warn("Fetching packet for removed entity {}", (java.lang.Object)this.entity);
+         }
+-        net.minecraft.network.protocol.Packet packet = this.entity.getAddEntityPacket();
++        net.minecraft.network.protocol.Packet $$1 = this.entity.getAddEntityPacket();
+         this.yHeadRotp = net.minecraft.util.Mth.floor((float)(this.entity.getYHeadRot() * 256.0f / 360.0f));
+-        packetConsumer.accept((java.lang.Object)packet);
++        $$0.accept((java.lang.Object)$$1);
+         if (!this.entity.getEntityData().isEmpty()) {
+-            packetConsumer.accept((java.lang.Object)new net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket(this.entity.getId(), this.entity.getEntityData(), true));
++            $$0.accept((java.lang.Object)new net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket(this.entity.getId(), this.entity.getEntityData(), true));
+         }
+-        boolean bl = this.trackDelta;
++        boolean $$2 = this.trackDelta;
+         if (this.entity instanceof net.minecraft.world.entity.LivingEntity) {
+-            collection = ((net.minecraft.world.entity.LivingEntity)this.entity).getAttributes().getSyncableAttributes();
+-            if (!collection.isEmpty()) {
+-                packetConsumer.accept((java.lang.Object)new net.minecraft.network.protocol.game.ClientboundUpdateAttributesPacket(this.entity.getId(), collection));
++            java.util.Collection $$3 = ((net.minecraft.world.entity.LivingEntity)this.entity).getAttributes().getSyncableAttributes();
++            if (!$$3.isEmpty()) {
++                $$0.accept((java.lang.Object)new net.minecraft.network.protocol.game.ClientboundUpdateAttributesPacket(this.entity.getId(), $$3));
+             }
+             if (((net.minecraft.world.entity.LivingEntity)this.entity).isFallFlying()) {
+-                bl = true;
++                $$2 = true;
+             }
+         }
+         this.ap = this.entity.getDeltaMovement();
+-        if (bl && !(this.entity instanceof net.minecraft.world.entity.LivingEntity)) {
+-            packetConsumer.accept((java.lang.Object)new net.minecraft.network.protocol.game.ClientboundSetEntityMotionPacket(this.entity.getId(), this.ap));
++        if ($$2 && !(this.entity instanceof net.minecraft.world.entity.LivingEntity)) {
++            $$0.accept((java.lang.Object)new net.minecraft.network.protocol.game.ClientboundSetEntityMotionPacket(this.entity.getId(), this.ap));
+         }
+         if (this.entity instanceof net.minecraft.world.entity.LivingEntity) {
+-            collection = com.google.common.collect.Lists.newArrayList();
+-            for (java.util.Iterator iterator : net.minecraft.world.entity.EquipmentSlot.values()) {
+-                net.minecraft.world.item.ItemStack itemStack = ((net.minecraft.world.entity.LivingEntity)this.entity).getItemBySlot((net.minecraft.world.entity.EquipmentSlot)iterator);
+-                if (itemStack.isEmpty()) continue;
+-                collection.add((java.lang.Object)com.mojang.datafixers.util.Pair.of((java.lang.Object)iterator, (java.lang.Object)itemStack.copy()));
++            java.util.ArrayList $$4 = com.google.common.collect.Lists.newArrayList();
++            for (java.util.Iterator $$5 : net.minecraft.world.entity.EquipmentSlot.values()) {
++                net.minecraft.world.item.ItemStack $$6 = ((net.minecraft.world.entity.LivingEntity)this.entity).getItemBySlot((net.minecraft.world.entity.EquipmentSlot)$$5);
++                if ($$6.isEmpty()) continue;
++                $$4.add((java.lang.Object)com.mojang.datafixers.util.Pair.of((java.lang.Object)$$5, (java.lang.Object)$$6.copy()));
+             }
+-            if (!collection.isEmpty()) {
+-                packetConsumer.accept((java.lang.Object)new net.minecraft.network.protocol.game.ClientboundSetEquipmentPacket(this.entity.getId(), (java.util.List)collection));
++            if (!$$4.isEmpty()) {
++                $$0.accept((java.lang.Object)new net.minecraft.network.protocol.game.ClientboundSetEquipmentPacket(this.entity.getId(), (java.util.List)$$4));
+             }
+         }
+         if (this.entity instanceof net.minecraft.world.entity.LivingEntity) {
+-            collection = (net.minecraft.world.entity.LivingEntity)this.entity;
+-            for (net.minecraft.world.effect.MobEffectInstance mobEffectInstance : collection.getActiveEffects()) {
+-                packetConsumer.accept((java.lang.Object)new net.minecraft.network.protocol.game.ClientboundUpdateMobEffectPacket(this.entity.getId(), mobEffectInstance));
++            net.minecraft.world.entity.LivingEntity $$7 = (net.minecraft.world.entity.LivingEntity)this.entity;
++            for (net.minecraft.world.effect.MobEffectInstance $$8 : $$7.getActiveEffects()) {
++                $$0.accept((java.lang.Object)new net.minecraft.network.protocol.game.ClientboundUpdateMobEffectPacket(this.entity.getId(), $$8));
+             }
+         }
+         if (!this.entity.getPassengers().isEmpty()) {
+-            packetConsumer.accept((java.lang.Object)new net.minecraft.network.protocol.game.ClientboundSetPassengersPacket(this.entity));
++            $$0.accept((java.lang.Object)new net.minecraft.network.protocol.game.ClientboundSetPassengersPacket(this.entity));
+         }
+         if (this.entity.isPassenger()) {
+-            packetConsumer.accept((java.lang.Object)new net.minecraft.network.protocol.game.ClientboundSetPassengersPacket(this.entity.getVehicle()));
++            $$0.accept((java.lang.Object)new net.minecraft.network.protocol.game.ClientboundSetPassengersPacket(this.entity.getVehicle()));
+         }
+-        if (this.entity instanceof net.minecraft.world.entity.Mob && (collection = (net.minecraft.world.entity.Mob)this.entity).isLeashed()) {
+-            packetConsumer.accept((java.lang.Object)new net.minecraft.network.protocol.game.ClientboundSetEntityLinkPacket((net.minecraft.world.entity.Entity)collection, collection.getLeashHolder()));
++        if (this.entity instanceof net.minecraft.world.entity.Mob && ($$9 = (net.minecraft.world.entity.Mob)this.entity).isLeashed()) {
++            $$0.accept((java.lang.Object)new net.minecraft.network.protocol.game.ClientboundSetEntityLinkPacket((net.minecraft.world.entity.Entity)$$9, $$9.getLeashHolder()));
+         }
+     }
+ 
+@@ -215,10 +215,10 @@
+         }
+     }
+ 
+-    public void broadcastAndSend(net.minecraft.network.protocol.Packet<?> packet) {
+-        this.broadcast.accept(packet);
++    public void broadcastAndSend(net.minecraft.network.protocol.Packet<?> $$0) {
++        this.broadcast.accept($$0);
+         if (this.entity instanceof net.minecraft.server.level.ServerPlayer) {
+-            ((net.minecraft.server.level.ServerPlayer)this.entity).connection.send(packet);
++            ((net.minecraft.server.level.ServerPlayer)this.entity).connection.send($$0);
+         }
+     }
+ 

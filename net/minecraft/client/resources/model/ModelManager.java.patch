@@ -1,0 +1,299 @@
+--- net/minecraft/client/resources/model/ModelManager.java
++++ net/minecraft/client/resources/model/ModelManager.java
+@@ -4,28 +4,28 @@
+ package net.minecraft.client.resources.model;
+ 
+ public class net.minecraft.client.resources.model.ModelManager
+-extends net.minecraft.server.packs.resources.SimplePreparableReloadListener<net.minecraft.client.resources.model.ModelBakery>
+-implements java.lang.AutoCloseable
++implements net.minecraft.server.packs.resources.PreparableReloadListener,
++java.lang.AutoCloseable
+  {
++    public static org.slf4j.Logger LOGGER;
++    public static java.util.Map<net.minecraft.resources.ResourceLocation, net.minecraft.client.resources.model.AtlasSet$ResourceLister> VANILLA_ATLASES;
+     public java.util.Map<net.minecraft.resources.ResourceLocation, net.minecraft.client.resources.model.BakedModel> bakedRegistry;
+-    @javax.annotation.Nullable
+-    public net.minecraft.client.renderer.texture.AtlasSet atlases;
++    public net.minecraft.client.resources.model.AtlasSet atlases;
+     public net.minecraft.client.renderer.block.BlockModelShaper blockModelShaper;
+-    public net.minecraft.client.renderer.texture.TextureManager textureManager;
+     public net.minecraft.client.color.block.BlockColors blockColors;
+     public int maxMipmapLevels;
+     public net.minecraft.client.resources.model.BakedModel missingModel;
+     public it.unimi.dsi.fastutil.objects.Object2IntMap<net.minecraft.world.level.block.state.BlockState> modelGroups;
+ 
+     public net.minecraft.client.resources.model.ModelManager(net.minecraft.client.renderer.texture.TextureManager $$0, net.minecraft.client.color.block.BlockColors $$1, int $$2) {
+-        this.textureManager = $$0;
+         this.blockColors = $$1;
+         this.maxMipmapLevels = $$2;
+         this.blockModelShaper = new net.minecraft.client.renderer.block.BlockModelShaper(this);
++        this.atlases = new net.minecraft.client.resources.model.AtlasSet(VANILLA_ATLASES, $$0);
+     }
+ 
+-    public net.minecraft.client.resources.model.BakedModel getModel(net.minecraft.client.resources.model.ModelResourceLocation modelLocation) {
+-        return (net.minecraft.client.resources.model.BakedModel)this.bakedRegistry.getOrDefault((java.lang.Object)modelLocation, (java.lang.Object)this.missingModel);
++    public net.minecraft.client.resources.model.BakedModel getModel(net.minecraft.client.resources.model.ModelResourceLocation $$0) {
++        return (net.minecraft.client.resources.model.BakedModel)this.bakedRegistry.getOrDefault((java.lang.Object)$$0, (java.lang.Object)this.missingModel);
+     }
+ 
+     public net.minecraft.client.resources.model.BakedModel getMissingModel() {
+@@ -36,59 +36,225 @@
+         return this.blockModelShaper;
+     }
+ 
+-    public net.minecraft.client.resources.model.ModelBakery prepare(net.minecraft.server.packs.resources.ResourceManager resourceManager, net.minecraft.util.profiling.ProfilerFiller profiler) {
+-        profiler.startTick();
+-        net.minecraft.client.resources.model.ModelBakery modelBakery = new net.minecraft.client.resources.model.ModelBakery(resourceManager, this.blockColors, profiler, this.maxMipmapLevels);
+-        profiler.endTick();
+-        return modelBakery;
++    public java.util.concurrent.CompletableFuture<java.lang.Void> reload(net.minecraft.server.packs.resources.PreparableReloadListener$PreparationBarrier $$02, net.minecraft.server.packs.resources.ResourceManager $$12, net.minecraft.util.profiling.ProfilerFiller $$22, net.minecraft.util.profiling.ProfilerFiller $$32, java.util.concurrent.Executor $$4, java.util.concurrent.Executor $$5) {
++        $$22.startTick();
++        java.util.concurrent.CompletableFuture $$6 = net.minecraft.client.resources.model.ModelManager.loadBlockModels((net.minecraft.server.packs.resources.ResourceManager)$$12, (java.util.concurrent.Executor)$$4);
++        java.util.concurrent.CompletableFuture $$7 = net.minecraft.client.resources.model.ModelManager.loadBlockStates((net.minecraft.server.packs.resources.ResourceManager)$$12, (java.util.concurrent.Executor)$$4);
++        java.util.concurrent.CompletableFuture $$8 = $$6.thenCombineAsync((java.util.concurrent.CompletionStage)$$7, ($$1, $$2) -> new net.minecraft.client.resources.model.ModelBakery(this.blockColors, $$22, $$1, $$2), $$4);
++        java.util.Map $$9 = this.atlases.scheduleLoad($$12, this.maxMipmapLevels, $$4);
++        return java.util.concurrent.CompletableFuture.allOf((java.util.concurrent.CompletableFuture[])((java.util.concurrent.CompletableFuture[])java.util.stream.Stream.concat((java.util.stream.Stream)$$9.values().stream(), (java.util.stream.Stream)java.util.stream.Stream.of((java.lang.Object)$$8)).toArray(java.util.concurrent.CompletableFuture[]::new))).thenApplyAsync($$3 -> this.loadModels($$22, (java.util.Map)$$9.entrySet().stream().collect(java.util.stream.Collectors.toMap(java.util.Map$Entry::getKey, $$0 -> (net.minecraft.client.resources.model.AtlasSet$StitchResult)((java.util.concurrent.CompletableFuture)$$0.getValue()).join())), (net.minecraft.client.resources.model.ModelBakery)$$8.join()), $$4).thenCompose($$0 -> $$0.readyForUpload.thenApply($$1 -> $$0)).thenCompose(arg_0 -> ((net.minecraft.server.packs.resources.PreparableReloadListener$PreparationBarrier)$$02).wait(arg_0)).thenAcceptAsync($$1 -> this.apply($$1, $$32), $$5);
+     }
+ 
+-    public void apply(net.minecraft.client.resources.model.ModelBakery object, net.minecraft.server.packs.resources.ResourceManager resourceManager, net.minecraft.util.profiling.ProfilerFiller profiler) {
+-        profiler.startTick();
+-        profiler.push("upload");
+-        if (this.atlases != null) {
+-            this.atlases.close();
++    public static java.util.concurrent.CompletableFuture<java.util.Map<net.minecraft.resources.ResourceLocation, net.minecraft.client.renderer.block.model.BlockModel>> loadBlockModels(net.minecraft.server.packs.resources.ResourceManager $$0, java.util.concurrent.Executor $$12) {
++        return java.util.concurrent.CompletableFuture.supplyAsync(() -> net.minecraft.client.resources.model.ModelBakery.MODEL_LISTER.listMatchingResources($$0), (java.util.concurrent.Executor)$$12).thenCompose($$1 -> {
++            java.util.ArrayList $$2 = new java.util.ArrayList($$1.size());
++            for (java.util.Map$Entry $$3 : $$1.entrySet()) {
++                $$2.add((java.lang.Object)java.util.concurrent.CompletableFuture.supplyAsync(() -> {
++                    com.mojang.datafixers.util.Pair pair;
++block8:                    {
++                        java.lang.Object $$1 = ((net.minecraft.server.packs.resources.Resource)$$3.getValue()).openAsReader();
++                        try {
++                            pair = com.mojang.datafixers.util.Pair.of((java.lang.Object)((net.minecraft.resources.ResourceLocation)$$3.getKey()), (java.lang.Object)net.minecraft.client.renderer.block.model.BlockModel.fromStream((java.io.Reader)$$1));
++                            if ($$1 == null) break block8;
++                        }
++                        catch (java.lang.Throwable throwable) {
++                            try {
++                                if ($$1 != null) {
++                                    try {
++                                        $$1.close();
++                                    }
++                                    catch (java.lang.Throwable throwable2) {
++                                        throwable.addSuppressed(throwable2);
++                                    }
++                                }
++                                throw throwable;
++                            }
++                            catch (java.io.IOException $$2) {
++                                LOGGER.error("Failed to load model {}", $$3.getKey(), (java.lang.Object)((java.lang.Object)$$2));
++                                return null;
++                            }
++                        }
++                        $$1.close();
++                    }
++                    return pair;
++                }, (java.util.concurrent.Executor)$$12));
++            }
++            return net.minecraft.Util.sequence((java.util.List)$$2).thenApply($$0 -> (java.util.Map)$$0.stream().filter(java.util.Objects::nonNull).collect(java.util.stream.Collectors.toUnmodifiableMap(com.mojang.datafixers.util.Pair::getFirst, com.mojang.datafixers.util.Pair::getSecond)));
++        });
++    }
++
++    public static java.util.concurrent.CompletableFuture<java.util.Map<net.minecraft.resources.ResourceLocation, java.util.List<net.minecraft.client.resources.model.ModelBakery$LoadedJson>>> loadBlockStates(net.minecraft.server.packs.resources.ResourceManager $$0, java.util.concurrent.Executor $$12) {
++        return java.util.concurrent.CompletableFuture.supplyAsync(() -> net.minecraft.client.resources.model.ModelBakery.BLOCKSTATE_LISTER.listMatchingResourceStacks($$0), (java.util.concurrent.Executor)$$12).thenCompose($$1 -> {
++            java.util.ArrayList $$2 = new java.util.ArrayList($$1.size());
++            for (java.util.Map$Entry $$3 : $$1.entrySet()) {
++                $$2.add((java.lang.Object)java.util.concurrent.CompletableFuture.supplyAsync(() -> {
++                    java.lang.Object $$1 = (java.util.List)$$3.getValue();
++                    java.util.ArrayList $$2 = new java.util.ArrayList($$1.size());
++                    for (net.minecraft.server.packs.resources.Resource $$3 : $$1) {
++                        try {
++                            java.io.BufferedReader $$4 = $$3.openAsReader();
++                            try {
++                                com.google.gson.JsonObject $$5 = net.minecraft.util.GsonHelper.parse((java.io.Reader)$$4);
++                                $$2.add((java.lang.Object)new net.minecraft.client.resources.model.ModelBakery$LoadedJson($$3.sourcePackId(), (com.google.gson.JsonElement)$$5));
++                            }
++                            finally {
++                                if ($$4 == null) continue;
++                                $$4.close();
++                            }
++                        }
++                        catch (java.io.IOException $$6) {
++                            LOGGER.error("Failed to load blockstate {} from pack {}", new java.lang.Object[]{$$3.getKey(), $$3.sourcePackId(), $$6});
++                        }
++                    }
++                    return com.mojang.datafixers.util.Pair.of((java.lang.Object)((net.minecraft.resources.ResourceLocation)$$3.getKey()), (java.lang.Object)$$2);
++                }, (java.util.concurrent.Executor)$$12));
++            }
++            return net.minecraft.Util.sequence((java.util.List)$$2).thenApply($$0 -> (java.util.Map)$$0.stream().filter(java.util.Objects::nonNull).collect(java.util.stream.Collectors.toUnmodifiableMap(com.mojang.datafixers.util.Pair::getFirst, com.mojang.datafixers.util.Pair::getSecond)));
++        });
++    }
++
++    public net.minecraft.client.resources.model.ModelManager$ReloadState loadModels(net.minecraft.util.profiling.ProfilerFiller $$0, java.util.Map<net.minecraft.resources.ResourceLocation, net.minecraft.client.resources.model.AtlasSet$StitchResult> $$12, net.minecraft.client.resources.model.ModelBakery $$2) {
++        $$0.push("load");
++        $$0.popPush("baking");
++        com.google.common.collect.HashMultimap $$3 = com.google.common.collect.HashMultimap.create();
++        $$2.bakeModels((arg_0, arg_1) -> net.minecraft.client.resources.model.ModelManager.lambda$loadModels$23($$12, (com.google.common.collect.Multimap)$$3, arg_0, arg_1));
++        $$3.asMap().forEach(($$02, $$1) -> LOGGER.warn("Missing textures in model {}:\n{}", $$02, $$1.stream().sorted(net.minecraft.client.resources.model.Material.COMPARATOR).map($$0 -> "    " + $$0.atlasLocation() + ":" + $$0.texture()).collect(java.util.stream.Collectors.joining((java.lang.CharSequence)"\n"))));
++        $$0.popPush("dispatch");
++        java.util.Map $$4 = $$2.getBakedTopLevelModels();
++        net.minecraft.client.resources.model.BakedModel $$5 = (net.minecraft.client.resources.model.BakedModel)$$4.get((java.lang.Object)net.minecraft.client.resources.model.ModelBakery.MISSING_MODEL_LOCATION);
++        java.util.IdentityHashMap $$6 = new java.util.IdentityHashMap();
++        for (net.minecraft.world.level.block.Block $$7 : net.minecraft.core.Registry.BLOCK) {
++            $$7.getStateDefinition().getPossibleStates().forEach(arg_0 -> net.minecraft.client.resources.model.ModelManager.lambda$loadModels$26($$4, $$5, (java.util.Map)$$6, arg_0));
+         }
+-        this.atlases = object.uploadTextures(this.textureManager, profiler);
+-        this.bakedRegistry = object.getBakedTopLevelModels();
+-        this.modelGroups = object.getModelGroups();
+-        this.missingModel = (net.minecraft.client.resources.model.BakedModel)this.bakedRegistry.get((java.lang.Object)net.minecraft.client.resources.model.ModelBakery.MISSING_MODEL_LOCATION);
+-        profiler.popPush("cache");
+-        this.blockModelShaper.rebuildCache();
+-        profiler.pop();
+-        profiler.endTick();
++        java.util.concurrent.CompletableFuture $$8 = java.util.concurrent.CompletableFuture.allOf((java.util.concurrent.CompletableFuture[])((java.util.concurrent.CompletableFuture[])$$12.values().stream().map(net.minecraft.client.resources.model.AtlasSet$StitchResult::readyForUpload).toArray(java.util.concurrent.CompletableFuture[]::new)));
++        $$0.pop();
++        $$0.endTick();
++        return new net.minecraft.client.resources.model.ModelManager$ReloadState($$2, $$5, (java.util.Map)$$6, $$12, $$8);
+     }
+ 
+-    public boolean requiresRender(net.minecraft.world.level.block.state.BlockState oldState, net.minecraft.world.level.block.state.BlockState newState) {
+-        int n;
+-        if (oldState == newState) {
++    public void apply(net.minecraft.client.resources.model.ModelManager$ReloadState $$0, net.minecraft.util.profiling.ProfilerFiller $$1) {
++        $$1.startTick();
++        $$1.push("upload");
++        $$0.atlasPreparations.values().forEach(net.minecraft.client.resources.model.AtlasSet$StitchResult::upload);
++        net.minecraft.client.resources.model.ModelBakery $$2 = $$0.modelBakery;
++        this.bakedRegistry = $$2.getBakedTopLevelModels();
++        this.modelGroups = $$2.getModelGroups();
++        this.missingModel = $$0.missingModel;
++        $$1.popPush("cache");
++        this.blockModelShaper.replaceCache($$0.modelCache);
++        $$1.pop();
++        $$1.endTick();
++    }
++
++    public boolean requiresRender(net.minecraft.world.level.block.state.BlockState $$0, net.minecraft.world.level.block.state.BlockState $$1) {
++        int $$3;
++        if ($$0 == $$1) {
+             return false;
+         }
+-        int n2 = this.modelGroups.getInt((java.lang.Object)oldState);
+-        if (n2 != -1 && n2 == (n = this.modelGroups.getInt((java.lang.Object)newState))) {
+-            net.minecraft.world.level.material.FluidState fluidState;
+-            net.minecraft.world.level.material.FluidState fluidState2 = oldState.getFluidState();
+-            return fluidState2 != (fluidState = newState.getFluidState());
++        int $$2 = this.modelGroups.getInt((java.lang.Object)$$0);
++        if ($$2 != -1 && $$2 == ($$3 = this.modelGroups.getInt((java.lang.Object)$$1))) {
++            net.minecraft.world.level.material.FluidState $$5;
++            net.minecraft.world.level.material.FluidState $$4 = $$0.getFluidState();
++            return $$4 != ($$5 = $$1.getFluidState());
+         }
+         return true;
+     }
+ 
+-    public net.minecraft.client.renderer.texture.TextureAtlas getAtlas(net.minecraft.resources.ResourceLocation location) {
+-        return this.atlases.getAtlas(location);
++    public net.minecraft.client.renderer.texture.TextureAtlas getAtlas(net.minecraft.resources.ResourceLocation $$0) {
++        return this.atlases.getAtlas($$0);
+     }
+ 
+     public void close() {
+-        if (this.atlases != null) {
+-            this.atlases.close();
++        this.atlases.close();
++    }
++
++    public void updateMaxMipLevel(int $$0) {
++        this.maxMipmapLevels = $$0;
++    }
++
++    public static /* synthetic */ void lambda$loadModels$26(java.util.Map $$0, net.minecraft.client.resources.model.BakedModel $$1, java.util.Map $$2, net.minecraft.world.level.block.state.BlockState $$3) {
++        net.minecraft.resources.ResourceLocation $$4 = $$3.getBlock().builtInRegistryHolder().key().location();
++        net.minecraft.client.resources.model.BakedModel $$5 = (net.minecraft.client.resources.model.BakedModel)$$0.getOrDefault((java.lang.Object)net.minecraft.client.renderer.block.BlockModelShaper.stateToModelLocation((net.minecraft.resources.ResourceLocation)$$4, (net.minecraft.world.level.block.state.BlockState)$$3), (java.lang.Object)$$1);
++        $$2.put((java.lang.Object)$$3, (java.lang.Object)$$5);
++    }
++
++    public static /* synthetic */ net.minecraft.client.renderer.texture.TextureAtlasSprite lambda$loadModels$23(java.util.Map $$0, com.google.common.collect.Multimap $$1, net.minecraft.resources.ResourceLocation $$2, net.minecraft.client.resources.model.Material $$3) {
++        net.minecraft.client.resources.model.AtlasSet$StitchResult $$4 = (net.minecraft.client.resources.model.AtlasSet$StitchResult)$$0.get((java.lang.Object)$$3.atlasLocation());
++        net.minecraft.client.renderer.texture.TextureAtlasSprite $$5 = $$4.getSprite($$3.texture());
++        if ($$5 != null) {
++            return $$5;
+         }
++        $$1.put((java.lang.Object)$$2, (java.lang.Object)$$3);
++        return $$4.missing();
+     }
+ 
+-    public void updateMaxMipLevel(int level) {
+-        this.maxMipmapLevels = level;
++    public static /* synthetic */ java.util.Map lambda$static$7(net.minecraft.server.packs.resources.ResourceManager $$0) {
++        return net.minecraft.client.renderer.texture.SpriteLoader.listSprites((net.minecraft.server.packs.resources.ResourceManager)$$0, (java.lang.String)"entity/signs/hanging");
+     }
+ 
+-    public /* synthetic */ java.lang.Object prepare(net.minecraft.server.packs.resources.ResourceManager resourceManager, net.minecraft.util.profiling.ProfilerFiller profilerFiller) {
+-        return this.prepare(resourceManager, profilerFiller);
++    public static /* synthetic */ java.util.Map lambda$static$6(net.minecraft.server.packs.resources.ResourceManager $$0) {
++        java.util.HashMap $$1 = new java.util.HashMap();
++        net.minecraft.client.renderer.texture.SpriteLoader.listSprites((net.minecraft.server.packs.resources.ResourceManager)$$0, (java.lang.String)"block", (arg_0, arg_1) -> ((java.util.Map)$$1).put(arg_0, arg_1));
++        net.minecraft.client.renderer.texture.SpriteLoader.listSprites((net.minecraft.server.packs.resources.ResourceManager)$$0, (java.lang.String)"item", (arg_0, arg_1) -> ((java.util.Map)$$1).put(arg_0, arg_1));
++        net.minecraft.client.renderer.texture.SpriteLoader.listSprites((net.minecraft.server.packs.resources.ResourceManager)$$0, (java.lang.String)"entity/conduit", (arg_0, arg_1) -> ((java.util.Map)$$1).put(arg_0, arg_1));
++        net.minecraft.client.renderer.texture.SpriteLoader.addSprite((net.minecraft.server.packs.resources.ResourceManager)$$0, (net.minecraft.resources.ResourceLocation)net.minecraft.client.renderer.blockentity.BellRenderer.BELL_RESOURCE_LOCATION.texture(), (arg_0, arg_1) -> ((java.util.Map)$$1).put(arg_0, arg_1));
++        net.minecraft.client.renderer.texture.SpriteLoader.addSprite((net.minecraft.server.packs.resources.ResourceManager)$$0, (net.minecraft.resources.ResourceLocation)net.minecraft.client.renderer.blockentity.EnchantTableRenderer.BOOK_LOCATION.texture(), (arg_0, arg_1) -> ((java.util.Map)$$1).put(arg_0, arg_1));
++        return $$1;
+     }
++
++    public static /* synthetic */ java.util.Map lambda$static$5(net.minecraft.server.packs.resources.ResourceManager $$0) {
++        return net.minecraft.client.renderer.texture.SpriteLoader.listSprites((net.minecraft.server.packs.resources.ResourceManager)$$0, (java.lang.String)"entity/shulker");
++    }
++
++    public static /* synthetic */ java.util.Map lambda$static$4(net.minecraft.server.packs.resources.ResourceManager $$0) {
++        return net.minecraft.client.renderer.texture.SpriteLoader.listSprites((net.minecraft.server.packs.resources.ResourceManager)$$0, (java.lang.String)"entity/signs");
++    }
++
++    public static /* synthetic */ java.util.Map lambda$static$3(net.minecraft.server.packs.resources.ResourceManager $$0) {
++        java.util.HashMap $$1 = new java.util.HashMap();
++        net.minecraft.client.renderer.texture.SpriteLoader.addSprite((net.minecraft.server.packs.resources.ResourceManager)$$0, (net.minecraft.resources.ResourceLocation)net.minecraft.client.resources.model.ModelBakery.SHIELD_BASE.texture(), (arg_0, arg_1) -> ((java.util.Map)$$1).put(arg_0, arg_1));
++        net.minecraft.client.renderer.texture.SpriteLoader.addSprite((net.minecraft.server.packs.resources.ResourceManager)$$0, (net.minecraft.resources.ResourceLocation)net.minecraft.client.resources.model.ModelBakery.NO_PATTERN_SHIELD.texture(), (arg_0, arg_1) -> ((java.util.Map)$$1).put(arg_0, arg_1));
++        net.minecraft.client.renderer.texture.SpriteLoader.listSprites((net.minecraft.server.packs.resources.ResourceManager)$$0, (java.lang.String)"entity/shield", (arg_0, arg_1) -> ((java.util.Map)$$1).put(arg_0, arg_1));
++        return $$1;
++    }
++
++    public static /* synthetic */ java.util.Map lambda$static$2(net.minecraft.server.packs.resources.ResourceManager $$0) {
++        return net.minecraft.client.renderer.texture.SpriteLoader.listSprites((net.minecraft.server.packs.resources.ResourceManager)$$0, (java.lang.String)"entity/chest");
++    }
++
++    public static /* synthetic */ java.util.Map lambda$static$1(net.minecraft.server.packs.resources.ResourceManager $$0) {
++        return net.minecraft.client.renderer.texture.SpriteLoader.listSprites((net.minecraft.server.packs.resources.ResourceManager)$$0, (java.lang.String)"entity/bed");
++    }
++
++    public static /* synthetic */ java.util.Map lambda$static$0(net.minecraft.server.packs.resources.ResourceManager $$0) {
++        java.util.HashMap $$1 = new java.util.HashMap();
++        net.minecraft.client.renderer.texture.SpriteLoader.addSprite((net.minecraft.server.packs.resources.ResourceManager)$$0, (net.minecraft.resources.ResourceLocation)net.minecraft.client.resources.model.ModelBakery.BANNER_BASE.texture(), (arg_0, arg_1) -> ((java.util.Map)$$1).put(arg_0, arg_1));
++        net.minecraft.client.renderer.texture.SpriteLoader.listSprites((net.minecraft.server.packs.resources.ResourceManager)$$0, (java.lang.String)"entity/banner", (arg_0, arg_1) -> ((java.util.Map)$$1).put(arg_0, arg_1));
++        return $$1;
++    }
++
++    static {
++        LOGGER = com.mojang.logging.LogUtils.getLogger();
++        VANILLA_ATLASES = java.util.Map.of((java.lang.Object)net.minecraft.client.renderer.Sheets.BANNER_SHEET, $$0 -> {
++            java.util.HashMap $$1 = new java.util.HashMap();
++            net.minecraft.client.renderer.texture.SpriteLoader.addSprite((net.minecraft.server.packs.resources.ResourceManager)$$0, (net.minecraft.resources.ResourceLocation)net.minecraft.client.resources.model.ModelBakery.BANNER_BASE.texture(), (arg_0, arg_1) -> ((java.util.Map)$$1).put(arg_0, arg_1));
++            net.minecraft.client.renderer.texture.SpriteLoader.listSprites((net.minecraft.server.packs.resources.ResourceManager)$$0, (java.lang.String)"entity/banner", (arg_0, arg_1) -> ((java.util.Map)$$1).put(arg_0, arg_1));
++            return $$1;
++        }, (java.lang.Object)net.minecraft.client.renderer.Sheets.BED_SHEET, $$0 -> net.minecraft.client.renderer.texture.SpriteLoader.listSprites((net.minecraft.server.packs.resources.ResourceManager)$$0, (java.lang.String)"entity/bed"), (java.lang.Object)net.minecraft.client.renderer.Sheets.CHEST_SHEET, $$0 -> net.minecraft.client.renderer.texture.SpriteLoader.listSprites((net.minecraft.server.packs.resources.ResourceManager)$$0, (java.lang.String)"entity/chest"), (java.lang.Object)net.minecraft.client.renderer.Sheets.SHIELD_SHEET, $$0 -> {
++            java.util.HashMap $$1 = new java.util.HashMap();
++            net.minecraft.client.renderer.texture.SpriteLoader.addSprite((net.minecraft.server.packs.resources.ResourceManager)$$0, (net.minecraft.resources.ResourceLocation)net.minecraft.client.resources.model.ModelBakery.SHIELD_BASE.texture(), (arg_0, arg_1) -> ((java.util.Map)$$1).put(arg_0, arg_1));
++            net.minecraft.client.renderer.texture.SpriteLoader.addSprite((net.minecraft.server.packs.resources.ResourceManager)$$0, (net.minecraft.resources.ResourceLocation)net.minecraft.client.resources.model.ModelBakery.NO_PATTERN_SHIELD.texture(), (arg_0, arg_1) -> ((java.util.Map)$$1).put(arg_0, arg_1));
++            net.minecraft.client.renderer.texture.SpriteLoader.listSprites((net.minecraft.server.packs.resources.ResourceManager)$$0, (java.lang.String)"entity/shield", (arg_0, arg_1) -> ((java.util.Map)$$1).put(arg_0, arg_1));
++            return $$1;
++        }, (java.lang.Object)net.minecraft.client.renderer.Sheets.SIGN_SHEET, $$0 -> net.minecraft.client.renderer.texture.SpriteLoader.listSprites((net.minecraft.server.packs.resources.ResourceManager)$$0, (java.lang.String)"entity/signs"), (java.lang.Object)net.minecraft.client.renderer.Sheets.SHULKER_SHEET, $$0 -> net.minecraft.client.renderer.texture.SpriteLoader.listSprites((net.minecraft.server.packs.resources.ResourceManager)$$0, (java.lang.String)"entity/shulker"), (java.lang.Object)net.minecraft.client.renderer.texture.TextureAtlas.LOCATION_BLOCKS, $$0 -> {
++            java.util.HashMap $$1 = new java.util.HashMap();
++            net.minecraft.client.renderer.texture.SpriteLoader.listSprites((net.minecraft.server.packs.resources.ResourceManager)$$0, (java.lang.String)"block", (arg_0, arg_1) -> ((java.util.Map)$$1).put(arg_0, arg_1));
++            net.minecraft.client.renderer.texture.SpriteLoader.listSprites((net.minecraft.server.packs.resources.ResourceManager)$$0, (java.lang.String)"item", (arg_0, arg_1) -> ((java.util.Map)$$1).put(arg_0, arg_1));
++            net.minecraft.client.renderer.texture.SpriteLoader.listSprites((net.minecraft.server.packs.resources.ResourceManager)$$0, (java.lang.String)"entity/conduit", (arg_0, arg_1) -> ((java.util.Map)$$1).put(arg_0, arg_1));
++            net.minecraft.client.renderer.texture.SpriteLoader.addSprite((net.minecraft.server.packs.resources.ResourceManager)$$0, (net.minecraft.resources.ResourceLocation)net.minecraft.client.renderer.blockentity.BellRenderer.BELL_RESOURCE_LOCATION.texture(), (arg_0, arg_1) -> ((java.util.Map)$$1).put(arg_0, arg_1));
++            net.minecraft.client.renderer.texture.SpriteLoader.addSprite((net.minecraft.server.packs.resources.ResourceManager)$$0, (net.minecraft.resources.ResourceLocation)net.minecraft.client.renderer.blockentity.EnchantTableRenderer.BOOK_LOCATION.texture(), (arg_0, arg_1) -> ((java.util.Map)$$1).put(arg_0, arg_1));
++            return $$1;
++        }, (java.lang.Object)net.minecraft.client.renderer.Sheets.HANGING_SIGN_SHEET, $$0 -> net.minecraft.client.renderer.texture.SpriteLoader.listSprites((net.minecraft.server.packs.resources.ResourceManager)$$0, (java.lang.String)"entity/signs/hanging"));
++    }
+ }
+ 

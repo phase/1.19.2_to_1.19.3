@@ -1,0 +1,260 @@
+--- net/minecraft/world/entity/animal/horse/Horse.java
++++ net/minecraft/world/entity/animal/horse/Horse.java
+@@ -24,11 +24,11 @@
+         this.entityData.define(DATA_ID_TYPE_VARIANT, (java.lang.Object)0);
+     }
+ 
+-    public void addAdditionalSaveData(net.minecraft.nbt.CompoundTag compound) {
+-        super.addAdditionalSaveData(compound);
+-        compound.putInt("Variant", this.getTypeVariant());
++    public void addAdditionalSaveData(net.minecraft.nbt.CompoundTag $$0) {
++        super.addAdditionalSaveData($$0);
++        $$0.putInt("Variant", this.getTypeVariant());
+         if (!this.inventory.getItem(1).isEmpty()) {
+-            compound.put("ArmorItem", (net.minecraft.nbt.Tag)this.inventory.getItem(1).save(new net.minecraft.nbt.CompoundTag()));
++            $$0.put("ArmorItem", (net.minecraft.nbt.Tag)this.inventory.getItem(1).save(new net.minecraft.nbt.CompoundTag()));
+         }
+     }
+ 
+@@ -36,31 +36,31 @@
+         return this.getItemBySlot(net.minecraft.world.entity.EquipmentSlot.CHEST);
+     }
+ 
+-    public void setArmor(net.minecraft.world.item.ItemStack stack) {
+-        this.setItemSlot(net.minecraft.world.entity.EquipmentSlot.CHEST, stack);
++    public void setArmor(net.minecraft.world.item.ItemStack $$0) {
++        this.setItemSlot(net.minecraft.world.entity.EquipmentSlot.CHEST, $$0);
+         this.setDropChance(net.minecraft.world.entity.EquipmentSlot.CHEST, 0.0f);
+     }
+ 
+-    public void readAdditionalSaveData(net.minecraft.nbt.CompoundTag compound) {
+-        net.minecraft.world.item.ItemStack itemStack;
+-        super.readAdditionalSaveData(compound);
+-        this.setTypeVariant(compound.getInt("Variant"));
+-        if (compound.contains("ArmorItem", 10) && !(itemStack = net.minecraft.world.item.ItemStack.of((net.minecraft.nbt.CompoundTag)compound.getCompound("ArmorItem"))).isEmpty() && this.isArmor(itemStack)) {
+-            this.inventory.setItem(1, itemStack);
++    public void readAdditionalSaveData(net.minecraft.nbt.CompoundTag $$0) {
++        net.minecraft.world.item.ItemStack $$1;
++        super.readAdditionalSaveData($$0);
++        this.setTypeVariant($$0.getInt("Variant"));
++        if ($$0.contains("ArmorItem", 10) && !($$1 = net.minecraft.world.item.ItemStack.of((net.minecraft.nbt.CompoundTag)$$0.getCompound("ArmorItem"))).isEmpty() && this.isArmor($$1)) {
++            this.inventory.setItem(1, $$1);
+         }
+         this.updateContainerEquipment();
+     }
+ 
+-    public void setTypeVariant(int typeVariant) {
+-        this.entityData.set(DATA_ID_TYPE_VARIANT, (java.lang.Object)typeVariant);
++    public void setTypeVariant(int $$0) {
++        this.entityData.set(DATA_ID_TYPE_VARIANT, (java.lang.Object)$$0);
+     }
+ 
+     public int getTypeVariant() {
+         return (java.lang.Integer)this.entityData.get(DATA_ID_TYPE_VARIANT);
+     }
+ 
+-    public void setVariantAndMarkings(net.minecraft.world.entity.animal.horse.Variant variant, net.minecraft.world.entity.animal.horse.Markings marking) {
+-        this.setTypeVariant(variant.getId() & 0xFF | marking.getId() << 8 & 0xFF00);
++    public void setVariantAndMarkings(net.minecraft.world.entity.animal.horse.Variant $$0, net.minecraft.world.entity.animal.horse.Markings $$1) {
++        this.setTypeVariant($$0.getId() & 0xFF | $$1.getId() << 8 & 0xFF00);
+     }
+ 
+     public net.minecraft.world.entity.animal.horse.Variant getVariant() {
+@@ -80,40 +80,38 @@
+         this.setDropChance(net.minecraft.world.entity.EquipmentSlot.CHEST, 0.0f);
+     }
+ 
+-    public void setArmorEquipment(net.minecraft.world.item.ItemStack stack) {
+-        this.setArmor(stack);
++    public void setArmorEquipment(net.minecraft.world.item.ItemStack $$0) {
++        this.setArmor($$0);
+         if (!this.level.isClientSide) {
+-            int n;
++            int $$1;
+             this.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.ARMOR).removeModifier(ARMOR_MODIFIER_UUID);
+-            if (this.isArmor(stack) && (n = ((net.minecraft.world.item.HorseArmorItem)stack.getItem()).getProtection()) != 0) {
+-                this.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.ARMOR).addTransientModifier(new net.minecraft.world.entity.ai.attributes.AttributeModifier(ARMOR_MODIFIER_UUID, "Horse armor bonus", (double)n, net.minecraft.world.entity.ai.attributes.AttributeModifier$Operation.ADDITION));
++            if (this.isArmor($$0) && ($$1 = ((net.minecraft.world.item.HorseArmorItem)$$0.getItem()).getProtection()) != 0) {
++                this.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.ARMOR).addTransientModifier(new net.minecraft.world.entity.ai.attributes.AttributeModifier(ARMOR_MODIFIER_UUID, "Horse armor bonus", (double)$$1, net.minecraft.world.entity.ai.attributes.AttributeModifier$Operation.ADDITION));
+             }
+         }
+     }
+ 
+-    public void containerChanged(net.minecraft.world.Container invBasic) {
+-        net.minecraft.world.item.ItemStack itemStack = this.getArmor();
+-        super.containerChanged(invBasic);
+-        net.minecraft.world.item.ItemStack itemStack2 = this.getArmor();
+-        if (this.tickCount > 20 && this.isArmor(itemStack2) && itemStack != itemStack2) {
++    public void containerChanged(net.minecraft.world.Container $$0) {
++        net.minecraft.world.item.ItemStack $$1 = this.getArmor();
++        super.containerChanged($$0);
++        net.minecraft.world.item.ItemStack $$2 = this.getArmor();
++        if (this.tickCount > 20 && this.isArmor($$2) && $$1 != $$2) {
+             this.playSound(net.minecraft.sounds.SoundEvents.HORSE_ARMOR, 0.5f, 1.0f);
+         }
+     }
+ 
+-    public void playGallopSound(net.minecraft.world.level.block.SoundType soundType) {
+-        super.playGallopSound(soundType);
++    public void playGallopSound(net.minecraft.world.level.block.SoundType $$0) {
++        super.playGallopSound($$0);
+         if (this.random.nextInt(10) == 0) {
+-            this.playSound(net.minecraft.sounds.SoundEvents.HORSE_BREATHE, soundType.getVolume() * 0.6f, soundType.getPitch());
++            this.playSound(net.minecraft.sounds.SoundEvents.HORSE_BREATHE, $$0.getVolume() * 0.6f, $$0.getPitch());
+         }
+     }
+ 
+     public net.minecraft.sounds.SoundEvent getAmbientSound() {
+-        super.getAmbientSound();
+         return net.minecraft.sounds.SoundEvents.HORSE_AMBIENT;
+     }
+ 
+     public net.minecraft.sounds.SoundEvent getDeathSound() {
+-        super.getDeathSound();
+         return net.minecraft.sounds.SoundEvents.HORSE_DEATH;
+     }
+ 
+@@ -122,72 +120,57 @@
+         return net.minecraft.sounds.SoundEvents.HORSE_EAT;
+     }
+ 
+-    public net.minecraft.sounds.SoundEvent getHurtSound(net.minecraft.world.damagesource.DamageSource damageSource) {
+-        super.getHurtSound(damageSource);
++    public net.minecraft.sounds.SoundEvent getHurtSound(net.minecraft.world.damagesource.DamageSource $$0) {
+         return net.minecraft.sounds.SoundEvents.HORSE_HURT;
+     }
+ 
+     public net.minecraft.sounds.SoundEvent getAngrySound() {
+-        super.getAngrySound();
+         return net.minecraft.sounds.SoundEvents.HORSE_ANGRY;
+     }
+ 
+-    public net.minecraft.world.InteractionResult mobInteract(net.minecraft.world.entity.player.Player player, net.minecraft.world.InteractionHand hand) {
+-        net.minecraft.world.item.ItemStack itemStack = player.getItemInHand(hand);
+-        if (!this.isBaby()) {
+-            if (this.isTamed() && player.isSecondaryUseActive()) {
+-                this.openCustomInventoryScreen(player);
+-                return net.minecraft.world.InteractionResult.sidedSuccess((boolean)this.level.isClientSide);
+-            }
+-            if (this.isVehicle()) {
+-                return super.mobInteract(player, hand);
+-            }
++    public net.minecraft.world.InteractionResult mobInteract(net.minecraft.world.entity.player.Player $$0, net.minecraft.world.InteractionHand $$1) {
++        boolean $$2;
++        boolean bl = $$2 = !this.isBaby() && this.isTamed() && $$0.isSecondaryUseActive();
++        if (this.isVehicle() || $$2) {
++            return super.mobInteract($$0, $$1);
+         }
+-        if (!itemStack.isEmpty()) {
+-            boolean bl;
+-            if (this.isFood(itemStack)) {
+-                return this.fedFood(player, itemStack);
++        net.minecraft.world.item.ItemStack $$3 = $$0.getItemInHand($$1);
++        if (!$$3.isEmpty()) {
++            if (this.isFood($$3)) {
++                return this.fedFood($$0, $$3);
+             }
+-            net.minecraft.world.InteractionResult interactionResult = itemStack.interactLivingEntity(player, (net.minecraft.world.entity.LivingEntity)this, hand);
+-            if (interactionResult.consumesAction()) {
+-                return interactionResult;
+-            }
+             if (!this.isTamed()) {
+                 this.makeMad();
+                 return net.minecraft.world.InteractionResult.sidedSuccess((boolean)this.level.isClientSide);
+             }
+-            boolean bl2 = bl = !this.isBaby() && !this.isSaddled() && itemStack.is(net.minecraft.world.item.Items.SADDLE);
+-            if (this.isArmor(itemStack) || bl) {
+-                this.openCustomInventoryScreen(player);
+-                return net.minecraft.world.InteractionResult.sidedSuccess((boolean)this.level.isClientSide);
+-            }
+         }
+-        if (this.isBaby()) {
+-            return super.mobInteract(player, hand);
+-        }
+-        this.doPlayerRide(player);
+-        return net.minecraft.world.InteractionResult.sidedSuccess((boolean)this.level.isClientSide);
++        return super.mobInteract($$0, $$1);
+     }
+ 
+-    public boolean canMate(net.minecraft.world.entity.animal.Animal otherAnimal) {
+-        if (otherAnimal == this) {
++    public boolean canMate(net.minecraft.world.entity.animal.Animal $$0) {
++        if ($$0 == this) {
+             return false;
+         }
+-        if (otherAnimal instanceof net.minecraft.world.entity.animal.horse.Donkey || otherAnimal instanceof net.minecraft.world.entity.animal.horse.Horse) {
+-            return this.canParent() && ((net.minecraft.world.entity.animal.horse.AbstractHorse)otherAnimal).canParent();
++        if ($$0 instanceof net.minecraft.world.entity.animal.horse.Donkey || $$0 instanceof net.minecraft.world.entity.animal.horse.Horse) {
++            return this.canParent() && ((net.minecraft.world.entity.animal.horse.AbstractHorse)$$0).canParent();
+         }
+         return false;
+     }
+ 
++    @javax.annotation.Nullable
+     public net.minecraft.world.entity.AgeableMob getBreedOffspring(net.minecraft.server.level.ServerLevel $$0, net.minecraft.world.entity.AgeableMob $$1) {
+-        net.minecraft.world.entity.animal.horse.AbstractHorse $$4;
+         if ($$1 instanceof net.minecraft.world.entity.animal.horse.Donkey) {
+-            net.minecraft.world.entity.animal.horse.AbstractHorse $$2 = (net.minecraft.world.entity.animal.horse.AbstractHorse)net.minecraft.world.entity.EntityType.MULE.create((net.minecraft.world.level.Level)$$0);
+-        } else {
++            net.minecraft.world.entity.animal.horse.Mule $$2 = (net.minecraft.world.entity.animal.horse.Mule)net.minecraft.world.entity.EntityType.MULE.create((net.minecraft.world.level.Level)$$0);
++            if ($$2 != null) {
++                this.setOffspringAttributes($$1, (net.minecraft.world.entity.animal.horse.AbstractHorse)$$2);
++            }
++            return $$2;
++        }
++        net.minecraft.world.entity.animal.horse.Horse $$3 = (net.minecraft.world.entity.animal.horse.Horse)$$1;
++        net.minecraft.world.entity.animal.horse.Horse $$4 = (net.minecraft.world.entity.animal.horse.Horse)net.minecraft.world.entity.EntityType.HORSE.create((net.minecraft.world.level.Level)$$0);
++        if ($$4 != null) {
+             net.minecraft.world.entity.animal.horse.Markings $$12;
+             net.minecraft.world.entity.animal.horse.Variant $$8;
+-            net.minecraft.world.entity.animal.horse.Horse $$3 = (net.minecraft.world.entity.animal.horse.Horse)$$1;
+-            $$4 = (net.minecraft.world.entity.animal.horse.AbstractHorse)net.minecraft.world.entity.EntityType.HORSE.create((net.minecraft.world.level.Level)$$0);
+             int $$5 = this.random.nextInt(9);
+             if ($$5 < 4) {
+                 net.minecraft.world.entity.animal.horse.Variant $$6 = this.getVariant();
+@@ -204,9 +187,9 @@
+             } else {
+                 $$12 = (net.minecraft.world.entity.animal.horse.Markings)net.minecraft.Util.getRandom((java.lang.Object[])net.minecraft.world.entity.animal.horse.Markings.values(), (net.minecraft.util.RandomSource)this.random);
+             }
+-            ((net.minecraft.world.entity.animal.horse.Horse)$$4).setVariantAndMarkings($$8, $$12);
++            $$4.setVariantAndMarkings($$8, $$12);
++            this.setOffspringAttributes($$1, (net.minecraft.world.entity.animal.horse.AbstractHorse)$$4);
+         }
+-        this.setOffspringAttributes($$1, $$4);
+         return $$4;
+     }
+ 
+@@ -214,22 +197,22 @@
+         return true;
+     }
+ 
+-    public boolean isArmor(net.minecraft.world.item.ItemStack stack) {
+-        return stack.getItem() instanceof net.minecraft.world.item.HorseArmorItem;
++    public boolean isArmor(net.minecraft.world.item.ItemStack $$0) {
++        return $$0.getItem() instanceof net.minecraft.world.item.HorseArmorItem;
+     }
+ 
+     @javax.annotation.Nullable
+-    public net.minecraft.world.entity.SpawnGroupData finalizeSpawn(net.minecraft.world.level.ServerLevelAccessor level, net.minecraft.world.DifficultyInstance difficulty, net.minecraft.world.entity.MobSpawnType reason, @javax.annotation.Nullable net.minecraft.world.entity.SpawnGroupData spawnData, @javax.annotation.Nullable net.minecraft.nbt.CompoundTag dataTag) {
+-        net.minecraft.world.entity.animal.horse.Variant variant;
+-        net.minecraft.util.RandomSource randomSource = level.getRandom();
+-        if (spawnData instanceof net.minecraft.world.entity.animal.horse.Horse$HorseGroupData) {
+-            variant = ((net.minecraft.world.entity.animal.horse.Horse$HorseGroupData)spawnData).variant;
++    public net.minecraft.world.entity.SpawnGroupData finalizeSpawn(net.minecraft.world.level.ServerLevelAccessor $$0, net.minecraft.world.DifficultyInstance $$1, net.minecraft.world.entity.MobSpawnType $$2, @javax.annotation.Nullable net.minecraft.world.entity.SpawnGroupData $$3, @javax.annotation.Nullable net.minecraft.nbt.CompoundTag $$4) {
++        net.minecraft.world.entity.animal.horse.Variant $$7;
++        net.minecraft.util.RandomSource $$5 = $$0.getRandom();
++        if ($$3 instanceof net.minecraft.world.entity.animal.horse.Horse$HorseGroupData) {
++            net.minecraft.world.entity.animal.horse.Variant $$6 = ((net.minecraft.world.entity.animal.horse.Horse$HorseGroupData)$$3).variant;
+         } else {
+-            variant = (net.minecraft.world.entity.animal.horse.Variant)net.minecraft.Util.getRandom((java.lang.Object[])net.minecraft.world.entity.animal.horse.Variant.values(), (net.minecraft.util.RandomSource)randomSource);
+-            spawnData = new net.minecraft.world.entity.animal.horse.Horse$HorseGroupData(variant);
++            $$7 = (net.minecraft.world.entity.animal.horse.Variant)net.minecraft.Util.getRandom((java.lang.Object[])net.minecraft.world.entity.animal.horse.Variant.values(), (net.minecraft.util.RandomSource)$$5);
++            $$3 = new net.minecraft.world.entity.animal.horse.Horse$HorseGroupData($$7);
+         }
+-        this.setVariantAndMarkings(variant, (net.minecraft.world.entity.animal.horse.Markings)net.minecraft.Util.getRandom((java.lang.Object[])net.minecraft.world.entity.animal.horse.Markings.values(), (net.minecraft.util.RandomSource)randomSource));
+-        return super.finalizeSpawn(level, difficulty, reason, spawnData, dataTag);
++        this.setVariantAndMarkings($$7, (net.minecraft.world.entity.animal.horse.Markings)net.minecraft.Util.getRandom((java.lang.Object[])net.minecraft.world.entity.animal.horse.Markings.values(), (net.minecraft.util.RandomSource)$$5));
++        return super.finalizeSpawn($$0, $$1, $$2, $$3, $$4);
+     }
+ 
+     static {

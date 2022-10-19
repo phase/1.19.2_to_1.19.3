@@ -1,0 +1,1132 @@
+--- net/minecraft/data/loot/BlockLoot.java
++++ net/minecraft/data/loot/BlockLoot.java
+@@ -1,1129 +1,0 @@
+-/*
+- * Decompiled with CFR 0.151.
+- */
+-package net.minecraft.data.loot;
+-
+-public class net.minecraft.data.loot.BlockLoot
+-implements java.util.function.Consumer<java.util.function.BiConsumer<net.minecraft.resources.ResourceLocation, net.minecraft.world.level.storage.loot.LootTable$Builder>>
+- {
+-    public static net.minecraft.world.level.storage.loot.predicates.LootItemCondition$Builder HAS_SILK_TOUCH;
+-    public static net.minecraft.world.level.storage.loot.predicates.LootItemCondition$Builder HAS_NO_SILK_TOUCH;
+-    public static net.minecraft.world.level.storage.loot.predicates.LootItemCondition$Builder HAS_SHEARS;
+-    public static net.minecraft.world.level.storage.loot.predicates.LootItemCondition$Builder HAS_SHEARS_OR_SILK_TOUCH;
+-    public static net.minecraft.world.level.storage.loot.predicates.LootItemCondition$Builder HAS_NO_SHEARS_OR_SILK_TOUCH;
+-    public static java.util.Set<net.minecraft.world.item.Item> EXPLOSION_RESISTANT;
+-    public static float[] NORMAL_LEAVES_SAPLING_CHANCES;
+-    public static float[] JUNGLE_LEAVES_SAPLING_CHANGES;
+-    public static float[] NORMAL_LEAVES_STICK_CHANCES;
+-    public java.util.Map<net.minecraft.resources.ResourceLocation, net.minecraft.world.level.storage.loot.LootTable$Builder> map;
+-
+-    public net.minecraft.data.loot.BlockLoot() {
+-        this.map = com.google.common.collect.Maps.newHashMap();
+-    }
+-
+-    public static <T extends net.minecraft.world.level.storage.loot.functions.FunctionUserBuilder<T>> T applyExplosionDecay(net.minecraft.world.level.ItemLike $$0, net.minecraft.world.level.storage.loot.functions.FunctionUserBuilder<T> $$1) {
+-        if (!EXPLOSION_RESISTANT.contains((java.lang.Object)$$0.asItem())) {
+-            return (T)$$1.apply((net.minecraft.world.level.storage.loot.functions.LootItemFunction$Builder)net.minecraft.world.level.storage.loot.functions.ApplyExplosionDecay.explosionDecay());
+-        }
+-        return (T)$$1.unwrap();
+-    }
+-
+-    public static <T extends net.minecraft.world.level.storage.loot.predicates.ConditionUserBuilder<T>> T applyExplosionCondition(net.minecraft.world.level.ItemLike $$0, net.minecraft.world.level.storage.loot.predicates.ConditionUserBuilder<T> $$1) {
+-        if (!EXPLOSION_RESISTANT.contains((java.lang.Object)$$0.asItem())) {
+-            return (T)$$1.when(net.minecraft.world.level.storage.loot.predicates.ExplosionCondition.survivesExplosion());
+-        }
+-        return (T)$$1.unwrap();
+-    }
+-
+-    public static net.minecraft.world.level.storage.loot.LootTable$Builder createSingleItemTable(net.minecraft.world.level.ItemLike item) {
+-        return net.minecraft.world.level.storage.loot.LootTable.lootTable().withPool((net.minecraft.world.level.storage.loot.LootPool$Builder)net.minecraft.data.loot.BlockLoot.applyExplosionCondition((net.minecraft.world.level.ItemLike)item, (net.minecraft.world.level.storage.loot.predicates.ConditionUserBuilder)net.minecraft.world.level.storage.loot.LootPool.lootPool().setRolls((net.minecraft.world.level.storage.loot.providers.number.NumberProvider)net.minecraft.world.level.storage.loot.providers.number.ConstantValue.exactly((float)1.0f)).add((net.minecraft.world.level.storage.loot.entries.LootPoolEntryContainer$Builder)net.minecraft.world.level.storage.loot.entries.LootItem.lootTableItem((net.minecraft.world.level.ItemLike)item))));
+-    }
+-
+-    public static net.minecraft.world.level.storage.loot.LootTable$Builder createSelfDropDispatchTable(net.minecraft.world.level.block.Block block, net.minecraft.world.level.storage.loot.predicates.LootItemCondition$Builder conditionBuilder, net.minecraft.world.level.storage.loot.entries.LootPoolEntryContainer$Builder<?> alternativeEntryBuilder) {
+-        return net.minecraft.world.level.storage.loot.LootTable.lootTable().withPool(net.minecraft.world.level.storage.loot.LootPool.lootPool().setRolls((net.minecraft.world.level.storage.loot.providers.number.NumberProvider)net.minecraft.world.level.storage.loot.providers.number.ConstantValue.exactly((float)1.0f)).add((net.minecraft.world.level.storage.loot.entries.LootPoolEntryContainer$Builder)((net.minecraft.world.level.storage.loot.entries.LootPoolSingletonContainer$Builder)net.minecraft.world.level.storage.loot.entries.LootItem.lootTableItem((net.minecraft.world.level.ItemLike)block).when(conditionBuilder)).otherwise(alternativeEntryBuilder)));
+-    }
+-
+-    public static net.minecraft.world.level.storage.loot.LootTable$Builder createSilkTouchDispatchTable(net.minecraft.world.level.block.Block block, net.minecraft.world.level.storage.loot.entries.LootPoolEntryContainer$Builder<?> alternativeEntryBuilder) {
+-        return net.minecraft.data.loot.BlockLoot.createSelfDropDispatchTable((net.minecraft.world.level.block.Block)block, (net.minecraft.world.level.storage.loot.predicates.LootItemCondition$Builder)HAS_SILK_TOUCH, alternativeEntryBuilder);
+-    }
+-
+-    public static net.minecraft.world.level.storage.loot.LootTable$Builder createShearsDispatchTable(net.minecraft.world.level.block.Block block, net.minecraft.world.level.storage.loot.entries.LootPoolEntryContainer$Builder<?> alternativeEntryBuilder) {
+-        return net.minecraft.data.loot.BlockLoot.createSelfDropDispatchTable((net.minecraft.world.level.block.Block)block, (net.minecraft.world.level.storage.loot.predicates.LootItemCondition$Builder)HAS_SHEARS, alternativeEntryBuilder);
+-    }
+-
+-    public static net.minecraft.world.level.storage.loot.LootTable$Builder createSilkTouchOrShearsDispatchTable(net.minecraft.world.level.block.Block block, net.minecraft.world.level.storage.loot.entries.LootPoolEntryContainer$Builder<?> alternativeEntryBuilder) {
+-        return net.minecraft.data.loot.BlockLoot.createSelfDropDispatchTable((net.minecraft.world.level.block.Block)block, (net.minecraft.world.level.storage.loot.predicates.LootItemCondition$Builder)HAS_SHEARS_OR_SILK_TOUCH, alternativeEntryBuilder);
+-    }
+-
+-    public static net.minecraft.world.level.storage.loot.LootTable$Builder createSingleItemTableWithSilkTouch(net.minecraft.world.level.block.Block silkTouchBlock, net.minecraft.world.level.ItemLike noSilkTouchItemLike) {
+-        return net.minecraft.data.loot.BlockLoot.createSilkTouchDispatchTable((net.minecraft.world.level.block.Block)silkTouchBlock, (net.minecraft.world.level.storage.loot.entries.LootPoolEntryContainer$Builder)((net.minecraft.world.level.storage.loot.entries.LootPoolEntryContainer$Builder)net.minecraft.data.loot.BlockLoot.applyExplosionCondition((net.minecraft.world.level.ItemLike)silkTouchBlock, (net.minecraft.world.level.storage.loot.predicates.ConditionUserBuilder)net.minecraft.world.level.storage.loot.entries.LootItem.lootTableItem((net.minecraft.world.level.ItemLike)noSilkTouchItemLike))));
+-    }
+-
+-    public static net.minecraft.world.level.storage.loot.LootTable$Builder createSingleItemTable(net.minecraft.world.level.ItemLike $$0, net.minecraft.world.level.storage.loot.providers.number.NumberProvider $$1) {
+-        return net.minecraft.world.level.storage.loot.LootTable.lootTable().withPool(net.minecraft.world.level.storage.loot.LootPool.lootPool().setRolls((net.minecraft.world.level.storage.loot.providers.number.NumberProvider)net.minecraft.world.level.storage.loot.providers.number.ConstantValue.exactly((float)1.0f)).add((net.minecraft.world.level.storage.loot.entries.LootPoolEntryContainer$Builder)net.minecraft.data.loot.BlockLoot.applyExplosionDecay((net.minecraft.world.level.ItemLike)$$0, (net.minecraft.world.level.storage.loot.functions.FunctionUserBuilder)net.minecraft.world.level.storage.loot.entries.LootItem.lootTableItem((net.minecraft.world.level.ItemLike)$$0).apply((net.minecraft.world.level.storage.loot.functions.LootItemFunction$Builder)net.minecraft.world.level.storage.loot.functions.SetItemCountFunction.setCount((net.minecraft.world.level.storage.loot.providers.number.NumberProvider)$$1)))));
+-    }
+-
+-    public static net.minecraft.world.level.storage.loot.LootTable$Builder createSingleItemTableWithSilkTouch(net.minecraft.world.level.block.Block $$0, net.minecraft.world.level.ItemLike $$1, net.minecraft.world.level.storage.loot.providers.number.NumberProvider $$2) {
+-        return net.minecraft.data.loot.BlockLoot.createSilkTouchDispatchTable((net.minecraft.world.level.block.Block)$$0, (net.minecraft.world.level.storage.loot.entries.LootPoolEntryContainer$Builder)((net.minecraft.world.level.storage.loot.entries.LootPoolEntryContainer$Builder)net.minecraft.data.loot.BlockLoot.applyExplosionDecay((net.minecraft.world.level.ItemLike)$$0, (net.minecraft.world.level.storage.loot.functions.FunctionUserBuilder)net.minecraft.world.level.storage.loot.entries.LootItem.lootTableItem((net.minecraft.world.level.ItemLike)$$1).apply((net.minecraft.world.level.storage.loot.functions.LootItemFunction$Builder)net.minecraft.world.level.storage.loot.functions.SetItemCountFunction.setCount((net.minecraft.world.level.storage.loot.providers.number.NumberProvider)$$2)))));
+-    }
+-
+-    public static net.minecraft.world.level.storage.loot.LootTable$Builder createSilkTouchOnlyTable(net.minecraft.world.level.ItemLike item) {
+-        return net.minecraft.world.level.storage.loot.LootTable.lootTable().withPool(net.minecraft.world.level.storage.loot.LootPool.lootPool().when(HAS_SILK_TOUCH).setRolls((net.minecraft.world.level.storage.loot.providers.number.NumberProvider)net.minecraft.world.level.storage.loot.providers.number.ConstantValue.exactly((float)1.0f)).add((net.minecraft.world.level.storage.loot.entries.LootPoolEntryContainer$Builder)net.minecraft.world.level.storage.loot.entries.LootItem.lootTableItem((net.minecraft.world.level.ItemLike)item)));
+-    }
+-
+-    public static net.minecraft.world.level.storage.loot.LootTable$Builder createPotFlowerItemTable(net.minecraft.world.level.ItemLike flowerPotContent) {
+-        return net.minecraft.world.level.storage.loot.LootTable.lootTable().withPool((net.minecraft.world.level.storage.loot.LootPool$Builder)net.minecraft.data.loot.BlockLoot.applyExplosionCondition((net.minecraft.world.level.ItemLike)net.minecraft.world.level.block.Blocks.FLOWER_POT, (net.minecraft.world.level.storage.loot.predicates.ConditionUserBuilder)net.minecraft.world.level.storage.loot.LootPool.lootPool().setRolls((net.minecraft.world.level.storage.loot.providers.number.NumberProvider)net.minecraft.world.level.storage.loot.providers.number.ConstantValue.exactly((float)1.0f)).add((net.minecraft.world.level.storage.loot.entries.LootPoolEntryContainer$Builder)net.minecraft.world.level.storage.loot.entries.LootItem.lootTableItem((net.minecraft.world.level.ItemLike)net.minecraft.world.level.block.Blocks.FLOWER_POT)))).withPool((net.minecraft.world.level.storage.loot.LootPool$Builder)net.minecraft.data.loot.BlockLoot.applyExplosionCondition((net.minecraft.world.level.ItemLike)flowerPotContent, (net.minecraft.world.level.storage.loot.predicates.ConditionUserBuilder)net.minecraft.world.level.storage.loot.LootPool.lootPool().setRolls((net.minecraft.world.level.storage.loot.providers.number.NumberProvider)net.minecraft.world.level.storage.loot.providers.number.ConstantValue.exactly((float)1.0f)).add((net.minecraft.world.level.storage.loot.entries.LootPoolEntryContainer$Builder)net.minecraft.world.level.storage.loot.entries.LootItem.lootTableItem((net.minecraft.world.level.ItemLike)flowerPotContent))));
+-    }
+-
+-    public static net.minecraft.world.level.storage.loot.LootTable$Builder createSlabItemTable(net.minecraft.world.level.block.Block slabBock) {
+-        return net.minecraft.world.level.storage.loot.LootTable.lootTable().withPool(net.minecraft.world.level.storage.loot.LootPool.lootPool().setRolls((net.minecraft.world.level.storage.loot.providers.number.NumberProvider)net.minecraft.world.level.storage.loot.providers.number.ConstantValue.exactly((float)1.0f)).add((net.minecraft.world.level.storage.loot.entries.LootPoolEntryContainer$Builder)net.minecraft.data.loot.BlockLoot.applyExplosionDecay((net.minecraft.world.level.ItemLike)slabBock, (net.minecraft.world.level.storage.loot.functions.FunctionUserBuilder)net.minecraft.world.level.storage.loot.entries.LootItem.lootTableItem((net.minecraft.world.level.ItemLike)slabBock).apply((net.minecraft.world.level.storage.loot.functions.LootItemFunction$Builder)net.minecraft.world.level.storage.loot.functions.SetItemCountFunction.setCount((net.minecraft.world.level.storage.loot.providers.number.NumberProvider)net.minecraft.world.level.storage.loot.providers.number.ConstantValue.exactly((float)2.0f)).when((net.minecraft.world.level.storage.loot.predicates.LootItemCondition$Builder)net.minecraft.world.level.storage.loot.predicates.LootItemBlockStatePropertyCondition.hasBlockStateProperties((net.minecraft.world.level.block.Block)slabBock).setProperties(net.minecraft.advancements.critereon.StatePropertiesPredicate$Builder.properties().hasProperty((net.minecraft.world.level.block.state.properties.Property)net.minecraft.world.level.block.SlabBlock.TYPE, (java.lang.Comparable)net.minecraft.world.level.block.state.properties.SlabType.DOUBLE)))))));
+-    }
+-
+-    public static <T extends java.lang.Comparable<T> & net.minecraft.util.StringRepresentable> net.minecraft.world.level.storage.loot.LootTable$Builder createSinglePropConditionTable(net.minecraft.world.level.block.Block block, net.minecraft.world.level.block.state.properties.Property<T> property, T value) {
+-        return net.minecraft.world.level.storage.loot.LootTable.lootTable().withPool((net.minecraft.world.level.storage.loot.LootPool$Builder)net.minecraft.data.loot.BlockLoot.applyExplosionCondition((net.minecraft.world.level.ItemLike)block, (net.minecraft.world.level.storage.loot.predicates.ConditionUserBuilder)net.minecraft.world.level.storage.loot.LootPool.lootPool().setRolls((net.minecraft.world.level.storage.loot.providers.number.NumberProvider)net.minecraft.world.level.storage.loot.providers.number.ConstantValue.exactly((float)1.0f)).add(net.minecraft.world.level.storage.loot.entries.LootItem.lootTableItem((net.minecraft.world.level.ItemLike)block).when((net.minecraft.world.level.storage.loot.predicates.LootItemCondition$Builder)net.minecraft.world.level.storage.loot.predicates.LootItemBlockStatePropertyCondition.hasBlockStateProperties((net.minecraft.world.level.block.Block)block).setProperties(net.minecraft.advancements.critereon.StatePropertiesPredicate$Builder.properties().hasProperty(property, value))))));
+-    }
+-
+-    public static net.minecraft.world.level.storage.loot.LootTable$Builder createNameableBlockEntityTable(net.minecraft.world.level.block.Block block) {
+-        return net.minecraft.world.level.storage.loot.LootTable.lootTable().withPool((net.minecraft.world.level.storage.loot.LootPool$Builder)net.minecraft.data.loot.BlockLoot.applyExplosionCondition((net.minecraft.world.level.ItemLike)block, (net.minecraft.world.level.storage.loot.predicates.ConditionUserBuilder)net.minecraft.world.level.storage.loot.LootPool.lootPool().setRolls((net.minecraft.world.level.storage.loot.providers.number.NumberProvider)net.minecraft.world.level.storage.loot.providers.number.ConstantValue.exactly((float)1.0f)).add((net.minecraft.world.level.storage.loot.entries.LootPoolEntryContainer$Builder)net.minecraft.world.level.storage.loot.entries.LootItem.lootTableItem((net.minecraft.world.level.ItemLike)block).apply((net.minecraft.world.level.storage.loot.functions.LootItemFunction$Builder)net.minecraft.world.level.storage.loot.functions.CopyNameFunction.copyName((net.minecraft.world.level.storage.loot.functions.CopyNameFunction$NameSource)net.minecraft.world.level.storage.loot.functions.CopyNameFunction$NameSource.BLOCK_ENTITY)))));
+-    }
+-
+-    public static net.minecraft.world.level.storage.loot.LootTable$Builder createShulkerBoxDrop(net.minecraft.world.level.block.Block shulkerBoxBlock) {
+-        return net.minecraft.world.level.storage.loot.LootTable.lootTable().withPool((net.minecraft.world.level.storage.loot.LootPool$Builder)net.minecraft.data.loot.BlockLoot.applyExplosionCondition((net.minecraft.world.level.ItemLike)shulkerBoxBlock, (net.minecraft.world.level.storage.loot.predicates.ConditionUserBuilder)net.minecraft.world.level.storage.loot.LootPool.lootPool().setRolls((net.minecraft.world.level.storage.loot.providers.number.NumberProvider)net.minecraft.world.level.storage.loot.providers.number.ConstantValue.exactly((float)1.0f)).add((net.minecraft.world.level.storage.loot.entries.LootPoolEntryContainer$Builder)net.minecraft.world.level.storage.loot.entries.LootItem.lootTableItem((net.minecraft.world.level.ItemLike)shulkerBoxBlock).apply((net.minecraft.world.level.storage.loot.functions.LootItemFunction$Builder)net.minecraft.world.level.storage.loot.functions.CopyNameFunction.copyName((net.minecraft.world.level.storage.loot.functions.CopyNameFunction$NameSource)net.minecraft.world.level.storage.loot.functions.CopyNameFunction$NameSource.BLOCK_ENTITY)).apply((net.minecraft.world.level.storage.loot.functions.LootItemFunction$Builder)net.minecraft.world.level.storage.loot.functions.CopyNbtFunction.copyData((net.minecraft.world.level.storage.loot.providers.nbt.NbtProvider)net.minecraft.world.level.storage.loot.providers.nbt.ContextNbtProvider.BLOCK_ENTITY).copy("Lock", "BlockEntityTag.Lock").copy("LootTable", "BlockEntityTag.LootTable").copy("LootTableSeed", "BlockEntityTag.LootTableSeed")).apply((net.minecraft.world.level.storage.loot.functions.LootItemFunction$Builder)net.minecraft.world.level.storage.loot.functions.SetContainerContents.setContents((net.minecraft.world.level.block.entity.BlockEntityType)net.minecraft.world.level.block.entity.BlockEntityType.SHULKER_BOX).withEntry((net.minecraft.world.level.storage.loot.entries.LootPoolEntryContainer$Builder)net.minecraft.world.level.storage.loot.entries.DynamicLoot.dynamicEntry((net.minecraft.resources.ResourceLocation)net.minecraft.world.level.block.ShulkerBoxBlock.CONTENTS))))));
+-    }
+-
+-    public static net.minecraft.world.level.storage.loot.LootTable$Builder createCopperOreDrops(net.minecraft.world.level.block.Block $$0) {
+-        return net.minecraft.data.loot.BlockLoot.createSilkTouchDispatchTable((net.minecraft.world.level.block.Block)$$0, (net.minecraft.world.level.storage.loot.entries.LootPoolEntryContainer$Builder)((net.minecraft.world.level.storage.loot.entries.LootPoolEntryContainer$Builder)net.minecraft.data.loot.BlockLoot.applyExplosionDecay((net.minecraft.world.level.ItemLike)$$0, (net.minecraft.world.level.storage.loot.functions.FunctionUserBuilder)net.minecraft.world.level.storage.loot.entries.LootItem.lootTableItem((net.minecraft.world.level.ItemLike)net.minecraft.world.item.Items.RAW_COPPER).apply((net.minecraft.world.level.storage.loot.functions.LootItemFunction$Builder)net.minecraft.world.level.storage.loot.functions.SetItemCountFunction.setCount((net.minecraft.world.level.storage.loot.providers.number.NumberProvider)net.minecraft.world.level.storage.loot.providers.number.UniformGenerator.between((float)2.0f, (float)5.0f))).apply((net.minecraft.world.level.storage.loot.functions.LootItemFunction$Builder)net.minecraft.world.level.storage.loot.functions.ApplyBonusCount.addOreBonusCount((net.minecraft.world.item.enchantment.Enchantment)net.minecraft.world.item.enchantment.Enchantments.BLOCK_FORTUNE)))));
+-    }
+-
+-    public static net.minecraft.world.level.storage.loot.LootTable$Builder createLapisOreDrops(net.minecraft.world.level.block.Block $$0) {
+-        return net.minecraft.data.loot.BlockLoot.createSilkTouchDispatchTable((net.minecraft.world.level.block.Block)$$0, (net.minecraft.world.level.storage.loot.entries.LootPoolEntryContainer$Builder)((net.minecraft.world.level.storage.loot.entries.LootPoolEntryContainer$Builder)net.minecraft.data.loot.BlockLoot.applyExplosionDecay((net.minecraft.world.level.ItemLike)$$0, (net.minecraft.world.level.storage.loot.functions.FunctionUserBuilder)net.minecraft.world.level.storage.loot.entries.LootItem.lootTableItem((net.minecraft.world.level.ItemLike)net.minecraft.world.item.Items.LAPIS_LAZULI).apply((net.minecraft.world.level.storage.loot.functions.LootItemFunction$Builder)net.minecraft.world.level.storage.loot.functions.SetItemCountFunction.setCount((net.minecraft.world.level.storage.loot.providers.number.NumberProvider)net.minecraft.world.level.storage.loot.providers.number.UniformGenerator.between((float)4.0f, (float)9.0f))).apply((net.minecraft.world.level.storage.loot.functions.LootItemFunction$Builder)net.minecraft.world.level.storage.loot.functions.ApplyBonusCount.addOreBonusCount((net.minecraft.world.item.enchantment.Enchantment)net.minecraft.world.item.enchantment.Enchantments.BLOCK_FORTUNE)))));
+-    }
+-
+-    public static net.minecraft.world.level.storage.loot.LootTable$Builder createRedstoneOreDrops(net.minecraft.world.level.block.Block $$0) {
+-        return net.minecraft.data.loot.BlockLoot.createSilkTouchDispatchTable((net.minecraft.world.level.block.Block)$$0, (net.minecraft.world.level.storage.loot.entries.LootPoolEntryContainer$Builder)((net.minecraft.world.level.storage.loot.entries.LootPoolEntryContainer$Builder)net.minecraft.data.loot.BlockLoot.applyExplosionDecay((net.minecraft.world.level.ItemLike)$$0, (net.minecraft.world.level.storage.loot.functions.FunctionUserBuilder)net.minecraft.world.level.storage.loot.entries.LootItem.lootTableItem((net.minecraft.world.level.ItemLike)net.minecraft.world.item.Items.REDSTONE).apply((net.minecraft.world.level.storage.loot.functions.LootItemFunction$Builder)net.minecraft.world.level.storage.loot.functions.SetItemCountFunction.setCount((net.minecraft.world.level.storage.loot.providers.number.NumberProvider)net.minecraft.world.level.storage.loot.providers.number.UniformGenerator.between((float)4.0f, (float)5.0f))).apply((net.minecraft.world.level.storage.loot.functions.LootItemFunction$Builder)net.minecraft.world.level.storage.loot.functions.ApplyBonusCount.addUniformBonusCount((net.minecraft.world.item.enchantment.Enchantment)net.minecraft.world.item.enchantment.Enchantments.BLOCK_FORTUNE)))));
+-    }
+-
+-    public static net.minecraft.world.level.storage.loot.LootTable$Builder createBannerDrop(net.minecraft.world.level.block.Block bannerBlock) {
+-        return net.minecraft.world.level.storage.loot.LootTable.lootTable().withPool((net.minecraft.world.level.storage.loot.LootPool$Builder)net.minecraft.data.loot.BlockLoot.applyExplosionCondition((net.minecraft.world.level.ItemLike)bannerBlock, (net.minecraft.world.level.storage.loot.predicates.ConditionUserBuilder)net.minecraft.world.level.storage.loot.LootPool.lootPool().setRolls((net.minecraft.world.level.storage.loot.providers.number.NumberProvider)net.minecraft.world.level.storage.loot.providers.number.ConstantValue.exactly((float)1.0f)).add((net.minecraft.world.level.storage.loot.entries.LootPoolEntryContainer$Builder)net.minecraft.world.level.storage.loot.entries.LootItem.lootTableItem((net.minecraft.world.level.ItemLike)bannerBlock).apply((net.minecraft.world.level.storage.loot.functions.LootItemFunction$Builder)net.minecraft.world.level.storage.loot.functions.CopyNameFunction.copyName((net.minecraft.world.level.storage.loot.functions.CopyNameFunction$NameSource)net.minecraft.world.level.storage.loot.functions.CopyNameFunction$NameSource.BLOCK_ENTITY)).apply((net.minecraft.world.level.storage.loot.functions.LootItemFunction$Builder)net.minecraft.world.level.storage.loot.functions.CopyNbtFunction.copyData((net.minecraft.world.level.storage.loot.providers.nbt.NbtProvider)net.minecraft.world.level.storage.loot.providers.nbt.ContextNbtProvider.BLOCK_ENTITY).copy("Patterns", "BlockEntityTag.Patterns")))));
+-    }
+-
+-    public static net.minecraft.world.level.storage.loot.LootTable$Builder createBeeNestDrop(net.minecraft.world.level.block.Block beeNestBlock) {
+-        return net.minecraft.world.level.storage.loot.LootTable.lootTable().withPool(net.minecraft.world.level.storage.loot.LootPool.lootPool().when(HAS_SILK_TOUCH).setRolls((net.minecraft.world.level.storage.loot.providers.number.NumberProvider)net.minecraft.world.level.storage.loot.providers.number.ConstantValue.exactly((float)1.0f)).add((net.minecraft.world.level.storage.loot.entries.LootPoolEntryContainer$Builder)net.minecraft.world.level.storage.loot.entries.LootItem.lootTableItem((net.minecraft.world.level.ItemLike)beeNestBlock).apply((net.minecraft.world.level.storage.loot.functions.LootItemFunction$Builder)net.minecraft.world.level.storage.loot.functions.CopyNbtFunction.copyData((net.minecraft.world.level.storage.loot.providers.nbt.NbtProvider)net.minecraft.world.level.storage.loot.providers.nbt.ContextNbtProvider.BLOCK_ENTITY).copy("Bees", "BlockEntityTag.Bees")).apply((net.minecraft.world.level.storage.loot.functions.LootItemFunction$Builder)net.minecraft.world.level.storage.loot.functions.CopyBlockState.copyState((net.minecraft.world.level.block.Block)beeNestBlock).copy((net.minecraft.world.level.block.state.properties.Property)net.minecraft.world.level.block.BeehiveBlock.HONEY_LEVEL))));
+-    }
+-
+-    public static net.minecraft.world.level.storage.loot.LootTable$Builder createBeeHiveDrop(net.minecraft.world.level.block.Block beeHiveBlock) {
+-        return net.minecraft.world.level.storage.loot.LootTable.lootTable().withPool(net.minecraft.world.level.storage.loot.LootPool.lootPool().setRolls((net.minecraft.world.level.storage.loot.providers.number.NumberProvider)net.minecraft.world.level.storage.loot.providers.number.ConstantValue.exactly((float)1.0f)).add((net.minecraft.world.level.storage.loot.entries.LootPoolEntryContainer$Builder)((net.minecraft.world.level.storage.loot.entries.LootPoolSingletonContainer$Builder)net.minecraft.world.level.storage.loot.entries.LootItem.lootTableItem((net.minecraft.world.level.ItemLike)beeHiveBlock).when(HAS_SILK_TOUCH)).apply((net.minecraft.world.level.storage.loot.functions.LootItemFunction$Builder)net.minecraft.world.level.storage.loot.functions.CopyNbtFunction.copyData((net.minecraft.world.level.storage.loot.providers.nbt.NbtProvider)net.minecraft.world.level.storage.loot.providers.nbt.ContextNbtProvider.BLOCK_ENTITY).copy("Bees", "BlockEntityTag.Bees")).apply((net.minecraft.world.level.storage.loot.functions.LootItemFunction$Builder)net.minecraft.world.level.storage.loot.functions.CopyBlockState.copyState((net.minecraft.world.level.block.Block)beeHiveBlock).copy((net.minecraft.world.level.block.state.properties.Property)net.minecraft.world.level.block.BeehiveBlock.HONEY_LEVEL)).otherwise((net.minecraft.world.level.storage.loot.entries.LootPoolEntryContainer$Builder)net.minecraft.world.level.storage.loot.entries.LootItem.lootTableItem((net.minecraft.world.level.ItemLike)beeHiveBlock))));
+-    }
+-
+-    public static net.minecraft.world.level.storage.loot.LootTable$Builder createCaveVinesDrop(net.minecraft.world.level.block.Block $$0) {
+-        return net.minecraft.world.level.storage.loot.LootTable.lootTable().withPool(net.minecraft.world.level.storage.loot.LootPool.lootPool().add((net.minecraft.world.level.storage.loot.entries.LootPoolEntryContainer$Builder)net.minecraft.world.level.storage.loot.entries.LootItem.lootTableItem((net.minecraft.world.level.ItemLike)net.minecraft.world.item.Items.GLOW_BERRIES)).when((net.minecraft.world.level.storage.loot.predicates.LootItemCondition$Builder)net.minecraft.world.level.storage.loot.predicates.LootItemBlockStatePropertyCondition.hasBlockStateProperties((net.minecraft.world.level.block.Block)$$0).setProperties(net.minecraft.advancements.critereon.StatePropertiesPredicate$Builder.properties().hasProperty((net.minecraft.world.level.block.state.properties.Property)net.minecraft.world.level.block.CaveVines.BERRIES, true))));
+-    }
+-
+-    public static net.minecraft.world.level.storage.loot.LootTable$Builder createOreDrop(net.minecraft.world.level.block.Block block, net.minecraft.world.item.Item item) {
+-        return net.minecraft.data.loot.BlockLoot.createSilkTouchDispatchTable((net.minecraft.world.level.block.Block)block, (net.minecraft.world.level.storage.loot.entries.LootPoolEntryContainer$Builder)((net.minecraft.world.level.storage.loot.entries.LootPoolEntryContainer$Builder)net.minecraft.data.loot.BlockLoot.applyExplosionDecay((net.minecraft.world.level.ItemLike)block, (net.minecraft.world.level.storage.loot.functions.FunctionUserBuilder)net.minecraft.world.level.storage.loot.entries.LootItem.lootTableItem((net.minecraft.world.level.ItemLike)item).apply((net.minecraft.world.level.storage.loot.functions.LootItemFunction$Builder)net.minecraft.world.level.storage.loot.functions.ApplyBonusCount.addOreBonusCount((net.minecraft.world.item.enchantment.Enchantment)net.minecraft.world.item.enchantment.Enchantments.BLOCK_FORTUNE)))));
+-    }
+-
+-    public static net.minecraft.world.level.storage.loot.LootTable$Builder createMushroomBlockDrop(net.minecraft.world.level.block.Block block, net.minecraft.world.level.ItemLike item) {
+-        return net.minecraft.data.loot.BlockLoot.createSilkTouchDispatchTable((net.minecraft.world.level.block.Block)block, (net.minecraft.world.level.storage.loot.entries.LootPoolEntryContainer$Builder)((net.minecraft.world.level.storage.loot.entries.LootPoolEntryContainer$Builder)net.minecraft.data.loot.BlockLoot.applyExplosionDecay((net.minecraft.world.level.ItemLike)block, (net.minecraft.world.level.storage.loot.functions.FunctionUserBuilder)net.minecraft.world.level.storage.loot.entries.LootItem.lootTableItem((net.minecraft.world.level.ItemLike)item).apply((net.minecraft.world.level.storage.loot.functions.LootItemFunction$Builder)net.minecraft.world.level.storage.loot.functions.SetItemCountFunction.setCount((net.minecraft.world.level.storage.loot.providers.number.NumberProvider)net.minecraft.world.level.storage.loot.providers.number.UniformGenerator.between((float)-6.0f, (float)2.0f))).apply((net.minecraft.world.level.storage.loot.functions.LootItemFunction$Builder)net.minecraft.world.level.storage.loot.functions.LimitCount.limitCount((net.minecraft.world.level.storage.loot.IntRange)net.minecraft.world.level.storage.loot.IntRange.lowerBound((int)0))))));
+-    }
+-
+-    public static net.minecraft.world.level.storage.loot.LootTable$Builder createGrassDrops(net.minecraft.world.level.block.Block block) {
+-        return net.minecraft.data.loot.BlockLoot.createShearsDispatchTable((net.minecraft.world.level.block.Block)block, (net.minecraft.world.level.storage.loot.entries.LootPoolEntryContainer$Builder)((net.minecraft.world.level.storage.loot.entries.LootPoolEntryContainer$Builder)net.minecraft.data.loot.BlockLoot.applyExplosionDecay((net.minecraft.world.level.ItemLike)block, (net.minecraft.world.level.storage.loot.functions.FunctionUserBuilder)((net.minecraft.world.level.storage.loot.entries.LootPoolSingletonContainer$Builder)net.minecraft.world.level.storage.loot.entries.LootItem.lootTableItem((net.minecraft.world.level.ItemLike)net.minecraft.world.item.Items.WHEAT_SEEDS).when(net.minecraft.world.level.storage.loot.predicates.LootItemRandomChanceCondition.randomChance((float)0.125f))).apply((net.minecraft.world.level.storage.loot.functions.LootItemFunction$Builder)net.minecraft.world.level.storage.loot.functions.ApplyBonusCount.addUniformBonusCount((net.minecraft.world.item.enchantment.Enchantment)net.minecraft.world.item.enchantment.Enchantments.BLOCK_FORTUNE, (int)2)))));
+-    }
+-
+-    public static net.minecraft.world.level.storage.loot.LootTable$Builder createStemDrops(net.minecraft.world.level.block.Block stemBlock, net.minecraft.world.item.Item seedsItem) {
+-        return net.minecraft.world.level.storage.loot.LootTable.lootTable().withPool((net.minecraft.world.level.storage.loot.LootPool$Builder)net.minecraft.data.loot.BlockLoot.applyExplosionDecay((net.minecraft.world.level.ItemLike)stemBlock, (net.minecraft.world.level.storage.loot.functions.FunctionUserBuilder)net.minecraft.world.level.storage.loot.LootPool.lootPool().setRolls((net.minecraft.world.level.storage.loot.providers.number.NumberProvider)net.minecraft.world.level.storage.loot.providers.number.ConstantValue.exactly((float)1.0f)).add((net.minecraft.world.level.storage.loot.entries.LootPoolEntryContainer$Builder)net.minecraft.world.level.storage.loot.entries.LootItem.lootTableItem((net.minecraft.world.level.ItemLike)seedsItem).apply((java.lang.Iterable)net.minecraft.world.level.block.StemBlock.AGE.getPossibleValues(), $$1 -> net.minecraft.world.level.storage.loot.functions.SetItemCountFunction.setCount((net.minecraft.world.level.storage.loot.providers.number.NumberProvider)net.minecraft.world.level.storage.loot.providers.number.BinomialDistributionGenerator.binomial((int)3, (float)((float)($$1 + 1) / 15.0f))).when((net.minecraft.world.level.storage.loot.predicates.LootItemCondition$Builder)net.minecraft.world.level.storage.loot.predicates.LootItemBlockStatePropertyCondition.hasBlockStateProperties((net.minecraft.world.level.block.Block)stemBlock).setProperties(net.minecraft.advancements.critereon.StatePropertiesPredicate$Builder.properties().hasProperty((net.minecraft.world.level.block.state.properties.Property)net.minecraft.world.level.block.StemBlock.AGE, $$1.intValue())))))));
+-    }
+-
+-    public static net.minecraft.world.level.storage.loot.LootTable$Builder createAttachedStemDrops(net.minecraft.world.level.block.Block attachedStemBlock, net.minecraft.world.item.Item seedsItem) {
+-        return net.minecraft.world.level.storage.loot.LootTable.lootTable().withPool((net.minecraft.world.level.storage.loot.LootPool$Builder)net.minecraft.data.loot.BlockLoot.applyExplosionDecay((net.minecraft.world.level.ItemLike)attachedStemBlock, (net.minecraft.world.level.storage.loot.functions.FunctionUserBuilder)net.minecraft.world.level.storage.loot.LootPool.lootPool().setRolls((net.minecraft.world.level.storage.loot.providers.number.NumberProvider)net.minecraft.world.level.storage.loot.providers.number.ConstantValue.exactly((float)1.0f)).add((net.minecraft.world.level.storage.loot.entries.LootPoolEntryContainer$Builder)net.minecraft.world.level.storage.loot.entries.LootItem.lootTableItem((net.minecraft.world.level.ItemLike)seedsItem).apply((net.minecraft.world.level.storage.loot.functions.LootItemFunction$Builder)net.minecraft.world.level.storage.loot.functions.SetItemCountFunction.setCount((net.minecraft.world.level.storage.loot.providers.number.NumberProvider)net.minecraft.world.level.storage.loot.providers.number.BinomialDistributionGenerator.binomial((int)3, (float)0.53333336f))))));
+-    }
+-
+-    public static net.minecraft.world.level.storage.loot.LootTable$Builder createShearsOnlyDrop(net.minecraft.world.level.ItemLike item) {
+-        return net.minecraft.world.level.storage.loot.LootTable.lootTable().withPool(net.minecraft.world.level.storage.loot.LootPool.lootPool().setRolls((net.minecraft.world.level.storage.loot.providers.number.NumberProvider)net.minecraft.world.level.storage.loot.providers.number.ConstantValue.exactly((float)1.0f)).when(HAS_SHEARS).add((net.minecraft.world.level.storage.loot.entries.LootPoolEntryContainer$Builder)net.minecraft.world.level.storage.loot.entries.LootItem.lootTableItem((net.minecraft.world.level.ItemLike)item)));
+-    }
+-
+-    public static net.minecraft.world.level.storage.loot.LootTable$Builder createMultifaceBlockDrops(net.minecraft.world.level.block.Block $$0, net.minecraft.world.level.storage.loot.predicates.LootItemCondition$Builder $$12) {
+-        return net.minecraft.world.level.storage.loot.LootTable.lootTable().withPool(net.minecraft.world.level.storage.loot.LootPool.lootPool().add((net.minecraft.world.level.storage.loot.entries.LootPoolEntryContainer$Builder)net.minecraft.data.loot.BlockLoot.applyExplosionDecay((net.minecraft.world.level.ItemLike)$$0, (net.minecraft.world.level.storage.loot.functions.FunctionUserBuilder)((net.minecraft.world.level.storage.loot.entries.LootPoolSingletonContainer$Builder)((net.minecraft.world.level.storage.loot.entries.LootPoolSingletonContainer$Builder)net.minecraft.world.level.storage.loot.entries.LootItem.lootTableItem((net.minecraft.world.level.ItemLike)$$0).when($$12)).apply((java.lang.Object[])net.minecraft.core.Direction.values(), $$1 -> net.minecraft.world.level.storage.loot.functions.SetItemCountFunction.setCount((net.minecraft.world.level.storage.loot.providers.number.NumberProvider)net.minecraft.world.level.storage.loot.providers.number.ConstantValue.exactly((float)1.0f), (boolean)true).when((net.minecraft.world.level.storage.loot.predicates.LootItemCondition$Builder)net.minecraft.world.level.storage.loot.predicates.LootItemBlockStatePropertyCondition.hasBlockStateProperties((net.minecraft.world.level.block.Block)$$0).setProperties(net.minecraft.advancements.critereon.StatePropertiesPredicate$Builder.properties().hasProperty((net.minecraft.world.level.block.state.properties.Property)net.minecraft.world.level.block.MultifaceBlock.getFaceProperty((net.minecraft.core.Direction)$$1), true))))).apply((net.minecraft.world.level.storage.loot.functions.LootItemFunction$Builder)net.minecraft.world.level.storage.loot.functions.SetItemCountFunction.setCount((net.minecraft.world.level.storage.loot.providers.number.NumberProvider)net.minecraft.world.level.storage.loot.providers.number.ConstantValue.exactly((float)-1.0f), (boolean)true)))));
+-    }
+-
+-    public static net.minecraft.world.level.storage.loot.LootTable$Builder createLeavesDrops(net.minecraft.world.level.block.Block leavesBlock, net.minecraft.world.level.block.Block saplingBlock, float ... chances) {
+-        return net.minecraft.data.loot.BlockLoot.createSilkTouchOrShearsDispatchTable((net.minecraft.world.level.block.Block)leavesBlock, (net.minecraft.world.level.storage.loot.entries.LootPoolEntryContainer$Builder)((net.minecraft.world.level.storage.loot.entries.LootPoolSingletonContainer$Builder)net.minecraft.data.loot.BlockLoot.applyExplosionCondition((net.minecraft.world.level.ItemLike)leavesBlock, (net.minecraft.world.level.storage.loot.predicates.ConditionUserBuilder)net.minecraft.world.level.storage.loot.entries.LootItem.lootTableItem((net.minecraft.world.level.ItemLike)saplingBlock))).when(net.minecraft.world.level.storage.loot.predicates.BonusLevelTableCondition.bonusLevelFlatChance((net.minecraft.world.item.enchantment.Enchantment)net.minecraft.world.item.enchantment.Enchantments.BLOCK_FORTUNE, (float[])chances))).withPool(net.minecraft.world.level.storage.loot.LootPool.lootPool().setRolls((net.minecraft.world.level.storage.loot.providers.number.NumberProvider)net.minecraft.world.level.storage.loot.providers.number.ConstantValue.exactly((float)1.0f)).when(HAS_NO_SHEARS_OR_SILK_TOUCH).add(((net.minecraft.world.level.storage.loot.entries.LootPoolSingletonContainer$Builder)net.minecraft.data.loot.BlockLoot.applyExplosionDecay((net.minecraft.world.level.ItemLike)leavesBlock, (net.minecraft.world.level.storage.loot.functions.FunctionUserBuilder)net.minecraft.world.level.storage.loot.entries.LootItem.lootTableItem((net.minecraft.world.level.ItemLike)net.minecraft.world.item.Items.STICK).apply((net.minecraft.world.level.storage.loot.functions.LootItemFunction$Builder)net.minecraft.world.level.storage.loot.functions.SetItemCountFunction.setCount((net.minecraft.world.level.storage.loot.providers.number.NumberProvider)net.minecraft.world.level.storage.loot.providers.number.UniformGenerator.between((float)1.0f, (float)2.0f))))).when(net.minecraft.world.level.storage.loot.predicates.BonusLevelTableCondition.bonusLevelFlatChance((net.minecraft.world.item.enchantment.Enchantment)net.minecraft.world.item.enchantment.Enchantments.BLOCK_FORTUNE, (float[])NORMAL_LEAVES_STICK_CHANCES))));
+-    }
+-
+-    public static net.minecraft.world.level.storage.loot.LootTable$Builder createOakLeavesDrops(net.minecraft.world.level.block.Block oakLeavesBlock, net.minecraft.world.level.block.Block saplingBlock, float ... chances) {
+-        return net.minecraft.data.loot.BlockLoot.createLeavesDrops((net.minecraft.world.level.block.Block)oakLeavesBlock, (net.minecraft.world.level.block.Block)saplingBlock, (float[])chances).withPool(net.minecraft.world.level.storage.loot.LootPool.lootPool().setRolls((net.minecraft.world.level.storage.loot.providers.number.NumberProvider)net.minecraft.world.level.storage.loot.providers.number.ConstantValue.exactly((float)1.0f)).when(HAS_NO_SHEARS_OR_SILK_TOUCH).add(((net.minecraft.world.level.storage.loot.entries.LootPoolSingletonContainer$Builder)net.minecraft.data.loot.BlockLoot.applyExplosionCondition((net.minecraft.world.level.ItemLike)oakLeavesBlock, (net.minecraft.world.level.storage.loot.predicates.ConditionUserBuilder)net.minecraft.world.level.storage.loot.entries.LootItem.lootTableItem((net.minecraft.world.level.ItemLike)net.minecraft.world.item.Items.APPLE))).when(net.minecraft.world.level.storage.loot.predicates.BonusLevelTableCondition.bonusLevelFlatChance((net.minecraft.world.item.enchantment.Enchantment)net.minecraft.world.item.enchantment.Enchantments.BLOCK_FORTUNE, (float[])new float[]{0.005f, 0.0055555557f, 0.00625f, 0.008333334f, 0.025f}))));
+-    }
+-
+-    public static net.minecraft.world.level.storage.loot.LootTable$Builder createMangroveLeavesDrops(net.minecraft.world.level.block.Block $$0) {
+-        return net.minecraft.data.loot.BlockLoot.createSilkTouchOrShearsDispatchTable((net.minecraft.world.level.block.Block)$$0, (net.minecraft.world.level.storage.loot.entries.LootPoolEntryContainer$Builder)((net.minecraft.world.level.storage.loot.entries.LootPoolSingletonContainer$Builder)net.minecraft.data.loot.BlockLoot.applyExplosionDecay((net.minecraft.world.level.ItemLike)net.minecraft.world.level.block.Blocks.MANGROVE_LEAVES, (net.minecraft.world.level.storage.loot.functions.FunctionUserBuilder)net.minecraft.world.level.storage.loot.entries.LootItem.lootTableItem((net.minecraft.world.level.ItemLike)net.minecraft.world.item.Items.STICK).apply((net.minecraft.world.level.storage.loot.functions.LootItemFunction$Builder)net.minecraft.world.level.storage.loot.functions.SetItemCountFunction.setCount((net.minecraft.world.level.storage.loot.providers.number.NumberProvider)net.minecraft.world.level.storage.loot.providers.number.UniformGenerator.between((float)1.0f, (float)2.0f))))).when(net.minecraft.world.level.storage.loot.predicates.BonusLevelTableCondition.bonusLevelFlatChance((net.minecraft.world.item.enchantment.Enchantment)net.minecraft.world.item.enchantment.Enchantments.BLOCK_FORTUNE, (float[])NORMAL_LEAVES_STICK_CHANCES)));
+-    }
+-
+-    public static net.minecraft.world.level.storage.loot.LootTable$Builder createCropDrops(net.minecraft.world.level.block.Block cropBlock, net.minecraft.world.item.Item grownCropItem, net.minecraft.world.item.Item seedsItem, net.minecraft.world.level.storage.loot.predicates.LootItemCondition$Builder dropGrownCropCondition) {
+-        return (net.minecraft.world.level.storage.loot.LootTable$Builder)net.minecraft.data.loot.BlockLoot.applyExplosionDecay((net.minecraft.world.level.ItemLike)cropBlock, (net.minecraft.world.level.storage.loot.functions.FunctionUserBuilder)net.minecraft.world.level.storage.loot.LootTable.lootTable().withPool(net.minecraft.world.level.storage.loot.LootPool.lootPool().add((net.minecraft.world.level.storage.loot.entries.LootPoolEntryContainer$Builder)((net.minecraft.world.level.storage.loot.entries.LootPoolSingletonContainer$Builder)net.minecraft.world.level.storage.loot.entries.LootItem.lootTableItem((net.minecraft.world.level.ItemLike)grownCropItem).when(dropGrownCropCondition)).otherwise((net.minecraft.world.level.storage.loot.entries.LootPoolEntryContainer$Builder)net.minecraft.world.level.storage.loot.entries.LootItem.lootTableItem((net.minecraft.world.level.ItemLike)seedsItem)))).withPool(net.minecraft.world.level.storage.loot.LootPool.lootPool().when(dropGrownCropCondition).add((net.minecraft.world.level.storage.loot.entries.LootPoolEntryContainer$Builder)net.minecraft.world.level.storage.loot.entries.LootItem.lootTableItem((net.minecraft.world.level.ItemLike)seedsItem).apply((net.minecraft.world.level.storage.loot.functions.LootItemFunction$Builder)net.minecraft.world.level.storage.loot.functions.ApplyBonusCount.addBonusBinomialDistributionCount((net.minecraft.world.item.enchantment.Enchantment)net.minecraft.world.item.enchantment.Enchantments.BLOCK_FORTUNE, (float)0.5714286f, (int)3)))));
+-    }
+-
+-    public static net.minecraft.world.level.storage.loot.LootTable$Builder createDoublePlantShearsDrop(net.minecraft.world.level.block.Block sheared) {
+-        return net.minecraft.world.level.storage.loot.LootTable.lootTable().withPool(net.minecraft.world.level.storage.loot.LootPool.lootPool().when(HAS_SHEARS).add((net.minecraft.world.level.storage.loot.entries.LootPoolEntryContainer$Builder)net.minecraft.world.level.storage.loot.entries.LootItem.lootTableItem((net.minecraft.world.level.ItemLike)sheared).apply((net.minecraft.world.level.storage.loot.functions.LootItemFunction$Builder)net.minecraft.world.level.storage.loot.functions.SetItemCountFunction.setCount((net.minecraft.world.level.storage.loot.providers.number.NumberProvider)net.minecraft.world.level.storage.loot.providers.number.ConstantValue.exactly((float)2.0f)))));
+-    }
+-
+-    public static net.minecraft.world.level.storage.loot.LootTable$Builder createDoublePlantWithSeedDrops(net.minecraft.world.level.block.Block block, net.minecraft.world.level.block.Block sheared) {
+-        net.minecraft.world.level.storage.loot.entries.AlternativesEntry$Builder builder = ((net.minecraft.world.level.storage.loot.entries.LootPoolSingletonContainer$Builder)net.minecraft.world.level.storage.loot.entries.LootItem.lootTableItem((net.minecraft.world.level.ItemLike)sheared).apply((net.minecraft.world.level.storage.loot.functions.LootItemFunction$Builder)net.minecraft.world.level.storage.loot.functions.SetItemCountFunction.setCount((net.minecraft.world.level.storage.loot.providers.number.NumberProvider)net.minecraft.world.level.storage.loot.providers.number.ConstantValue.exactly((float)2.0f))).when(HAS_SHEARS)).otherwise(((net.minecraft.world.level.storage.loot.entries.LootPoolSingletonContainer$Builder)net.minecraft.data.loot.BlockLoot.applyExplosionCondition((net.minecraft.world.level.ItemLike)block, (net.minecraft.world.level.storage.loot.predicates.ConditionUserBuilder)net.minecraft.world.level.storage.loot.entries.LootItem.lootTableItem((net.minecraft.world.level.ItemLike)net.minecraft.world.item.Items.WHEAT_SEEDS))).when(net.minecraft.world.level.storage.loot.predicates.LootItemRandomChanceCondition.randomChance((float)0.125f)));
+-        return net.minecraft.world.level.storage.loot.LootTable.lootTable().withPool(net.minecraft.world.level.storage.loot.LootPool.lootPool().add((net.minecraft.world.level.storage.loot.entries.LootPoolEntryContainer$Builder)builder).when((net.minecraft.world.level.storage.loot.predicates.LootItemCondition$Builder)net.minecraft.world.level.storage.loot.predicates.LootItemBlockStatePropertyCondition.hasBlockStateProperties((net.minecraft.world.level.block.Block)block).setProperties(net.minecraft.advancements.critereon.StatePropertiesPredicate$Builder.properties().hasProperty((net.minecraft.world.level.block.state.properties.Property)net.minecraft.world.level.block.DoublePlantBlock.HALF, (java.lang.Comparable)net.minecraft.world.level.block.state.properties.DoubleBlockHalf.LOWER))).when(net.minecraft.world.level.storage.loot.predicates.LocationCheck.checkLocation((net.minecraft.advancements.critereon.LocationPredicate$Builder)net.minecraft.advancements.critereon.LocationPredicate$Builder.location().setBlock(net.minecraft.advancements.critereon.BlockPredicate$Builder.block().of(new net.minecraft.world.level.block.Block[]{block}).setProperties(net.minecraft.advancements.critereon.StatePropertiesPredicate$Builder.properties().hasProperty((net.minecraft.world.level.block.state.properties.Property)net.minecraft.world.level.block.DoublePlantBlock.HALF, (java.lang.Comparable)net.minecraft.world.level.block.state.properties.DoubleBlockHalf.UPPER).build()).build()), (net.minecraft.core.BlockPos)new net.minecraft.core.BlockPos(0, 1, 0)))).withPool(net.minecraft.world.level.storage.loot.LootPool.lootPool().add((net.minecraft.world.level.storage.loot.entries.LootPoolEntryContainer$Builder)builder).when((net.minecraft.world.level.storage.loot.predicates.LootItemCondition$Builder)net.minecraft.world.level.storage.loot.predicates.LootItemBlockStatePropertyCondition.hasBlockStateProperties((net.minecraft.world.level.block.Block)block).setProperties(net.minecraft.advancements.critereon.StatePropertiesPredicate$Builder.properties().hasProperty((net.minecraft.world.level.block.state.properties.Property)net.minecraft.world.level.block.DoublePlantBlock.HALF, (java.lang.Comparable)net.minecraft.world.level.block.state.properties.DoubleBlockHalf.UPPER))).when(net.minecraft.world.level.storage.loot.predicates.LocationCheck.checkLocation((net.minecraft.advancements.critereon.LocationPredicate$Builder)net.minecraft.advancements.critereon.LocationPredicate$Builder.location().setBlock(net.minecraft.advancements.critereon.BlockPredicate$Builder.block().of(new net.minecraft.world.level.block.Block[]{block}).setProperties(net.minecraft.advancements.critereon.StatePropertiesPredicate$Builder.properties().hasProperty((net.minecraft.world.level.block.state.properties.Property)net.minecraft.world.level.block.DoublePlantBlock.HALF, (java.lang.Comparable)net.minecraft.world.level.block.state.properties.DoubleBlockHalf.LOWER).build()).build()), (net.minecraft.core.BlockPos)new net.minecraft.core.BlockPos(0, -1, 0))));
+-    }
+-
+-    public static net.minecraft.world.level.storage.loot.LootTable$Builder createCandleDrops(net.minecraft.world.level.block.Block $$0) {
+-        return net.minecraft.world.level.storage.loot.LootTable.lootTable().withPool(net.minecraft.world.level.storage.loot.LootPool.lootPool().setRolls((net.minecraft.world.level.storage.loot.providers.number.NumberProvider)net.minecraft.world.level.storage.loot.providers.number.ConstantValue.exactly((float)1.0f)).add((net.minecraft.world.level.storage.loot.entries.LootPoolEntryContainer$Builder)net.minecraft.data.loot.BlockLoot.applyExplosionDecay((net.minecraft.world.level.ItemLike)$$0, (net.minecraft.world.level.storage.loot.functions.FunctionUserBuilder)net.minecraft.world.level.storage.loot.entries.LootItem.lootTableItem((net.minecraft.world.level.ItemLike)$$0).apply((java.lang.Iterable)java.util.List.of((java.lang.Object)2, (java.lang.Object)3, (java.lang.Object)4), $$1 -> net.minecraft.world.level.storage.loot.functions.SetItemCountFunction.setCount((net.minecraft.world.level.storage.loot.providers.number.NumberProvider)net.minecraft.world.level.storage.loot.providers.number.ConstantValue.exactly((float)$$1.intValue())).when((net.minecraft.world.level.storage.loot.predicates.LootItemCondition$Builder)net.minecraft.world.level.storage.loot.predicates.LootItemBlockStatePropertyCondition.hasBlockStateProperties((net.minecraft.world.level.block.Block)$$0).setProperties(net.minecraft.advancements.critereon.StatePropertiesPredicate$Builder.properties().hasProperty((net.minecraft.world.level.block.state.properties.Property)net.minecraft.world.level.block.CandleBlock.CANDLES, $$1.intValue())))))));
+-    }
+-
+-    public static net.minecraft.world.level.storage.loot.LootTable$Builder createCandleCakeDrops(net.minecraft.world.level.block.Block $$0) {
+-        return net.minecraft.world.level.storage.loot.LootTable.lootTable().withPool(net.minecraft.world.level.storage.loot.LootPool.lootPool().setRolls((net.minecraft.world.level.storage.loot.providers.number.NumberProvider)net.minecraft.world.level.storage.loot.providers.number.ConstantValue.exactly((float)1.0f)).add((net.minecraft.world.level.storage.loot.entries.LootPoolEntryContainer$Builder)net.minecraft.world.level.storage.loot.entries.LootItem.lootTableItem((net.minecraft.world.level.ItemLike)$$0)));
+-    }
+-
+-    public static net.minecraft.world.level.storage.loot.LootTable$Builder noDrop() {
+-        return net.minecraft.world.level.storage.loot.LootTable.lootTable();
+-    }
+-
+-    public void accept(java.util.function.BiConsumer<net.minecraft.resources.ResourceLocation, net.minecraft.world.level.storage.loot.LootTable$Builder> $$02) {
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.GRANITE);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.POLISHED_GRANITE);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.DIORITE);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.POLISHED_DIORITE);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.ANDESITE);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.POLISHED_ANDESITE);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.DIRT);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.COARSE_DIRT);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.COBBLESTONE);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.OAK_PLANKS);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.SPRUCE_PLANKS);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.BIRCH_PLANKS);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.JUNGLE_PLANKS);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.ACACIA_PLANKS);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.DARK_OAK_PLANKS);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.MANGROVE_PLANKS);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.OAK_SAPLING);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.SPRUCE_SAPLING);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.BIRCH_SAPLING);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.JUNGLE_SAPLING);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.ACACIA_SAPLING);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.DARK_OAK_SAPLING);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.SAND);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.RED_SAND);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.OAK_LOG);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.SPRUCE_LOG);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.BIRCH_LOG);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.JUNGLE_LOG);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.ACACIA_LOG);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.DARK_OAK_LOG);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.STRIPPED_SPRUCE_LOG);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.STRIPPED_BIRCH_LOG);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.STRIPPED_JUNGLE_LOG);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.STRIPPED_ACACIA_LOG);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.STRIPPED_DARK_OAK_LOG);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.STRIPPED_OAK_LOG);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.STRIPPED_WARPED_STEM);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.STRIPPED_CRIMSON_STEM);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.STRIPPED_MANGROVE_LOG);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.OAK_WOOD);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.SPRUCE_WOOD);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.BIRCH_WOOD);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.JUNGLE_WOOD);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.ACACIA_WOOD);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.DARK_OAK_WOOD);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.MANGROVE_WOOD);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.STRIPPED_OAK_WOOD);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.STRIPPED_SPRUCE_WOOD);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.STRIPPED_BIRCH_WOOD);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.STRIPPED_JUNGLE_WOOD);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.STRIPPED_ACACIA_WOOD);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.STRIPPED_DARK_OAK_WOOD);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.STRIPPED_CRIMSON_HYPHAE);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.STRIPPED_WARPED_HYPHAE);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.STRIPPED_MANGROVE_WOOD);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.SPONGE);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.WET_SPONGE);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.LAPIS_BLOCK);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.SANDSTONE);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.CHISELED_SANDSTONE);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.CUT_SANDSTONE);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.NOTE_BLOCK);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.POWERED_RAIL);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.DETECTOR_RAIL);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.STICKY_PISTON);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.PISTON);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.WHITE_WOOL);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.ORANGE_WOOL);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.MAGENTA_WOOL);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.LIGHT_BLUE_WOOL);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.YELLOW_WOOL);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.LIME_WOOL);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.PINK_WOOL);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.GRAY_WOOL);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.LIGHT_GRAY_WOOL);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.CYAN_WOOL);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.PURPLE_WOOL);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.BLUE_WOOL);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.BROWN_WOOL);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.GREEN_WOOL);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.RED_WOOL);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.BLACK_WOOL);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.DANDELION);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.POPPY);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.BLUE_ORCHID);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.ALLIUM);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.AZURE_BLUET);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.RED_TULIP);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.ORANGE_TULIP);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.WHITE_TULIP);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.PINK_TULIP);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.OXEYE_DAISY);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.CORNFLOWER);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.WITHER_ROSE);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.LILY_OF_THE_VALLEY);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.BROWN_MUSHROOM);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.RED_MUSHROOM);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.GOLD_BLOCK);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.IRON_BLOCK);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.BRICKS);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.MOSSY_COBBLESTONE);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.OBSIDIAN);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.CRYING_OBSIDIAN);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.TORCH);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.OAK_STAIRS);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.MANGROVE_STAIRS);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.REDSTONE_WIRE);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.DIAMOND_BLOCK);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.CRAFTING_TABLE);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.OAK_SIGN);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.SPRUCE_SIGN);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.BIRCH_SIGN);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.ACACIA_SIGN);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.JUNGLE_SIGN);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.DARK_OAK_SIGN);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.MANGROVE_SIGN);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.LADDER);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.RAIL);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.COBBLESTONE_STAIRS);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.LEVER);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.STONE_PRESSURE_PLATE);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.OAK_PRESSURE_PLATE);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.SPRUCE_PRESSURE_PLATE);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.BIRCH_PRESSURE_PLATE);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.JUNGLE_PRESSURE_PLATE);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.ACACIA_PRESSURE_PLATE);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.DARK_OAK_PRESSURE_PLATE);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.MANGROVE_PRESSURE_PLATE);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.REDSTONE_TORCH);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.STONE_BUTTON);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.CACTUS);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.SUGAR_CANE);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.JUKEBOX);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.OAK_FENCE);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.MANGROVE_FENCE);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.PUMPKIN);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.NETHERRACK);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.SOUL_SAND);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.SOUL_SOIL);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.BASALT);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.POLISHED_BASALT);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.SMOOTH_BASALT);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.SOUL_TORCH);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.CARVED_PUMPKIN);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.JACK_O_LANTERN);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.REPEATER);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.OAK_TRAPDOOR);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.SPRUCE_TRAPDOOR);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.BIRCH_TRAPDOOR);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.JUNGLE_TRAPDOOR);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.ACACIA_TRAPDOOR);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.DARK_OAK_TRAPDOOR);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.MANGROVE_TRAPDOOR);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.STONE_BRICKS);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.MOSSY_STONE_BRICKS);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.CRACKED_STONE_BRICKS);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.CHISELED_STONE_BRICKS);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.IRON_BARS);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.OAK_FENCE_GATE);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.MANGROVE_FENCE_GATE);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.BRICK_STAIRS);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.STONE_BRICK_STAIRS);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.LILY_PAD);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.NETHER_BRICKS);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.NETHER_BRICK_FENCE);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.NETHER_BRICK_STAIRS);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.CAULDRON);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.END_STONE);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.REDSTONE_LAMP);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.SANDSTONE_STAIRS);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.TRIPWIRE_HOOK);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.EMERALD_BLOCK);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.SPRUCE_STAIRS);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.BIRCH_STAIRS);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.JUNGLE_STAIRS);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.COBBLESTONE_WALL);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.MOSSY_COBBLESTONE_WALL);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.FLOWER_POT);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.OAK_BUTTON);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.SPRUCE_BUTTON);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.BIRCH_BUTTON);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.JUNGLE_BUTTON);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.ACACIA_BUTTON);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.DARK_OAK_BUTTON);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.MANGROVE_BUTTON);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.SKELETON_SKULL);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.WITHER_SKELETON_SKULL);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.ZOMBIE_HEAD);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.CREEPER_HEAD);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.DRAGON_HEAD);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.ANVIL);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.CHIPPED_ANVIL);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.DAMAGED_ANVIL);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.LIGHT_WEIGHTED_PRESSURE_PLATE);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.HEAVY_WEIGHTED_PRESSURE_PLATE);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.COMPARATOR);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.DAYLIGHT_DETECTOR);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.REDSTONE_BLOCK);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.QUARTZ_BLOCK);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.CHISELED_QUARTZ_BLOCK);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.QUARTZ_PILLAR);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.QUARTZ_STAIRS);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.ACTIVATOR_RAIL);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.WHITE_TERRACOTTA);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.ORANGE_TERRACOTTA);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.MAGENTA_TERRACOTTA);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.LIGHT_BLUE_TERRACOTTA);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.YELLOW_TERRACOTTA);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.LIME_TERRACOTTA);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.PINK_TERRACOTTA);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.GRAY_TERRACOTTA);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.LIGHT_GRAY_TERRACOTTA);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.CYAN_TERRACOTTA);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.PURPLE_TERRACOTTA);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.BLUE_TERRACOTTA);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.BROWN_TERRACOTTA);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.GREEN_TERRACOTTA);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.RED_TERRACOTTA);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.BLACK_TERRACOTTA);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.ACACIA_STAIRS);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.DARK_OAK_STAIRS);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.SLIME_BLOCK);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.IRON_TRAPDOOR);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.PRISMARINE);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.PRISMARINE_BRICKS);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.DARK_PRISMARINE);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.PRISMARINE_STAIRS);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.PRISMARINE_BRICK_STAIRS);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.DARK_PRISMARINE_STAIRS);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.HAY_BLOCK);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.WHITE_CARPET);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.ORANGE_CARPET);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.MAGENTA_CARPET);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.LIGHT_BLUE_CARPET);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.YELLOW_CARPET);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.LIME_CARPET);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.PINK_CARPET);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.GRAY_CARPET);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.LIGHT_GRAY_CARPET);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.CYAN_CARPET);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.PURPLE_CARPET);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.BLUE_CARPET);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.BROWN_CARPET);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.GREEN_CARPET);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.RED_CARPET);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.BLACK_CARPET);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.TERRACOTTA);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.COAL_BLOCK);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.RED_SANDSTONE);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.CHISELED_RED_SANDSTONE);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.CUT_RED_SANDSTONE);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.RED_SANDSTONE_STAIRS);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.SMOOTH_STONE);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.SMOOTH_SANDSTONE);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.SMOOTH_QUARTZ);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.SMOOTH_RED_SANDSTONE);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.SPRUCE_FENCE_GATE);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.BIRCH_FENCE_GATE);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.JUNGLE_FENCE_GATE);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.ACACIA_FENCE_GATE);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.DARK_OAK_FENCE_GATE);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.SPRUCE_FENCE);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.BIRCH_FENCE);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.JUNGLE_FENCE);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.ACACIA_FENCE);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.DARK_OAK_FENCE);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.END_ROD);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.PURPUR_BLOCK);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.PURPUR_PILLAR);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.PURPUR_STAIRS);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.END_STONE_BRICKS);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.MAGMA_BLOCK);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.NETHER_WART_BLOCK);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.RED_NETHER_BRICKS);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.BONE_BLOCK);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.OBSERVER);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.TARGET);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.WHITE_GLAZED_TERRACOTTA);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.ORANGE_GLAZED_TERRACOTTA);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.MAGENTA_GLAZED_TERRACOTTA);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.LIGHT_BLUE_GLAZED_TERRACOTTA);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.YELLOW_GLAZED_TERRACOTTA);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.LIME_GLAZED_TERRACOTTA);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.PINK_GLAZED_TERRACOTTA);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.GRAY_GLAZED_TERRACOTTA);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.LIGHT_GRAY_GLAZED_TERRACOTTA);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.CYAN_GLAZED_TERRACOTTA);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.PURPLE_GLAZED_TERRACOTTA);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.BLUE_GLAZED_TERRACOTTA);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.BROWN_GLAZED_TERRACOTTA);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.GREEN_GLAZED_TERRACOTTA);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.RED_GLAZED_TERRACOTTA);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.BLACK_GLAZED_TERRACOTTA);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.WHITE_CONCRETE);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.ORANGE_CONCRETE);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.MAGENTA_CONCRETE);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.LIGHT_BLUE_CONCRETE);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.YELLOW_CONCRETE);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.LIME_CONCRETE);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.PINK_CONCRETE);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.GRAY_CONCRETE);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.LIGHT_GRAY_CONCRETE);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.CYAN_CONCRETE);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.PURPLE_CONCRETE);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.BLUE_CONCRETE);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.BROWN_CONCRETE);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.GREEN_CONCRETE);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.RED_CONCRETE);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.BLACK_CONCRETE);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.WHITE_CONCRETE_POWDER);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.ORANGE_CONCRETE_POWDER);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.MAGENTA_CONCRETE_POWDER);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.LIGHT_BLUE_CONCRETE_POWDER);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.YELLOW_CONCRETE_POWDER);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.LIME_CONCRETE_POWDER);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.PINK_CONCRETE_POWDER);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.GRAY_CONCRETE_POWDER);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.LIGHT_GRAY_CONCRETE_POWDER);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.CYAN_CONCRETE_POWDER);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.PURPLE_CONCRETE_POWDER);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.BLUE_CONCRETE_POWDER);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.BROWN_CONCRETE_POWDER);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.GREEN_CONCRETE_POWDER);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.RED_CONCRETE_POWDER);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.BLACK_CONCRETE_POWDER);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.KELP);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.DRIED_KELP_BLOCK);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.DEAD_TUBE_CORAL_BLOCK);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.DEAD_BRAIN_CORAL_BLOCK);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.DEAD_BUBBLE_CORAL_BLOCK);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.DEAD_FIRE_CORAL_BLOCK);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.DEAD_HORN_CORAL_BLOCK);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.CONDUIT);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.DRAGON_EGG);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.BAMBOO);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.POLISHED_GRANITE_STAIRS);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.SMOOTH_RED_SANDSTONE_STAIRS);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.MOSSY_STONE_BRICK_STAIRS);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.POLISHED_DIORITE_STAIRS);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.MOSSY_COBBLESTONE_STAIRS);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.END_STONE_BRICK_STAIRS);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.STONE_STAIRS);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.SMOOTH_SANDSTONE_STAIRS);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.SMOOTH_QUARTZ_STAIRS);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.GRANITE_STAIRS);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.ANDESITE_STAIRS);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.RED_NETHER_BRICK_STAIRS);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.POLISHED_ANDESITE_STAIRS);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.DIORITE_STAIRS);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.BRICK_WALL);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.PRISMARINE_WALL);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.RED_SANDSTONE_WALL);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.MOSSY_STONE_BRICK_WALL);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.GRANITE_WALL);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.STONE_BRICK_WALL);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.NETHER_BRICK_WALL);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.ANDESITE_WALL);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.RED_NETHER_BRICK_WALL);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.SANDSTONE_WALL);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.END_STONE_BRICK_WALL);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.DIORITE_WALL);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.MUD_BRICK_WALL);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.LOOM);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.SCAFFOLDING);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.HONEY_BLOCK);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.HONEYCOMB_BLOCK);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.RESPAWN_ANCHOR);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.LODESTONE);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.WARPED_STEM);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.WARPED_HYPHAE);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.WARPED_FUNGUS);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.WARPED_WART_BLOCK);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.CRIMSON_STEM);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.CRIMSON_HYPHAE);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.CRIMSON_FUNGUS);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.SHROOMLIGHT);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.CRIMSON_PLANKS);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.WARPED_PLANKS);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.WARPED_PRESSURE_PLATE);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.WARPED_FENCE);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.WARPED_TRAPDOOR);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.WARPED_FENCE_GATE);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.WARPED_STAIRS);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.WARPED_BUTTON);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.WARPED_SIGN);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.CRIMSON_PRESSURE_PLATE);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.CRIMSON_FENCE);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.CRIMSON_TRAPDOOR);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.CRIMSON_FENCE_GATE);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.CRIMSON_STAIRS);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.CRIMSON_BUTTON);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.CRIMSON_SIGN);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.NETHERITE_BLOCK);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.ANCIENT_DEBRIS);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.BLACKSTONE);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.POLISHED_BLACKSTONE_BRICKS);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.POLISHED_BLACKSTONE_BRICK_STAIRS);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.BLACKSTONE_STAIRS);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.BLACKSTONE_WALL);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.POLISHED_BLACKSTONE_BRICK_WALL);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.CHISELED_POLISHED_BLACKSTONE);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.CRACKED_POLISHED_BLACKSTONE_BRICKS);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.POLISHED_BLACKSTONE);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.POLISHED_BLACKSTONE_STAIRS);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.POLISHED_BLACKSTONE_PRESSURE_PLATE);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.POLISHED_BLACKSTONE_BUTTON);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.POLISHED_BLACKSTONE_WALL);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.CHISELED_NETHER_BRICKS);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.CRACKED_NETHER_BRICKS);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.QUARTZ_BRICKS);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.CHAIN);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.WARPED_ROOTS);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.CRIMSON_ROOTS);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.MUD_BRICKS);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.MUDDY_MANGROVE_ROOTS);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.MUD_BRICK_STAIRS);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.AMETHYST_BLOCK);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.CALCITE);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.TUFF);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.TINTED_GLASS);
+-        this.dropWhenSilkTouch(net.minecraft.world.level.block.Blocks.SCULK_SENSOR);
+-        this.dropWhenSilkTouch(net.minecraft.world.level.block.Blocks.SCULK);
+-        this.dropWhenSilkTouch(net.minecraft.world.level.block.Blocks.SCULK_CATALYST);
+-        this.add(net.minecraft.world.level.block.Blocks.SCULK_VEIN, $$0 -> net.minecraft.data.loot.BlockLoot.createMultifaceBlockDrops((net.minecraft.world.level.block.Block)$$0, (net.minecraft.world.level.storage.loot.predicates.LootItemCondition$Builder)HAS_SILK_TOUCH));
+-        this.dropWhenSilkTouch(net.minecraft.world.level.block.Blocks.SCULK_SHRIEKER);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.COPPER_BLOCK);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.EXPOSED_COPPER);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.WEATHERED_COPPER);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.OXIDIZED_COPPER);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.CUT_COPPER);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.EXPOSED_CUT_COPPER);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.WEATHERED_CUT_COPPER);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.OXIDIZED_CUT_COPPER);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.WAXED_COPPER_BLOCK);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.WAXED_WEATHERED_COPPER);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.WAXED_EXPOSED_COPPER);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.WAXED_OXIDIZED_COPPER);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.WAXED_CUT_COPPER);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.WAXED_WEATHERED_CUT_COPPER);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.WAXED_EXPOSED_CUT_COPPER);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.WAXED_OXIDIZED_CUT_COPPER);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.WAXED_CUT_COPPER_STAIRS);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.WAXED_EXPOSED_CUT_COPPER_STAIRS);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.WAXED_WEATHERED_CUT_COPPER_STAIRS);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.WAXED_OXIDIZED_CUT_COPPER_STAIRS);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.CUT_COPPER_STAIRS);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.EXPOSED_CUT_COPPER_STAIRS);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.WEATHERED_CUT_COPPER_STAIRS);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.OXIDIZED_CUT_COPPER_STAIRS);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.LIGHTNING_ROD);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.POINTED_DRIPSTONE);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.DRIPSTONE_BLOCK);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.SPORE_BLOSSOM);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.FLOWERING_AZALEA);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.AZALEA);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.MOSS_CARPET);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.BIG_DRIPLEAF);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.MOSS_BLOCK);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.ROOTED_DIRT);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.COBBLED_DEEPSLATE);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.COBBLED_DEEPSLATE_STAIRS);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.COBBLED_DEEPSLATE_WALL);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.POLISHED_DEEPSLATE);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.POLISHED_DEEPSLATE_STAIRS);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.POLISHED_DEEPSLATE_WALL);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.DEEPSLATE_TILES);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.DEEPSLATE_TILE_STAIRS);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.DEEPSLATE_TILE_WALL);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.DEEPSLATE_BRICKS);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.DEEPSLATE_BRICK_STAIRS);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.DEEPSLATE_BRICK_WALL);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.CHISELED_DEEPSLATE);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.CRACKED_DEEPSLATE_BRICKS);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.CRACKED_DEEPSLATE_TILES);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.RAW_IRON_BLOCK);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.RAW_COPPER_BLOCK);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.RAW_GOLD_BLOCK);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.OCHRE_FROGLIGHT);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.VERDANT_FROGLIGHT);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.PEARLESCENT_FROGLIGHT);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.MANGROVE_ROOTS);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.MANGROVE_LOG);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.MUD);
+-        this.dropSelf(net.minecraft.world.level.block.Blocks.PACKED_MUD);
+-        this.dropOther(net.minecraft.world.level.block.Blocks.FARMLAND, (net.minecraft.world.level.ItemLike)net.minecraft.world.level.block.Blocks.DIRT);
+-        this.dropOther(net.minecraft.world.level.block.Blocks.TRIPWIRE, (net.minecraft.world.level.ItemLike)net.minecraft.world.item.Items.STRING);
+-        this.dropOther(net.minecraft.world.level.block.Blocks.DIRT_PATH, (net.minecraft.world.level.ItemLike)net.minecraft.world.level.block.Blocks.DIRT);
+-        this.dropOther(net.minecraft.world.level.block.Blocks.KELP_PLANT, (net.minecraft.world.level.ItemLike)net.minecraft.world.level.block.Blocks.KELP);
+-        this.dropOther(net.minecraft.world.level.block.Blocks.BAMBOO_SAPLING, (net.minecraft.world.level.ItemLike)net.minecraft.world.level.block.Blocks.BAMBOO);
+-        this.dropOther(net.minecraft.world.level.block.Blocks.WATER_CAULDRON, (net.minecraft.world.level.ItemLike)net.minecraft.world.level.block.Blocks.CAULDRON);
+-        this.dropOther(net.minecraft.world.level.block.Blocks.LAVA_CAULDRON, (net.minecraft.world.level.ItemLike)net.minecraft.world.level.block.Blocks.CAULDRON);
+-        this.dropOther(net.minecraft.world.level.block.Blocks.POWDER_SNOW_CAULDRON, (net.minecraft.world.level.ItemLike)net.minecraft.world.level.block.Blocks.CAULDRON);
+-        this.dropOther(net.minecraft.world.level.block.Blocks.BIG_DRIPLEAF_STEM, (net.minecraft.world.level.ItemLike)net.minecraft.world.level.block.Blocks.BIG_DRIPLEAF);
+-        this.add(net.minecraft.world.level.block.Blocks.STONE, $$0 -> net.minecraft.data.loot.BlockLoot.createSingleItemTableWithSilkTouch((net.minecraft.world.level.block.Block)$$0, (net.minecraft.world.level.ItemLike)net.minecraft.world.level.block.Blocks.COBBLESTONE));
+-        this.add(net.minecraft.world.level.block.Blocks.DEEPSLATE, $$0 -> net.minecraft.data.loot.BlockLoot.createSingleItemTableWithSilkTouch((net.minecraft.world.level.block.Block)$$0, (net.minecraft.world.level.ItemLike)net.minecraft.world.level.block.Blocks.COBBLED_DEEPSLATE));
+-        this.add(net.minecraft.world.level.block.Blocks.GRASS_BLOCK, $$0 -> net.minecraft.data.loot.BlockLoot.createSingleItemTableWithSilkTouch((net.minecraft.world.level.block.Block)$$0, (net.minecraft.world.level.ItemLike)net.minecraft.world.level.block.Blocks.DIRT));
+-        this.add(net.minecraft.world.level.block.Blocks.PODZOL, $$0 -> net.minecraft.data.loot.BlockLoot.createSingleItemTableWithSilkTouch((net.minecraft.world.level.block.Block)$$0, (net.minecraft.world.level.ItemLike)net.minecraft.world.level.block.Blocks.DIRT));
+-        this.add(net.minecraft.world.level.block.Blocks.MYCELIUM, $$0 -> net.minecraft.data.loot.BlockLoot.createSingleItemTableWithSilkTouch((net.minecraft.world.level.block.Block)$$0, (net.minecraft.world.level.ItemLike)net.minecraft.world.level.block.Blocks.DIRT));
+-        this.add(net.minecraft.world.level.block.Blocks.TUBE_CORAL_BLOCK, $$0 -> net.minecraft.data.loot.BlockLoot.createSingleItemTableWithSilkTouch((net.minecraft.world.level.block.Block)$$0, (net.minecraft.world.level.ItemLike)net.minecraft.world.level.block.Blocks.DEAD_TUBE_CORAL_BLOCK));
+-        this.add(net.minecraft.world.level.block.Blocks.BRAIN_CORAL_BLOCK, $$0 -> net.minecraft.data.loot.BlockLoot.createSingleItemTableWithSilkTouch((net.minecraft.world.level.block.Block)$$0, (net.minecraft.world.level.ItemLike)net.minecraft.world.level.block.Blocks.DEAD_BRAIN_CORAL_BLOCK));
+-        this.add(net.minecraft.world.level.block.Blocks.BUBBLE_CORAL_BLOCK, $$0 -> net.minecraft.data.loot.BlockLoot.createSingleItemTableWithSilkTouch((net.minecraft.world.level.block.Block)$$0, (net.minecraft.world.level.ItemLike)net.minecraft.world.level.block.Blocks.DEAD_BUBBLE_CORAL_BLOCK));
+-        this.add(net.minecraft.world.level.block.Blocks.FIRE_CORAL_BLOCK, $$0 -> net.minecraft.data.loot.BlockLoot.createSingleItemTableWithSilkTouch((net.minecraft.world.level.block.Block)$$0, (net.minecraft.world.level.ItemLike)net.minecraft.world.level.block.Blocks.DEAD_FIRE_CORAL_BLOCK));
+-        this.add(net.minecraft.world.level.block.Blocks.HORN_CORAL_BLOCK, $$0 -> net.minecraft.data.loot.BlockLoot.createSingleItemTableWithSilkTouch((net.minecraft.world.level.block.Block)$$0, (net.minecraft.world.level.ItemLike)net.minecraft.world.level.block.Blocks.DEAD_HORN_CORAL_BLOCK));
+-        this.add(net.minecraft.world.level.block.Blocks.CRIMSON_NYLIUM, $$0 -> net.minecraft.data.loot.BlockLoot.createSingleItemTableWithSilkTouch((net.minecraft.world.level.block.Block)$$0, (net.minecraft.world.level.ItemLike)net.minecraft.world.level.block.Blocks.NETHERRACK));
+-        this.add(net.minecraft.world.level.block.Blocks.WARPED_NYLIUM, $$0 -> net.minecraft.data.loot.BlockLoot.createSingleItemTableWithSilkTouch((net.minecraft.world.level.block.Block)$$0, (net.minecraft.world.level.ItemLike)net.minecraft.world.level.block.Blocks.NETHERRACK));
+-        this.add(net.minecraft.world.level.block.Blocks.BOOKSHELF, $$0 -> net.minecraft.data.loot.BlockLoot.createSingleItemTableWithSilkTouch((net.minecraft.world.level.block.Block)$$0, (net.minecraft.world.level.ItemLike)net.minecraft.world.item.Items.BOOK, (net.minecraft.world.level.storage.loot.providers.number.NumberProvider)net.minecraft.world.level.storage.loot.providers.number.ConstantValue.exactly((float)3.0f)));
+-        this.add(net.minecraft.world.level.block.Blocks.CLAY, $$0 -> net.minecraft.data.loot.BlockLoot.createSingleItemTableWithSilkTouch((net.minecraft.world.level.block.Block)$$0, (net.minecraft.world.level.ItemLike)net.minecraft.world.item.Items.CLAY_BALL, (net.minecraft.world.level.storage.loot.providers.number.NumberProvider)net.minecraft.world.level.storage.loot.providers.number.ConstantValue.exactly((float)4.0f)));
+-        this.add(net.minecraft.world.level.block.Blocks.ENDER_CHEST, $$0 -> net.minecraft.data.loot.BlockLoot.createSingleItemTableWithSilkTouch((net.minecraft.world.level.block.Block)$$0, (net.minecraft.world.level.ItemLike)net.minecraft.world.level.block.Blocks.OBSIDIAN, (net.minecraft.world.level.storage.loot.providers.number.NumberProvider)net.minecraft.world.level.storage.loot.providers.number.ConstantValue.exactly((float)8.0f)));
+-        this.add(net.minecraft.world.level.block.Blocks.SNOW_BLOCK, $$0 -> net.minecraft.data.loot.BlockLoot.createSingleItemTableWithSilkTouch((net.minecraft.world.level.block.Block)$$0, (net.minecraft.world.level.ItemLike)net.minecraft.world.item.Items.SNOWBALL, (net.minecraft.world.level.storage.loot.providers.number.NumberProvider)net.minecraft.world.level.storage.loot.providers.number.ConstantValue.exactly((float)4.0f)));
+-        this.add(net.minecraft.world.level.block.Blocks.CHORUS_PLANT, net.minecraft.data.loot.BlockLoot.createSingleItemTable((net.minecraft.world.level.ItemLike)net.minecraft.world.item.Items.CHORUS_FRUIT, (net.minecraft.world.level.storage.loot.providers.number.NumberProvider)net.minecraft.world.level.storage.loot.providers.number.UniformGenerator.between((float)0.0f, (float)1.0f)));
+-        this.dropPottedContents(net.minecraft.world.level.block.Blocks.POTTED_OAK_SAPLING);
+-        this.dropPottedContents(net.minecraft.world.level.block.Blocks.POTTED_SPRUCE_SAPLING);
+-        this.dropPottedContents(net.minecraft.world.level.block.Blocks.POTTED_BIRCH_SAPLING);
+-        this.dropPottedContents(net.minecraft.world.level.block.Blocks.POTTED_JUNGLE_SAPLING);
+-        this.dropPottedContents(net.minecraft.world.level.block.Blocks.POTTED_ACACIA_SAPLING);
+-        this.dropPottedContents(net.minecraft.world.level.block.Blocks.POTTED_DARK_OAK_SAPLING);
+-        this.dropPottedContents(net.minecraft.world.level.block.Blocks.POTTED_MANGROVE_PROPAGULE);
+-        this.dropPottedContents(net.minecraft.world.level.block.Blocks.POTTED_FERN);
+-        this.dropPottedContents(net.minecraft.world.level.block.Blocks.POTTED_DANDELION);
+-        this.dropPottedContents(net.minecraft.world.level.block.Blocks.POTTED_POPPY);
+-        this.dropPottedContents(net.minecraft.world.level.block.Blocks.POTTED_BLUE_ORCHID);
+-        this.dropPottedContents(net.minecraft.world.level.block.Blocks.POTTED_ALLIUM);
+-        this.dropPottedContents(net.minecraft.world.level.block.Blocks.POTTED_AZURE_BLUET);
+-        this.dropPottedContents(net.minecraft.world.level.block.Blocks.POTTED_RED_TULIP);
+-        this.dropPottedContents(net.minecraft.world.level.block.Blocks.POTTED_ORANGE_TULIP);
+-        this.dropPottedContents(net.minecraft.world.level.block.Blocks.POTTED_WHITE_TULIP);
+-        this.dropPottedContents(net.minecraft.world.level.block.Blocks.POTTED_PINK_TULIP);
+-        this.dropPottedContents(net.minecraft.world.level.block.Blocks.POTTED_OXEYE_DAISY);
+-        this.dropPottedContents(net.minecraft.world.level.block.Blocks.POTTED_CORNFLOWER);
+-        this.dropPottedContents(net.minecraft.world.level.block.Blocks.POTTED_LILY_OF_THE_VALLEY);
+-        this.dropPottedContents(net.minecraft.world.level.block.Blocks.POTTED_WITHER_ROSE);
+-        this.dropPottedContents(net.minecraft.world.level.block.Blocks.POTTED_RED_MUSHROOM);
+-        this.dropPottedContents(net.minecraft.world.level.block.Blocks.POTTED_BROWN_MUSHROOM);
+-        this.dropPottedContents(net.minecraft.world.level.block.Blocks.POTTED_DEAD_BUSH);
+-        this.dropPottedContents(net.minecraft.world.level.block.Blocks.POTTED_CACTUS);
+-        this.dropPottedContents(net.minecraft.world.level.block.Blocks.POTTED_BAMBOO);
+-        this.dropPottedContents(net.minecraft.world.level.block.Blocks.POTTED_CRIMSON_FUNGUS);
+-        this.dropPottedContents(net.minecraft.world.level.block.Blocks.POTTED_WARPED_FUNGUS);
+-        this.dropPottedContents(net.minecraft.world.level.block.Blocks.POTTED_CRIMSON_ROOTS);
+-        this.dropPottedContents(net.minecraft.world.level.block.Blocks.POTTED_WARPED_ROOTS);
+-        this.dropPottedContents(net.minecraft.world.level.block.Blocks.POTTED_AZALEA);
+-        this.dropPottedContents(net.minecraft.world.level.block.Blocks.POTTED_FLOWERING_AZALEA);
+-        this.add(net.minecraft.world.level.block.Blocks.MANGROVE_SLAB, net.minecraft.data.loot.BlockLoot::createSlabItemTable);
+-        this.add(net.minecraft.world.level.block.Blocks.ACACIA_SLAB, net.minecraft.data.loot.BlockLoot::createSlabItemTable);
+-        this.add(net.minecraft.world.level.block.Blocks.BIRCH_SLAB, net.minecraft.data.loot.BlockLoot::createSlabItemTable);
+-        this.add(net.minecraft.world.level.block.Blocks.BRICK_SLAB, net.minecraft.data.loot.BlockLoot::createSlabItemTable);
+-        this.add(net.minecraft.world.level.block.Blocks.COBBLESTONE_SLAB, net.minecraft.data.loot.BlockLoot::createSlabItemTable);
+-        this.add(net.minecraft.world.level.block.Blocks.DARK_OAK_SLAB, net.minecraft.data.loot.BlockLoot::createSlabItemTable);
+-        this.add(net.minecraft.world.level.block.Blocks.DARK_PRISMARINE_SLAB, net.minecraft.data.loot.BlockLoot::createSlabItemTable);
+-        this.add(net.minecraft.world.level.block.Blocks.JUNGLE_SLAB, net.minecraft.data.loot.BlockLoot::createSlabItemTable);
+-        this.add(net.minecraft.world.level.block.Blocks.NETHER_BRICK_SLAB, net.minecraft.data.loot.BlockLoot::createSlabItemTable);
+-        this.add(net.minecraft.world.level.block.Blocks.OAK_SLAB, net.minecraft.data.loot.BlockLoot::createSlabItemTable);
+-        this.add(net.minecraft.world.level.block.Blocks.PETRIFIED_OAK_SLAB, net.minecraft.data.loot.BlockLoot::createSlabItemTable);
+-        this.add(net.minecraft.world.level.block.Blocks.PRISMARINE_BRICK_SLAB, net.minecraft.data.loot.BlockLoot::createSlabItemTable);
+-        this.add(net.minecraft.world.level.block.Blocks.PRISMARINE_SLAB, net.minecraft.data.loot.BlockLoot::createSlabItemTable);
+-        this.add(net.minecraft.world.level.block.Blocks.PURPUR_SLAB, net.minecraft.data.loot.BlockLoot::createSlabItemTable);
+-        this.add(net.minecraft.world.level.block.Blocks.QUARTZ_SLAB, net.minecraft.data.loot.BlockLoot::createSlabItemTable);
+-        this.add(net.minecraft.world.level.block.Blocks.RED_SANDSTONE_SLAB, net.minecraft.data.loot.BlockLoot::createSlabItemTable);
+-        this.add(net.minecraft.world.level.block.Blocks.SANDSTONE_SLAB, net.minecraft.data.loot.BlockLoot::createSlabItemTable);
+-        this.add(net.minecraft.world.level.block.Blocks.CUT_RED_SANDSTONE_SLAB, net.minecraft.data.loot.BlockLoot::createSlabItemTable);
+-        this.add(net.minecraft.world.level.block.Blocks.CUT_SANDSTONE_SLAB, net.minecraft.data.loot.BlockLoot::createSlabItemTable);
+-        this.add(net.minecraft.world.level.block.Blocks.SPRUCE_SLAB, net.minecraft.data.loot.BlockLoot::createSlabItemTable);
+-        this.add(net.minecraft.world.level.block.Blocks.STONE_BRICK_SLAB, net.minecraft.data.loot.BlockLoot::createSlabItemTable);
+-        this.add(net.minecraft.world.level.block.Blocks.STONE_SLAB, net.minecraft.data.loot.BlockLoot::createSlabItemTable);
+-        this.add(net.minecraft.world.level.block.Blocks.SMOOTH_STONE_SLAB, net.minecraft.data.loot.BlockLoot::createSlabItemTable);
+-        this.add(net.minecraft.world.level.block.Blocks.POLISHED_GRANITE_SLAB, net.minecraft.data.loot.BlockLoot::createSlabItemTable);
+-        this.add(net.minecraft.world.level.block.Blocks.SMOOTH_RED_SANDSTONE_SLAB, net.minecraft.data.loot.BlockLoot::createSlabItemTable);
+-        this.add(net.minecraft.world.level.block.Blocks.MOSSY_STONE_BRICK_SLAB, net.minecraft.data.loot.BlockLoot::createSlabItemTable);
+-        this.add(net.minecraft.world.level.block.Blocks.POLISHED_DIORITE_SLAB, net.minecraft.data.loot.BlockLoot::createSlabItemTable);
+-        this.add(net.minecraft.world.level.block.Blocks.MOSSY_COBBLESTONE_SLAB, net.minecraft.data.loot.BlockLoot::createSlabItemTable);
+-        this.add(net.minecraft.world.level.block.Blocks.END_STONE_BRICK_SLAB, net.minecraft.data.loot.BlockLoot::createSlabItemTable);
+-        this.add(net.minecraft.world.level.block.Blocks.SMOOTH_SANDSTONE_SLAB, net.minecraft.data.loot.BlockLoot::createSlabItemTable);
+-        this.add(net.minecraft.world.level.block.Blocks.SMOOTH_QUARTZ_SLAB, net.minecraft.data.loot.BlockLoot::createSlabItemTable);
+-        this.add(net.minecraft.world.level.block.Blocks.GRANITE_SLAB, net.minecraft.data.loot.BlockLoot::createSlabItemTable);
+-        this.add(net.minecraft.world.level.block.Blocks.ANDESITE_SLAB, net.minecraft.data.loot.BlockLoot::createSlabItemTable);
+-        this.add(net.minecraft.world.level.block.Blocks.RED_NETHER_BRICK_SLAB, net.minecraft.data.loot.BlockLoot::createSlabItemTable);
+-        this.add(net.minecraft.world.level.block.Blocks.POLISHED_ANDESITE_SLAB, net.minecraft.data.loot.BlockLoot::createSlabItemTable);
+-        this.add(net.minecraft.world.level.block.Blocks.DIORITE_SLAB, net.minecraft.data.loot.BlockLoot::createSlabItemTable);
+-        this.add(net.minecraft.world.level.block.Blocks.CRIMSON_SLAB, net.minecraft.data.loot.BlockLoot::createSlabItemTable);
+-        this.add(net.minecraft.world.level.block.Blocks.WARPED_SLAB, net.minecraft.data.loot.BlockLoot::createSlabItemTable);
+-        this.add(net.minecraft.world.level.block.Blocks.BLACKSTONE_SLAB, net.minecraft.data.loot.BlockLoot::createSlabItemTable);
+-        this.add(net.minecraft.world.level.block.Blocks.POLISHED_BLACKSTONE_BRICK_SLAB, net.minecraft.data.loot.BlockLoot::createSlabItemTable);
+-        this.add(net.minecraft.world.level.block.Blocks.POLISHED_BLACKSTONE_SLAB, net.minecraft.data.loot.BlockLoot::createSlabItemTable);
+-        this.add(net.minecraft.world.level.block.Blocks.OXIDIZED_CUT_COPPER_SLAB, net.minecraft.data.loot.BlockLoot::createSlabItemTable);
+-        this.add(net.minecraft.world.level.block.Blocks.WEATHERED_CUT_COPPER_SLAB, net.minecraft.data.loot.BlockLoot::createSlabItemTable);
+-        this.add(net.minecraft.world.level.block.Blocks.EXPOSED_CUT_COPPER_SLAB, net.minecraft.data.loot.BlockLoot::createSlabItemTable);
+-        this.add(net.minecraft.world.level.block.Blocks.CUT_COPPER_SLAB, net.minecraft.data.loot.BlockLoot::createSlabItemTable);
+-        this.add(net.minecraft.world.level.block.Blocks.WAXED_OXIDIZED_CUT_COPPER_SLAB, net.minecraft.data.loot.BlockLoot::createSlabItemTable);
+-        this.add(net.minecraft.world.level.block.Blocks.WAXED_WEATHERED_CUT_COPPER_SLAB, net.minecraft.data.loot.BlockLoot::createSlabItemTable);
+-        this.add(net.minecraft.world.level.block.Blocks.WAXED_EXPOSED_CUT_COPPER_SLAB, net.minecraft.data.loot.BlockLoot::createSlabItemTable);
+-        this.add(net.minecraft.world.level.block.Blocks.WAXED_CUT_COPPER_SLAB, net.minecraft.data.loot.BlockLoot::createSlabItemTable);
+-        this.add(net.minecraft.world.level.block.Blocks.COBBLED_DEEPSLATE_SLAB, net.minecraft.data.loot.BlockLoot::createSlabItemTable);
+-        this.add(net.minecraft.world.level.block.Blocks.POLISHED_DEEPSLATE_SLAB, net.minecraft.data.loot.BlockLoot::createSlabItemTable);
+-        this.add(net.minecraft.world.level.block.Blocks.DEEPSLATE_TILE_SLAB, net.minecraft.data.loot.BlockLoot::createSlabItemTable);
+-        this.add(net.minecraft.world.level.block.Blocks.DEEPSLATE_BRICK_SLAB, net.minecraft.data.loot.BlockLoot::createSlabItemTable);
+-        this.add(net.minecraft.world.level.block.Blocks.MUD_BRICK_SLAB, net.minecraft.data.loot.BlockLoot::createSlabItemTable);
+-        this.add(net.minecraft.world.level.block.Blocks.ACACIA_DOOR, net.minecraft.data.loot.BlockLoot::createDoorTable);
+-        this.add(net.minecraft.world.level.block.Blocks.BIRCH_DOOR, net.minecraft.data.loot.BlockLoot::createDoorTable);
+-        this.add(net.minecraft.world.level.block.Blocks.DARK_OAK_DOOR, net.minecraft.data.loot.BlockLoot::createDoorTable);
+-        this.add(net.minecraft.world.level.block.Blocks.IRON_DOOR, net.minecraft.data.loot.BlockLoot::createDoorTable);
+-        this.add(net.minecraft.world.level.block.Blocks.JUNGLE_DOOR, net.minecraft.data.loot.BlockLoot::createDoorTable);
+-        this.add(net.minecraft.world.level.block.Blocks.OAK_DOOR, net.minecraft.data.loot.BlockLoot::createDoorTable);
+-        this.add(net.minecraft.world.level.block.Blocks.SPRUCE_DOOR, net.minecraft.data.loot.BlockLoot::createDoorTable);
+-        this.add(net.minecraft.world.level.block.Blocks.WARPED_DOOR, net.minecraft.data.loot.BlockLoot::createDoorTable);
+-        this.add(net.minecraft.world.level.block.Blocks.CRIMSON_DOOR, net.minecraft.data.loot.BlockLoot::createDoorTable);
+-        this.add(net.minecraft.world.level.block.Blocks.MANGROVE_DOOR, net.minecraft.data.loot.BlockLoot::createDoorTable);
+-        this.add(net.minecraft.world.level.block.Blocks.BLACK_BED, $$0 -> net.minecraft.data.loot.BlockLoot.createSinglePropConditionTable((net.minecraft.world.level.block.Block)$$0, (net.minecraft.world.level.block.state.properties.Property)net.minecraft.world.level.block.BedBlock.PART, (java.lang.Comparable)net.minecraft.world.level.block.state.properties.BedPart.HEAD));
+-        this.add(net.minecraft.world.level.block.Blocks.BLUE_BED, $$0 -> net.minecraft.data.loot.BlockLoot.createSinglePropConditionTable((net.minecraft.world.level.block.Block)$$0, (net.minecraft.world.level.block.state.properties.Property)net.minecraft.world.level.block.BedBlock.PART, (java.lang.Comparable)net.minecraft.world.level.block.state.properties.BedPart.HEAD));
+-        this.add(net.minecraft.world.level.block.Blocks.BROWN_BED, $$0 -> net.minecraft.data.loot.BlockLoot.createSinglePropConditionTable((net.minecraft.world.level.block.Block)$$0, (net.minecraft.world.level.block.state.properties.Property)net.minecraft.world.level.block.BedBlock.PART, (java.lang.Comparable)net.minecraft.world.level.block.state.properties.BedPart.HEAD));
+-        this.add(net.minecraft.world.level.block.Blocks.CYAN_BED, $$0 -> net.minecraft.data.loot.BlockLoot.createSinglePropConditionTable((net.minecraft.world.level.block.Block)$$0, (net.minecraft.world.level.block.state.properties.Property)net.minecraft.world.level.block.BedBlock.PART, (java.lang.Comparable)net.minecraft.world.level.block.state.properties.BedPart.HEAD));
+-        this.add(net.minecraft.world.level.block.Blocks.GRAY_BED, $$0 -> net.minecraft.data.loot.BlockLoot.createSinglePropConditionTable((net.minecraft.world.level.block.Block)$$0, (net.minecraft.world.level.block.state.properties.Property)net.minecraft.world.level.block.BedBlock.PART, (java.lang.Comparable)net.minecraft.world.level.block.state.properties.BedPart.HEAD));
+-        this.add(net.minecraft.world.level.block.Blocks.GREEN_BED, $$0 -> net.minecraft.data.loot.BlockLoot.createSinglePropConditionTable((net.minecraft.world.level.block.Block)$$0, (net.minecraft.world.level.block.state.properties.Property)net.minecraft.world.level.block.BedBlock.PART, (java.lang.Comparable)net.minecraft.world.level.block.state.properties.BedPart.HEAD));
+-        this.add(net.minecraft.world.level.block.Blocks.LIGHT_BLUE_BED, $$0 -> net.minecraft.data.loot.BlockLoot.createSinglePropConditionTable((net.minecraft.world.level.block.Block)$$0, (net.minecraft.world.level.block.state.properties.Property)net.minecraft.world.level.block.BedBlock.PART, (java.lang.Comparable)net.minecraft.world.level.block.state.properties.BedPart.HEAD));
+-        this.add(net.minecraft.world.level.block.Blocks.LIGHT_GRAY_BED, $$0 -> net.minecraft.data.loot.BlockLoot.createSinglePropConditionTable((net.minecraft.world.level.block.Block)$$0, (net.minecraft.world.level.block.state.properties.Property)net.minecraft.world.level.block.BedBlock.PART, (java.lang.Comparable)net.minecraft.world.level.block.state.properties.BedPart.HEAD));
+-        this.add(net.minecraft.world.level.block.Blocks.LIME_BED, $$0 -> net.minecraft.data.loot.BlockLoot.createSinglePropConditionTable((net.minecraft.world.level.block.Block)$$0, (net.minecraft.world.level.block.state.properties.Property)net.minecraft.world.level.block.BedBlock.PART, (java.lang.Comparable)net.minecraft.world.level.block.state.properties.BedPart.HEAD));
+-        this.add(net.minecraft.world.level.block.Blocks.MAGENTA_BED, $$0 -> net.minecraft.data.loot.BlockLoot.createSinglePropConditionTable((net.minecraft.world.level.block.Block)$$0, (net.minecraft.world.level.block.state.properties.Property)net.minecraft.world.level.block.BedBlock.PART, (java.lang.Comparable)net.minecraft.world.level.block.state.properties.BedPart.HEAD));
+-        this.add(net.minecraft.world.level.block.Blocks.PURPLE_BED, $$0 -> net.minecraft.data.loot.BlockLoot.createSinglePropConditionTable((net.minecraft.world.level.block.Block)$$0, (net.minecraft.world.level.block.state.properties.Property)net.minecraft.world.level.block.BedBlock.PART, (java.lang.Comparable)net.minecraft.world.level.block.state.properties.BedPart.HEAD));
+-        this.add(net.minecraft.world.level.block.Blocks.ORANGE_BED, $$0 -> net.minecraft.data.loot.BlockLoot.createSinglePropConditionTable((net.minecraft.world.level.block.Block)$$0, (net.minecraft.world.level.block.state.properties.Property)net.minecraft.world.level.block.BedBlock.PART, (java.lang.Comparable)net.minecraft.world.level.block.state.properties.BedPart.HEAD));
+-        this.add(net.minecraft.world.level.block.Blocks.PINK_BED, $$0 -> net.minecraft.data.loot.BlockLoot.createSinglePropConditionTable((net.minecraft.world.level.block.Block)$$0, (net.minecraft.world.level.block.state.properties.Property)net.minecraft.world.level.block.BedBlock.PART, (java.lang.Comparable)net.minecraft.world.level.block.state.properties.BedPart.HEAD));
+-        this.add(net.minecraft.world.level.block.Blocks.RED_BED, $$0 -> net.minecraft.data.loot.BlockLoot.createSinglePropConditionTable((net.minecraft.world.level.block.Block)$$0, (net.minecraft.world.level.block.state.properties.Property)net.minecraft.world.level.block.BedBlock.PART, (java.lang.Comparable)net.minecraft.world.level.block.state.properties.BedPart.HEAD));
+-        this.add(net.minecraft.world.level.block.Blocks.WHITE_BED, $$0 -> net.minecraft.data.loot.BlockLoot.createSinglePropConditionTable((net.minecraft.world.level.block.Block)$$0, (net.minecraft.world.level.block.state.properties.Property)net.minecraft.world.level.block.BedBlock.PART, (java.lang.Comparable)net.minecraft.world.level.block.state.properties.BedPart.HEAD));
+-        this.add(net.minecraft.world.level.block.Blocks.YELLOW_BED, $$0 -> net.minecraft.data.loot.BlockLoot.createSinglePropConditionTable((net.minecraft.world.level.block.Block)$$0, (net.minecraft.world.level.block.state.properties.Property)net.minecraft.world.level.block.BedBlock.PART, (java.lang.Comparable)net.minecraft.world.level.block.state.properties.BedPart.HEAD));
+-        this.add(net.minecraft.world.level.block.Blocks.LILAC, $$0 -> net.minecraft.data.loot.BlockLoot.createSinglePropConditionTable((net.minecraft.world.level.block.Block)$$0, (net.minecraft.world.level.block.state.properties.Property)net.minecraft.world.level.block.DoublePlantBlock.HALF, (java.lang.Comparable)net.minecraft.world.level.block.state.properties.DoubleBlockHalf.LOWER));
+-        this.add(net.minecraft.world.level.block.Blocks.SUNFLOWER, $$0 -> net.minecraft.data.loot.BlockLoot.createSinglePropConditionTable((net.minecraft.world.level.block.Block)$$0, (net.minecraft.world.level.block.state.properties.Property)net.minecraft.world.level.block.DoublePlantBlock.HALF, (java.lang.Comparable)net.minecraft.world.level.block.state.properties.DoubleBlockHalf.LOWER));
+-        this.add(net.minecraft.world.level.block.Blocks.PEONY, $$0 -> net.minecraft.data.loot.BlockLoot.createSinglePropConditionTable((net.minecraft.world.level.block.Block)$$0, (net.minecraft.world.level.block.state.properties.Property)net.minecraft.world.level.block.DoublePlantBlock.HALF, (java.lang.Comparable)net.minecraft.world.level.block.state.properties.DoubleBlockHalf.LOWER));
+-        this.add(net.minecraft.world.level.block.Blocks.ROSE_BUSH, $$0 -> net.minecraft.data.loot.BlockLoot.createSinglePropConditionTable((net.minecraft.world.level.block.Block)$$0, (net.minecraft.world.level.block.state.properties.Property)net.minecraft.world.level.block.DoublePlantBlock.HALF, (java.lang.Comparable)net.minecraft.world.level.block.state.properties.DoubleBlockHalf.LOWER));
+-        this.add(net.minecraft.world.level.block.Blocks.TNT, net.minecraft.world.level.storage.loot.LootTable.lootTable().withPool((net.minecraft.world.level.storage.loot.LootPool$Builder)net.minecraft.data.loot.BlockLoot.applyExplosionCondition((net.minecraft.world.level.ItemLike)net.minecraft.world.level.block.Blocks.TNT, (net.minecraft.world.level.storage.loot.predicates.ConditionUserBuilder)net.minecraft.world.level.storage.loot.LootPool.lootPool().setRolls((net.minecraft.world.level.storage.loot.providers.number.NumberProvider)net.minecraft.world.level.storage.loot.providers.number.ConstantValue.exactly((float)1.0f)).add(net.minecraft.world.level.storage.loot.entries.LootItem.lootTableItem((net.minecraft.world.level.ItemLike)net.minecraft.world.level.block.Blocks.TNT).when((net.minecraft.world.level.storage.loot.predicates.LootItemCondition$Builder)net.minecraft.world.level.storage.loot.predicates.LootItemBlockStatePropertyCondition.hasBlockStateProperties((net.minecraft.world.level.block.Block)net.minecraft.world.level.block.Blocks.TNT).setProperties(net.minecraft.advancements.critereon.StatePropertiesPredicate$Builder.properties().hasProperty((net.minecraft.world.level.block.state.properties.Property)net.minecraft.world.level.block.TntBlock.UNSTABLE, false)))))));
+-        this.add(net.minecraft.world.level.block.Blocks.COCOA, $$0 -> net.minecraft.world.level.storage.loot.LootTable.lootTable().withPool(net.minecraft.world.level.storage.loot.LootPool.lootPool().setRolls((net.minecraft.world.level.storage.loot.providers.number.NumberProvider)net.minecraft.world.level.storage.loot.providers.number.ConstantValue.exactly((float)1.0f)).add((net.minecraft.world.level.storage.loot.entries.LootPoolEntryContainer$Builder)net.minecraft.data.loot.BlockLoot.applyExplosionDecay((net.minecraft.world.level.ItemLike)$$0, (net.minecraft.world.level.storage.loot.functions.FunctionUserBuilder)net.minecraft.world.level.storage.loot.entries.LootItem.lootTableItem((net.minecraft.world.level.ItemLike)net.minecraft.world.item.Items.COCOA_BEANS).apply((net.minecraft.world.level.storage.loot.functions.LootItemFunction$Builder)net.minecraft.world.level.storage.loot.functions.SetItemCountFunction.setCount((net.minecraft.world.level.storage.loot.providers.number.NumberProvider)net.minecraft.world.level.storage.loot.providers.number.ConstantValue.exactly((float)3.0f)).when((net.minecraft.world.level.storage.loot.predicates.LootItemCondition$Builder)net.minecraft.world.level.storage.loot.predicates.LootItemBlockStatePropertyCondition.hasBlockStateProperties((net.minecraft.world.level.block.Block)$$0).setProperties(net.minecraft.advancements.critereon.StatePropertiesPredicate$Builder.properties().hasProperty((net.minecraft.world.level.block.state.properties.Property)net.minecraft.world.level.block.CocoaBlock.AGE, 2))))))));
+-        this.add(net.minecraft.world.level.block.Blocks.SEA_PICKLE, $$0 -> net.minecraft.world.level.storage.loot.LootTable.lootTable().withPool(net.minecraft.world.level.storage.loot.LootPool.lootPool().setRolls((net.minecraft.world.level.storage.loot.providers.number.NumberProvider)net.minecraft.world.level.storage.loot.providers.number.ConstantValue.exactly((float)1.0f)).add((net.minecraft.world.level.storage.loot.entries.LootPoolEntryContainer$Builder)net.minecraft.data.loot.BlockLoot.applyExplosionDecay((net.minecraft.world.level.ItemLike)net.minecraft.world.level.block.Blocks.SEA_PICKLE, (net.minecraft.world.level.storage.loot.functions.FunctionUserBuilder)net.minecraft.world.level.storage.loot.entries.LootItem.lootTableItem((net.minecraft.world.level.ItemLike)$$0).apply((java.lang.Iterable)java.util.List.of((java.lang.Object)2, (java.lang.Object)3, (java.lang.Object)4), $$1 -> net.minecraft.world.level.storage.loot.functions.SetItemCountFunction.setCount((net.minecraft.world.level.storage.loot.providers.number.NumberProvider)net.minecraft.world.level.storage.loot.providers.number.ConstantValue.exactly((float)$$1.intValue())).when((net.minecraft.world.level.storage.loot.predicates.LootItemCondition$Builder)net.minecraft.world.level.storage.loot.predicates.LootItemBlockStatePropertyCondition.hasBlockStateProperties((net.minecraft.world.level.block.Block)$$0).setProperties(net.minecraft.advancements.critereon.StatePropertiesPredicate$Builder.properties().hasProperty((net.minecraft.world.level.block.state.properties.Property)net.minecraft.world.level.block.SeaPickleBlock.PICKLES, $$1.intValue()))))))));
+-        this.add(net.minecraft.world.level.block.Blocks.COMPOSTER, $$0 -> net.minecraft.world.level.storage.loot.LootTable.lootTable().withPool(net.minecraft.world.level.storage.loot.LootPool.lootPool().add((net.minecraft.world.level.storage.loot.entries.LootPoolEntryContainer$Builder)net.minecraft.data.loot.BlockLoot.applyExplosionDecay((net.minecraft.world.level.ItemLike)$$0, (net.minecraft.world.level.storage.loot.functions.FunctionUserBuilder)net.minecraft.world.level.storage.loot.entries.LootItem.lootTableItem((net.minecraft.world.level.ItemLike)net.minecraft.world.item.Items.COMPOSTER)))).withPool(net.minecraft.world.level.storage.loot.LootPool.lootPool().add((net.minecraft.world.level.storage.loot.entries.LootPoolEntryContainer$Builder)net.minecraft.world.level.storage.loot.entries.LootItem.lootTableItem((net.minecraft.world.level.ItemLike)net.minecraft.world.item.Items.BONE_MEAL)).when((net.minecraft.world.level.storage.loot.predicates.LootItemCondition$Builder)net.minecraft.world.level.storage.loot.predicates.LootItemBlockStatePropertyCondition.hasBlockStateProperties((net.minecraft.world.level.block.Block)$$0).setProperties(net.minecraft.advancements.critereon.StatePropertiesPredicate$Builder.properties().hasProperty((net.minecraft.world.level.block.state.properties.Property)net.minecraft.world.level.block.ComposterBlock.LEVEL, 8)))));
+-        this.add(net.minecraft.world.level.block.Blocks.CAVE_VINES, net.minecraft.data.loot.BlockLoot::createCaveVinesDrop);
+-        this.add(net.minecraft.world.level.block.Blocks.CAVE_VINES_PLANT, net.minecraft.data.loot.BlockLoot::createCaveVinesDrop);
+-        this.add(net.minecraft.world.level.block.Blocks.CANDLE, net.minecraft.data.loot.BlockLoot::createCandleDrops);
+-        this.add(net.minecraft.world.level.block.Blocks.WHITE_CANDLE, net.minecraft.data.loot.BlockLoot::createCandleDrops);
+-        this.add(net.minecraft.world.level.block.Blocks.ORANGE_CANDLE, net.minecraft.data.loot.BlockLoot::createCandleDrops);
+-        this.add(net.minecraft.world.level.block.Blocks.MAGENTA_CANDLE, net.minecraft.data.loot.BlockLoot::createCandleDrops);
+-        this.add(net.minecraft.world.level.block.Blocks.LIGHT_BLUE_CANDLE, net.minecraft.data.loot.BlockLoot::createCandleDrops);
+-        this.add(net.minecraft.world.level.block.Blocks.YELLOW_CANDLE, net.minecraft.data.loot.BlockLoot::createCandleDrops);
+-        this.add(net.minecraft.world.level.block.Blocks.LIME_CANDLE, net.minecraft.data.loot.BlockLoot::createCandleDrops);
+-        this.add(net.minecraft.world.level.block.Blocks.PINK_CANDLE, net.minecraft.data.loot.BlockLoot::createCandleDrops);
+-        this.add(net.minecraft.world.level.block.Blocks.GRAY_CANDLE, net.minecraft.data.loot.BlockLoot::createCandleDrops);
+-        this.add(net.minecraft.world.level.block.Blocks.LIGHT_GRAY_CANDLE, net.minecraft.data.loot.BlockLoot::createCandleDrops);
+-        this.add(net.minecraft.world.level.block.Blocks.CYAN_CANDLE, net.minecraft.data.loot.BlockLoot::createCandleDrops);
+-        this.add(net.minecraft.world.level.block.Blocks.PURPLE_CANDLE, net.minecraft.data.loot.BlockLoot::createCandleDrops);
+-        this.add(net.minecraft.world.level.block.Blocks.BLUE_CANDLE, net.minecraft.data.loot.BlockLoot::createCandleDrops);
+-        this.add(net.minecraft.world.level.block.Blocks.BROWN_CANDLE, net.minecraft.data.loot.BlockLoot::createCandleDrops);
+-        this.add(net.minecraft.world.level.block.Blocks.GREEN_CANDLE, net.minecraft.data.loot.BlockLoot::createCandleDrops);
+-        this.add(net.minecraft.world.level.block.Blocks.RED_CANDLE, net.minecraft.data.loot.BlockLoot::createCandleDrops);
+-        this.add(net.minecraft.world.level.block.Blocks.BLACK_CANDLE, net.minecraft.data.loot.BlockLoot::createCandleDrops);
+-        this.add(net.minecraft.world.level.block.Blocks.BEACON, net.minecraft.data.loot.BlockLoot::createNameableBlockEntityTable);
+-        this.add(net.minecraft.world.level.block.Blocks.BREWING_STAND, net.minecraft.data.loot.BlockLoot::createNameableBlockEntityTable);
+-        this.add(net.minecraft.world.level.block.Blocks.CHEST, net.minecraft.data.loot.BlockLoot::createNameableBlockEntityTable);
+-        this.add(net.minecraft.world.level.block.Blocks.DISPENSER, net.minecraft.data.loot.BlockLoot::createNameableBlockEntityTable);
+-        this.add(net.minecraft.world.level.block.Blocks.DROPPER, net.minecraft.data.loot.BlockLoot::createNameableBlockEntityTable);
+-        this.add(net.minecraft.world.level.block.Blocks.ENCHANTING_TABLE, net.minecraft.data.loot.BlockLoot::createNameableBlockEntityTable);
+-        this.add(net.minecraft.world.level.block.Blocks.FURNACE, net.minecraft.data.loot.BlockLoot::createNameableBlockEntityTable);
+-        this.add(net.minecraft.world.level.block.Blocks.HOPPER, net.minecraft.data.loot.BlockLoot::createNameableBlockEntityTable);
+-        this.add(net.minecraft.world.level.block.Blocks.TRAPPED_CHEST, net.minecraft.data.loot.BlockLoot::createNameableBlockEntityTable);
+-        this.add(net.minecraft.world.level.block.Blocks.SMOKER, net.minecraft.data.loot.BlockLoot::createNameableBlockEntityTable);
+-        this.add(net.minecraft.world.level.block.Blocks.BLAST_FURNACE, net.minecraft.data.loot.BlockLoot::createNameableBlockEntityTable);
+-        this.add(net.minecraft.world.level.block.Blocks.BARREL, net.minecraft.data.loot.BlockLoot::createNameableBlockEntityTable);
+-        this.add(net.minecraft.world.level.block.Blocks.CARTOGRAPHY_TABLE, net.minecraft.data.loot.BlockLoot::createNameableBlockEntityTable);
+-        this.add(net.minecraft.world.level.block.Blocks.FLETCHING_TABLE, net.minecraft.data.loot.BlockLoot::createNameableBlockEntityTable);
+-        this.add(net.minecraft.world.level.block.Blocks.GRINDSTONE, net.minecraft.data.loot.BlockLoot::createNameableBlockEntityTable);
+-        this.add(net.minecraft.world.level.block.Blocks.LECTERN, net.minecraft.data.loot.BlockLoot::createNameableBlockEntityTable);
+-        this.add(net.minecraft.world.level.block.Blocks.SMITHING_TABLE, net.minecraft.data.loot.BlockLoot::createNameableBlockEntityTable);
+-        this.add(net.minecraft.world.level.block.Blocks.STONECUTTER, net.minecraft.data.loot.BlockLoot::createNameableBlockEntityTable);
+-        this.add(net.minecraft.world.level.block.Blocks.BELL, net.minecraft.data.loot.BlockLoot::createSingleItemTable);
+-        this.add(net.minecraft.world.level.block.Blocks.LANTERN, net.minecraft.data.loot.BlockLoot::createSingleItemTable);
+-        this.add(net.minecraft.world.level.block.Blocks.SOUL_LANTERN, net.minecraft.data.loot.BlockLoot::createSingleItemTable);
+-        this.add(net.minecraft.world.level.block.Blocks.SHULKER_BOX, net.minecraft.data.loot.BlockLoot::createShulkerBoxDrop);
+-        this.add(net.minecraft.world.level.block.Blocks.BLACK_SHULKER_BOX, net.minecraft.data.loot.BlockLoot::createShulkerBoxDrop);
+-        this.add(net.minecraft.world.level.block.Blocks.BLUE_SHULKER_BOX, net.minecraft.data.loot.BlockLoot::createShulkerBoxDrop);
+-        this.add(net.minecraft.world.level.block.Blocks.BROWN_SHULKER_BOX, net.minecraft.data.loot.BlockLoot::createShulkerBoxDrop);
+-        this.add(net.minecraft.world.level.block.Blocks.CYAN_SHULKER_BOX, net.minecraft.data.loot.BlockLoot::createShulkerBoxDrop);
+-        this.add(net.minecraft.world.level.block.Blocks.GRAY_SHULKER_BOX, net.minecraft.data.loot.BlockLoot::createShulkerBoxDrop);
+-        this.add(net.minecraft.world.level.block.Blocks.GREEN_SHULKER_BOX, net.minecraft.data.loot.BlockLoot::createShulkerBoxDrop);
+-        this.add(net.minecraft.world.level.block.Blocks.LIGHT_BLUE_SHULKER_BOX, net.minecraft.data.loot.BlockLoot::createShulkerBoxDrop);
+-        this.add(net.minecraft.world.level.block.Blocks.LIGHT_GRAY_SHULKER_BOX, net.minecraft.data.loot.BlockLoot::createShulkerBoxDrop);
+-        this.add(net.minecraft.world.level.block.Blocks.LIME_SHULKER_BOX, net.minecraft.data.loot.BlockLoot::createShulkerBoxDrop);
+-        this.add(net.minecraft.world.level.block.Blocks.MAGENTA_SHULKER_BOX, net.minecraft.data.loot.BlockLoot::createShulkerBoxDrop);
+-        this.add(net.minecraft.world.level.block.Blocks.ORANGE_SHULKER_BOX, net.minecraft.data.loot.BlockLoot::createShulkerBoxDrop);
+-        this.add(net.minecraft.world.level.block.Blocks.PINK_SHULKER_BOX, net.minecraft.data.loot.BlockLoot::createShulkerBoxDrop);
+-        this.add(net.minecraft.world.level.block.Blocks.PURPLE_SHULKER_BOX, net.minecraft.data.loot.BlockLoot::createShulkerBoxDrop);
+-        this.add(net.minecraft.world.level.block.Blocks.RED_SHULKER_BOX, net.minecraft.data.loot.BlockLoot::createShulkerBoxDrop);
+-        this.add(net.minecraft.world.level.block.Blocks.WHITE_SHULKER_BOX, net.minecraft.data.loot.BlockLoot::createShulkerBoxDrop);
+-        this.add(net.minecraft.world.level.block.Blocks.YELLOW_SHULKER_BOX, net.minecraft.data.loot.BlockLoot::createShulkerBoxDrop);
+-        this.add(net.minecraft.world.level.block.Blocks.BLACK_BANNER, net.minecraft.data.loot.BlockLoot::createBannerDrop);
+-        this.add(net.minecraft.world.level.block.Blocks.BLUE_BANNER, net.minecraft.data.loot.BlockLoot::createBannerDrop);
+-        this.add(net.minecraft.world.level.block.Blocks.BROWN_BANNER, net.minecraft.data.loot.BlockLoot::createBannerDrop);
+-        this.add(net.minecraft.world.level.block.Blocks.CYAN_BANNER, net.minecraft.data.loot.BlockLoot::createBannerDrop);
+-        this.add(net.minecraft.world.level.block.Blocks.GRAY_BANNER, net.minecraft.data.loot.BlockLoot::createBannerDrop);
+-        this.add(net.minecraft.world.level.block.Blocks.GREEN_BANNER, net.minecraft.data.loot.BlockLoot::createBannerDrop);
+-        this.add(net.minecraft.world.level.block.Blocks.LIGHT_BLUE_BANNER, net.minecraft.data.loot.BlockLoot::createBannerDrop);
+-        this.add(net.minecraft.world.level.block.Blocks.LIGHT_GRAY_BANNER, net.minecraft.data.loot.BlockLoot::createBannerDrop);
+-        this.add(net.minecraft.world.level.block.Blocks.LIME_BANNER, net.minecraft.data.loot.BlockLoot::createBannerDrop);
+-        this.add(net.minecraft.world.level.block.Blocks.MAGENTA_BANNER, net.minecraft.data.loot.BlockLoot::createBannerDrop);
+-        this.add(net.minecraft.world.level.block.Blocks.ORANGE_BANNER, net.minecraft.data.loot.BlockLoot::createBannerDrop);
+-        this.add(net.minecraft.world.level.block.Blocks.PINK_BANNER, net.minecraft.data.loot.BlockLoot::createBannerDrop);
+-        this.add(net.minecraft.world.level.block.Blocks.PURPLE_BANNER, net.minecraft.data.loot.BlockLoot::createBannerDrop);
+-        this.add(net.minecraft.world.level.block.Blocks.RED_BANNER, net.minecraft.data.loot.BlockLoot::createBannerDrop);
+-        this.add(net.minecraft.world.level.block.Blocks.WHITE_BANNER, net.minecraft.data.loot.BlockLoot::createBannerDrop);
+-        this.add(net.minecraft.world.level.block.Blocks.YELLOW_BANNER, net.minecraft.data.loot.BlockLoot::createBannerDrop);
+-        this.add(net.minecraft.world.level.block.Blocks.PLAYER_HEAD, $$0 -> net.minecraft.world.level.storage.loot.LootTable.lootTable().withPool((net.minecraft.world.level.storage.loot.LootPool$Builder)net.minecraft.data.loot.BlockLoot.applyExplosionCondition((net.minecraft.world.level.ItemLike)$$0, (net.minecraft.world.level.storage.loot.predicates.ConditionUserBuilder)net.minecraft.world.level.storage.loot.LootPool.lootPool().setRolls((net.minecraft.world.level.storage.loot.providers.number.NumberProvider)net.minecraft.world.level.storage.loot.providers.number.ConstantValue.exactly((float)1.0f)).add((net.minecraft.world.level.storage.loot.entries.LootPoolEntryContainer$Builder)net.minecraft.world.level.storage.loot.entries.LootItem.lootTableItem((net.minecraft.world.level.ItemLike)$$0).apply((net.minecraft.world.level.storage.loot.functions.LootItemFunction$Builder)net.minecraft.world.level.storage.loot.functions.CopyNbtFunction.copyData((net.minecraft.world.level.storage.loot.providers.nbt.NbtProvider)net.minecraft.world.level.storage.loot.providers.nbt.ContextNbtProvider.BLOCK_ENTITY).copy("SkullOwner", "SkullOwner"))))));
+-        this.add(net.minecraft.world.level.block.Blocks.BEE_NEST, net.minecraft.data.loot.BlockLoot::createBeeNestDrop);
+-        this.add(net.minecraft.world.level.block.Blocks.BEEHIVE, net.minecraft.data.loot.BlockLoot::createBeeHiveDrop);
+-        this.add(net.minecraft.world.level.block.Blocks.BIRCH_LEAVES, $$0 -> net.minecraft.data.loot.BlockLoot.createLeavesDrops((net.minecraft.world.level.block.Block)$$0, (net.minecraft.world.level.block.Block)net.minecraft.world.level.block.Blocks.BIRCH_SAPLING, (float[])NORMAL_LEAVES_SAPLING_CHANCES));
+-        this.add(net.minecraft.world.level.block.Blocks.ACACIA_LEAVES, $$0 -> net.minecraft.data.loot.BlockLoot.createLeavesDrops((net.minecraft.world.level.block.Block)$$0, (net.minecraft.world.level.block.Block)net.minecraft.world.level.block.Blocks.ACACIA_SAPLING, (float[])NORMAL_LEAVES_SAPLING_CHANCES));
+-        this.add(net.minecraft.world.level.block.Blocks.JUNGLE_LEAVES, $$0 -> net.minecraft.data.loot.BlockLoot.createLeavesDrops((net.minecraft.world.level.block.Block)$$0, (net.minecraft.world.level.block.Block)net.minecraft.world.level.block.Blocks.JUNGLE_SAPLING, (float[])JUNGLE_LEAVES_SAPLING_CHANGES));
+-        this.add(net.minecraft.world.level.block.Blocks.SPRUCE_LEAVES, $$0 -> net.minecraft.data.loot.BlockLoot.createLeavesDrops((net.minecraft.world.level.block.Block)$$0, (net.minecraft.world.level.block.Block)net.minecraft.world.level.block.Blocks.SPRUCE_SAPLING, (float[])NORMAL_LEAVES_SAPLING_CHANCES));
+-        this.add(net.minecraft.world.level.block.Blocks.OAK_LEAVES, $$0 -> net.minecraft.data.loot.BlockLoot.createOakLeavesDrops((net.minecraft.world.level.block.Block)$$0, (net.minecraft.world.level.block.Block)net.minecraft.world.level.block.Blocks.OAK_SAPLING, (float[])NORMAL_LEAVES_SAPLING_CHANCES));
+-        this.add(net.minecraft.world.level.block.Blocks.DARK_OAK_LEAVES, $$0 -> net.minecraft.data.loot.BlockLoot.createOakLeavesDrops((net.minecraft.world.level.block.Block)$$0, (net.minecraft.world.level.block.Block)net.minecraft.world.level.block.Blocks.DARK_OAK_SAPLING, (float[])NORMAL_LEAVES_SAPLING_CHANCES));
+-        this.add(net.minecraft.world.level.block.Blocks.AZALEA_LEAVES, $$0 -> net.minecraft.data.loot.BlockLoot.createLeavesDrops((net.minecraft.world.level.block.Block)$$0, (net.minecraft.world.level.block.Block)net.minecraft.world.level.block.Blocks.AZALEA, (float[])NORMAL_LEAVES_SAPLING_CHANCES));
+-        this.add(net.minecraft.world.level.block.Blocks.FLOWERING_AZALEA_LEAVES, $$0 -> net.minecraft.data.loot.BlockLoot.createLeavesDrops((net.minecraft.world.level.block.Block)$$0, (net.minecraft.world.level.block.Block)net.minecraft.world.level.block.Blocks.FLOWERING_AZALEA, (float[])NORMAL_LEAVES_SAPLING_CHANCES));
+-        net.minecraft.world.level.storage.loot.predicates.LootItemBlockStatePropertyCondition$Builder $$1 = net.minecraft.world.level.storage.loot.predicates.LootItemBlockStatePropertyCondition.hasBlockStateProperties((net.minecraft.world.level.block.Block)net.minecraft.world.level.block.Blocks.BEETROOTS).setProperties(net.minecraft.advancements.critereon.StatePropertiesPredicate$Builder.properties().hasProperty((net.minecraft.world.level.block.state.properties.Property)net.minecraft.world.level.block.BeetrootBlock.AGE, 3));
+-        this.add(net.minecraft.world.level.block.Blocks.BEETROOTS, net.minecraft.data.loot.BlockLoot.createCropDrops((net.minecraft.world.level.block.Block)net.minecraft.world.level.block.Blocks.BEETROOTS, (net.minecraft.world.item.Item)net.minecraft.world.item.Items.BEETROOT, (net.minecraft.world.item.Item)net.minecraft.world.item.Items.BEETROOT_SEEDS, (net.minecraft.world.level.storage.loot.predicates.LootItemCondition$Builder)$$1));
+-        net.minecraft.world.level.storage.loot.predicates.LootItemBlockStatePropertyCondition$Builder $$2 = net.minecraft.world.level.storage.loot.predicates.LootItemBlockStatePropertyCondition.hasBlockStateProperties((net.minecraft.world.level.block.Block)net.minecraft.world.level.block.Blocks.WHEAT).setProperties(net.minecraft.advancements.critereon.StatePropertiesPredicate$Builder.properties().hasProperty((net.minecraft.world.level.block.state.properties.Property)net.minecraft.world.level.block.CropBlock.AGE, 7));
+-        this.add(net.minecraft.world.level.block.Blocks.WHEAT, net.minecraft.data.loot.BlockLoot.createCropDrops((net.minecraft.world.level.block.Block)net.minecraft.world.level.block.Blocks.WHEAT, (net.minecraft.world.item.Item)net.minecraft.world.item.Items.WHEAT, (net.minecraft.world.item.Item)net.minecraft.world.item.Items.WHEAT_SEEDS, (net.minecraft.world.level.storage.loot.predicates.LootItemCondition$Builder)$$2));
+-        net.minecraft.world.level.storage.loot.predicates.LootItemBlockStatePropertyCondition$Builder $$3 = net.minecraft.world.level.storage.loot.predicates.LootItemBlockStatePropertyCondition.hasBlockStateProperties((net.minecraft.world.level.block.Block)net.minecraft.world.level.block.Blocks.CARROTS).setProperties(net.minecraft.advancements.critereon.StatePropertiesPredicate$Builder.properties().hasProperty((net.minecraft.world.level.block.state.properties.Property)net.minecraft.world.level.block.CarrotBlock.AGE, 7));
+-        net.minecraft.world.level.storage.loot.predicates.LootItemBlockStatePropertyCondition$Builder $$4 = net.minecraft.world.level.storage.loot.predicates.LootItemBlockStatePropertyCondition.hasBlockStateProperties((net.minecraft.world.level.block.Block)net.minecraft.world.level.block.Blocks.MANGROVE_PROPAGULE).setProperties(net.minecraft.advancements.critereon.StatePropertiesPredicate$Builder.properties().hasProperty((net.minecraft.world.level.block.state.properties.Property)net.minecraft.world.level.block.MangrovePropaguleBlock.AGE, 4));
+-        this.add(net.minecraft.world.level.block.Blocks.MANGROVE_PROPAGULE, (net.minecraft.world.level.storage.loot.LootTable$Builder)net.minecraft.data.loot.BlockLoot.applyExplosionDecay((net.minecraft.world.level.ItemLike)net.minecraft.world.level.block.Blocks.MANGROVE_PROPAGULE, (net.minecraft.world.level.storage.loot.functions.FunctionUserBuilder)net.minecraft.world.level.storage.loot.LootTable.lootTable().withPool(net.minecraft.world.level.storage.loot.LootPool.lootPool().when((net.minecraft.world.level.storage.loot.predicates.LootItemCondition$Builder)$$4).add((net.minecraft.world.level.storage.loot.entries.LootPoolEntryContainer$Builder)net.minecraft.world.level.storage.loot.entries.LootItem.lootTableItem((net.minecraft.world.level.ItemLike)net.minecraft.world.item.Items.MANGROVE_PROPAGULE)))));
+-        this.add(net.minecraft.world.level.block.Blocks.CARROTS, (net.minecraft.world.level.storage.loot.LootTable$Builder)net.minecraft.data.loot.BlockLoot.applyExplosionDecay((net.minecraft.world.level.ItemLike)net.minecraft.world.level.block.Blocks.CARROTS, (net.minecraft.world.level.storage.loot.functions.FunctionUserBuilder)net.minecraft.world.level.storage.loot.LootTable.lootTable().withPool(net.minecraft.world.level.storage.loot.LootPool.lootPool().add((net.minecraft.world.level.storage.loot.entries.LootPoolEntryContainer$Builder)net.minecraft.world.level.storage.loot.entries.LootItem.lootTableItem((net.minecraft.world.level.ItemLike)net.minecraft.world.item.Items.CARROT))).withPool(net.minecraft.world.level.storage.loot.LootPool.lootPool().when((net.minecraft.world.level.storage.loot.predicates.LootItemCondition$Builder)$$3).add((net.minecraft.world.level.storage.loot.entries.LootPoolEntryContainer$Builder)net.minecraft.world.level.storage.loot.entries.LootItem.lootTableItem((net.minecraft.world.level.ItemLike)net.minecraft.world.item.Items.CARROT).apply((net.minecraft.world.level.storage.loot.functions.LootItemFunction$Builder)net.minecraft.world.level.storage.loot.functions.ApplyBonusCount.addBonusBinomialDistributionCount((net.minecraft.world.item.enchantment.Enchantment)net.minecraft.world.item.enchantment.Enchantments.BLOCK_FORTUNE, (float)0.5714286f, (int)3))))));
+-        net.minecraft.world.level.storage.loot.predicates.LootItemBlockStatePropertyCondition$Builder $$5 = net.minecraft.world.level.storage.loot.predicates.LootItemBlockStatePropertyCondition.hasBlockStateProperties((net.minecraft.world.level.block.Block)net.minecraft.world.level.block.Blocks.POTATOES).setProperties(net.minecraft.advancements.critereon.StatePropertiesPredicate$Builder.properties().hasProperty((net.minecraft.world.level.block.state.properties.Property)net.minecraft.world.level.block.PotatoBlock.AGE, 7));
+-        this.add(net.minecraft.world.level.block.Blocks.POTATOES, (net.minecraft.world.level.storage.loot.LootTable$Builder)net.minecraft.data.loot.BlockLoot.applyExplosionDecay((net.minecraft.world.level.ItemLike)net.minecraft.world.level.block.Blocks.POTATOES, (net.minecraft.world.level.storage.loot.functions.FunctionUserBuilder)net.minecraft.world.level.storage.loot.LootTable.lootTable().withPool(net.minecraft.world.level.storage.loot.LootPool.lootPool().add((net.minecraft.world.level.storage.loot.entries.LootPoolEntryContainer$Builder)net.minecraft.world.level.storage.loot.entries.LootItem.lootTableItem((net.minecraft.world.level.ItemLike)net.minecraft.world.item.Items.POTATO))).withPool(net.minecraft.world.level.storage.loot.LootPool.lootPool().when((net.minecraft.world.level.storage.loot.predicates.LootItemCondition$Builder)$$5).add((net.minecraft.world.level.storage.loot.entries.LootPoolEntryContainer$Builder)net.minecraft.world.level.storage.loot.entries.LootItem.lootTableItem((net.minecraft.world.level.ItemLike)net.minecraft.world.item.Items.POTATO).apply((net.minecraft.world.level.storage.loot.functions.LootItemFunction$Builder)net.minecraft.world.level.storage.loot.functions.ApplyBonusCount.addBonusBinomialDistributionCount((net.minecraft.world.item.enchantment.Enchantment)net.minecraft.world.item.enchantment.Enchantments.BLOCK_FORTUNE, (float)0.5714286f, (int)3)))).withPool(net.minecraft.world.level.storage.loot.LootPool.lootPool().when((net.minecraft.world.level.storage.loot.predicates.LootItemCondition$Builder)$$5).add(net.minecraft.world.level.storage.loot.entries.LootItem.lootTableItem((net.minecraft.world.level.ItemLike)net.minecraft.world.item.Items.POISONOUS_POTATO).when(net.minecraft.world.level.storage.loot.predicates.LootItemRandomChanceCondition.randomChance((float)0.02f))))));
+-        this.add(net.minecraft.world.level.block.Blocks.SWEET_BERRY_BUSH, $$0 -> (net.minecraft.world.level.storage.loot.LootTable$Builder)net.minecraft.data.loot.BlockLoot.applyExplosionDecay((net.minecraft.world.level.ItemLike)$$0, (net.minecraft.world.level.storage.loot.functions.FunctionUserBuilder)net.minecraft.world.level.storage.loot.LootTable.lootTable().withPool(net.minecraft.world.level.storage.loot.LootPool.lootPool().when((net.minecraft.world.level.storage.loot.predicates.LootItemCondition$Builder)net.minecraft.world.level.storage.loot.predicates.LootItemBlockStatePropertyCondition.hasBlockStateProperties((net.minecraft.world.level.block.Block)net.minecraft.world.level.block.Blocks.SWEET_BERRY_BUSH).setProperties(net.minecraft.advancements.critereon.StatePropertiesPredicate$Builder.properties().hasProperty((net.minecraft.world.level.block.state.properties.Property)net.minecraft.world.level.block.SweetBerryBushBlock.AGE, 3))).add((net.minecraft.world.level.storage.loot.entries.LootPoolEntryContainer$Builder)net.minecraft.world.level.storage.loot.entries.LootItem.lootTableItem((net.minecraft.world.level.ItemLike)net.minecraft.world.item.Items.SWEET_BERRIES)).apply((net.minecraft.world.level.storage.loot.functions.LootItemFunction$Builder)net.minecraft.world.level.storage.loot.functions.SetItemCountFunction.setCount((net.minecraft.world.level.storage.loot.providers.number.NumberProvider)net.minecraft.world.level.storage.loot.providers.number.UniformGenerator.between((float)2.0f, (float)3.0f))).apply((net.minecraft.world.level.storage.loot.functions.LootItemFunction$Builder)net.minecraft.world.level.storage.loot.functions.ApplyBonusCount.addUniformBonusCount((net.minecraft.world.item.enchantment.Enchantment)net.minecraft.world.item.enchantment.Enchantments.BLOCK_FORTUNE))).withPool(net.minecraft.world.level.storage.loot.LootPool.lootPool().when((net.minecraft.world.level.storage.loot.predicates.LootItemCondition$Builder)net.minecraft.world.level.storage.loot.predicates.LootItemBlockStatePropertyCondition.hasBlockStateProperties((net.minecraft.world.level.block.Block)net.minecraft.world.level.block.Blocks.SWEET_BERRY_BUSH).setProperties(net.minecraft.advancements.critereon.StatePropertiesPredicate$Builder.properties().hasProperty((net.minecraft.world.level.block.state.properties.Property)net.minecraft.world.level.block.SweetBerryBushBlock.AGE, 2))).add((net.minecraft.world.level.storage.loot.entries.LootPoolEntryContainer$Builder)net.minecraft.world.level.storage.loot.entries.LootItem.lootTableItem((net.minecraft.world.level.ItemLike)net.minecraft.world.item.Items.SWEET_BERRIES)).apply((net.minecraft.world.level.storage.loot.functions.LootItemFunction$Builder)net.minecraft.world.level.storage.loot.functions.SetItemCountFunction.setCount((net.minecraft.world.level.storage.loot.providers.number.NumberProvider)net.minecraft.world.level.storage.loot.providers.number.UniformGenerator.between((float)1.0f, (float)2.0f))).apply((net.minecraft.world.level.storage.loot.functions.LootItemFunction$Builder)net.minecraft.world.level.storage.loot.functions.ApplyBonusCount.addUniformBonusCount((net.minecraft.world.item.enchantment.Enchantment)net.minecraft.world.item.enchantment.Enchantments.BLOCK_FORTUNE)))));
+-        this.add(net.minecraft.world.level.block.Blocks.BROWN_MUSHROOM_BLOCK, $$0 -> net.minecraft.data.loot.BlockLoot.createMushroomBlockDrop((net.minecraft.world.level.block.Block)$$0, (net.minecraft.world.level.ItemLike)net.minecraft.world.level.block.Blocks.BROWN_MUSHROOM));
+-        this.add(net.minecraft.world.level.block.Blocks.RED_MUSHROOM_BLOCK, $$0 -> net.minecraft.data.loot.BlockLoot.createMushroomBlockDrop((net.minecraft.world.level.block.Block)$$0, (net.minecraft.world.level.ItemLike)net.minecraft.world.level.block.Blocks.RED_MUSHROOM));
+-        this.add(net.minecraft.world.level.block.Blocks.COAL_ORE, $$0 -> net.minecraft.data.loot.BlockLoot.createOreDrop((net.minecraft.world.level.block.Block)$$0, (net.minecraft.world.item.Item)net.minecraft.world.item.Items.COAL));
+-        this.add(net.minecraft.world.level.block.Blocks.DEEPSLATE_COAL_ORE, $$0 -> net.minecraft.data.loot.BlockLoot.createOreDrop((net.minecraft.world.level.block.Block)$$0, (net.minecraft.world.item.Item)net.minecraft.world.item.Items.COAL));
+-        this.add(net.minecraft.world.level.block.Blocks.EMERALD_ORE, $$0 -> net.minecraft.data.loot.BlockLoot.createOreDrop((net.minecraft.world.level.block.Block)$$0, (net.minecraft.world.item.Item)net.minecraft.world.item.Items.EMERALD));
+-        this.add(net.minecraft.world.level.block.Blocks.DEEPSLATE_EMERALD_ORE, $$0 -> net.minecraft.data.loot.BlockLoot.createOreDrop((net.minecraft.world.level.block.Block)$$0, (net.minecraft.world.item.Item)net.minecraft.world.item.Items.EMERALD));
+-        this.add(net.minecraft.world.level.block.Blocks.NETHER_QUARTZ_ORE, $$0 -> net.minecraft.data.loot.BlockLoot.createOreDrop((net.minecraft.world.level.block.Block)$$0, (net.minecraft.world.item.Item)net.minecraft.world.item.Items.QUARTZ));
+-        this.add(net.minecraft.world.level.block.Blocks.DIAMOND_ORE, $$0 -> net.minecraft.data.loot.BlockLoot.createOreDrop((net.minecraft.world.level.block.Block)$$0, (net.minecraft.world.item.Item)net.minecraft.world.item.Items.DIAMOND));
+-        this.add(net.minecraft.world.level.block.Blocks.DEEPSLATE_DIAMOND_ORE, $$0 -> net.minecraft.data.loot.BlockLoot.createOreDrop((net.minecraft.world.level.block.Block)$$0, (net.minecraft.world.item.Item)net.minecraft.world.item.Items.DIAMOND));
+-        this.add(net.minecraft.world.level.block.Blocks.COPPER_ORE, net.minecraft.data.loot.BlockLoot::createCopperOreDrops);
+-        this.add(net.minecraft.world.level.block.Blocks.DEEPSLATE_COPPER_ORE, net.minecraft.data.loot.BlockLoot::createCopperOreDrops);
+-        this.add(net.minecraft.world.level.block.Blocks.IRON_ORE, $$0 -> net.minecraft.data.loot.BlockLoot.createOreDrop((net.minecraft.world.level.block.Block)$$0, (net.minecraft.world.item.Item)net.minecraft.world.item.Items.RAW_IRON));
+-        this.add(net.minecraft.world.level.block.Blocks.DEEPSLATE_IRON_ORE, $$0 -> net.minecraft.data.loot.BlockLoot.createOreDrop((net.minecraft.world.level.block.Block)$$0, (net.minecraft.world.item.Item)net.minecraft.world.item.Items.RAW_IRON));
+-        this.add(net.minecraft.world.level.block.Blocks.GOLD_ORE, $$0 -> net.minecraft.data.loot.BlockLoot.createOreDrop((net.minecraft.world.level.block.Block)$$0, (net.minecraft.world.item.Item)net.minecraft.world.item.Items.RAW_GOLD));
+-        this.add(net.minecraft.world.level.block.Blocks.DEEPSLATE_GOLD_ORE, $$0 -> net.minecraft.data.loot.BlockLoot.createOreDrop((net.minecraft.world.level.block.Block)$$0, (net.minecraft.world.item.Item)net.minecraft.world.item.Items.RAW_GOLD));
+-        this.add(net.minecraft.world.level.block.Blocks.NETHER_GOLD_ORE, $$0 -> net.minecraft.data.loot.BlockLoot.createSilkTouchDispatchTable((net.minecraft.world.level.block.Block)$$0, (net.minecraft.world.level.storage.loot.entries.LootPoolEntryContainer$Builder)((net.minecraft.world.level.storage.loot.entries.LootPoolEntryContainer$Builder)net.minecraft.data.loot.BlockLoot.applyExplosionDecay((net.minecraft.world.level.ItemLike)$$0, (net.minecraft.world.level.storage.loot.functions.FunctionUserBuilder)net.minecraft.world.level.storage.loot.entries.LootItem.lootTableItem((net.minecraft.world.level.ItemLike)net.minecraft.world.item.Items.GOLD_NUGGET).apply((net.minecraft.world.level.storage.loot.functions.LootItemFunction$Builder)net.minecraft.world.level.storage.loot.functions.SetItemCountFunction.setCount((net.minecraft.world.level.storage.loot.providers.number.NumberProvider)net.minecraft.world.level.storage.loot.providers.number.UniformGenerator.between((float)2.0f, (float)6.0f))).apply((net.minecraft.world.level.storage.loot.functions.LootItemFunction$Builder)net.minecraft.world.level.storage.loot.functions.ApplyBonusCount.addOreBonusCount((net.minecraft.world.item.enchantment.Enchantment)net.minecraft.world.item.enchantment.Enchantments.BLOCK_FORTUNE))))));
+-        this.add(net.minecraft.world.level.block.Blocks.LAPIS_ORE, net.minecraft.data.loot.BlockLoot::createLapisOreDrops);
+-        this.add(net.minecraft.world.level.block.Blocks.DEEPSLATE_LAPIS_ORE, net.minecraft.data.loot.BlockLoot::createLapisOreDrops);
+-        this.add(net.minecraft.world.level.block.Blocks.COBWEB, $$0 -> net.minecraft.data.loot.BlockLoot.createSilkTouchOrShearsDispatchTable((net.minecraft.world.level.block.Block)$$0, (net.minecraft.world.level.storage.loot.entries.LootPoolEntryContainer$Builder)((net.minecraft.world.level.storage.loot.entries.LootPoolEntryContainer$Builder)net.minecraft.data.loot.BlockLoot.applyExplosionCondition((net.minecraft.world.level.ItemLike)$$0, (net.minecraft.world.level.storage.loot.predicates.ConditionUserBuilder)net.minecraft.world.level.storage.loot.entries.LootItem.lootTableItem((net.minecraft.world.level.ItemLike)net.minecraft.world.item.Items.STRING)))));
+-        this.add(net.minecraft.world.level.block.Blocks.DEAD_BUSH, $$0 -> net.minecraft.data.loot.BlockLoot.createShearsDispatchTable((net.minecraft.world.level.block.Block)$$0, (net.minecraft.world.level.storage.loot.entries.LootPoolEntryContainer$Builder)((net.minecraft.world.level.storage.loot.entries.LootPoolEntryContainer$Builder)net.minecraft.data.loot.BlockLoot.applyExplosionDecay((net.minecraft.world.level.ItemLike)$$0, (net.minecraft.world.level.storage.loot.functions.FunctionUserBuilder)net.minecraft.world.level.storage.loot.entries.LootItem.lootTableItem((net.minecraft.world.level.ItemLike)net.minecraft.world.item.Items.STICK).apply((net.minecraft.world.level.storage.loot.functions.LootItemFunction$Builder)net.minecraft.world.level.storage.loot.functions.SetItemCountFunction.setCount((net.minecraft.world.level.storage.loot.providers.number.NumberProvider)net.minecraft.world.level.storage.loot.providers.number.UniformGenerator.between((float)0.0f, (float)2.0f)))))));
+-        this.add(net.minecraft.world.level.block.Blocks.NETHER_SPROUTS, net.minecraft.data.loot.BlockLoot::createShearsOnlyDrop);
+-        this.add(net.minecraft.world.level.block.Blocks.SEAGRASS, net.minecraft.data.loot.BlockLoot::createShearsOnlyDrop);
+-        this.add(net.minecraft.world.level.block.Blocks.VINE, net.minecraft.data.loot.BlockLoot::createShearsOnlyDrop);
+-        this.add(net.minecraft.world.level.block.Blocks.GLOW_LICHEN, $$0 -> net.minecraft.data.loot.BlockLoot.createMultifaceBlockDrops((net.minecraft.world.level.block.Block)$$0, (net.minecraft.world.level.storage.loot.predicates.LootItemCondition$Builder)HAS_SHEARS));
+-        this.add(net.minecraft.world.level.block.Blocks.HANGING_ROOTS, net.minecraft.data.loot.BlockLoot::createShearsOnlyDrop);
+-        this.add(net.minecraft.world.level.block.Blocks.SMALL_DRIPLEAF, net.minecraft.data.loot.BlockLoot::createShearsOnlyDrop);
+-        this.add(net.minecraft.world.level.block.Blocks.MANGROVE_LEAVES, net.minecraft.data.loot.BlockLoot::createMangroveLeavesDrops);
+-        this.add(net.minecraft.world.level.block.Blocks.TALL_SEAGRASS, net.minecraft.data.loot.BlockLoot.createDoublePlantShearsDrop((net.minecraft.world.level.block.Block)net.minecraft.world.level.block.Blocks.SEAGRASS));
+-        this.add(net.minecraft.world.level.block.Blocks.LARGE_FERN, $$0 -> net.minecraft.data.loot.BlockLoot.createDoublePlantWithSeedDrops((net.minecraft.world.level.block.Block)$$0, (net.minecraft.world.level.block.Block)net.minecraft.world.level.block.Blocks.FERN));
+-        this.add(net.minecraft.world.level.block.Blocks.TALL_GRASS, $$0 -> net.minecraft.data.loot.BlockLoot.createDoublePlantWithSeedDrops((net.minecraft.world.level.block.Block)$$0, (net.minecraft.world.level.block.Block)net.minecraft.world.level.block.Blocks.GRASS));
+-        this.add(net.minecraft.world.level.block.Blocks.MELON_STEM, $$0 -> net.minecraft.data.loot.BlockLoot.createStemDrops((net.minecraft.world.level.block.Block)$$0, (net.minecraft.world.item.Item)net.minecraft.world.item.Items.MELON_SEEDS));
+-        this.add(net.minecraft.world.level.block.Blocks.ATTACHED_MELON_STEM, $$0 -> net.minecraft.data.loot.BlockLoot.createAttachedStemDrops((net.minecraft.world.level.block.Block)$$0, (net.minecraft.world.item.Item)net.minecraft.world.item.Items.MELON_SEEDS));
+-        this.add(net.minecraft.world.level.block.Blocks.PUMPKIN_STEM, $$0 -> net.minecraft.data.loot.BlockLoot.createStemDrops((net.minecraft.world.level.block.Block)$$0, (net.minecraft.world.item.Item)net.minecraft.world.item.Items.PUMPKIN_SEEDS));
+-        this.add(net.minecraft.world.level.block.Blocks.ATTACHED_PUMPKIN_STEM, $$0 -> net.minecraft.data.loot.BlockLoot.createAttachedStemDrops((net.minecraft.world.level.block.Block)$$0, (net.minecraft.world.item.Item)net.minecraft.world.item.Items.PUMPKIN_SEEDS));
+-        this.add(net.minecraft.world.level.block.Blocks.CHORUS_FLOWER, $$0 -> net.minecraft.world.level.storage.loot.LootTable.lootTable().withPool(net.minecraft.world.level.storage.loot.LootPool.lootPool().setRolls((net.minecraft.world.level.storage.loot.providers.number.NumberProvider)net.minecraft.world.level.storage.loot.providers.number.ConstantValue.exactly((float)1.0f)).add(((net.minecraft.world.level.storage.loot.entries.LootPoolSingletonContainer$Builder)net.minecraft.data.loot.BlockLoot.applyExplosionCondition((net.minecraft.world.level.ItemLike)$$0, (net.minecraft.world.level.storage.loot.predicates.ConditionUserBuilder)net.minecraft.world.level.storage.loot.entries.LootItem.lootTableItem((net.minecraft.world.level.ItemLike)$$0))).when(net.minecraft.world.level.storage.loot.predicates.LootItemEntityPropertyCondition.entityPresent((net.minecraft.world.level.storage.loot.LootContext$EntityTarget)net.minecraft.world.level.storage.loot.LootContext$EntityTarget.THIS)))));
+-        this.add(net.minecraft.world.level.block.Blocks.FERN, net.minecraft.data.loot.BlockLoot::createGrassDrops);
+-        this.add(net.minecraft.world.level.block.Blocks.GRASS, net.minecraft.data.loot.BlockLoot::createGrassDrops);
+-        this.add(net.minecraft.world.level.block.Blocks.GLOWSTONE, $$0 -> net.minecraft.data.loot.BlockLoot.createSilkTouchDispatchTable((net.minecraft.world.level.block.Block)$$0, (net.minecraft.world.level.storage.loot.entries.LootPoolEntryContainer$Builder)((net.minecraft.world.level.storage.loot.entries.LootPoolEntryContainer$Builder)net.minecraft.data.loot.BlockLoot.applyExplosionDecay((net.minecraft.world.level.ItemLike)$$0, (net.minecraft.world.level.storage.loot.functions.FunctionUserBuilder)net.minecraft.world.level.storage.loot.entries.LootItem.lootTableItem((net.minecraft.world.level.ItemLike)net.minecraft.world.item.Items.GLOWSTONE_DUST).apply((net.minecraft.world.level.storage.loot.functions.LootItemFunction$Builder)net.minecraft.world.level.storage.loot.functions.SetItemCountFunction.setCount((net.minecraft.world.level.storage.loot.providers.number.NumberProvider)net.minecraft.world.level.storage.loot.providers.number.UniformGenerator.between((float)2.0f, (float)4.0f))).apply((net.minecraft.world.level.storage.loot.functions.LootItemFunction$Builder)net.minecraft.world.level.storage.loot.functions.ApplyBonusCount.addUniformBonusCount((net.minecraft.world.item.enchantment.Enchantment)net.minecraft.world.item.enchantment.Enchantments.BLOCK_FORTUNE)).apply((net.minecraft.world.level.storage.loot.functions.LootItemFunction$Builder)net.minecraft.world.level.storage.loot.functions.LimitCount.limitCount((net.minecraft.world.level.storage.loot.IntRange)net.minecraft.world.level.storage.loot.IntRange.range((int)1, (int)4)))))));
+-        this.add(net.minecraft.world.level.block.Blocks.MELON, $$0 -> net.minecraft.data.loot.BlockLoot.createSilkTouchDispatchTable((net.minecraft.world.level.block.Block)$$0, (net.minecraft.world.level.storage.loot.entries.LootPoolEntryContainer$Builder)((net.minecraft.world.level.storage.loot.entries.LootPoolEntryContainer$Builder)net.minecraft.data.loot.BlockLoot.applyExplosionDecay((net.minecraft.world.level.ItemLike)$$0, (net.minecraft.world.level.storage.loot.functions.FunctionUserBuilder)net.minecraft.world.level.storage.loot.entries.LootItem.lootTableItem((net.minecraft.world.level.ItemLike)net.minecraft.world.item.Items.MELON_SLICE).apply((net.minecraft.world.level.storage.loot.functions.LootItemFunction$Builder)net.minecraft.world.level.storage.loot.functions.SetItemCountFunction.setCount((net.minecraft.world.level.storage.loot.providers.number.NumberProvider)net.minecraft.world.level.storage.loot.providers.number.UniformGenerator.between((float)3.0f, (float)7.0f))).apply((net.minecraft.world.level.storage.loot.functions.LootItemFunction$Builder)net.minecraft.world.level.storage.loot.functions.ApplyBonusCount.addUniformBonusCount((net.minecraft.world.item.enchantment.Enchantment)net.minecraft.world.item.enchantment.Enchantments.BLOCK_FORTUNE)).apply((net.minecraft.world.level.storage.loot.functions.LootItemFunction$Builder)net.minecraft.world.level.storage.loot.functions.LimitCount.limitCount((net.minecraft.world.level.storage.loot.IntRange)net.minecraft.world.level.storage.loot.IntRange.upperBound((int)9)))))));
+-        this.add(net.minecraft.world.level.block.Blocks.REDSTONE_ORE, net.minecraft.data.loot.BlockLoot::createRedstoneOreDrops);
+-        this.add(net.minecraft.world.level.block.Blocks.DEEPSLATE_REDSTONE_ORE, net.minecraft.data.loot.BlockLoot::createRedstoneOreDrops);
+-        this.add(net.minecraft.world.level.block.Blocks.SEA_LANTERN, $$0 -> net.minecraft.data.loot.BlockLoot.createSilkTouchDispatchTable((net.minecraft.world.level.block.Block)$$0, (net.minecraft.world.level.storage.loot.entries.LootPoolEntryContainer$Builder)((net.minecraft.world.level.storage.loot.entries.LootPoolEntryContainer$Builder)net.minecraft.data.loot.BlockLoot.applyExplosionDecay((net.minecraft.world.level.ItemLike)$$0, (net.minecraft.world.level.storage.loot.functions.FunctionUserBuilder)net.minecraft.world.level.storage.loot.entries.LootItem.lootTableItem((net.minecraft.world.level.ItemLike)net.minecraft.world.item.Items.PRISMARINE_CRYSTALS).apply((net.minecraft.world.level.storage.loot.functions.LootItemFunction$Builder)net.minecraft.world.level.storage.loot.functions.SetItemCountFunction.setCount((net.minecraft.world.level.storage.loot.providers.number.NumberProvider)net.minecraft.world.level.storage.loot.providers.number.UniformGenerator.between((float)2.0f, (float)3.0f))).apply((net.minecraft.world.level.storage.loot.functions.LootItemFunction$Builder)net.minecraft.world.level.storage.loot.functions.ApplyBonusCount.addUniformBonusCount((net.minecraft.world.item.enchantment.Enchantment)net.minecraft.world.item.enchantment.Enchantments.BLOCK_FORTUNE)).apply((net.minecraft.world.level.storage.loot.functions.LootItemFunction$Builder)net.minecraft.world.level.storage.loot.functions.LimitCount.limitCount((net.minecraft.world.level.storage.loot.IntRange)net.minecraft.world.level.storage.loot.IntRange.range((int)1, (int)5)))))));
+-        this.add(net.minecraft.world.level.block.Blocks.NETHER_WART, $$0 -> net.minecraft.world.level.storage.loot.LootTable.lootTable().withPool((net.minecraft.world.level.storage.loot.LootPool$Builder)net.minecraft.data.loot.BlockLoot.applyExplosionDecay((net.minecraft.world.level.ItemLike)$$0, (net.minecraft.world.level.storage.loot.functions.FunctionUserBuilder)net.minecraft.world.level.storage.loot.LootPool.lootPool().setRolls((net.minecraft.world.level.storage.loot.providers.number.NumberProvider)net.minecraft.world.level.storage.loot.providers.number.ConstantValue.exactly((float)1.0f)).add((net.minecraft.world.level.storage.loot.entries.LootPoolEntryContainer$Builder)net.minecraft.world.level.storage.loot.entries.LootItem.lootTableItem((net.minecraft.world.level.ItemLike)net.minecraft.world.item.Items.NETHER_WART).apply((net.minecraft.world.level.storage.loot.functions.LootItemFunction$Builder)net.minecraft.world.level.storage.loot.functions.SetItemCountFunction.setCount((net.minecraft.world.level.storage.loot.providers.number.NumberProvider)net.minecraft.world.level.storage.loot.providers.number.UniformGenerator.between((float)2.0f, (float)4.0f)).when((net.minecraft.world.level.storage.loot.predicates.LootItemCondition$Builder)net.minecraft.world.level.storage.loot.predicates.LootItemBlockStatePropertyCondition.hasBlockStateProperties((net.minecraft.world.level.block.Block)$$0).setProperties(net.minecraft.advancements.critereon.StatePropertiesPredicate$Builder.properties().hasProperty((net.minecraft.world.level.block.state.properties.Property)net.minecraft.world.level.block.NetherWartBlock.AGE, 3)))).apply((net.minecraft.world.level.storage.loot.functions.LootItemFunction$Builder)net.minecraft.world.level.storage.loot.functions.ApplyBonusCount.addUniformBonusCount((net.minecraft.world.item.enchantment.Enchantment)net.minecraft.world.item.enchantment.Enchantments.BLOCK_FORTUNE).when((net.minecraft.world.level.storage.loot.predicates.LootItemCondition$Builder)net.minecraft.world.level.storage.loot.predicates.LootItemBlockStatePropertyCondition.hasBlockStateProperties((net.minecraft.world.level.block.Block)$$0).setProperties(net.minecraft.advancements.critereon.StatePropertiesPredicate$Builder.properties().hasProperty((net.minecraft.world.level.block.state.properties.Property)net.minecraft.world.level.block.NetherWartBlock.AGE, 3))))))));
+-        this.add(net.minecraft.world.level.block.Blocks.SNOW, $$0 -> net.minecraft.world.level.storage.loot.LootTable.lootTable().withPool(net.minecraft.world.level.storage.loot.LootPool.lootPool().when(net.minecraft.world.level.storage.loot.predicates.LootItemEntityPropertyCondition.entityPresent((net.minecraft.world.level.storage.loot.LootContext$EntityTarget)net.minecraft.world.level.storage.loot.LootContext$EntityTarget.THIS)).add((net.minecraft.world.level.storage.loot.entries.LootPoolEntryContainer$Builder)net.minecraft.world.level.storage.loot.entries.AlternativesEntry.alternatives((net.minecraft.world.level.storage.loot.entries.LootPoolEntryContainer$Builder[])new net.minecraft.world.level.storage.loot.entries.LootPoolEntryContainer$Builder[]{net.minecraft.world.level.storage.loot.entries.AlternativesEntry.alternatives((java.util.Collection)net.minecraft.world.level.block.SnowLayerBlock.LAYERS.getPossibleValues(), $$1 -> ((net.minecraft.world.level.storage.loot.entries.LootPoolSingletonContainer$Builder)net.minecraft.world.level.storage.loot.entries.LootItem.lootTableItem((net.minecraft.world.level.ItemLike)net.minecraft.world.item.Items.SNOWBALL).when((net.minecraft.world.level.storage.loot.predicates.LootItemCondition$Builder)net.minecraft.world.level.storage.loot.predicates.LootItemBlockStatePropertyCondition.hasBlockStateProperties((net.minecraft.world.level.block.Block)$$0).setProperties(net.minecraft.advancements.critereon.StatePropertiesPredicate$Builder.properties().hasProperty((net.minecraft.world.level.block.state.properties.Property)net.minecraft.world.level.block.SnowLayerBlock.LAYERS, $$1.intValue())))).apply((net.minecraft.world.level.storage.loot.functions.LootItemFunction$Builder)net.minecraft.world.level.storage.loot.functions.SetItemCountFunction.setCount((net.minecraft.world.level.storage.loot.providers.number.NumberProvider)net.minecraft.world.level.storage.loot.providers.number.ConstantValue.exactly((float)$$1.intValue())))).when(HAS_NO_SILK_TOUCH), net.minecraft.world.level.storage.loot.entries.AlternativesEntry.alternatives((java.util.Collection)net.minecraft.world.level.block.SnowLayerBlock.LAYERS.getPossibleValues(), $$1 -> $$1 == 8 ? net.minecraft.world.level.storage.loot.entries.LootItem.lootTableItem((net.minecraft.world.level.ItemLike)net.minecraft.world.level.block.Blocks.SNOW_BLOCK) : net.minecraft.world.level.storage.loot.entries.LootItem.lootTableItem((net.minecraft.world.level.ItemLike)net.minecraft.world.level.block.Blocks.SNOW).apply((net.minecraft.world.level.storage.loot.functions.LootItemFunction$Builder)net.minecraft.world.level.storage.loot.functions.SetItemCountFunction.setCount((net.minecraft.world.level.storage.loot.providers.number.NumberProvider)net.minecraft.world.level.storage.loot.providers.number.ConstantValue.exactly((float)$$1.intValue()))).when((net.minecraft.world.level.storage.loot.predicates.LootItemCondition$Builder)net.minecraft.world.level.storage.loot.predicates.LootItemBlockStatePropertyCondition.hasBlockStateProperties((net.minecraft.world.level.block.Block)$$0).setProperties(net.minecraft.advancements.critereon.StatePropertiesPredicate$Builder.properties().hasProperty((net.minecraft.world.level.block.state.properties.Property)net.minecraft.world.level.block.SnowLayerBlock.LAYERS, $$1.intValue()))))}))));
+-        this.add(net.minecraft.world.level.block.Blocks.GRAVEL, $$0 -> net.minecraft.data.loot.BlockLoot.createSilkTouchDispatchTable((net.minecraft.world.level.block.Block)$$0, (net.minecraft.world.level.storage.loot.entries.LootPoolEntryContainer$Builder)((net.minecraft.world.level.storage.loot.entries.LootPoolEntryContainer$Builder)net.minecraft.data.loot.BlockLoot.applyExplosionCondition((net.minecraft.world.level.ItemLike)$$0, (net.minecraft.world.level.storage.loot.predicates.ConditionUserBuilder)((net.minecraft.world.level.storage.loot.entries.LootPoolSingletonContainer$Builder)net.minecraft.world.level.storage.loot.entries.LootItem.lootTableItem((net.minecraft.world.level.ItemLike)net.minecraft.world.item.Items.FLINT).when(net.minecraft.world.level.storage.loot.predicates.BonusLevelTableCondition.bonusLevelFlatChance((net.minecraft.world.item.enchantment.Enchantment)net.minecraft.world.item.enchantment.Enchantments.BLOCK_FORTUNE, (float[])new float[]{0.1f, 0.14285715f, 0.25f, 1.0f}))).otherwise((net.minecraft.world.level.storage.loot.entries.LootPoolEntryContainer$Builder)net.minecraft.world.level.storage.loot.entries.LootItem.lootTableItem((net.minecraft.world.level.ItemLike)$$0))))));
+-        this.add(net.minecraft.world.level.block.Blocks.CAMPFIRE, $$0 -> net.minecraft.data.loot.BlockLoot.createSilkTouchDispatchTable((net.minecraft.world.level.block.Block)$$0, (net.minecraft.world.level.storage.loot.entries.LootPoolEntryContainer$Builder)((net.minecraft.world.level.storage.loot.entries.LootPoolEntryContainer$Builder)net.minecraft.data.loot.BlockLoot.applyExplosionCondition((net.minecraft.world.level.ItemLike)$$0, (net.minecraft.world.level.storage.loot.predicates.ConditionUserBuilder)net.minecraft.world.level.storage.loot.entries.LootItem.lootTableItem((net.minecraft.world.level.ItemLike)net.minecraft.world.item.Items.CHARCOAL).apply((net.minecraft.world.level.storage.loot.functions.LootItemFunction$Builder)net.minecraft.world.level.storage.loot.functions.SetItemCountFunction.setCount((net.minecraft.world.level.storage.loot.providers.number.NumberProvider)net.minecraft.world.level.storage.loot.providers.number.ConstantValue.exactly((float)2.0f)))))));
+-        this.add(net.minecraft.world.level.block.Blocks.GILDED_BLACKSTONE, $$0 -> net.minecraft.data.loot.BlockLoot.createSilkTouchDispatchTable((net.minecraft.world.level.block.Block)$$0, (net.minecraft.world.level.storage.loot.entries.LootPoolEntryContainer$Builder)((net.minecraft.world.level.storage.loot.entries.LootPoolEntryContainer$Builder)net.minecraft.data.loot.BlockLoot.applyExplosionCondition((net.minecraft.world.level.ItemLike)$$0, (net.minecraft.world.level.storage.loot.predicates.ConditionUserBuilder)((net.minecraft.world.level.storage.loot.entries.LootPoolSingletonContainer$Builder)net.minecraft.world.level.storage.loot.entries.LootItem.lootTableItem((net.minecraft.world.level.ItemLike)net.minecraft.world.item.Items.GOLD_NUGGET).apply((net.minecraft.world.level.storage.loot.functions.LootItemFunction$Builder)net.minecraft.world.level.storage.loot.functions.SetItemCountFunction.setCount((net.minecraft.world.level.storage.loot.providers.number.NumberProvider)net.minecraft.world.level.storage.loot.providers.number.UniformGenerator.between((float)2.0f, (float)5.0f))).when(net.minecraft.world.level.storage.loot.predicates.BonusLevelTableCondition.bonusLevelFlatChance((net.minecraft.world.item.enchantment.Enchantment)net.minecraft.world.item.enchantment.Enchantments.BLOCK_FORTUNE, (float[])new float[]{0.1f, 0.14285715f, 0.25f, 1.0f}))).otherwise((net.minecraft.world.level.storage.loot.entries.LootPoolEntryContainer$Builder)net.minecraft.world.level.storage.loot.entries.LootItem.lootTableItem((net.minecraft.world.level.ItemLike)$$0))))));
+-        this.add(net.minecraft.world.level.block.Blocks.SOUL_CAMPFIRE, $$0 -> net.minecraft.data.loot.BlockLoot.createSilkTouchDispatchTable((net.minecraft.world.level.block.Block)$$0, (net.minecraft.world.level.storage.loot.entries.LootPoolEntryContainer$Builder)((net.minecraft.world.level.storage.loot.entries.LootPoolEntryContainer$Builder)net.minecraft.data.loot.BlockLoot.applyExplosionCondition((net.minecraft.world.level.ItemLike)$$0, (net.minecraft.world.level.storage.loot.predicates.ConditionUserBuilder)net.minecraft.world.level.storage.loot.entries.LootItem.lootTableItem((net.minecraft.world.level.ItemLike)net.minecraft.world.item.Items.SOUL_SOIL).apply((net.minecraft.world.level.storage.loot.functions.LootItemFunction$Builder)net.minecraft.world.level.storage.loot.functions.SetItemCountFunction.setCount((net.minecraft.world.level.storage.loot.providers.number.NumberProvider)net.minecraft.world.level.storage.loot.providers.number.ConstantValue.exactly((float)1.0f)))))));
+-        this.add(net.minecraft.world.level.block.Blocks.AMETHYST_CLUSTER, $$0 -> net.minecraft.data.loot.BlockLoot.createSilkTouchDispatchTable((net.minecraft.world.level.block.Block)$$0, (net.minecraft.world.level.storage.loot.entries.LootPoolEntryContainer$Builder)((net.minecraft.world.level.storage.loot.entries.LootPoolSingletonContainer$Builder)net.minecraft.world.level.storage.loot.entries.LootItem.lootTableItem((net.minecraft.world.level.ItemLike)net.minecraft.world.item.Items.AMETHYST_SHARD).apply((net.minecraft.world.level.storage.loot.functions.LootItemFunction$Builder)net.minecraft.world.level.storage.loot.functions.SetItemCountFunction.setCount((net.minecraft.world.level.storage.loot.providers.number.NumberProvider)net.minecraft.world.level.storage.loot.providers.number.ConstantValue.exactly((float)4.0f))).apply((net.minecraft.world.level.storage.loot.functions.LootItemFunction$Builder)net.minecraft.world.level.storage.loot.functions.ApplyBonusCount.addOreBonusCount((net.minecraft.world.item.enchantment.Enchantment)net.minecraft.world.item.enchantment.Enchantments.BLOCK_FORTUNE)).when(net.minecraft.world.level.storage.loot.predicates.MatchTool.toolMatches((net.minecraft.advancements.critereon.ItemPredicate$Builder)net.minecraft.advancements.critereon.ItemPredicate$Builder.item().of(net.minecraft.tags.ItemTags.CLUSTER_MAX_HARVESTABLES)))).otherwise((net.minecraft.world.level.storage.loot.entries.LootPoolEntryContainer$Builder)net.minecraft.data.loot.BlockLoot.applyExplosionDecay((net.minecraft.world.level.ItemLike)$$0, (net.minecraft.world.level.storage.loot.functions.FunctionUserBuilder)net.minecraft.world.level.storage.loot.entries.LootItem.lootTableItem((net.minecraft.world.level.ItemLike)net.minecraft.world.item.Items.AMETHYST_SHARD).apply((net.minecraft.world.level.storage.loot.functions.LootItemFunction$Builder)net.minecraft.world.level.storage.loot.functions.SetItemCountFunction.setCount((net.minecraft.world.level.storage.loot.providers.number.NumberProvider)net.minecraft.world.level.storage.loot.providers.number.ConstantValue.exactly((float)2.0f)))))));
+-        this.dropWhenSilkTouch(net.minecraft.world.level.block.Blocks.SMALL_AMETHYST_BUD);
+-        this.dropWhenSilkTouch(net.minecraft.world.level.block.Blocks.MEDIUM_AMETHYST_BUD);
+-        this.dropWhenSilkTouch(net.minecraft.world.level.block.Blocks.LARGE_AMETHYST_BUD);
+-        this.dropWhenSilkTouch(net.minecraft.world.level.block.Blocks.GLASS);
+-        this.dropWhenSilkTouch(net.minecraft.world.level.block.Blocks.WHITE_STAINED_GLASS);
+-        this.dropWhenSilkTouch(net.minecraft.world.level.block.Blocks.ORANGE_STAINED_GLASS);
+-        this.dropWhenSilkTouch(net.minecraft.world.level.block.Blocks.MAGENTA_STAINED_GLASS);
+-        this.dropWhenSilkTouch(net.minecraft.world.level.block.Blocks.LIGHT_BLUE_STAINED_GLASS);
+-        this.dropWhenSilkTouch(net.minecraft.world.level.block.Blocks.YELLOW_STAINED_GLASS);
+-        this.dropWhenSilkTouch(net.minecraft.world.level.block.Blocks.LIME_STAINED_GLASS);
+-        this.dropWhenSilkTouch(net.minecraft.world.level.block.Blocks.PINK_STAINED_GLASS);
+-        this.dropWhenSilkTouch(net.minecraft.world.level.block.Blocks.GRAY_STAINED_GLASS);
+-        this.dropWhenSilkTouch(net.minecraft.world.level.block.Blocks.LIGHT_GRAY_STAINED_GLASS);
+-        this.dropWhenSilkTouch(net.minecraft.world.level.block.Blocks.CYAN_STAINED_GLASS);
+-        this.dropWhenSilkTouch(net.minecraft.world.level.block.Blocks.PURPLE_STAINED_GLASS);
+-        this.dropWhenSilkTouch(net.minecraft.world.level.block.Blocks.BLUE_STAINED_GLASS);
+-        this.dropWhenSilkTouch(net.minecraft.world.level.block.Blocks.BROWN_STAINED_GLASS);
+-        this.dropWhenSilkTouch(net.minecraft.world.level.block.Blocks.GREEN_STAINED_GLASS);
+-        this.dropWhenSilkTouch(net.minecraft.world.level.block.Blocks.RED_STAINED_GLASS);
+-        this.dropWhenSilkTouch(net.minecraft.world.level.block.Blocks.BLACK_STAINED_GLASS);
+-        this.dropWhenSilkTouch(net.minecraft.world.level.block.Blocks.GLASS_PANE);
+-        this.dropWhenSilkTouch(net.minecraft.world.level.block.Blocks.WHITE_STAINED_GLASS_PANE);
+-        this.dropWhenSilkTouch(net.minecraft.world.level.block.Blocks.ORANGE_STAINED_GLASS_PANE);
+-        this.dropWhenSilkTouch(net.minecraft.world.level.block.Blocks.MAGENTA_STAINED_GLASS_PANE);
+-        this.dropWhenSilkTouch(net.minecraft.world.level.block.Blocks.LIGHT_BLUE_STAINED_GLASS_PANE);
+-        this.dropWhenSilkTouch(net.minecraft.world.level.block.Blocks.YELLOW_STAINED_GLASS_PANE);
+-        this.dropWhenSilkTouch(net.minecraft.world.level.block.Blocks.LIME_STAINED_GLASS_PANE);
+-        this.dropWhenSilkTouch(net.minecraft.world.level.block.Blocks.PINK_STAINED_GLASS_PANE);
+-        this.dropWhenSilkTouch(net.minecraft.world.level.block.Blocks.GRAY_STAINED_GLASS_PANE);
+-        this.dropWhenSilkTouch(net.minecraft.world.level.block.Blocks.LIGHT_GRAY_STAINED_GLASS_PANE);
+-        this.dropWhenSilkTouch(net.minecraft.world.level.block.Blocks.CYAN_STAINED_GLASS_PANE);
+-        this.dropWhenSilkTouch(net.minecraft.world.level.block.Blocks.PURPLE_STAINED_GLASS_PANE);
+-        this.dropWhenSilkTouch(net.minecraft.world.level.block.Blocks.BLUE_STAINED_GLASS_PANE);
+-        this.dropWhenSilkTouch(net.minecraft.world.level.block.Blocks.BROWN_STAINED_GLASS_PANE);
+-        this.dropWhenSilkTouch(net.minecraft.world.level.block.Blocks.GREEN_STAINED_GLASS_PANE);
+-        this.dropWhenSilkTouch(net.minecraft.world.level.block.Blocks.RED_STAINED_GLASS_PANE);
+-        this.dropWhenSilkTouch(net.minecraft.world.level.block.Blocks.BLACK_STAINED_GLASS_PANE);
+-        this.dropWhenSilkTouch(net.minecraft.world.level.block.Blocks.ICE);
+-        this.dropWhenSilkTouch(net.minecraft.world.level.block.Blocks.PACKED_ICE);
+-        this.dropWhenSilkTouch(net.minecraft.world.level.block.Blocks.BLUE_ICE);
+-        this.dropWhenSilkTouch(net.minecraft.world.level.block.Blocks.TURTLE_EGG);
+-        this.dropWhenSilkTouch(net.minecraft.world.level.block.Blocks.MUSHROOM_STEM);
+-        this.dropWhenSilkTouch(net.minecraft.world.level.block.Blocks.DEAD_TUBE_CORAL);
+-        this.dropWhenSilkTouch(net.minecraft.world.level.block.Blocks.DEAD_BRAIN_CORAL);
+-        this.dropWhenSilkTouch(net.minecraft.world.level.block.Blocks.DEAD_BUBBLE_CORAL);
+-        this.dropWhenSilkTouch(net.minecraft.world.level.block.Blocks.DEAD_FIRE_CORAL);
+-        this.dropWhenSilkTouch(net.minecraft.world.level.block.Blocks.DEAD_HORN_CORAL);
+-        this.dropWhenSilkTouch(net.minecraft.world.level.block.Blocks.TUBE_CORAL);
+-        this.dropWhenSilkTouch(net.minecraft.world.level.block.Blocks.BRAIN_CORAL);
+-        this.dropWhenSilkTouch(net.minecraft.world.level.block.Blocks.BUBBLE_CORAL);
+-        this.dropWhenSilkTouch(net.minecraft.world.level.block.Blocks.FIRE_CORAL);
+-        this.dropWhenSilkTouch(net.minecraft.world.level.block.Blocks.HORN_CORAL);
+-        this.dropWhenSilkTouch(net.minecraft.world.level.block.Blocks.DEAD_TUBE_CORAL_FAN);
+-        this.dropWhenSilkTouch(net.minecraft.world.level.block.Blocks.DEAD_BRAIN_CORAL_FAN);
+-        this.dropWhenSilkTouch(net.minecraft.world.level.block.Blocks.DEAD_BUBBLE_CORAL_FAN);
+-        this.dropWhenSilkTouch(net.minecraft.world.level.block.Blocks.DEAD_FIRE_CORAL_FAN);
+-        this.dropWhenSilkTouch(net.minecraft.world.level.block.Blocks.DEAD_HORN_CORAL_FAN);
+-        this.dropWhenSilkTouch(net.minecraft.world.level.block.Blocks.TUBE_CORAL_FAN);
+-        this.dropWhenSilkTouch(net.minecraft.world.level.block.Blocks.BRAIN_CORAL_FAN);
+-        this.dropWhenSilkTouch(net.minecraft.world.level.block.Blocks.BUBBLE_CORAL_FAN);
+-        this.dropWhenSilkTouch(net.minecraft.world.level.block.Blocks.FIRE_CORAL_FAN);
+-        this.dropWhenSilkTouch(net.minecraft.world.level.block.Blocks.HORN_CORAL_FAN);
+-        this.otherWhenSilkTouch(net.minecraft.world.level.block.Blocks.INFESTED_STONE, net.minecraft.world.level.block.Blocks.STONE);
+-        this.otherWhenSilkTouch(net.minecraft.world.level.block.Blocks.INFESTED_COBBLESTONE, net.minecraft.world.level.block.Blocks.COBBLESTONE);
+-        this.otherWhenSilkTouch(net.minecraft.world.level.block.Blocks.INFESTED_STONE_BRICKS, net.minecraft.world.level.block.Blocks.STONE_BRICKS);
+-        this.otherWhenSilkTouch(net.minecraft.world.level.block.Blocks.INFESTED_MOSSY_STONE_BRICKS, net.minecraft.world.level.block.Blocks.MOSSY_STONE_BRICKS);
+-        this.otherWhenSilkTouch(net.minecraft.world.level.block.Blocks.INFESTED_CRACKED_STONE_BRICKS, net.minecraft.world.level.block.Blocks.CRACKED_STONE_BRICKS);
+-        this.otherWhenSilkTouch(net.minecraft.world.level.block.Blocks.INFESTED_CHISELED_STONE_BRICKS, net.minecraft.world.level.block.Blocks.CHISELED_STONE_BRICKS);
+-        this.otherWhenSilkTouch(net.minecraft.world.level.block.Blocks.INFESTED_DEEPSLATE, net.minecraft.world.level.block.Blocks.DEEPSLATE);
+-        this.addNetherVinesDropTable(net.minecraft.world.level.block.Blocks.WEEPING_VINES, net.minecraft.world.level.block.Blocks.WEEPING_VINES_PLANT);
+-        this.addNetherVinesDropTable(net.minecraft.world.level.block.Blocks.TWISTING_VINES, net.minecraft.world.level.block.Blocks.TWISTING_VINES_PLANT);
+-        this.add(net.minecraft.world.level.block.Blocks.CAKE, net.minecraft.data.loot.BlockLoot.noDrop());
+-        this.add(net.minecraft.world.level.block.Blocks.CANDLE_CAKE, net.minecraft.data.loot.BlockLoot.createCandleCakeDrops((net.minecraft.world.level.block.Block)net.minecraft.world.level.block.Blocks.CANDLE));
+-        this.add(net.minecraft.world.level.block.Blocks.WHITE_CANDLE_CAKE, net.minecraft.data.loot.BlockLoot.createCandleCakeDrops((net.minecraft.world.level.block.Block)net.minecraft.world.level.block.Blocks.WHITE_CANDLE));
+-        this.add(net.minecraft.world.level.block.Blocks.ORANGE_CANDLE_CAKE, net.minecraft.data.loot.BlockLoot.createCandleCakeDrops((net.minecraft.world.level.block.Block)net.minecraft.world.level.block.Blocks.ORANGE_CANDLE));
+-        this.add(net.minecraft.world.level.block.Blocks.MAGENTA_CANDLE_CAKE, net.minecraft.data.loot.BlockLoot.createCandleCakeDrops((net.minecraft.world.level.block.Block)net.minecraft.world.level.block.Blocks.MAGENTA_CANDLE));
+-        this.add(net.minecraft.world.level.block.Blocks.LIGHT_BLUE_CANDLE_CAKE, net.minecraft.data.loot.BlockLoot.createCandleCakeDrops((net.minecraft.world.level.block.Block)net.minecraft.world.level.block.Blocks.LIGHT_BLUE_CANDLE));
+-        this.add(net.minecraft.world.level.block.Blocks.YELLOW_CANDLE_CAKE, net.minecraft.data.loot.BlockLoot.createCandleCakeDrops((net.minecraft.world.level.block.Block)net.minecraft.world.level.block.Blocks.YELLOW_CANDLE));
+-        this.add(net.minecraft.world.level.block.Blocks.LIME_CANDLE_CAKE, net.minecraft.data.loot.BlockLoot.createCandleCakeDrops((net.minecraft.world.level.block.Block)net.minecraft.world.level.block.Blocks.LIME_CANDLE));
+-        this.add(net.minecraft.world.level.block.Blocks.PINK_CANDLE_CAKE, net.minecraft.data.loot.BlockLoot.createCandleCakeDrops((net.minecraft.world.level.block.Block)net.minecraft.world.level.block.Blocks.PINK_CANDLE));
+-        this.add(net.minecraft.world.level.block.Blocks.GRAY_CANDLE_CAKE, net.minecraft.data.loot.BlockLoot.createCandleCakeDrops((net.minecraft.world.level.block.Block)net.minecraft.world.level.block.Blocks.GRAY_CANDLE));
+-        this.add(net.minecraft.world.level.block.Blocks.LIGHT_GRAY_CANDLE_CAKE, net.minecraft.data.loot.BlockLoot.createCandleCakeDrops((net.minecraft.world.level.block.Block)net.minecraft.world.level.block.Blocks.LIGHT_GRAY_CANDLE));
+-        this.add(net.minecraft.world.level.block.Blocks.CYAN_CANDLE_CAKE, net.minecraft.data.loot.BlockLoot.createCandleCakeDrops((net.minecraft.world.level.block.Block)net.minecraft.world.level.block.Blocks.CYAN_CANDLE));
+-        this.add(net.minecraft.world.level.block.Blocks.PURPLE_CANDLE_CAKE, net.minecraft.data.loot.BlockLoot.createCandleCakeDrops((net.minecraft.world.level.block.Block)net.minecraft.world.level.block.Blocks.PURPLE_CANDLE));
+-        this.add(net.minecraft.world.level.block.Blocks.BLUE_CANDLE_CAKE, net.minecraft.data.loot.BlockLoot.createCandleCakeDrops((net.minecraft.world.level.block.Block)net.minecraft.world.level.block.Blocks.BLUE_CANDLE));
+-        this.add(net.minecraft.world.level.block.Blocks.BROWN_CANDLE_CAKE, net.minecraft.data.loot.BlockLoot.createCandleCakeDrops((net.minecraft.world.level.block.Block)net.minecraft.world.level.block.Blocks.BROWN_CANDLE));
+-        this.add(net.minecraft.world.level.block.Blocks.GREEN_CANDLE_CAKE, net.minecraft.data.loot.BlockLoot.createCandleCakeDrops((net.minecraft.world.level.block.Block)net.minecraft.world.level.block.Blocks.GREEN_CANDLE));
+-        this.add(net.minecraft.world.level.block.Blocks.RED_CANDLE_CAKE, net.minecraft.data.loot.BlockLoot.createCandleCakeDrops((net.minecraft.world.level.block.Block)net.minecraft.world.level.block.Blocks.RED_CANDLE));
+-        this.add(net.minecraft.world.level.block.Blocks.BLACK_CANDLE_CAKE, net.minecraft.data.loot.BlockLoot.createCandleCakeDrops((net.minecraft.world.level.block.Block)net.minecraft.world.level.block.Blocks.BLACK_CANDLE));
+-        this.add(net.minecraft.world.level.block.Blocks.FROSTED_ICE, net.minecraft.data.loot.BlockLoot.noDrop());
+-        this.add(net.minecraft.world.level.block.Blocks.SPAWNER, net.minecraft.data.loot.BlockLoot.noDrop());
+-        this.add(net.minecraft.world.level.block.Blocks.FIRE, net.minecraft.data.loot.BlockLoot.noDrop());
+-        this.add(net.minecraft.world.level.block.Blocks.SOUL_FIRE, net.minecraft.data.loot.BlockLoot.noDrop());
+-        this.add(net.minecraft.world.level.block.Blocks.NETHER_PORTAL, net.minecraft.data.loot.BlockLoot.noDrop());
+-        this.add(net.minecraft.world.level.block.Blocks.BUDDING_AMETHYST, net.minecraft.data.loot.BlockLoot.noDrop());
+-        this.add(net.minecraft.world.level.block.Blocks.POWDER_SNOW, net.minecraft.data.loot.BlockLoot.noDrop());
+-        this.add(net.minecraft.world.level.block.Blocks.FROGSPAWN, net.minecraft.data.loot.BlockLoot.noDrop());
+-        this.add(net.minecraft.world.level.block.Blocks.REINFORCED_DEEPSLATE, net.minecraft.data.loot.BlockLoot.noDrop());
+-        java.util.HashSet $$6 = com.google.common.collect.Sets.newHashSet();
+-        for (net.minecraft.world.level.block.Block $$7 : net.minecraft.core.Registry.BLOCK) {
+-            net.minecraft.resources.ResourceLocation $$8 = $$7.getLootTable();
+-            if ($$8 == net.minecraft.world.level.storage.loot.BuiltInLootTables.EMPTY || !$$6.add((java.lang.Object)$$8)) continue;
+-            net.minecraft.world.level.storage.loot.LootTable$Builder $$9 = (net.minecraft.world.level.storage.loot.LootTable$Builder)this.map.remove((java.lang.Object)$$8);
+-            if ($$9 == null) {
+-                throw new java.lang.IllegalStateException(java.lang.String.format((java.util.Locale)java.util.Locale.ROOT, (java.lang.String)"Missing loottable '%s' for '%s'", (java.lang.Object[])new java.lang.Object[]{$$8, net.minecraft.core.Registry.BLOCK.getKey((java.lang.Object)$$7)}));
+-            }
+-            $$02.accept((java.lang.Object)$$8, (java.lang.Object)$$9);
+-        }
+-        if (!this.map.isEmpty()) {
+-            throw new java.lang.IllegalStateException("Created block loot tables for non-blocks: " + this.map.keySet());
+-        }
+-    }
+-
+-    public void addNetherVinesDropTable(net.minecraft.world.level.block.Block vines, net.minecraft.world.level.block.Block plant) {
+-        net.minecraft.world.level.storage.loot.LootTable$Builder builder = net.minecraft.data.loot.BlockLoot.createSilkTouchOrShearsDispatchTable((net.minecraft.world.level.block.Block)vines, (net.minecraft.world.level.storage.loot.entries.LootPoolEntryContainer$Builder)net.minecraft.world.level.storage.loot.entries.LootItem.lootTableItem((net.minecraft.world.level.ItemLike)vines).when(net.minecraft.world.level.storage.loot.predicates.BonusLevelTableCondition.bonusLevelFlatChance((net.minecraft.world.item.enchantment.Enchantment)net.minecraft.world.item.enchantment.Enchantments.BLOCK_FORTUNE, (float[])new float[]{0.33f, 0.55f, 0.77f, 1.0f})));
+-        this.add(vines, builder);
+-        this.add(plant, builder);
+-    }
+-
+-    public static net.minecraft.world.level.storage.loot.LootTable$Builder createDoorTable(net.minecraft.world.level.block.Block doorBlock) {
+-        return net.minecraft.data.loot.BlockLoot.createSinglePropConditionTable((net.minecraft.world.level.block.Block)doorBlock, (net.minecraft.world.level.block.state.properties.Property)net.minecraft.world.level.block.DoorBlock.HALF, (java.lang.Comparable)net.minecraft.world.level.block.state.properties.DoubleBlockHalf.LOWER);
+-    }
+-
+-    public void dropPottedContents(net.minecraft.world.level.block.Block flowerPot) {
+-        this.add(flowerPot, $$0 -> net.minecraft.data.loot.BlockLoot.createPotFlowerItemTable((net.minecraft.world.level.ItemLike)((net.minecraft.world.level.block.FlowerPotBlock)$$0).getContent()));
+-    }
+-
+-    public void otherWhenSilkTouch(net.minecraft.world.level.block.Block block, net.minecraft.world.level.block.Block silkTouchDrop) {
+-        this.add(block, net.minecraft.data.loot.BlockLoot.createSilkTouchOnlyTable((net.minecraft.world.level.ItemLike)silkTouchDrop));
+-    }
+-
+-    public void dropOther(net.minecraft.world.level.block.Block block, net.minecraft.world.level.ItemLike drop) {
+-        this.add(block, net.minecraft.data.loot.BlockLoot.createSingleItemTable((net.minecraft.world.level.ItemLike)drop));
+-    }
+-
+-    public void dropWhenSilkTouch(net.minecraft.world.level.block.Block block) {
+-        this.otherWhenSilkTouch(block, block);
+-    }
+-
+-    public void dropSelf(net.minecraft.world.level.block.Block block) {
+-        this.dropOther(block, (net.minecraft.world.level.ItemLike)block);
+-    }
+-
+-    public void add(net.minecraft.world.level.block.Block block, java.util.function.Function<net.minecraft.world.level.block.Block, net.minecraft.world.level.storage.loot.LootTable$Builder> factory) {
+-        this.add(block, (net.minecraft.world.level.storage.loot.LootTable$Builder)factory.apply((java.lang.Object)block));
+-    }
+-
+-    public void add(net.minecraft.world.level.block.Block block, net.minecraft.world.level.storage.loot.LootTable$Builder lootTableBuilder) {
+-        this.map.put((java.lang.Object)block.getLootTable(), (java.lang.Object)lootTableBuilder);
+-    }
+-
+-    public /* synthetic */ void accept(java.lang.Object object) {
+-        this.accept((java.util.function.BiConsumer)object);
+-    }
+-
+-    static {
+-        HAS_SILK_TOUCH = net.minecraft.world.level.storage.loot.predicates.MatchTool.toolMatches((net.minecraft.advancements.critereon.ItemPredicate$Builder)net.minecraft.advancements.critereon.ItemPredicate$Builder.item().hasEnchantment(new net.minecraft.advancements.critereon.EnchantmentPredicate(net.minecraft.world.item.enchantment.Enchantments.SILK_TOUCH, net.minecraft.advancements.critereon.MinMaxBounds$Ints.atLeast((int)1))));
+-        HAS_NO_SILK_TOUCH = HAS_SILK_TOUCH.invert();
+-        HAS_SHEARS = net.minecraft.world.level.storage.loot.predicates.MatchTool.toolMatches((net.minecraft.advancements.critereon.ItemPredicate$Builder)net.minecraft.advancements.critereon.ItemPredicate$Builder.item().of(new net.minecraft.world.level.ItemLike[]{net.minecraft.world.item.Items.SHEARS}));
+-        HAS_SHEARS_OR_SILK_TOUCH = HAS_SHEARS.or(HAS_SILK_TOUCH);
+-        HAS_NO_SHEARS_OR_SILK_TOUCH = HAS_SHEARS_OR_SILK_TOUCH.invert();
+-        EXPLOSION_RESISTANT = (java.util.Set)java.util.stream.Stream.of((java.lang.Object[])new net.minecraft.world.level.block.Block[]{net.minecraft.world.level.block.Blocks.DRAGON_EGG, net.minecraft.world.level.block.Blocks.BEACON, net.minecraft.world.level.block.Blocks.CONDUIT, net.minecraft.world.level.block.Blocks.SKELETON_SKULL, net.minecraft.world.level.block.Blocks.WITHER_SKELETON_SKULL, net.minecraft.world.level.block.Blocks.PLAYER_HEAD, net.minecraft.world.level.block.Blocks.ZOMBIE_HEAD, net.minecraft.world.level.block.Blocks.CREEPER_HEAD, net.minecraft.world.level.block.Blocks.DRAGON_HEAD, net.minecraft.world.level.block.Blocks.SHULKER_BOX, net.minecraft.world.level.block.Blocks.BLACK_SHULKER_BOX, net.minecraft.world.level.block.Blocks.BLUE_SHULKER_BOX, net.minecraft.world.level.block.Blocks.BROWN_SHULKER_BOX, net.minecraft.world.level.block.Blocks.CYAN_SHULKER_BOX, net.minecraft.world.level.block.Blocks.GRAY_SHULKER_BOX, net.minecraft.world.level.block.Blocks.GREEN_SHULKER_BOX, net.minecraft.world.level.block.Blocks.LIGHT_BLUE_SHULKER_BOX, net.minecraft.world.level.block.Blocks.LIGHT_GRAY_SHULKER_BOX, net.minecraft.world.level.block.Blocks.LIME_SHULKER_BOX, net.minecraft.world.level.block.Blocks.MAGENTA_SHULKER_BOX, net.minecraft.world.level.block.Blocks.ORANGE_SHULKER_BOX, net.minecraft.world.level.block.Blocks.PINK_SHULKER_BOX, net.minecraft.world.level.block.Blocks.PURPLE_SHULKER_BOX, net.minecraft.world.level.block.Blocks.RED_SHULKER_BOX, net.minecraft.world.level.block.Blocks.WHITE_SHULKER_BOX, net.minecraft.world.level.block.Blocks.YELLOW_SHULKER_BOX}).map(net.minecraft.world.level.ItemLike::asItem).collect(com.google.common.collect.ImmutableSet.toImmutableSet());
+-        NORMAL_LEAVES_SAPLING_CHANCES = new float[]{0.05f, 0.0625f, 0.083333336f, 0.1f};
+-        JUNGLE_LEAVES_SAPLING_CHANGES = new float[]{0.025f, 0.027777778f, 0.03125f, 0.041666668f, 0.1f};
+-        NORMAL_LEAVES_STICK_CHANCES = new float[]{0.02f, 0.022222223f, 0.025f, 0.033333335f, 0.1f};
+-    }
+-}
+-

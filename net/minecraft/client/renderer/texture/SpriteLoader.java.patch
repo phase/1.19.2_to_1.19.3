@@ -1,0 +1,162 @@
+--- net/minecraft/client/renderer/texture/SpriteLoader.java
++++ net/minecraft/client/renderer/texture/SpriteLoader.java
+@@ -1,0 +1,159 @@
++/*
++ * Decompiled with CFR 0.151.
++ */
++package net.minecraft.client.renderer.texture;
++
++public class net.minecraft.client.renderer.texture.SpriteLoader
++ {
++    public static org.slf4j.Logger LOGGER;
++    public net.minecraft.resources.ResourceLocation location;
++    public int maxSupportedTextureSize;
++    public static net.minecraft.resources.FileToIdConverter TEXTURE_ID_CONVERTER;
++
++    public net.minecraft.client.renderer.texture.SpriteLoader(net.minecraft.resources.ResourceLocation $$0, int $$1) {
++        this.location = $$0;
++        this.maxSupportedTextureSize = $$1;
++    }
++
++    public static net.minecraft.client.renderer.texture.SpriteLoader create(net.minecraft.client.renderer.texture.TextureAtlas $$0) {
++        return new net.minecraft.client.renderer.texture.SpriteLoader($$0.location(), $$0.maxSupportedTextureSize());
++    }
++
++    public java.util.concurrent.CompletableFuture<net.minecraft.client.renderer.texture.SpriteLoader$Preparations> stitch(java.util.Map<net.minecraft.resources.ResourceLocation, net.minecraft.server.packs.resources.Resource> $$0, int $$1, java.util.concurrent.Executor $$22) {
++        return this.loadSpriteContents($$0, $$22).thenApplyAsync($$2 -> {
++            java.util.concurrent.CompletableFuture $$19;
++            int $$12;
++            int $$3 = this.maxSupportedTextureSize;
++            net.minecraft.client.renderer.texture.Stitcher $$4 = new net.minecraft.client.renderer.texture.Stitcher($$3, $$3, $$1);
++            int $$5 = java.lang.Integer.MAX_VALUE;
++            int $$6 = 1 << $$1;
++            for (net.minecraft.client.renderer.texture.SpriteContents $$7 : $$2) {
++                $$5 = java.lang.Math.min((int)$$5, (int)java.lang.Math.min((int)$$7.width(), (int)$$7.height()));
++                int $$8 = java.lang.Math.min((int)java.lang.Integer.lowestOneBit((int)$$7.width()), (int)java.lang.Integer.lowestOneBit((int)$$7.height()));
++                if ($$8 < $$6) {
++                    LOGGER.warn("Texture {} with size {}x{} limits mip level from {} to {}", new java.lang.Object[]{$$7.name(), $$7.width(), $$7.height(), net.minecraft.util.Mth.log2((int)$$6), net.minecraft.util.Mth.log2((int)$$8)});
++                    $$6 = $$8;
++                }
++                $$4.registerSprite((net.minecraft.client.renderer.texture.Stitcher$Entry)$$7);
++            }
++            int $$9 = java.lang.Math.min((int)$$5, (int)$$6);
++            int $$10 = net.minecraft.util.Mth.log2((int)$$9);
++            if ($$10 < $$1) {
++                LOGGER.warn("{}: dropping miplevel from {} to {}, because of minimum power of two: {}", new java.lang.Object[]{this.location, $$1, $$10, $$9});
++                int $$11 = $$10;
++            } else {
++                $$12 = $$1;
++            }
++            try {
++                $$4.stitch();
++            }
++            catch (net.minecraft.client.renderer.texture.StitcherException $$13) {
++                net.minecraft.CrashReport $$14 = net.minecraft.CrashReport.forThrowable((java.lang.Throwable)$$13, (java.lang.String)"Stitching");
++                net.minecraft.CrashReportCategory $$15 = $$14.addCategory("Stitcher");
++                $$15.setDetail("Sprites", $$13.getAllSprites().stream().map($$0 -> java.lang.String.format((java.util.Locale)java.util.Locale.ROOT, (java.lang.String)"%s[%dx%d]", (java.lang.Object[])new java.lang.Object[]{$$0.name(), $$0.width(), $$0.height()})).collect(java.util.stream.Collectors.joining((java.lang.CharSequence)",")));
++                $$15.setDetail("Max Texture Size", (java.lang.Object)$$3);
++                throw new net.minecraft.ReportedException($$14);
++            }
++            java.util.Map $$16 = this.getStitchedSprites($$4);
++            net.minecraft.client.renderer.texture.TextureAtlasSprite $$17 = (net.minecraft.client.renderer.texture.TextureAtlasSprite)$$16.get((java.lang.Object)net.minecraft.client.renderer.texture.MissingTextureAtlasSprite.getLocation());
++            if ($$12 > 0) {
++                java.util.concurrent.CompletableFuture $$18 = java.util.concurrent.CompletableFuture.runAsync(() -> $$16.values().forEach($$1 -> $$1.contents().increaseMipLevel($$12)), (java.util.concurrent.Executor)$$22);
++            } else {
++                $$19 = java.util.concurrent.CompletableFuture.completedFuture(null);
++            }
++            return new net.minecraft.client.renderer.texture.SpriteLoader$Preparations($$4.getWidth(), $$4.getHeight(), $$12, $$17, $$16, $$19);
++        }, $$22);
++    }
++
++    public java.util.concurrent.CompletableFuture<java.util.List<net.minecraft.client.renderer.texture.SpriteContents>> loadSpriteContents(java.util.Map<net.minecraft.resources.ResourceLocation, net.minecraft.server.packs.resources.Resource> $$02, java.util.concurrent.Executor $$1) {
++        java.util.ArrayList $$2 = new java.util.ArrayList();
++        $$2.add((java.lang.Object)java.util.concurrent.CompletableFuture.supplyAsync(net.minecraft.client.renderer.texture.MissingTextureAtlasSprite::create, (java.util.concurrent.Executor)$$1));
++        $$02.forEach((arg_0, arg_1) -> this.lambda$loadSpriteContents$5((java.util.List)$$2, $$1, arg_0, arg_1));
++        return net.minecraft.Util.sequence((java.util.List)$$2).thenApply($$0 -> $$0.stream().filter(java.util.Objects::nonNull).toList());
++    }
++
++    /*
++     * WARNING - void declaration
++     */
++    @javax.annotation.Nullable
++    public net.minecraft.client.renderer.texture.SpriteContents loadSprite(net.minecraft.resources.ResourceLocation $$0, net.minecraft.server.packs.resources.Resource $$1) {
++        void $$9;
++        void $$4;
++        try {
++            net.minecraft.client.resources.metadata.animation.AnimationMetadataSection $$2 = (net.minecraft.client.resources.metadata.animation.AnimationMetadataSection)$$1.metadata().getSection((net.minecraft.server.packs.metadata.MetadataSectionSerializer)net.minecraft.client.resources.metadata.animation.AnimationMetadataSection.SERIALIZER).orElse((java.lang.Object)net.minecraft.client.resources.metadata.animation.AnimationMetadataSection.EMPTY);
++        }
++        catch (java.lang.Exception $$3) {
++            LOGGER.error("Unable to parse metadata from {} : {}", (java.lang.Object)this.location, (java.lang.Object)((java.lang.Object)$$3));
++            return null;
++        }
++        try (java.io.InputStream $$5 = $$1.open();
++){
++            com.mojang.blaze3d.platform.NativeImage $$6 = com.mojang.blaze3d.platform.NativeImage.read((java.io.InputStream)$$5);
++        }
++        catch (java.io.IOException $$8) {
++            LOGGER.error("Using missing texture, unable to load {} : {}", (java.lang.Object)this.location, (java.lang.Object)((java.lang.Object)$$8));
++            return null;
++        }
++        net.minecraft.client.resources.metadata.animation.FrameSize $$10 = $$4.calculateFrameSize($$9.getWidth(), $$9.getHeight());
++        if (!net.minecraft.util.Mth.isDivisionInteger((int)$$9.getWidth(), (int)$$10.width()) || !net.minecraft.util.Mth.isDivisionInteger((int)$$9.getHeight(), (int)$$10.height())) {
++            LOGGER.error("Image {} size {},{} is not multiple of frame size {},{}", new java.lang.Object[]{this.location, $$9.getWidth(), $$9.getHeight(), $$10.width(), $$10.height()});
++            $$9.close();
++            return null;
++        }
++        return new net.minecraft.client.renderer.texture.SpriteContents($$0, $$10, (com.mojang.blaze3d.platform.NativeImage)$$9, (net.minecraft.client.resources.metadata.animation.AnimationMetadataSection)$$4);
++    }
++
++    public java.util.Map<net.minecraft.resources.ResourceLocation, net.minecraft.client.renderer.texture.TextureAtlasSprite> getStitchedSprites(net.minecraft.client.renderer.texture.Stitcher<net.minecraft.client.renderer.texture.SpriteContents> $$0) {
++        java.util.HashMap $$1 = new java.util.HashMap();
++        int $$2 = $$0.getWidth();
++        int $$3 = $$0.getHeight();
++        $$0.gatherSprites((arg_0, arg_1, arg_2) -> this.lambda$getStitchedSprites$7((java.util.Map)$$1, $$2, $$3, arg_0, arg_1, arg_2));
++        return $$1;
++    }
++
++    public static void addSprite(net.minecraft.server.packs.resources.ResourceManager $$0, net.minecraft.resources.ResourceLocation $$1, java.util.function.BiConsumer<net.minecraft.resources.ResourceLocation, net.minecraft.server.packs.resources.Resource> $$2) {
++        net.minecraft.resources.ResourceLocation $$3 = TEXTURE_ID_CONVERTER.idToFile($$1);
++        java.util.Optional $$4 = $$0.getResource($$3);
++        if ($$4.isPresent()) {
++            $$2.accept((java.lang.Object)$$1, (java.lang.Object)((net.minecraft.server.packs.resources.Resource)$$4.get()));
++        } else {
++            LOGGER.warn("Missing sprite: {}", (java.lang.Object)$$3);
++        }
++    }
++
++    public static void listSprites(net.minecraft.server.packs.resources.ResourceManager $$0, java.lang.String $$1, java.util.function.BiConsumer<net.minecraft.resources.ResourceLocation, net.minecraft.server.packs.resources.Resource> $$2) {
++        net.minecraft.client.renderer.texture.SpriteLoader.listSprites((net.minecraft.server.packs.resources.ResourceManager)$$0, (java.lang.String)("textures/" + $$1), (java.lang.String)($$1 + "/"), $$2);
++    }
++
++    public static void listSprites(net.minecraft.server.packs.resources.ResourceManager $$0, java.lang.String $$1, java.lang.String $$2, java.util.function.BiConsumer<net.minecraft.resources.ResourceLocation, net.minecraft.server.packs.resources.Resource> $$32) {
++        net.minecraft.resources.FileToIdConverter $$42 = new net.minecraft.resources.FileToIdConverter($$1, ".png");
++        $$42.listMatchingResources($$0).forEach(($$3, $$4) -> {
++            net.minecraft.resources.ResourceLocation $$5 = $$42.fileToId($$3).withPrefix($$2);
++            $$32.accept((java.lang.Object)$$5, $$4);
++        });
++    }
++
++    public static java.util.Map<net.minecraft.resources.ResourceLocation, net.minecraft.server.packs.resources.Resource> listSprites(net.minecraft.server.packs.resources.ResourceManager $$0, java.lang.String $$1) {
++        return net.minecraft.client.renderer.texture.SpriteLoader.listSprites((net.minecraft.server.packs.resources.ResourceManager)$$0, (java.lang.String)("textures/" + $$1), (java.lang.String)($$1 + "/"));
++    }
++
++    public static java.util.Map<net.minecraft.resources.ResourceLocation, net.minecraft.server.packs.resources.Resource> listSprites(net.minecraft.server.packs.resources.ResourceManager $$0, java.lang.String $$1, java.lang.String $$2) {
++        java.util.HashMap $$3 = new java.util.HashMap();
++        net.minecraft.client.renderer.texture.SpriteLoader.listSprites((net.minecraft.server.packs.resources.ResourceManager)$$0, (java.lang.String)$$1, (java.lang.String)$$2, (arg_0, arg_1) -> ((java.util.Map)$$3).put(arg_0, arg_1));
++        return $$3;
++    }
++
++    public /* synthetic */ void lambda$getStitchedSprites$7(java.util.Map $$0, int $$1, int $$2, net.minecraft.client.renderer.texture.SpriteContents $$3, int $$4, int $$5) {
++        $$0.put((java.lang.Object)$$3.name(), (java.lang.Object)new net.minecraft.client.renderer.texture.TextureAtlasSprite(this.location, $$3, $$1, $$2, $$4, $$5));
++    }
++
++    public /* synthetic */ void lambda$loadSpriteContents$5(java.util.List $$0, java.util.concurrent.Executor $$1, net.minecraft.resources.ResourceLocation $$2, net.minecraft.server.packs.resources.Resource $$3) {
++        $$0.add((java.lang.Object)java.util.concurrent.CompletableFuture.supplyAsync(() -> this.loadSprite($$2, $$3), (java.util.concurrent.Executor)$$1));
++    }
++
++    static {
++        LOGGER = com.mojang.logging.LogUtils.getLogger();
++        TEXTURE_ID_CONVERTER = new net.minecraft.resources.FileToIdConverter("textures", ".png");
++    }
++}
++

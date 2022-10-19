@@ -1,0 +1,352 @@
+--- net/minecraft/client/sounds/SoundEngine.java
++++ net/minecraft/client/sounds/SoundEngine.java
+@@ -37,7 +37,7 @@
+     public java.util.List<net.minecraft.client.resources.sounds.TickableSoundInstance> queuedTickableSounds;
+     public java.util.List<net.minecraft.client.resources.sounds.Sound> preloadQueue;
+ 
+-    public net.minecraft.client.sounds.SoundEngine(net.minecraft.client.sounds.SoundManager soundManager, net.minecraft.client.Options options, net.minecraft.server.packs.resources.ResourceManager resourceManager) {
++    public net.minecraft.client.sounds.SoundEngine(net.minecraft.client.sounds.SoundManager $$0, net.minecraft.client.Options $$1, net.minecraft.server.packs.resources.ResourceProvider $$2) {
+         this.library = new com.mojang.blaze3d.audio.Library();
+         this.listener = this.library.getListener();
+         this.executor = new net.minecraft.client.sounds.SoundEngineExecutor();
+@@ -51,9 +51,9 @@
+         this.listeners = com.google.common.collect.Lists.newArrayList();
+         this.queuedTickableSounds = com.google.common.collect.Lists.newArrayList();
+         this.preloadQueue = com.google.common.collect.Lists.newArrayList();
+-        this.soundManager = soundManager;
+-        this.options = options;
+-        this.soundBuffers = new net.minecraft.client.sounds.SoundBufferLibrary(resourceManager);
++        this.soundManager = $$0;
++        this.options = $$1;
++        this.soundBuffers = new net.minecraft.client.sounds.SoundBufferLibrary($$2);
+     }
+ 
+     public void reload() {
+@@ -86,19 +86,19 @@
+         }
+     }
+ 
+-    public float getVolume(@javax.annotation.Nullable net.minecraft.sounds.SoundSource category) {
+-        if (category == null || category == net.minecraft.sounds.SoundSource.MASTER) {
++    public float getVolume(@javax.annotation.Nullable net.minecraft.sounds.SoundSource $$0) {
++        if ($$0 == null || $$0 == net.minecraft.sounds.SoundSource.MASTER) {
+             return 1.0f;
+         }
+-        return this.options.getSoundSourceVolume(category);
++        return this.options.getSoundSourceVolume($$0);
+     }
+ 
+-    public void updateCategoryVolume(net.minecraft.sounds.SoundSource category, float volume) {
++    public void updateCategoryVolume(net.minecraft.sounds.SoundSource $$02, float $$1) {
+         if (!this.loaded) {
+             return;
+         }
+-        if (category == net.minecraft.sounds.SoundSource.MASTER) {
+-            this.listener.setGain(volume);
++        if ($$02 == net.minecraft.sounds.SoundSource.MASTER) {
++            this.listener.setGain($$1);
+             return;
+         }
+         this.instanceToChannel.forEach(($$0, $$12) -> {
+@@ -122,10 +122,10 @@
+         }
+     }
+ 
+-    public void stop(net.minecraft.client.resources.sounds.SoundInstance sound) {
+-        net.minecraft.client.sounds.ChannelAccess$ChannelHandle channelHandle;
+-        if (this.loaded && (channelHandle = (net.minecraft.client.sounds.ChannelAccess$ChannelHandle)this.instanceToChannel.get((java.lang.Object)sound)) != null) {
+-            channelHandle.execute(com.mojang.blaze3d.audio.Channel::stop);
++    public void stop(net.minecraft.client.resources.sounds.SoundInstance $$0) {
++        net.minecraft.client.sounds.ChannelAccess$ChannelHandle $$1;
++        if (this.loaded && ($$1 = (net.minecraft.client.sounds.ChannelAccess$ChannelHandle)this.instanceToChannel.get((java.lang.Object)$$0)) != null) {
++            $$1.execute(com.mojang.blaze3d.audio.Channel::stop);
+         }
+     }
+ 
+@@ -143,12 +143,12 @@
+         }
+     }
+ 
+-    public void addEventListener(net.minecraft.client.sounds.SoundEventListener listener) {
+-        this.listeners.add((java.lang.Object)listener);
++    public void addEventListener(net.minecraft.client.sounds.SoundEventListener $$0) {
++        this.listeners.add((java.lang.Object)$$0);
+     }
+ 
+-    public void removeEventListener(net.minecraft.client.sounds.SoundEventListener listener) {
+-        this.listeners.remove((java.lang.Object)listener);
++    public void removeEventListener(net.minecraft.client.sounds.SoundEventListener $$0) {
++        this.listeners.remove((java.lang.Object)$$0);
+     }
+ 
+     public boolean shouldChangeDevice() {
+@@ -180,11 +180,11 @@
+         return this.devicePoolState.compareAndSet((java.lang.Object)net.minecraft.client.sounds.SoundEngine$DeviceCheckState.CHANGE_DETECTED, (java.lang.Object)net.minecraft.client.sounds.SoundEngine$DeviceCheckState.NO_CHANGE);
+     }
+ 
+-    public void tick(boolean isGamePaused) {
++    public void tick(boolean $$0) {
+         if (this.shouldChangeDevice()) {
+             this.reload();
+         }
+-        if (!isGamePaused) {
++        if (!$$0) {
+             this.tickNonPaused();
+         }
+         this.channelAccess.scheduleTick();
+@@ -255,134 +255,133 @@
+         }
+     }
+ 
+-    public static boolean requiresManualLooping(net.minecraft.client.resources.sounds.SoundInstance sound) {
+-        return sound.getDelay() > 0;
++    public static boolean requiresManualLooping(net.minecraft.client.resources.sounds.SoundInstance $$0) {
++        return $$0.getDelay() > 0;
+     }
+ 
+-    public static boolean shouldLoopManually(net.minecraft.client.resources.sounds.SoundInstance sound) {
+-        return sound.isLooping() && net.minecraft.client.sounds.SoundEngine.requiresManualLooping((net.minecraft.client.resources.sounds.SoundInstance)sound);
++    public static boolean shouldLoopManually(net.minecraft.client.resources.sounds.SoundInstance $$0) {
++        return $$0.isLooping() && net.minecraft.client.sounds.SoundEngine.requiresManualLooping((net.minecraft.client.resources.sounds.SoundInstance)$$0);
+     }
+ 
+-    public static boolean shouldLoopAutomatically(net.minecraft.client.resources.sounds.SoundInstance sound) {
+-        return sound.isLooping() && !net.minecraft.client.sounds.SoundEngine.requiresManualLooping((net.minecraft.client.resources.sounds.SoundInstance)sound);
++    public static boolean shouldLoopAutomatically(net.minecraft.client.resources.sounds.SoundInstance $$0) {
++        return $$0.isLooping() && !net.minecraft.client.sounds.SoundEngine.requiresManualLooping((net.minecraft.client.resources.sounds.SoundInstance)$$0);
+     }
+ 
+-    public boolean isActive(net.minecraft.client.resources.sounds.SoundInstance sound) {
++    public boolean isActive(net.minecraft.client.resources.sounds.SoundInstance $$0) {
+         if (!this.loaded) {
+             return false;
+         }
+-        if (this.soundDeleteTime.containsKey((java.lang.Object)sound) && (java.lang.Integer)this.soundDeleteTime.get((java.lang.Object)sound) <= this.tickCount) {
++        if (this.soundDeleteTime.containsKey((java.lang.Object)$$0) && (java.lang.Integer)this.soundDeleteTime.get((java.lang.Object)$$0) <= this.tickCount) {
+             return true;
+         }
+-        return this.instanceToChannel.containsKey((java.lang.Object)sound);
++        return this.instanceToChannel.containsKey((java.lang.Object)$$0);
+     }
+ 
+-    public void play(net.minecraft.client.resources.sounds.SoundInstance sound) {
+-        net.minecraft.client.sounds.SoundEventListener soundEventListener2;
+-        boolean bl;
++    public void play(net.minecraft.client.resources.sounds.SoundInstance $$0) {
+         if (!this.loaded) {
+             return;
+         }
+-        if (!sound.canPlaySound()) {
++        if (!$$0.canPlaySound()) {
+             return;
+         }
+-        net.minecraft.client.sounds.WeighedSoundEvents weighedSoundEvents = sound.resolve(this.soundManager);
+-        net.minecraft.resources.ResourceLocation resourceLocation = sound.getLocation();
+-        if (weighedSoundEvents == null) {
+-            if (ONLY_WARN_ONCE.add((java.lang.Object)resourceLocation)) {
+-                LOGGER.warn(MARKER, "Unable to play unknown soundEvent: {}", (java.lang.Object)resourceLocation);
++        net.minecraft.client.sounds.WeighedSoundEvents $$1 = $$0.resolve(this.soundManager);
++        net.minecraft.resources.ResourceLocation $$2 = $$0.getLocation();
++        if ($$1 == null) {
++            if (ONLY_WARN_ONCE.add((java.lang.Object)$$2)) {
++                LOGGER.warn(MARKER, "Unable to play unknown soundEvent: {}", (java.lang.Object)$$2);
+             }
+             return;
+         }
+-        net.minecraft.client.resources.sounds.Sound sound2 = sound.getSound();
+-        if (sound2 == net.minecraft.client.sounds.SoundManager.EMPTY_SOUND) {
+-            if (ONLY_WARN_ONCE.add((java.lang.Object)resourceLocation)) {
+-                LOGGER.warn(MARKER, "Unable to play empty soundEvent: {}", (java.lang.Object)resourceLocation);
++        net.minecraft.client.resources.sounds.Sound $$3 = $$0.getSound();
++        if ($$3 == net.minecraft.client.sounds.SoundManager.EMPTY_SOUND) {
++            if (ONLY_WARN_ONCE.add((java.lang.Object)$$2)) {
++                LOGGER.warn(MARKER, "Unable to play empty soundEvent: {}", (java.lang.Object)$$2);
+             }
+             return;
+         }
+-        float f = sound.getVolume();
+-        float f2 = java.lang.Math.max((float)f, (float)1.0f) * (float)sound2.getAttenuationDistance();
+-        net.minecraft.sounds.SoundSource soundSource = sound.getSource();
+-        float f3 = this.calculateVolume(f, soundSource);
+-        float f4 = this.calculatePitch(sound);
+-        net.minecraft.client.resources.sounds.SoundInstance$Attenuation attenuation = sound.getAttenuation();
+-        boolean bl2 = sound.isRelative();
+-        if (f3 == 0.0f && !sound.canStartSilent()) {
+-            LOGGER.debug(MARKER, "Skipped playing sound {}, volume was zero.", (java.lang.Object)sound2.getLocation());
++        float $$4 = $$0.getVolume();
++        float $$5 = java.lang.Math.max((float)$$4, (float)1.0f) * (float)$$3.getAttenuationDistance();
++        net.minecraft.sounds.SoundSource $$6 = $$0.getSource();
++        float $$7 = this.calculateVolume($$4, $$6);
++        float $$82 = this.calculatePitch($$0);
++        net.minecraft.client.resources.sounds.SoundInstance$Attenuation $$9 = $$0.getAttenuation();
++        boolean $$10 = $$0.isRelative();
++        if ($$7 == 0.0f && !$$0.canStartSilent()) {
++            LOGGER.debug(MARKER, "Skipped playing sound {}, volume was zero.", (java.lang.Object)$$3.getLocation());
+             return;
+         }
+-        net.minecraft.world.phys.Vec3 vec3 = new net.minecraft.world.phys.Vec3(sound.getX(), sound.getY(), sound.getZ());
++        net.minecraft.world.phys.Vec3 $$11 = new net.minecraft.world.phys.Vec3($$0.getX(), $$0.getY(), $$0.getZ());
+         if (!this.listeners.isEmpty()) {
+-            boolean bl3 = bl = bl2 || attenuation == net.minecraft.client.resources.sounds.SoundInstance$Attenuation.NONE || this.listener.getListenerPosition().distanceToSqr(vec3) < (double)(f2 * f2);
+-            if (bl) {
+-                for (net.minecraft.client.sounds.SoundEventListener soundEventListener2 : this.listeners) {
+-                    soundEventListener2.onPlaySound(sound, weighedSoundEvents);
++            boolean $$122;
++            boolean bl = $$122 = $$10 || $$9 == net.minecraft.client.resources.sounds.SoundInstance$Attenuation.NONE || this.listener.getListenerPosition().distanceToSqr($$11) < (double)($$5 * $$5);
++            if ($$122) {
++                for (net.minecraft.client.sounds.SoundEventListener $$13 : this.listeners) {
++                    $$13.onPlaySound($$0, $$1);
+                 }
+             } else {
+-                LOGGER.debug(MARKER, "Did not notify listeners of soundEvent: {}, it is too far away to hear", (java.lang.Object)resourceLocation);
++                LOGGER.debug(MARKER, "Did not notify listeners of soundEvent: {}, it is too far away to hear", (java.lang.Object)$$2);
+             }
+         }
+         if (this.listener.getGain() <= 0.0f) {
+-            LOGGER.debug(MARKER, "Skipped playing soundEvent: {}, master volume was zero", (java.lang.Object)resourceLocation);
++            LOGGER.debug(MARKER, "Skipped playing soundEvent: {}, master volume was zero", (java.lang.Object)$$2);
+             return;
+         }
+-        bl = net.minecraft.client.sounds.SoundEngine.shouldLoopAutomatically((net.minecraft.client.resources.sounds.SoundInstance)sound);
+-        boolean bl4 = sound2.shouldStream();
+-        soundEventListener2 = this.channelAccess.createHandle(sound2.shouldStream() ? com.mojang.blaze3d.audio.Library$Pool.STREAMING : com.mojang.blaze3d.audio.Library$Pool.STATIC);
+-        net.minecraft.client.sounds.ChannelAccess$ChannelHandle channelHandle = (net.minecraft.client.sounds.ChannelAccess$ChannelHandle)soundEventListener2.join();
+-        if (channelHandle == null) {
++        boolean $$14 = net.minecraft.client.sounds.SoundEngine.shouldLoopAutomatically((net.minecraft.client.resources.sounds.SoundInstance)$$0);
++        boolean $$15 = $$3.shouldStream();
++        java.util.concurrent.CompletableFuture $$16 = this.channelAccess.createHandle($$3.shouldStream() ? com.mojang.blaze3d.audio.Library$Pool.STREAMING : com.mojang.blaze3d.audio.Library$Pool.STATIC);
++        net.minecraft.client.sounds.ChannelAccess$ChannelHandle $$17 = (net.minecraft.client.sounds.ChannelAccess$ChannelHandle)$$16.join();
++        if ($$17 == null) {
+             if (net.minecraft.SharedConstants.IS_RUNNING_IN_IDE) {
+                 LOGGER.warn("Failed to create new sound handle");
+             }
+             return;
+         }
+-        LOGGER.debug(MARKER, "Playing sound {} for event {}", (java.lang.Object)sound2.getLocation(), (java.lang.Object)resourceLocation);
+-        this.soundDeleteTime.put((java.lang.Object)sound, (java.lang.Object)(this.tickCount + 20));
+-        this.instanceToChannel.put((java.lang.Object)sound, (java.lang.Object)channelHandle);
+-        this.instanceBySource.put((java.lang.Object)soundSource, (java.lang.Object)sound);
+-        channelHandle.execute($$8 -> {
+-            $$8.setPitch(f4);
+-            $$8.setVolume(f3);
+-            if (attenuation == net.minecraft.client.resources.sounds.SoundInstance$Attenuation.LINEAR) {
+-                $$8.linearAttenuation(f2);
++        LOGGER.debug(MARKER, "Playing sound {} for event {}", (java.lang.Object)$$3.getLocation(), (java.lang.Object)$$2);
++        this.soundDeleteTime.put((java.lang.Object)$$0, (java.lang.Object)(this.tickCount + 20));
++        this.instanceToChannel.put((java.lang.Object)$$0, (java.lang.Object)$$17);
++        this.instanceBySource.put((java.lang.Object)$$6, (java.lang.Object)$$0);
++        $$17.execute($$8 -> {
++            $$8.setPitch($$82);
++            $$8.setVolume($$7);
++            if ($$9 == net.minecraft.client.resources.sounds.SoundInstance$Attenuation.LINEAR) {
++                $$8.linearAttenuation($$5);
+             } else {
+                 $$8.disableAttenuation();
+             }
+-            $$8.setLooping(bl && !bl4);
+-            $$8.setSelfPosition(vec3);
+-            $$8.setRelative(bl2);
++            $$8.setLooping($$14 && !$$15);
++            $$8.setSelfPosition($$11);
++            $$8.setRelative($$10);
+         });
+-        if (!bl4) {
+-            this.soundBuffers.getCompleteBuffer(sound2.getPath()).thenAccept($$12 -> channelHandle.execute($$1 -> {
++        if (!$$15) {
++            this.soundBuffers.getCompleteBuffer($$3.getPath()).thenAccept($$12 -> $$17.execute($$1 -> {
+                 $$1.attachStaticBuffer($$12);
+                 $$1.play();
+             }));
+         } else {
+-            this.soundBuffers.getStream(sound2.getPath(), bl).thenAccept($$12 -> channelHandle.execute($$1 -> {
++            this.soundBuffers.getStream($$3.getPath(), $$14).thenAccept($$12 -> $$17.execute($$1 -> {
+                 $$1.attachBufferStream($$12);
+                 $$1.play();
+             }));
+         }
+-        if (sound instanceof net.minecraft.client.resources.sounds.TickableSoundInstance) {
+-            this.tickingSounds.add((java.lang.Object)((net.minecraft.client.resources.sounds.TickableSoundInstance)sound));
++        if ($$0 instanceof net.minecraft.client.resources.sounds.TickableSoundInstance) {
++            this.tickingSounds.add((java.lang.Object)((net.minecraft.client.resources.sounds.TickableSoundInstance)$$0));
+         }
+     }
+ 
+-    public void queueTickingSound(net.minecraft.client.resources.sounds.TickableSoundInstance tickableSound) {
+-        this.queuedTickableSounds.add((java.lang.Object)tickableSound);
++    public void queueTickingSound(net.minecraft.client.resources.sounds.TickableSoundInstance $$0) {
++        this.queuedTickableSounds.add((java.lang.Object)$$0);
+     }
+ 
+-    public void requestPreload(net.minecraft.client.resources.sounds.Sound sound) {
+-        this.preloadQueue.add((java.lang.Object)sound);
++    public void requestPreload(net.minecraft.client.resources.sounds.Sound $$0) {
++        this.preloadQueue.add((java.lang.Object)$$0);
+     }
+ 
+-    public float calculatePitch(net.minecraft.client.resources.sounds.SoundInstance sound) {
+-        return net.minecraft.util.Mth.clamp((float)sound.getPitch(), (float)0.5f, (float)2.0f);
++    public float calculatePitch(net.minecraft.client.resources.sounds.SoundInstance $$0) {
++        return net.minecraft.util.Mth.clamp((float)$$0.getPitch(), (float)0.5f, (float)2.0f);
+     }
+ 
+-    public float calculateVolume(net.minecraft.client.resources.sounds.SoundInstance sound) {
+-        return this.calculateVolume(sound.getVolume(), sound.getSource());
++    public float calculateVolume(net.minecraft.client.resources.sounds.SoundInstance $$0) {
++        return this.calculateVolume($$0.getVolume(), $$0.getSource());
+     }
+ 
+     public float calculateVolume(float $$0, net.minecraft.sounds.SoundSource $$1) {
+@@ -401,35 +400,35 @@
+         }
+     }
+ 
+-    public void playDelayed(net.minecraft.client.resources.sounds.SoundInstance sound, int delay) {
+-        this.queuedSounds.put((java.lang.Object)sound, (java.lang.Object)(this.tickCount + delay));
++    public void playDelayed(net.minecraft.client.resources.sounds.SoundInstance $$0, int $$1) {
++        this.queuedSounds.put((java.lang.Object)$$0, (java.lang.Object)(this.tickCount + $$1));
+     }
+ 
+-    public void updateSource(net.minecraft.client.Camera renderInfo) {
+-        if (!this.loaded || !renderInfo.isInitialized()) {
++    public void updateSource(net.minecraft.client.Camera $$0) {
++        if (!this.loaded || !$$0.isInitialized()) {
+             return;
+         }
+-        net.minecraft.world.phys.Vec3 vec3 = renderInfo.getPosition();
+-        com.mojang.math.Vector3f vector3f = renderInfo.getLookVector();
+-        com.mojang.math.Vector3f vector3f2 = renderInfo.getUpVector();
++        net.minecraft.world.phys.Vec3 $$1 = $$0.getPosition();
++        com.mojang.math.Vector3f $$2 = $$0.getLookVector();
++        com.mojang.math.Vector3f $$3 = $$0.getUpVector();
+         this.executor.execute(() -> {
+-            this.listener.setListenerPosition(vec3);
+-            this.listener.setListenerOrientation(vector3f, vector3f2);
++            this.listener.setListenerPosition($$1);
++            this.listener.setListenerOrientation($$2, $$3);
+         });
+     }
+ 
+-    public void stop(@javax.annotation.Nullable net.minecraft.resources.ResourceLocation soundName, @javax.annotation.Nullable net.minecraft.sounds.SoundSource category) {
+-        if (category != null) {
+-            for (net.minecraft.client.resources.sounds.SoundInstance soundInstance : this.instanceBySource.get((java.lang.Object)category)) {
+-                if (soundName != null && !soundInstance.getLocation().equals((java.lang.Object)soundName)) continue;
+-                this.stop(soundInstance);
++    public void stop(@javax.annotation.Nullable net.minecraft.resources.ResourceLocation $$0, @javax.annotation.Nullable net.minecraft.sounds.SoundSource $$1) {
++        if ($$1 != null) {
++            for (net.minecraft.client.resources.sounds.SoundInstance $$2 : this.instanceBySource.get((java.lang.Object)$$1)) {
++                if ($$0 != null && !$$2.getLocation().equals((java.lang.Object)$$0)) continue;
++                this.stop($$2);
+             }
+-        } else if (soundName == null) {
++        } else if ($$0 == null) {
+             this.stopAll();
+         } else {
+-            for (net.minecraft.client.resources.sounds.SoundInstance soundInstance : this.instanceToChannel.keySet()) {
+-                if (!soundInstance.getLocation().equals((java.lang.Object)soundName)) continue;
+-                this.stop(soundInstance);
++            for (net.minecraft.client.resources.sounds.SoundInstance $$3 : this.instanceToChannel.keySet()) {
++                if (!$$3.getLocation().equals((java.lang.Object)$$0)) continue;
++                this.stop($$3);
+             }
+         }
+     }

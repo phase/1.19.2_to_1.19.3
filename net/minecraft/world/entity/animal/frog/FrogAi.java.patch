@@ -1,0 +1,36 @@
+--- net/minecraft/world/entity/animal/frog/FrogAi.java
++++ net/minecraft/world/entity/animal/frog/FrogAi.java
+@@ -53,13 +53,32 @@
+     }
+ 
+     public static void initJumpActivity(net.minecraft.world.entity.ai.Brain<net.minecraft.world.entity.animal.frog.Frog> $$02) {
+-        $$02.addActivityWithConditions(net.minecraft.world.entity.schedule.Activity.LONG_JUMP, com.google.common.collect.ImmutableList.of((java.lang.Object)com.mojang.datafixers.util.Pair.of((java.lang.Object)0, (java.lang.Object)new net.minecraft.world.entity.ai.behavior.LongJumpMidJump(TIME_BETWEEN_LONG_JUMPS, net.minecraft.sounds.SoundEvents.FROG_STEP)), (java.lang.Object)com.mojang.datafixers.util.Pair.of((java.lang.Object)1, (java.lang.Object)new net.minecraft.world.entity.ai.behavior.LongJumpToPreferredBlock(TIME_BETWEEN_LONG_JUMPS, 2, 4, 1.5f, $$0 -> net.minecraft.sounds.SoundEvents.FROG_LONG_JUMP, net.minecraft.tags.BlockTags.FROG_PREFER_JUMP_TO, 0.5f, $$0 -> $$0.is(net.minecraft.world.level.block.Blocks.LILY_PAD)))), (java.util.Set)com.google.common.collect.ImmutableSet.of((java.lang.Object)com.mojang.datafixers.util.Pair.of((java.lang.Object)net.minecraft.world.entity.ai.memory.MemoryModuleType.TEMPTING_PLAYER, (java.lang.Object)net.minecraft.world.entity.ai.memory.MemoryStatus.VALUE_ABSENT), (java.lang.Object)com.mojang.datafixers.util.Pair.of((java.lang.Object)net.minecraft.world.entity.ai.memory.MemoryModuleType.BREED_TARGET, (java.lang.Object)net.minecraft.world.entity.ai.memory.MemoryStatus.VALUE_ABSENT), (java.lang.Object)com.mojang.datafixers.util.Pair.of((java.lang.Object)net.minecraft.world.entity.ai.memory.MemoryModuleType.LONG_JUMP_COOLDOWN_TICKS, (java.lang.Object)net.minecraft.world.entity.ai.memory.MemoryStatus.VALUE_ABSENT), (java.lang.Object)com.mojang.datafixers.util.Pair.of((java.lang.Object)net.minecraft.world.entity.ai.memory.MemoryModuleType.IS_IN_WATER, (java.lang.Object)net.minecraft.world.entity.ai.memory.MemoryStatus.VALUE_ABSENT)));
++        $$02.addActivityWithConditions(net.minecraft.world.entity.schedule.Activity.LONG_JUMP, com.google.common.collect.ImmutableList.of((java.lang.Object)com.mojang.datafixers.util.Pair.of((java.lang.Object)0, (java.lang.Object)new net.minecraft.world.entity.ai.behavior.LongJumpMidJump(TIME_BETWEEN_LONG_JUMPS, net.minecraft.sounds.SoundEvents.FROG_STEP)), (java.lang.Object)com.mojang.datafixers.util.Pair.of((java.lang.Object)1, (java.lang.Object)new net.minecraft.world.entity.ai.behavior.LongJumpToPreferredBlock(TIME_BETWEEN_LONG_JUMPS, 2, 4, 1.5f, $$0 -> net.minecraft.sounds.SoundEvents.FROG_LONG_JUMP, net.minecraft.tags.BlockTags.FROG_PREFER_JUMP_TO, 0.5f, net.minecraft.world.entity.animal.frog.FrogAi::isAcceptableLandingSpot))), (java.util.Set)com.google.common.collect.ImmutableSet.of((java.lang.Object)com.mojang.datafixers.util.Pair.of((java.lang.Object)net.minecraft.world.entity.ai.memory.MemoryModuleType.TEMPTING_PLAYER, (java.lang.Object)net.minecraft.world.entity.ai.memory.MemoryStatus.VALUE_ABSENT), (java.lang.Object)com.mojang.datafixers.util.Pair.of((java.lang.Object)net.minecraft.world.entity.ai.memory.MemoryModuleType.BREED_TARGET, (java.lang.Object)net.minecraft.world.entity.ai.memory.MemoryStatus.VALUE_ABSENT), (java.lang.Object)com.mojang.datafixers.util.Pair.of((java.lang.Object)net.minecraft.world.entity.ai.memory.MemoryModuleType.LONG_JUMP_COOLDOWN_TICKS, (java.lang.Object)net.minecraft.world.entity.ai.memory.MemoryStatus.VALUE_ABSENT), (java.lang.Object)com.mojang.datafixers.util.Pair.of((java.lang.Object)net.minecraft.world.entity.ai.memory.MemoryModuleType.IS_IN_WATER, (java.lang.Object)net.minecraft.world.entity.ai.memory.MemoryStatus.VALUE_ABSENT)));
+     }
+ 
+     public static void initTongueActivity(net.minecraft.world.entity.ai.Brain<net.minecraft.world.entity.animal.frog.Frog> $$0) {
+         $$0.addActivityAndRemoveMemoryWhenStopped(net.minecraft.world.entity.schedule.Activity.TONGUE, 0, com.google.common.collect.ImmutableList.of((java.lang.Object)new net.minecraft.world.entity.ai.behavior.StopAttackingIfTargetInvalid(), (java.lang.Object)new net.minecraft.world.entity.animal.frog.ShootTongue(net.minecraft.sounds.SoundEvents.FROG_TONGUE, net.minecraft.sounds.SoundEvents.FROG_EAT)), net.minecraft.world.entity.ai.memory.MemoryModuleType.ATTACK_TARGET);
+     }
+ 
++    public static <E extends net.minecraft.world.entity.Mob> boolean isAcceptableLandingSpot(E $$0, net.minecraft.core.BlockPos $$1) {
++        net.minecraft.world.level.Level $$2 = $$0.level;
++        net.minecraft.core.BlockPos $$3 = $$1.below();
++        if (!($$2.getFluidState($$1).isEmpty() && $$2.getFluidState($$3).isEmpty() && $$2.getFluidState($$1.above()).isEmpty())) {
++            return false;
++        }
++        net.minecraft.world.level.block.state.BlockState $$4 = $$2.getBlockState($$1);
++        net.minecraft.world.level.block.state.BlockState $$5 = $$2.getBlockState($$3);
++        if ($$4.is(net.minecraft.tags.BlockTags.FROG_PREFER_JUMP_TO) || $$5.is(net.minecraft.tags.BlockTags.FROG_PREFER_JUMP_TO)) {
++            return true;
++        }
++        net.minecraft.world.level.pathfinder.BlockPathTypes $$6 = net.minecraft.world.level.pathfinder.WalkNodeEvaluator.getBlockPathTypeStatic((net.minecraft.world.level.BlockGetter)$$2, (net.minecraft.core.BlockPos$MutableBlockPos)$$1.mutable());
++        net.minecraft.world.level.pathfinder.BlockPathTypes $$7 = net.minecraft.world.level.pathfinder.WalkNodeEvaluator.getBlockPathTypeStatic((net.minecraft.world.level.BlockGetter)$$2, (net.minecraft.core.BlockPos$MutableBlockPos)$$3.mutable());
++        if ($$6 == net.minecraft.world.level.pathfinder.BlockPathTypes.TRAPDOOR || $$4.isAir() && $$7 == net.minecraft.world.level.pathfinder.BlockPathTypes.TRAPDOOR) {
++            return true;
++        }
++        return net.minecraft.world.entity.ai.behavior.LongJumpToRandomPos.defaultAcceptableLandingSpot($$0, (net.minecraft.core.BlockPos)$$1);
++    }
++
+     public static boolean canAttack(net.minecraft.world.entity.animal.frog.Frog $$0) {
+         return !net.minecraft.world.entity.ai.behavior.BehaviorUtils.isBreeding((net.minecraft.world.entity.LivingEntity)$$0);
+     }

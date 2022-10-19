@@ -1,0 +1,57 @@
+--- net/minecraft/world/level/block/SkullBlock.java
++++ net/minecraft/world/level/block/SkullBlock.java
+@@ -6,8 +6,8 @@
+ public class net.minecraft.world.level.block.SkullBlock
+ extends net.minecraft.world.level.block.AbstractSkullBlock
+  {
+-    public static int MAX = 15;
+-    public static int ROTATIONS = 16;
++    public static int MAX;
++    public static int ROTATIONS;
+     public static net.minecraft.world.level.block.state.properties.IntegerProperty ROTATION;
+     public static net.minecraft.world.phys.shapes.VoxelShape SHAPE;
+ 
+@@ -16,31 +16,33 @@
+         this.registerDefaultState((net.minecraft.world.level.block.state.BlockState)((net.minecraft.world.level.block.state.BlockState)this.stateDefinition.any()).setValue((net.minecraft.world.level.block.state.properties.Property)ROTATION, (java.lang.Comparable)java.lang.Integer.valueOf((int)0)));
+     }
+ 
+-    public net.minecraft.world.phys.shapes.VoxelShape getShape(net.minecraft.world.level.block.state.BlockState state, net.minecraft.world.level.BlockGetter level, net.minecraft.core.BlockPos pos, net.minecraft.world.phys.shapes.CollisionContext context) {
++    public net.minecraft.world.phys.shapes.VoxelShape getShape(net.minecraft.world.level.block.state.BlockState $$0, net.minecraft.world.level.BlockGetter $$1, net.minecraft.core.BlockPos $$2, net.minecraft.world.phys.shapes.CollisionContext $$3) {
+         return SHAPE;
+     }
+ 
+-    public net.minecraft.world.phys.shapes.VoxelShape getOcclusionShape(net.minecraft.world.level.block.state.BlockState state, net.minecraft.world.level.BlockGetter level, net.minecraft.core.BlockPos pos) {
++    public net.minecraft.world.phys.shapes.VoxelShape getOcclusionShape(net.minecraft.world.level.block.state.BlockState $$0, net.minecraft.world.level.BlockGetter $$1, net.minecraft.core.BlockPos $$2) {
+         return net.minecraft.world.phys.shapes.Shapes.empty();
+     }
+ 
+-    public net.minecraft.world.level.block.state.BlockState getStateForPlacement(net.minecraft.world.item.context.BlockPlaceContext context) {
+-        return (net.minecraft.world.level.block.state.BlockState)this.defaultBlockState().setValue((net.minecraft.world.level.block.state.properties.Property)ROTATION, (java.lang.Comparable)java.lang.Integer.valueOf((int)(net.minecraft.util.Mth.floor((double)((double)(context.getRotation() * 16.0f / 360.0f) + 0.5)) & 0xF)));
++    public net.minecraft.world.level.block.state.BlockState getStateForPlacement(net.minecraft.world.item.context.BlockPlaceContext $$0) {
++        return (net.minecraft.world.level.block.state.BlockState)this.defaultBlockState().setValue((net.minecraft.world.level.block.state.properties.Property)ROTATION, (java.lang.Comparable)java.lang.Integer.valueOf((int)net.minecraft.world.level.block.state.properties.RotationSegment.convertToSegment((float)$$0.getRotation())));
+     }
+ 
+-    public net.minecraft.world.level.block.state.BlockState rotate(net.minecraft.world.level.block.state.BlockState state, net.minecraft.world.level.block.Rotation rotation) {
+-        return (net.minecraft.world.level.block.state.BlockState)state.setValue((net.minecraft.world.level.block.state.properties.Property)ROTATION, (java.lang.Comparable)java.lang.Integer.valueOf((int)rotation.rotate(((java.lang.Integer)state.getValue((net.minecraft.world.level.block.state.properties.Property)ROTATION)).intValue(), 16)));
++    public net.minecraft.world.level.block.state.BlockState rotate(net.minecraft.world.level.block.state.BlockState $$0, net.minecraft.world.level.block.Rotation $$1) {
++        return (net.minecraft.world.level.block.state.BlockState)$$0.setValue((net.minecraft.world.level.block.state.properties.Property)ROTATION, (java.lang.Comparable)java.lang.Integer.valueOf((int)$$1.rotate(((java.lang.Integer)$$0.getValue((net.minecraft.world.level.block.state.properties.Property)ROTATION)).intValue(), ROTATIONS)));
+     }
+ 
+-    public net.minecraft.world.level.block.state.BlockState mirror(net.minecraft.world.level.block.state.BlockState state, net.minecraft.world.level.block.Mirror mirror) {
+-        return (net.minecraft.world.level.block.state.BlockState)state.setValue((net.minecraft.world.level.block.state.properties.Property)ROTATION, (java.lang.Comparable)java.lang.Integer.valueOf((int)mirror.mirror(((java.lang.Integer)state.getValue((net.minecraft.world.level.block.state.properties.Property)ROTATION)).intValue(), 16)));
++    public net.minecraft.world.level.block.state.BlockState mirror(net.minecraft.world.level.block.state.BlockState $$0, net.minecraft.world.level.block.Mirror $$1) {
++        return (net.minecraft.world.level.block.state.BlockState)$$0.setValue((net.minecraft.world.level.block.state.properties.Property)ROTATION, (java.lang.Comparable)java.lang.Integer.valueOf((int)$$1.mirror(((java.lang.Integer)$$0.getValue((net.minecraft.world.level.block.state.properties.Property)ROTATION)).intValue(), ROTATIONS)));
+     }
+ 
+-    public void createBlockStateDefinition(net.minecraft.world.level.block.state.StateDefinition$Builder<net.minecraft.world.level.block.Block, net.minecraft.world.level.block.state.BlockState> builder) {
+-        builder.add(new net.minecraft.world.level.block.state.properties.Property[]{ROTATION});
++    public void createBlockStateDefinition(net.minecraft.world.level.block.state.StateDefinition$Builder<net.minecraft.world.level.block.Block, net.minecraft.world.level.block.state.BlockState> $$0) {
++        $$0.add(new net.minecraft.world.level.block.state.properties.Property[]{ROTATION});
+     }
+ 
+     static {
++        MAX = net.minecraft.world.level.block.state.properties.RotationSegment.getMaxSegmentIndex();
++        ROTATIONS = MAX + 1;
+         ROTATION = net.minecraft.world.level.block.state.properties.BlockStateProperties.ROTATION_16;
+         SHAPE = net.minecraft.world.level.block.Block.box((double)4.0, (double)0.0, (double)4.0, (double)12.0, (double)8.0, (double)12.0);
+     }

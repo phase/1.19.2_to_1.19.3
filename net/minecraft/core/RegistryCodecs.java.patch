@@ -1,0 +1,53 @@
+--- net/minecraft/core/RegistryCodecs.java
++++ net/minecraft/core/RegistryCodecs.java
+@@ -14,7 +14,7 @@
+ 
+     public static <T> com.mojang.serialization.Codec<net.minecraft.core.Registry<T>> networkCodec(net.minecraft.resources.ResourceKey<? extends net.minecraft.core.Registry<T>> $$02, com.mojang.serialization.Lifecycle $$1, com.mojang.serialization.Codec<T> $$22) {
+         return net.minecraft.core.RegistryCodecs.withNameAndId($$02, (com.mojang.serialization.MapCodec)$$22.fieldOf("element")).codec().listOf().xmap($$2 -> {
+-            net.minecraft.core.MappedRegistry $$3 = new net.minecraft.core.MappedRegistry($$02, $$1, null);
++            net.minecraft.core.MappedRegistry $$3 = new net.minecraft.core.MappedRegistry($$02, $$1);
+             for (net.minecraft.core.RegistryCodecs$RegistryEntry $$4 : $$2) {
+                 $$3.registerMapping($$4.id(), $$4.key(), $$4.value(), $$1);
+             }
+@@ -28,25 +28,15 @@
+         });
+     }
+ 
+-    public static <E> com.mojang.serialization.Codec<net.minecraft.core.Registry<E>> dataPackAwareCodec(net.minecraft.resources.ResourceKey<? extends net.minecraft.core.Registry<E>> $$02, com.mojang.serialization.Lifecycle $$1, com.mojang.serialization.Codec<E> $$2) {
+-        com.mojang.serialization.Codec $$3 = net.minecraft.core.RegistryCodecs.directCodec($$02, $$2);
+-        com.mojang.serialization.Encoder $$4 = $$3.comap($$0 -> com.google.common.collect.ImmutableMap.copyOf((java.lang.Iterable)$$0.entrySet()));
+-        return com.mojang.serialization.Codec.of((com.mojang.serialization.Encoder)$$4, (com.mojang.serialization.Decoder)net.minecraft.core.RegistryCodecs.dataPackAwareDecoder($$02, $$2, (com.mojang.serialization.Decoder)$$3, (com.mojang.serialization.Lifecycle)$$1), (java.lang.String)("DataPackRegistryCodec for " + $$02));
++    public static <E> com.mojang.serialization.Codec<net.minecraft.core.Registry<E>> fullCodec(net.minecraft.resources.ResourceKey<? extends net.minecraft.core.Registry<E>> $$02, com.mojang.serialization.Lifecycle $$1, com.mojang.serialization.Codec<E> $$22) {
++        com.mojang.serialization.codecs.UnboundedMapCodec $$3 = com.mojang.serialization.Codec.unboundedMap((com.mojang.serialization.Codec)net.minecraft.resources.ResourceKey.codec($$02), $$22);
++        return $$3.xmap($$2 -> {
++            net.minecraft.core.MappedRegistry $$3 = new net.minecraft.core.MappedRegistry($$02, $$1);
++            $$2.forEach((arg_0, arg_1) -> net.minecraft.core.RegistryCodecs.lambda$fullCodec$3((net.minecraft.core.WritableRegistry)$$3, $$1, arg_0, arg_1));
++            return $$3.freeze();
++        }, $$0 -> com.google.common.collect.ImmutableMap.copyOf((java.lang.Iterable)$$0.entrySet()));
+     }
+ 
+-    public static <E> com.mojang.serialization.Decoder<net.minecraft.core.Registry<E>> dataPackAwareDecoder(net.minecraft.resources.ResourceKey<? extends net.minecraft.core.Registry<E>> $$0, com.mojang.serialization.Codec<E> $$1, com.mojang.serialization.Decoder<java.util.Map<net.minecraft.resources.ResourceKey<E>, E>> $$22, com.mojang.serialization.Lifecycle $$3) {
+-        com.mojang.serialization.Decoder $$4 = $$22.map($$2 -> {
+-            net.minecraft.core.MappedRegistry $$3 = new net.minecraft.core.MappedRegistry($$0, $$3, null);
+-            $$2.forEach((arg_0, arg_1) -> net.minecraft.core.RegistryCodecs.lambda$dataPackAwareDecoder$4((net.minecraft.core.WritableRegistry)$$3, $$3, arg_0, arg_1));
+-            return $$3;
+-        });
+-        return new /* Unavailable Anonymous Inner Class!! */;
+-    }
+-
+-    public static <T> com.mojang.serialization.Codec<java.util.Map<net.minecraft.resources.ResourceKey<T>, T>> directCodec(net.minecraft.resources.ResourceKey<? extends net.minecraft.core.Registry<T>> $$0, com.mojang.serialization.Codec<T> $$1) {
+-        return com.mojang.serialization.Codec.unboundedMap((com.mojang.serialization.Codec)net.minecraft.resources.ResourceKey.codec($$0), $$1);
+-    }
+-
+     public static <E> com.mojang.serialization.Codec<net.minecraft.core.HolderSet<E>> homogeneousList(net.minecraft.resources.ResourceKey<? extends net.minecraft.core.Registry<E>> $$0, com.mojang.serialization.Codec<E> $$1) {
+         return net.minecraft.core.RegistryCodecs.homogeneousList($$0, $$1, (boolean)false);
+     }
+@@ -63,7 +53,7 @@
+         return net.minecraft.resources.HolderSetCodec.create($$0, (com.mojang.serialization.Codec)net.minecraft.resources.RegistryFixedCodec.create($$0), (boolean)$$1);
+     }
+ 
+-    public static /* synthetic */ void lambda$dataPackAwareDecoder$4(net.minecraft.core.WritableRegistry $$0, com.mojang.serialization.Lifecycle $$1, net.minecraft.resources.ResourceKey $$2, java.lang.Object $$3) {
++    public static /* synthetic */ void lambda$fullCodec$3(net.minecraft.core.WritableRegistry $$0, com.mojang.serialization.Lifecycle $$1, net.minecraft.resources.ResourceKey $$2, java.lang.Object $$3) {
+         $$0.register($$2, $$3, $$1);
+     }
+ }

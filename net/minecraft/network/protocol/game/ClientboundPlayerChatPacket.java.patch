@@ -1,0 +1,100 @@
+--- net/minecraft/network/protocol/game/ClientboundPlayerChatPacket.java
++++ net/minecraft/network/protocol/game/ClientboundPlayerChatPacket.java
+@@ -7,20 +7,37 @@
+ extends java.lang.Record
+ implements net.minecraft.network.protocol.Packet<net.minecraft.network.protocol.game.ClientGamePacketListener>
+  {
+-    public net.minecraft.network.chat.PlayerChatMessage message;
++    public java.util.UUID sender;
++    public int index;
++    @javax.annotation.Nullable
++    public net.minecraft.network.chat.MessageSignature signature;
++    public net.minecraft.network.chat.SignedMessageBody$Packed body;
++    @javax.annotation.Nullable
++    public net.minecraft.network.chat.Component unsignedContent;
++    public net.minecraft.network.chat.FilterMask filterMask;
+     public net.minecraft.network.chat.ChatType$BoundNetwork chatType;
+ 
+     public net.minecraft.network.protocol.game.ClientboundPlayerChatPacket(net.minecraft.network.FriendlyByteBuf $$0) {
+-        this(new net.minecraft.network.chat.PlayerChatMessage($$0), new net.minecraft.network.chat.ChatType$BoundNetwork($$0));
++        this($$0.readUUID(), $$0.readVarInt(), (net.minecraft.network.chat.MessageSignature)$$0.readNullable(net.minecraft.network.chat.MessageSignature::read), new net.minecraft.network.chat.SignedMessageBody$Packed($$0), (net.minecraft.network.chat.Component)$$0.readNullable(net.minecraft.network.FriendlyByteBuf::readComponent), net.minecraft.network.chat.FilterMask.read((net.minecraft.network.FriendlyByteBuf)$$0), new net.minecraft.network.chat.ChatType$BoundNetwork($$0));
+     }
+ 
+-    public net.minecraft.network.protocol.game.ClientboundPlayerChatPacket(net.minecraft.network.chat.PlayerChatMessage $$0, net.minecraft.network.chat.ChatType$BoundNetwork $$1) {
+-        this.message = $$0;
+-        this.chatType = $$1;
++    public net.minecraft.network.protocol.game.ClientboundPlayerChatPacket(java.util.UUID $$0, int $$1, @javax.annotation.Nullable net.minecraft.network.chat.MessageSignature $$2, net.minecraft.network.chat.SignedMessageBody$Packed $$3, @javax.annotation.Nullable net.minecraft.network.chat.Component $$4, net.minecraft.network.chat.FilterMask $$5, net.minecraft.network.chat.ChatType$BoundNetwork $$6) {
++        this.sender = $$0;
++        this.index = $$1;
++        this.signature = $$2;
++        this.body = $$3;
++        this.unsignedContent = $$4;
++        this.filterMask = $$5;
++        this.chatType = $$6;
+     }
+ 
+     public void write(net.minecraft.network.FriendlyByteBuf $$0) {
+-        this.message.write($$0);
++        $$0.writeUUID(this.sender);
++        $$0.writeVarInt(this.index);
++        $$0.writeNullable((java.lang.Object)this.signature, net.minecraft.network.chat.MessageSignature::write);
++        this.body.write($$0);
++        $$0.writeNullable((java.lang.Object)this.unsignedContent, net.minecraft.network.FriendlyByteBuf::writeComponent);
++        net.minecraft.network.chat.FilterMask.write((net.minecraft.network.FriendlyByteBuf)$$0, (net.minecraft.network.chat.FilterMask)this.filterMask);
+         this.chatType.write($$0);
+     }
+ 
+@@ -32,26 +49,44 @@
+         return true;
+     }
+ 
+-    public java.util.Optional<net.minecraft.network.chat.ChatType$Bound> resolveChatType(net.minecraft.core.RegistryAccess $$0) {
+-        return this.chatType.resolve($$0);
+-    }
+-
+     public java.lang.String toString() {
+-        return java.lang.runtime.ObjectMethods.bootstrap("toString", new java.lang.invoke.MethodHandle[]{net.minecraft.network.protocol.game.ClientboundPlayerChatPacket.class, "message;chatType", "message", "chatType"}, this);
++        return java.lang.runtime.ObjectMethods.bootstrap("toString", new java.lang.invoke.MethodHandle[]{net.minecraft.network.protocol.game.ClientboundPlayerChatPacket.class, "sender;index;signature;body;unsignedContent;filterMask;chatType", "sender", "index", "signature", "body", "unsignedContent", "filterMask", "chatType"}, this);
+     }
+ 
+     public int hashCode() {
+-        return (int)java.lang.runtime.ObjectMethods.bootstrap("hashCode", new java.lang.invoke.MethodHandle[]{net.minecraft.network.protocol.game.ClientboundPlayerChatPacket.class, "message;chatType", "message", "chatType"}, this);
++        return (int)java.lang.runtime.ObjectMethods.bootstrap("hashCode", new java.lang.invoke.MethodHandle[]{net.minecraft.network.protocol.game.ClientboundPlayerChatPacket.class, "sender;index;signature;body;unsignedContent;filterMask;chatType", "sender", "index", "signature", "body", "unsignedContent", "filterMask", "chatType"}, this);
+     }
+ 
+     public boolean equals(java.lang.Object $$0) {
+-        return (boolean)java.lang.runtime.ObjectMethods.bootstrap("equals", new java.lang.invoke.MethodHandle[]{net.minecraft.network.protocol.game.ClientboundPlayerChatPacket.class, "message;chatType", "message", "chatType"}, this, $$0);
++        return (boolean)java.lang.runtime.ObjectMethods.bootstrap("equals", new java.lang.invoke.MethodHandle[]{net.minecraft.network.protocol.game.ClientboundPlayerChatPacket.class, "sender;index;signature;body;unsignedContent;filterMask;chatType", "sender", "index", "signature", "body", "unsignedContent", "filterMask", "chatType"}, this, $$0);
+     }
+ 
+-    public net.minecraft.network.chat.PlayerChatMessage message() {
+-        return this.message;
++    public java.util.UUID sender() {
++        return this.sender;
+     }
+ 
++    public int index() {
++        return this.index;
++    }
++
++    @javax.annotation.Nullable
++    public net.minecraft.network.chat.MessageSignature signature() {
++        return this.signature;
++    }
++
++    public net.minecraft.network.chat.SignedMessageBody$Packed body() {
++        return this.body;
++    }
++
++    @javax.annotation.Nullable
++    public net.minecraft.network.chat.Component unsignedContent() {
++        return this.unsignedContent;
++    }
++
++    public net.minecraft.network.chat.FilterMask filterMask() {
++        return this.filterMask;
++    }
++
+     public net.minecraft.network.chat.ChatType$BoundNetwork chatType() {
+         return this.chatType;
+     }

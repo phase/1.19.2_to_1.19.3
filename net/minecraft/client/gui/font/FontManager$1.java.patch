@@ -1,0 +1,147 @@
+--- net/minecraft/client/gui/font/FontManager$1.java
++++ net/minecraft/client/gui/font/FontManager$1.java
+@@ -15,94 +15,82 @@
+     /*
+      * WARNING - Removed try catching itself - possible behaviour change.
+      */
+-    public java.util.Map<net.minecraft.resources.ResourceLocation, java.util.List<com.mojang.blaze3d.font.GlyphProvider>> prepare(net.minecraft.server.packs.resources.ResourceManager resourceManager, net.minecraft.util.profiling.ProfilerFiller profiler) {
+-        profiler.startTick();
+-        com.google.gson.Gson gson = new com.google.gson.GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
+-        java.util.HashMap hashMap = com.google.common.collect.Maps.newHashMap();
+-        for (java.util.Map$Entry entry : resourceManager.listResourceStacks("font", $$0 -> $$0.getPath().endsWith(".json")).entrySet()) {
+-            java.io.BufferedReader bufferedReader;
+-            net.minecraft.server.packs.resources.Resource resource2;
+-            net.minecraft.resources.ResourceLocation resourceLocation = (net.minecraft.resources.ResourceLocation)entry.getKey();
+-            java.lang.String string = resourceLocation.getPath();
+-            net.minecraft.resources.ResourceLocation resourceLocation2 = new net.minecraft.resources.ResourceLocation(resourceLocation.getNamespace(), string.substring("font/".length(), string.length() - ".json".length()));
+-            java.util.List list = (java.util.List)hashMap.computeIfAbsent((java.lang.Object)resourceLocation2, $$0 -> com.google.common.collect.Lists.newArrayList((java.lang.Object[])new com.mojang.blaze3d.font.GlyphProvider[]{new net.minecraft.client.gui.font.AllMissingGlyphProvider()}));
+-            profiler.push(() -> ((net.minecraft.resources.ResourceLocation)resourceLocation2).toString());
+-            for (net.minecraft.server.packs.resources.Resource resource2 : (java.util.List)entry.getValue()) {
+-                profiler.push(resource2.sourcePackId());
+-                try {
+-                    bufferedReader = resource2.openAsReader();
++    public java.util.Map<net.minecraft.resources.ResourceLocation, java.util.List<com.mojang.blaze3d.font.GlyphProvider>> prepare(net.minecraft.server.packs.resources.ResourceManager $$02, net.minecraft.util.profiling.ProfilerFiller $$12) {
++        $$12.startTick();
++        com.google.gson.Gson $$2 = new com.google.gson.GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
++        java.util.HashMap $$3 = com.google.common.collect.Maps.newHashMap();
++        for (java.util.Map$Entry $$4 : net.minecraft.client.gui.font.FontManager.FONT_DEFINITIONS.listMatchingResourceStacks($$02).entrySet()) {
++            net.minecraft.resources.ResourceLocation $$5 = (net.minecraft.resources.ResourceLocation)$$4.getKey();
++            net.minecraft.resources.ResourceLocation $$6 = net.minecraft.client.gui.font.FontManager.FONT_DEFINITIONS.fileToId($$5);
++            java.util.List $$7 = (java.util.List)$$3.computeIfAbsent((java.lang.Object)$$6, $$0 -> com.google.common.collect.Lists.newArrayList((java.lang.Object[])new com.mojang.blaze3d.font.GlyphProvider[]{new net.minecraft.client.gui.font.AllMissingGlyphProvider()}));
++            $$12.push(() -> ((net.minecraft.resources.ResourceLocation)$$6).toString());
++            for (net.minecraft.server.packs.resources.Resource $$8 : (java.util.List)$$4.getValue()) {
++                $$12.push($$8.sourcePackId());
++                try (java.io.BufferedReader $$9 = $$8.openAsReader();
++){
+                     try {
+-                        try {
+-                            profiler.push("reading");
+-                            com.google.gson.JsonArray jsonArray = net.minecraft.util.GsonHelper.getAsJsonArray((com.google.gson.JsonObject)((com.google.gson.JsonObject)net.minecraft.util.GsonHelper.fromJson((com.google.gson.Gson)gson, (java.io.Reader)bufferedReader, com.google.gson.JsonObject.class)), (java.lang.String)"providers");
+-                            profiler.popPush("parsing");
+-                            for (int i = jsonArray.size() - 1; i >= 0; --i) {
+-                                com.google.gson.JsonObject jsonObject = net.minecraft.util.GsonHelper.convertToJsonObject((com.google.gson.JsonElement)jsonArray.get(i), (java.lang.String)("providers[" + i + "]"));
+-                                java.lang.String string2 = net.minecraft.util.GsonHelper.getAsString((com.google.gson.JsonObject)jsonObject, (java.lang.String)"type");
+-                                net.minecraft.client.gui.font.providers.GlyphProviderBuilderType glyphProviderBuilderType = net.minecraft.client.gui.font.providers.GlyphProviderBuilderType.byName((java.lang.String)string2);
+-                                try {
+-                                    profiler.push(string2);
+-                                    com.mojang.blaze3d.font.GlyphProvider glyphProvider = glyphProviderBuilderType.create(jsonObject).create(resourceManager);
+-                                    if (glyphProvider == null) continue;
+-                                    list.add((java.lang.Object)glyphProvider);
+-                                    continue;
+-                                }
+-                                finally {
+-                                    profiler.pop();
+-                                }
++                        $$12.push("reading");
++                        com.google.gson.JsonArray $$10 = net.minecraft.util.GsonHelper.getAsJsonArray((com.google.gson.JsonObject)((com.google.gson.JsonObject)net.minecraft.util.GsonHelper.fromJson((com.google.gson.Gson)$$2, (java.io.Reader)$$9, com.google.gson.JsonObject.class)), (java.lang.String)"providers");
++                        $$12.popPush("parsing");
++                        for (int $$11 = $$10.size() - 1; $$11 >= 0; --$$11) {
++                            com.google.gson.JsonObject $$122 = net.minecraft.util.GsonHelper.convertToJsonObject((com.google.gson.JsonElement)$$10.get($$11), (java.lang.String)("providers[" + $$11 + "]"));
++                            java.lang.String $$13 = net.minecraft.util.GsonHelper.getAsString((com.google.gson.JsonObject)$$122, (java.lang.String)"type");
++                            net.minecraft.client.gui.font.providers.GlyphProviderBuilderType $$14 = net.minecraft.client.gui.font.providers.GlyphProviderBuilderType.byName((java.lang.String)$$13);
++                            try {
++                                $$12.push($$13);
++                                com.mojang.blaze3d.font.GlyphProvider $$15 = $$14.create($$122).create($$02);
++                                if ($$15 == null) continue;
++                                $$7.add((java.lang.Object)$$15);
++                                continue;
+                             }
++                            finally {
++                                $$12.pop();
++                            }
+                         }
+-                        finally {
+-                            profiler.pop();
+-                        }
+                     }
+                     finally {
+-                        if (bufferedReader != null) {
+-                            bufferedReader.close();
+-                        }
++                        $$12.pop();
+                     }
+                 }
+-                catch (java.lang.Exception exception) {
+-                    net.minecraft.client.gui.font.FontManager.LOGGER.warn("Unable to load font '{}' in {} in resourcepack: '{}'", new java.lang.Object[]{resourceLocation2, "fonts.json", resource2.sourcePackId(), exception});
++                catch (java.lang.Exception $$16) {
++                    net.minecraft.client.gui.font.FontManager.LOGGER.warn("Unable to load font '{}' in {} in resourcepack: '{}'", new java.lang.Object[]{$$6, "fonts.json", $$8.sourcePackId(), $$16});
+                 }
+-                profiler.pop();
++                $$12.pop();
+             }
+-            profiler.push("caching");
+-            java.util.Iterator iterator = new it.unimi.dsi.fastutil.ints.IntOpenHashSet();
+-            resource2 = list.iterator();
+-            while (resource2.hasNext()) {
+-                bufferedReader = (com.mojang.blaze3d.font.GlyphProvider)resource2.next();
+-                iterator.addAll((it.unimi.dsi.fastutil.ints.IntCollection)bufferedReader.getSupportedGlyphs());
++            $$12.push("caching");
++            it.unimi.dsi.fastutil.ints.IntOpenHashSet $$17 = new it.unimi.dsi.fastutil.ints.IntOpenHashSet();
++            for (com.mojang.blaze3d.font.GlyphProvider $$18 : $$7) {
++                $$17.addAll((it.unimi.dsi.fastutil.ints.IntCollection)$$18.getSupportedGlyphs());
+             }
+-            iterator.forEach($$1 -> {
++            $$17.forEach($$1 -> {
+                 com.mojang.blaze3d.font.GlyphProvider $$2;
+                 if ($$1 == 32) {
+                     return;
+                 }
+-                java.util.Iterator iterator = com.google.common.collect.Lists.reverse((java.util.List)list).iterator();
++                java.util.Iterator iterator = com.google.common.collect.Lists.reverse((java.util.List)$$7).iterator();
+                 while (iterator.hasNext() && ($$2 = (com.mojang.blaze3d.font.GlyphProvider)iterator.next()).getGlyph($$1) == null) {
+                 }
+             });
+-            profiler.pop();
+-            profiler.pop();
++            $$12.pop();
++            $$12.pop();
+         }
+-        profiler.endTick();
+-        return hashMap;
++        $$12.endTick();
++        return $$3;
+     }
+ 
+-    public void apply(java.util.Map<net.minecraft.resources.ResourceLocation, java.util.List<com.mojang.blaze3d.font.GlyphProvider>> object, net.minecraft.server.packs.resources.ResourceManager resourceManager, net.minecraft.util.profiling.ProfilerFiller profiler) {
+-        profiler.startTick();
+-        profiler.push("closing");
++    public void apply(java.util.Map<net.minecraft.resources.ResourceLocation, java.util.List<com.mojang.blaze3d.font.GlyphProvider>> $$02, net.minecraft.server.packs.resources.ResourceManager $$12, net.minecraft.util.profiling.ProfilerFiller $$2) {
++        $$2.startTick();
++        $$2.push("closing");
+         this.this$0.fontSets.values().forEach(net.minecraft.client.gui.font.FontSet::close);
+         this.this$0.fontSets.clear();
+-        profiler.popPush("reloading");
+-        object.forEach(($$0, $$1) -> {
++        $$2.popPush("reloading");
++        $$02.forEach(($$0, $$1) -> {
+             net.minecraft.client.gui.font.FontSet $$2 = new net.minecraft.client.gui.font.FontSet(this.this$0.textureManager, $$0);
+             $$2.reload(com.google.common.collect.Lists.reverse((java.util.List)$$1));
+             this.this$0.fontSets.put($$0, (java.lang.Object)$$2);
+         });
+-        profiler.pop();
+-        profiler.endTick();
++        $$2.pop();
++        $$2.endTick();
+     }
+ 
+     public java.lang.String getName() {

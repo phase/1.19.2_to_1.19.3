@@ -1,0 +1,102 @@
+--- net/minecraft/world/level/block/entity/SignBlockEntity.java
++++ net/minecraft/world/level/block/entity/SignBlockEntity.java
+@@ -7,6 +7,8 @@
+ extends net.minecraft.world.level.block.entity.BlockEntity
+  {
+     public static int LINES = 4;
++    public static int MAX_TEXT_LINE_WIDTH = 90;
++    public static int TEXT_LINE_HEIGHT = 10;
+     public static java.lang.String[] RAW_TEXT_FIELD_NAMES;
+     public static java.lang.String[] FILTERED_TEXT_FIELD_NAMES;
+     public net.minecraft.network.chat.Component[] messages;
+@@ -28,6 +30,22 @@
+         this.color = net.minecraft.world.item.DyeColor.BLACK;
+     }
+ 
++    public net.minecraft.world.level.block.entity.SignBlockEntity(net.minecraft.world.level.block.entity.BlockEntityType $$0, net.minecraft.core.BlockPos $$1, net.minecraft.world.level.block.state.BlockState $$2) {
++        super($$0, $$1, $$2);
++        this.messages = new net.minecraft.network.chat.Component[]{net.minecraft.network.chat.CommonComponents.EMPTY, net.minecraft.network.chat.CommonComponents.EMPTY, net.minecraft.network.chat.CommonComponents.EMPTY, net.minecraft.network.chat.CommonComponents.EMPTY};
++        this.filteredMessages = new net.minecraft.network.chat.Component[]{net.minecraft.network.chat.CommonComponents.EMPTY, net.minecraft.network.chat.CommonComponents.EMPTY, net.minecraft.network.chat.CommonComponents.EMPTY, net.minecraft.network.chat.CommonComponents.EMPTY};
++        this.isEditable = true;
++        this.color = net.minecraft.world.item.DyeColor.BLACK;
++    }
++
++    public int getTextLineHeight() {
++        return 10;
++    }
++
++    public int getMaxTextLineWidth() {
++        return 90;
++    }
++
+     public void saveAdditional(net.minecraft.nbt.CompoundTag $$0) {
+         super.saveAdditional($$0);
+         for (int $$1 = 0; $$1 < 4; ++$$1) {
+@@ -87,8 +105,8 @@
+         return this.getMessages($$1)[$$0];
+     }
+ 
+-    public void setMessage(int line, net.minecraft.network.chat.Component signText) {
+-        this.setMessage(line, signText, signText);
++    public void setMessage(int $$0, net.minecraft.network.chat.Component $$1) {
++        this.setMessage($$0, $$1, $$1);
+     }
+ 
+     public void setMessage(int $$0, net.minecraft.network.chat.Component $$1, net.minecraft.network.chat.Component $$2) {
+@@ -128,9 +146,9 @@
+         return this.isEditable;
+     }
+ 
+-    public void setEditable(boolean isEditable) {
+-        this.isEditable = isEditable;
+-        if (!isEditable) {
++    public void setEditable(boolean $$0) {
++        this.isEditable = $$0;
++        if (!$$0) {
+             this.playerWhoMayEdit = null;
+         }
+     }
+@@ -144,6 +162,16 @@
+         return this.playerWhoMayEdit;
+     }
+ 
++    public boolean hasAnyClickCommands(net.minecraft.world.entity.player.Player $$0) {
++        for (net.minecraft.network.chat.Component $$1 : this.getMessages($$0.isTextFilteringEnabled())) {
++            net.minecraft.network.chat.Style $$2 = $$1.getStyle();
++            net.minecraft.network.chat.ClickEvent $$3 = $$2.getClickEvent();
++            if ($$3 == null || $$3.getAction() != net.minecraft.network.chat.ClickEvent$Action.RUN_COMMAND) continue;
++            return true;
++        }
++        return false;
++    }
++
+     public boolean executeClickCommands(net.minecraft.server.level.ServerPlayer $$0) {
+         for (net.minecraft.network.chat.Component $$1 : this.getMessages($$0.isTextFilteringEnabled())) {
+             net.minecraft.network.chat.Style $$2 = $$1.getStyle();
+@@ -154,19 +182,19 @@
+         return true;
+     }
+ 
+-    public net.minecraft.commands.CommandSourceStack createCommandSourceStack(@javax.annotation.Nullable net.minecraft.server.level.ServerPlayer player) {
+-        java.lang.String string = player == null ? "Sign" : player.getName().getString();
+-        net.minecraft.network.chat.MutableComponent mutableComponent = player == null ? net.minecraft.network.chat.Component.literal((java.lang.String)"Sign") : player.getDisplayName();
+-        return new net.minecraft.commands.CommandSourceStack(net.minecraft.commands.CommandSource.NULL, net.minecraft.world.phys.Vec3.atCenterOf((net.minecraft.core.Vec3i)this.worldPosition), net.minecraft.world.phys.Vec2.ZERO, (net.minecraft.server.level.ServerLevel)this.level, 2, string, (net.minecraft.network.chat.Component)mutableComponent, this.level.getServer(), (net.minecraft.world.entity.Entity)player);
++    public net.minecraft.commands.CommandSourceStack createCommandSourceStack(@javax.annotation.Nullable net.minecraft.server.level.ServerPlayer $$0) {
++        java.lang.String $$1 = $$0 == null ? "Sign" : $$0.getName().getString();
++        net.minecraft.network.chat.MutableComponent $$2 = $$0 == null ? net.minecraft.network.chat.Component.literal((java.lang.String)"Sign") : $$0.getDisplayName();
++        return new net.minecraft.commands.CommandSourceStack(net.minecraft.commands.CommandSource.NULL, net.minecraft.world.phys.Vec3.atCenterOf((net.minecraft.core.Vec3i)this.worldPosition), net.minecraft.world.phys.Vec2.ZERO, (net.minecraft.server.level.ServerLevel)this.level, 2, $$1, (net.minecraft.network.chat.Component)$$2, this.level.getServer(), (net.minecraft.world.entity.Entity)$$0);
+     }
+ 
+     public net.minecraft.world.item.DyeColor getColor() {
+         return this.color;
+     }
+ 
+-    public boolean setColor(net.minecraft.world.item.DyeColor color) {
+-        if (color != this.getColor()) {
+-            this.color = color;
++    public boolean setColor(net.minecraft.world.item.DyeColor $$0) {
++        if ($$0 != this.getColor()) {
++            this.color = $$0;
+             this.markUpdated();
+             return true;
+         }

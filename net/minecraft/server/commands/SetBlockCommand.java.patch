@@ -1,0 +1,41 @@
+--- net/minecraft/server/commands/SetBlockCommand.java
++++ net/minecraft/server/commands/SetBlockCommand.java
+@@ -14,25 +14,25 @@
+         $$03.register((com.mojang.brigadier.builder.LiteralArgumentBuilder)((com.mojang.brigadier.builder.LiteralArgumentBuilder)net.minecraft.commands.Commands.literal((java.lang.String)"setblock").requires($$0 -> $$0.hasPermission(2))).then(net.minecraft.commands.Commands.argument((java.lang.String)"pos", (com.mojang.brigadier.arguments.ArgumentType)net.minecraft.commands.arguments.coordinates.BlockPosArgument.blockPos()).then(((com.mojang.brigadier.builder.RequiredArgumentBuilder)((com.mojang.brigadier.builder.RequiredArgumentBuilder)((com.mojang.brigadier.builder.RequiredArgumentBuilder)net.minecraft.commands.Commands.argument((java.lang.String)"block", (com.mojang.brigadier.arguments.ArgumentType)net.minecraft.commands.arguments.blocks.BlockStateArgument.block((net.minecraft.commands.CommandBuildContext)$$1)).executes($$0 -> net.minecraft.server.commands.SetBlockCommand.setBlock((net.minecraft.commands.CommandSourceStack)((net.minecraft.commands.CommandSourceStack)$$0.getSource()), (net.minecraft.core.BlockPos)net.minecraft.commands.arguments.coordinates.BlockPosArgument.getLoadedBlockPos((com.mojang.brigadier.context.CommandContext)$$0, (java.lang.String)"pos"), (net.minecraft.commands.arguments.blocks.BlockInput)net.minecraft.commands.arguments.blocks.BlockStateArgument.getBlock((com.mojang.brigadier.context.CommandContext)$$0, (java.lang.String)"block"), (net.minecraft.server.commands.SetBlockCommand$Mode)net.minecraft.server.commands.SetBlockCommand$Mode.REPLACE, null))).then(net.minecraft.commands.Commands.literal((java.lang.String)"destroy").executes($$0 -> net.minecraft.server.commands.SetBlockCommand.setBlock((net.minecraft.commands.CommandSourceStack)((net.minecraft.commands.CommandSourceStack)$$0.getSource()), (net.minecraft.core.BlockPos)net.minecraft.commands.arguments.coordinates.BlockPosArgument.getLoadedBlockPos((com.mojang.brigadier.context.CommandContext)$$0, (java.lang.String)"pos"), (net.minecraft.commands.arguments.blocks.BlockInput)net.minecraft.commands.arguments.blocks.BlockStateArgument.getBlock((com.mojang.brigadier.context.CommandContext)$$0, (java.lang.String)"block"), (net.minecraft.server.commands.SetBlockCommand$Mode)net.minecraft.server.commands.SetBlockCommand$Mode.DESTROY, null)))).then(net.minecraft.commands.Commands.literal((java.lang.String)"keep").executes($$02 -> net.minecraft.server.commands.SetBlockCommand.setBlock((net.minecraft.commands.CommandSourceStack)((net.minecraft.commands.CommandSourceStack)$$02.getSource()), (net.minecraft.core.BlockPos)net.minecraft.commands.arguments.coordinates.BlockPosArgument.getLoadedBlockPos((com.mojang.brigadier.context.CommandContext)$$02, (java.lang.String)"pos"), (net.minecraft.commands.arguments.blocks.BlockInput)net.minecraft.commands.arguments.blocks.BlockStateArgument.getBlock((com.mojang.brigadier.context.CommandContext)$$02, (java.lang.String)"block"), (net.minecraft.server.commands.SetBlockCommand$Mode)net.minecraft.server.commands.SetBlockCommand$Mode.REPLACE, $$0 -> $$0.getLevel().isEmptyBlock($$0.getPos()))))).then(net.minecraft.commands.Commands.literal((java.lang.String)"replace").executes($$0 -> net.minecraft.server.commands.SetBlockCommand.setBlock((net.minecraft.commands.CommandSourceStack)((net.minecraft.commands.CommandSourceStack)$$0.getSource()), (net.minecraft.core.BlockPos)net.minecraft.commands.arguments.coordinates.BlockPosArgument.getLoadedBlockPos((com.mojang.brigadier.context.CommandContext)$$0, (java.lang.String)"pos"), (net.minecraft.commands.arguments.blocks.BlockInput)net.minecraft.commands.arguments.blocks.BlockStateArgument.getBlock((com.mojang.brigadier.context.CommandContext)$$0, (java.lang.String)"block"), (net.minecraft.server.commands.SetBlockCommand$Mode)net.minecraft.server.commands.SetBlockCommand$Mode.REPLACE, null))))));
+     }
+ 
+-    public static int setBlock(net.minecraft.commands.CommandSourceStack source, net.minecraft.core.BlockPos pos, net.minecraft.commands.arguments.blocks.BlockInput state, net.minecraft.server.commands.SetBlockCommand$Mode mode, @javax.annotation.Nullable java.util.function.Predicate<net.minecraft.world.level.block.state.pattern.BlockInWorld> predicate) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
+-        boolean bl;
+-        net.minecraft.server.level.ServerLevel serverLevel = source.getLevel();
+-        if (predicate != null && !predicate.test((java.lang.Object)new net.minecraft.world.level.block.state.pattern.BlockInWorld((net.minecraft.world.level.LevelReader)serverLevel, pos, true))) {
++    public static int setBlock(net.minecraft.commands.CommandSourceStack $$0, net.minecraft.core.BlockPos $$1, net.minecraft.commands.arguments.blocks.BlockInput $$2, net.minecraft.server.commands.SetBlockCommand$Mode $$3, @javax.annotation.Nullable java.util.function.Predicate<net.minecraft.world.level.block.state.pattern.BlockInWorld> $$4) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
++        boolean $$8;
++        net.minecraft.server.level.ServerLevel $$5 = $$0.getLevel();
++        if ($$4 != null && !$$4.test((java.lang.Object)new net.minecraft.world.level.block.state.pattern.BlockInWorld((net.minecraft.world.level.LevelReader)$$5, $$1, true))) {
+             throw ERROR_FAILED.create();
+         }
+-        if (mode == net.minecraft.server.commands.SetBlockCommand$Mode.DESTROY) {
+-            serverLevel.destroyBlock(pos, true);
+-            bl = !state.getState().isAir() || !serverLevel.getBlockState(pos).isAir();
++        if ($$3 == net.minecraft.server.commands.SetBlockCommand$Mode.DESTROY) {
++            $$5.destroyBlock($$1, true);
++            boolean $$6 = !$$2.getState().isAir() || !$$5.getBlockState($$1).isAir();
+         } else {
+-            net.minecraft.world.level.block.entity.BlockEntity blockEntity = serverLevel.getBlockEntity(pos);
+-            net.minecraft.world.Clearable.tryClear((java.lang.Object)blockEntity);
+-            bl = true;
++            net.minecraft.world.level.block.entity.BlockEntity $$7 = $$5.getBlockEntity($$1);
++            net.minecraft.world.Clearable.tryClear((java.lang.Object)$$7);
++            $$8 = true;
+         }
+-        if (bl && !state.place(serverLevel, pos, 2)) {
++        if ($$8 && !$$2.place($$5, $$1, 2)) {
+             throw ERROR_FAILED.create();
+         }
+-        serverLevel.blockUpdated(pos, state.getState().getBlock());
+-        source.sendSuccess((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"commands.setblock.success", (java.lang.Object[])new java.lang.Object[]{pos.getX(), pos.getY(), pos.getZ()}), true);
++        $$5.blockUpdated($$1, $$2.getState().getBlock());
++        $$0.sendSuccess((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"commands.setblock.success", (java.lang.Object[])new java.lang.Object[]{$$1.getX(), $$1.getY(), $$1.getZ()}), true);
+         return 1;
+     }
+ 

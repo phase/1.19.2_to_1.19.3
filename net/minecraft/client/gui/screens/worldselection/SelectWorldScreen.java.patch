@@ -1,0 +1,88 @@
+--- net/minecraft/client/gui/screens/worldselection/SelectWorldScreen.java
++++ net/minecraft/client/gui/screens/worldselection/SelectWorldScreen.java
+@@ -7,6 +7,7 @@
+ extends net.minecraft.client.gui.screens.Screen
+  {
+     public static org.slf4j.Logger LOGGER;
++    public static net.minecraft.world.level.levelgen.WorldOptions TEST_OPTIONS;
+     public net.minecraft.client.gui.screens.Screen lastScreen;
+     @javax.annotation.Nullable
+     public java.util.List<net.minecraft.util.FormattedCharSequence> toolTip;
+@@ -22,8 +23,8 @@
+         this.lastScreen = $$0;
+     }
+ 
+-    public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
+-        return super.mouseScrolled(mouseX, mouseY, delta);
++    public boolean mouseScrolled(double $$0, double $$1, double $$2) {
++        return super.mouseScrolled($$0, $$1, $$2);
+     }
+ 
+     public void tick() {
+@@ -47,29 +48,29 @@
+         this.setInitialFocus((net.minecraft.client.gui.components.events.GuiEventListener)this.searchBox);
+     }
+ 
+-    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+-        if (super.keyPressed(keyCode, scanCode, modifiers)) {
++    public boolean keyPressed(int $$0, int $$1, int $$2) {
++        if (super.keyPressed($$0, $$1, $$2)) {
+             return true;
+         }
+-        return this.searchBox.keyPressed(keyCode, scanCode, modifiers);
++        return this.searchBox.keyPressed($$0, $$1, $$2);
+     }
+ 
+     public void onClose() {
+         this.minecraft.setScreen(this.lastScreen);
+     }
+ 
+-    public boolean charTyped(char codePoint, int modifiers) {
+-        return this.searchBox.charTyped(codePoint, modifiers);
++    public boolean charTyped(char $$0, int $$1) {
++        return this.searchBox.charTyped($$0, $$1);
+     }
+ 
+-    public void render(com.mojang.blaze3d.vertex.PoseStack matrixStack, int mouseX, int mouseY, float partialTicks) {
++    public void render(com.mojang.blaze3d.vertex.PoseStack $$0, int $$1, int $$2, float $$3) {
+         this.toolTip = null;
+-        this.list.render(matrixStack, mouseX, mouseY, partialTicks);
+-        this.searchBox.render(matrixStack, mouseX, mouseY, partialTicks);
+-        net.minecraft.client.gui.screens.worldselection.SelectWorldScreen.drawCenteredString((com.mojang.blaze3d.vertex.PoseStack)matrixStack, (net.minecraft.client.gui.Font)this.font, (net.minecraft.network.chat.Component)this.title, (int)(this.width / 2), (int)8, (int)0xFFFFFF);
+-        super.render(matrixStack, mouseX, mouseY, partialTicks);
++        this.list.render($$0, $$1, $$2, $$3);
++        this.searchBox.render($$0, $$1, $$2, $$3);
++        net.minecraft.client.gui.screens.worldselection.SelectWorldScreen.drawCenteredString((com.mojang.blaze3d.vertex.PoseStack)$$0, (net.minecraft.client.gui.Font)this.font, (net.minecraft.network.chat.Component)this.title, (int)(this.width / 2), (int)8, (int)0xFFFFFF);
++        super.render($$0, $$1, $$2, $$3);
+         if (this.toolTip != null) {
+-            this.renderTooltip(matrixStack, this.toolTip, mouseX, mouseY);
++            this.renderTooltip($$0, this.toolTip, $$1, $$2);
+         }
+     }
+ 
+@@ -98,19 +99,18 @@
+             if (!this.list.children().isEmpty() && ($$2 = (net.minecraft.client.gui.screens.worldselection.WorldSelectionList$Entry)this.list.children().get(0)) instanceof net.minecraft.client.gui.screens.worldselection.WorldSelectionList$WorldListEntry && ($$3 = (net.minecraft.client.gui.screens.worldselection.WorldSelectionList$WorldListEntry)$$2).getLevelName().equals((java.lang.Object)"DEBUG world")) {
+                 $$3.doDeleteWorld();
+             }
+-            net.minecraft.core.RegistryAccess$Frozen $$4 = net.minecraft.core.RegistryAccess.builtinCopy().freeze();
+-            net.minecraft.world.level.levelgen.WorldGenSettings $$5 = net.minecraft.world.level.levelgen.presets.WorldPresets.createNormalWorldFromPreset((net.minecraft.core.RegistryAccess)$$4, (long)"test1".hashCode());
+-            net.minecraft.world.level.LevelSettings $$6 = new net.minecraft.world.level.LevelSettings("DEBUG world", net.minecraft.world.level.GameType.SPECTATOR, false, net.minecraft.world.Difficulty.NORMAL, true, new net.minecraft.world.level.GameRules(), net.minecraft.world.level.DataPackConfig.DEFAULT);
+-            java.lang.String $$7 = net.minecraft.FileUtil.findAvailableName((java.nio.file.Path)this.minecraft.getLevelSource().getBaseDir(), (java.lang.String)"DEBUG world", (java.lang.String)"");
+-            this.minecraft.createWorldOpenFlows().createFreshLevel($$7, $$6, (net.minecraft.core.RegistryAccess)$$4, $$5);
++            net.minecraft.world.level.LevelSettings $$4 = new net.minecraft.world.level.LevelSettings("DEBUG world", net.minecraft.world.level.GameType.SPECTATOR, false, net.minecraft.world.Difficulty.NORMAL, true, new net.minecraft.world.level.GameRules(), net.minecraft.world.level.WorldDataConfiguration.DEFAULT);
++            java.lang.String $$5 = net.minecraft.FileUtil.findAvailableName((java.nio.file.Path)this.minecraft.getLevelSource().getBaseDir(), (java.lang.String)"DEBUG world", (java.lang.String)"");
++            this.minecraft.createWorldOpenFlows().createFreshLevel($$5, $$4, TEST_OPTIONS, net.minecraft.world.level.levelgen.presets.WorldPresets::createNormalWorldDimensions);
+         }
+-        catch (java.io.IOException $$8) {
+-            LOGGER.error("Failed to recreate the debug world", (java.lang.Throwable)$$8);
++        catch (java.io.IOException $$6) {
++            LOGGER.error("Failed to recreate the debug world", (java.lang.Throwable)$$6);
+         }
+     }
+ 
+     static {
+         LOGGER = com.mojang.logging.LogUtils.getLogger();
++        TEST_OPTIONS = new net.minecraft.world.level.levelgen.WorldOptions((long)"test1".hashCode(), true, false);
+     }
+ }
+ 

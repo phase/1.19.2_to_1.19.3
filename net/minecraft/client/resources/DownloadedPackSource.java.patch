@@ -1,0 +1,182 @@
+--- net/minecraft/client/resources/DownloadedPackSource.java
++++ net/minecraft/client/resources/DownloadedPackSource.java
+@@ -1,0 +1,179 @@
++/*
++ * Decompiled with CFR 0.151.
++ */
++package net.minecraft.client.resources;
++
++public class net.minecraft.client.resources.DownloadedPackSource
++implements net.minecraft.server.packs.repository.RepositorySource
++ {
++    public static org.slf4j.Logger LOGGER;
++    public static java.util.regex.Pattern SHA1;
++    public static int MAX_PACK_SIZE_BYTES = 0xFA00000;
++    public static int MAX_KEPT_PACKS = 10;
++    public static java.lang.String SERVER_ID = "server";
++    public static net.minecraft.network.chat.Component SERVER_NAME;
++    public static net.minecraft.network.chat.Component APPLYING_PACK_TEXT;
++    public java.io.File serverPackDir;
++    public java.util.concurrent.locks.ReentrantLock downloadLock;
++    @javax.annotation.Nullable
++    public java.util.concurrent.CompletableFuture<?> currentDownload;
++    @javax.annotation.Nullable
++    public net.minecraft.server.packs.repository.Pack serverPack;
++
++    public net.minecraft.client.resources.DownloadedPackSource(java.io.File $$0) {
++        this.downloadLock = new java.util.concurrent.locks.ReentrantLock();
++        this.serverPackDir = $$0;
++    }
++
++    public void loadPacks(java.util.function.Consumer<net.minecraft.server.packs.repository.Pack> $$0) {
++        if (this.serverPack != null) {
++            $$0.accept((java.lang.Object)this.serverPack);
++        }
++    }
++
++    public static java.util.Map<java.lang.String, java.lang.String> getDownloadHeaders() {
++        return java.util.Map.of((java.lang.Object)"X-Minecraft-Username", (java.lang.Object)net.minecraft.client.Minecraft.getInstance().getUser().getName(), (java.lang.Object)"X-Minecraft-UUID", (java.lang.Object)net.minecraft.client.Minecraft.getInstance().getUser().getUuid(), (java.lang.Object)"X-Minecraft-Version", (java.lang.Object)net.minecraft.SharedConstants.getCurrentVersion().getName(), (java.lang.Object)"X-Minecraft-Version-ID", (java.lang.Object)net.minecraft.SharedConstants.getCurrentVersion().getId(), (java.lang.Object)"X-Minecraft-Pack-Format", (java.lang.Object)java.lang.String.valueOf((int)net.minecraft.server.packs.PackType.CLIENT_RESOURCES.getVersion((com.mojang.bridge.game.GameVersion)net.minecraft.SharedConstants.getCurrentVersion())), (java.lang.Object)"User-Agent", (java.lang.Object)("Minecraft Java/" + net.minecraft.SharedConstants.getCurrentVersion().getName()));
++    }
++
++    /*
++     * WARNING - Removed try catching itself - possible behaviour change.
++     */
++    public java.util.concurrent.CompletableFuture<?> downloadAndSelectResourcePack(java.net.URL $$02, java.lang.String $$1, boolean $$2) {
++        java.lang.String $$3 = com.google.common.hash.Hashing.sha1().hashString((java.lang.CharSequence)$$02.toString(), java.nio.charset.StandardCharsets.UTF_8).toString();
++        java.lang.String $$42 = SHA1.matcher((java.lang.CharSequence)$$1).matches() ? $$1 : "";
++        this.downloadLock.lock();
++        try {
++            java.util.concurrent.CompletableFuture $$10;
++            net.minecraft.client.Minecraft $$5 = net.minecraft.client.Minecraft.getInstance();
++            java.io.File $$6 = new java.io.File(this.serverPackDir, $$3);
++            if ($$6.exists()) {
++                java.util.concurrent.CompletableFuture $$7 = java.util.concurrent.CompletableFuture.completedFuture((java.lang.Object)"");
++            } else {
++                net.minecraft.client.gui.screens.ProgressScreen $$8 = new net.minecraft.client.gui.screens.ProgressScreen($$2);
++                java.util.Map $$9 = net.minecraft.client.resources.DownloadedPackSource.getDownloadHeaders();
++                $$5.executeBlocking(() -> $$5.setScreen((net.minecraft.client.gui.screens.Screen)$$8));
++                $$10 = net.minecraft.util.HttpUtil.downloadTo((java.io.File)$$6, (java.net.URL)$$02, (java.util.Map)$$9, (int)0xFA00000, (net.minecraft.util.ProgressListener)$$8, (java.net.Proxy)$$5.getProxy());
++            }
++            java.util.concurrent.CompletableFuture completableFuture = this.currentDownload = $$10.thenCompose($$4 -> {
++                if (!this.checkHash($$42, $$6)) {
++                    return java.util.concurrent.CompletableFuture.failedFuture((java.lang.Throwable)new java.lang.RuntimeException("Hash check failure for file " + $$6 + ", see log"));
++                }
++                $$5.execute(() -> {
++                    if (!$$2) {
++                        $$5.setScreen((net.minecraft.client.gui.screens.Screen)new net.minecraft.client.gui.screens.GenericDirtMessageScreen(APPLYING_PACK_TEXT));
++                    }
++                });
++                return this.setServerPack($$6, net.minecraft.server.packs.repository.PackSource.SERVER);
++            }).exceptionallyCompose($$22 -> this.clearServerPack().thenAcceptAsync($$2 -> {
++                LOGGER.warn("Pack application failed: {}, deleting file {}", (java.lang.Object)$$22.getMessage(), (java.lang.Object)$$6);
++                net.minecraft.client.resources.DownloadedPackSource.deleteQuietly((java.io.File)$$6);
++            }, (java.util.concurrent.Executor)net.minecraft.Util.ioPool()).thenAcceptAsync($$12 -> $$5.setScreen((net.minecraft.client.gui.screens.Screen)new net.minecraft.client.gui.screens.ConfirmScreen($$1 -> {
++                if ($$1) {
++                    $$5.setScreen(null);
++                } else {
++                    net.minecraft.client.multiplayer.ClientPacketListener $$2 = $$5.getConnection();
++                    if ($$2 != null) {
++                        $$2.getConnection().disconnect((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"connect.aborted"));
++                    }
++                }
++            }, (net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"multiplayer.texturePrompt.failure.line1"), (net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"multiplayer.texturePrompt.failure.line2"), net.minecraft.network.chat.CommonComponents.GUI_PROCEED, (net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"menu.disconnect"))), (java.util.concurrent.Executor)$$5)).thenAcceptAsync($$0 -> this.clearOldDownloads(), (java.util.concurrent.Executor)net.minecraft.Util.ioPool());
++            return completableFuture;
++        }
++        finally {
++            this.downloadLock.unlock();
++        }
++    }
++
++    public static void deleteQuietly(java.io.File $$0) {
++        try {
++            java.nio.file.Files.delete((java.nio.file.Path)$$0.toPath());
++        }
++        catch (java.io.IOException $$1) {
++            LOGGER.warn("Failed to delete file {}: {}", (java.lang.Object)$$0, (java.lang.Object)$$1.getMessage());
++        }
++    }
++
++    public java.util.concurrent.CompletableFuture<java.lang.Void> clearServerPack() {
++        this.downloadLock.lock();
++        try {
++            if (this.currentDownload != null) {
++                this.currentDownload.cancel(true);
++            }
++            this.currentDownload = null;
++            if (this.serverPack != null) {
++                this.serverPack = null;
++                java.util.concurrent.CompletableFuture completableFuture = net.minecraft.client.Minecraft.getInstance().delayTextureReload();
++                return completableFuture;
++            }
++        }
++        finally {
++            this.downloadLock.unlock();
++        }
++        return java.util.concurrent.CompletableFuture.completedFuture(null);
++    }
++
++    public boolean checkHash(java.lang.String $$0, java.io.File $$1) {
++        try {
++            java.lang.String $$2 = com.google.common.io.Files.asByteSource((java.io.File)$$1).hash(com.google.common.hash.Hashing.sha1()).toString();
++            if ($$0.isEmpty()) {
++                LOGGER.info("Found file {} without verification hash", (java.lang.Object)$$1);
++                return true;
++            }
++            if ($$2.toLowerCase(java.util.Locale.ROOT).equals((java.lang.Object)$$0.toLowerCase(java.util.Locale.ROOT))) {
++                LOGGER.info("Found file {} matching requested hash {}", (java.lang.Object)$$1, (java.lang.Object)$$0);
++                return true;
++            }
++            LOGGER.warn("File {} had wrong hash (expected {}, found {}).", new java.lang.Object[]{$$1, $$0, $$2});
++        }
++        catch (java.io.IOException $$3) {
++            LOGGER.warn("File {} couldn't be hashed.", (java.lang.Object)$$1, (java.lang.Object)((java.lang.Object)$$3));
++        }
++        return false;
++    }
++
++    public void clearOldDownloads() {
++        if (!this.serverPackDir.isDirectory()) {
++            return;
++        }
++        try {
++            java.util.ArrayList $$0 = new java.util.ArrayList(org.apache.commons.io.FileUtils.listFiles((java.io.File)this.serverPackDir, (org.apache.commons.io.filefilter.IOFileFilter)org.apache.commons.io.filefilter.TrueFileFilter.TRUE, null));
++            $$0.sort(org.apache.commons.io.comparator.LastModifiedFileComparator.LASTMODIFIED_REVERSE);
++            int $$1 = 0;
++            for (java.io.File $$2 : $$0) {
++                if ($$1++ < 10) continue;
++                LOGGER.info("Deleting old server resource pack {}", (java.lang.Object)$$2.getName());
++                org.apache.commons.io.FileUtils.deleteQuietly((java.io.File)$$2);
++            }
++        }
++        catch (java.lang.Exception $$3) {
++            LOGGER.error("Error while deleting old server resource pack : {}", (java.lang.Object)$$3.getMessage());
++        }
++    }
++
++    public java.util.concurrent.CompletableFuture<java.lang.Void> setServerPack(java.io.File $$0, net.minecraft.server.packs.repository.PackSource $$12) {
++        net.minecraft.server.packs.repository.Pack$ResourcesSupplier $$2 = $$1 -> new net.minecraft.server.packs.FilePackResources($$1, $$0);
++        net.minecraft.server.packs.repository.Pack$Info $$3 = net.minecraft.server.packs.repository.Pack.readPackInfo((java.lang.String)"server", (net.minecraft.server.packs.repository.Pack$ResourcesSupplier)$$2);
++        if ($$3 == null) {
++            return java.util.concurrent.CompletableFuture.failedFuture((java.lang.Throwable)new java.lang.IllegalArgumentException("Invalid pack metadata at " + $$0));
++        }
++        LOGGER.info("Applying server pack {}", (java.lang.Object)$$0);
++        this.serverPack = net.minecraft.server.packs.repository.Pack.create((java.lang.String)"server", (net.minecraft.network.chat.Component)SERVER_NAME, (boolean)true, (net.minecraft.server.packs.repository.Pack$ResourcesSupplier)$$2, (net.minecraft.server.packs.repository.Pack$Info)$$3, (net.minecraft.server.packs.PackType)net.minecraft.server.packs.PackType.CLIENT_RESOURCES, (net.minecraft.server.packs.repository.Pack$Position)net.minecraft.server.packs.repository.Pack$Position.TOP, (boolean)true, (net.minecraft.server.packs.repository.PackSource)$$12);
++        return net.minecraft.client.Minecraft.getInstance().delayTextureReload();
++    }
++
++    public java.util.concurrent.CompletableFuture<java.lang.Void> loadBundledResourcePack(net.minecraft.world.level.storage.LevelStorageSource$LevelStorageAccess $$0) {
++        java.nio.file.Path $$1 = $$0.getLevelPath(net.minecraft.world.level.storage.LevelResource.MAP_RESOURCE_FILE);
++        if (java.nio.file.Files.exists((java.nio.file.Path)$$1, (java.nio.file.LinkOption[])new java.nio.file.LinkOption[0]) && !java.nio.file.Files.isDirectory((java.nio.file.Path)$$1, (java.nio.file.LinkOption[])new java.nio.file.LinkOption[0])) {
++            return this.setServerPack($$1.toFile(), net.minecraft.server.packs.repository.PackSource.WORLD);
++        }
++        return java.util.concurrent.CompletableFuture.completedFuture(null);
++    }
++
++    static {
++        LOGGER = com.mojang.logging.LogUtils.getLogger();
++        SHA1 = java.util.regex.Pattern.compile((java.lang.String)"^[a-fA-F0-9]{40}$");
++        SERVER_NAME = net.minecraft.network.chat.Component.translatable((java.lang.String)"resourcePack.server.name");
++        APPLYING_PACK_TEXT = net.minecraft.network.chat.Component.translatable((java.lang.String)"multiplayer.applyingPack");
++    }
++}
++

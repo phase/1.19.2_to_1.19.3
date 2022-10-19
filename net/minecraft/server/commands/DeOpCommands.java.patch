@@ -1,0 +1,40 @@
+--- net/minecraft/server/commands/DeOpCommands.java
++++ net/minecraft/server/commands/DeOpCommands.java
+@@ -10,24 +10,24 @@
+     public net.minecraft.server.commands.DeOpCommands() {
+     }
+ 
+-    public static void register(com.mojang.brigadier.CommandDispatcher<net.minecraft.commands.CommandSourceStack> dispatcher) {
+-        dispatcher.register((com.mojang.brigadier.builder.LiteralArgumentBuilder)((com.mojang.brigadier.builder.LiteralArgumentBuilder)net.minecraft.commands.Commands.literal((java.lang.String)"deop").requires($$0 -> $$0.hasPermission(3))).then(net.minecraft.commands.Commands.argument((java.lang.String)"targets", (com.mojang.brigadier.arguments.ArgumentType)net.minecraft.commands.arguments.GameProfileArgument.gameProfile()).suggests(($$0, $$1) -> net.minecraft.commands.SharedSuggestionProvider.suggest((java.lang.String[])((net.minecraft.commands.CommandSourceStack)$$0.getSource()).getServer().getPlayerList().getOpNames(), (com.mojang.brigadier.suggestion.SuggestionsBuilder)$$1)).executes($$0 -> net.minecraft.server.commands.DeOpCommands.deopPlayers((net.minecraft.commands.CommandSourceStack)((net.minecraft.commands.CommandSourceStack)$$0.getSource()), (java.util.Collection)net.minecraft.commands.arguments.GameProfileArgument.getGameProfiles((com.mojang.brigadier.context.CommandContext)$$0, (java.lang.String)"targets")))));
++    public static void register(com.mojang.brigadier.CommandDispatcher<net.minecraft.commands.CommandSourceStack> $$02) {
++        $$02.register((com.mojang.brigadier.builder.LiteralArgumentBuilder)((com.mojang.brigadier.builder.LiteralArgumentBuilder)net.minecraft.commands.Commands.literal((java.lang.String)"deop").requires($$0 -> $$0.hasPermission(3))).then(net.minecraft.commands.Commands.argument((java.lang.String)"targets", (com.mojang.brigadier.arguments.ArgumentType)net.minecraft.commands.arguments.GameProfileArgument.gameProfile()).suggests(($$0, $$1) -> net.minecraft.commands.SharedSuggestionProvider.suggest((java.lang.String[])((net.minecraft.commands.CommandSourceStack)$$0.getSource()).getServer().getPlayerList().getOpNames(), (com.mojang.brigadier.suggestion.SuggestionsBuilder)$$1)).executes($$0 -> net.minecraft.server.commands.DeOpCommands.deopPlayers((net.minecraft.commands.CommandSourceStack)((net.minecraft.commands.CommandSourceStack)$$0.getSource()), (java.util.Collection)net.minecraft.commands.arguments.GameProfileArgument.getGameProfiles((com.mojang.brigadier.context.CommandContext)$$0, (java.lang.String)"targets")))));
+     }
+ 
+-    public static int deopPlayers(net.minecraft.commands.CommandSourceStack source, java.util.Collection<com.mojang.authlib.GameProfile> players) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
+-        net.minecraft.server.players.PlayerList playerList = source.getServer().getPlayerList();
+-        int n = 0;
+-        for (com.mojang.authlib.GameProfile gameProfile : players) {
+-            if (!playerList.isOp(gameProfile)) continue;
+-            playerList.deop(gameProfile);
+-            ++n;
+-            source.sendSuccess((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"commands.deop.success", (java.lang.Object[])new java.lang.Object[]{((com.mojang.authlib.GameProfile)players.iterator().next()).getName()}), true);
++    public static int deopPlayers(net.minecraft.commands.CommandSourceStack $$0, java.util.Collection<com.mojang.authlib.GameProfile> $$1) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
++        net.minecraft.server.players.PlayerList $$2 = $$0.getServer().getPlayerList();
++        int $$3 = 0;
++        for (com.mojang.authlib.GameProfile $$4 : $$1) {
++            if (!$$2.isOp($$4)) continue;
++            $$2.deop($$4);
++            ++$$3;
++            $$0.sendSuccess((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"commands.deop.success", (java.lang.Object[])new java.lang.Object[]{((com.mojang.authlib.GameProfile)$$1.iterator().next()).getName()}), true);
+         }
+-        if (n == 0) {
++        if ($$3 == 0) {
+             throw ERROR_NOT_OP.create();
+         }
+-        source.getServer().kickUnlistedPlayers(source);
+-        return n;
++        $$0.getServer().kickUnlistedPlayers($$0);
++        return $$3;
+     }
+ 
+     static {

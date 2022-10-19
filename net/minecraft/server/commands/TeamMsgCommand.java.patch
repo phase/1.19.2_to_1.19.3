@@ -1,0 +1,70 @@
+--- net/minecraft/server/commands/TeamMsgCommand.java
++++ net/minecraft/server/commands/TeamMsgCommand.java
+@@ -13,44 +13,36 @@
+ 
+     public static void register(com.mojang.brigadier.CommandDispatcher<net.minecraft.commands.CommandSourceStack> $$02) {
+         com.mojang.brigadier.tree.LiteralCommandNode $$1 = $$02.register((com.mojang.brigadier.builder.LiteralArgumentBuilder)net.minecraft.commands.Commands.literal((java.lang.String)"teammsg").then(net.minecraft.commands.Commands.argument((java.lang.String)"message", (com.mojang.brigadier.arguments.ArgumentType)net.minecraft.commands.arguments.MessageArgument.message()).executes($$0 -> {
+-            net.minecraft.commands.arguments.MessageArgument$ChatMessage $$1 = net.minecraft.commands.arguments.MessageArgument.getChatMessage((com.mojang.brigadier.context.CommandContext)$$0, (java.lang.String)"message");
+-            try {
+-                return net.minecraft.server.commands.TeamMsgCommand.sendMessage((net.minecraft.commands.CommandSourceStack)((net.minecraft.commands.CommandSourceStack)$$0.getSource()), (net.minecraft.commands.arguments.MessageArgument$ChatMessage)$$1);
++            net.minecraft.commands.CommandSourceStack $$1 = (net.minecraft.commands.CommandSourceStack)$$0.getSource();
++            net.minecraft.world.entity.Entity $$22 = $$1.getEntityOrException();
++            net.minecraft.world.scores.PlayerTeam $$3 = (net.minecraft.world.scores.PlayerTeam)$$22.getTeam();
++            if ($$3 == null) {
++                throw ERROR_NOT_ON_TEAM.create();
+             }
+-            catch (java.lang.Exception $$2) {
+-                $$1.consume((net.minecraft.commands.CommandSourceStack)$$0.getSource());
+-                throw $$2;
++            java.util.List $$42 = $$1.getServer().getPlayerList().getPlayers().stream().filter($$2 -> $$2 == $$22 || $$2.getTeam() == $$3).toList();
++            if (!$$42.isEmpty()) {
++                net.minecraft.commands.arguments.MessageArgument.resolveChatMessage((com.mojang.brigadier.context.CommandContext)$$0, (java.lang.String)"message", $$4 -> net.minecraft.server.commands.TeamMsgCommand.sendMessage((net.minecraft.commands.CommandSourceStack)$$1, (net.minecraft.world.entity.Entity)$$22, (net.minecraft.world.scores.PlayerTeam)$$3, (java.util.List)$$42, (net.minecraft.network.chat.PlayerChatMessage)$$4));
+             }
++            return $$42.size();
+         })));
+         $$02.register((com.mojang.brigadier.builder.LiteralArgumentBuilder)net.minecraft.commands.Commands.literal((java.lang.String)"tm").redirect((com.mojang.brigadier.tree.CommandNode)$$1));
+     }
+ 
+-    public static int sendMessage(net.minecraft.commands.CommandSourceStack $$0, net.minecraft.commands.arguments.MessageArgument$ChatMessage $$1) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
+-        net.minecraft.world.entity.Entity $$22 = $$0.getEntityOrException();
+-        net.minecraft.world.scores.PlayerTeam $$3 = (net.minecraft.world.scores.PlayerTeam)$$22.getTeam();
+-        if ($$3 == null) {
+-            throw ERROR_NOT_ON_TEAM.create();
++    public static void sendMessage(net.minecraft.commands.CommandSourceStack $$0, net.minecraft.world.entity.Entity $$1, net.minecraft.world.scores.PlayerTeam $$2, java.util.List<net.minecraft.server.level.ServerPlayer> $$3, net.minecraft.network.chat.PlayerChatMessage $$4) {
++        net.minecraft.network.chat.MutableComponent $$5 = $$2.getFormattedDisplayName().withStyle(SUGGEST_STYLE);
++        net.minecraft.network.chat.ChatType$Bound $$6 = net.minecraft.network.chat.ChatType.bind((net.minecraft.resources.ResourceKey)net.minecraft.network.chat.ChatType.TEAM_MSG_COMMAND_INCOMING, (net.minecraft.commands.CommandSourceStack)$$0).withTargetName((net.minecraft.network.chat.Component)$$5);
++        net.minecraft.network.chat.ChatType$Bound $$7 = net.minecraft.network.chat.ChatType.bind((net.minecraft.resources.ResourceKey)net.minecraft.network.chat.ChatType.TEAM_MSG_COMMAND_OUTGOING, (net.minecraft.commands.CommandSourceStack)$$0).withTargetName((net.minecraft.network.chat.Component)$$5);
++        net.minecraft.network.chat.OutgoingChatMessage $$8 = net.minecraft.network.chat.OutgoingChatMessage.create((net.minecraft.network.chat.PlayerChatMessage)$$4);
++        boolean $$9 = false;
++        for (net.minecraft.server.level.ServerPlayer $$10 : $$3) {
++            net.minecraft.network.chat.ChatType$Bound $$11 = $$10 == $$1 ? $$7 : $$6;
++            boolean $$12 = $$0.shouldFilterMessageTo($$10);
++            $$10.sendChatMessage($$8, $$12, $$11);
++            $$9 |= $$12 && $$4.isFullyFiltered();
+         }
+-        net.minecraft.network.chat.MutableComponent $$4 = $$3.getFormattedDisplayName().withStyle(SUGGEST_STYLE);
+-        net.minecraft.network.chat.ChatType$Bound $$52 = net.minecraft.network.chat.ChatType.bind((net.minecraft.resources.ResourceKey)net.minecraft.network.chat.ChatType.TEAM_MSG_COMMAND_INCOMING, (net.minecraft.commands.CommandSourceStack)$$0).withTargetName((net.minecraft.network.chat.Component)$$4);
+-        net.minecraft.network.chat.ChatType$Bound $$6 = net.minecraft.network.chat.ChatType.bind((net.minecraft.resources.ResourceKey)net.minecraft.network.chat.ChatType.TEAM_MSG_COMMAND_OUTGOING, (net.minecraft.commands.CommandSourceStack)$$0).withTargetName((net.minecraft.network.chat.Component)$$4);
+-        java.util.List $$7 = $$0.getServer().getPlayerList().getPlayers().stream().filter($$2 -> $$2 == $$22 || $$2.getTeam() == $$3).toList();
+-        $$1.resolve($$0, $$5 -> {
+-            net.minecraft.network.chat.OutgoingPlayerChatMessage $$6 = net.minecraft.network.chat.OutgoingPlayerChatMessage.create((net.minecraft.network.chat.PlayerChatMessage)$$5);
+-            boolean $$7 = $$5.isFullyFiltered();
+-            boolean $$8 = false;
+-            for (net.minecraft.server.level.ServerPlayer $$9 : $$7) {
+-                net.minecraft.network.chat.ChatType$Bound $$10 = $$9 == $$22 ? $$6 : $$52;
+-                boolean $$11 = $$0.shouldFilterMessageTo($$9);
+-                $$9.sendChatMessage($$6, $$11, $$10);
+-                $$8 |= $$7 && $$11 && $$9 != $$22;
+-            }
+-            if ($$8) {
+-                $$0.sendSystemMessage(net.minecraft.server.players.PlayerList.CHAT_FILTERED_FULL);
+-            }
+-            $$6.sendHeadersToRemainingPlayers($$0.getServer().getPlayerList());
+-        });
+-        return $$7.size();
++        if ($$9) {
++            $$0.sendSystemMessage(net.minecraft.server.players.PlayerList.CHAT_FILTERED_FULL);
++        }
+     }
+ 
+     static {

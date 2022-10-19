@@ -1,0 +1,137 @@
+--- net/minecraft/world/level/block/SignBlock.java
++++ net/minecraft/world/level/block/SignBlock.java
+@@ -12,19 +12,19 @@
+     public static net.minecraft.world.phys.shapes.VoxelShape SHAPE;
+     public net.minecraft.world.level.block.state.properties.WoodType type;
+ 
+-    public net.minecraft.world.level.block.SignBlock(net.minecraft.world.level.block.state.BlockBehaviour$Properties properties, net.minecraft.world.level.block.state.properties.WoodType type) {
+-        super(properties);
+-        this.type = type;
++    public net.minecraft.world.level.block.SignBlock(net.minecraft.world.level.block.state.BlockBehaviour$Properties $$0, net.minecraft.world.level.block.state.properties.WoodType $$1) {
++        super($$0);
++        this.type = $$1;
+     }
+ 
+-    public net.minecraft.world.level.block.state.BlockState updateShape(net.minecraft.world.level.block.state.BlockState state, net.minecraft.core.Direction facing, net.minecraft.world.level.block.state.BlockState facingState, net.minecraft.world.level.LevelAccessor level, net.minecraft.core.BlockPos currentPos, net.minecraft.core.BlockPos facingPos) {
+-        if (((java.lang.Boolean)state.getValue((net.minecraft.world.level.block.state.properties.Property)WATERLOGGED)).booleanValue()) {
+-            level.scheduleTick(currentPos, (net.minecraft.world.level.material.Fluid)net.minecraft.world.level.material.Fluids.WATER, net.minecraft.world.level.material.Fluids.WATER.getTickDelay((net.minecraft.world.level.LevelReader)level));
++    public net.minecraft.world.level.block.state.BlockState updateShape(net.minecraft.world.level.block.state.BlockState $$0, net.minecraft.core.Direction $$1, net.minecraft.world.level.block.state.BlockState $$2, net.minecraft.world.level.LevelAccessor $$3, net.minecraft.core.BlockPos $$4, net.minecraft.core.BlockPos $$5) {
++        if (((java.lang.Boolean)$$0.getValue((net.minecraft.world.level.block.state.properties.Property)WATERLOGGED)).booleanValue()) {
++            $$3.scheduleTick($$4, (net.minecraft.world.level.material.Fluid)net.minecraft.world.level.material.Fluids.WATER, net.minecraft.world.level.material.Fluids.WATER.getTickDelay((net.minecraft.world.level.LevelReader)$$3));
+         }
+-        return super.updateShape(state, facing, facingState, level, currentPos, facingPos);
++        return super.updateShape($$0, $$1, $$2, $$3, $$4, $$5);
+     }
+ 
+-    public net.minecraft.world.phys.shapes.VoxelShape getShape(net.minecraft.world.level.block.state.BlockState state, net.minecraft.world.level.BlockGetter level, net.minecraft.core.BlockPos pos, net.minecraft.world.phys.shapes.CollisionContext context) {
++    public net.minecraft.world.phys.shapes.VoxelShape getShape(net.minecraft.world.level.block.state.BlockState $$0, net.minecraft.world.level.BlockGetter $$1, net.minecraft.core.BlockPos $$2, net.minecraft.world.phys.shapes.CollisionContext $$3) {
+         return SHAPE;
+     }
+ 
+@@ -36,62 +36,72 @@
+         return new net.minecraft.world.level.block.entity.SignBlockEntity($$0, $$1);
+     }
+ 
+-    public net.minecraft.world.InteractionResult use(net.minecraft.world.level.block.state.BlockState state, net.minecraft.world.level.Level level, net.minecraft.core.BlockPos pos, net.minecraft.world.entity.player.Player player, net.minecraft.world.InteractionHand hand, net.minecraft.world.phys.BlockHitResult hit) {
+-        boolean bl;
+-        net.minecraft.world.item.ItemStack itemStack = player.getItemInHand(hand);
+-        net.minecraft.world.item.Item item = itemStack.getItem();
+-        boolean bl2 = item instanceof net.minecraft.world.item.DyeItem;
+-        boolean bl3 = itemStack.is(net.minecraft.world.item.Items.GLOW_INK_SAC);
+-        boolean bl4 = itemStack.is(net.minecraft.world.item.Items.INK_SAC);
+-        boolean bl5 = bl = (bl3 || bl2 || bl4) && player.getAbilities().mayBuild;
+-        if (level.isClientSide) {
+-            return bl ? net.minecraft.world.InteractionResult.SUCCESS : net.minecraft.world.InteractionResult.CONSUME;
++    public net.minecraft.world.InteractionResult use(net.minecraft.world.level.block.state.BlockState $$0, net.minecraft.world.level.Level $$1, net.minecraft.core.BlockPos $$2, net.minecraft.world.entity.player.Player $$3, net.minecraft.world.InteractionHand $$4, net.minecraft.world.phys.BlockHitResult $$5) {
++        boolean $$11;
++        net.minecraft.world.item.ItemStack $$6 = $$3.getItemInHand($$4);
++        net.minecraft.world.item.Item $$7 = $$6.getItem();
++        boolean $$8 = $$7 instanceof net.minecraft.world.item.DyeItem;
++        boolean $$9 = $$6.is(net.minecraft.world.item.Items.GLOW_INK_SAC);
++        boolean $$10 = $$6.is(net.minecraft.world.item.Items.INK_SAC);
++        boolean bl = $$11 = ($$9 || $$8 || $$10) && $$3.getAbilities().mayBuild;
++        if ($$1.isClientSide) {
++            return $$11 ? net.minecraft.world.InteractionResult.SUCCESS : net.minecraft.world.InteractionResult.CONSUME;
+         }
+-        net.minecraft.world.level.block.entity.BlockEntity blockEntity = level.getBlockEntity(pos);
++        net.minecraft.world.level.block.entity.BlockEntity blockEntity = $$1.getBlockEntity($$2);
+         if (blockEntity instanceof net.minecraft.world.level.block.entity.SignBlockEntity) {
+-            net.minecraft.world.level.block.entity.SignBlockEntity signBlockEntity = (net.minecraft.world.level.block.entity.SignBlockEntity)blockEntity;
+-            boolean bl6 = signBlockEntity.hasGlowingText();
+-            if (bl3 && bl6 || bl4 && !bl6) {
++            net.minecraft.world.level.block.entity.SignBlockEntity $$12 = (net.minecraft.world.level.block.entity.SignBlockEntity)blockEntity;
++            boolean $$13 = $$12.hasGlowingText();
++            if ($$9 && $$13 || $$10 && !$$13) {
+                 return net.minecraft.world.InteractionResult.PASS;
+             }
+-            if (bl) {
+-                boolean bl7;
+-                if (bl3) {
+-                    level.playSound(null, pos, net.minecraft.sounds.SoundEvents.GLOW_INK_SAC_USE, net.minecraft.sounds.SoundSource.BLOCKS, 1.0f, 1.0f);
+-                    bl7 = signBlockEntity.setHasGlowingText(true);
+-                    if (player instanceof net.minecraft.server.level.ServerPlayer) {
+-                        net.minecraft.advancements.CriteriaTriggers.ITEM_USED_ON_BLOCK.trigger((net.minecraft.server.level.ServerPlayer)player, pos, itemStack);
++            if ($$11) {
++                boolean $$16;
++                if ($$9) {
++                    $$1.playSound(null, $$2, net.minecraft.sounds.SoundEvents.GLOW_INK_SAC_USE, net.minecraft.sounds.SoundSource.BLOCKS, 1.0f, 1.0f);
++                    boolean $$14 = $$12.setHasGlowingText(true);
++                    if ($$3 instanceof net.minecraft.server.level.ServerPlayer) {
++                        net.minecraft.advancements.CriteriaTriggers.ITEM_USED_ON_BLOCK.trigger((net.minecraft.server.level.ServerPlayer)$$3, $$2, $$6);
+                     }
+-                } else if (bl4) {
+-                    level.playSound(null, pos, net.minecraft.sounds.SoundEvents.INK_SAC_USE, net.minecraft.sounds.SoundSource.BLOCKS, 1.0f, 1.0f);
+-                    bl7 = signBlockEntity.setHasGlowingText(false);
++                } else if ($$10) {
++                    $$1.playSound(null, $$2, net.minecraft.sounds.SoundEvents.INK_SAC_USE, net.minecraft.sounds.SoundSource.BLOCKS, 1.0f, 1.0f);
++                    boolean $$15 = $$12.setHasGlowingText(false);
+                 } else {
+-                    level.playSound(null, pos, net.minecraft.sounds.SoundEvents.DYE_USE, net.minecraft.sounds.SoundSource.BLOCKS, 1.0f, 1.0f);
+-                    bl7 = signBlockEntity.setColor(((net.minecraft.world.item.DyeItem)item).getDyeColor());
++                    $$1.playSound(null, $$2, net.minecraft.sounds.SoundEvents.DYE_USE, net.minecraft.sounds.SoundSource.BLOCKS, 1.0f, 1.0f);
++                    $$16 = $$12.setColor(((net.minecraft.world.item.DyeItem)$$7).getDyeColor());
+                 }
+-                if (bl7) {
+-                    if (!player.isCreative()) {
+-                        itemStack.shrink(1);
++                if ($$16) {
++                    if (!$$3.isCreative()) {
++                        $$6.shrink(1);
+                     }
+-                    player.awardStat(net.minecraft.stats.Stats.ITEM_USED.get((java.lang.Object)item));
++                    $$3.awardStat(net.minecraft.stats.Stats.ITEM_USED.get((java.lang.Object)$$7));
+                 }
+             }
+-            return signBlockEntity.executeClickCommands((net.minecraft.server.level.ServerPlayer)player) ? net.minecraft.world.InteractionResult.SUCCESS : net.minecraft.world.InteractionResult.PASS;
++            return $$12.executeClickCommands((net.minecraft.server.level.ServerPlayer)$$3) ? net.minecraft.world.InteractionResult.SUCCESS : net.minecraft.world.InteractionResult.PASS;
+         }
+         return net.minecraft.world.InteractionResult.PASS;
+     }
+ 
+-    public net.minecraft.world.level.material.FluidState getFluidState(net.minecraft.world.level.block.state.BlockState state) {
+-        if (((java.lang.Boolean)state.getValue((net.minecraft.world.level.block.state.properties.Property)WATERLOGGED)).booleanValue()) {
++    public net.minecraft.world.level.material.FluidState getFluidState(net.minecraft.world.level.block.state.BlockState $$0) {
++        if (((java.lang.Boolean)$$0.getValue((net.minecraft.world.level.block.state.properties.Property)WATERLOGGED)).booleanValue()) {
+             return net.minecraft.world.level.material.Fluids.WATER.getSource(false);
+         }
+-        return super.getFluidState(state);
++        return super.getFluidState($$0);
+     }
+ 
+     public net.minecraft.world.level.block.state.properties.WoodType type() {
+         return this.type;
+     }
+ 
++    public static net.minecraft.world.level.block.state.properties.WoodType getWoodType(net.minecraft.world.level.block.Block $$0) {
++        net.minecraft.world.level.block.state.properties.WoodType $$2;
++        if ($$0 instanceof net.minecraft.world.level.block.SignBlock) {
++            net.minecraft.world.level.block.state.properties.WoodType $$1 = ((net.minecraft.world.level.block.SignBlock)$$0).type();
++        } else {
++            $$2 = net.minecraft.world.level.block.state.properties.WoodType.OAK;
++        }
++        return $$2;
++    }
++
+     static {
+         WATERLOGGED = net.minecraft.world.level.block.state.properties.BlockStateProperties.WATERLOGGED;
+         SHAPE = net.minecraft.world.level.block.Block.box((double)4.0, (double)0.0, (double)4.0, (double)12.0, (double)16.0, (double)12.0);

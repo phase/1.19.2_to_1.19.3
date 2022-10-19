@@ -1,0 +1,65 @@
+--- net/minecraft/core/RegistrySynchronization.java
++++ net/minecraft/core/RegistrySynchronization.java
+@@ -1,0 +1,62 @@
++/*
++ * Decompiled with CFR 0.151.
++ */
++package net.minecraft.core;
++
++public class net.minecraft.core.RegistrySynchronization
++ {
++    public static java.util.Map<net.minecraft.resources.ResourceKey<? extends net.minecraft.core.Registry<?>>, net.minecraft.core.RegistrySynchronization$NetworkedRegistryData<?>> NETWORKABLE_REGISTRIES;
++    public static com.mojang.serialization.Codec<net.minecraft.core.RegistryAccess> NETWORK_CODEC;
++
++    public net.minecraft.core.RegistrySynchronization() {
++    }
++
++    public static <E> void put(com.google.common.collect.ImmutableMap$Builder<net.minecraft.resources.ResourceKey<? extends net.minecraft.core.Registry<?>>, net.minecraft.core.RegistrySynchronization$NetworkedRegistryData<?>> $$0, net.minecraft.resources.ResourceKey<? extends net.minecraft.core.Registry<E>> $$1, com.mojang.serialization.Codec<E> $$2) {
++        $$0.put($$1, (java.lang.Object)new net.minecraft.core.RegistrySynchronization$NetworkedRegistryData($$1, $$2));
++    }
++
++    public static java.util.stream.Stream<net.minecraft.core.RegistryAccess$RegistryEntry<?>> ownedNetworkableRegistries(net.minecraft.core.RegistryAccess $$02) {
++        return $$02.registries().filter($$0 -> NETWORKABLE_REGISTRIES.containsKey((java.lang.Object)$$0.key()));
++    }
++
++    public static <E> com.mojang.serialization.DataResult<? extends com.mojang.serialization.Codec<E>> getNetworkCodec(net.minecraft.resources.ResourceKey<? extends net.minecraft.core.Registry<E>> $$02) {
++        return (com.mojang.serialization.DataResult)java.util.Optional.ofNullable((java.lang.Object)((net.minecraft.core.RegistrySynchronization$NetworkedRegistryData)NETWORKABLE_REGISTRIES.get($$02))).map($$0 -> $$0.networkCodec()).map(com.mojang.serialization.DataResult::success).orElseGet(() -> com.mojang.serialization.DataResult.error((java.lang.String)("Unknown or not serializable registry: " + $$02)));
++    }
++
++    public static <E> com.mojang.serialization.Codec<net.minecraft.core.RegistryAccess> makeNetworkCodec() {
++        com.mojang.serialization.Codec $$02 = net.minecraft.resources.ResourceLocation.CODEC.xmap(net.minecraft.resources.ResourceKey::createRegistryKey, net.minecraft.resources.ResourceKey::location);
++        com.mojang.serialization.Codec $$1 = $$02.partialDispatch("type", $$0 -> com.mojang.serialization.DataResult.success((java.lang.Object)$$0.key()), $$0 -> net.minecraft.core.RegistrySynchronization.getNetworkCodec((net.minecraft.resources.ResourceKey)$$0).map($$1 -> net.minecraft.core.RegistryCodecs.networkCodec((net.minecraft.resources.ResourceKey)$$0, (com.mojang.serialization.Lifecycle)com.mojang.serialization.Lifecycle.experimental(), (com.mojang.serialization.Codec)$$1)));
++        com.mojang.serialization.codecs.UnboundedMapCodec $$2 = com.mojang.serialization.Codec.unboundedMap((com.mojang.serialization.Codec)$$02, (com.mojang.serialization.Codec)$$1);
++        return net.minecraft.core.RegistrySynchronization.captureMap((com.mojang.serialization.codecs.UnboundedMapCodec)$$2);
++    }
++
++    public static <K extends net.minecraft.resources.ResourceKey<? extends net.minecraft.core.Registry<?>>, V extends net.minecraft.core.Registry<?>> com.mojang.serialization.Codec<net.minecraft.core.RegistryAccess> captureMap(com.mojang.serialization.codecs.UnboundedMapCodec<K, V> $$0) {
++        return $$0.xmap(net.minecraft.core.RegistryAccess$ImmutableRegistryAccess::new, $$02 -> (java.util.Map)net.minecraft.core.RegistrySynchronization.ownedNetworkableRegistries((net.minecraft.core.RegistryAccess)$$02).collect(com.google.common.collect.ImmutableMap.toImmutableMap($$0 -> $$0.key(), $$0 -> $$0.value())));
++    }
++
++    public static java.util.stream.Stream<net.minecraft.core.RegistryAccess$RegistryEntry<?>> networkSafeRegistries(net.minecraft.core.LayeredRegistryAccess<net.minecraft.server.RegistryLayer> $$0) {
++        java.util.stream.Stream $$1 = $$0.getLayer((java.lang.Object)net.minecraft.server.RegistryLayer.STATIC).registries();
++        java.util.stream.Stream $$2 = net.minecraft.core.RegistrySynchronization.ownedNetworkableRegistries((net.minecraft.core.RegistryAccess)$$0.getAccessFrom((java.lang.Object)net.minecraft.server.RegistryLayer.WORLDGEN));
++        return java.util.stream.Stream.concat((java.util.stream.Stream)$$2, (java.util.stream.Stream)$$1);
++    }
++
++    public static /* synthetic */ com.google.common.collect.ImmutableMap lambda$static$0() {
++        com.google.common.collect.ImmutableMap$Builder $$0 = com.google.common.collect.ImmutableMap.builder();
++        net.minecraft.core.RegistrySynchronization.put((com.google.common.collect.ImmutableMap$Builder)$$0, (net.minecraft.resources.ResourceKey)net.minecraft.core.Registry.BIOME_REGISTRY, (com.mojang.serialization.Codec)net.minecraft.world.level.biome.Biome.NETWORK_CODEC);
++        net.minecraft.core.RegistrySynchronization.put((com.google.common.collect.ImmutableMap$Builder)$$0, (net.minecraft.resources.ResourceKey)net.minecraft.core.Registry.CHAT_TYPE_REGISTRY, (com.mojang.serialization.Codec)net.minecraft.network.chat.ChatType.CODEC);
++        net.minecraft.core.RegistrySynchronization.put((com.google.common.collect.ImmutableMap$Builder)$$0, (net.minecraft.resources.ResourceKey)net.minecraft.core.Registry.DIMENSION_TYPE_REGISTRY, (com.mojang.serialization.Codec)net.minecraft.world.level.dimension.DimensionType.DIRECT_CODEC);
++        return $$0.build();
++    }
++
++    static {
++        NETWORKABLE_REGISTRIES = (java.util.Map)net.minecraft.Util.make(() -> {
++            com.google.common.collect.ImmutableMap$Builder $$0 = com.google.common.collect.ImmutableMap.builder();
++            net.minecraft.core.RegistrySynchronization.put((com.google.common.collect.ImmutableMap$Builder)$$0, (net.minecraft.resources.ResourceKey)net.minecraft.core.Registry.BIOME_REGISTRY, (com.mojang.serialization.Codec)net.minecraft.world.level.biome.Biome.NETWORK_CODEC);
++            net.minecraft.core.RegistrySynchronization.put((com.google.common.collect.ImmutableMap$Builder)$$0, (net.minecraft.resources.ResourceKey)net.minecraft.core.Registry.CHAT_TYPE_REGISTRY, (com.mojang.serialization.Codec)net.minecraft.network.chat.ChatType.CODEC);
++            net.minecraft.core.RegistrySynchronization.put((com.google.common.collect.ImmutableMap$Builder)$$0, (net.minecraft.resources.ResourceKey)net.minecraft.core.Registry.DIMENSION_TYPE_REGISTRY, (com.mojang.serialization.Codec)net.minecraft.world.level.dimension.DimensionType.DIRECT_CODEC);
++            return $$0.build();
++        });
++        NETWORK_CODEC = net.minecraft.core.RegistrySynchronization.makeNetworkCodec();
++    }
++}
++

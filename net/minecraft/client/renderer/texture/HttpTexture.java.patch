@@ -1,0 +1,212 @@
+--- net/minecraft/client/renderer/texture/HttpTexture.java
++++ net/minecraft/client/renderer/texture/HttpTexture.java
+@@ -20,39 +20,39 @@
+     public java.util.concurrent.CompletableFuture<?> future;
+     public boolean uploaded;
+ 
+-    public net.minecraft.client.renderer.texture.HttpTexture(@javax.annotation.Nullable java.io.File file, java.lang.String urlString, net.minecraft.resources.ResourceLocation location, boolean processLegacySkin, @javax.annotation.Nullable java.lang.Runnable onDownloaded) {
+-        super(location);
+-        this.file = file;
+-        this.urlString = urlString;
+-        this.processLegacySkin = processLegacySkin;
+-        this.onDownloaded = onDownloaded;
++    public net.minecraft.client.renderer.texture.HttpTexture(@javax.annotation.Nullable java.io.File $$0, java.lang.String $$1, net.minecraft.resources.ResourceLocation $$2, boolean $$3, @javax.annotation.Nullable java.lang.Runnable $$4) {
++        super($$2);
++        this.file = $$0;
++        this.urlString = $$1;
++        this.processLegacySkin = $$3;
++        this.onDownloaded = $$4;
+     }
+ 
+-    public void loadCallback(com.mojang.blaze3d.platform.NativeImage nativeImage) {
++    public void loadCallback(com.mojang.blaze3d.platform.NativeImage $$0) {
+         if (this.onDownloaded != null) {
+             this.onDownloaded.run();
+         }
+         net.minecraft.client.Minecraft.getInstance().execute(() -> {
+             this.uploaded = true;
+             if (!com.mojang.blaze3d.systems.RenderSystem.isOnRenderThread()) {
+-                com.mojang.blaze3d.systems.RenderSystem.recordRenderCall(() -> this.upload(nativeImage));
++                com.mojang.blaze3d.systems.RenderSystem.recordRenderCall(() -> this.upload($$0));
+             } else {
+-                this.upload(nativeImage);
++                this.upload($$0);
+             }
+         });
+     }
+ 
+-    public void upload(com.mojang.blaze3d.platform.NativeImage image) {
+-        com.mojang.blaze3d.platform.TextureUtil.prepareImage((int)this.getId(), (int)image.getWidth(), (int)image.getHeight());
+-        image.upload(0, 0, 0, true);
++    public void upload(com.mojang.blaze3d.platform.NativeImage $$0) {
++        com.mojang.blaze3d.platform.TextureUtil.prepareImage((int)this.getId(), (int)$$0.getWidth(), (int)$$0.getHeight());
++        $$0.upload(0, 0, 0, true);
+     }
+ 
+-    public void load(net.minecraft.server.packs.resources.ResourceManager manager) throws java.io.IOException {
+-        com.mojang.blaze3d.platform.NativeImage nativeImage;
++    public void load(net.minecraft.server.packs.resources.ResourceManager $$0) throws java.io.IOException {
++        com.mojang.blaze3d.platform.NativeImage $$3;
+         net.minecraft.client.Minecraft.getInstance().execute(() -> {
+             if (!this.uploaded) {
+                 try {
+-                    super.load(manager);
++                    super.load($$0);
+                 }
+                 catch (java.io.IOException $$1) {
+                     LOGGER.warn("Failed to load texture: {}", (java.lang.Object)this.location, (java.lang.Object)((java.lang.Object)$$1));
+@@ -65,13 +65,13 @@
+         }
+         if (this.file != null && this.file.isFile()) {
+             LOGGER.debug("Loading http texture from local cache ({})", (java.lang.Object)this.file);
+-            java.io.FileInputStream fileInputStream = new java.io.FileInputStream(this.file);
+-            nativeImage = this.load((java.io.InputStream)fileInputStream);
++            java.io.FileInputStream $$1 = new java.io.FileInputStream(this.file);
++            com.mojang.blaze3d.platform.NativeImage $$2 = this.load((java.io.InputStream)$$1);
+         } else {
+-            nativeImage = null;
++            $$3 = null;
+         }
+-        if (nativeImage != null) {
+-            this.loadCallback(nativeImage);
++        if ($$3 != null) {
++            this.loadCallback($$3);
+             return;
+         }
+         this.future = java.util.concurrent.CompletableFuture.runAsync(() -> {
+@@ -111,84 +111,78 @@
+     }
+ 
+     @javax.annotation.Nullable
+-    public com.mojang.blaze3d.platform.NativeImage load(java.io.InputStream inputStream) {
+-        com.mojang.blaze3d.platform.NativeImage nativeImage = null;
++    public com.mojang.blaze3d.platform.NativeImage load(java.io.InputStream $$0) {
++        com.mojang.blaze3d.platform.NativeImage $$1 = null;
+         try {
+-            nativeImage = com.mojang.blaze3d.platform.NativeImage.read((java.io.InputStream)inputStream);
++            $$1 = com.mojang.blaze3d.platform.NativeImage.read((java.io.InputStream)$$0);
+             if (this.processLegacySkin) {
+-                nativeImage = this.processLegacySkin(nativeImage);
++                $$1 = this.processLegacySkin($$1);
+             }
+         }
+-        catch (java.lang.Exception exception) {
+-            LOGGER.warn("Error while loading the skin texture", (java.lang.Throwable)exception);
++        catch (java.lang.Exception $$2) {
++            LOGGER.warn("Error while loading the skin texture", (java.lang.Throwable)$$2);
+         }
+-        return nativeImage;
++        return $$1;
+     }
+ 
+     @javax.annotation.Nullable
+-    public com.mojang.blaze3d.platform.NativeImage processLegacySkin(com.mojang.blaze3d.platform.NativeImage nativeImage) {
+-        boolean bl;
+-        int n = nativeImage.getHeight();
+-        int n2 = nativeImage.getWidth();
+-        if (n2 != 64 || n != 32 && n != 64) {
+-            nativeImage.close();
+-            LOGGER.warn("Discarding incorrectly sized ({}x{}) skin texture from {}", new java.lang.Object[]{n2, n, this.urlString});
++    public com.mojang.blaze3d.platform.NativeImage processLegacySkin(com.mojang.blaze3d.platform.NativeImage $$0) {
++        boolean $$3;
++        int $$1 = $$0.getHeight();
++        int $$2 = $$0.getWidth();
++        if ($$2 != 64 || $$1 != 32 && $$1 != 64) {
++            $$0.close();
++            LOGGER.warn("Discarding incorrectly sized ({}x{}) skin texture from {}", new java.lang.Object[]{$$2, $$1, this.urlString});
+             return null;
+         }
+-        boolean bl2 = bl = n == 32;
+-        if (bl) {
+-            com.mojang.blaze3d.platform.NativeImage nativeImage2 = new com.mojang.blaze3d.platform.NativeImage(64, 64, true);
+-            nativeImage2.copyFrom(nativeImage);
+-            nativeImage.close();
+-            nativeImage = nativeImage2;
+-            nativeImage.fillRect(0, 32, 64, 32, 0);
+-            nativeImage.copyRect(4, 16, 16, 32, 4, 4, true, false);
+-            nativeImage.copyRect(8, 16, 16, 32, 4, 4, true, false);
+-            nativeImage.copyRect(0, 20, 24, 32, 4, 12, true, false);
+-            nativeImage.copyRect(4, 20, 16, 32, 4, 12, true, false);
+-            nativeImage.copyRect(8, 20, 8, 32, 4, 12, true, false);
+-            nativeImage.copyRect(12, 20, 16, 32, 4, 12, true, false);
+-            nativeImage.copyRect(44, 16, -8, 32, 4, 4, true, false);
+-            nativeImage.copyRect(48, 16, -8, 32, 4, 4, true, false);
+-            nativeImage.copyRect(40, 20, 0, 32, 4, 12, true, false);
+-            nativeImage.copyRect(44, 20, -8, 32, 4, 12, true, false);
+-            nativeImage.copyRect(48, 20, -16, 32, 4, 12, true, false);
+-            nativeImage.copyRect(52, 20, -8, 32, 4, 12, true, false);
++        boolean bl = $$3 = $$1 == 32;
++        if ($$3) {
++            com.mojang.blaze3d.platform.NativeImage $$4 = new com.mojang.blaze3d.platform.NativeImage(64, 64, true);
++            $$4.copyFrom($$0);
++            $$0.close();
++            $$0 = $$4;
++            $$0.fillRect(0, 32, 64, 32, 0);
++            $$0.copyRect(4, 16, 16, 32, 4, 4, true, false);
++            $$0.copyRect(8, 16, 16, 32, 4, 4, true, false);
++            $$0.copyRect(0, 20, 24, 32, 4, 12, true, false);
++            $$0.copyRect(4, 20, 16, 32, 4, 12, true, false);
++            $$0.copyRect(8, 20, 8, 32, 4, 12, true, false);
++            $$0.copyRect(12, 20, 16, 32, 4, 12, true, false);
++            $$0.copyRect(44, 16, -8, 32, 4, 4, true, false);
++            $$0.copyRect(48, 16, -8, 32, 4, 4, true, false);
++            $$0.copyRect(40, 20, 0, 32, 4, 12, true, false);
++            $$0.copyRect(44, 20, -8, 32, 4, 12, true, false);
++            $$0.copyRect(48, 20, -16, 32, 4, 12, true, false);
++            $$0.copyRect(52, 20, -8, 32, 4, 12, true, false);
+         }
+-        net.minecraft.client.renderer.texture.HttpTexture.setNoAlpha((com.mojang.blaze3d.platform.NativeImage)nativeImage, (int)0, (int)0, (int)32, (int)16);
+-        if (bl) {
+-            net.minecraft.client.renderer.texture.HttpTexture.doNotchTransparencyHack((com.mojang.blaze3d.platform.NativeImage)nativeImage, (int)32, (int)0, (int)64, (int)32);
++        net.minecraft.client.renderer.texture.HttpTexture.setNoAlpha((com.mojang.blaze3d.platform.NativeImage)$$0, (int)0, (int)0, (int)32, (int)16);
++        if ($$3) {
++            net.minecraft.client.renderer.texture.HttpTexture.doNotchTransparencyHack((com.mojang.blaze3d.platform.NativeImage)$$0, (int)32, (int)0, (int)64, (int)32);
+         }
+-        net.minecraft.client.renderer.texture.HttpTexture.setNoAlpha((com.mojang.blaze3d.platform.NativeImage)nativeImage, (int)0, (int)16, (int)64, (int)32);
+-        net.minecraft.client.renderer.texture.HttpTexture.setNoAlpha((com.mojang.blaze3d.platform.NativeImage)nativeImage, (int)16, (int)48, (int)48, (int)64);
+-        return nativeImage;
++        net.minecraft.client.renderer.texture.HttpTexture.setNoAlpha((com.mojang.blaze3d.platform.NativeImage)$$0, (int)0, (int)16, (int)64, (int)32);
++        net.minecraft.client.renderer.texture.HttpTexture.setNoAlpha((com.mojang.blaze3d.platform.NativeImage)$$0, (int)16, (int)48, (int)48, (int)64);
++        return $$0;
+     }
+ 
+-    public static void doNotchTransparencyHack(com.mojang.blaze3d.platform.NativeImage image, int x, int y, int width, int height) {
+-        int n;
+-        int n2;
+-        for (n2 = x;
+- n2 < width; ++n2) {
+-            for (n = y;
+- n < height; ++n) {
+-                int n3 = image.getPixelRGBA(n2, n);
+-                if ((n3 >> 24 & 0xFF) >= 128) continue;
++    public static void doNotchTransparencyHack(com.mojang.blaze3d.platform.NativeImage $$0, int $$1, int $$2, int $$3, int $$4) {
++        for (int $$5 = $$1; $$5 < $$3; ++$$5) {
++            for (int $$6 = $$2; $$6 < $$4; ++$$6) {
++                int $$7 = $$0.getPixelRGBA($$5, $$6);
++                if (($$7 >> 24 & 0xFF) >= 128) continue;
+                 return;
+             }
+         }
+-        for (n2 = x;
+- n2 < width; ++n2) {
+-            for (n = y;
+- n < height; ++n) {
+-                image.setPixelRGBA(n2, n, image.getPixelRGBA(n2, n) & 0xFFFFFF);
++        for (int $$8 = $$1; $$8 < $$3; ++$$8) {
++            for (int $$9 = $$2; $$9 < $$4; ++$$9) {
++                $$0.setPixelRGBA($$8, $$9, $$0.getPixelRGBA($$8, $$9) & 0xFFFFFF);
+             }
+         }
+     }
+ 
+-    public static void setNoAlpha(com.mojang.blaze3d.platform.NativeImage image, int x, int y, int width, int height) {
+-        for (int i = x; i < width; ++i) {
+-            for (int j = y; j < height; ++j) {
+-                image.setPixelRGBA(i, j, image.getPixelRGBA(i, j) | 0xFF000000);
++    public static void setNoAlpha(com.mojang.blaze3d.platform.NativeImage $$0, int $$1, int $$2, int $$3, int $$4) {
++        for (int $$5 = $$1; $$5 < $$3; ++$$5) {
++            for (int $$6 = $$2; $$6 < $$4; ++$$6) {
++                $$0.setPixelRGBA($$5, $$6, $$0.getPixelRGBA($$5, $$6) | 0xFF000000);
+             }
+         }
+     }

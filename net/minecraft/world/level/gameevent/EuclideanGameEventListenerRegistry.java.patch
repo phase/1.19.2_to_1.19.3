@@ -1,0 +1,93 @@
+--- net/minecraft/world/level/gameevent/EuclideanGameEventListenerRegistry.java
++++ net/minecraft/world/level/gameevent/EuclideanGameEventListenerRegistry.java
+@@ -1,0 +1,90 @@
++/*
++ * Decompiled with CFR 0.151.
++ */
++package net.minecraft.world.level.gameevent;
++
++public class net.minecraft.world.level.gameevent.EuclideanGameEventListenerRegistry
++implements net.minecraft.world.level.gameevent.GameEventListenerRegistry
++ {
++    public java.util.List<net.minecraft.world.level.gameevent.GameEventListener> listeners;
++    public java.util.Set<net.minecraft.world.level.gameevent.GameEventListener> listenersToRemove;
++    public java.util.List<net.minecraft.world.level.gameevent.GameEventListener> listenersToAdd;
++    public boolean processing;
++    public net.minecraft.server.level.ServerLevel level;
++
++    public net.minecraft.world.level.gameevent.EuclideanGameEventListenerRegistry(net.minecraft.server.level.ServerLevel $$0) {
++        this.listeners = com.google.common.collect.Lists.newArrayList();
++        this.listenersToRemove = com.google.common.collect.Sets.newHashSet();
++        this.listenersToAdd = com.google.common.collect.Lists.newArrayList();
++        this.level = $$0;
++    }
++
++    public boolean isEmpty() {
++        return this.listeners.isEmpty();
++    }
++
++    public void register(net.minecraft.world.level.gameevent.GameEventListener $$0) {
++        if (this.processing) {
++            this.listenersToAdd.add((java.lang.Object)$$0);
++        } else {
++            this.listeners.add((java.lang.Object)$$0);
++        }
++        net.minecraft.network.protocol.game.DebugPackets.sendGameEventListenerInfo((net.minecraft.world.level.Level)this.level, (net.minecraft.world.level.gameevent.GameEventListener)$$0);
++    }
++
++    public void unregister(net.minecraft.world.level.gameevent.GameEventListener $$0) {
++        if (this.processing) {
++            this.listenersToRemove.add((java.lang.Object)$$0);
++        } else {
++            this.listeners.remove((java.lang.Object)$$0);
++        }
++    }
++
++    /*
++     * WARNING - Removed try catching itself - possible behaviour change.
++     */
++    public boolean visitInRangeListeners(net.minecraft.world.level.gameevent.GameEvent $$0, net.minecraft.world.phys.Vec3 $$1, net.minecraft.world.level.gameevent.GameEvent$Context $$2, net.minecraft.world.level.gameevent.GameEventListenerRegistry$ListenerVisitor $$3) {
++        this.processing = true;
++        boolean $$4 = false;
++        try {
++            java.util.Iterator $$5 = this.listeners.iterator();
++            while ($$5.hasNext()) {
++                net.minecraft.world.level.gameevent.GameEventListener $$6 = (net.minecraft.world.level.gameevent.GameEventListener)$$5.next();
++                if (this.listenersToRemove.remove((java.lang.Object)$$6)) {
++                    $$5.remove();
++                    continue;
++                }
++                java.util.Optional $$7 = net.minecraft.world.level.gameevent.EuclideanGameEventListenerRegistry.getPostableListenerPosition((net.minecraft.server.level.ServerLevel)this.level, (net.minecraft.world.phys.Vec3)$$1, (net.minecraft.world.level.gameevent.GameEventListener)$$6);
++                if (!$$7.isPresent()) continue;
++                $$3.visit($$6, (net.minecraft.world.phys.Vec3)$$7.get());
++                $$4 = true;
++            }
++        }
++        finally {
++            this.processing = false;
++        }
++        if (!this.listenersToAdd.isEmpty()) {
++            this.listeners.addAll((java.util.Collection)this.listenersToAdd);
++            this.listenersToAdd.clear();
++        }
++        if (!this.listenersToRemove.isEmpty()) {
++            this.listeners.removeAll((java.util.Collection)this.listenersToRemove);
++            this.listenersToRemove.clear();
++        }
++        return $$4;
++    }
++
++    public static java.util.Optional<net.minecraft.world.phys.Vec3> getPostableListenerPosition(net.minecraft.server.level.ServerLevel $$0, net.minecraft.world.phys.Vec3 $$1, net.minecraft.world.level.gameevent.GameEventListener $$2) {
++        int $$5;
++        java.util.Optional $$3 = $$2.getListenerSource().getPosition((net.minecraft.world.level.Level)$$0);
++        if ($$3.isEmpty()) {
++            return java.util.Optional.empty();
++        }
++        double $$4 = ((net.minecraft.world.phys.Vec3)$$3.get()).distanceToSqr($$1);
++        if ($$4 > (double)($$5 = $$2.getListenerRadius() * $$2.getListenerRadius())) {
++            return java.util.Optional.empty();
++        }
++        return $$3;
++    }
++}
++

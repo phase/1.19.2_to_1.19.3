@@ -1,0 +1,62 @@
+--- net/minecraft/server/packs/repository/PackRepository.java
++++ net/minecraft/server/packs/repository/PackRepository.java
+@@ -8,19 +8,13 @@
+     public java.util.Set<net.minecraft.server.packs.repository.RepositorySource> sources;
+     public java.util.Map<java.lang.String, net.minecraft.server.packs.repository.Pack> available;
+     public java.util.List<net.minecraft.server.packs.repository.Pack> selected;
+-    public net.minecraft.server.packs.repository.Pack$PackConstructor constructor;
+ 
+-    public net.minecraft.server.packs.repository.PackRepository(net.minecraft.server.packs.repository.Pack$PackConstructor $$0, net.minecraft.server.packs.repository.RepositorySource ... $$1) {
++    public net.minecraft.server.packs.repository.PackRepository(net.minecraft.server.packs.repository.RepositorySource ... $$0) {
+         this.available = com.google.common.collect.ImmutableMap.of();
+         this.selected = com.google.common.collect.ImmutableList.of();
+-        this.constructor = $$0;
+-        this.sources = com.google.common.collect.ImmutableSet.copyOf((java.lang.Object[])$$1);
++        this.sources = com.google.common.collect.ImmutableSet.copyOf((java.lang.Object[])$$0);
+     }
+ 
+-    public net.minecraft.server.packs.repository.PackRepository(net.minecraft.server.packs.PackType $$0, net.minecraft.server.packs.repository.RepositorySource ... $$12) {
+-        this(($$1, $$2, $$3, $$4, $$5, $$6, $$7) -> new net.minecraft.server.packs.repository.Pack($$1, $$2, $$3, $$4, $$5, $$0, $$6, $$7), $$12);
+-    }
+-
+     public void reload() {
+         java.util.List $$0 = (java.util.List)this.selected.stream().map(net.minecraft.server.packs.repository.Pack::getId).collect(com.google.common.collect.ImmutableList.toImmutableList());
+         this.available = this.discoverAvailable();
+@@ -30,7 +24,7 @@
+     public java.util.Map<java.lang.String, net.minecraft.server.packs.repository.Pack> discoverAvailable() {
+         java.util.TreeMap $$0 = com.google.common.collect.Maps.newTreeMap();
+         for (net.minecraft.server.packs.repository.RepositorySource $$1 : this.sources) {
+-            $$1.loadPacks(arg_0 -> net.minecraft.server.packs.repository.PackRepository.lambda$discoverAvailable$1((java.util.Map)$$0, arg_0), this.constructor);
++            $$1.loadPacks(arg_0 -> net.minecraft.server.packs.repository.PackRepository.lambda$discoverAvailable$0((java.util.Map)$$0, arg_0));
+         }
+         return com.google.common.collect.ImmutableMap.copyOf((java.util.Map)$$0);
+     }
+@@ -64,13 +58,17 @@
+         return (java.util.Collection)this.selected.stream().map(net.minecraft.server.packs.repository.Pack::getId).collect(com.google.common.collect.ImmutableSet.toImmutableSet());
+     }
+ 
++    public net.minecraft.world.flag.FeatureFlagSet getRequestedFeatureFlags() {
++        return (net.minecraft.world.flag.FeatureFlagSet)this.getSelectedPacks().stream().map(net.minecraft.server.packs.repository.Pack::getRequestedFeatures).reduce(net.minecraft.world.flag.FeatureFlagSet::join).orElse((java.lang.Object)net.minecraft.world.flag.FeatureFlagSet.of());
++    }
++
+     public java.util.Collection<net.minecraft.server.packs.repository.Pack> getSelectedPacks() {
+         return this.selected;
+     }
+ 
+     @javax.annotation.Nullable
+-    public net.minecraft.server.packs.repository.Pack getPack(java.lang.String name) {
+-        return (net.minecraft.server.packs.repository.Pack)this.available.get((java.lang.Object)name);
++    public net.minecraft.server.packs.repository.Pack getPack(java.lang.String $$0) {
++        return (net.minecraft.server.packs.repository.Pack)this.available.get((java.lang.Object)$$0);
+     }
+ 
+     public boolean isAvailable(java.lang.String $$0) {
+@@ -81,7 +79,7 @@
+         return (java.util.List)this.selected.stream().map(net.minecraft.server.packs.repository.Pack::open).collect(com.google.common.collect.ImmutableList.toImmutableList());
+     }
+ 
+-    public static /* synthetic */ void lambda$discoverAvailable$1(java.util.Map $$0, net.minecraft.server.packs.repository.Pack $$1) {
++    public static /* synthetic */ void lambda$discoverAvailable$0(java.util.Map $$0, net.minecraft.server.packs.repository.Pack $$1) {
+         $$0.put((java.lang.Object)$$1.getId(), (java.lang.Object)$$1);
+     }
+ }

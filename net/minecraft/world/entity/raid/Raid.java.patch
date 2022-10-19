@@ -1,0 +1,457 @@
+--- net/minecraft/world/entity/raid/Raid.java
++++ net/minecraft/world/entity/raid/Raid.java
+@@ -52,48 +52,48 @@
+     public int celebrationTicks;
+     public java.util.Optional<net.minecraft.core.BlockPos> waveSpawnPos;
+ 
+-    public net.minecraft.world.entity.raid.Raid(int id, net.minecraft.server.level.ServerLevel level, net.minecraft.core.BlockPos center) {
++    public net.minecraft.world.entity.raid.Raid(int $$0, net.minecraft.server.level.ServerLevel $$1, net.minecraft.core.BlockPos $$2) {
+         this.groupToLeaderMap = com.google.common.collect.Maps.newHashMap();
+         this.groupRaiderMap = com.google.common.collect.Maps.newHashMap();
+         this.heroesOfTheVillage = com.google.common.collect.Sets.newHashSet();
+         this.raidEvent = new net.minecraft.server.level.ServerBossEvent(RAID_NAME_COMPONENT, net.minecraft.world.BossEvent$BossBarColor.RED, net.minecraft.world.BossEvent$BossBarOverlay.NOTCHED_10);
+         this.random = net.minecraft.util.RandomSource.create();
+         this.waveSpawnPos = java.util.Optional.empty();
+-        this.id = id;
+-        this.level = level;
++        this.id = $$0;
++        this.level = $$1;
+         this.active = true;
+         this.raidCooldownTicks = 300;
+         this.raidEvent.setProgress(0.0f);
+-        this.center = center;
+-        this.numGroups = this.getNumGroups(level.getDifficulty());
++        this.center = $$2;
++        this.numGroups = this.getNumGroups($$1.getDifficulty());
+         this.status = net.minecraft.world.entity.raid.Raid$RaidStatus.ONGOING;
+     }
+ 
+-    public net.minecraft.world.entity.raid.Raid(net.minecraft.server.level.ServerLevel level, net.minecraft.nbt.CompoundTag compound) {
++    public net.minecraft.world.entity.raid.Raid(net.minecraft.server.level.ServerLevel $$0, net.minecraft.nbt.CompoundTag $$1) {
+         this.groupToLeaderMap = com.google.common.collect.Maps.newHashMap();
+         this.groupRaiderMap = com.google.common.collect.Maps.newHashMap();
+         this.heroesOfTheVillage = com.google.common.collect.Sets.newHashSet();
+         this.raidEvent = new net.minecraft.server.level.ServerBossEvent(RAID_NAME_COMPONENT, net.minecraft.world.BossEvent$BossBarColor.RED, net.minecraft.world.BossEvent$BossBarOverlay.NOTCHED_10);
+         this.random = net.minecraft.util.RandomSource.create();
+         this.waveSpawnPos = java.util.Optional.empty();
+-        this.level = level;
+-        this.id = compound.getInt("Id");
+-        this.started = compound.getBoolean("Started");
+-        this.active = compound.getBoolean("Active");
+-        this.ticksActive = compound.getLong("TicksActive");
+-        this.badOmenLevel = compound.getInt("BadOmenLevel");
+-        this.groupsSpawned = compound.getInt("GroupsSpawned");
+-        this.raidCooldownTicks = compound.getInt("PreRaidTicks");
+-        this.postRaidTicks = compound.getInt("PostRaidTicks");
+-        this.totalHealth = compound.getFloat("TotalHealth");
+-        this.center = new net.minecraft.core.BlockPos(compound.getInt("CX"), compound.getInt("CY"), compound.getInt("CZ"));
+-        this.numGroups = compound.getInt("NumGroups");
+-        this.status = net.minecraft.world.entity.raid.Raid$RaidStatus.getByName((java.lang.String)compound.getString("Status"));
++        this.level = $$0;
++        this.id = $$1.getInt("Id");
++        this.started = $$1.getBoolean("Started");
++        this.active = $$1.getBoolean("Active");
++        this.ticksActive = $$1.getLong("TicksActive");
++        this.badOmenLevel = $$1.getInt("BadOmenLevel");
++        this.groupsSpawned = $$1.getInt("GroupsSpawned");
++        this.raidCooldownTicks = $$1.getInt("PreRaidTicks");
++        this.postRaidTicks = $$1.getInt("PostRaidTicks");
++        this.totalHealth = $$1.getFloat("TotalHealth");
++        this.center = new net.minecraft.core.BlockPos($$1.getInt("CX"), $$1.getInt("CY"), $$1.getInt("CZ"));
++        this.numGroups = $$1.getInt("NumGroups");
++        this.status = net.minecraft.world.entity.raid.Raid$RaidStatus.getByName((java.lang.String)$$1.getString("Status"));
+         this.heroesOfTheVillage.clear();
+-        if (compound.contains("HeroesOfTheVillage", 9)) {
+-            net.minecraft.nbt.ListTag listTag = compound.getList("HeroesOfTheVillage", 11);
+-            for (int i = 0; i < listTag.size(); ++i) {
+-                this.heroesOfTheVillage.add((java.lang.Object)net.minecraft.nbt.NbtUtils.loadUUID((net.minecraft.nbt.Tag)listTag.get(i)));
++        if ($$1.contains("HeroesOfTheVillage", 9)) {
++            net.minecraft.nbt.ListTag $$2 = $$1.getList("HeroesOfTheVillage", 11);
++            for (int $$3 = 0; $$3 < $$2.size(); ++$$3) {
++                this.heroesOfTheVillage.add((java.lang.Object)net.minecraft.nbt.NbtUtils.loadUUID((net.minecraft.nbt.Tag)$$2.get($$3)));
+             }
+         }
+     }
+@@ -147,9 +147,9 @@
+     }
+ 
+     public java.util.function.Predicate<net.minecraft.server.level.ServerPlayer> validPlayer() {
+-        return player -> {
+-            net.minecraft.core.BlockPos blockPos = player.blockPosition();
+-            return player.isAlive() && this.level.getRaidAt(blockPos) == this;
++        return $$0 -> {
++            net.minecraft.core.BlockPos $$1 = $$0.blockPosition();
++            return $$0.isAlive() && this.level.getRaidAt($$1) == this;
+         };
+     }
+ 
+@@ -178,12 +178,12 @@
+         this.badOmenLevel = $$0;
+     }
+ 
+-    public void absorbBadOmen(net.minecraft.world.entity.player.Player player) {
+-        if (player.hasEffect(net.minecraft.world.effect.MobEffects.BAD_OMEN)) {
+-            this.badOmenLevel += player.getEffect(net.minecraft.world.effect.MobEffects.BAD_OMEN).getAmplifier() + 1;
++    public void absorbBadOmen(net.minecraft.world.entity.player.Player $$0) {
++        if ($$0.hasEffect(net.minecraft.world.effect.MobEffects.BAD_OMEN)) {
++            this.badOmenLevel += $$0.getEffect(net.minecraft.world.effect.MobEffects.BAD_OMEN).getAmplifier() + 1;
+             this.badOmenLevel = net.minecraft.util.Mth.clamp((int)this.badOmenLevel, (int)0, (int)this.getMaxBadOmenLevel());
+         }
+-        player.removeEffect(net.minecraft.world.effect.MobEffects.BAD_OMEN);
++        $$0.removeEffect(net.minecraft.world.effect.MobEffects.BAD_OMEN);
+     }
+ 
+     public void stop() {
+@@ -323,15 +323,15 @@
+     }
+ 
+     public void moveRaidCenterToNearbyVillageSection() {
+-        java.util.stream.Stream $$0 = net.minecraft.core.SectionPos.cube((net.minecraft.core.SectionPos)net.minecraft.core.SectionPos.of((net.minecraft.core.BlockPos)this.center), (int)2);
+-        $$0.filter(arg_0 -> ((net.minecraft.server.level.ServerLevel)this.level).isVillage(arg_0)).map(net.minecraft.core.SectionPos::center).min(java.util.Comparator.comparingDouble(pos -> pos.distSqr((net.minecraft.core.Vec3i)this.center))).ifPresent(arg_0 -> this.setCenter(arg_0));
++        java.util.stream.Stream $$02 = net.minecraft.core.SectionPos.cube((net.minecraft.core.SectionPos)net.minecraft.core.SectionPos.of((net.minecraft.core.BlockPos)this.center), (int)2);
++        $$02.filter(arg_0 -> ((net.minecraft.server.level.ServerLevel)this.level).isVillage(arg_0)).map(net.minecraft.core.SectionPos::center).min(java.util.Comparator.comparingDouble($$0 -> $$0.distSqr((net.minecraft.core.Vec3i)this.center))).ifPresent(arg_0 -> this.setCenter(arg_0));
+     }
+ 
+-    public java.util.Optional<net.minecraft.core.BlockPos> getValidSpawnPos(int offsetMultiplier) {
+-        for (int i = 0; i < 3; ++i) {
+-            net.minecraft.core.BlockPos blockPos = this.findRandomSpawnPos(offsetMultiplier, 1);
+-            if (blockPos == null) continue;
+-            return java.util.Optional.of((java.lang.Object)blockPos);
++    public java.util.Optional<net.minecraft.core.BlockPos> getValidSpawnPos(int $$0) {
++        for (int $$1 = 0; $$1 < 3; ++$$1) {
++            net.minecraft.core.BlockPos $$2 = this.findRandomSpawnPos($$0, 1);
++            if ($$2 == null) continue;
++            return java.util.Optional.of((java.lang.Object)$$2);
+         }
+         return java.util.Optional.empty();
+     }
+@@ -386,51 +386,51 @@
+         }
+     }
+ 
+-    public void playSound(net.minecraft.core.BlockPos pos) {
+-        float f = 13.0f;
+-        int n = 64;
+-        java.util.Collection collection = this.raidEvent.getPlayers();
+-        long l = this.random.nextLong();
+-        for (net.minecraft.server.level.ServerPlayer serverPlayer : this.level.players()) {
+-            net.minecraft.world.phys.Vec3 vec3 = serverPlayer.position();
+-            net.minecraft.world.phys.Vec3 vec32 = net.minecraft.world.phys.Vec3.atCenterOf((net.minecraft.core.Vec3i)pos);
+-            double d = java.lang.Math.sqrt((double)((vec32.x - vec3.x) * (vec32.x - vec3.x) + (vec32.z - vec3.z) * (vec32.z - vec3.z)));
+-            double d2 = vec3.x + 13.0 / d * (vec32.x - vec3.x);
+-            double d3 = vec3.z + 13.0 / d * (vec32.z - vec3.z);
+-            if (!(d <= 64.0) && !collection.contains((java.lang.Object)serverPlayer)) continue;
+-            serverPlayer.connection.send((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ClientboundSoundPacket(net.minecraft.sounds.SoundEvents.RAID_HORN, net.minecraft.sounds.SoundSource.NEUTRAL, d2, serverPlayer.getY(), d3, 64.0f, 1.0f, l));
++    public void playSound(net.minecraft.core.BlockPos $$0) {
++        float $$1 = 13.0f;
++        int $$2 = 64;
++        java.util.Collection $$3 = this.raidEvent.getPlayers();
++        long $$4 = this.random.nextLong();
++        for (net.minecraft.server.level.ServerPlayer $$5 : this.level.players()) {
++            net.minecraft.world.phys.Vec3 $$6 = $$5.position();
++            net.minecraft.world.phys.Vec3 $$7 = net.minecraft.world.phys.Vec3.atCenterOf((net.minecraft.core.Vec3i)$$0);
++            double $$8 = java.lang.Math.sqrt((double)(($$7.x - $$6.x) * ($$7.x - $$6.x) + ($$7.z - $$6.z) * ($$7.z - $$6.z)));
++            double $$9 = $$6.x + 13.0 / $$8 * ($$7.x - $$6.x);
++            double $$10 = $$6.z + 13.0 / $$8 * ($$7.z - $$6.z);
++            if (!($$8 <= 64.0) && !$$3.contains((java.lang.Object)$$5)) continue;
++            $$5.connection.send((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ClientboundSoundPacket(net.minecraft.sounds.SoundEvents.RAID_HORN, net.minecraft.sounds.SoundSource.NEUTRAL, $$9, $$5.getY(), $$10, 64.0f, 1.0f, $$4));
+         }
+     }
+ 
+-    public void spawnGroup(net.minecraft.core.BlockPos pos) {
+-        boolean bl = false;
+-        int n = this.groupsSpawned + 1;
++    public void spawnGroup(net.minecraft.core.BlockPos $$0) {
++        boolean $$1 = false;
++        int $$2 = this.groupsSpawned + 1;
+         this.totalHealth = 0.0f;
+-        net.minecraft.world.DifficultyInstance difficultyInstance = this.level.getCurrentDifficultyAt(pos);
+-        boolean bl2 = this.shouldSpawnBonusGroup();
+-        for (net.minecraft.world.entity.raid.Raid$RaiderType raiderType : net.minecraft.world.entity.raid.Raid$RaiderType.VALUES) {
+-            int n2 = this.getDefaultNumSpawns(raiderType, n, bl2) + this.getPotentialBonusSpawns(raiderType, this.random, n, difficultyInstance, bl2);
+-            int n3 = 0;
+-            for (int i = 0; i < n2; ++i) {
+-                net.minecraft.world.entity.raid.Raider raider = (net.minecraft.world.entity.raid.Raider)raiderType.entityType.create((net.minecraft.world.level.Level)this.level);
+-                if (!bl && raider.canBeLeader()) {
+-                    raider.setPatrolLeader(true);
+-                    this.setLeader(n, raider);
+-                    bl = true;
++        net.minecraft.world.DifficultyInstance $$3 = this.level.getCurrentDifficultyAt($$0);
++        boolean $$4 = this.shouldSpawnBonusGroup();
++        for (net.minecraft.world.entity.raid.Raid$RaiderType $$5 : net.minecraft.world.entity.raid.Raid$RaiderType.VALUES) {
++            net.minecraft.world.entity.raid.Raider $$9;
++            int $$6 = this.getDefaultNumSpawns($$5, $$2, $$4) + this.getPotentialBonusSpawns($$5, this.random, $$2, $$3, $$4);
++            int $$7 = 0;
++            for (int $$8 = 0; $$8 < $$6 && ($$9 = (net.minecraft.world.entity.raid.Raider)$$5.entityType.create((net.minecraft.world.level.Level)this.level)) != null; ++$$8) {
++                if (!$$1 && $$9.canBeLeader()) {
++                    $$9.setPatrolLeader(true);
++                    this.setLeader($$2, $$9);
++                    $$1 = true;
+                 }
+-                this.joinRaid(n, raider, pos, false);
+-                if (raiderType.entityType != net.minecraft.world.entity.EntityType.RAVAGER) continue;
+-                net.minecraft.world.entity.raid.Raider raider2 = null;
+-                if (n == this.getNumGroups(net.minecraft.world.Difficulty.NORMAL)) {
+-                    raider2 = (net.minecraft.world.entity.raid.Raider)net.minecraft.world.entity.EntityType.PILLAGER.create((net.minecraft.world.level.Level)this.level);
+-                } else if (n >= this.getNumGroups(net.minecraft.world.Difficulty.HARD)) {
+-                    raider2 = n3 == 0 ? (net.minecraft.world.entity.raid.Raider)net.minecraft.world.entity.EntityType.EVOKER.create((net.minecraft.world.level.Level)this.level) : (net.minecraft.world.entity.raid.Raider)net.minecraft.world.entity.EntityType.VINDICATOR.create((net.minecraft.world.level.Level)this.level);
++                this.joinRaid($$2, $$9, $$0, false);
++                if ($$5.entityType != net.minecraft.world.entity.EntityType.RAVAGER) continue;
++                net.minecraft.world.entity.raid.Raider $$10 = null;
++                if ($$2 == this.getNumGroups(net.minecraft.world.Difficulty.NORMAL)) {
++                    $$10 = (net.minecraft.world.entity.raid.Raider)net.minecraft.world.entity.EntityType.PILLAGER.create((net.minecraft.world.level.Level)this.level);
++                } else if ($$2 >= this.getNumGroups(net.minecraft.world.Difficulty.HARD)) {
++                    $$10 = $$7 == 0 ? (net.minecraft.world.entity.raid.Raider)net.minecraft.world.entity.EntityType.EVOKER.create((net.minecraft.world.level.Level)this.level) : (net.minecraft.world.entity.raid.Raider)net.minecraft.world.entity.EntityType.VINDICATOR.create((net.minecraft.world.level.Level)this.level);
+                 }
+-                ++n3;
+-                if (raider2 == null) continue;
+-                this.joinRaid(n, raider2, pos, false);
+-                raider2.moveTo(pos, 0.0f, 0.0f);
+-                raider2.startRiding((net.minecraft.world.entity.Entity)raider);
++                ++$$7;
++                if ($$10 == null) continue;
++                this.joinRaid($$2, $$10, $$0, false);
++                $$10.moveTo($$0, 0.0f, 0.0f);
++                $$10.startRiding((net.minecraft.world.entity.Entity)$$9);
+             }
+         }
+         this.waveSpawnPos = java.util.Optional.empty();
+@@ -439,19 +439,19 @@
+         this.setDirty();
+     }
+ 
+-    public void joinRaid(int wave, net.minecraft.world.entity.raid.Raider raider, @javax.annotation.Nullable net.minecraft.core.BlockPos pos, boolean isRecruited) {
+-        boolean bl = this.addWaveMob(wave, raider);
+-        if (bl) {
+-            raider.setCurrentRaid(this);
+-            raider.setWave(wave);
+-            raider.setCanJoinRaid(true);
+-            raider.setTicksOutsideRaid(0);
+-            if (!isRecruited && pos != null) {
+-                raider.setPos((double)pos.getX() + 0.5, (double)pos.getY() + 1.0, (double)pos.getZ() + 0.5);
+-                raider.finalizeSpawn((net.minecraft.world.level.ServerLevelAccessor)this.level, this.level.getCurrentDifficultyAt(pos), net.minecraft.world.entity.MobSpawnType.EVENT, null, null);
+-                raider.applyRaidBuffs(wave, false);
+-                raider.setOnGround(true);
+-                this.level.addFreshEntityWithPassengers((net.minecraft.world.entity.Entity)raider);
++    public void joinRaid(int $$0, net.minecraft.world.entity.raid.Raider $$1, @javax.annotation.Nullable net.minecraft.core.BlockPos $$2, boolean $$3) {
++        boolean $$4 = this.addWaveMob($$0, $$1);
++        if ($$4) {
++            $$1.setCurrentRaid(this);
++            $$1.setWave($$0);
++            $$1.setCanJoinRaid(true);
++            $$1.setTicksOutsideRaid(0);
++            if (!$$3 && $$2 != null) {
++                $$1.setPos((double)$$2.getX() + 0.5, (double)$$2.getY() + 1.0, (double)$$2.getZ() + 0.5);
++                $$1.finalizeSpawn((net.minecraft.world.level.ServerLevelAccessor)this.level, this.level.getCurrentDifficultyAt($$2), net.minecraft.world.entity.MobSpawnType.EVENT, null, null);
++                $$1.applyRaidBuffs($$0, false);
++                $$1.setOnGround(true);
++                this.level.addFreshEntityWithPassengers((net.minecraft.world.entity.Entity)$$1);
+             }
+         }
+     }
+@@ -478,14 +478,14 @@
+         return this.groupRaiderMap.values().stream().mapToInt(java.util.Set::size).sum();
+     }
+ 
+-    public void removeFromRaid(net.minecraft.world.entity.raid.Raider raider, boolean wanderedOutOfRaid) {
+-        boolean bl;
+-        java.util.Set set = (java.util.Set)this.groupRaiderMap.get((java.lang.Object)raider.getWave());
+-        if (set != null && (bl = set.remove((java.lang.Object)raider))) {
+-            if (wanderedOutOfRaid) {
+-                this.totalHealth -= raider.getHealth();
++    public void removeFromRaid(net.minecraft.world.entity.raid.Raider $$0, boolean $$1) {
++        boolean $$3;
++        java.util.Set $$2 = (java.util.Set)this.groupRaiderMap.get((java.lang.Object)$$0.getWave());
++        if ($$2 != null && ($$3 = $$2.remove((java.lang.Object)$$0))) {
++            if ($$1) {
++                this.totalHealth -= $$0.getHealth();
+             }
+-            raider.setCurrentRaid(null);
++            $$0.setCurrentRaid(null);
+             this.updateBossbar();
+             this.setDirty();
+         }
+@@ -507,78 +507,78 @@
+     }
+ 
+     @javax.annotation.Nullable
+-    public net.minecraft.world.entity.raid.Raider getLeader(int wave) {
+-        return (net.minecraft.world.entity.raid.Raider)this.groupToLeaderMap.get((java.lang.Object)wave);
++    public net.minecraft.world.entity.raid.Raider getLeader(int $$0) {
++        return (net.minecraft.world.entity.raid.Raider)this.groupToLeaderMap.get((java.lang.Object)$$0);
+     }
+ 
+     @javax.annotation.Nullable
+-    public net.minecraft.core.BlockPos findRandomSpawnPos(int offsetMultiplier, int maxTry) {
+-        int n = offsetMultiplier == 0 ? 2 : 2 - offsetMultiplier;
+-        net.minecraft.core.BlockPos$MutableBlockPos mutableBlockPos = new net.minecraft.core.BlockPos$MutableBlockPos();
+-        for (int i = 0; i < maxTry; ++i) {
+-            float f = this.level.random.nextFloat() * ((float)java.lang.Math.PI * 2);
+-            int n2 = this.center.getX() + net.minecraft.util.Mth.floor((float)(net.minecraft.util.Mth.cos((float)f) * 32.0f * (float)n)) + this.level.random.nextInt(5);
+-            int n3 = this.center.getZ() + net.minecraft.util.Mth.floor((float)(net.minecraft.util.Mth.sin((float)f) * 32.0f * (float)n)) + this.level.random.nextInt(5);
+-            int n4 = this.level.getHeight(net.minecraft.world.level.levelgen.Heightmap$Types.WORLD_SURFACE, n2, n3);
+-            mutableBlockPos.set(n2, n4, n3);
+-            if (this.level.isVillage((net.minecraft.core.BlockPos)mutableBlockPos) && offsetMultiplier < 2) continue;
+-            int n5 = 10;
+-            if (!this.level.hasChunksAt(mutableBlockPos.getX() - 10, mutableBlockPos.getZ() - 10, mutableBlockPos.getX() + 10, mutableBlockPos.getZ() + 10) || !this.level.isPositionEntityTicking((net.minecraft.core.BlockPos)mutableBlockPos) || !net.minecraft.world.level.NaturalSpawner.isSpawnPositionOk((net.minecraft.world.entity.SpawnPlacements$Type)net.minecraft.world.entity.SpawnPlacements$Type.ON_GROUND, (net.minecraft.world.level.LevelReader)this.level, (net.minecraft.core.BlockPos)mutableBlockPos, (net.minecraft.world.entity.EntityType)net.minecraft.world.entity.EntityType.RAVAGER) && (!this.level.getBlockState(mutableBlockPos.below()).is(net.minecraft.world.level.block.Blocks.SNOW) || !this.level.getBlockState((net.minecraft.core.BlockPos)mutableBlockPos).isAir())) continue;
+-            return mutableBlockPos;
++    public net.minecraft.core.BlockPos findRandomSpawnPos(int $$0, int $$1) {
++        int $$2 = $$0 == 0 ? 2 : 2 - $$0;
++        net.minecraft.core.BlockPos$MutableBlockPos $$3 = new net.minecraft.core.BlockPos$MutableBlockPos();
++        for (int $$4 = 0; $$4 < $$1; ++$$4) {
++            float $$5 = this.level.random.nextFloat() * ((float)java.lang.Math.PI * 2);
++            int $$6 = this.center.getX() + net.minecraft.util.Mth.floor((float)(net.minecraft.util.Mth.cos((float)$$5) * 32.0f * (float)$$2)) + this.level.random.nextInt(5);
++            int $$7 = this.center.getZ() + net.minecraft.util.Mth.floor((float)(net.minecraft.util.Mth.sin((float)$$5) * 32.0f * (float)$$2)) + this.level.random.nextInt(5);
++            int $$8 = this.level.getHeight(net.minecraft.world.level.levelgen.Heightmap$Types.WORLD_SURFACE, $$6, $$7);
++            $$3.set($$6, $$8, $$7);
++            if (this.level.isVillage((net.minecraft.core.BlockPos)$$3) && $$0 < 2) continue;
++            int $$9 = 10;
++            if (!this.level.hasChunksAt($$3.getX() - 10, $$3.getZ() - 10, $$3.getX() + 10, $$3.getZ() + 10) || !this.level.isPositionEntityTicking((net.minecraft.core.BlockPos)$$3) || !net.minecraft.world.level.NaturalSpawner.isSpawnPositionOk((net.minecraft.world.entity.SpawnPlacements$Type)net.minecraft.world.entity.SpawnPlacements$Type.ON_GROUND, (net.minecraft.world.level.LevelReader)this.level, (net.minecraft.core.BlockPos)$$3, (net.minecraft.world.entity.EntityType)net.minecraft.world.entity.EntityType.RAVAGER) && (!this.level.getBlockState($$3.below()).is(net.minecraft.world.level.block.Blocks.SNOW) || !this.level.getBlockState((net.minecraft.core.BlockPos)$$3).isAir())) continue;
++            return $$3;
+         }
+         return null;
+     }
+ 
+-    public boolean addWaveMob(int wave, net.minecraft.world.entity.raid.Raider raider) {
+-        return this.addWaveMob(wave, raider, true);
++    public boolean addWaveMob(int $$0, net.minecraft.world.entity.raid.Raider $$1) {
++        return this.addWaveMob($$0, $$1, true);
+     }
+ 
+-    public boolean addWaveMob(int wave, net.minecraft.world.entity.raid.Raider radier, boolean isRecruited) {
+-        this.groupRaiderMap.computeIfAbsent((java.lang.Object)wave, value -> com.google.common.collect.Sets.newHashSet());
+-        java.util.Set set = (java.util.Set)this.groupRaiderMap.get((java.lang.Object)wave);
+-        net.minecraft.world.entity.raid.Raider raider = null;
+-        for (net.minecraft.world.entity.raid.Raider raider2 : set) {
+-            if (!raider2.getUUID().equals((java.lang.Object)radier.getUUID())) continue;
+-            raider = raider2;
++    public boolean addWaveMob(int $$02, net.minecraft.world.entity.raid.Raider $$1, boolean $$2) {
++        this.groupRaiderMap.computeIfAbsent((java.lang.Object)$$02, $$0 -> com.google.common.collect.Sets.newHashSet());
++        java.util.Set $$3 = (java.util.Set)this.groupRaiderMap.get((java.lang.Object)$$02);
++        net.minecraft.world.entity.raid.Raider $$4 = null;
++        for (net.minecraft.world.entity.raid.Raider $$5 : $$3) {
++            if (!$$5.getUUID().equals((java.lang.Object)$$1.getUUID())) continue;
++            $$4 = $$5;
+             break;
+         }
+-        if (raider != null) {
+-            set.remove(raider);
+-            set.add((java.lang.Object)radier);
++        if ($$4 != null) {
++            $$3.remove($$4);
++            $$3.add((java.lang.Object)$$1);
+         }
+-        set.add((java.lang.Object)radier);
+-        if (isRecruited) {
+-            this.totalHealth += radier.getHealth();
++        $$3.add((java.lang.Object)$$1);
++        if ($$2) {
++            this.totalHealth += $$1.getHealth();
+         }
+         this.updateBossbar();
+         this.setDirty();
+         return true;
+     }
+ 
+-    public void setLeader(int wave, net.minecraft.world.entity.raid.Raider raider) {
+-        this.groupToLeaderMap.put((java.lang.Object)wave, (java.lang.Object)raider);
+-        raider.setItemSlot(net.minecraft.world.entity.EquipmentSlot.HEAD, net.minecraft.world.entity.raid.Raid.getLeaderBannerInstance());
+-        raider.setDropChance(net.minecraft.world.entity.EquipmentSlot.HEAD, 2.0f);
++    public void setLeader(int $$0, net.minecraft.world.entity.raid.Raider $$1) {
++        this.groupToLeaderMap.put((java.lang.Object)$$0, (java.lang.Object)$$1);
++        $$1.setItemSlot(net.minecraft.world.entity.EquipmentSlot.HEAD, net.minecraft.world.entity.raid.Raid.getLeaderBannerInstance());
++        $$1.setDropChance(net.minecraft.world.entity.EquipmentSlot.HEAD, 2.0f);
+     }
+ 
+-    public void removeLeader(int wave) {
+-        this.groupToLeaderMap.remove((java.lang.Object)wave);
++    public void removeLeader(int $$0) {
++        this.groupToLeaderMap.remove((java.lang.Object)$$0);
+     }
+ 
+     public net.minecraft.core.BlockPos getCenter() {
+         return this.center;
+     }
+ 
+-    public void setCenter(net.minecraft.core.BlockPos center) {
+-        this.center = center;
++    public void setCenter(net.minecraft.core.BlockPos $$0) {
++        this.center = $$0;
+     }
+ 
+     public int getId() {
+         return this.id;
+     }
+ 
+-    public int getDefaultNumSpawns(net.minecraft.world.entity.raid.Raid$RaiderType raiderType, int wave, boolean shouldSpawnBonusGroup) {
+-        return shouldSpawnBonusGroup ? raiderType.spawnsPerWaveBeforeBonus[this.numGroups] : raiderType.spawnsPerWaveBeforeBonus[wave];
++    public int getDefaultNumSpawns(net.minecraft.world.entity.raid.Raid$RaiderType $$0, int $$1, boolean $$2) {
++        return $$2 ? $$0.spawnsPerWaveBeforeBonus[this.numGroups] : $$0.spawnsPerWaveBeforeBonus[$$1];
+     }
+ 
+     /*
+@@ -625,31 +625,31 @@
+         return this.active;
+     }
+ 
+-    public net.minecraft.nbt.CompoundTag save(net.minecraft.nbt.CompoundTag compound) {
+-        compound.putInt("Id", this.id);
+-        compound.putBoolean("Started", this.started);
+-        compound.putBoolean("Active", this.active);
+-        compound.putLong("TicksActive", this.ticksActive);
+-        compound.putInt("BadOmenLevel", this.badOmenLevel);
+-        compound.putInt("GroupsSpawned", this.groupsSpawned);
+-        compound.putInt("PreRaidTicks", this.raidCooldownTicks);
+-        compound.putInt("PostRaidTicks", this.postRaidTicks);
+-        compound.putFloat("TotalHealth", this.totalHealth);
+-        compound.putInt("NumGroups", this.numGroups);
+-        compound.putString("Status", this.status.getName());
+-        compound.putInt("CX", this.center.getX());
+-        compound.putInt("CY", this.center.getY());
+-        compound.putInt("CZ", this.center.getZ());
+-        net.minecraft.nbt.ListTag listTag = new net.minecraft.nbt.ListTag();
+-        for (java.util.UUID uUID : this.heroesOfTheVillage) {
+-            listTag.add((java.lang.Object)net.minecraft.nbt.NbtUtils.createUUID((java.util.UUID)uUID));
++    public net.minecraft.nbt.CompoundTag save(net.minecraft.nbt.CompoundTag $$0) {
++        $$0.putInt("Id", this.id);
++        $$0.putBoolean("Started", this.started);
++        $$0.putBoolean("Active", this.active);
++        $$0.putLong("TicksActive", this.ticksActive);
++        $$0.putInt("BadOmenLevel", this.badOmenLevel);
++        $$0.putInt("GroupsSpawned", this.groupsSpawned);
++        $$0.putInt("PreRaidTicks", this.raidCooldownTicks);
++        $$0.putInt("PostRaidTicks", this.postRaidTicks);
++        $$0.putFloat("TotalHealth", this.totalHealth);
++        $$0.putInt("NumGroups", this.numGroups);
++        $$0.putString("Status", this.status.getName());
++        $$0.putInt("CX", this.center.getX());
++        $$0.putInt("CY", this.center.getY());
++        $$0.putInt("CZ", this.center.getZ());
++        net.minecraft.nbt.ListTag $$1 = new net.minecraft.nbt.ListTag();
++        for (java.util.UUID $$2 : this.heroesOfTheVillage) {
++            $$1.add((java.lang.Object)net.minecraft.nbt.NbtUtils.createUUID((java.util.UUID)$$2));
+         }
+-        compound.put("HeroesOfTheVillage", (net.minecraft.nbt.Tag)listTag);
+-        return compound;
++        $$0.put("HeroesOfTheVillage", (net.minecraft.nbt.Tag)$$1);
++        return $$0;
+     }
+ 
+-    public int getNumGroups(net.minecraft.world.Difficulty difficulty) {
+-        switch (net.minecraft.world.entity.raid.Raid$1.$SwitchMap$net$minecraft$world$Difficulty[difficulty.ordinal()]) {
++    public int getNumGroups(net.minecraft.world.Difficulty $$0) {
++        switch (net.minecraft.world.entity.raid.Raid$1.$SwitchMap$net$minecraft$world$Difficulty[$$0.ordinal()]) {
+             case 1: {
+                 return 3;
+             }
+@@ -680,8 +680,8 @@
+         return 0.0f;
+     }
+ 
+-    public void addHeroOfTheVillage(net.minecraft.world.entity.Entity player) {
+-        this.heroesOfTheVillage.add((java.lang.Object)player.getUUID());
++    public void addHeroOfTheVillage(net.minecraft.world.entity.Entity $$0) {
++        this.heroesOfTheVillage.add((java.lang.Object)$$0.getUUID());
+     }
+ 
+     static {

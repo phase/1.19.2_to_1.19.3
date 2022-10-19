@@ -1,0 +1,388 @@
+--- net/minecraft/world/entity/animal/Bee.java
++++ net/minecraft/world/entity/animal/Bee.java
+@@ -73,8 +73,8 @@
+         this.entityData.define(DATA_REMAINING_ANGER_TIME, (java.lang.Object)0);
+     }
+ 
+-    public float getWalkTargetValue(net.minecraft.core.BlockPos pos, net.minecraft.world.level.LevelReader level) {
+-        if (level.getBlockState(pos).isAir()) {
++    public float getWalkTargetValue(net.minecraft.core.BlockPos $$0, net.minecraft.world.level.LevelReader $$1) {
++        if ($$1.getBlockState($$0).isAir()) {
+             return 10.0f;
+         }
+         return 0.0f;
+@@ -101,61 +101,61 @@
+         this.targetSelector.addGoal(3, (net.minecraft.world.entity.ai.goal.Goal)new net.minecraft.world.entity.ai.goal.target.ResetUniversalAngerTargetGoal((net.minecraft.world.entity.Mob)this, true));
+     }
+ 
+-    public void addAdditionalSaveData(net.minecraft.nbt.CompoundTag compound) {
+-        super.addAdditionalSaveData(compound);
++    public void addAdditionalSaveData(net.minecraft.nbt.CompoundTag $$0) {
++        super.addAdditionalSaveData($$0);
+         if (this.hasHive()) {
+-            compound.put("HivePos", (net.minecraft.nbt.Tag)net.minecraft.nbt.NbtUtils.writeBlockPos((net.minecraft.core.BlockPos)this.getHivePos()));
++            $$0.put("HivePos", (net.minecraft.nbt.Tag)net.minecraft.nbt.NbtUtils.writeBlockPos((net.minecraft.core.BlockPos)this.getHivePos()));
+         }
+         if (this.hasSavedFlowerPos()) {
+-            compound.put("FlowerPos", (net.minecraft.nbt.Tag)net.minecraft.nbt.NbtUtils.writeBlockPos((net.minecraft.core.BlockPos)this.getSavedFlowerPos()));
++            $$0.put("FlowerPos", (net.minecraft.nbt.Tag)net.minecraft.nbt.NbtUtils.writeBlockPos((net.minecraft.core.BlockPos)this.getSavedFlowerPos()));
+         }
+-        compound.putBoolean("HasNectar", this.hasNectar());
+-        compound.putBoolean("HasStung", this.hasStung());
+-        compound.putInt("TicksSincePollination", this.ticksWithoutNectarSinceExitingHive);
+-        compound.putInt("CannotEnterHiveTicks", this.stayOutOfHiveCountdown);
+-        compound.putInt("CropsGrownSincePollination", this.numCropsGrownSincePollination);
+-        this.addPersistentAngerSaveData(compound);
++        $$0.putBoolean("HasNectar", this.hasNectar());
++        $$0.putBoolean("HasStung", this.hasStung());
++        $$0.putInt("TicksSincePollination", this.ticksWithoutNectarSinceExitingHive);
++        $$0.putInt("CannotEnterHiveTicks", this.stayOutOfHiveCountdown);
++        $$0.putInt("CropsGrownSincePollination", this.numCropsGrownSincePollination);
++        this.addPersistentAngerSaveData($$0);
+     }
+ 
+-    public void readAdditionalSaveData(net.minecraft.nbt.CompoundTag compound) {
++    public void readAdditionalSaveData(net.minecraft.nbt.CompoundTag $$0) {
+         this.hivePos = null;
+-        if (compound.contains("HivePos")) {
+-            this.hivePos = net.minecraft.nbt.NbtUtils.readBlockPos((net.minecraft.nbt.CompoundTag)compound.getCompound("HivePos"));
++        if ($$0.contains("HivePos")) {
++            this.hivePos = net.minecraft.nbt.NbtUtils.readBlockPos((net.minecraft.nbt.CompoundTag)$$0.getCompound("HivePos"));
+         }
+         this.savedFlowerPos = null;
+-        if (compound.contains("FlowerPos")) {
+-            this.savedFlowerPos = net.minecraft.nbt.NbtUtils.readBlockPos((net.minecraft.nbt.CompoundTag)compound.getCompound("FlowerPos"));
++        if ($$0.contains("FlowerPos")) {
++            this.savedFlowerPos = net.minecraft.nbt.NbtUtils.readBlockPos((net.minecraft.nbt.CompoundTag)$$0.getCompound("FlowerPos"));
+         }
+-        super.readAdditionalSaveData(compound);
+-        this.setHasNectar(compound.getBoolean("HasNectar"));
+-        this.setHasStung(compound.getBoolean("HasStung"));
+-        this.ticksWithoutNectarSinceExitingHive = compound.getInt("TicksSincePollination");
+-        this.stayOutOfHiveCountdown = compound.getInt("CannotEnterHiveTicks");
+-        this.numCropsGrownSincePollination = compound.getInt("CropsGrownSincePollination");
+-        this.readPersistentAngerSaveData(this.level, compound);
++        super.readAdditionalSaveData($$0);
++        this.setHasNectar($$0.getBoolean("HasNectar"));
++        this.setHasStung($$0.getBoolean("HasStung"));
++        this.ticksWithoutNectarSinceExitingHive = $$0.getInt("TicksSincePollination");
++        this.stayOutOfHiveCountdown = $$0.getInt("CannotEnterHiveTicks");
++        this.numCropsGrownSincePollination = $$0.getInt("CropsGrownSincePollination");
++        this.readPersistentAngerSaveData(this.level, $$0);
+     }
+ 
+-    public boolean doHurtTarget(net.minecraft.world.entity.Entity entity) {
+-        boolean bl = entity.hurt(net.minecraft.world.damagesource.DamageSource.sting((net.minecraft.world.entity.LivingEntity)this), (float)((int)this.getAttributeValue(net.minecraft.world.entity.ai.attributes.Attributes.ATTACK_DAMAGE)));
+-        if (bl) {
+-            this.doEnchantDamageEffects((net.minecraft.world.entity.LivingEntity)this, entity);
+-            if (entity instanceof net.minecraft.world.entity.LivingEntity) {
+-                ((net.minecraft.world.entity.LivingEntity)entity).setStingerCount(((net.minecraft.world.entity.LivingEntity)entity).getStingerCount() + 1);
+-                int n = 0;
++    public boolean doHurtTarget(net.minecraft.world.entity.Entity $$0) {
++        boolean $$1 = $$0.hurt(net.minecraft.world.damagesource.DamageSource.sting((net.minecraft.world.entity.LivingEntity)this), (float)((int)this.getAttributeValue(net.minecraft.world.entity.ai.attributes.Attributes.ATTACK_DAMAGE)));
++        if ($$1) {
++            this.doEnchantDamageEffects((net.minecraft.world.entity.LivingEntity)this, $$0);
++            if ($$0 instanceof net.minecraft.world.entity.LivingEntity) {
++                ((net.minecraft.world.entity.LivingEntity)$$0).setStingerCount(((net.minecraft.world.entity.LivingEntity)$$0).getStingerCount() + 1);
++                int $$2 = 0;
+                 if (this.level.getDifficulty() == net.minecraft.world.Difficulty.NORMAL) {
+-                    n = 10;
++                    $$2 = 10;
+                 } else if (this.level.getDifficulty() == net.minecraft.world.Difficulty.HARD) {
+-                    n = 18;
++                    $$2 = 18;
+                 }
+-                if (n > 0) {
+-                    ((net.minecraft.world.entity.LivingEntity)entity).addEffect(new net.minecraft.world.effect.MobEffectInstance(net.minecraft.world.effect.MobEffects.POISON, n * 20, 0), (net.minecraft.world.entity.Entity)this);
++                if ($$2 > 0) {
++                    ((net.minecraft.world.entity.LivingEntity)$$0).addEffect(new net.minecraft.world.effect.MobEffectInstance(net.minecraft.world.effect.MobEffects.POISON, $$2 * 20, 0), (net.minecraft.world.entity.Entity)this);
+                 }
+             }
+             this.setHasStung(true);
+             this.stopBeingAngry();
+             this.playSound(net.minecraft.sounds.SoundEvents.BEE_STING, 1.0f, 1.0f);
+         }
+-        return bl;
++        return $$1;
+     }
+ 
+     public void tick() {
+@@ -168,33 +168,33 @@
+         this.updateRollAmount();
+     }
+ 
+-    public void spawnFluidParticle(net.minecraft.world.level.Level level, double startX, double endX, double startZ, double endZ, double posY, net.minecraft.core.particles.ParticleOptions particleOption) {
+-        level.addParticle(particleOption, net.minecraft.util.Mth.lerp((double)level.random.nextDouble(), (double)startX, (double)endX), posY, net.minecraft.util.Mth.lerp((double)level.random.nextDouble(), (double)startZ, (double)endZ), 0.0, 0.0, 0.0);
++    public void spawnFluidParticle(net.minecraft.world.level.Level $$0, double $$1, double $$2, double $$3, double $$4, double $$5, net.minecraft.core.particles.ParticleOptions $$6) {
++        $$0.addParticle($$6, net.minecraft.util.Mth.lerp((double)$$0.random.nextDouble(), (double)$$1, (double)$$2), $$5, net.minecraft.util.Mth.lerp((double)$$0.random.nextDouble(), (double)$$3, (double)$$4), 0.0, 0.0, 0.0);
+     }
+ 
+-    public void pathfindRandomlyTowards(net.minecraft.core.BlockPos pos) {
+-        net.minecraft.world.phys.Vec3 vec3;
+-        net.minecraft.world.phys.Vec3 vec32 = net.minecraft.world.phys.Vec3.atBottomCenterOf((net.minecraft.core.Vec3i)pos);
+-        int n = 0;
+-        net.minecraft.core.BlockPos blockPos = this.blockPosition();
+-        int n2 = (int)vec32.y - blockPos.getY();
+-        if (n2 > 2) {
+-            n = 4;
+-        } else if (n2 < -2) {
+-            n = -4;
++    public void pathfindRandomlyTowards(net.minecraft.core.BlockPos $$0) {
++        net.minecraft.world.phys.Vec3 $$8;
++        net.minecraft.world.phys.Vec3 $$1 = net.minecraft.world.phys.Vec3.atBottomCenterOf((net.minecraft.core.Vec3i)$$0);
++        int $$2 = 0;
++        net.minecraft.core.BlockPos $$3 = this.blockPosition();
++        int $$4 = (int)$$1.y - $$3.getY();
++        if ($$4 > 2) {
++            $$2 = 4;
++        } else if ($$4 < -2) {
++            $$2 = -4;
+         }
+-        int n3 = 6;
+-        int n4 = 8;
+-        int n5 = blockPos.distManhattan((net.minecraft.core.Vec3i)pos);
+-        if (n5 < 15) {
+-            n3 = n5 / 2;
+-            n4 = n5 / 2;
++        int $$5 = 6;
++        int $$6 = 8;
++        int $$7 = $$3.distManhattan((net.minecraft.core.Vec3i)$$0);
++        if ($$7 < 15) {
++            $$5 = $$7 / 2;
++            $$6 = $$7 / 2;
+         }
+-        if ((vec3 = net.minecraft.world.entity.ai.util.AirRandomPos.getPosTowards((net.minecraft.world.entity.PathfinderMob)this, (int)n3, (int)n4, (int)n, (net.minecraft.world.phys.Vec3)vec32, (double)0.3141592741012573)) == null) {
++        if (($$8 = net.minecraft.world.entity.ai.util.AirRandomPos.getPosTowards((net.minecraft.world.entity.PathfinderMob)this, (int)$$5, (int)$$6, (int)$$2, (net.minecraft.world.phys.Vec3)$$1, (double)0.3141592741012573)) == null) {
+             return;
+         }
+         this.navigation.setMaxVisitedNodesMultiplier(0.5f);
+-        this.navigation.moveTo(vec3.x, vec3.y, vec3.z, 1.0);
++        this.navigation.moveTo($$8.x, $$8.y, $$8.z, 1.0);
+     }
+ 
+     @javax.annotation.Nullable
+@@ -206,8 +206,8 @@
+         return this.savedFlowerPos != null;
+     }
+ 
+-    public void setSavedFlowerPos(net.minecraft.core.BlockPos savedFlowerPos) {
+-        this.savedFlowerPos = savedFlowerPos;
++    public void setSavedFlowerPos(net.minecraft.core.BlockPos $$0) {
++        this.savedFlowerPos = $$0;
+     }
+ 
+     @net.minecraft.util.VisibleForDebug
+@@ -232,12 +232,12 @@
+         return $$0 && !this.isHiveNearFire();
+     }
+ 
+-    public void setStayOutOfHiveCountdown(int stayOutOfHiveCountdown) {
+-        this.stayOutOfHiveCountdown = stayOutOfHiveCountdown;
++    public void setStayOutOfHiveCountdown(int $$0) {
++        this.stayOutOfHiveCountdown = $$0;
+     }
+ 
+-    public float getRollAmount(float partialTick) {
+-        return net.minecraft.util.Mth.lerp((float)partialTick, (float)this.rollAmountO, (float)this.rollAmount);
++    public float getRollAmount(float $$0) {
++        return net.minecraft.util.Mth.lerp((float)$$0, (float)this.rollAmountO, (float)this.rollAmount);
+     }
+ 
+     public void updateRollAmount() {
+@@ -281,8 +281,8 @@
+         return (java.lang.Integer)this.entityData.get(DATA_REMAINING_ANGER_TIME);
+     }
+ 
+-    public void setRemainingPersistentAngerTime(int time) {
+-        this.entityData.set(DATA_REMAINING_ANGER_TIME, (java.lang.Object)time);
++    public void setRemainingPersistentAngerTime(int $$0) {
++        this.entityData.set(DATA_REMAINING_ANGER_TIME, (java.lang.Object)$$0);
+     }
+ 
+     @javax.annotation.Nullable
+@@ -290,18 +290,18 @@
+         return this.persistentAngerTarget;
+     }
+ 
+-    public void setPersistentAngerTarget(@javax.annotation.Nullable java.util.UUID target) {
+-        this.persistentAngerTarget = target;
++    public void setPersistentAngerTarget(@javax.annotation.Nullable java.util.UUID $$0) {
++        this.persistentAngerTarget = $$0;
+     }
+ 
+     public void startPersistentAngerTimer() {
+         this.setRemainingPersistentAngerTime(PERSISTENT_ANGER_TIME.sample(this.random));
+     }
+ 
+-    public boolean doesHiveHaveSpace(net.minecraft.core.BlockPos hivePos) {
+-        net.minecraft.world.level.block.entity.BlockEntity blockEntity = this.level.getBlockEntity(hivePos);
+-        if (blockEntity instanceof net.minecraft.world.level.block.entity.BeehiveBlockEntity) {
+-            return !((net.minecraft.world.level.block.entity.BeehiveBlockEntity)blockEntity).isFull();
++    public boolean doesHiveHaveSpace(net.minecraft.core.BlockPos $$0) {
++        net.minecraft.world.level.block.entity.BlockEntity $$1 = this.level.getBlockEntity($$0);
++        if ($$1 instanceof net.minecraft.world.level.block.entity.BeehiveBlockEntity) {
++            return !((net.minecraft.world.level.block.entity.BeehiveBlockEntity)$$1).isFull();
+         }
+         return false;
+     }
+@@ -371,73 +371,73 @@
+         return this.getFlag(8);
+     }
+ 
+-    public void setHasNectar(boolean hasNectar) {
+-        if (hasNectar) {
++    public void setHasNectar(boolean $$0) {
++        if ($$0) {
+             this.resetTicksWithoutNectarSinceExitingHive();
+         }
+-        this.setFlag(8, hasNectar);
++        this.setFlag(8, $$0);
+     }
+ 
+     public boolean hasStung() {
+         return this.getFlag(4);
+     }
+ 
+-    public void setHasStung(boolean hasStung) {
+-        this.setFlag(4, hasStung);
++    public void setHasStung(boolean $$0) {
++        this.setFlag(4, $$0);
+     }
+ 
+     public boolean isRolling() {
+         return this.getFlag(2);
+     }
+ 
+-    public void setRolling(boolean isRolling) {
+-        this.setFlag(2, isRolling);
++    public void setRolling(boolean $$0) {
++        this.setFlag(2, $$0);
+     }
+ 
+-    public boolean isTooFarAway(net.minecraft.core.BlockPos pos) {
+-        return !this.closerThan(pos, 32);
++    public boolean isTooFarAway(net.minecraft.core.BlockPos $$0) {
++        return !this.closerThan($$0, 32);
+     }
+ 
+-    public void setFlag(int flagId, boolean value) {
+-        if (value) {
+-            this.entityData.set(DATA_FLAGS_ID, (java.lang.Object)((byte)((java.lang.Byte)this.entityData.get(DATA_FLAGS_ID) | flagId)));
++    public void setFlag(int $$0, boolean $$1) {
++        if ($$1) {
++            this.entityData.set(DATA_FLAGS_ID, (java.lang.Object)((byte)((java.lang.Byte)this.entityData.get(DATA_FLAGS_ID) | $$0)));
+         } else {
+-            this.entityData.set(DATA_FLAGS_ID, (java.lang.Object)((byte)((java.lang.Byte)this.entityData.get(DATA_FLAGS_ID) & ~flagId)));
++            this.entityData.set(DATA_FLAGS_ID, (java.lang.Object)((byte)((java.lang.Byte)this.entityData.get(DATA_FLAGS_ID) & ~$$0)));
+         }
+     }
+ 
+-    public boolean getFlag(int flagId) {
+-        return ((java.lang.Byte)this.entityData.get(DATA_FLAGS_ID) & flagId) != 0;
++    public boolean getFlag(int $$0) {
++        return ((java.lang.Byte)this.entityData.get(DATA_FLAGS_ID) & $$0) != 0;
+     }
+ 
+     public static net.minecraft.world.entity.ai.attributes.AttributeSupplier$Builder createAttributes() {
+         return net.minecraft.world.entity.Mob.createMobAttributes().add(net.minecraft.world.entity.ai.attributes.Attributes.MAX_HEALTH, 10.0).add(net.minecraft.world.entity.ai.attributes.Attributes.FLYING_SPEED, (double)0.6f).add(net.minecraft.world.entity.ai.attributes.Attributes.MOVEMENT_SPEED, (double)0.3f).add(net.minecraft.world.entity.ai.attributes.Attributes.ATTACK_DAMAGE, 2.0).add(net.minecraft.world.entity.ai.attributes.Attributes.FOLLOW_RANGE, 48.0);
+     }
+ 
+-    public net.minecraft.world.entity.ai.navigation.PathNavigation createNavigation(net.minecraft.world.level.Level level) {
+-        net.minecraft.world.entity.animal.Bee$1 var2_2 = new /* Unavailable Anonymous Inner Class!! */;
+-        var2_2.setCanOpenDoors(false);
+-        var2_2.setCanFloat(false);
+-        var2_2.setCanPassDoors(true);
+-        return var2_2;
++    public net.minecraft.world.entity.ai.navigation.PathNavigation createNavigation(net.minecraft.world.level.Level $$0) {
++        net.minecraft.world.entity.animal.Bee$1 $$1 = new /* Unavailable Anonymous Inner Class!! */;
++        $$1.setCanOpenDoors(false);
++        $$1.setCanFloat(false);
++        $$1.setCanPassDoors(true);
++        return $$1;
+     }
+ 
+-    public boolean isFood(net.minecraft.world.item.ItemStack stack) {
+-        return stack.is(net.minecraft.tags.ItemTags.FLOWERS);
++    public boolean isFood(net.minecraft.world.item.ItemStack $$0) {
++        return $$0.is(net.minecraft.tags.ItemTags.FLOWERS);
+     }
+ 
+-    public boolean isFlowerValid(net.minecraft.core.BlockPos pos) {
+-        return this.level.isLoaded(pos) && this.level.getBlockState(pos).is(net.minecraft.tags.BlockTags.FLOWERS);
++    public boolean isFlowerValid(net.minecraft.core.BlockPos $$0) {
++        return this.level.isLoaded($$0) && this.level.getBlockState($$0).is(net.minecraft.tags.BlockTags.FLOWERS);
+     }
+ 
+-    public void playStepSound(net.minecraft.core.BlockPos pos, net.minecraft.world.level.block.state.BlockState block) {
++    public void playStepSound(net.minecraft.core.BlockPos $$0, net.minecraft.world.level.block.state.BlockState $$1) {
+     }
+ 
+     public net.minecraft.sounds.SoundEvent getAmbientSound() {
+         return null;
+     }
+ 
+-    public net.minecraft.sounds.SoundEvent getHurtSound(net.minecraft.world.damagesource.DamageSource damageSource) {
++    public net.minecraft.sounds.SoundEvent getHurtSound(net.minecraft.world.damagesource.DamageSource $$0) {
+         return net.minecraft.sounds.SoundEvents.BEE_HURT;
+     }
+ 
+@@ -449,22 +449,23 @@
+         return 0.4f;
+     }
+ 
++    @javax.annotation.Nullable
+     public net.minecraft.world.entity.animal.Bee getBreedOffspring(net.minecraft.server.level.ServerLevel $$0, net.minecraft.world.entity.AgeableMob $$1) {
+         return (net.minecraft.world.entity.animal.Bee)net.minecraft.world.entity.EntityType.BEE.create((net.minecraft.world.level.Level)$$0);
+     }
+ 
+-    public float getStandingEyeHeight(net.minecraft.world.entity.Pose pose, net.minecraft.world.entity.EntityDimensions size) {
++    public float getStandingEyeHeight(net.minecraft.world.entity.Pose $$0, net.minecraft.world.entity.EntityDimensions $$1) {
+         if (this.isBaby()) {
+-            return size.height * 0.5f;
++            return $$1.height * 0.5f;
+         }
+-        return size.height * 0.5f;
++        return $$1.height * 0.5f;
+     }
+ 
+     public boolean causeFallDamage(float $$0, float $$1, net.minecraft.world.damagesource.DamageSource $$2) {
+         return false;
+     }
+ 
+-    public void checkFallDamage(double y, boolean onGround, net.minecraft.world.level.block.state.BlockState state, net.minecraft.core.BlockPos pos) {
++    public void checkFallDamage(double $$0, boolean $$1, net.minecraft.world.level.block.state.BlockState $$2, net.minecraft.core.BlockPos $$3) {
+     }
+ 
+     public boolean isFlapping() {
+@@ -480,14 +481,14 @@
+         this.resetNumCropsGrownSincePollination();
+     }
+ 
+-    public boolean hurt(net.minecraft.world.damagesource.DamageSource source, float amount) {
+-        if (this.isInvulnerableTo(source)) {
++    public boolean hurt(net.minecraft.world.damagesource.DamageSource $$0, float $$1) {
++        if (this.isInvulnerableTo($$0)) {
+             return false;
+         }
+         if (!this.level.isClientSide) {
+             this.beePollinateGoal.stopPollinating();
+         }
+-        return super.hurt(source, amount);
++        return super.hurt($$0, $$1);
+     }
+ 
+     public net.minecraft.world.entity.MobType getMobType() {
+@@ -502,10 +503,11 @@
+         return new net.minecraft.world.phys.Vec3(0.0, (double)(0.5f * this.getEyeHeight()), (double)(this.getBbWidth() * 0.2f));
+     }
+ 
+-    public boolean closerThan(net.minecraft.core.BlockPos pos, int distance) {
+-        return pos.closerThan((net.minecraft.core.Vec3i)this.blockPosition(), (double)distance);
++    public boolean closerThan(net.minecraft.core.BlockPos $$0, int $$1) {
++        return $$0.closerThan((net.minecraft.core.Vec3i)this.blockPosition(), (double)$$1);
+     }
+ 
++    @javax.annotation.Nullable
+     public /* synthetic */ net.minecraft.world.entity.AgeableMob getBreedOffspring(net.minecraft.server.level.ServerLevel serverLevel, net.minecraft.world.entity.AgeableMob ageableMob) {
+         return this.getBreedOffspring(serverLevel, ageableMob);
+     }

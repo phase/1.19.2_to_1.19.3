@@ -1,0 +1,159 @@
+--- net/minecraft/world/item/TridentItem.java
++++ net/minecraft/world/item/TridentItem.java
+@@ -20,95 +20,102 @@
+         this.defaultModifiers = $$1.build();
+     }
+ 
+-    public boolean canAttackBlock(net.minecraft.world.level.block.state.BlockState state, net.minecraft.world.level.Level level, net.minecraft.core.BlockPos pos, net.minecraft.world.entity.player.Player player) {
+-        return !player.isCreative();
++    public boolean canAttackBlock(net.minecraft.world.level.block.state.BlockState $$0, net.minecraft.world.level.Level $$1, net.minecraft.core.BlockPos $$2, net.minecraft.world.entity.player.Player $$3) {
++        return !$$3.isCreative();
+     }
+ 
+-    public net.minecraft.world.item.UseAnim getUseAnimation(net.minecraft.world.item.ItemStack stack) {
++    public net.minecraft.world.item.UseAnim getUseAnimation(net.minecraft.world.item.ItemStack $$0) {
+         return net.minecraft.world.item.UseAnim.SPEAR;
+     }
+ 
+-    public int getUseDuration(net.minecraft.world.item.ItemStack stack) {
++    public int getUseDuration(net.minecraft.world.item.ItemStack $$0) {
+         return 72000;
+     }
+ 
+-    public void releaseUsing(net.minecraft.world.item.ItemStack stack, net.minecraft.world.level.Level level, net.minecraft.world.entity.LivingEntity entityLiving, int timeLeft) {
+-        if (!(entityLiving instanceof net.minecraft.world.entity.player.Player)) {
++    public void releaseUsing(net.minecraft.world.item.ItemStack $$0, net.minecraft.world.level.Level $$12, net.minecraft.world.entity.LivingEntity $$2, int $$3) {
++        if (!($$2 instanceof net.minecraft.world.entity.player.Player)) {
+             return;
+         }
+-        net.minecraft.world.entity.player.Player player = (net.minecraft.world.entity.player.Player)entityLiving;
+-        int n = this.getUseDuration(stack) - timeLeft;
+-        if (n < 10) {
++        net.minecraft.world.entity.player.Player $$4 = (net.minecraft.world.entity.player.Player)$$2;
++        int $$5 = this.getUseDuration($$0) - $$3;
++        if ($$5 < 10) {
+             return;
+         }
+-        int n2 = net.minecraft.world.item.enchantment.EnchantmentHelper.getRiptide((net.minecraft.world.item.ItemStack)stack);
+-        if (n2 > 0 && !player.isInWaterOrRain()) {
++        int $$6 = net.minecraft.world.item.enchantment.EnchantmentHelper.getRiptide((net.minecraft.world.item.ItemStack)$$0);
++        if ($$6 > 0 && !$$4.isInWaterOrRain()) {
+             return;
+         }
+-        if (!level.isClientSide) {
+-            stack.hurtAndBreak(1, (net.minecraft.world.entity.LivingEntity)player, contextEntity -> contextEntity.broadcastBreakEvent(entityLiving.getUsedItemHand()));
+-            if (n2 == 0) {
+-                net.minecraft.world.entity.projectile.ThrownTrident thrownTrident = new net.minecraft.world.entity.projectile.ThrownTrident(level, (net.minecraft.world.entity.LivingEntity)player, stack);
+-                thrownTrident.shootFromRotation((net.minecraft.world.entity.Entity)player, player.getXRot(), player.getYRot(), 0.0f, 2.5f + (float)n2 * 0.5f, 1.0f);
+-                if (player.getAbilities().instabuild) {
+-                    thrownTrident.pickup = net.minecraft.world.entity.projectile.AbstractArrow$Pickup.CREATIVE_ONLY;
++        if (!$$12.isClientSide) {
++            $$0.hurtAndBreak(1, (net.minecraft.world.entity.LivingEntity)$$4, $$1 -> $$1.broadcastBreakEvent($$2.getUsedItemHand()));
++            if ($$6 == 0) {
++                net.minecraft.world.entity.projectile.ThrownTrident $$7 = new net.minecraft.world.entity.projectile.ThrownTrident($$12, (net.minecraft.world.entity.LivingEntity)$$4, $$0);
++                $$7.shootFromRotation((net.minecraft.world.entity.Entity)$$4, $$4.getXRot(), $$4.getYRot(), 0.0f, 2.5f + (float)$$6 * 0.5f, 1.0f);
++                if ($$4.getAbilities().instabuild) {
++                    $$7.pickup = net.minecraft.world.entity.projectile.AbstractArrow$Pickup.CREATIVE_ONLY;
+                 }
+-                level.addFreshEntity((net.minecraft.world.entity.Entity)thrownTrident);
+-                level.playSound(null, (net.minecraft.world.entity.Entity)thrownTrident, net.minecraft.sounds.SoundEvents.TRIDENT_THROW, net.minecraft.sounds.SoundSource.PLAYERS, 1.0f, 1.0f);
+-                if (!player.getAbilities().instabuild) {
+-                    player.getInventory().removeItem(stack);
++                $$12.addFreshEntity((net.minecraft.world.entity.Entity)$$7);
++                $$12.playSound(null, (net.minecraft.world.entity.Entity)$$7, net.minecraft.sounds.SoundEvents.TRIDENT_THROW, net.minecraft.sounds.SoundSource.PLAYERS, 1.0f, 1.0f);
++                if (!$$4.getAbilities().instabuild) {
++                    $$4.getInventory().removeItem($$0);
+                 }
+             }
+         }
+-        player.awardStat(net.minecraft.stats.Stats.ITEM_USED.get((java.lang.Object)this));
+-        if (n2 > 0) {
+-            float f = player.getYRot();
+-            float f2 = player.getXRot();
+-            float f3 = -net.minecraft.util.Mth.sin((float)(f * ((float)java.lang.Math.PI / 180))) * net.minecraft.util.Mth.cos((float)(f2 * ((float)java.lang.Math.PI / 180)));
+-            float f4 = -net.minecraft.util.Mth.sin((float)(f2 * ((float)java.lang.Math.PI / 180)));
+-            float f5 = net.minecraft.util.Mth.cos((float)(f * ((float)java.lang.Math.PI / 180))) * net.minecraft.util.Mth.cos((float)(f2 * ((float)java.lang.Math.PI / 180)));
+-            float f6 = net.minecraft.util.Mth.sqrt((float)(f3 * f3 + f4 * f4 + f5 * f5));
+-            float f7 = 3.0f * ((1.0f + (float)n2) / 4.0f);
+-            player.push((double)(f3 *= f7 / f6), (double)(f4 *= f7 / f6), (double)(f5 *= f7 / f6));
+-            player.startAutoSpinAttack(20);
+-            if (player.isOnGround()) {
+-                float f8 = 1.1999999f;
+-                player.move(net.minecraft.world.entity.MoverType.SELF, new net.minecraft.world.phys.Vec3(0.0, 1.1999999284744263, 0.0));
++        $$4.awardStat(net.minecraft.stats.Stats.ITEM_USED.get((java.lang.Object)this));
++        if ($$6 > 0) {
++            net.minecraft.sounds.SoundEvent $$18;
++            float $$8 = $$4.getYRot();
++            float $$9 = $$4.getXRot();
++            float $$10 = -net.minecraft.util.Mth.sin((float)($$8 * ((float)java.lang.Math.PI / 180))) * net.minecraft.util.Mth.cos((float)($$9 * ((float)java.lang.Math.PI / 180)));
++            float $$11 = -net.minecraft.util.Mth.sin((float)($$9 * ((float)java.lang.Math.PI / 180)));
++            float $$122 = net.minecraft.util.Mth.cos((float)($$8 * ((float)java.lang.Math.PI / 180))) * net.minecraft.util.Mth.cos((float)($$9 * ((float)java.lang.Math.PI / 180)));
++            float $$13 = net.minecraft.util.Mth.sqrt((float)($$10 * $$10 + $$11 * $$11 + $$122 * $$122));
++            float $$14 = 3.0f * ((1.0f + (float)$$6) / 4.0f);
++            $$4.push((double)($$10 *= $$14 / $$13), (double)($$11 *= $$14 / $$13), (double)($$122 *= $$14 / $$13));
++            $$4.startAutoSpinAttack(20);
++            if ($$4.isOnGround()) {
++                float $$15 = 1.1999999f;
++                $$4.move(net.minecraft.world.entity.MoverType.SELF, new net.minecraft.world.phys.Vec3(0.0, 1.1999999284744263, 0.0));
+             }
+-            net.minecraft.sounds.SoundEvent soundEvent = n2 >= 3 ? net.minecraft.sounds.SoundEvents.TRIDENT_RIPTIDE_3 : (n2 == 2 ? net.minecraft.sounds.SoundEvents.TRIDENT_RIPTIDE_2 : net.minecraft.sounds.SoundEvents.TRIDENT_RIPTIDE_1);
+-            level.playSound(null, (net.minecraft.world.entity.Entity)player, soundEvent, net.minecraft.sounds.SoundSource.PLAYERS, 1.0f, 1.0f);
++            if ($$6 >= 3) {
++                net.minecraft.sounds.SoundEvent $$16 = net.minecraft.sounds.SoundEvents.TRIDENT_RIPTIDE_3;
++            } else if ($$6 == 2) {
++                net.minecraft.sounds.SoundEvent $$17 = net.minecraft.sounds.SoundEvents.TRIDENT_RIPTIDE_2;
++            } else {
++                $$18 = net.minecraft.sounds.SoundEvents.TRIDENT_RIPTIDE_1;
++            }
++            $$12.playSound(null, (net.minecraft.world.entity.Entity)$$4, $$18, net.minecraft.sounds.SoundSource.PLAYERS, 1.0f, 1.0f);
+         }
+     }
+ 
+-    public net.minecraft.world.InteractionResultHolder<net.minecraft.world.item.ItemStack> use(net.minecraft.world.level.Level level, net.minecraft.world.entity.player.Player player, net.minecraft.world.InteractionHand hand) {
+-        net.minecraft.world.item.ItemStack itemStack = player.getItemInHand(hand);
+-        if (itemStack.getDamageValue() >= itemStack.getMaxDamage() - 1) {
+-            return net.minecraft.world.InteractionResultHolder.fail((java.lang.Object)itemStack);
++    public net.minecraft.world.InteractionResultHolder<net.minecraft.world.item.ItemStack> use(net.minecraft.world.level.Level $$0, net.minecraft.world.entity.player.Player $$1, net.minecraft.world.InteractionHand $$2) {
++        net.minecraft.world.item.ItemStack $$3 = $$1.getItemInHand($$2);
++        if ($$3.getDamageValue() >= $$3.getMaxDamage() - 1) {
++            return net.minecraft.world.InteractionResultHolder.fail((java.lang.Object)$$3);
+         }
+-        if (net.minecraft.world.item.enchantment.EnchantmentHelper.getRiptide((net.minecraft.world.item.ItemStack)itemStack) > 0 && !player.isInWaterOrRain()) {
+-            return net.minecraft.world.InteractionResultHolder.fail((java.lang.Object)itemStack);
++        if (net.minecraft.world.item.enchantment.EnchantmentHelper.getRiptide((net.minecraft.world.item.ItemStack)$$3) > 0 && !$$1.isInWaterOrRain()) {
++            return net.minecraft.world.InteractionResultHolder.fail((java.lang.Object)$$3);
+         }
+-        player.startUsingItem(hand);
+-        return net.minecraft.world.InteractionResultHolder.consume((java.lang.Object)itemStack);
++        $$1.startUsingItem($$2);
++        return net.minecraft.world.InteractionResultHolder.consume((java.lang.Object)$$3);
+     }
+ 
+-    public boolean hurtEnemy(net.minecraft.world.item.ItemStack stack, net.minecraft.world.entity.LivingEntity target, net.minecraft.world.entity.LivingEntity attacker) {
+-        stack.hurtAndBreak(1, attacker, contextEntity -> contextEntity.broadcastBreakEvent(net.minecraft.world.entity.EquipmentSlot.MAINHAND));
++    public boolean hurtEnemy(net.minecraft.world.item.ItemStack $$02, net.minecraft.world.entity.LivingEntity $$1, net.minecraft.world.entity.LivingEntity $$2) {
++        $$02.hurtAndBreak(1, $$2, $$0 -> $$0.broadcastBreakEvent(net.minecraft.world.entity.EquipmentSlot.MAINHAND));
+         return true;
+     }
+ 
+-    public boolean mineBlock(net.minecraft.world.item.ItemStack stack, net.minecraft.world.level.Level level, net.minecraft.world.level.block.state.BlockState state, net.minecraft.core.BlockPos pos, net.minecraft.world.entity.LivingEntity entityLiving) {
+-        if ((double)state.getDestroySpeed((net.minecraft.world.level.BlockGetter)level, pos) != 0.0) {
+-            stack.hurtAndBreak(2, entityLiving, contextEntity -> contextEntity.broadcastBreakEvent(net.minecraft.world.entity.EquipmentSlot.MAINHAND));
++    public boolean mineBlock(net.minecraft.world.item.ItemStack $$02, net.minecraft.world.level.Level $$1, net.minecraft.world.level.block.state.BlockState $$2, net.minecraft.core.BlockPos $$3, net.minecraft.world.entity.LivingEntity $$4) {
++        if ((double)$$2.getDestroySpeed((net.minecraft.world.level.BlockGetter)$$1, $$3) != 0.0) {
++            $$02.hurtAndBreak(2, $$4, $$0 -> $$0.broadcastBreakEvent(net.minecraft.world.entity.EquipmentSlot.MAINHAND));
+         }
+         return true;
+     }
+ 
+-    public com.google.common.collect.Multimap<net.minecraft.world.entity.ai.attributes.Attribute, net.minecraft.world.entity.ai.attributes.AttributeModifier> getDefaultAttributeModifiers(net.minecraft.world.entity.EquipmentSlot equipmentSlot) {
+-        if (equipmentSlot == net.minecraft.world.entity.EquipmentSlot.MAINHAND) {
++    public com.google.common.collect.Multimap<net.minecraft.world.entity.ai.attributes.Attribute, net.minecraft.world.entity.ai.attributes.AttributeModifier> getDefaultAttributeModifiers(net.minecraft.world.entity.EquipmentSlot $$0) {
++        if ($$0 == net.minecraft.world.entity.EquipmentSlot.MAINHAND) {
+             return this.defaultModifiers;
+         }
+-        return super.getDefaultAttributeModifiers(equipmentSlot);
++        return super.getDefaultAttributeModifiers($$0);
+     }
+ 
+     public int getEnchantmentValue() {

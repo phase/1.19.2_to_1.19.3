@@ -1,0 +1,126 @@
+--- net/minecraft/advancements/critereon/EntityPredicate.java
++++ net/minecraft/advancements/critereon/EntityPredicate.java
+@@ -53,76 +53,77 @@
+         this.team = $$12;
+     }
+ 
+-    public boolean matches(net.minecraft.server.level.ServerPlayer player, @javax.annotation.Nullable net.minecraft.world.entity.Entity entity) {
+-        return this.matches(player.getLevel(), player.position(), entity);
++    public boolean matches(net.minecraft.server.level.ServerPlayer $$0, @javax.annotation.Nullable net.minecraft.world.entity.Entity $$1) {
++        return this.matches($$0.getLevel(), $$0.position(), $$1);
+     }
+ 
+-    public boolean matches(net.minecraft.server.level.ServerLevel level, @javax.annotation.Nullable net.minecraft.world.phys.Vec3 vector, @javax.annotation.Nullable net.minecraft.world.entity.Entity entity) {
+-        net.minecraft.world.phys.Vec3 vec3;
++    public boolean matches(net.minecraft.server.level.ServerLevel $$0, @javax.annotation.Nullable net.minecraft.world.phys.Vec3 $$1, @javax.annotation.Nullable net.minecraft.world.entity.Entity $$22) {
++        net.minecraft.world.scores.Team $$4;
++        net.minecraft.world.phys.Vec3 $$3;
+         if (this == ANY) {
+             return true;
+         }
+-        if (entity == null) {
++        if ($$22 == null) {
+             return false;
+         }
+-        if (!this.entityType.matches(entity.getType())) {
++        if (!this.entityType.matches($$22.getType())) {
+             return false;
+         }
+-        if (vector == null ? this.distanceToPlayer != net.minecraft.advancements.critereon.DistancePredicate.ANY : !this.distanceToPlayer.matches(vector.x, vector.y, vector.z, entity.getX(), entity.getY(), entity.getZ())) {
++        if ($$1 == null ? this.distanceToPlayer != net.minecraft.advancements.critereon.DistancePredicate.ANY : !this.distanceToPlayer.matches($$1.x, $$1.y, $$1.z, $$22.getX(), $$22.getY(), $$22.getZ())) {
+             return false;
+         }
+-        if (!this.location.matches(level, entity.getX(), entity.getY(), entity.getZ())) {
++        if (!this.location.matches($$0, $$22.getX(), $$22.getY(), $$22.getZ())) {
+             return false;
+         }
+-        if (this.steppingOnLocation != net.minecraft.advancements.critereon.LocationPredicate.ANY && !this.steppingOnLocation.matches(level, (vec3 = net.minecraft.world.phys.Vec3.atCenterOf((net.minecraft.core.Vec3i)entity.getOnPosLegacy())).x(), vec3.y(), vec3.z())) {
++        if (this.steppingOnLocation != net.minecraft.advancements.critereon.LocationPredicate.ANY && !this.steppingOnLocation.matches($$0, ($$3 = net.minecraft.world.phys.Vec3.atCenterOf((net.minecraft.core.Vec3i)$$22.getOnPosLegacy())).x(), $$3.y(), $$3.z())) {
+             return false;
+         }
+-        if (!this.effects.matches(entity)) {
++        if (!this.effects.matches($$22)) {
+             return false;
+         }
+-        if (!this.nbt.matches(entity)) {
++        if (!this.nbt.matches($$22)) {
+             return false;
+         }
+-        if (!this.flags.matches(entity)) {
++        if (!this.flags.matches($$22)) {
+             return false;
+         }
+-        if (!this.equipment.matches(entity)) {
++        if (!this.equipment.matches($$22)) {
+             return false;
+         }
+-        if (!this.subPredicate.matches(entity, level, vector)) {
++        if (!this.subPredicate.matches($$22, $$0, $$1)) {
+             return false;
+         }
+-        if (!this.vehicle.matches(level, vector, entity.getVehicle())) {
++        if (!this.vehicle.matches($$0, $$1, $$22.getVehicle())) {
+             return false;
+         }
+-        if (this.passenger != ANY && entity.getPassengers().stream().noneMatch($$2 -> this.passenger.matches(level, vector, $$2))) {
++        if (this.passenger != ANY && $$22.getPassengers().stream().noneMatch($$2 -> this.passenger.matches($$0, $$1, $$2))) {
+             return false;
+         }
+-        if (!this.targetedEntity.matches(level, vector, entity instanceof net.minecraft.world.entity.Mob ? ((net.minecraft.world.entity.Mob)entity).getTarget() : null)) {
++        if (!this.targetedEntity.matches($$0, $$1, $$22 instanceof net.minecraft.world.entity.Mob ? ((net.minecraft.world.entity.Mob)$$22).getTarget() : null)) {
+             return false;
+         }
+-        return this.team == null || (vec3 = entity.getTeam()) != null && this.team.equals((java.lang.Object)vec3.getName());
++        return this.team == null || ($$4 = $$22.getTeam()) != null && this.team.equals((java.lang.Object)$$4.getName());
+     }
+ 
+-    public static net.minecraft.advancements.critereon.EntityPredicate fromJson(@javax.annotation.Nullable com.google.gson.JsonElement element) {
+-        if (element == null || element.isJsonNull()) {
++    public static net.minecraft.advancements.critereon.EntityPredicate fromJson(@javax.annotation.Nullable com.google.gson.JsonElement $$0) {
++        if ($$0 == null || $$0.isJsonNull()) {
+             return ANY;
+         }
+-        com.google.gson.JsonObject jsonObject = net.minecraft.util.GsonHelper.convertToJsonObject((com.google.gson.JsonElement)element, (java.lang.String)"entity");
+-        net.minecraft.advancements.critereon.EntityTypePredicate entityTypePredicate = net.minecraft.advancements.critereon.EntityTypePredicate.fromJson((com.google.gson.JsonElement)jsonObject.get("type"));
+-        net.minecraft.advancements.critereon.DistancePredicate distancePredicate = net.minecraft.advancements.critereon.DistancePredicate.fromJson((com.google.gson.JsonElement)jsonObject.get("distance"));
+-        net.minecraft.advancements.critereon.LocationPredicate locationPredicate = net.minecraft.advancements.critereon.LocationPredicate.fromJson((com.google.gson.JsonElement)jsonObject.get("location"));
+-        net.minecraft.advancements.critereon.LocationPredicate locationPredicate2 = net.minecraft.advancements.critereon.LocationPredicate.fromJson((com.google.gson.JsonElement)jsonObject.get("stepping_on"));
+-        net.minecraft.advancements.critereon.MobEffectsPredicate mobEffectsPredicate = net.minecraft.advancements.critereon.MobEffectsPredicate.fromJson((com.google.gson.JsonElement)jsonObject.get("effects"));
+-        net.minecraft.advancements.critereon.NbtPredicate nbtPredicate = net.minecraft.advancements.critereon.NbtPredicate.fromJson((com.google.gson.JsonElement)jsonObject.get("nbt"));
+-        net.minecraft.advancements.critereon.EntityFlagsPredicate entityFlagsPredicate = net.minecraft.advancements.critereon.EntityFlagsPredicate.fromJson((com.google.gson.JsonElement)jsonObject.get("flags"));
+-        net.minecraft.advancements.critereon.EntityEquipmentPredicate entityEquipmentPredicate = net.minecraft.advancements.critereon.EntityEquipmentPredicate.fromJson((com.google.gson.JsonElement)jsonObject.get("equipment"));
+-        net.minecraft.advancements.critereon.EntitySubPredicate entitySubPredicate = net.minecraft.advancements.critereon.EntitySubPredicate.fromJson((com.google.gson.JsonElement)jsonObject.get("type_specific"));
+-        net.minecraft.advancements.critereon.EntityPredicate entityPredicate = net.minecraft.advancements.critereon.EntityPredicate.fromJson((com.google.gson.JsonElement)jsonObject.get("vehicle"));
+-        net.minecraft.advancements.critereon.EntityPredicate entityPredicate2 = net.minecraft.advancements.critereon.EntityPredicate.fromJson((com.google.gson.JsonElement)jsonObject.get("passenger"));
+-        net.minecraft.advancements.critereon.EntityPredicate entityPredicate3 = net.minecraft.advancements.critereon.EntityPredicate.fromJson((com.google.gson.JsonElement)jsonObject.get("targeted_entity"));
+-        java.lang.String string = net.minecraft.util.GsonHelper.getAsString((com.google.gson.JsonObject)jsonObject, (java.lang.String)"team", null);
+-        return new net.minecraft.advancements.critereon.EntityPredicate$Builder().entityType(entityTypePredicate).distance(distancePredicate).located(locationPredicate).steppingOn(locationPredicate2).effects(mobEffectsPredicate).nbt(nbtPredicate).flags(entityFlagsPredicate).equipment(entityEquipmentPredicate).subPredicate(entitySubPredicate).team(string).vehicle(entityPredicate).passenger(entityPredicate2).targetedEntity(entityPredicate3).build();
++        com.google.gson.JsonObject $$1 = net.minecraft.util.GsonHelper.convertToJsonObject((com.google.gson.JsonElement)$$0, (java.lang.String)"entity");
++        net.minecraft.advancements.critereon.EntityTypePredicate $$2 = net.minecraft.advancements.critereon.EntityTypePredicate.fromJson((com.google.gson.JsonElement)$$1.get("type"));
++        net.minecraft.advancements.critereon.DistancePredicate $$3 = net.minecraft.advancements.critereon.DistancePredicate.fromJson((com.google.gson.JsonElement)$$1.get("distance"));
++        net.minecraft.advancements.critereon.LocationPredicate $$4 = net.minecraft.advancements.critereon.LocationPredicate.fromJson((com.google.gson.JsonElement)$$1.get("location"));
++        net.minecraft.advancements.critereon.LocationPredicate $$5 = net.minecraft.advancements.critereon.LocationPredicate.fromJson((com.google.gson.JsonElement)$$1.get("stepping_on"));
++        net.minecraft.advancements.critereon.MobEffectsPredicate $$6 = net.minecraft.advancements.critereon.MobEffectsPredicate.fromJson((com.google.gson.JsonElement)$$1.get("effects"));
++        net.minecraft.advancements.critereon.NbtPredicate $$7 = net.minecraft.advancements.critereon.NbtPredicate.fromJson((com.google.gson.JsonElement)$$1.get("nbt"));
++        net.minecraft.advancements.critereon.EntityFlagsPredicate $$8 = net.minecraft.advancements.critereon.EntityFlagsPredicate.fromJson((com.google.gson.JsonElement)$$1.get("flags"));
++        net.minecraft.advancements.critereon.EntityEquipmentPredicate $$9 = net.minecraft.advancements.critereon.EntityEquipmentPredicate.fromJson((com.google.gson.JsonElement)$$1.get("equipment"));
++        net.minecraft.advancements.critereon.EntitySubPredicate $$10 = net.minecraft.advancements.critereon.EntitySubPredicate.fromJson((com.google.gson.JsonElement)$$1.get("type_specific"));
++        net.minecraft.advancements.critereon.EntityPredicate $$11 = net.minecraft.advancements.critereon.EntityPredicate.fromJson((com.google.gson.JsonElement)$$1.get("vehicle"));
++        net.minecraft.advancements.critereon.EntityPredicate $$12 = net.minecraft.advancements.critereon.EntityPredicate.fromJson((com.google.gson.JsonElement)$$1.get("passenger"));
++        net.minecraft.advancements.critereon.EntityPredicate $$13 = net.minecraft.advancements.critereon.EntityPredicate.fromJson((com.google.gson.JsonElement)$$1.get("targeted_entity"));
++        java.lang.String $$14 = net.minecraft.util.GsonHelper.getAsString((com.google.gson.JsonObject)$$1, (java.lang.String)"team", null);
++        return new net.minecraft.advancements.critereon.EntityPredicate$Builder().entityType($$2).distance($$3).located($$4).steppingOn($$5).effects($$6).nbt($$7).flags($$8).equipment($$9).subPredicate($$10).team($$14).vehicle($$11).passenger($$12).targetedEntity($$13).build();
+     }
+ 
+     public com.google.gson.JsonElement serializeToJson() {
+@@ -146,8 +147,8 @@
+         return $$0;
+     }
+ 
+-    public static net.minecraft.world.level.storage.loot.LootContext createContext(net.minecraft.server.level.ServerPlayer player, net.minecraft.world.entity.Entity entity) {
+-        return new net.minecraft.world.level.storage.loot.LootContext$Builder(player.getLevel()).withParameter(net.minecraft.world.level.storage.loot.parameters.LootContextParams.THIS_ENTITY, (java.lang.Object)entity).withParameter(net.minecraft.world.level.storage.loot.parameters.LootContextParams.ORIGIN, (java.lang.Object)player.position()).withRandom(player.getRandom()).create(net.minecraft.world.level.storage.loot.parameters.LootContextParamSets.ADVANCEMENT_ENTITY);
++    public static net.minecraft.world.level.storage.loot.LootContext createContext(net.minecraft.server.level.ServerPlayer $$0, net.minecraft.world.entity.Entity $$1) {
++        return new net.minecraft.world.level.storage.loot.LootContext$Builder($$0.getLevel()).withParameter(net.minecraft.world.level.storage.loot.parameters.LootContextParams.THIS_ENTITY, (java.lang.Object)$$1).withParameter(net.minecraft.world.level.storage.loot.parameters.LootContextParams.ORIGIN, (java.lang.Object)$$0.position()).withRandom($$0.getRandom()).create(net.minecraft.world.level.storage.loot.parameters.LootContextParamSets.ADVANCEMENT_ENTITY);
+     }
+ 
+     static {

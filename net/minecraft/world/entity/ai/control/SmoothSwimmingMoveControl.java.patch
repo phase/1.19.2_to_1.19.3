@@ -1,0 +1,27 @@
+--- net/minecraft/world/entity/ai/control/SmoothSwimmingMoveControl.java
++++ net/minecraft/world/entity/ai/control/SmoothSwimmingMoveControl.java
+@@ -6,6 +6,8 @@
+ public class net.minecraft.world.entity.ai.control.SmoothSwimmingMoveControl
+ extends net.minecraft.world.entity.ai.control.MoveControl
+  {
++    public static float FULL_SPEED_TURN_THRESHOLD = 10.0f;
++    public static float STOP_TURN_THRESHOLD = 60.0f;
+     public int maxTurnX;
+     public int maxTurnY;
+     public float inWaterSpeedModifier;
+@@ -58,8 +60,14 @@
+             this.mob.zza = $$8 * $$5;
+             this.mob.yya = -$$9 * $$5;
+         } else {
+-            this.mob.setSpeed($$5 * this.outsideWaterSpeedModifier);
++            float $$10 = java.lang.Math.abs((float)net.minecraft.util.Mth.wrapDegrees((float)(this.mob.getYRot() - $$4)));
++            float $$11 = net.minecraft.world.entity.ai.control.SmoothSwimmingMoveControl.getTurningSpeedFactor((float)$$10);
++            this.mob.setSpeed($$5 * this.outsideWaterSpeedModifier * $$11);
+         }
+     }
++
++    public static float getTurningSpeedFactor(float $$0) {
++        return 1.0f - net.minecraft.util.Mth.clamp((float)(($$0 - 10.0f) / 50.0f), (float)0.0f, (float)1.0f);
++    }
+ }
+ 

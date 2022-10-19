@@ -1,0 +1,111 @@
+--- net/minecraft/client/Camera.java
++++ net/minecraft/client/Camera.java
+@@ -30,21 +30,21 @@
+         this.rotation = new com.mojang.math.Quaternion(0.0f, 0.0f, 0.0f, 1.0f);
+     }
+ 
+-    public void setup(net.minecraft.world.level.BlockGetter level, net.minecraft.world.entity.Entity renderViewEntity, boolean thirdPerson, boolean thirdPersonReverse, float partialTicks) {
++    public void setup(net.minecraft.world.level.BlockGetter $$0, net.minecraft.world.entity.Entity $$1, boolean $$2, boolean $$3, float $$4) {
+         this.initialized = true;
+-        this.level = level;
+-        this.entity = renderViewEntity;
+-        this.detached = thirdPerson;
+-        this.setRotation(renderViewEntity.getViewYRot(partialTicks), renderViewEntity.getViewXRot(partialTicks));
+-        this.setPosition(net.minecraft.util.Mth.lerp((double)partialTicks, (double)renderViewEntity.xo, (double)renderViewEntity.getX()), net.minecraft.util.Mth.lerp((double)partialTicks, (double)renderViewEntity.yo, (double)renderViewEntity.getY()) + (double)net.minecraft.util.Mth.lerp((float)partialTicks, (float)this.eyeHeightOld, (float)this.eyeHeight), net.minecraft.util.Mth.lerp((double)partialTicks, (double)renderViewEntity.zo, (double)renderViewEntity.getZ()));
+-        if (thirdPerson) {
+-            if (thirdPersonReverse) {
++        this.level = $$0;
++        this.entity = $$1;
++        this.detached = $$2;
++        this.setRotation($$1.getViewYRot($$4), $$1.getViewXRot($$4));
++        this.setPosition(net.minecraft.util.Mth.lerp((double)$$4, (double)$$1.xo, (double)$$1.getX()), net.minecraft.util.Mth.lerp((double)$$4, (double)$$1.yo, (double)$$1.getY()) + (double)net.minecraft.util.Mth.lerp((float)$$4, (float)this.eyeHeightOld, (float)this.eyeHeight), net.minecraft.util.Mth.lerp((double)$$4, (double)$$1.zo, (double)$$1.getZ()));
++        if ($$2) {
++            if ($$3) {
+                 this.setRotation(this.yRot + 180.0f, -this.xRot);
+             }
+             this.move(-this.getMaxZoom(4.0), 0.0, 0.0);
+-        } else if (renderViewEntity instanceof net.minecraft.world.entity.LivingEntity && ((net.minecraft.world.entity.LivingEntity)renderViewEntity).isSleeping()) {
+-            net.minecraft.core.Direction direction = ((net.minecraft.world.entity.LivingEntity)renderViewEntity).getBedOrientation();
+-            this.setRotation(direction != null ? direction.toYRot() - 180.0f : 0.0f, 0.0f);
++        } else if ($$1 instanceof net.minecraft.world.entity.LivingEntity && ((net.minecraft.world.entity.LivingEntity)$$1).isSleeping()) {
++            net.minecraft.core.Direction $$5 = ((net.minecraft.world.entity.LivingEntity)$$1).getBedOrientation();
++            this.setRotation($$5 != null ? $$5.toYRot() - 180.0f : 0.0f, 0.0f);
+             this.move(0.0, 0.3, 0.0);
+         }
+     }
+@@ -56,34 +56,34 @@
+         }
+     }
+ 
+-    public double getMaxZoom(double startingDistance) {
+-        for (int i = 0; i < 8; ++i) {
+-            double d;
+-            net.minecraft.world.phys.Vec3 vec3;
+-            net.minecraft.world.phys.BlockHitResult blockHitResult;
+-            float f = (i & 1) * 2 - 1;
+-            float f2 = (i >> 1 & 1) * 2 - 1;
+-            float f3 = (i >> 2 & 1) * 2 - 1;
+-            net.minecraft.world.phys.Vec3 vec32 = this.position.add((double)(f *= 0.1f), (double)(f2 *= 0.1f), (double)(f3 *= 0.1f));
+-            if ((blockHitResult = this.level.clip(new net.minecraft.world.level.ClipContext(vec32, vec3 = new net.minecraft.world.phys.Vec3(this.position.x - (double)this.forwards.x() * startingDistance + (double)f + (double)f3, this.position.y - (double)this.forwards.y() * startingDistance + (double)f2, this.position.z - (double)this.forwards.z() * startingDistance + (double)f3), net.minecraft.world.level.ClipContext$Block.VISUAL, net.minecraft.world.level.ClipContext$Fluid.NONE, this.entity))).getType() == net.minecraft.world.phys.HitResult$Type.MISS || !((d = blockHitResult.getLocation().distanceTo(this.position)) < startingDistance)) continue;
+-            startingDistance = d;
++    public double getMaxZoom(double $$0) {
++        for (int $$1 = 0; $$1 < 8; ++$$1) {
++            double $$8;
++            net.minecraft.world.phys.Vec3 $$6;
++            net.minecraft.world.phys.BlockHitResult $$7;
++            float $$2 = ($$1 & 1) * 2 - 1;
++            float $$3 = ($$1 >> 1 & 1) * 2 - 1;
++            float $$4 = ($$1 >> 2 & 1) * 2 - 1;
++            net.minecraft.world.phys.Vec3 $$5 = this.position.add((double)($$2 *= 0.1f), (double)($$3 *= 0.1f), (double)($$4 *= 0.1f));
++            if (($$7 = this.level.clip(new net.minecraft.world.level.ClipContext($$5, $$6 = new net.minecraft.world.phys.Vec3(this.position.x - (double)this.forwards.x() * $$0 + (double)$$2, this.position.y - (double)this.forwards.y() * $$0 + (double)$$3, this.position.z - (double)this.forwards.z() * $$0 + (double)$$4), net.minecraft.world.level.ClipContext$Block.VISUAL, net.minecraft.world.level.ClipContext$Fluid.NONE, this.entity))).getType() == net.minecraft.world.phys.HitResult$Type.MISS || !(($$8 = $$7.getLocation().distanceTo(this.position)) < $$0)) continue;
++            $$0 = $$8;
+         }
+-        return startingDistance;
++        return $$0;
+     }
+ 
+-    public void move(double distanceOffset, double verticalOffset, double horizontalOffset) {
+-        double d = (double)this.forwards.x() * distanceOffset + (double)this.up.x() * verticalOffset + (double)this.left.x() * horizontalOffset;
+-        double d2 = (double)this.forwards.y() * distanceOffset + (double)this.up.y() * verticalOffset + (double)this.left.y() * horizontalOffset;
+-        double d3 = (double)this.forwards.z() * distanceOffset + (double)this.up.z() * verticalOffset + (double)this.left.z() * horizontalOffset;
+-        this.setPosition(new net.minecraft.world.phys.Vec3(this.position.x + d, this.position.y + d2, this.position.z + d3));
++    public void move(double $$0, double $$1, double $$2) {
++        double $$3 = (double)this.forwards.x() * $$0 + (double)this.up.x() * $$1 + (double)this.left.x() * $$2;
++        double $$4 = (double)this.forwards.y() * $$0 + (double)this.up.y() * $$1 + (double)this.left.y() * $$2;
++        double $$5 = (double)this.forwards.z() * $$0 + (double)this.up.z() * $$1 + (double)this.left.z() * $$2;
++        this.setPosition(new net.minecraft.world.phys.Vec3(this.position.x + $$3, this.position.y + $$4, this.position.z + $$5));
+     }
+ 
+-    public void setRotation(float pitch, float yaw) {
+-        this.xRot = yaw;
+-        this.yRot = pitch;
++    public void setRotation(float $$0, float $$1) {
++        this.xRot = $$1;
++        this.yRot = $$0;
+         this.rotation.set(0.0f, 0.0f, 0.0f, 1.0f);
+-        this.rotation.mul(com.mojang.math.Vector3f.YP.rotationDegrees(-pitch));
+-        this.rotation.mul(com.mojang.math.Vector3f.XP.rotationDegrees(yaw));
++        this.rotation.mul(com.mojang.math.Vector3f.YP.rotationDegrees(-$$0));
++        this.rotation.mul(com.mojang.math.Vector3f.XP.rotationDegrees($$1));
+         this.forwards.set(0.0f, 0.0f, 1.0f);
+         this.forwards.transform(this.rotation);
+         this.up.set(0.0f, 1.0f, 0.0f);
+@@ -92,13 +92,13 @@
+         this.left.transform(this.rotation);
+     }
+ 
+-    public void setPosition(double x, double y, double z) {
+-        this.setPosition(new net.minecraft.world.phys.Vec3(x, y, z));
++    public void setPosition(double $$0, double $$1, double $$2) {
++        this.setPosition(new net.minecraft.world.phys.Vec3($$0, $$1, $$2));
+     }
+ 
+-    public void setPosition(net.minecraft.world.phys.Vec3 pos) {
+-        this.position = pos;
+-        this.blockPosition.set(pos.x, pos.y, pos.z);
++    public void setPosition(net.minecraft.world.phys.Vec3 $$0) {
++        this.position = $$0;
++        this.blockPosition.set($$0.x, $$0.y, $$0.z);
+     }
+ 
+     public net.minecraft.world.phys.Vec3 getPosition() {

@@ -1,0 +1,1714 @@
+--- net/minecraft/server/network/ServerGamePacketListenerImpl.java
++++ net/minecraft/server/network/ServerGamePacketListenerImpl.java
+@@ -12,7 +12,8 @@
+     public static int LATENCY_CHECK_INTERVAL = 15000;
+     public static double MAX_INTERACTION_DISTANCE;
+     public static int NO_BLOCK_UPDATES_TO_ACK = -1;
+-    public static int PENDING_MESSAGE_DISCONNECT_THRESHOLD = 4096;
++    public static int TRACKED_MESSAGE_DISCONNECT_THRESHOLD = 4096;
++    public static net.minecraft.network.chat.Component CHAT_VALIDATION_FAILED;
+     public net.minecraft.network.Connection connection;
+     public net.minecraft.server.MinecraftServer server;
+     public net.minecraft.server.level.ServerPlayer player;
+@@ -47,19 +48,19 @@
+     public int aboveGroundVehicleTickCount;
+     public int receivedMovePacketCount;
+     public int knownMovePacketCount;
+-    public net.minecraft.network.chat.ChatPreviewCache chatPreviewCache;
+-    public net.minecraft.network.chat.ChatPreviewThrottler chatPreviewThrottler;
+     public java.util.concurrent.atomic.AtomicReference<java.time.Instant> lastChatTimeStamp;
+     public net.minecraft.network.chat.SignedMessageChain$Decoder signedMessageDecoder;
+-    public net.minecraft.network.chat.LastSeenMessagesValidator lastSeenMessagesValidator;
++    public net.minecraft.network.chat.LastSeenMessagesValidator lastSeenMessages;
++    public net.minecraft.network.chat.MessageSignatureCache messageSignatureCache;
++    public net.minecraft.network.chat.MessageSignature$Packer messageSignaturePacker;
+     public net.minecraft.util.FutureChain chatMessageChain;
+ 
+     public net.minecraft.server.network.ServerGamePacketListenerImpl(net.minecraft.server.MinecraftServer $$0, net.minecraft.network.Connection $$1, net.minecraft.server.level.ServerPlayer $$2) {
+         this.ackBlockChangesUpTo = -1;
+-        this.chatPreviewCache = new net.minecraft.network.chat.ChatPreviewCache();
+-        this.chatPreviewThrottler = new net.minecraft.network.chat.ChatPreviewThrottler();
+         this.lastChatTimeStamp = new java.util.concurrent.atomic.AtomicReference((java.lang.Object)java.time.Instant.EPOCH);
+-        this.lastSeenMessagesValidator = new net.minecraft.network.chat.LastSeenMessagesValidator();
++        this.lastSeenMessages = new net.minecraft.network.chat.LastSeenMessagesValidator(20);
++        this.messageSignatureCache = net.minecraft.network.chat.MessageSignatureCache.createDefault();
++        this.messageSignaturePacker = this.messageSignatureCache.packer();
+         this.server = $$0;
+         this.connection = $$1;
+         $$1.setListener((net.minecraft.network.PacketListener)this);
+@@ -67,8 +68,7 @@
+         $$2.connection = this;
+         this.keepAliveTime = net.minecraft.Util.getMillis();
+         $$2.getTextFilter().join();
+-        net.minecraft.world.entity.player.ProfilePublicKey $$3 = $$2.getProfilePublicKey();
+-        this.signedMessageDecoder = $$3 != null ? new net.minecraft.network.chat.SignedMessageChain().decoder() : net.minecraft.network.chat.SignedMessageChain$Decoder.UNSIGNED;
++        this.signedMessageDecoder = $$2.getChatSession().createMessageDecoder($$2.getUUID());
+         this.chatMessageChain = new net.minecraft.util.FutureChain((java.util.concurrent.Executor)$$0);
+     }
+ 
+@@ -140,7 +140,6 @@
+         if (this.player.getLastActionTime() > 0L && this.server.getPlayerIdleTimeout() > 0 && net.minecraft.Util.getMillis() - this.player.getLastActionTime() > (long)(this.server.getPlayerIdleTimeout() * 1000 * 60)) {
+             this.disconnect((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"multiplayer.disconnect.idling"));
+         }
+-        this.chatPreviewThrottler.tick();
+     }
+ 
+     public void resetPosition() {
+@@ -160,8 +159,8 @@
+         return this.server.isSingleplayerOwner(this.player.getGameProfile());
+     }
+ 
+-    public void disconnect(net.minecraft.network.chat.Component textComponent) {
+-        this.connection.send((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ClientboundDisconnectPacket(textComponent), net.minecraft.network.PacketSendListener.thenRun(() -> this.connection.disconnect(textComponent)));
++    public void disconnect(net.minecraft.network.chat.Component $$0) {
++        this.connection.send((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ClientboundDisconnectPacket($$0), net.minecraft.network.PacketSendListener.thenRun(() -> this.connection.disconnect($$0)));
+         this.connection.setReadOnly();
+         this.server.executeBlocking(() -> ((net.minecraft.network.Connection)this.connection).handleDisconnection());
+     }
+@@ -184,9 +183,9 @@
+         return this.filterTextPacket($$0, net.minecraft.server.network.TextFilter::processMessageBundle);
+     }
+ 
+-    public void handlePlayerInput(net.minecraft.network.protocol.game.ServerboundPlayerInputPacket packet) {
+-        net.minecraft.network.protocol.PacketUtils.ensureRunningOnSameThread((net.minecraft.network.protocol.Packet)packet, (net.minecraft.network.PacketListener)this, (net.minecraft.server.level.ServerLevel)this.player.getLevel());
+-        this.player.setPlayerInput(packet.getXxa(), packet.getZza(), packet.isJumping(), packet.isShiftKeyDown());
++    public void handlePlayerInput(net.minecraft.network.protocol.game.ServerboundPlayerInputPacket $$0) {
++        net.minecraft.network.protocol.PacketUtils.ensureRunningOnSameThread((net.minecraft.network.protocol.Packet)$$0, (net.minecraft.network.PacketListener)this, (net.minecraft.server.level.ServerLevel)this.player.getLevel());
++        this.player.setPlayerInput($$0.getXxa(), $$0.getZza(), $$0.isJumping(), $$0.isShiftKeyDown());
+     }
+ 
+     public static boolean containsInvalidValues(double $$0, double $$1, double $$2, float $$3, float $$4) {
+@@ -201,65 +200,65 @@
+         return net.minecraft.util.Mth.clamp((double)$$0, (double)-2.0E7, (double)2.0E7);
+     }
+ 
+-    public void handleMoveVehicle(net.minecraft.network.protocol.game.ServerboundMoveVehiclePacket packet) {
+-        net.minecraft.network.protocol.PacketUtils.ensureRunningOnSameThread((net.minecraft.network.protocol.Packet)packet, (net.minecraft.network.PacketListener)this, (net.minecraft.server.level.ServerLevel)this.player.getLevel());
+-        if (net.minecraft.server.network.ServerGamePacketListenerImpl.containsInvalidValues((double)packet.getX(), (double)packet.getY(), (double)packet.getZ(), (float)packet.getYRot(), (float)packet.getXRot())) {
++    public void handleMoveVehicle(net.minecraft.network.protocol.game.ServerboundMoveVehiclePacket $$0) {
++        net.minecraft.network.protocol.PacketUtils.ensureRunningOnSameThread((net.minecraft.network.protocol.Packet)$$0, (net.minecraft.network.PacketListener)this, (net.minecraft.server.level.ServerLevel)this.player.getLevel());
++        if (net.minecraft.server.network.ServerGamePacketListenerImpl.containsInvalidValues((double)$$0.getX(), (double)$$0.getY(), (double)$$0.getZ(), (float)$$0.getYRot(), (float)$$0.getXRot())) {
+             this.disconnect((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"multiplayer.disconnect.invalid_vehicle_movement"));
+             return;
+         }
+-        net.minecraft.world.entity.Entity entity = this.player.getRootVehicle();
+-        if (entity != this.player && entity.getControllingPassenger() == this.player && entity == this.lastVehicle) {
+-            net.minecraft.server.level.ServerLevel serverLevel = this.player.getLevel();
+-            double d = entity.getX();
+-            double d2 = entity.getY();
+-            double d3 = entity.getZ();
+-            double d4 = net.minecraft.server.network.ServerGamePacketListenerImpl.clampHorizontal((double)packet.getX());
+-            double d5 = net.minecraft.server.network.ServerGamePacketListenerImpl.clampVertical((double)packet.getY());
+-            double d6 = net.minecraft.server.network.ServerGamePacketListenerImpl.clampHorizontal((double)packet.getZ());
+-            float f = net.minecraft.util.Mth.wrapDegrees((float)packet.getYRot());
+-            float f2 = net.minecraft.util.Mth.wrapDegrees((float)packet.getXRot());
+-            double d7 = d4 - this.vehicleFirstGoodX;
+-            double d8 = d5 - this.vehicleFirstGoodY;
+-            double d9 = d6 - this.vehicleFirstGoodZ;
+-            double d10 = d7 * d7 + d8 * d8 + d9 * d9;
+-            double d11 = entity.getDeltaMovement().lengthSqr();
+-            if (d10 - d11 > 100.0 && !this.isSingleplayerOwner()) {
+-                LOGGER.warn("{} (vehicle of {}) moved too quickly! {},{},{}", new java.lang.Object[]{entity.getName().getString(), this.player.getName().getString(), d7, d8, d9});
+-                this.connection.send((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ClientboundMoveVehiclePacket(entity));
++        net.minecraft.world.entity.Entity $$1 = this.player.getRootVehicle();
++        if ($$1 != this.player && $$1.getControllingPassenger() == this.player && $$1 == this.lastVehicle) {
++            net.minecraft.server.level.ServerLevel $$2 = this.player.getLevel();
++            double $$3 = $$1.getX();
++            double $$4 = $$1.getY();
++            double $$5 = $$1.getZ();
++            double $$6 = net.minecraft.server.network.ServerGamePacketListenerImpl.clampHorizontal((double)$$0.getX());
++            double $$7 = net.minecraft.server.network.ServerGamePacketListenerImpl.clampVertical((double)$$0.getY());
++            double $$8 = net.minecraft.server.network.ServerGamePacketListenerImpl.clampHorizontal((double)$$0.getZ());
++            float $$9 = net.minecraft.util.Mth.wrapDegrees((float)$$0.getYRot());
++            float $$10 = net.minecraft.util.Mth.wrapDegrees((float)$$0.getXRot());
++            double $$11 = $$6 - this.vehicleFirstGoodX;
++            double $$12 = $$7 - this.vehicleFirstGoodY;
++            double $$13 = $$8 - this.vehicleFirstGoodZ;
++            double $$15 = $$11 * $$11 + $$12 * $$12 + $$13 * $$13;
++            double $$14 = $$1.getDeltaMovement().lengthSqr();
++            if ($$15 - $$14 > 100.0 && !this.isSingleplayerOwner()) {
++                LOGGER.warn("{} (vehicle of {}) moved too quickly! {},{},{}", new java.lang.Object[]{$$1.getName().getString(), this.player.getName().getString(), $$11, $$12, $$13});
++                this.connection.send((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ClientboundMoveVehiclePacket($$1));
+                 return;
+             }
+-            boolean bl = serverLevel.noCollision(entity, entity.getBoundingBox().deflate(0.0625));
+-            d7 = d4 - this.vehicleLastGoodX;
+-            d8 = d5 - this.vehicleLastGoodY - 1.0E-6;
+-            d9 = d6 - this.vehicleLastGoodZ;
+-            boolean bl2 = entity.verticalCollisionBelow;
+-            entity.move(net.minecraft.world.entity.MoverType.PLAYER, new net.minecraft.world.phys.Vec3(d7, d8, d9));
+-            double d12 = d8;
+-            d7 = d4 - entity.getX();
+-            d8 = d5 - entity.getY();
+-            if (d8 > -0.5 || d8 < 0.5) {
+-                d8 = 0.0;
++            boolean $$16 = $$2.noCollision($$1, $$1.getBoundingBox().deflate(0.0625));
++            $$11 = $$6 - this.vehicleLastGoodX;
++            $$12 = $$7 - this.vehicleLastGoodY - 1.0E-6;
++            $$13 = $$8 - this.vehicleLastGoodZ;
++            boolean $$17 = $$1.verticalCollisionBelow;
++            $$1.move(net.minecraft.world.entity.MoverType.PLAYER, new net.minecraft.world.phys.Vec3($$11, $$12, $$13));
++            double $$18 = $$12;
++            $$11 = $$6 - $$1.getX();
++            $$12 = $$7 - $$1.getY();
++            if ($$12 > -0.5 || $$12 < 0.5) {
++                $$12 = 0.0;
+             }
+-            d9 = d6 - entity.getZ();
+-            d10 = d7 * d7 + d8 * d8 + d9 * d9;
+-            boolean bl3 = false;
+-            if (d10 > 0.0625) {
+-                bl3 = true;
+-                LOGGER.warn("{} (vehicle of {}) moved wrongly! {}", new java.lang.Object[]{entity.getName().getString(), this.player.getName().getString(), java.lang.Math.sqrt((double)d10)});
++            $$13 = $$8 - $$1.getZ();
++            $$15 = $$11 * $$11 + $$12 * $$12 + $$13 * $$13;
++            boolean $$19 = false;
++            if ($$15 > 0.0625) {
++                $$19 = true;
++                LOGGER.warn("{} (vehicle of {}) moved wrongly! {}", new java.lang.Object[]{$$1.getName().getString(), this.player.getName().getString(), java.lang.Math.sqrt((double)$$15)});
+             }
+-            entity.absMoveTo(d4, d5, d6, f, f2);
+-            boolean bl4 = serverLevel.noCollision(entity, entity.getBoundingBox().deflate(0.0625));
+-            if (bl && (bl3 || !bl4)) {
+-                entity.absMoveTo(d, d2, d3, f, f2);
+-                this.connection.send((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ClientboundMoveVehiclePacket(entity));
++            $$1.absMoveTo($$6, $$7, $$8, $$9, $$10);
++            boolean $$20 = $$2.noCollision($$1, $$1.getBoundingBox().deflate(0.0625));
++            if ($$16 && ($$19 || !$$20)) {
++                $$1.absMoveTo($$3, $$4, $$5, $$9, $$10);
++                this.connection.send((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ClientboundMoveVehiclePacket($$1));
+                 return;
+             }
+             this.player.getLevel().getChunkSource().move(this.player);
+-            this.player.checkMovementStatistics(this.player.getX() - d, this.player.getY() - d2, this.player.getZ() - d3);
+-            this.clientVehicleIsFloating = d12 >= -0.03125 && !bl2 && !this.server.isFlightAllowed() && !entity.isNoGravity() && this.noBlocksAround(entity);
+-            this.vehicleLastGoodX = entity.getX();
+-            this.vehicleLastGoodY = entity.getY();
+-            this.vehicleLastGoodZ = entity.getZ();
++            this.player.checkMovementStatistics(this.player.getX() - $$3, this.player.getY() - $$4, this.player.getZ() - $$5);
++            this.clientVehicleIsFloating = $$18 >= -0.03125 && !$$17 && !this.server.isFlightAllowed() && !$$1.isNoGravity() && this.noBlocksAround($$1);
++            this.vehicleLastGoodX = $$1.getX();
++            this.vehicleLastGoodY = $$1.getY();
++            this.vehicleLastGoodZ = $$1.getZ();
+         }
+     }
+ 
+@@ -267,9 +266,9 @@
+         return $$0.level.getBlockStates($$0.getBoundingBox().inflate(0.0625).expandTowards(0.0, -0.55, 0.0)).allMatch(net.minecraft.world.level.block.state.BlockBehaviour$BlockStateBase::isAir);
+     }
+ 
+-    public void handleAcceptTeleportPacket(net.minecraft.network.protocol.game.ServerboundAcceptTeleportationPacket packet) {
+-        net.minecraft.network.protocol.PacketUtils.ensureRunningOnSameThread((net.minecraft.network.protocol.Packet)packet, (net.minecraft.network.PacketListener)this, (net.minecraft.server.level.ServerLevel)this.player.getLevel());
+-        if (packet.getId() == this.awaitingTeleport) {
++    public void handleAcceptTeleportPacket(net.minecraft.network.protocol.game.ServerboundAcceptTeleportationPacket $$0) {
++        net.minecraft.network.protocol.PacketUtils.ensureRunningOnSameThread((net.minecraft.network.protocol.Packet)$$0, (net.minecraft.network.PacketListener)this, (net.minecraft.server.level.ServerLevel)this.player.getLevel());
++        if ($$0.getId() == this.awaitingTeleport) {
+             if (this.awaitingPositionFromClient == null) {
+                 this.disconnect((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"multiplayer.disconnect.invalid_player_movement"));
+                 return;
+@@ -285,39 +284,39 @@
+         }
+     }
+ 
+-    public void handleRecipeBookSeenRecipePacket(net.minecraft.network.protocol.game.ServerboundRecipeBookSeenRecipePacket packet) {
+-        net.minecraft.network.protocol.PacketUtils.ensureRunningOnSameThread((net.minecraft.network.protocol.Packet)packet, (net.minecraft.network.PacketListener)this, (net.minecraft.server.level.ServerLevel)this.player.getLevel());
+-        this.server.getRecipeManager().byKey(packet.getRecipe()).ifPresent(arg_0 -> ((net.minecraft.stats.ServerRecipeBook)this.player.getRecipeBook()).removeHighlight(arg_0));
++    public void handleRecipeBookSeenRecipePacket(net.minecraft.network.protocol.game.ServerboundRecipeBookSeenRecipePacket $$0) {
++        net.minecraft.network.protocol.PacketUtils.ensureRunningOnSameThread((net.minecraft.network.protocol.Packet)$$0, (net.minecraft.network.PacketListener)this, (net.minecraft.server.level.ServerLevel)this.player.getLevel());
++        this.server.getRecipeManager().byKey($$0.getRecipe()).ifPresent(arg_0 -> ((net.minecraft.stats.ServerRecipeBook)this.player.getRecipeBook()).removeHighlight(arg_0));
+     }
+ 
+-    public void handleRecipeBookChangeSettingsPacket(net.minecraft.network.protocol.game.ServerboundRecipeBookChangeSettingsPacket packet) {
+-        net.minecraft.network.protocol.PacketUtils.ensureRunningOnSameThread((net.minecraft.network.protocol.Packet)packet, (net.minecraft.network.PacketListener)this, (net.minecraft.server.level.ServerLevel)this.player.getLevel());
+-        this.player.getRecipeBook().setBookSetting(packet.getBookType(), packet.isOpen(), packet.isFiltering());
++    public void handleRecipeBookChangeSettingsPacket(net.minecraft.network.protocol.game.ServerboundRecipeBookChangeSettingsPacket $$0) {
++        net.minecraft.network.protocol.PacketUtils.ensureRunningOnSameThread((net.minecraft.network.protocol.Packet)$$0, (net.minecraft.network.PacketListener)this, (net.minecraft.server.level.ServerLevel)this.player.getLevel());
++        this.player.getRecipeBook().setBookSetting($$0.getBookType(), $$0.isOpen(), $$0.isFiltering());
+     }
+ 
+-    public void handleSeenAdvancements(net.minecraft.network.protocol.game.ServerboundSeenAdvancementsPacket packet) {
+-        net.minecraft.network.protocol.PacketUtils.ensureRunningOnSameThread((net.minecraft.network.protocol.Packet)packet, (net.minecraft.network.PacketListener)this, (net.minecraft.server.level.ServerLevel)this.player.getLevel());
+-        if (packet.getAction() == net.minecraft.network.protocol.game.ServerboundSeenAdvancementsPacket$Action.OPENED_TAB) {
+-            net.minecraft.resources.ResourceLocation resourceLocation = packet.getTab();
+-            net.minecraft.advancements.Advancement advancement = this.server.getAdvancements().getAdvancement(resourceLocation);
+-            if (advancement != null) {
+-                this.player.getAdvancements().setSelectedTab(advancement);
++    public void handleSeenAdvancements(net.minecraft.network.protocol.game.ServerboundSeenAdvancementsPacket $$0) {
++        net.minecraft.network.protocol.PacketUtils.ensureRunningOnSameThread((net.minecraft.network.protocol.Packet)$$0, (net.minecraft.network.PacketListener)this, (net.minecraft.server.level.ServerLevel)this.player.getLevel());
++        if ($$0.getAction() == net.minecraft.network.protocol.game.ServerboundSeenAdvancementsPacket$Action.OPENED_TAB) {
++            net.minecraft.resources.ResourceLocation $$1 = $$0.getTab();
++            net.minecraft.advancements.Advancement $$2 = this.server.getAdvancements().getAdvancement($$1);
++            if ($$2 != null) {
++                this.player.getAdvancements().setSelectedTab($$2);
+             }
+         }
+     }
+ 
+-    public void handleCustomCommandSuggestions(net.minecraft.network.protocol.game.ServerboundCommandSuggestionPacket packet) {
+-        net.minecraft.network.protocol.PacketUtils.ensureRunningOnSameThread((net.minecraft.network.protocol.Packet)packet, (net.minecraft.network.PacketListener)this, (net.minecraft.server.level.ServerLevel)this.player.getLevel());
+-        com.mojang.brigadier.StringReader stringReader = new com.mojang.brigadier.StringReader(packet.getCommand());
+-        if (stringReader.canRead() && stringReader.peek() == '/') {
+-            stringReader.skip();
++    public void handleCustomCommandSuggestions(net.minecraft.network.protocol.game.ServerboundCommandSuggestionPacket $$0) {
++        net.minecraft.network.protocol.PacketUtils.ensureRunningOnSameThread((net.minecraft.network.protocol.Packet)$$0, (net.minecraft.network.PacketListener)this, (net.minecraft.server.level.ServerLevel)this.player.getLevel());
++        com.mojang.brigadier.StringReader $$12 = new com.mojang.brigadier.StringReader($$0.getCommand());
++        if ($$12.canRead() && $$12.peek() == '/') {
++            $$12.skip();
+         }
+-        com.mojang.brigadier.ParseResults parseResults = this.server.getCommands().getDispatcher().parse(stringReader, (java.lang.Object)this.player.createCommandSourceStack());
+-        this.server.getCommands().getDispatcher().getCompletionSuggestions(parseResults).thenAccept($$1 -> this.connection.send((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ClientboundCommandSuggestionsPacket(packet.getId(), $$1)));
++        com.mojang.brigadier.ParseResults $$2 = this.server.getCommands().getDispatcher().parse($$12, (java.lang.Object)this.player.createCommandSourceStack());
++        this.server.getCommands().getDispatcher().getCompletionSuggestions($$2).thenAccept($$1 -> this.connection.send((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ClientboundCommandSuggestionsPacket($$0.getId(), $$1)));
+     }
+ 
+-    public void handleSetCommandBlock(net.minecraft.network.protocol.game.ServerboundSetCommandBlockPacket packet) {
+-        net.minecraft.network.protocol.PacketUtils.ensureRunningOnSameThread((net.minecraft.network.protocol.Packet)packet, (net.minecraft.network.PacketListener)this, (net.minecraft.server.level.ServerLevel)this.player.getLevel());
++    public void handleSetCommandBlock(net.minecraft.network.protocol.game.ServerboundSetCommandBlockPacket $$0) {
++        net.minecraft.network.protocol.PacketUtils.ensureRunningOnSameThread((net.minecraft.network.protocol.Packet)$$0, (net.minecraft.network.PacketListener)this, (net.minecraft.server.level.ServerLevel)this.player.getLevel());
+         if (!this.server.isCommandBlockEnabled()) {
+             this.player.sendSystemMessage((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"advMode.notEnabled"));
+             return;
+@@ -326,48 +325,58 @@
+             this.player.sendSystemMessage((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"advMode.notAllowed"));
+             return;
+         }
+-        net.minecraft.world.level.BaseCommandBlock baseCommandBlock = null;
+-        net.minecraft.world.level.block.entity.CommandBlockEntity commandBlockEntity = null;
+-        net.minecraft.core.BlockPos blockPos = packet.getPos();
+-        net.minecraft.world.level.block.entity.BlockEntity blockEntity = this.player.level.getBlockEntity(blockPos);
+-        if (blockEntity instanceof net.minecraft.world.level.block.entity.CommandBlockEntity) {
+-            commandBlockEntity = (net.minecraft.world.level.block.entity.CommandBlockEntity)blockEntity;
+-            baseCommandBlock = commandBlockEntity.getCommandBlock();
++        net.minecraft.world.level.BaseCommandBlock $$1 = null;
++        net.minecraft.world.level.block.entity.CommandBlockEntity $$2 = null;
++        net.minecraft.core.BlockPos $$3 = $$0.getPos();
++        net.minecraft.world.level.block.entity.BlockEntity $$4 = this.player.level.getBlockEntity($$3);
++        if ($$4 instanceof net.minecraft.world.level.block.entity.CommandBlockEntity) {
++            $$2 = (net.minecraft.world.level.block.entity.CommandBlockEntity)$$4;
++            $$1 = $$2.getCommandBlock();
+         }
+-        java.lang.String string = packet.getCommand();
+-        boolean bl = packet.isTrackOutput();
+-        if (baseCommandBlock != null) {
+-            net.minecraft.world.level.block.entity.CommandBlockEntity$Mode mode = commandBlockEntity.getMode();
+-            net.minecraft.world.level.block.state.BlockState blockState = this.player.level.getBlockState(blockPos);
+-            net.minecraft.core.Direction direction = (net.minecraft.core.Direction)blockState.getValue((net.minecraft.world.level.block.state.properties.Property)net.minecraft.world.level.block.CommandBlock.FACING);
+-            net.minecraft.world.level.block.state.BlockState blockState2 = (net.minecraft.world.level.block.state.BlockState)((net.minecraft.world.level.block.state.BlockState)(switch (net.minecraft.server.network.ServerGamePacketListenerImpl$2.$SwitchMap$net$minecraft$world$level$block$entity$CommandBlockEntity$Mode[packet.getMode().ordinal()]) {
+-                case 1 -> net.minecraft.world.level.block.Blocks.CHAIN_COMMAND_BLOCK.defaultBlockState();
+-                case 2 -> net.minecraft.world.level.block.Blocks.REPEATING_COMMAND_BLOCK.defaultBlockState();
+-                default -> net.minecraft.world.level.block.Blocks.COMMAND_BLOCK.defaultBlockState();
+-            }).setValue((net.minecraft.world.level.block.state.properties.Property)net.minecraft.world.level.block.CommandBlock.FACING, (java.lang.Comparable)direction)).setValue((net.minecraft.world.level.block.state.properties.Property)net.minecraft.world.level.block.CommandBlock.CONDITIONAL, (java.lang.Comparable)java.lang.Boolean.valueOf((boolean)packet.isConditional()));
+-            if (blockState2 != blockState) {
+-                this.player.level.setBlock(blockPos, blockState2, 2);
+-                blockEntity.setBlockState(blockState2);
+-                this.player.level.getChunkAt(blockPos).setBlockEntity(blockEntity);
++        java.lang.String $$5 = $$0.getCommand();
++        boolean $$6 = $$0.isTrackOutput();
++        if ($$1 != null) {
++            net.minecraft.world.level.block.state.BlockState $$12;
++            net.minecraft.world.level.block.entity.CommandBlockEntity$Mode $$7 = $$2.getMode();
++            net.minecraft.world.level.block.state.BlockState $$8 = this.player.level.getBlockState($$3);
++            net.minecraft.core.Direction $$9 = (net.minecraft.core.Direction)$$8.getValue((net.minecraft.world.level.block.state.properties.Property)net.minecraft.world.level.block.CommandBlock.FACING);
++            switch (net.minecraft.server.network.ServerGamePacketListenerImpl$2.$SwitchMap$net$minecraft$world$level$block$entity$CommandBlockEntity$Mode[$$0.getMode().ordinal()]) {
++                case 1: {
++                    net.minecraft.world.level.block.state.BlockState $$10 = net.minecraft.world.level.block.Blocks.CHAIN_COMMAND_BLOCK.defaultBlockState();
++                    break;
++                }
++                case 2: {
++                    net.minecraft.world.level.block.state.BlockState $$11 = net.minecraft.world.level.block.Blocks.REPEATING_COMMAND_BLOCK.defaultBlockState();
++                    break;
++                }
++                default: {
++                    $$12 = net.minecraft.world.level.block.Blocks.COMMAND_BLOCK.defaultBlockState();
++                }
+             }
+-            baseCommandBlock.setCommand(string);
+-            baseCommandBlock.setTrackOutput(bl);
+-            if (!bl) {
+-                baseCommandBlock.setLastOutput(null);
++            net.minecraft.world.level.block.state.BlockState $$13 = (net.minecraft.world.level.block.state.BlockState)((net.minecraft.world.level.block.state.BlockState)$$12.setValue((net.minecraft.world.level.block.state.properties.Property)net.minecraft.world.level.block.CommandBlock.FACING, (java.lang.Comparable)$$9)).setValue((net.minecraft.world.level.block.state.properties.Property)net.minecraft.world.level.block.CommandBlock.CONDITIONAL, (java.lang.Comparable)java.lang.Boolean.valueOf((boolean)$$0.isConditional()));
++            if ($$13 != $$8) {
++                this.player.level.setBlock($$3, $$13, 2);
++                $$4.setBlockState($$13);
++                this.player.level.getChunkAt($$3).setBlockEntity($$4);
+             }
+-            commandBlockEntity.setAutomatic(packet.isAutomatic());
+-            if (mode != packet.getMode()) {
+-                commandBlockEntity.onModeSwitch();
++            $$1.setCommand($$5);
++            $$1.setTrackOutput($$6);
++            if (!$$6) {
++                $$1.setLastOutput(null);
+             }
+-            baseCommandBlock.onUpdated();
+-            if (!net.minecraft.util.StringUtil.isNullOrEmpty((java.lang.String)string)) {
+-                this.player.sendSystemMessage((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"advMode.setCommand.success", (java.lang.Object[])new java.lang.Object[]{string}));
++            $$2.setAutomatic($$0.isAutomatic());
++            if ($$7 != $$0.getMode()) {
++                $$2.onModeSwitch();
+             }
++            $$1.onUpdated();
++            if (!net.minecraft.util.StringUtil.isNullOrEmpty((java.lang.String)$$5)) {
++                this.player.sendSystemMessage((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"advMode.setCommand.success", (java.lang.Object[])new java.lang.Object[]{$$5}));
++            }
+         }
+     }
+ 
+-    public void handleSetCommandMinecart(net.minecraft.network.protocol.game.ServerboundSetCommandMinecartPacket packet) {
+-        net.minecraft.network.protocol.PacketUtils.ensureRunningOnSameThread((net.minecraft.network.protocol.Packet)packet, (net.minecraft.network.PacketListener)this, (net.minecraft.server.level.ServerLevel)this.player.getLevel());
++    public void handleSetCommandMinecart(net.minecraft.network.protocol.game.ServerboundSetCommandMinecartPacket $$0) {
++        net.minecraft.network.protocol.PacketUtils.ensureRunningOnSameThread((net.minecraft.network.protocol.Packet)$$0, (net.minecraft.network.PacketListener)this, (net.minecraft.server.level.ServerLevel)this.player.getLevel());
+         if (!this.server.isCommandBlockEnabled()) {
+             this.player.sendSystemMessage((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"advMode.notEnabled"));
+             return;
+@@ -376,167 +385,167 @@
+             this.player.sendSystemMessage((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"advMode.notAllowed"));
+             return;
+         }
+-        net.minecraft.world.level.BaseCommandBlock baseCommandBlock = packet.getCommandBlock(this.player.level);
+-        if (baseCommandBlock != null) {
+-            baseCommandBlock.setCommand(packet.getCommand());
+-            baseCommandBlock.setTrackOutput(packet.isTrackOutput());
+-            if (!packet.isTrackOutput()) {
+-                baseCommandBlock.setLastOutput(null);
++        net.minecraft.world.level.BaseCommandBlock $$1 = $$0.getCommandBlock(this.player.level);
++        if ($$1 != null) {
++            $$1.setCommand($$0.getCommand());
++            $$1.setTrackOutput($$0.isTrackOutput());
++            if (!$$0.isTrackOutput()) {
++                $$1.setLastOutput(null);
+             }
+-            baseCommandBlock.onUpdated();
+-            this.player.sendSystemMessage((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"advMode.setCommand.success", (java.lang.Object[])new java.lang.Object[]{packet.getCommand()}));
++            $$1.onUpdated();
++            this.player.sendSystemMessage((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"advMode.setCommand.success", (java.lang.Object[])new java.lang.Object[]{$$0.getCommand()}));
+         }
+     }
+ 
+-    public void handlePickItem(net.minecraft.network.protocol.game.ServerboundPickItemPacket packet) {
+-        net.minecraft.network.protocol.PacketUtils.ensureRunningOnSameThread((net.minecraft.network.protocol.Packet)packet, (net.minecraft.network.PacketListener)this, (net.minecraft.server.level.ServerLevel)this.player.getLevel());
+-        this.player.getInventory().pickSlot(packet.getSlot());
++    public void handlePickItem(net.minecraft.network.protocol.game.ServerboundPickItemPacket $$0) {
++        net.minecraft.network.protocol.PacketUtils.ensureRunningOnSameThread((net.minecraft.network.protocol.Packet)$$0, (net.minecraft.network.PacketListener)this, (net.minecraft.server.level.ServerLevel)this.player.getLevel());
++        this.player.getInventory().pickSlot($$0.getSlot());
+         this.player.connection.send((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ClientboundContainerSetSlotPacket(-2, 0, this.player.getInventory().selected, this.player.getInventory().getItem(this.player.getInventory().selected)));
+-        this.player.connection.send((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ClientboundContainerSetSlotPacket(-2, 0, packet.getSlot(), this.player.getInventory().getItem(packet.getSlot())));
++        this.player.connection.send((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ClientboundContainerSetSlotPacket(-2, 0, $$0.getSlot(), this.player.getInventory().getItem($$0.getSlot())));
+         this.player.connection.send((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ClientboundSetCarriedItemPacket(this.player.getInventory().selected));
+     }
+ 
+-    public void handleRenameItem(net.minecraft.network.protocol.game.ServerboundRenameItemPacket packet) {
+-        net.minecraft.network.protocol.PacketUtils.ensureRunningOnSameThread((net.minecraft.network.protocol.Packet)packet, (net.minecraft.network.PacketListener)this, (net.minecraft.server.level.ServerLevel)this.player.getLevel());
+-        java.lang.Object object = this.player.containerMenu;
+-        if (object instanceof net.minecraft.world.inventory.AnvilMenu) {
+-            net.minecraft.world.inventory.AnvilMenu anvilMenu = (net.minecraft.world.inventory.AnvilMenu)object;
+-            if (!anvilMenu.stillValid((net.minecraft.world.entity.player.Player)this.player)) {
+-                LOGGER.debug("Player {} interacted with invalid menu {}", (java.lang.Object)this.player, (java.lang.Object)anvilMenu);
++    public void handleRenameItem(net.minecraft.network.protocol.game.ServerboundRenameItemPacket $$0) {
++        net.minecraft.network.protocol.PacketUtils.ensureRunningOnSameThread((net.minecraft.network.protocol.Packet)$$0, (net.minecraft.network.PacketListener)this, (net.minecraft.server.level.ServerLevel)this.player.getLevel());
++        net.minecraft.world.inventory.AbstractContainerMenu abstractContainerMenu = this.player.containerMenu;
++        if (abstractContainerMenu instanceof net.minecraft.world.inventory.AnvilMenu) {
++            net.minecraft.world.inventory.AnvilMenu $$1 = (net.minecraft.world.inventory.AnvilMenu)abstractContainerMenu;
++            if (!$$1.stillValid((net.minecraft.world.entity.player.Player)this.player)) {
++                LOGGER.debug("Player {} interacted with invalid menu {}", (java.lang.Object)this.player, (java.lang.Object)$$1);
+                 return;
+             }
+-            object = net.minecraft.SharedConstants.filterText((java.lang.String)packet.getName());
+-            if (object.length() <= 50) {
+-                anvilMenu.setItemName((java.lang.String)object);
++            java.lang.String $$2 = net.minecraft.SharedConstants.filterText((java.lang.String)$$0.getName());
++            if ($$2.length() <= 50) {
++                $$1.setItemName($$2);
+             }
+         }
+     }
+ 
+-    public void handleSetBeaconPacket(net.minecraft.network.protocol.game.ServerboundSetBeaconPacket packet) {
+-        net.minecraft.network.protocol.PacketUtils.ensureRunningOnSameThread((net.minecraft.network.protocol.Packet)packet, (net.minecraft.network.PacketListener)this, (net.minecraft.server.level.ServerLevel)this.player.getLevel());
++    public void handleSetBeaconPacket(net.minecraft.network.protocol.game.ServerboundSetBeaconPacket $$0) {
++        net.minecraft.network.protocol.PacketUtils.ensureRunningOnSameThread((net.minecraft.network.protocol.Packet)$$0, (net.minecraft.network.PacketListener)this, (net.minecraft.server.level.ServerLevel)this.player.getLevel());
+         net.minecraft.world.inventory.AbstractContainerMenu abstractContainerMenu = this.player.containerMenu;
+         if (abstractContainerMenu instanceof net.minecraft.world.inventory.BeaconMenu) {
+-            net.minecraft.world.inventory.BeaconMenu beaconMenu = (net.minecraft.world.inventory.BeaconMenu)abstractContainerMenu;
++            net.minecraft.world.inventory.BeaconMenu $$1 = (net.minecraft.world.inventory.BeaconMenu)abstractContainerMenu;
+             if (!this.player.containerMenu.stillValid((net.minecraft.world.entity.player.Player)this.player)) {
+                 LOGGER.debug("Player {} interacted with invalid menu {}", (java.lang.Object)this.player, (java.lang.Object)this.player.containerMenu);
+                 return;
+             }
+-            beaconMenu.updateEffects(packet.getPrimary(), packet.getSecondary());
++            $$1.updateEffects($$0.getPrimary(), $$0.getSecondary());
+         }
+     }
+ 
+-    public void handleSetStructureBlock(net.minecraft.network.protocol.game.ServerboundSetStructureBlockPacket packet) {
+-        net.minecraft.network.protocol.PacketUtils.ensureRunningOnSameThread((net.minecraft.network.protocol.Packet)packet, (net.minecraft.network.PacketListener)this, (net.minecraft.server.level.ServerLevel)this.player.getLevel());
++    public void handleSetStructureBlock(net.minecraft.network.protocol.game.ServerboundSetStructureBlockPacket $$0) {
++        net.minecraft.network.protocol.PacketUtils.ensureRunningOnSameThread((net.minecraft.network.protocol.Packet)$$0, (net.minecraft.network.PacketListener)this, (net.minecraft.server.level.ServerLevel)this.player.getLevel());
+         if (!this.player.canUseGameMasterBlocks()) {
+             return;
+         }
+-        net.minecraft.core.BlockPos blockPos = packet.getPos();
+-        net.minecraft.world.level.block.state.BlockState blockState = this.player.level.getBlockState(blockPos);
+-        net.minecraft.world.level.block.entity.BlockEntity blockEntity = this.player.level.getBlockEntity(blockPos);
+-        if (blockEntity instanceof net.minecraft.world.level.block.entity.StructureBlockEntity) {
+-            net.minecraft.world.level.block.entity.StructureBlockEntity structureBlockEntity = (net.minecraft.world.level.block.entity.StructureBlockEntity)blockEntity;
+-            structureBlockEntity.setMode(packet.getMode());
+-            structureBlockEntity.setStructureName(packet.getName());
+-            structureBlockEntity.setStructurePos(packet.getOffset());
+-            structureBlockEntity.setStructureSize(packet.getSize());
+-            structureBlockEntity.setMirror(packet.getMirror());
+-            structureBlockEntity.setRotation(packet.getRotation());
+-            structureBlockEntity.setMetaData(packet.getData());
+-            structureBlockEntity.setIgnoreEntities(packet.isIgnoreEntities());
+-            structureBlockEntity.setShowAir(packet.isShowAir());
+-            structureBlockEntity.setShowBoundingBox(packet.isShowBoundingBox());
+-            structureBlockEntity.setIntegrity(packet.getIntegrity());
+-            structureBlockEntity.setSeed(packet.getSeed());
+-            if (structureBlockEntity.hasStructureName()) {
+-                java.lang.String string = structureBlockEntity.getStructureName();
+-                if (packet.getUpdateType() == net.minecraft.world.level.block.entity.StructureBlockEntity$UpdateType.SAVE_AREA) {
+-                    if (structureBlockEntity.saveStructure()) {
+-                        this.player.displayClientMessage((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"structure_block.save_success", (java.lang.Object[])new java.lang.Object[]{string}), false);
++        net.minecraft.core.BlockPos $$1 = $$0.getPos();
++        net.minecraft.world.level.block.state.BlockState $$2 = this.player.level.getBlockState($$1);
++        net.minecraft.world.level.block.entity.BlockEntity $$3 = this.player.level.getBlockEntity($$1);
++        if ($$3 instanceof net.minecraft.world.level.block.entity.StructureBlockEntity) {
++            net.minecraft.world.level.block.entity.StructureBlockEntity $$4 = (net.minecraft.world.level.block.entity.StructureBlockEntity)$$3;
++            $$4.setMode($$0.getMode());
++            $$4.setStructureName($$0.getName());
++            $$4.setStructurePos($$0.getOffset());
++            $$4.setStructureSize($$0.getSize());
++            $$4.setMirror($$0.getMirror());
++            $$4.setRotation($$0.getRotation());
++            $$4.setMetaData($$0.getData());
++            $$4.setIgnoreEntities($$0.isIgnoreEntities());
++            $$4.setShowAir($$0.isShowAir());
++            $$4.setShowBoundingBox($$0.isShowBoundingBox());
++            $$4.setIntegrity($$0.getIntegrity());
++            $$4.setSeed($$0.getSeed());
++            if ($$4.hasStructureName()) {
++                java.lang.String $$5 = $$4.getStructureName();
++                if ($$0.getUpdateType() == net.minecraft.world.level.block.entity.StructureBlockEntity$UpdateType.SAVE_AREA) {
++                    if ($$4.saveStructure()) {
++                        this.player.displayClientMessage((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"structure_block.save_success", (java.lang.Object[])new java.lang.Object[]{$$5}), false);
+                     } else {
+-                        this.player.displayClientMessage((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"structure_block.save_failure", (java.lang.Object[])new java.lang.Object[]{string}), false);
++                        this.player.displayClientMessage((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"structure_block.save_failure", (java.lang.Object[])new java.lang.Object[]{$$5}), false);
+                     }
+-                } else if (packet.getUpdateType() == net.minecraft.world.level.block.entity.StructureBlockEntity$UpdateType.LOAD_AREA) {
+-                    if (!structureBlockEntity.isStructureLoadable()) {
+-                        this.player.displayClientMessage((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"structure_block.load_not_found", (java.lang.Object[])new java.lang.Object[]{string}), false);
+-                    } else if (structureBlockEntity.loadStructure(this.player.getLevel())) {
+-                        this.player.displayClientMessage((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"structure_block.load_success", (java.lang.Object[])new java.lang.Object[]{string}), false);
++                } else if ($$0.getUpdateType() == net.minecraft.world.level.block.entity.StructureBlockEntity$UpdateType.LOAD_AREA) {
++                    if (!$$4.isStructureLoadable()) {
++                        this.player.displayClientMessage((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"structure_block.load_not_found", (java.lang.Object[])new java.lang.Object[]{$$5}), false);
++                    } else if ($$4.loadStructure(this.player.getLevel())) {
++                        this.player.displayClientMessage((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"structure_block.load_success", (java.lang.Object[])new java.lang.Object[]{$$5}), false);
+                     } else {
+-                        this.player.displayClientMessage((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"structure_block.load_prepare", (java.lang.Object[])new java.lang.Object[]{string}), false);
++                        this.player.displayClientMessage((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"structure_block.load_prepare", (java.lang.Object[])new java.lang.Object[]{$$5}), false);
+                     }
+-                } else if (packet.getUpdateType() == net.minecraft.world.level.block.entity.StructureBlockEntity$UpdateType.SCAN_AREA) {
+-                    if (structureBlockEntity.detectSize()) {
+-                        this.player.displayClientMessage((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"structure_block.size_success", (java.lang.Object[])new java.lang.Object[]{string}), false);
++                } else if ($$0.getUpdateType() == net.minecraft.world.level.block.entity.StructureBlockEntity$UpdateType.SCAN_AREA) {
++                    if ($$4.detectSize()) {
++                        this.player.displayClientMessage((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"structure_block.size_success", (java.lang.Object[])new java.lang.Object[]{$$5}), false);
+                     } else {
+                         this.player.displayClientMessage((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"structure_block.size_failure"), false);
+                     }
+                 }
+             } else {
+-                this.player.displayClientMessage((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"structure_block.invalid_structure_name", (java.lang.Object[])new java.lang.Object[]{packet.getName()}), false);
++                this.player.displayClientMessage((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"structure_block.invalid_structure_name", (java.lang.Object[])new java.lang.Object[]{$$0.getName()}), false);
+             }
+-            structureBlockEntity.setChanged();
+-            this.player.level.sendBlockUpdated(blockPos, blockState, blockState, 3);
++            $$4.setChanged();
++            this.player.level.sendBlockUpdated($$1, $$2, $$2, 3);
+         }
+     }
+ 
+-    public void handleSetJigsawBlock(net.minecraft.network.protocol.game.ServerboundSetJigsawBlockPacket packet) {
+-        net.minecraft.network.protocol.PacketUtils.ensureRunningOnSameThread((net.minecraft.network.protocol.Packet)packet, (net.minecraft.network.PacketListener)this, (net.minecraft.server.level.ServerLevel)this.player.getLevel());
++    public void handleSetJigsawBlock(net.minecraft.network.protocol.game.ServerboundSetJigsawBlockPacket $$0) {
++        net.minecraft.network.protocol.PacketUtils.ensureRunningOnSameThread((net.minecraft.network.protocol.Packet)$$0, (net.minecraft.network.PacketListener)this, (net.minecraft.server.level.ServerLevel)this.player.getLevel());
+         if (!this.player.canUseGameMasterBlocks()) {
+             return;
+         }
+-        net.minecraft.core.BlockPos blockPos = packet.getPos();
+-        net.minecraft.world.level.block.state.BlockState blockState = this.player.level.getBlockState(blockPos);
+-        net.minecraft.world.level.block.entity.BlockEntity blockEntity = this.player.level.getBlockEntity(blockPos);
+-        if (blockEntity instanceof net.minecraft.world.level.block.entity.JigsawBlockEntity) {
+-            net.minecraft.world.level.block.entity.JigsawBlockEntity jigsawBlockEntity = (net.minecraft.world.level.block.entity.JigsawBlockEntity)blockEntity;
+-            jigsawBlockEntity.setName(packet.getName());
+-            jigsawBlockEntity.setTarget(packet.getTarget());
+-            jigsawBlockEntity.setPool(net.minecraft.resources.ResourceKey.create((net.minecraft.resources.ResourceKey)net.minecraft.core.Registry.TEMPLATE_POOL_REGISTRY, (net.minecraft.resources.ResourceLocation)packet.getPool()));
+-            jigsawBlockEntity.setFinalState(packet.getFinalState());
+-            jigsawBlockEntity.setJoint(packet.getJoint());
+-            jigsawBlockEntity.setChanged();
+-            this.player.level.sendBlockUpdated(blockPos, blockState, blockState, 3);
++        net.minecraft.core.BlockPos $$1 = $$0.getPos();
++        net.minecraft.world.level.block.state.BlockState $$2 = this.player.level.getBlockState($$1);
++        net.minecraft.world.level.block.entity.BlockEntity $$3 = this.player.level.getBlockEntity($$1);
++        if ($$3 instanceof net.minecraft.world.level.block.entity.JigsawBlockEntity) {
++            net.minecraft.world.level.block.entity.JigsawBlockEntity $$4 = (net.minecraft.world.level.block.entity.JigsawBlockEntity)$$3;
++            $$4.setName($$0.getName());
++            $$4.setTarget($$0.getTarget());
++            $$4.setPool(net.minecraft.resources.ResourceKey.create((net.minecraft.resources.ResourceKey)net.minecraft.core.Registry.TEMPLATE_POOL_REGISTRY, (net.minecraft.resources.ResourceLocation)$$0.getPool()));
++            $$4.setFinalState($$0.getFinalState());
++            $$4.setJoint($$0.getJoint());
++            $$4.setChanged();
++            this.player.level.sendBlockUpdated($$1, $$2, $$2, 3);
+         }
+     }
+ 
+-    public void handleJigsawGenerate(net.minecraft.network.protocol.game.ServerboundJigsawGeneratePacket packet) {
+-        net.minecraft.network.protocol.PacketUtils.ensureRunningOnSameThread((net.minecraft.network.protocol.Packet)packet, (net.minecraft.network.PacketListener)this, (net.minecraft.server.level.ServerLevel)this.player.getLevel());
++    public void handleJigsawGenerate(net.minecraft.network.protocol.game.ServerboundJigsawGeneratePacket $$0) {
++        net.minecraft.network.protocol.PacketUtils.ensureRunningOnSameThread((net.minecraft.network.protocol.Packet)$$0, (net.minecraft.network.PacketListener)this, (net.minecraft.server.level.ServerLevel)this.player.getLevel());
+         if (!this.player.canUseGameMasterBlocks()) {
+             return;
+         }
+-        net.minecraft.core.BlockPos blockPos = packet.getPos();
+-        net.minecraft.world.level.block.entity.BlockEntity blockEntity = this.player.level.getBlockEntity(blockPos);
+-        if (blockEntity instanceof net.minecraft.world.level.block.entity.JigsawBlockEntity) {
+-            net.minecraft.world.level.block.entity.JigsawBlockEntity jigsawBlockEntity = (net.minecraft.world.level.block.entity.JigsawBlockEntity)blockEntity;
+-            jigsawBlockEntity.generate(this.player.getLevel(), packet.levels(), packet.keepJigsaws());
++        net.minecraft.core.BlockPos $$1 = $$0.getPos();
++        net.minecraft.world.level.block.entity.BlockEntity $$2 = this.player.level.getBlockEntity($$1);
++        if ($$2 instanceof net.minecraft.world.level.block.entity.JigsawBlockEntity) {
++            net.minecraft.world.level.block.entity.JigsawBlockEntity $$3 = (net.minecraft.world.level.block.entity.JigsawBlockEntity)$$2;
++            $$3.generate(this.player.getLevel(), $$0.levels(), $$0.keepJigsaws());
+         }
+     }
+ 
+-    public void handleSelectTrade(net.minecraft.network.protocol.game.ServerboundSelectTradePacket packet) {
+-        net.minecraft.network.protocol.PacketUtils.ensureRunningOnSameThread((net.minecraft.network.protocol.Packet)packet, (net.minecraft.network.PacketListener)this, (net.minecraft.server.level.ServerLevel)this.player.getLevel());
+-        int n = packet.getItem();
++    public void handleSelectTrade(net.minecraft.network.protocol.game.ServerboundSelectTradePacket $$0) {
++        net.minecraft.network.protocol.PacketUtils.ensureRunningOnSameThread((net.minecraft.network.protocol.Packet)$$0, (net.minecraft.network.PacketListener)this, (net.minecraft.server.level.ServerLevel)this.player.getLevel());
++        int $$1 = $$0.getItem();
+         net.minecraft.world.inventory.AbstractContainerMenu abstractContainerMenu = this.player.containerMenu;
+         if (abstractContainerMenu instanceof net.minecraft.world.inventory.MerchantMenu) {
+-            net.minecraft.world.inventory.MerchantMenu merchantMenu = (net.minecraft.world.inventory.MerchantMenu)abstractContainerMenu;
+-            if (!merchantMenu.stillValid((net.minecraft.world.entity.player.Player)this.player)) {
+-                LOGGER.debug("Player {} interacted with invalid menu {}", (java.lang.Object)this.player, (java.lang.Object)merchantMenu);
++            net.minecraft.world.inventory.MerchantMenu $$2 = (net.minecraft.world.inventory.MerchantMenu)abstractContainerMenu;
++            if (!$$2.stillValid((net.minecraft.world.entity.player.Player)this.player)) {
++                LOGGER.debug("Player {} interacted with invalid menu {}", (java.lang.Object)this.player, (java.lang.Object)$$2);
+                 return;
+             }
+-            merchantMenu.setSelectionHint(n);
+-            merchantMenu.tryMoveItems(n);
++            $$2.setSelectionHint($$1);
++            $$2.tryMoveItems($$1);
+         }
+     }
+ 
+-    public void handleEditBook(net.minecraft.network.protocol.game.ServerboundEditBookPacket packet) {
+-        int n = packet.getSlot();
+-        if (!net.minecraft.world.entity.player.Inventory.isHotbarSlot((int)n) && n != 40) {
++    public void handleEditBook(net.minecraft.network.protocol.game.ServerboundEditBookPacket $$0) {
++        int $$12 = $$0.getSlot();
++        if (!net.minecraft.world.entity.player.Inventory.isHotbarSlot((int)$$12) && $$12 != 40) {
+             return;
+         }
+-        java.util.ArrayList arrayList = com.google.common.collect.Lists.newArrayList();
+-        java.util.Optional optional = packet.getTitle();
+-        optional.ifPresent(arg_0 -> ((java.util.List)arrayList).add(arg_0));
+-        packet.getPages().stream().limit(100L).forEach(arg_0 -> ((java.util.List)arrayList).add(arg_0));
+-        java.util.function.Consumer consumer = optional.isPresent() ? $$1 -> this.signBook((net.minecraft.server.network.FilteredText)$$1.get(0), $$1.subList(1, $$1.size()), n) : $$1 -> this.updateBookContents($$1, n);
+-        this.filterTextPacket((java.util.List)arrayList).thenAcceptAsync(consumer, (java.util.concurrent.Executor)this.server);
++        java.util.ArrayList $$2 = com.google.common.collect.Lists.newArrayList();
++        java.util.Optional $$3 = $$0.getTitle();
++        $$3.ifPresent(arg_0 -> ((java.util.List)$$2).add(arg_0));
++        $$0.getPages().stream().limit(100L).forEach(arg_0 -> ((java.util.List)$$2).add(arg_0));
++        java.util.function.Consumer $$4 = $$3.isPresent() ? $$1 -> this.signBook((net.minecraft.server.network.FilteredText)$$1.get(0), $$1.subList(1, $$1.size()), $$12) : $$1 -> this.updateBookContents($$1, $$12);
++        this.filterTextPacket((java.util.List)$$2).thenAcceptAsync($$4, (java.util.concurrent.Executor)this.server);
+     }
+ 
+     public void updateBookContents(java.util.List<net.minecraft.server.network.FilteredText> $$0, int $$1) {
+@@ -589,36 +598,36 @@
+         $$2.addTagElement("pages", (net.minecraft.nbt.Tag)$$3);
+     }
+ 
+-    public void handleEntityTagQuery(net.minecraft.network.protocol.game.ServerboundEntityTagQuery packet) {
+-        net.minecraft.network.protocol.PacketUtils.ensureRunningOnSameThread((net.minecraft.network.protocol.Packet)packet, (net.minecraft.network.PacketListener)this, (net.minecraft.server.level.ServerLevel)this.player.getLevel());
++    public void handleEntityTagQuery(net.minecraft.network.protocol.game.ServerboundEntityTagQuery $$0) {
++        net.minecraft.network.protocol.PacketUtils.ensureRunningOnSameThread((net.minecraft.network.protocol.Packet)$$0, (net.minecraft.network.PacketListener)this, (net.minecraft.server.level.ServerLevel)this.player.getLevel());
+         if (!this.player.hasPermissions(2)) {
+             return;
+         }
+-        net.minecraft.world.entity.Entity entity = this.player.getLevel().getEntity(packet.getEntityId());
+-        if (entity != null) {
+-            net.minecraft.nbt.CompoundTag compoundTag = entity.saveWithoutId(new net.minecraft.nbt.CompoundTag());
+-            this.player.connection.send((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ClientboundTagQueryPacket(packet.getTransactionId(), compoundTag));
++        net.minecraft.world.entity.Entity $$1 = this.player.getLevel().getEntity($$0.getEntityId());
++        if ($$1 != null) {
++            net.minecraft.nbt.CompoundTag $$2 = $$1.saveWithoutId(new net.minecraft.nbt.CompoundTag());
++            this.player.connection.send((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ClientboundTagQueryPacket($$0.getTransactionId(), $$2));
+         }
+     }
+ 
+-    public void handleBlockEntityTagQuery(net.minecraft.network.protocol.game.ServerboundBlockEntityTagQuery packet) {
+-        net.minecraft.network.protocol.PacketUtils.ensureRunningOnSameThread((net.minecraft.network.protocol.Packet)packet, (net.minecraft.network.PacketListener)this, (net.minecraft.server.level.ServerLevel)this.player.getLevel());
++    public void handleBlockEntityTagQuery(net.minecraft.network.protocol.game.ServerboundBlockEntityTagQuery $$0) {
++        net.minecraft.network.protocol.PacketUtils.ensureRunningOnSameThread((net.minecraft.network.protocol.Packet)$$0, (net.minecraft.network.PacketListener)this, (net.minecraft.server.level.ServerLevel)this.player.getLevel());
+         if (!this.player.hasPermissions(2)) {
+             return;
+         }
+-        net.minecraft.world.level.block.entity.BlockEntity blockEntity = this.player.getLevel().getBlockEntity(packet.getPos());
+-        net.minecraft.nbt.CompoundTag compoundTag = blockEntity != null ? blockEntity.saveWithoutMetadata() : null;
+-        this.player.connection.send((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ClientboundTagQueryPacket(packet.getTransactionId(), compoundTag));
++        net.minecraft.world.level.block.entity.BlockEntity $$1 = this.player.getLevel().getBlockEntity($$0.getPos());
++        net.minecraft.nbt.CompoundTag $$2 = $$1 != null ? $$1.saveWithoutMetadata() : null;
++        this.player.connection.send((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ClientboundTagQueryPacket($$0.getTransactionId(), $$2));
+     }
+ 
+-    public void handleMovePlayer(net.minecraft.network.protocol.game.ServerboundMovePlayerPacket packet) {
+-        boolean bl;
+-        net.minecraft.network.protocol.PacketUtils.ensureRunningOnSameThread((net.minecraft.network.protocol.Packet)packet, (net.minecraft.network.PacketListener)this, (net.minecraft.server.level.ServerLevel)this.player.getLevel());
+-        if (net.minecraft.server.network.ServerGamePacketListenerImpl.containsInvalidValues((double)packet.getX(0.0), (double)packet.getY(0.0), (double)packet.getZ(0.0), (float)packet.getYRot(0.0f), (float)packet.getXRot(0.0f))) {
++    public void handleMovePlayer(net.minecraft.network.protocol.game.ServerboundMovePlayerPacket $$0) {
++        boolean $$19;
++        net.minecraft.network.protocol.PacketUtils.ensureRunningOnSameThread((net.minecraft.network.protocol.Packet)$$0, (net.minecraft.network.PacketListener)this, (net.minecraft.server.level.ServerLevel)this.player.getLevel());
++        if (net.minecraft.server.network.ServerGamePacketListenerImpl.containsInvalidValues((double)$$0.getX(0.0), (double)$$0.getY(0.0), (double)$$0.getZ(0.0), (float)$$0.getYRot(0.0f), (float)$$0.getXRot(0.0f))) {
+             this.disconnect((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"multiplayer.disconnect.invalid_player_movement"));
+             return;
+         }
+-        net.minecraft.server.level.ServerLevel serverLevel = this.player.getLevel();
++        net.minecraft.server.level.ServerLevel $$1 = this.player.getLevel();
+         if (this.player.wonGame) {
+             return;
+         }
+@@ -633,82 +642,82 @@
+             return;
+         }
+         this.awaitingTeleportTime = this.tickCount;
+-        double d = net.minecraft.server.network.ServerGamePacketListenerImpl.clampHorizontal((double)packet.getX(this.player.getX()));
+-        double d2 = net.minecraft.server.network.ServerGamePacketListenerImpl.clampVertical((double)packet.getY(this.player.getY()));
+-        double d3 = net.minecraft.server.network.ServerGamePacketListenerImpl.clampHorizontal((double)packet.getZ(this.player.getZ()));
+-        float f = net.minecraft.util.Mth.wrapDegrees((float)packet.getYRot(this.player.getYRot()));
+-        float f2 = net.minecraft.util.Mth.wrapDegrees((float)packet.getXRot(this.player.getXRot()));
++        double $$2 = net.minecraft.server.network.ServerGamePacketListenerImpl.clampHorizontal((double)$$0.getX(this.player.getX()));
++        double $$3 = net.minecraft.server.network.ServerGamePacketListenerImpl.clampVertical((double)$$0.getY(this.player.getY()));
++        double $$4 = net.minecraft.server.network.ServerGamePacketListenerImpl.clampHorizontal((double)$$0.getZ(this.player.getZ()));
++        float $$5 = net.minecraft.util.Mth.wrapDegrees((float)$$0.getYRot(this.player.getYRot()));
++        float $$6 = net.minecraft.util.Mth.wrapDegrees((float)$$0.getXRot(this.player.getXRot()));
+         if (this.player.isPassenger()) {
+-            this.player.absMoveTo(this.player.getX(), this.player.getY(), this.player.getZ(), f, f2);
++            this.player.absMoveTo(this.player.getX(), this.player.getY(), this.player.getZ(), $$5, $$6);
+             this.player.getLevel().getChunkSource().move(this.player);
+             return;
+         }
+-        double d4 = this.player.getX();
+-        double d5 = this.player.getY();
+-        double d6 = this.player.getZ();
+-        double d7 = this.player.getY();
+-        double d8 = d - this.firstGoodX;
+-        double d9 = d2 - this.firstGoodY;
+-        double d10 = d3 - this.firstGoodZ;
+-        double d11 = this.player.getDeltaMovement().lengthSqr();
+-        double d12 = d8 * d8 + d9 * d9 + d10 * d10;
++        double $$7 = this.player.getX();
++        double $$8 = this.player.getY();
++        double $$9 = this.player.getZ();
++        double $$10 = this.player.getY();
++        double $$11 = $$2 - this.firstGoodX;
++        double $$12 = $$3 - this.firstGoodY;
++        double $$13 = $$4 - this.firstGoodZ;
++        double $$14 = this.player.getDeltaMovement().lengthSqr();
++        double $$15 = $$11 * $$11 + $$12 * $$12 + $$13 * $$13;
+         if (this.player.isSleeping()) {
+-            if (d12 > 1.0) {
+-                this.teleport(this.player.getX(), this.player.getY(), this.player.getZ(), f, f2);
++            if ($$15 > 1.0) {
++                this.teleport(this.player.getX(), this.player.getY(), this.player.getZ(), $$5, $$6);
+             }
+             return;
+         }
+         ++this.receivedMovePacketCount;
+-        int n = this.receivedMovePacketCount - this.knownMovePacketCount;
+-        if (n > 5) {
+-            LOGGER.debug("{} is sending move packets too frequently ({} packets since last tick)", (java.lang.Object)this.player.getName().getString(), (java.lang.Object)n);
+-            n = 1;
++        int $$16 = this.receivedMovePacketCount - this.knownMovePacketCount;
++        if ($$16 > 5) {
++            LOGGER.debug("{} is sending move packets too frequently ({} packets since last tick)", (java.lang.Object)this.player.getName().getString(), (java.lang.Object)$$16);
++            $$16 = 1;
+         }
+         if (!(this.player.isChangingDimension() || this.player.getLevel().getGameRules().getBoolean(net.minecraft.world.level.GameRules.RULE_DISABLE_ELYTRA_MOVEMENT_CHECK) && this.player.isFallFlying())) {
+-            float f3;
+-            float f4 = f3 = this.player.isFallFlying() ? 300.0f : 100.0f;
+-            if (d12 - d11 > (double)(f3 * (float)n) && !this.isSingleplayerOwner()) {
+-                LOGGER.warn("{} moved too quickly! {},{},{}", new java.lang.Object[]{this.player.getName().getString(), d8, d9, d10});
++            float $$17;
++            float f = $$17 = this.player.isFallFlying() ? 300.0f : 100.0f;
++            if ($$15 - $$14 > (double)($$17 * (float)$$16) && !this.isSingleplayerOwner()) {
++                LOGGER.warn("{} moved too quickly! {},{},{}", new java.lang.Object[]{this.player.getName().getString(), $$11, $$12, $$13});
+                 this.teleport(this.player.getX(), this.player.getY(), this.player.getZ(), this.player.getYRot(), this.player.getXRot());
+                 return;
+             }
+         }
+-        net.minecraft.world.phys.AABB aABB = this.player.getBoundingBox();
+-        d8 = d - this.lastGoodX;
+-        d9 = d2 - this.lastGoodY;
+-        d10 = d3 - this.lastGoodZ;
+-        boolean bl2 = bl = d9 > 0.0;
+-        if (this.player.isOnGround() && !packet.isOnGround() && bl) {
++        net.minecraft.world.phys.AABB $$18 = this.player.getBoundingBox();
++        $$11 = $$2 - this.lastGoodX;
++        $$12 = $$3 - this.lastGoodY;
++        $$13 = $$4 - this.lastGoodZ;
++        boolean bl = $$19 = $$12 > 0.0;
++        if (this.player.isOnGround() && !$$0.isOnGround() && $$19) {
+             this.player.jumpFromGround();
+         }
+-        boolean bl3 = this.player.verticalCollisionBelow;
+-        this.player.move(net.minecraft.world.entity.MoverType.PLAYER, new net.minecraft.world.phys.Vec3(d8, d9, d10));
+-        double d13 = d9;
+-        d8 = d - this.player.getX();
+-        d9 = d2 - this.player.getY();
+-        if (d9 > -0.5 || d9 < 0.5) {
+-            d9 = 0.0;
++        boolean $$20 = this.player.verticalCollisionBelow;
++        this.player.move(net.minecraft.world.entity.MoverType.PLAYER, new net.minecraft.world.phys.Vec3($$11, $$12, $$13));
++        double $$21 = $$12;
++        $$11 = $$2 - this.player.getX();
++        $$12 = $$3 - this.player.getY();
++        if ($$12 > -0.5 || $$12 < 0.5) {
++            $$12 = 0.0;
+         }
+-        d10 = d3 - this.player.getZ();
+-        d12 = d8 * d8 + d9 * d9 + d10 * d10;
+-        boolean bl4 = false;
+-        if (!this.player.isChangingDimension() && d12 > 0.0625 && !this.player.isSleeping() && !this.player.gameMode.isCreative() && this.player.gameMode.getGameModeForPlayer() != net.minecraft.world.level.GameType.SPECTATOR) {
+-            bl4 = true;
++        $$13 = $$4 - this.player.getZ();
++        $$15 = $$11 * $$11 + $$12 * $$12 + $$13 * $$13;
++        boolean $$22 = false;
++        if (!this.player.isChangingDimension() && $$15 > 0.0625 && !this.player.isSleeping() && !this.player.gameMode.isCreative() && this.player.gameMode.getGameModeForPlayer() != net.minecraft.world.level.GameType.SPECTATOR) {
++            $$22 = true;
+             LOGGER.warn("{} moved wrongly!", (java.lang.Object)this.player.getName().getString());
+         }
+-        this.player.absMoveTo(d, d2, d3, f, f2);
+-        if (!this.player.noPhysics && !this.player.isSleeping() && (bl4 && serverLevel.noCollision((net.minecraft.world.entity.Entity)this.player, aABB) || this.isPlayerCollidingWithAnythingNew((net.minecraft.world.level.LevelReader)serverLevel, aABB))) {
+-            this.teleport(d4, d5, d6, f, f2);
++        this.player.absMoveTo($$2, $$3, $$4, $$5, $$6);
++        if (!this.player.noPhysics && !this.player.isSleeping() && ($$22 && $$1.noCollision((net.minecraft.world.entity.Entity)this.player, $$18) || this.isPlayerCollidingWithAnythingNew((net.minecraft.world.level.LevelReader)$$1, $$18))) {
++            this.teleport($$7, $$8, $$9, $$5, $$6);
+             return;
+         }
+-        this.clientIsFloating = d13 >= -0.03125 && !bl3 && this.player.gameMode.getGameModeForPlayer() != net.minecraft.world.level.GameType.SPECTATOR && !this.server.isFlightAllowed() && !this.player.getAbilities().mayfly && !this.player.hasEffect(net.minecraft.world.effect.MobEffects.LEVITATION) && !this.player.isFallFlying() && !this.player.isAutoSpinAttack() && this.noBlocksAround((net.minecraft.world.entity.Entity)this.player);
++        this.clientIsFloating = $$21 >= -0.03125 && !$$20 && this.player.gameMode.getGameModeForPlayer() != net.minecraft.world.level.GameType.SPECTATOR && !this.server.isFlightAllowed() && !this.player.getAbilities().mayfly && !this.player.hasEffect(net.minecraft.world.effect.MobEffects.LEVITATION) && !this.player.isFallFlying() && !this.player.isAutoSpinAttack() && this.noBlocksAround((net.minecraft.world.entity.Entity)this.player);
+         this.player.getLevel().getChunkSource().move(this.player);
+-        this.player.doCheckFallDamage(this.player.getY() - d7, packet.isOnGround());
+-        this.player.setOnGround(packet.isOnGround());
+-        if (bl) {
++        this.player.doCheckFallDamage(this.player.getY() - $$10, $$0.isOnGround());
++        this.player.setOnGround($$0.isOnGround());
++        if ($$19) {
+             this.player.resetFallDistance();
+         }
+-        this.player.checkMovementStatistics(this.player.getX() - d4, this.player.getY() - d5, this.player.getZ() - d6);
++        this.player.checkMovementStatistics(this.player.getX() - $$7, this.player.getY() - $$8, this.player.getZ() - $$9);
+         this.lastGoodX = this.player.getX();
+         this.lastGoodY = this.player.getY();
+         this.lastGoodZ = this.player.getZ();
+@@ -728,12 +737,12 @@
+         this.teleport($$0, $$1, $$2, $$3, $$4, java.util.Collections.emptySet(), true);
+     }
+ 
+-    public void teleport(double x, double y, double z, float yaw, float pitch) {
+-        this.teleport(x, y, z, yaw, pitch, java.util.Collections.emptySet(), false);
++    public void teleport(double $$0, double $$1, double $$2, float $$3, float $$4) {
++        this.teleport($$0, $$1, $$2, $$3, $$4, java.util.Collections.emptySet(), false);
+     }
+ 
+-    public void teleport(double x, double y, double z, float yaw, float pitch, java.util.Set<net.minecraft.network.protocol.game.ClientboundPlayerPositionPacket$RelativeArgument> relativeSet) {
+-        this.teleport(x, y, z, yaw, pitch, relativeSet, false);
++    public void teleport(double $$0, double $$1, double $$2, float $$3, float $$4, java.util.Set<net.minecraft.network.protocol.game.ClientboundPlayerPositionPacket$RelativeArgument> $$5) {
++        this.teleport($$0, $$1, $$2, $$3, $$4, $$5, false);
+     }
+ 
+     public void teleport(double $$0, double $$1, double $$2, float $$3, float $$4, java.util.Set<net.minecraft.network.protocol.game.ClientboundPlayerPositionPacket$RelativeArgument> $$5, boolean $$6) {
+@@ -751,17 +760,17 @@
+         this.player.connection.send((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ClientboundPlayerPositionPacket($$0 - $$7, $$1 - $$8, $$2 - $$9, $$3 - $$10, $$4 - $$11, $$5, this.awaitingTeleport, $$6));
+     }
+ 
+-    public void handlePlayerAction(net.minecraft.network.protocol.game.ServerboundPlayerActionPacket packet) {
+-        net.minecraft.network.protocol.PacketUtils.ensureRunningOnSameThread((net.minecraft.network.protocol.Packet)packet, (net.minecraft.network.PacketListener)this, (net.minecraft.server.level.ServerLevel)this.player.getLevel());
+-        net.minecraft.core.BlockPos blockPos = packet.getPos();
++    public void handlePlayerAction(net.minecraft.network.protocol.game.ServerboundPlayerActionPacket $$0) {
++        net.minecraft.network.protocol.PacketUtils.ensureRunningOnSameThread((net.minecraft.network.protocol.Packet)$$0, (net.minecraft.network.PacketListener)this, (net.minecraft.server.level.ServerLevel)this.player.getLevel());
++        net.minecraft.core.BlockPos $$1 = $$0.getPos();
+         this.player.resetLastActionTime();
+-        net.minecraft.network.protocol.game.ServerboundPlayerActionPacket$Action action = packet.getAction();
+-        switch (net.minecraft.server.network.ServerGamePacketListenerImpl$2.$SwitchMap$net$minecraft$network$protocol$game$ServerboundPlayerActionPacket$Action[action.ordinal()]) {
++        net.minecraft.network.protocol.game.ServerboundPlayerActionPacket$Action $$2 = $$0.getAction();
++        switch (net.minecraft.server.network.ServerGamePacketListenerImpl$2.$SwitchMap$net$minecraft$network$protocol$game$ServerboundPlayerActionPacket$Action[$$2.ordinal()]) {
+             case 1: {
+                 if (!this.player.isSpectator()) {
+-                    net.minecraft.world.item.ItemStack itemStack = this.player.getItemInHand(net.minecraft.world.InteractionHand.OFF_HAND);
++                    net.minecraft.world.item.ItemStack $$3 = this.player.getItemInHand(net.minecraft.world.InteractionHand.OFF_HAND);
+                     this.player.setItemInHand(net.minecraft.world.InteractionHand.OFF_HAND, this.player.getItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND));
+-                    this.player.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND, itemStack);
++                    this.player.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND, $$3);
+                     this.player.stopUsingItem();
+                 }
+                 return;
+@@ -785,8 +794,8 @@
+             case 5: 
+             case 6: 
+             case 7: {
+-                this.player.gameMode.handleBlockBreakAction(blockPos, action, packet.getDirection(), this.player.level.getMaxBuildHeight(), packet.getSequence());
+-                this.player.connection.ackBlockChangesUpTo(packet.getSequence());
++                this.player.gameMode.handleBlockBreakAction($$1, $$2, $$0.getDirection(), this.player.level.getMaxBuildHeight(), $$0.getSequence());
++                this.player.connection.ackBlockChangesUpTo($$0.getSequence());
+                 return;
+             }
+         }
+@@ -801,95 +810,99 @@
+         return ($$2 instanceof net.minecraft.world.item.BlockItem || $$2 instanceof net.minecraft.world.item.BucketItem) && !$$0.getCooldowns().isOnCooldown($$2);
+     }
+ 
+-    public void handleUseItemOn(net.minecraft.network.protocol.game.ServerboundUseItemOnPacket packet) {
+-        net.minecraft.network.protocol.PacketUtils.ensureRunningOnSameThread((net.minecraft.network.protocol.Packet)packet, (net.minecraft.network.PacketListener)this, (net.minecraft.server.level.ServerLevel)this.player.getLevel());
+-        this.player.connection.ackBlockChangesUpTo(packet.getSequence());
+-        net.minecraft.server.level.ServerLevel serverLevel = this.player.getLevel();
+-        net.minecraft.world.InteractionHand interactionHand = packet.getHand();
+-        net.minecraft.world.item.ItemStack itemStack = this.player.getItemInHand(interactionHand);
+-        net.minecraft.world.phys.BlockHitResult blockHitResult = packet.getHitResult();
+-        net.minecraft.world.phys.Vec3 vec3 = blockHitResult.getLocation();
+-        net.minecraft.core.BlockPos blockPos = blockHitResult.getBlockPos();
+-        net.minecraft.world.phys.Vec3 vec32 = net.minecraft.world.phys.Vec3.atCenterOf((net.minecraft.core.Vec3i)blockPos);
+-        if (this.player.getEyePosition().distanceToSqr(vec32) > MAX_INTERACTION_DISTANCE) {
++    public void handleUseItemOn(net.minecraft.network.protocol.game.ServerboundUseItemOnPacket $$0) {
++        net.minecraft.network.protocol.PacketUtils.ensureRunningOnSameThread((net.minecraft.network.protocol.Packet)$$0, (net.minecraft.network.PacketListener)this, (net.minecraft.server.level.ServerLevel)this.player.getLevel());
++        this.player.connection.ackBlockChangesUpTo($$0.getSequence());
++        net.minecraft.server.level.ServerLevel $$1 = this.player.getLevel();
++        net.minecraft.world.InteractionHand $$2 = $$0.getHand();
++        net.minecraft.world.item.ItemStack $$3 = this.player.getItemInHand($$2);
++        if (!$$3.isItemEnabled($$1.enabledFeatures())) {
+             return;
+         }
+-        net.minecraft.world.phys.Vec3 vec33 = vec3.subtract(vec32);
+-        double d = 1.0000001;
+-        if (!(java.lang.Math.abs((double)vec33.x()) < 1.0000001 && java.lang.Math.abs((double)vec33.y()) < 1.0000001 && java.lang.Math.abs((double)vec33.z()) < 1.0000001)) {
+-            LOGGER.warn("Rejecting UseItemOnPacket from {}: Location {} too far away from hit block {}.", new java.lang.Object[]{this.player.getGameProfile().getName(), vec3, blockPos});
++        net.minecraft.world.phys.BlockHitResult $$4 = $$0.getHitResult();
++        net.minecraft.world.phys.Vec3 $$5 = $$4.getLocation();
++        net.minecraft.core.BlockPos $$6 = $$4.getBlockPos();
++        net.minecraft.world.phys.Vec3 $$7 = net.minecraft.world.phys.Vec3.atCenterOf((net.minecraft.core.Vec3i)$$6);
++        if (this.player.getEyePosition().distanceToSqr($$7) > MAX_INTERACTION_DISTANCE) {
+             return;
+         }
+-        net.minecraft.core.Direction direction = blockHitResult.getDirection();
++        net.minecraft.world.phys.Vec3 $$8 = $$5.subtract($$7);
++        double $$9 = 1.0000001;
++        if (!(java.lang.Math.abs((double)$$8.x()) < 1.0000001 && java.lang.Math.abs((double)$$8.y()) < 1.0000001 && java.lang.Math.abs((double)$$8.z()) < 1.0000001)) {
++            LOGGER.warn("Rejecting UseItemOnPacket from {}: Location {} too far away from hit block {}.", new java.lang.Object[]{this.player.getGameProfile().getName(), $$5, $$6});
++            return;
++        }
++        net.minecraft.core.Direction $$10 = $$4.getDirection();
+         this.player.resetLastActionTime();
+-        int n = this.player.level.getMaxBuildHeight();
+-        if (blockPos.getY() < n) {
+-            if (this.awaitingPositionFromClient == null && this.player.distanceToSqr((double)blockPos.getX() + 0.5, (double)blockPos.getY() + 0.5, (double)blockPos.getZ() + 0.5) < 64.0 && serverLevel.mayInteract((net.minecraft.world.entity.player.Player)this.player, blockPos)) {
+-                net.minecraft.world.InteractionResult interactionResult = this.player.gameMode.useItemOn(this.player, (net.minecraft.world.level.Level)serverLevel, itemStack, interactionHand, blockHitResult);
+-                if (direction == net.minecraft.core.Direction.UP && !interactionResult.consumesAction() && blockPos.getY() >= n - 1 && net.minecraft.server.network.ServerGamePacketListenerImpl.wasBlockPlacementAttempt((net.minecraft.server.level.ServerPlayer)this.player, (net.minecraft.world.item.ItemStack)itemStack)) {
+-                    net.minecraft.network.chat.MutableComponent mutableComponent = net.minecraft.network.chat.Component.translatable((java.lang.String)"build.tooHigh", (java.lang.Object[])new java.lang.Object[]{n - 1}).withStyle(net.minecraft.ChatFormatting.RED);
+-                    this.player.sendSystemMessage((net.minecraft.network.chat.Component)mutableComponent, true);
+-                } else if (interactionResult.shouldSwing()) {
+-                    this.player.swing(interactionHand, true);
++        int $$11 = this.player.level.getMaxBuildHeight();
++        if ($$6.getY() < $$11) {
++            if (this.awaitingPositionFromClient == null && this.player.distanceToSqr((double)$$6.getX() + 0.5, (double)$$6.getY() + 0.5, (double)$$6.getZ() + 0.5) < 64.0 && $$1.mayInteract((net.minecraft.world.entity.player.Player)this.player, $$6)) {
++                net.minecraft.world.InteractionResult $$12 = this.player.gameMode.useItemOn(this.player, (net.minecraft.world.level.Level)$$1, $$3, $$2, $$4);
++                if ($$10 == net.minecraft.core.Direction.UP && !$$12.consumesAction() && $$6.getY() >= $$11 - 1 && net.minecraft.server.network.ServerGamePacketListenerImpl.wasBlockPlacementAttempt((net.minecraft.server.level.ServerPlayer)this.player, (net.minecraft.world.item.ItemStack)$$3)) {
++                    net.minecraft.network.chat.MutableComponent $$13 = net.minecraft.network.chat.Component.translatable((java.lang.String)"build.tooHigh", (java.lang.Object[])new java.lang.Object[]{$$11 - 1}).withStyle(net.minecraft.ChatFormatting.RED);
++                    this.player.sendSystemMessage((net.minecraft.network.chat.Component)$$13, true);
++                } else if ($$12.shouldSwing()) {
++                    this.player.swing($$2, true);
+                 }
+             }
+         } else {
+-            net.minecraft.network.chat.MutableComponent mutableComponent = net.minecraft.network.chat.Component.translatable((java.lang.String)"build.tooHigh", (java.lang.Object[])new java.lang.Object[]{n - 1}).withStyle(net.minecraft.ChatFormatting.RED);
+-            this.player.sendSystemMessage((net.minecraft.network.chat.Component)mutableComponent, true);
++            net.minecraft.network.chat.MutableComponent $$14 = net.minecraft.network.chat.Component.translatable((java.lang.String)"build.tooHigh", (java.lang.Object[])new java.lang.Object[]{$$11 - 1}).withStyle(net.minecraft.ChatFormatting.RED);
++            this.player.sendSystemMessage((net.minecraft.network.chat.Component)$$14, true);
+         }
+-        this.player.connection.send((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ClientboundBlockUpdatePacket((net.minecraft.world.level.BlockGetter)serverLevel, blockPos));
+-        this.player.connection.send((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ClientboundBlockUpdatePacket((net.minecraft.world.level.BlockGetter)serverLevel, blockPos.relative(direction)));
++        this.player.connection.send((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ClientboundBlockUpdatePacket((net.minecraft.world.level.BlockGetter)$$1, $$6));
++        this.player.connection.send((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ClientboundBlockUpdatePacket((net.minecraft.world.level.BlockGetter)$$1, $$6.relative($$10)));
+     }
+ 
+-    public void handleUseItem(net.minecraft.network.protocol.game.ServerboundUseItemPacket packet) {
+-        net.minecraft.network.protocol.PacketUtils.ensureRunningOnSameThread((net.minecraft.network.protocol.Packet)packet, (net.minecraft.network.PacketListener)this, (net.minecraft.server.level.ServerLevel)this.player.getLevel());
+-        this.ackBlockChangesUpTo(packet.getSequence());
+-        net.minecraft.server.level.ServerLevel serverLevel = this.player.getLevel();
+-        net.minecraft.world.InteractionHand interactionHand = packet.getHand();
+-        net.minecraft.world.item.ItemStack itemStack = this.player.getItemInHand(interactionHand);
++    public void handleUseItem(net.minecraft.network.protocol.game.ServerboundUseItemPacket $$0) {
++        net.minecraft.network.protocol.PacketUtils.ensureRunningOnSameThread((net.minecraft.network.protocol.Packet)$$0, (net.minecraft.network.PacketListener)this, (net.minecraft.server.level.ServerLevel)this.player.getLevel());
++        this.ackBlockChangesUpTo($$0.getSequence());
++        net.minecraft.server.level.ServerLevel $$1 = this.player.getLevel();
++        net.minecraft.world.InteractionHand $$2 = $$0.getHand();
++        net.minecraft.world.item.ItemStack $$3 = this.player.getItemInHand($$2);
+         this.player.resetLastActionTime();
+-        if (itemStack.isEmpty()) {
++        if ($$3.isEmpty() || !$$3.isItemEnabled($$1.enabledFeatures())) {
+             return;
+         }
+-        net.minecraft.world.InteractionResult interactionResult = this.player.gameMode.useItem(this.player, (net.minecraft.world.level.Level)serverLevel, itemStack, interactionHand);
+-        if (interactionResult.shouldSwing()) {
+-            this.player.swing(interactionHand, true);
++        net.minecraft.world.InteractionResult $$4 = this.player.gameMode.useItem(this.player, (net.minecraft.world.level.Level)$$1, $$3, $$2);
++        if ($$4.shouldSwing()) {
++            this.player.swing($$2, true);
+         }
+     }
+ 
+-    public void handleTeleportToEntityPacket(net.minecraft.network.protocol.game.ServerboundTeleportToEntityPacket packet) {
+-        net.minecraft.network.protocol.PacketUtils.ensureRunningOnSameThread((net.minecraft.network.protocol.Packet)packet, (net.minecraft.network.PacketListener)this, (net.minecraft.server.level.ServerLevel)this.player.getLevel());
++    public void handleTeleportToEntityPacket(net.minecraft.network.protocol.game.ServerboundTeleportToEntityPacket $$0) {
++        net.minecraft.network.protocol.PacketUtils.ensureRunningOnSameThread((net.minecraft.network.protocol.Packet)$$0, (net.minecraft.network.PacketListener)this, (net.minecraft.server.level.ServerLevel)this.player.getLevel());
+         if (this.player.isSpectator()) {
+-            for (net.minecraft.server.level.ServerLevel serverLevel : this.server.getAllLevels()) {
+-                net.minecraft.world.entity.Entity entity = packet.getEntity(serverLevel);
+-                if (entity == null) continue;
+-                this.player.teleportTo(serverLevel, entity.getX(), entity.getY(), entity.getZ(), entity.getYRot(), entity.getXRot());
++            for (net.minecraft.server.level.ServerLevel $$1 : this.server.getAllLevels()) {
++                net.minecraft.world.entity.Entity $$2 = $$0.getEntity($$1);
++                if ($$2 == null) continue;
++                this.player.teleportTo($$1, $$2.getX(), $$2.getY(), $$2.getZ(), $$2.getYRot(), $$2.getXRot());
+                 return;
+             }
+         }
+     }
+ 
+-    public void handleResourcePackResponse(net.minecraft.network.protocol.game.ServerboundResourcePackPacket packet) {
+-        net.minecraft.network.protocol.PacketUtils.ensureRunningOnSameThread((net.minecraft.network.protocol.Packet)packet, (net.minecraft.network.PacketListener)this, (net.minecraft.server.level.ServerLevel)this.player.getLevel());
+-        if (packet.getAction() == net.minecraft.network.protocol.game.ServerboundResourcePackPacket$Action.DECLINED && this.server.isResourcePackRequired()) {
++    public void handleResourcePackResponse(net.minecraft.network.protocol.game.ServerboundResourcePackPacket $$0) {
++        net.minecraft.network.protocol.PacketUtils.ensureRunningOnSameThread((net.minecraft.network.protocol.Packet)$$0, (net.minecraft.network.PacketListener)this, (net.minecraft.server.level.ServerLevel)this.player.getLevel());
++        if ($$0.getAction() == net.minecraft.network.protocol.game.ServerboundResourcePackPacket$Action.DECLINED && this.server.isResourcePackRequired()) {
+             LOGGER.info("Disconnecting {} due to resource pack rejection", (java.lang.Object)this.player.getName());
+             this.disconnect((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"multiplayer.requiredTexturePrompt.disconnect"));
+         }
+     }
+ 
+-    public void handlePaddleBoat(net.minecraft.network.protocol.game.ServerboundPaddleBoatPacket packet) {
+-        net.minecraft.network.protocol.PacketUtils.ensureRunningOnSameThread((net.minecraft.network.protocol.Packet)packet, (net.minecraft.network.PacketListener)this, (net.minecraft.server.level.ServerLevel)this.player.getLevel());
+-        net.minecraft.world.entity.Entity entity = this.player.getVehicle();
+-        if (entity instanceof net.minecraft.world.entity.vehicle.Boat) {
+-            ((net.minecraft.world.entity.vehicle.Boat)entity).setPaddleState(packet.getLeft(), packet.getRight());
++    public void handlePaddleBoat(net.minecraft.network.protocol.game.ServerboundPaddleBoatPacket $$0) {
++        net.minecraft.network.protocol.PacketUtils.ensureRunningOnSameThread((net.minecraft.network.protocol.Packet)$$0, (net.minecraft.network.PacketListener)this, (net.minecraft.server.level.ServerLevel)this.player.getLevel());
++        net.minecraft.world.entity.Entity $$1 = this.player.getVehicle();
++        if ($$1 instanceof net.minecraft.world.entity.vehicle.Boat) {
++            ((net.minecraft.world.entity.vehicle.Boat)$$1).setPaddleState($$0.getLeft(), $$0.getRight());
+         }
+     }
+ 
+     public void handlePong(net.minecraft.network.protocol.game.ServerboundPongPacket $$0) {
+     }
+ 
+-    public void onDisconnect(net.minecraft.network.chat.Component reason) {
+-        LOGGER.info("{} lost connection: {}", (java.lang.Object)this.player.getName().getString(), (java.lang.Object)reason.getString());
++    public void onDisconnect(net.minecraft.network.chat.Component $$0) {
++        this.chatMessageChain.close();
++        LOGGER.info("{} lost connection: {}", (java.lang.Object)this.player.getName().getString(), (java.lang.Object)$$0.getString());
+         this.server.invalidateStatus();
+         this.server.getPlayerList().broadcastSystemMessage((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"multiplayer.player.left", (java.lang.Object[])new java.lang.Object[]{this.player.getDisplayName()}).withStyle(net.minecraft.ChatFormatting.YELLOW), false);
+         this.player.disconnect();
+@@ -924,39 +937,38 @@
+         }
+     }
+ 
+-    public void handleSetCarriedItem(net.minecraft.network.protocol.game.ServerboundSetCarriedItemPacket packet) {
+-        net.minecraft.network.protocol.PacketUtils.ensureRunningOnSameThread((net.minecraft.network.protocol.Packet)packet, (net.minecraft.network.PacketListener)this, (net.minecraft.server.level.ServerLevel)this.player.getLevel());
+-        if (packet.getSlot() < 0 || packet.getSlot() >= net.minecraft.world.entity.player.Inventory.getSelectionSize()) {
++    public void handleSetCarriedItem(net.minecraft.network.protocol.game.ServerboundSetCarriedItemPacket $$0) {
++        net.minecraft.network.protocol.PacketUtils.ensureRunningOnSameThread((net.minecraft.network.protocol.Packet)$$0, (net.minecraft.network.PacketListener)this, (net.minecraft.server.level.ServerLevel)this.player.getLevel());
++        if ($$0.getSlot() < 0 || $$0.getSlot() >= net.minecraft.world.entity.player.Inventory.getSelectionSize()) {
+             LOGGER.warn("{} tried to set an invalid carried item", (java.lang.Object)this.player.getName().getString());
+             return;
+         }
+-        if (this.player.getInventory().selected != packet.getSlot() && this.player.getUsedItemHand() == net.minecraft.world.InteractionHand.MAIN_HAND) {
++        if (this.player.getInventory().selected != $$0.getSlot() && this.player.getUsedItemHand() == net.minecraft.world.InteractionHand.MAIN_HAND) {
+             this.player.stopUsingItem();
+         }
+-        this.player.getInventory().selected = packet.getSlot();
++        this.player.getInventory().selected = $$0.getSlot();
+         this.player.resetLastActionTime();
+     }
+ 
+-    public void handleChat(net.minecraft.network.protocol.game.ServerboundChatPacket packet) {
+-        if (net.minecraft.server.network.ServerGamePacketListenerImpl.isChatMessageIllegal((java.lang.String)packet.message())) {
++    public void handleChat(net.minecraft.network.protocol.game.ServerboundChatPacket $$0) {
++        if (net.minecraft.server.network.ServerGamePacketListenerImpl.isChatMessageIllegal((java.lang.String)$$0.message())) {
+             this.disconnect((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"multiplayer.disconnect.illegal_characters"));
+             return;
+         }
+-        if (this.tryHandleChat(packet.message(), packet.timeStamp(), packet.lastSeenMessages())) {
++        java.util.Optional $$1 = this.tryHandleChat($$0.message(), $$0.timeStamp(), $$0.lastSeenMessages());
++        if ($$1.isPresent()) {
+             this.server.submit(() -> {
+-                net.minecraft.network.chat.PlayerChatMessage $$1 = this.getSignedMessage(packet);
+-                if (!this.verifyChatMessage($$1)) {
++                void $$4;
++                try {
++                    net.minecraft.network.chat.PlayerChatMessage $$2 = this.getSignedMessage($$0, (net.minecraft.network.chat.LastSeenMessages)$$1.get());
++                }
++                catch (net.minecraft.network.chat.SignedMessageChain$DecodeException $$3) {
++                    this.handleMessageDecodeFailure($$3);
+                     return;
+                 }
+-                this.chatMessageChain.append(() -> {
+-                    java.util.concurrent.CompletableFuture $$1 = this.filterTextPacket($$1.signedContent().plain());
+-                    java.util.concurrent.CompletableFuture $$22 = this.server.getChatDecorator().decorate(this.player, $$1);
+-                    return java.util.concurrent.CompletableFuture.allOf((java.util.concurrent.CompletableFuture[])new java.util.concurrent.CompletableFuture[]{$$1, $$22}).thenAcceptAsync($$2 -> {
+-                        net.minecraft.network.chat.FilterMask $$3 = ((net.minecraft.server.network.FilteredText)$$1.join()).mask();
+-                        net.minecraft.network.chat.PlayerChatMessage $$4 = ((net.minecraft.network.chat.PlayerChatMessage)$$22.join()).filter($$3);
+-                        this.broadcastChatMessage($$4);
+-                    }, (java.util.concurrent.Executor)this.server);
+-                });
++                java.util.concurrent.CompletableFuture $$5 = this.filterTextPacket($$4.signedContent());
++                java.util.concurrent.CompletableFuture $$6 = this.server.getChatDecorator().decorate(this.player, $$4.decoratedContent());
++                this.chatMessageChain.append(arg_0 -> this.lambda$handleChat$9($$5, $$6, (net.minecraft.network.chat.PlayerChatMessage)$$4, arg_0));
+             });
+         }
+     }
+@@ -966,78 +978,84 @@
+             this.disconnect((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"multiplayer.disconnect.illegal_characters"));
+             return;
+         }
+-        if (this.tryHandleChat($$0.command(), $$0.timeStamp(), $$0.lastSeenMessages())) {
++        java.util.Optional $$1 = this.tryHandleChat($$0.command(), $$0.timeStamp(), $$0.lastSeenMessages());
++        if ($$1.isPresent()) {
+             this.server.submit(() -> {
+-                this.performChatCommand($$0);
++                this.performChatCommand($$0, (net.minecraft.network.chat.LastSeenMessages)$$1.get());
+                 this.detectRateSpam();
+             });
+         }
+     }
+ 
+-    public void performChatCommand(net.minecraft.network.protocol.game.ServerboundChatCommandPacket $$0) {
+-        com.mojang.brigadier.ParseResults $$1 = this.parseCommand($$0.command());
+-        java.util.Map $$2 = this.collectSignedArguments($$0, net.minecraft.network.chat.PreviewableCommand.of((com.mojang.brigadier.ParseResults)$$1));
+-        for (net.minecraft.network.chat.PlayerChatMessage $$3 : $$2.values()) {
+-            if (this.verifyChatMessage($$3)) continue;
++    /*
++     * WARNING - void declaration
++     */
++    public void performChatCommand(net.minecraft.network.protocol.game.ServerboundChatCommandPacket $$0, net.minecraft.network.chat.LastSeenMessages $$1) {
++        void $$5;
++        com.mojang.brigadier.ParseResults $$2 = this.parseCommand($$0.command());
++        try {
++            java.util.Map $$3 = this.collectSignedArguments($$0, net.minecraft.network.chat.SignableCommand.of((com.mojang.brigadier.ParseResults)$$2), $$1);
++        }
++        catch (net.minecraft.network.chat.SignedMessageChain$DecodeException $$4) {
++            this.handleMessageDecodeFailure($$4);
+             return;
+         }
+-        net.minecraft.commands.CommandSigningContext$SignedArguments $$4 = new net.minecraft.commands.CommandSigningContext$SignedArguments($$2);
+-        $$1 = net.minecraft.commands.Commands.mapSource((com.mojang.brigadier.ParseResults)$$1, arg_0 -> net.minecraft.server.network.ServerGamePacketListenerImpl.lambda$performChatCommand$12((net.minecraft.commands.CommandSigningContext)$$4, arg_0));
+-        this.server.getCommands().performCommand($$1, $$0.command());
++        net.minecraft.commands.CommandSigningContext$SignedArguments $$6 = new net.minecraft.commands.CommandSigningContext$SignedArguments((java.util.Map)$$5);
++        $$2 = net.minecraft.commands.Commands.mapSource((com.mojang.brigadier.ParseResults)$$2, arg_0 -> net.minecraft.server.network.ServerGamePacketListenerImpl.lambda$performChatCommand$12((net.minecraft.commands.CommandSigningContext)$$6, arg_0));
++        this.server.getCommands().performCommand($$2, $$0.command());
+     }
+ 
+-    public java.util.Map<java.lang.String, net.minecraft.network.chat.PlayerChatMessage> collectSignedArguments(net.minecraft.network.protocol.game.ServerboundChatCommandPacket $$0, net.minecraft.network.chat.PreviewableCommand<?> $$1) {
+-        net.minecraft.network.chat.Component $$2 = this.chatPreviewCache.pull($$0.command());
+-        net.minecraft.network.chat.MessageSigner $$3 = new net.minecraft.network.chat.MessageSigner(this.player.getUUID(), $$0.timeStamp(), $$0.salt());
+-        net.minecraft.network.chat.LastSeenMessages $$4 = $$0.lastSeenMessages().lastSeen();
+-        it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap $$5 = new it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap();
+-        net.minecraft.network.chat.SignedMessageChain$Decoder $$6 = this.player.connection.signedMessageDecoder();
+-        for (com.mojang.datafixers.util.Pair $$7 : net.minecraft.commands.arguments.ArgumentSignatures.collectPlainSignableArguments($$1)) {
+-            net.minecraft.network.chat.ChatMessageContent $$12;
+-            java.lang.String $$8 = (java.lang.String)$$7.getFirst();
+-            java.lang.String $$9 = (java.lang.String)$$7.getSecond();
+-            net.minecraft.network.chat.MessageSignature $$10 = $$0.argumentSignatures().get($$8);
+-            if ($$0.signedPreview() && $$2 != null) {
+-                net.minecraft.network.chat.ChatMessageContent $$11 = new net.minecraft.network.chat.ChatMessageContent($$9, $$2);
+-            } else {
+-                $$12 = new net.minecraft.network.chat.ChatMessageContent($$9);
+-            }
+-            net.minecraft.network.chat.SignedMessageChain$Link $$13 = new net.minecraft.network.chat.SignedMessageChain$Link($$10);
+-            $$5.put((java.lang.Object)$$8, (java.lang.Object)$$6.unpack($$13, $$3, $$12, $$4));
++    public void handleMessageDecodeFailure(net.minecraft.network.chat.SignedMessageChain$DecodeException $$0) {
++        if ($$0.shouldDisconnect()) {
++            this.disconnect($$0.getComponent());
++        } else {
++            this.player.sendSystemMessage((net.minecraft.network.chat.Component)$$0.getComponent().copy().withStyle(net.minecraft.ChatFormatting.RED));
+         }
+-        return $$5;
+     }
+ 
++    public java.util.Map<java.lang.String, net.minecraft.network.chat.PlayerChatMessage> collectSignedArguments(net.minecraft.network.protocol.game.ServerboundChatCommandPacket $$0, net.minecraft.network.chat.SignableCommand<?> $$1, net.minecraft.network.chat.LastSeenMessages $$2) throws net.minecraft.network.chat.SignedMessageChain$DecodeException {
++        it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap $$3 = new it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap();
++        for (net.minecraft.network.chat.SignableCommand$Argument $$4 : $$1.arguments()) {
++            net.minecraft.network.chat.MessageSignature $$5 = $$0.argumentSignatures().get($$4.name());
++            net.minecraft.network.chat.SignedMessageBody $$6 = new net.minecraft.network.chat.SignedMessageBody($$4.value(), $$0.timeStamp(), $$0.salt(), $$2);
++            $$3.put((java.lang.Object)$$4.name(), (java.lang.Object)this.signedMessageDecoder.unpack($$5, $$6));
++        }
++        return $$3;
++    }
++
+     public com.mojang.brigadier.ParseResults<net.minecraft.commands.CommandSourceStack> parseCommand(java.lang.String $$0) {
+         com.mojang.brigadier.CommandDispatcher $$1 = this.server.getCommands().getDispatcher();
+         return $$1.parse($$0, (java.lang.Object)this.player.createCommandSourceStack());
+     }
+ 
+-    /*
+-     * WARNING - Removed try catching itself - possible behaviour change.
+-     * WARNING - void declaration
+-     */
+-    public boolean tryHandleChat(java.lang.String $$0, java.time.Instant $$1, net.minecraft.network.chat.LastSeenMessages$Update $$2) {
+-        void $$4;
++    public java.util.Optional<net.minecraft.network.chat.LastSeenMessages> tryHandleChat(java.lang.String $$0, java.time.Instant $$1, net.minecraft.network.chat.LastSeenMessages$Update $$2) {
+         if (!this.updateChatOrder($$1)) {
+             LOGGER.warn("{} sent out-of-order chat: '{}'", (java.lang.Object)this.player.getName().getString(), (java.lang.Object)$$0);
+             this.disconnect((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"multiplayer.disconnect.out_of_order_chat"));
+-            return false;
++            return java.util.Optional.empty();
+         }
+         if (this.player.getChatVisibility() == net.minecraft.world.entity.player.ChatVisiblity.HIDDEN) {
+             this.send((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ClientboundSystemChatPacket((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"chat.disabled.options").withStyle(net.minecraft.ChatFormatting.RED), false));
+-            return false;
++            return java.util.Optional.empty();
+         }
+-        net.minecraft.network.chat.LastSeenMessagesValidator lastSeenMessagesValidator = this.lastSeenMessagesValidator;
++        java.util.Optional $$3 = this.unpackAndApplyLastSeen($$2);
++        this.player.resetLastActionTime();
++        return $$3;
++    }
++
++    /*
++     * WARNING - Removed try catching itself - possible behaviour change.
++     */
++    public java.util.Optional<net.minecraft.network.chat.LastSeenMessages> unpackAndApplyLastSeen(net.minecraft.network.chat.LastSeenMessages$Update $$0) {
++        net.minecraft.network.chat.LastSeenMessagesValidator lastSeenMessagesValidator = this.lastSeenMessages;
+         synchronized (lastSeenMessagesValidator) {
+-            java.util.Set $$3 = this.lastSeenMessagesValidator.validateAndUpdate($$2);
++            java.util.Optional $$1 = this.lastSeenMessages.applyUpdate($$0);
++            if ($$1.isEmpty()) {
++                LOGGER.warn("Failed to validate message acknowledgements from {}", (java.lang.Object)this.player.getName().getString());
++                this.disconnect(CHAT_VALIDATION_FAILED);
++            }
++            return $$1;
+         }
+-        if (!$$4.isEmpty()) {
+-            this.handleValidationFailure((java.util.Set)$$4);
+-            return false;
+-        }
+-        this.player.resetLastActionTime();
+-        return true;
+     }
+ 
+     public boolean updateChatOrder(java.time.Instant $$0) {
+@@ -1057,46 +1075,16 @@
+         return false;
+     }
+ 
+-    public net.minecraft.network.chat.PlayerChatMessage getSignedMessage(net.minecraft.network.protocol.game.ServerboundChatPacket $$0) {
+-        net.minecraft.network.chat.MessageSigner $$1 = $$0.getSigner(this.player);
+-        net.minecraft.network.chat.SignedMessageChain$Link $$2 = new net.minecraft.network.chat.SignedMessageChain$Link($$0.signature());
+-        net.minecraft.network.chat.LastSeenMessages $$3 = $$0.lastSeenMessages().lastSeen();
+-        net.minecraft.network.chat.ChatMessageContent $$4 = this.getSignedContent($$0);
+-        return this.signedMessageDecoder.unpack($$2, $$1, $$4, $$3);
++    public net.minecraft.network.chat.PlayerChatMessage getSignedMessage(net.minecraft.network.protocol.game.ServerboundChatPacket $$0, net.minecraft.network.chat.LastSeenMessages $$1) throws net.minecraft.network.chat.SignedMessageChain$DecodeException {
++        net.minecraft.network.chat.SignedMessageBody $$2 = new net.minecraft.network.chat.SignedMessageBody($$0.message(), $$0.timeStamp(), $$0.salt(), $$1);
++        return this.signedMessageDecoder.unpack($$0.signature(), $$2);
+     }
+ 
+-    public net.minecraft.network.chat.ChatMessageContent getSignedContent(net.minecraft.network.protocol.game.ServerboundChatPacket $$0) {
+-        net.minecraft.network.chat.Component $$1 = this.chatPreviewCache.pull($$0.message());
+-        if ($$0.signedPreview() && $$1 != null) {
+-            return new net.minecraft.network.chat.ChatMessageContent($$0.message(), $$1);
+-        }
+-        return new net.minecraft.network.chat.ChatMessageContent($$0.message());
+-    }
+-
+     public void broadcastChatMessage(net.minecraft.network.chat.PlayerChatMessage $$0) {
+         this.server.getPlayerList().broadcastChatMessage($$0, this.player, net.minecraft.network.chat.ChatType.bind((net.minecraft.resources.ResourceKey)net.minecraft.network.chat.ChatType.CHAT, (net.minecraft.world.entity.Entity)this.player));
+         this.detectRateSpam();
+     }
+ 
+-    public boolean verifyChatMessage(net.minecraft.network.chat.PlayerChatMessage $$0) {
+-        net.minecraft.network.chat.ChatSender $$1 = this.player.asChatSender();
+-        net.minecraft.world.entity.player.ProfilePublicKey $$2 = $$1.profilePublicKey();
+-        if ($$2 != null) {
+-            if ($$2.data().hasExpired()) {
+-                this.player.sendSystemMessage((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"chat.disabled.expiredProfileKey").withStyle(net.minecraft.ChatFormatting.RED));
+-                return false;
+-            }
+-            if (!$$0.verify($$1)) {
+-                this.disconnect((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"multiplayer.disconnect.unsigned_chat"));
+-                return false;
+-            }
+-        }
+-        if ($$0.hasExpiredServer(java.time.Instant.now())) {
+-            LOGGER.warn("{} sent expired chat: '{}'. Is the client/server system time unsynchronized?", (java.lang.Object)this.player.getName().getString(), (java.lang.Object)$$0.signedContent().plain());
+-        }
+-        return true;
+-    }
+-
+     public void detectRateSpam() {
+         this.chatSpamTickCount += 20;
+         if (this.chatSpamTickCount > 200 && !this.server.getPlayerList().isOp(this.player.getGameProfile())) {
+@@ -1104,96 +1092,29 @@
+         }
+     }
+ 
+-    public void handleChatPreview(net.minecraft.network.protocol.game.ServerboundChatPreviewPacket $$0) {
+-        if (this.handlesPreviewRequests()) {
+-            this.chatPreviewThrottler.schedule(() -> {
+-                int $$12 = $$0.queryId();
+-                java.lang.String $$2 = $$0.query();
+-                return this.queryPreview($$2).thenAccept($$1 -> this.sendPreviewResponse($$12, $$1));
+-            });
+-        }
+-    }
+-
+-    public boolean handlesPreviewRequests() {
+-        return this.server.previewsChat() || this.connection.isMemoryConnection();
+-    }
+-
+-    public void sendPreviewResponse(int $$0, net.minecraft.network.chat.Component $$1) {
+-        this.send((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ClientboundChatPreviewPacket($$0, $$1), net.minecraft.network.PacketSendListener.exceptionallySend(() -> new net.minecraft.network.protocol.game.ClientboundChatPreviewPacket($$0, null)));
+-    }
+-
+-    public java.util.concurrent.CompletableFuture<net.minecraft.network.chat.Component> queryPreview(java.lang.String $$0) {
+-        java.lang.String $$1 = org.apache.commons.lang3.StringUtils.normalizeSpace((java.lang.String)$$0);
+-        if ($$1.startsWith("/")) {
+-            return this.queryCommandPreview($$1.substring(1));
+-        }
+-        return this.queryChatPreview($$0);
+-    }
+-
+-    public java.util.concurrent.CompletableFuture<net.minecraft.network.chat.Component> queryChatPreview(java.lang.String $$0) {
+-        net.minecraft.network.chat.MutableComponent $$12 = net.minecraft.network.chat.Component.literal((java.lang.String)$$0);
+-        java.util.concurrent.CompletableFuture $$2 = this.server.getChatDecorator().decorate(this.player, (net.minecraft.network.chat.Component)$$12).thenApply(arg_0 -> net.minecraft.server.network.ServerGamePacketListenerImpl.lambda$queryChatPreview$16((net.minecraft.network.chat.Component)$$12, arg_0));
+-        $$2.thenAcceptAsync($$1 -> this.chatPreviewCache.set($$0, $$1), (java.util.concurrent.Executor)this.server);
+-        return $$2;
+-    }
+-
+-    public java.util.concurrent.CompletableFuture<net.minecraft.network.chat.Component> queryCommandPreview(java.lang.String $$0) {
+-        net.minecraft.commands.CommandSourceStack $$12 = this.player.createCommandSourceStack();
+-        com.mojang.brigadier.ParseResults $$2 = this.server.getCommands().getDispatcher().parse($$0, (java.lang.Object)$$12);
+-        java.util.concurrent.CompletableFuture $$3 = this.getPreviewedArgument($$12, net.minecraft.network.chat.PreviewableCommand.of((com.mojang.brigadier.ParseResults)$$2));
+-        $$3.thenAcceptAsync($$1 -> this.chatPreviewCache.set($$0, $$1), (java.util.concurrent.Executor)this.server);
+-        return $$3;
+-    }
+-
+-    public java.util.concurrent.CompletableFuture<net.minecraft.network.chat.Component> getPreviewedArgument(net.minecraft.commands.CommandSourceStack $$0, net.minecraft.network.chat.PreviewableCommand<net.minecraft.commands.CommandSourceStack> $$1) {
+-        java.util.List $$2 = $$1.arguments();
+-        if ($$2.isEmpty()) {
+-            return java.util.concurrent.CompletableFuture.completedFuture(null);
+-        }
+-        for (int $$3 = $$2.size() - 1; $$3 >= 0; --$$3) {
+-            net.minecraft.network.chat.PreviewableCommand$Argument $$4 = (net.minecraft.network.chat.PreviewableCommand$Argument)$$2.get($$3);
+-            try {
+-                java.util.concurrent.CompletableFuture $$5 = $$4.previewType().resolvePreview($$0, $$4.parsedValue());
+-                if ($$5 == null) continue;
+-                return $$5;
+-            }
+-            catch (com.mojang.brigadier.exceptions.CommandSyntaxException $$6) {
+-                return java.util.concurrent.CompletableFuture.completedFuture(null);
+-            }
+-        }
+-        return java.util.concurrent.CompletableFuture.completedFuture(null);
+-    }
+-
+     /*
+      * WARNING - Removed try catching itself - possible behaviour change.
+-     * WARNING - void declaration
+      */
+     public void handleChatAck(net.minecraft.network.protocol.game.ServerboundChatAckPacket $$0) {
+-        void $$2;
+-        net.minecraft.network.chat.LastSeenMessagesValidator lastSeenMessagesValidator = this.lastSeenMessagesValidator;
++        net.minecraft.network.chat.LastSeenMessagesValidator lastSeenMessagesValidator = this.lastSeenMessages;
+         synchronized (lastSeenMessagesValidator) {
+-            java.util.Set $$1 = this.lastSeenMessagesValidator.validateAndUpdate($$0.lastSeenMessages());
++            if (!this.lastSeenMessages.applyOffset($$0.offset())) {
++                LOGGER.warn("Failed to validate message acknowledgements from {}", (java.lang.Object)this.player.getName().getString());
++                this.disconnect(CHAT_VALIDATION_FAILED);
++            }
+         }
+-        if (!$$2.isEmpty()) {
+-            this.handleValidationFailure((java.util.Set)$$2);
+-        }
+     }
+ 
+-    public void handleValidationFailure(java.util.Set<net.minecraft.network.chat.LastSeenMessagesValidator$ErrorCondition> $$0) {
+-        LOGGER.warn("Failed to validate message from {}, reasons: {}", (java.lang.Object)this.player.getName().getString(), $$0.stream().map(net.minecraft.network.chat.LastSeenMessagesValidator$ErrorCondition::message).collect(java.util.stream.Collectors.joining((java.lang.CharSequence)",")));
+-        this.disconnect((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"multiplayer.disconnect.chat_validation_failed"));
+-    }
+-
+-    public void handleAnimate(net.minecraft.network.protocol.game.ServerboundSwingPacket packet) {
+-        net.minecraft.network.protocol.PacketUtils.ensureRunningOnSameThread((net.minecraft.network.protocol.Packet)packet, (net.minecraft.network.PacketListener)this, (net.minecraft.server.level.ServerLevel)this.player.getLevel());
++    public void handleAnimate(net.minecraft.network.protocol.game.ServerboundSwingPacket $$0) {
++        net.minecraft.network.protocol.PacketUtils.ensureRunningOnSameThread((net.minecraft.network.protocol.Packet)$$0, (net.minecraft.network.PacketListener)this, (net.minecraft.server.level.ServerLevel)this.player.getLevel());
+         this.player.resetLastActionTime();
+-        this.player.swing(packet.getHand());
++        this.player.swing($$0.getHand());
+     }
+ 
+-    public void handlePlayerCommand(net.minecraft.network.protocol.game.ServerboundPlayerCommandPacket packet) {
+-        net.minecraft.network.protocol.PacketUtils.ensureRunningOnSameThread((net.minecraft.network.protocol.Packet)packet, (net.minecraft.network.PacketListener)this, (net.minecraft.server.level.ServerLevel)this.player.getLevel());
++    public void handlePlayerCommand(net.minecraft.network.protocol.game.ServerboundPlayerCommandPacket $$0) {
++        net.minecraft.network.protocol.PacketUtils.ensureRunningOnSameThread((net.minecraft.network.protocol.Packet)$$0, (net.minecraft.network.PacketListener)this, (net.minecraft.server.level.ServerLevel)this.player.getLevel());
+         this.player.resetLastActionTime();
+-        switch (net.minecraft.server.network.ServerGamePacketListenerImpl$2.$SwitchMap$net$minecraft$network$protocol$game$ServerboundPlayerCommandPacket$Action[packet.getAction().ordinal()]) {
++        switch (net.minecraft.server.network.ServerGamePacketListenerImpl$2.$SwitchMap$net$minecraft$network$protocol$game$ServerboundPlayerCommandPacket$Action[$$0.getAction().ordinal()]) {
+             case 1: {
+                 this.player.setShiftKeyDown(true);
+                 break;
+@@ -1218,23 +1139,23 @@
+             }
+             case 6: {
+                 if (!(this.player.getVehicle() instanceof net.minecraft.world.entity.PlayerRideableJumping)) break;
+-                net.minecraft.world.entity.PlayerRideableJumping playerRideableJumping = (net.minecraft.world.entity.PlayerRideableJumping)this.player.getVehicle();
+-                int n = packet.getData();
+-                if (!playerRideableJumping.canJump() || n <= 0) break;
+-                playerRideableJumping.handleStartJump(n);
++                net.minecraft.world.entity.PlayerRideableJumping $$1 = (net.minecraft.world.entity.PlayerRideableJumping)this.player.getVehicle();
++                int $$2 = $$0.getData();
++                if (!$$1.canJump() || $$2 <= 0) break;
++                $$1.handleStartJump($$2);
+                 break;
+             }
+             case 7: {
+                 if (!(this.player.getVehicle() instanceof net.minecraft.world.entity.PlayerRideableJumping)) break;
+-                net.minecraft.world.entity.PlayerRideableJumping playerRideableJumping = (net.minecraft.world.entity.PlayerRideableJumping)this.player.getVehicle();
+-                playerRideableJumping.handleStopJump();
++                net.minecraft.world.entity.PlayerRideableJumping $$3 = (net.minecraft.world.entity.PlayerRideableJumping)this.player.getVehicle();
++                $$3.handleStopJump();
+                 break;
+             }
+             case 8: {
+                 net.minecraft.world.entity.Entity entity = this.player.getVehicle();
+                 if (!(entity instanceof net.minecraft.world.entity.HasCustomInventoryScreen)) break;
+-                net.minecraft.world.entity.HasCustomInventoryScreen hasCustomInventoryScreen = (net.minecraft.world.entity.HasCustomInventoryScreen)entity;
+-                hasCustomInventoryScreen.openCustomInventoryScreen((net.minecraft.world.entity.player.Player)this.player);
++                net.minecraft.world.entity.HasCustomInventoryScreen $$4 = (net.minecraft.world.entity.HasCustomInventoryScreen)entity;
++                $$4.openCustomInventoryScreen((net.minecraft.world.entity.player.Player)this.player);
+                 break;
+             }
+             case 9: {
+@@ -1248,51 +1169,57 @@
+         }
+     }
+ 
+-    public net.minecraft.network.chat.SignedMessageChain$Decoder signedMessageDecoder() {
+-        return this.signedMessageDecoder;
+-    }
+-
+     /*
+      * WARNING - Removed try catching itself - possible behaviour change.
+      * WARNING - void declaration
+      */
+     public void addPendingMessage(net.minecraft.network.chat.PlayerChatMessage $$0) {
+         void $$3;
+-        net.minecraft.network.chat.LastSeenMessages$Entry $$1 = $$0.toLastSeenEntry();
++        net.minecraft.network.chat.MessageSignature $$1 = $$0.signature();
+         if ($$1 == null) {
+             return;
+         }
+-        net.minecraft.network.chat.LastSeenMessagesValidator lastSeenMessagesValidator = this.lastSeenMessagesValidator;
++        this.messageSignatureCache.push($$0);
++        net.minecraft.network.chat.LastSeenMessagesValidator lastSeenMessagesValidator = this.lastSeenMessages;
+         synchronized (lastSeenMessagesValidator) {
+-            this.lastSeenMessagesValidator.addPending($$1);
+-            int $$2 = this.lastSeenMessagesValidator.pendingMessagesCount();
++            this.lastSeenMessages.addPending($$1);
++            int $$2 = this.lastSeenMessages.trackedMessagesCount();
+         }
+         if ($$3 > 4096) {
+             this.disconnect((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"multiplayer.disconnect.too_many_pending_chats"));
+         }
+     }
+ 
+-    public void handleInteract(net.minecraft.network.protocol.game.ServerboundInteractPacket packet) {
+-        net.minecraft.network.protocol.PacketUtils.ensureRunningOnSameThread((net.minecraft.network.protocol.Packet)packet, (net.minecraft.network.PacketListener)this, (net.minecraft.server.level.ServerLevel)this.player.getLevel());
+-        net.minecraft.server.level.ServerLevel serverLevel = this.player.getLevel();
+-        net.minecraft.world.entity.Entity entity = packet.getTarget(serverLevel);
++    public void sendPlayerChatMessage(net.minecraft.network.chat.PlayerChatMessage $$0, net.minecraft.network.chat.ChatType$Bound $$1) {
++        this.send((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ClientboundPlayerChatPacket($$0.link().sender(), $$0.link().index(), $$0.signature(), $$0.signedBody().pack(this.messageSignaturePacker), $$0.unsignedContent(), $$0.filterMask(), $$1.toNetwork(this.player.level.registryAccess())));
++        this.addPendingMessage($$0);
++    }
++
++    public void sendDisguisedChatMessage(net.minecraft.network.chat.Component $$0, net.minecraft.network.chat.ChatType$Bound $$1) {
++        this.send((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ClientboundDisguisedChatPacket($$0, $$1.toNetwork(this.player.level.registryAccess())));
++    }
++
++    public void handleInteract(net.minecraft.network.protocol.game.ServerboundInteractPacket $$0) {
++        net.minecraft.network.protocol.PacketUtils.ensureRunningOnSameThread((net.minecraft.network.protocol.Packet)$$0, (net.minecraft.network.PacketListener)this, (net.minecraft.server.level.ServerLevel)this.player.getLevel());
++        net.minecraft.server.level.ServerLevel $$1 = this.player.getLevel();
++        net.minecraft.world.entity.Entity $$2 = $$0.getTarget($$1);
+         this.player.resetLastActionTime();
+-        this.player.setShiftKeyDown(packet.isUsingSecondaryAction());
+-        if (entity != null) {
+-            if (!serverLevel.getWorldBorder().isWithinBounds(entity.blockPosition())) {
++        this.player.setShiftKeyDown($$0.isUsingSecondaryAction());
++        if ($$2 != null) {
++            if (!$$1.getWorldBorder().isWithinBounds($$2.blockPosition())) {
+                 return;
+             }
+-            if (entity.distanceToSqr(this.player.getEyePosition()) < MAX_INTERACTION_DISTANCE) {
+-                packet.dispatch((net.minecraft.network.protocol.game.ServerboundInteractPacket$Handler)new /* Unavailable Anonymous Inner Class!! */);
++            if ($$2.distanceToSqr(this.player.getEyePosition()) < MAX_INTERACTION_DISTANCE) {
++                $$0.dispatch((net.minecraft.network.protocol.game.ServerboundInteractPacket$Handler)new /* Unavailable Anonymous Inner Class!! */);
+             }
+         }
+     }
+ 
+-    public void handleClientCommand(net.minecraft.network.protocol.game.ServerboundClientCommandPacket packet) {
+-        net.minecraft.network.protocol.PacketUtils.ensureRunningOnSameThread((net.minecraft.network.protocol.Packet)packet, (net.minecraft.network.PacketListener)this, (net.minecraft.server.level.ServerLevel)this.player.getLevel());
++    public void handleClientCommand(net.minecraft.network.protocol.game.ServerboundClientCommandPacket $$0) {
++        net.minecraft.network.protocol.PacketUtils.ensureRunningOnSameThread((net.minecraft.network.protocol.Packet)$$0, (net.minecraft.network.PacketListener)this, (net.minecraft.server.level.ServerLevel)this.player.getLevel());
+         this.player.resetLastActionTime();
+-        net.minecraft.network.protocol.game.ServerboundClientCommandPacket$Action action = packet.getAction();
+-        switch (net.minecraft.server.network.ServerGamePacketListenerImpl$2.$SwitchMap$net$minecraft$network$protocol$game$ServerboundClientCommandPacket$Action[action.ordinal()]) {
++        net.minecraft.network.protocol.game.ServerboundClientCommandPacket$Action $$1 = $$0.getAction();
++        switch (net.minecraft.server.network.ServerGamePacketListenerImpl$2.$SwitchMap$net$minecraft$network$protocol$game$ServerboundClientCommandPacket$Action[$$1.ordinal()]) {
+             case 1: {
+                 if (this.player.wonGame) {
+                     this.player.wonGame = false;
+@@ -1315,15 +1242,15 @@
+         }
+     }
+ 
+-    public void handleContainerClose(net.minecraft.network.protocol.game.ServerboundContainerClosePacket packet) {
+-        net.minecraft.network.protocol.PacketUtils.ensureRunningOnSameThread((net.minecraft.network.protocol.Packet)packet, (net.minecraft.network.PacketListener)this, (net.minecraft.server.level.ServerLevel)this.player.getLevel());
++    public void handleContainerClose(net.minecraft.network.protocol.game.ServerboundContainerClosePacket $$0) {
++        net.minecraft.network.protocol.PacketUtils.ensureRunningOnSameThread((net.minecraft.network.protocol.Packet)$$0, (net.minecraft.network.PacketListener)this, (net.minecraft.server.level.ServerLevel)this.player.getLevel());
+         this.player.doCloseContainer();
+     }
+ 
+-    public void handleContainerClick(net.minecraft.network.protocol.game.ServerboundContainerClickPacket packet) {
+-        net.minecraft.network.protocol.PacketUtils.ensureRunningOnSameThread((net.minecraft.network.protocol.Packet)packet, (net.minecraft.network.PacketListener)this, (net.minecraft.server.level.ServerLevel)this.player.getLevel());
++    public void handleContainerClick(net.minecraft.network.protocol.game.ServerboundContainerClickPacket $$0) {
++        net.minecraft.network.protocol.PacketUtils.ensureRunningOnSameThread((net.minecraft.network.protocol.Packet)$$0, (net.minecraft.network.PacketListener)this, (net.minecraft.server.level.ServerLevel)this.player.getLevel());
+         this.player.resetLastActionTime();
+-        if (this.player.containerMenu.containerId != packet.getContainerId()) {
++        if (this.player.containerMenu.containerId != $$0.getContainerId()) {
+             return;
+         }
+         if (this.player.isSpectator()) {
+@@ -1334,82 +1261,85 @@
+             LOGGER.debug("Player {} interacted with invalid menu {}", (java.lang.Object)this.player, (java.lang.Object)this.player.containerMenu);
+             return;
+         }
+-        int n = packet.getSlotNum();
+-        if (!this.player.containerMenu.isValidSlotIndex(n)) {
+-            LOGGER.debug("Player {} clicked invalid slot index: {}, available slots: {}", new java.lang.Object[]{this.player.getName(), n, this.player.containerMenu.slots.size()});
++        int $$1 = $$0.getSlotNum();
++        if (!this.player.containerMenu.isValidSlotIndex($$1)) {
++            LOGGER.debug("Player {} clicked invalid slot index: {}, available slots: {}", new java.lang.Object[]{this.player.getName(), $$1, this.player.containerMenu.slots.size()});
+             return;
+         }
+-        boolean bl = packet.getStateId() != this.player.containerMenu.getStateId();
++        boolean $$2 = $$0.getStateId() != this.player.containerMenu.getStateId();
+         this.player.containerMenu.suppressRemoteUpdates();
+-        this.player.containerMenu.clicked(n, packet.getButtonNum(), packet.getClickType(), (net.minecraft.world.entity.player.Player)this.player);
+-        for (it.unimi.dsi.fastutil.ints.Int2ObjectMap$Entry entry : it.unimi.dsi.fastutil.ints.Int2ObjectMaps.fastIterable((it.unimi.dsi.fastutil.ints.Int2ObjectMap)packet.getChangedSlots())) {
+-            this.player.containerMenu.setRemoteSlotNoCopy(entry.getIntKey(), (net.minecraft.world.item.ItemStack)entry.getValue());
++        this.player.containerMenu.clicked($$1, $$0.getButtonNum(), $$0.getClickType(), (net.minecraft.world.entity.player.Player)this.player);
++        for (it.unimi.dsi.fastutil.ints.Int2ObjectMap$Entry $$3 : it.unimi.dsi.fastutil.ints.Int2ObjectMaps.fastIterable((it.unimi.dsi.fastutil.ints.Int2ObjectMap)$$0.getChangedSlots())) {
++            this.player.containerMenu.setRemoteSlotNoCopy($$3.getIntKey(), (net.minecraft.world.item.ItemStack)$$3.getValue());
+         }
+-        this.player.containerMenu.setRemoteCarried(packet.getCarriedItem());
++        this.player.containerMenu.setRemoteCarried($$0.getCarriedItem());
+         this.player.containerMenu.resumeRemoteUpdates();
+-        if (bl) {
++        if ($$2) {
+             this.player.containerMenu.broadcastFullState();
+         } else {
+             this.player.containerMenu.broadcastChanges();
+         }
+     }
+ 
+-    public void handlePlaceRecipe(net.minecraft.network.protocol.game.ServerboundPlaceRecipePacket packet) {
+-        net.minecraft.network.protocol.PacketUtils.ensureRunningOnSameThread((net.minecraft.network.protocol.Packet)packet, (net.minecraft.network.PacketListener)this, (net.minecraft.server.level.ServerLevel)this.player.getLevel());
++    public void handlePlaceRecipe(net.minecraft.network.protocol.game.ServerboundPlaceRecipePacket $$0) {
++        net.minecraft.network.protocol.PacketUtils.ensureRunningOnSameThread((net.minecraft.network.protocol.Packet)$$0, (net.minecraft.network.PacketListener)this, (net.minecraft.server.level.ServerLevel)this.player.getLevel());
+         this.player.resetLastActionTime();
+-        if (this.player.isSpectator() || this.player.containerMenu.containerId != packet.getContainerId() || !(this.player.containerMenu instanceof net.minecraft.world.inventory.RecipeBookMenu)) {
++        if (this.player.isSpectator() || this.player.containerMenu.containerId != $$0.getContainerId() || !(this.player.containerMenu instanceof net.minecraft.world.inventory.RecipeBookMenu)) {
+             return;
+         }
+         if (!this.player.containerMenu.stillValid((net.minecraft.world.entity.player.Player)this.player)) {
+             LOGGER.debug("Player {} interacted with invalid menu {}", (java.lang.Object)this.player, (java.lang.Object)this.player.containerMenu);
+             return;
+         }
+-        this.server.getRecipeManager().byKey(packet.getRecipe()).ifPresent($$1 -> ((net.minecraft.world.inventory.RecipeBookMenu)this.player.containerMenu).handlePlacement(packet.isShiftDown(), $$1, this.player));
++        this.server.getRecipeManager().byKey($$0.getRecipe()).ifPresent($$1 -> ((net.minecraft.world.inventory.RecipeBookMenu)this.player.containerMenu).handlePlacement($$0.isShiftDown(), $$1, this.player));
+     }
+ 
+-    public void handleContainerButtonClick(net.minecraft.network.protocol.game.ServerboundContainerButtonClickPacket packet) {
+-        net.minecraft.network.protocol.PacketUtils.ensureRunningOnSameThread((net.minecraft.network.protocol.Packet)packet, (net.minecraft.network.PacketListener)this, (net.minecraft.server.level.ServerLevel)this.player.getLevel());
++    public void handleContainerButtonClick(net.minecraft.network.protocol.game.ServerboundContainerButtonClickPacket $$0) {
++        net.minecraft.network.protocol.PacketUtils.ensureRunningOnSameThread((net.minecraft.network.protocol.Packet)$$0, (net.minecraft.network.PacketListener)this, (net.minecraft.server.level.ServerLevel)this.player.getLevel());
+         this.player.resetLastActionTime();
+-        if (this.player.containerMenu.containerId != packet.getContainerId() || this.player.isSpectator()) {
++        if (this.player.containerMenu.containerId != $$0.getContainerId() || this.player.isSpectator()) {
+             return;
+         }
+         if (!this.player.containerMenu.stillValid((net.minecraft.world.entity.player.Player)this.player)) {
+             LOGGER.debug("Player {} interacted with invalid menu {}", (java.lang.Object)this.player, (java.lang.Object)this.player.containerMenu);
+             return;
+         }
+-        boolean bl = this.player.containerMenu.clickMenuButton((net.minecraft.world.entity.player.Player)this.player, packet.getButtonId());
+-        if (bl) {
++        boolean $$1 = this.player.containerMenu.clickMenuButton((net.minecraft.world.entity.player.Player)this.player, $$0.getButtonId());
++        if ($$1) {
+             this.player.containerMenu.broadcastChanges();
+         }
+     }
+ 
+-    public void handleSetCreativeModeSlot(net.minecraft.network.protocol.game.ServerboundSetCreativeModeSlotPacket packet) {
+-        net.minecraft.network.protocol.PacketUtils.ensureRunningOnSameThread((net.minecraft.network.protocol.Packet)packet, (net.minecraft.network.PacketListener)this, (net.minecraft.server.level.ServerLevel)this.player.getLevel());
++    public void handleSetCreativeModeSlot(net.minecraft.network.protocol.game.ServerboundSetCreativeModeSlotPacket $$0) {
++        net.minecraft.network.protocol.PacketUtils.ensureRunningOnSameThread((net.minecraft.network.protocol.Packet)$$0, (net.minecraft.network.PacketListener)this, (net.minecraft.server.level.ServerLevel)this.player.getLevel());
+         if (this.player.gameMode.isCreative()) {
+-            boolean bl;
+-            net.minecraft.world.level.block.entity.BlockEntity blockEntity;
+-            net.minecraft.core.BlockPos blockPos;
+-            boolean bl2 = packet.getSlotNum() < 0;
+-            net.minecraft.world.item.ItemStack itemStack = packet.getItem();
+-            net.minecraft.nbt.CompoundTag compoundTag = net.minecraft.world.item.BlockItem.getBlockEntityData((net.minecraft.world.item.ItemStack)itemStack);
+-            if (!itemStack.isEmpty() && compoundTag != null && compoundTag.contains("x") && compoundTag.contains("y") && compoundTag.contains("z") && this.player.level.isLoaded(blockPos = net.minecraft.world.level.block.entity.BlockEntity.getPosFromTag((net.minecraft.nbt.CompoundTag)compoundTag)) && (blockEntity = this.player.level.getBlockEntity(blockPos)) != null) {
+-                blockEntity.saveToItem(itemStack);
++            boolean $$7;
++            net.minecraft.world.level.block.entity.BlockEntity $$5;
++            net.minecraft.core.BlockPos $$4;
++            boolean $$1 = $$0.getSlotNum() < 0;
++            net.minecraft.world.item.ItemStack $$2 = $$0.getItem();
++            if (!$$2.isItemEnabled(this.player.getLevel().enabledFeatures())) {
++                return;
+             }
+-            boolean bl3 = packet.getSlotNum() >= 1 && packet.getSlotNum() <= 45;
+-            boolean bl4 = bl = itemStack.isEmpty() || itemStack.getDamageValue() >= 0 && itemStack.getCount() <= 64 && !itemStack.isEmpty();
+-            if (bl3 && bl) {
+-                this.player.inventoryMenu.getSlot(packet.getSlotNum()).set(itemStack);
++            net.minecraft.nbt.CompoundTag $$3 = net.minecraft.world.item.BlockItem.getBlockEntityData((net.minecraft.world.item.ItemStack)$$2);
++            if (!$$2.isEmpty() && $$3 != null && $$3.contains("x") && $$3.contains("y") && $$3.contains("z") && this.player.level.isLoaded($$4 = net.minecraft.world.level.block.entity.BlockEntity.getPosFromTag((net.minecraft.nbt.CompoundTag)$$3)) && ($$5 = this.player.level.getBlockEntity($$4)) != null) {
++                $$5.saveToItem($$2);
++            }
++            boolean $$6 = $$0.getSlotNum() >= 1 && $$0.getSlotNum() <= 45;
++            boolean bl = $$7 = $$2.isEmpty() || $$2.getDamageValue() >= 0 && $$2.getCount() <= 64 && !$$2.isEmpty();
++            if ($$6 && $$7) {
++                this.player.inventoryMenu.getSlot($$0.getSlotNum()).set($$2);
+                 this.player.inventoryMenu.broadcastChanges();
+-            } else if (bl2 && bl && this.dropSpamTickCount < 200) {
++            } else if ($$1 && $$7 && this.dropSpamTickCount < 200) {
+                 this.dropSpamTickCount += 20;
+-                this.player.drop(itemStack, true);
++                this.player.drop($$2, true);
+             }
+         }
+     }
+ 
+-    public void handleSignUpdate(net.minecraft.network.protocol.game.ServerboundSignUpdatePacket packet) {
+-        java.util.List list = (java.util.List)java.util.stream.Stream.of((java.lang.Object[])packet.getLines()).map(net.minecraft.ChatFormatting::stripFormatting).collect(java.util.stream.Collectors.toList());
+-        this.filterTextPacket(list).thenAcceptAsync($$1 -> this.updateSignText(packet, $$1), (java.util.concurrent.Executor)this.server);
++    public void handleSignUpdate(net.minecraft.network.protocol.game.ServerboundSignUpdatePacket $$0) {
++        java.util.List $$12 = (java.util.List)java.util.stream.Stream.of((java.lang.Object[])$$0.getLines()).map(net.minecraft.ChatFormatting::stripFormatting).collect(java.util.stream.Collectors.toList());
++        this.filterTextPacket($$12).thenAcceptAsync($$1 -> this.updateSignText($$0, $$1), (java.util.concurrent.Executor)this.server);
+     }
+ 
+     public void updateSignText(net.minecraft.network.protocol.game.ServerboundSignUpdatePacket $$0, java.util.List<net.minecraft.server.network.FilteredText> $$1) {
+@@ -1440,60 +1370,64 @@
+         }
+     }
+ 
+-    public void handleKeepAlive(net.minecraft.network.protocol.game.ServerboundKeepAlivePacket packet) {
+-        if (this.keepAlivePending && packet.getId() == this.keepAliveChallenge) {
+-            int n = (int)(net.minecraft.Util.getMillis() - this.keepAliveTime);
+-            this.player.latency = (this.player.latency * 3 + n) / 4;
++    public void handleKeepAlive(net.minecraft.network.protocol.game.ServerboundKeepAlivePacket $$0) {
++        if (this.keepAlivePending && $$0.getId() == this.keepAliveChallenge) {
++            int $$1 = (int)(net.minecraft.Util.getMillis() - this.keepAliveTime);
++            this.player.latency = (this.player.latency * 3 + $$1) / 4;
+             this.keepAlivePending = false;
+         } else if (!this.isSingleplayerOwner()) {
+             this.disconnect((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"disconnect.timeout"));
+         }
+     }
+ 
+-    public void handlePlayerAbilities(net.minecraft.network.protocol.game.ServerboundPlayerAbilitiesPacket packet) {
+-        net.minecraft.network.protocol.PacketUtils.ensureRunningOnSameThread((net.minecraft.network.protocol.Packet)packet, (net.minecraft.network.PacketListener)this, (net.minecraft.server.level.ServerLevel)this.player.getLevel());
+-        this.player.getAbilities().flying = packet.isFlying() && this.player.getAbilities().mayfly;
++    public void handlePlayerAbilities(net.minecraft.network.protocol.game.ServerboundPlayerAbilitiesPacket $$0) {
++        net.minecraft.network.protocol.PacketUtils.ensureRunningOnSameThread((net.minecraft.network.protocol.Packet)$$0, (net.minecraft.network.PacketListener)this, (net.minecraft.server.level.ServerLevel)this.player.getLevel());
++        this.player.getAbilities().flying = $$0.isFlying() && this.player.getAbilities().mayfly;
+     }
+ 
+-    public void handleClientInformation(net.minecraft.network.protocol.game.ServerboundClientInformationPacket packet) {
+-        net.minecraft.network.protocol.PacketUtils.ensureRunningOnSameThread((net.minecraft.network.protocol.Packet)packet, (net.minecraft.network.PacketListener)this, (net.minecraft.server.level.ServerLevel)this.player.getLevel());
+-        this.player.updateOptions(packet);
++    public void handleClientInformation(net.minecraft.network.protocol.game.ServerboundClientInformationPacket $$0) {
++        net.minecraft.network.protocol.PacketUtils.ensureRunningOnSameThread((net.minecraft.network.protocol.Packet)$$0, (net.minecraft.network.PacketListener)this, (net.minecraft.server.level.ServerLevel)this.player.getLevel());
++        this.player.updateOptions($$0);
+     }
+ 
+-    public void handleCustomPayload(net.minecraft.network.protocol.game.ServerboundCustomPayloadPacket packet) {
++    public void handleCustomPayload(net.minecraft.network.protocol.game.ServerboundCustomPayloadPacket $$0) {
+     }
+ 
+-    public void handleChangeDifficulty(net.minecraft.network.protocol.game.ServerboundChangeDifficultyPacket packet) {
+-        net.minecraft.network.protocol.PacketUtils.ensureRunningOnSameThread((net.minecraft.network.protocol.Packet)packet, (net.minecraft.network.PacketListener)this, (net.minecraft.server.level.ServerLevel)this.player.getLevel());
++    public void handleChangeDifficulty(net.minecraft.network.protocol.game.ServerboundChangeDifficultyPacket $$0) {
++        net.minecraft.network.protocol.PacketUtils.ensureRunningOnSameThread((net.minecraft.network.protocol.Packet)$$0, (net.minecraft.network.PacketListener)this, (net.minecraft.server.level.ServerLevel)this.player.getLevel());
+         if (!this.player.hasPermissions(2) && !this.isSingleplayerOwner()) {
+             return;
+         }
+-        this.server.setDifficulty(packet.getDifficulty(), false);
++        this.server.setDifficulty($$0.getDifficulty(), false);
+     }
+ 
+-    public void handleLockDifficulty(net.minecraft.network.protocol.game.ServerboundLockDifficultyPacket packet) {
+-        net.minecraft.network.protocol.PacketUtils.ensureRunningOnSameThread((net.minecraft.network.protocol.Packet)packet, (net.minecraft.network.PacketListener)this, (net.minecraft.server.level.ServerLevel)this.player.getLevel());
++    public void handleLockDifficulty(net.minecraft.network.protocol.game.ServerboundLockDifficultyPacket $$0) {
++        net.minecraft.network.protocol.PacketUtils.ensureRunningOnSameThread((net.minecraft.network.protocol.Packet)$$0, (net.minecraft.network.PacketListener)this, (net.minecraft.server.level.ServerLevel)this.player.getLevel());
+         if (!this.player.hasPermissions(2) && !this.isSingleplayerOwner()) {
+             return;
+         }
+-        this.server.setDifficultyLocked(packet.isLocked());
++        this.server.setDifficultyLocked($$0.isLocked());
+     }
+ 
+     public net.minecraft.server.level.ServerPlayer getPlayer() {
+         return this.player;
+     }
+ 
+-    public static /* synthetic */ net.minecraft.network.chat.Component lambda$queryChatPreview$16(net.minecraft.network.chat.Component $$0, net.minecraft.network.chat.Component $$1) {
+-        return !$$0.equals((java.lang.Object)$$1) ? $$1 : null;
+-    }
+-
+     public static /* synthetic */ net.minecraft.commands.CommandSourceStack lambda$performChatCommand$12(net.minecraft.commands.CommandSigningContext $$0, net.minecraft.commands.CommandSourceStack $$1) {
+         return $$1.withSigningContext($$0);
+     }
+ 
++    public /* synthetic */ java.util.concurrent.CompletableFuture lambda$handleChat$9(java.util.concurrent.CompletableFuture $$0, java.util.concurrent.CompletableFuture $$1, net.minecraft.network.chat.PlayerChatMessage $$2, java.util.concurrent.Executor $$32) {
++        return java.util.concurrent.CompletableFuture.allOf((java.util.concurrent.CompletableFuture[])new java.util.concurrent.CompletableFuture[]{$$0, $$1}).thenAcceptAsync($$3 -> {
++            net.minecraft.network.chat.PlayerChatMessage $$4 = $$2.withUnsignedContent((net.minecraft.network.chat.Component)$$1.join()).filter(((net.minecraft.server.network.FilteredText)$$0.join()).mask());
++            this.broadcastChatMessage($$4);
++        }, $$32);
++    }
++
+     static {
+         LOGGER = com.mojang.logging.LogUtils.getLogger();
+         MAX_INTERACTION_DISTANCE = net.minecraft.util.Mth.square((double)6.0);
++        CHAT_VALIDATION_FAILED = net.minecraft.network.chat.Component.translatable((java.lang.String)"multiplayer.disconnect.chat_validation_failed");
+     }
+ }
+ 

@@ -1,0 +1,392 @@
+--- net/minecraft/server/packs/linkfs/LinkFSPath.java
++++ net/minecraft/server/packs/linkfs/LinkFSPath.java
+@@ -1,0 +1,389 @@
++/*
++ * Decompiled with CFR 0.151.
++ */
++package net.minecraft.server.packs.linkfs;
++
++public class net.minecraft.server.packs.linkfs.LinkFSPath
++implements java.nio.file.Path
++ {
++    public static java.nio.file.attribute.BasicFileAttributes DIRECTORY_ATTRIBUTES;
++    public static java.nio.file.attribute.BasicFileAttributes FILE_ATTRIBUTES;
++    public static java.util.Comparator<net.minecraft.server.packs.linkfs.LinkFSPath> PATH_COMPARATOR;
++    public java.lang.String name;
++    public net.minecraft.server.packs.linkfs.LinkFileSystem fileSystem;
++    @javax.annotation.Nullable
++    public net.minecraft.server.packs.linkfs.LinkFSPath parent;
++    @javax.annotation.Nullable
++    public java.util.List<java.lang.String> pathToRoot;
++    @javax.annotation.Nullable
++    public java.lang.String pathString;
++    public net.minecraft.server.packs.linkfs.PathContents pathContents;
++
++    public net.minecraft.server.packs.linkfs.LinkFSPath(net.minecraft.server.packs.linkfs.LinkFileSystem $$0, java.lang.String $$1, @javax.annotation.Nullable net.minecraft.server.packs.linkfs.LinkFSPath $$2, net.minecraft.server.packs.linkfs.PathContents $$3) {
++        this.fileSystem = $$0;
++        this.name = $$1;
++        this.parent = $$2;
++        this.pathContents = $$3;
++    }
++
++    public net.minecraft.server.packs.linkfs.LinkFSPath createRelativePath(@javax.annotation.Nullable net.minecraft.server.packs.linkfs.LinkFSPath $$0, java.lang.String $$1) {
++        return new net.minecraft.server.packs.linkfs.LinkFSPath(this.fileSystem, $$1, $$0, net.minecraft.server.packs.linkfs.PathContents.RELATIVE);
++    }
++
++    public net.minecraft.server.packs.linkfs.LinkFileSystem getFileSystem() {
++        return this.fileSystem;
++    }
++
++    public boolean isAbsolute() {
++        return this.pathContents != net.minecraft.server.packs.linkfs.PathContents.RELATIVE;
++    }
++
++    public java.io.File toFile() {
++        net.minecraft.server.packs.linkfs.PathContents pathContents = this.pathContents;
++        if (pathContents instanceof net.minecraft.server.packs.linkfs.PathContents$FileContents) {
++            net.minecraft.server.packs.linkfs.PathContents$FileContents $$0 = (net.minecraft.server.packs.linkfs.PathContents$FileContents)pathContents;
++            return $$0.contents().toFile();
++        }
++        throw new java.lang.UnsupportedOperationException("Path " + this.pathToString() + " does not represent file");
++    }
++
++    @javax.annotation.Nullable
++    public net.minecraft.server.packs.linkfs.LinkFSPath getRoot() {
++        if (this.isAbsolute()) {
++            return this.fileSystem.rootPath();
++        }
++        return null;
++    }
++
++    public net.minecraft.server.packs.linkfs.LinkFSPath getFileName() {
++        return this.createRelativePath(null, this.name);
++    }
++
++    @javax.annotation.Nullable
++    public net.minecraft.server.packs.linkfs.LinkFSPath getParent() {
++        return this.parent;
++    }
++
++    public int getNameCount() {
++        return this.pathToRoot().size();
++    }
++
++    public java.util.List<java.lang.String> pathToRoot() {
++        if (this.name.isEmpty()) {
++            return java.util.List.of();
++        }
++        if (this.pathToRoot == null) {
++            com.google.common.collect.ImmutableList$Builder $$0 = com.google.common.collect.ImmutableList.builder();
++            if (this.parent != null) {
++                $$0.addAll((java.lang.Iterable)this.parent.pathToRoot());
++            }
++            $$0.add((java.lang.Object)this.name);
++            this.pathToRoot = $$0.build();
++        }
++        return this.pathToRoot;
++    }
++
++    public net.minecraft.server.packs.linkfs.LinkFSPath getName(int $$0) {
++        java.util.List $$1 = this.pathToRoot();
++        if ($$0 < 0 || $$0 >= $$1.size()) {
++            throw new java.lang.IllegalArgumentException("Invalid index: " + $$0);
++        }
++        return this.createRelativePath(null, (java.lang.String)$$1.get($$0));
++    }
++
++    public net.minecraft.server.packs.linkfs.LinkFSPath subpath(int $$0, int $$1) {
++        java.util.List $$2 = this.pathToRoot();
++        if ($$0 < 0 || $$1 > $$2.size() || $$0 >= $$1) {
++            throw new java.lang.IllegalArgumentException();
++        }
++        net.minecraft.server.packs.linkfs.LinkFSPath $$3 = null;
++        for (int $$4 = $$0; $$4 < $$1; ++$$4) {
++            $$3 = this.createRelativePath($$3, (java.lang.String)$$2.get($$4));
++        }
++        return $$3;
++    }
++
++    public boolean startsWith(java.nio.file.Path $$0) {
++        if ($$0.isAbsolute() != this.isAbsolute()) {
++            return false;
++        }
++        if ($$0 instanceof net.minecraft.server.packs.linkfs.LinkFSPath) {
++            net.minecraft.server.packs.linkfs.LinkFSPath $$1 = (net.minecraft.server.packs.linkfs.LinkFSPath)$$0;
++            if ($$1.fileSystem != this.fileSystem) {
++                return false;
++            }
++            java.util.List $$2 = this.pathToRoot();
++            java.util.List $$3 = $$1.pathToRoot();
++            int $$4 = $$3.size();
++            if ($$4 > $$2.size()) {
++                return false;
++            }
++            for (int $$5 = 0; $$5 < $$4; ++$$5) {
++                if (((java.lang.String)$$3.get($$5)).equals($$2.get($$5))) continue;
++                return false;
++            }
++            return true;
++        }
++        return false;
++    }
++
++    public boolean endsWith(java.nio.file.Path $$0) {
++        if ($$0.isAbsolute() && !this.isAbsolute()) {
++            return false;
++        }
++        if ($$0 instanceof net.minecraft.server.packs.linkfs.LinkFSPath) {
++            net.minecraft.server.packs.linkfs.LinkFSPath $$1 = (net.minecraft.server.packs.linkfs.LinkFSPath)$$0;
++            if ($$1.fileSystem != this.fileSystem) {
++                return false;
++            }
++            java.util.List $$2 = this.pathToRoot();
++            java.util.List $$3 = $$1.pathToRoot();
++            int $$4 = $$3.size();
++            int $$5 = $$2.size() - $$4;
++            if ($$5 < 0) {
++                return false;
++            }
++            for (int $$6 = $$4 - 1; $$6 >= 0; --$$6) {
++                if (((java.lang.String)$$3.get($$6)).equals($$2.get($$5 + $$6))) continue;
++                return false;
++            }
++            return true;
++        }
++        return false;
++    }
++
++    public net.minecraft.server.packs.linkfs.LinkFSPath normalize() {
++        return this;
++    }
++
++    public net.minecraft.server.packs.linkfs.LinkFSPath resolve(java.nio.file.Path $$0) {
++        net.minecraft.server.packs.linkfs.LinkFSPath $$1 = this.toLinkPath($$0);
++        if ($$0.isAbsolute()) {
++            return $$1;
++        }
++        return this.resolve($$1.pathToRoot());
++    }
++
++    public net.minecraft.server.packs.linkfs.LinkFSPath resolve(java.util.List<java.lang.String> $$0) {
++        net.minecraft.server.packs.linkfs.LinkFSPath $$1 = this;
++        for (java.lang.String $$2 : $$0) {
++            $$1 = $$1.resolveName($$2);
++        }
++        return $$1;
++    }
++
++    public net.minecraft.server.packs.linkfs.LinkFSPath resolveName(java.lang.String $$0) {
++        if (net.minecraft.server.packs.linkfs.LinkFSPath.isRelativeOrMissing((net.minecraft.server.packs.linkfs.PathContents)this.pathContents)) {
++            return new net.minecraft.server.packs.linkfs.LinkFSPath(this.fileSystem, $$0, this, this.pathContents);
++        }
++        net.minecraft.server.packs.linkfs.PathContents pathContents = this.pathContents;
++        if (pathContents instanceof net.minecraft.server.packs.linkfs.PathContents$DirectoryContents) {
++            net.minecraft.server.packs.linkfs.PathContents$DirectoryContents $$1 = (net.minecraft.server.packs.linkfs.PathContents$DirectoryContents)pathContents;
++            net.minecraft.server.packs.linkfs.LinkFSPath $$2 = (net.minecraft.server.packs.linkfs.LinkFSPath)$$1.children().get((java.lang.Object)$$0);
++            return $$2 != null ? $$2 : new net.minecraft.server.packs.linkfs.LinkFSPath(this.fileSystem, $$0, this, net.minecraft.server.packs.linkfs.PathContents.MISSING);
++        }
++        if (this.pathContents instanceof net.minecraft.server.packs.linkfs.PathContents$FileContents) {
++            return new net.minecraft.server.packs.linkfs.LinkFSPath(this.fileSystem, $$0, this, net.minecraft.server.packs.linkfs.PathContents.MISSING);
++        }
++        throw new java.lang.AssertionError((java.lang.Object)"All content types should be already handled");
++    }
++
++    public static boolean isRelativeOrMissing(net.minecraft.server.packs.linkfs.PathContents $$0) {
++        return $$0 == net.minecraft.server.packs.linkfs.PathContents.MISSING || $$0 == net.minecraft.server.packs.linkfs.PathContents.RELATIVE;
++    }
++
++    public net.minecraft.server.packs.linkfs.LinkFSPath relativize(java.nio.file.Path $$0) {
++        net.minecraft.server.packs.linkfs.LinkFSPath $$1 = this.toLinkPath($$0);
++        if (this.isAbsolute() != $$1.isAbsolute()) {
++            throw new java.lang.IllegalArgumentException("absolute mismatch");
++        }
++        java.util.List $$2 = this.pathToRoot();
++        java.util.List $$3 = $$1.pathToRoot();
++        if ($$2.size() >= $$3.size()) {
++            throw new java.lang.IllegalArgumentException();
++        }
++        for (int $$4 = 0; $$4 < $$2.size(); ++$$4) {
++            if (((java.lang.String)$$2.get($$4)).equals($$3.get($$4))) continue;
++            throw new java.lang.IllegalArgumentException();
++        }
++        return $$1.subpath($$2.size(), $$3.size());
++    }
++
++    public java.net.URI toUri() {
++        try {
++            return new java.net.URI("x-mc-link", this.fileSystem.store().name(), this.pathToString(), null);
++        }
++        catch (java.net.URISyntaxException $$0) {
++            throw new java.lang.AssertionError("Failed to create URI", (java.lang.Throwable)$$0);
++        }
++    }
++
++    public net.minecraft.server.packs.linkfs.LinkFSPath toAbsolutePath() {
++        if (this.isAbsolute()) {
++            return this;
++        }
++        return this.fileSystem.rootPath().resolve((java.nio.file.Path)this);
++    }
++
++    public net.minecraft.server.packs.linkfs.LinkFSPath toRealPath(java.nio.file.LinkOption ... $$0) {
++        return this.toAbsolutePath();
++    }
++
++    public java.nio.file.WatchKey register(java.nio.file.WatchService $$0, java.nio.file.WatchEvent$Kind<?>[] $$1, java.nio.file.WatchEvent$Modifier ... $$2) {
++        throw new java.lang.UnsupportedOperationException();
++    }
++
++    public int compareTo(java.nio.file.Path $$0) {
++        net.minecraft.server.packs.linkfs.LinkFSPath $$1 = this.toLinkPath($$0);
++        return PATH_COMPARATOR.compare((java.lang.Object)this, (java.lang.Object)$$1);
++    }
++
++    public boolean equals(java.lang.Object $$0) {
++        if ($$0 == this) {
++            return true;
++        }
++        if ($$0 instanceof net.minecraft.server.packs.linkfs.LinkFSPath) {
++            net.minecraft.server.packs.linkfs.LinkFSPath $$1 = (net.minecraft.server.packs.linkfs.LinkFSPath)$$0;
++            if (this.fileSystem != $$1.fileSystem) {
++                return false;
++            }
++            boolean $$2 = this.hasRealContents();
++            if ($$2 != $$1.hasRealContents()) {
++                return false;
++            }
++            if ($$2) {
++                return this.pathContents == $$1.pathContents;
++            }
++            return java.util.Objects.equals((java.lang.Object)this.parent, (java.lang.Object)$$1.parent) && java.util.Objects.equals((java.lang.Object)this.name, (java.lang.Object)$$1.name);
++        }
++        return false;
++    }
++
++    public boolean hasRealContents() {
++        return !net.minecraft.server.packs.linkfs.LinkFSPath.isRelativeOrMissing((net.minecraft.server.packs.linkfs.PathContents)this.pathContents);
++    }
++
++    public int hashCode() {
++        return this.hasRealContents() ? this.pathContents.hashCode() : this.name.hashCode();
++    }
++
++    public java.lang.String toString() {
++        return this.pathToString();
++    }
++
++    public java.lang.String pathToString() {
++        if (this.pathString == null) {
++            java.lang.StringBuilder $$0 = new java.lang.StringBuilder();
++            if (this.isAbsolute()) {
++                $$0.append("/");
++            }
++            com.google.common.base.Joiner.on((java.lang.String)"/").appendTo($$0, (java.lang.Iterable)this.pathToRoot());
++            this.pathString = $$0.toString();
++        }
++        return this.pathString;
++    }
++
++    public net.minecraft.server.packs.linkfs.LinkFSPath toLinkPath(@javax.annotation.Nullable java.nio.file.Path $$0) {
++        if ($$0 == null) {
++            throw new java.lang.NullPointerException();
++        }
++        if ($$0 instanceof net.minecraft.server.packs.linkfs.LinkFSPath) {
++            net.minecraft.server.packs.linkfs.LinkFSPath $$1 = (net.minecraft.server.packs.linkfs.LinkFSPath)$$0;
++            if ($$1.fileSystem == this.fileSystem) {
++                return $$1;
++            }
++        }
++        throw new java.nio.file.ProviderMismatchException();
++    }
++
++    public boolean exists() {
++        return this.hasRealContents();
++    }
++
++    @javax.annotation.Nullable
++    public java.nio.file.Path getTargetPath() {
++        java.nio.file.Path path;
++        net.minecraft.server.packs.linkfs.PathContents pathContents = this.pathContents;
++        if (pathContents instanceof net.minecraft.server.packs.linkfs.PathContents$FileContents) {
++            net.minecraft.server.packs.linkfs.PathContents$FileContents $$0 = (net.minecraft.server.packs.linkfs.PathContents$FileContents)pathContents;
++            path = $$0.contents();
++        } else {
++            path = null;
++        }
++        return path;
++    }
++
++    @javax.annotation.Nullable
++    public net.minecraft.server.packs.linkfs.PathContents$DirectoryContents getDirectoryContents() {
++        net.minecraft.server.packs.linkfs.PathContents$DirectoryContents $$0;
++        net.minecraft.server.packs.linkfs.PathContents pathContents = this.pathContents;
++        return pathContents instanceof net.minecraft.server.packs.linkfs.PathContents$DirectoryContents ? ($$0 = (net.minecraft.server.packs.linkfs.PathContents$DirectoryContents)pathContents) : null;
++    }
++
++    public java.nio.file.attribute.BasicFileAttributeView getBasicAttributeView() {
++        return new /* Unavailable Anonymous Inner Class!! */;
++    }
++
++    public java.nio.file.attribute.BasicFileAttributes getBasicAttributes() throws java.io.IOException {
++        if (this.pathContents instanceof net.minecraft.server.packs.linkfs.PathContents$DirectoryContents) {
++            return DIRECTORY_ATTRIBUTES;
++        }
++        if (this.pathContents instanceof net.minecraft.server.packs.linkfs.PathContents$FileContents) {
++            return FILE_ATTRIBUTES;
++        }
++        throw new java.nio.file.NoSuchFileException(this.pathToString());
++    }
++
++    public /* synthetic */ java.nio.file.Path toRealPath(java.nio.file.LinkOption[] linkOptionArray) throws java.io.IOException {
++        return this.toRealPath(linkOptionArray);
++    }
++
++    public /* synthetic */ java.nio.file.Path toAbsolutePath() {
++        return this.toAbsolutePath();
++    }
++
++    public /* synthetic */ java.nio.file.Path relativize(java.nio.file.Path path) {
++        return this.relativize(path);
++    }
++
++    public /* synthetic */ java.nio.file.Path resolve(java.nio.file.Path path) {
++        return this.resolve(path);
++    }
++
++    public /* synthetic */ java.nio.file.Path normalize() {
++        return this.normalize();
++    }
++
++    public /* synthetic */ java.nio.file.Path subpath(int n, int n2) {
++        return this.subpath(n, n2);
++    }
++
++    public /* synthetic */ java.nio.file.Path getName(int n) {
++        return this.getName(n);
++    }
++
++    @javax.annotation.Nullable
++    public /* synthetic */ java.nio.file.Path getParent() {
++        return this.getParent();
++    }
++
++    public /* synthetic */ java.nio.file.Path getFileName() {
++        return this.getFileName();
++    }
++
++    @javax.annotation.Nullable
++    public /* synthetic */ java.nio.file.Path getRoot() {
++        return this.getRoot();
++    }
++
++    public /* synthetic */ java.nio.file.FileSystem getFileSystem() {
++        return this.getFileSystem();
++    }
++
++    static {
++        DIRECTORY_ATTRIBUTES = new /* Unavailable Anonymous Inner Class!! */;
++        FILE_ATTRIBUTES = new /* Unavailable Anonymous Inner Class!! */;
++        PATH_COMPARATOR = java.util.Comparator.comparing(net.minecraft.server.packs.linkfs.LinkFSPath::pathToString);
++    }
++}
++

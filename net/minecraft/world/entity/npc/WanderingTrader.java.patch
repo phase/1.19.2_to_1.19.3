@@ -1,0 +1,132 @@
+--- net/minecraft/world/entity/npc/WanderingTrader.java
++++ net/minecraft/world/entity/npc/WanderingTrader.java
+@@ -45,22 +45,22 @@
+         return false;
+     }
+ 
+-    public net.minecraft.world.InteractionResult mobInteract(net.minecraft.world.entity.player.Player player, net.minecraft.world.InteractionHand hand) {
+-        net.minecraft.world.item.ItemStack itemStack = player.getItemInHand(hand);
+-        if (!itemStack.is(net.minecraft.world.item.Items.VILLAGER_SPAWN_EGG) && this.isAlive() && !this.isTrading() && !this.isBaby()) {
+-            if (hand == net.minecraft.world.InteractionHand.MAIN_HAND) {
+-                player.awardStat(net.minecraft.stats.Stats.TALKED_TO_VILLAGER);
++    public net.minecraft.world.InteractionResult mobInteract(net.minecraft.world.entity.player.Player $$0, net.minecraft.world.InteractionHand $$1) {
++        net.minecraft.world.item.ItemStack $$2 = $$0.getItemInHand($$1);
++        if (!$$2.is(net.minecraft.world.item.Items.VILLAGER_SPAWN_EGG) && this.isAlive() && !this.isTrading() && !this.isBaby()) {
++            if ($$1 == net.minecraft.world.InteractionHand.MAIN_HAND) {
++                $$0.awardStat(net.minecraft.stats.Stats.TALKED_TO_VILLAGER);
+             }
+             if (this.getOffers().isEmpty()) {
+                 return net.minecraft.world.InteractionResult.sidedSuccess((boolean)this.level.isClientSide);
+             }
+             if (!this.level.isClientSide) {
+-                this.setTradingPlayer(player);
+-                this.openTradingScreen(player, this.getDisplayName(), 1);
++                this.setTradingPlayer($$0);
++                this.openTradingScreen($$0, this.getDisplayName(), 1);
+             }
+             return net.minecraft.world.InteractionResult.sidedSuccess((boolean)this.level.isClientSide);
+         }
+-        return super.mobInteract(player, hand);
++        return super.mobInteract($$0, $$1);
+     }
+ 
+     public void updateTrades() {
+@@ -79,33 +79,33 @@
+         }
+     }
+ 
+-    public void addAdditionalSaveData(net.minecraft.nbt.CompoundTag compound) {
+-        super.addAdditionalSaveData(compound);
+-        compound.putInt("DespawnDelay", this.despawnDelay);
++    public void addAdditionalSaveData(net.minecraft.nbt.CompoundTag $$0) {
++        super.addAdditionalSaveData($$0);
++        $$0.putInt("DespawnDelay", this.despawnDelay);
+         if (this.wanderTarget != null) {
+-            compound.put("WanderTarget", (net.minecraft.nbt.Tag)net.minecraft.nbt.NbtUtils.writeBlockPos((net.minecraft.core.BlockPos)this.wanderTarget));
++            $$0.put("WanderTarget", (net.minecraft.nbt.Tag)net.minecraft.nbt.NbtUtils.writeBlockPos((net.minecraft.core.BlockPos)this.wanderTarget));
+         }
+     }
+ 
+-    public void readAdditionalSaveData(net.minecraft.nbt.CompoundTag compound) {
+-        super.readAdditionalSaveData(compound);
+-        if (compound.contains("DespawnDelay", 99)) {
+-            this.despawnDelay = compound.getInt("DespawnDelay");
++    public void readAdditionalSaveData(net.minecraft.nbt.CompoundTag $$0) {
++        super.readAdditionalSaveData($$0);
++        if ($$0.contains("DespawnDelay", 99)) {
++            this.despawnDelay = $$0.getInt("DespawnDelay");
+         }
+-        if (compound.contains("WanderTarget")) {
+-            this.wanderTarget = net.minecraft.nbt.NbtUtils.readBlockPos((net.minecraft.nbt.CompoundTag)compound.getCompound("WanderTarget"));
++        if ($$0.contains("WanderTarget")) {
++            this.wanderTarget = net.minecraft.nbt.NbtUtils.readBlockPos((net.minecraft.nbt.CompoundTag)$$0.getCompound("WanderTarget"));
+         }
+         this.setAge(java.lang.Math.max((int)0, (int)this.getAge()));
+     }
+ 
+-    public boolean removeWhenFarAway(double distanceToClosestPlayer) {
++    public boolean removeWhenFarAway(double $$0) {
+         return false;
+     }
+ 
+-    public void rewardTradeXp(net.minecraft.world.item.trading.MerchantOffer offer) {
+-        if (offer.shouldRewardExp()) {
+-            int n = 3 + this.random.nextInt(4);
+-            this.level.addFreshEntity((net.minecraft.world.entity.Entity)new net.minecraft.world.entity.ExperienceOrb(this.level, this.getX(), this.getY() + 0.5, this.getZ(), n));
++    public void rewardTradeXp(net.minecraft.world.item.trading.MerchantOffer $$0) {
++        if ($$0.shouldRewardExp()) {
++            int $$1 = 3 + this.random.nextInt(4);
++            this.level.addFreshEntity((net.minecraft.world.entity.Entity)new net.minecraft.world.entity.ExperienceOrb(this.level, this.getX(), this.getY() + 0.5, this.getZ(), $$1));
+         }
+     }
+ 
+@@ -116,7 +116,7 @@
+         return net.minecraft.sounds.SoundEvents.WANDERING_TRADER_AMBIENT;
+     }
+ 
+-    public net.minecraft.sounds.SoundEvent getHurtSound(net.minecraft.world.damagesource.DamageSource damageSource) {
++    public net.minecraft.sounds.SoundEvent getHurtSound(net.minecraft.world.damagesource.DamageSource $$0) {
+         return net.minecraft.sounds.SoundEvents.WANDERING_TRADER_HURT;
+     }
+ 
+@@ -124,23 +124,23 @@
+         return net.minecraft.sounds.SoundEvents.WANDERING_TRADER_DEATH;
+     }
+ 
+-    public net.minecraft.sounds.SoundEvent getDrinkingSound(net.minecraft.world.item.ItemStack stack) {
+-        if (stack.is(net.minecraft.world.item.Items.MILK_BUCKET)) {
++    public net.minecraft.sounds.SoundEvent getDrinkingSound(net.minecraft.world.item.ItemStack $$0) {
++        if ($$0.is(net.minecraft.world.item.Items.MILK_BUCKET)) {
+             return net.minecraft.sounds.SoundEvents.WANDERING_TRADER_DRINK_MILK;
+         }
+         return net.minecraft.sounds.SoundEvents.WANDERING_TRADER_DRINK_POTION;
+     }
+ 
+-    public net.minecraft.sounds.SoundEvent getTradeUpdatedSound(boolean getYesSound) {
+-        return getYesSound ? net.minecraft.sounds.SoundEvents.WANDERING_TRADER_YES : net.minecraft.sounds.SoundEvents.WANDERING_TRADER_NO;
++    public net.minecraft.sounds.SoundEvent getTradeUpdatedSound(boolean $$0) {
++        return $$0 ? net.minecraft.sounds.SoundEvents.WANDERING_TRADER_YES : net.minecraft.sounds.SoundEvents.WANDERING_TRADER_NO;
+     }
+ 
+     public net.minecraft.sounds.SoundEvent getNotifyTradeSound() {
+         return net.minecraft.sounds.SoundEvents.WANDERING_TRADER_YES;
+     }
+ 
+-    public void setDespawnDelay(int despawnDelay) {
+-        this.despawnDelay = despawnDelay;
++    public void setDespawnDelay(int $$0) {
++        this.despawnDelay = $$0;
+     }
+ 
+     public int getDespawnDelay() {
+@@ -160,8 +160,8 @@
+         }
+     }
+ 
+-    public void setWanderTarget(@javax.annotation.Nullable net.minecraft.core.BlockPos wanderTarget) {
+-        this.wanderTarget = wanderTarget;
++    public void setWanderTarget(@javax.annotation.Nullable net.minecraft.core.BlockPos $$0) {
++        this.wanderTarget = $$0;
+     }
+ 
+     @javax.annotation.Nullable

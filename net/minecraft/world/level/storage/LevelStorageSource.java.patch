@@ -1,0 +1,184 @@
+--- net/minecraft/world/level/storage/LevelStorageSource.java
++++ net/minecraft/world/level/storage/LevelStorageSource.java
+@@ -25,25 +25,23 @@
+         this.backupDir = $$1;
+     }
+ 
+-    public static net.minecraft.world.level.storage.LevelStorageSource createDefault(java.nio.file.Path savesDir) {
+-        return new net.minecraft.world.level.storage.LevelStorageSource(savesDir, savesDir.resolve("../backups"), net.minecraft.util.datafix.DataFixers.getDataFixer());
++    public static net.minecraft.world.level.storage.LevelStorageSource createDefault(java.nio.file.Path $$0) {
++        return new net.minecraft.world.level.storage.LevelStorageSource($$0, $$0.resolve("../backups"), net.minecraft.util.datafix.DataFixers.getDataFixer());
+     }
+ 
+-    public static <T> com.mojang.datafixers.util.Pair<net.minecraft.world.level.levelgen.WorldGenSettings, com.mojang.serialization.Lifecycle> readWorldGenSettings(com.mojang.serialization.Dynamic<T> nbt, com.mojang.datafixers.DataFixer fixer, int version) {
+-        java.lang.String string2;
+-        com.mojang.serialization.Dynamic dynamic = nbt.get("WorldGenSettings").orElseEmptyMap();
+-        for (java.lang.String string2 : OLD_SETTINGS_KEYS) {
+-            java.util.Optional optional = nbt.get(string2).result();
+-            if (!optional.isPresent()) continue;
+-            dynamic = dynamic.set(string2, (com.mojang.serialization.Dynamic)optional.get());
++    public static <T> com.mojang.serialization.DataResult<net.minecraft.world.level.levelgen.WorldGenSettings> readWorldGenSettings(com.mojang.serialization.Dynamic<T> $$0, com.mojang.datafixers.DataFixer $$1, int $$2) {
++        com.mojang.serialization.Dynamic $$3 = $$0.get("WorldGenSettings").orElseEmptyMap();
++        for (java.lang.String $$4 : OLD_SETTINGS_KEYS) {
++            java.util.Optional $$5 = $$0.get($$4).result();
++            if (!$$5.isPresent()) continue;
++            $$3 = $$3.set($$4, (com.mojang.serialization.Dynamic)$$5.get());
+         }
+-        com.google.common.collect.UnmodifiableIterator unmodifiableIterator = fixer.update(net.minecraft.util.datafix.fixes.References.WORLD_GEN_SETTINGS, dynamic, version, net.minecraft.SharedConstants.getCurrentVersion().getWorldVersion());
+-        string2 = net.minecraft.world.level.levelgen.WorldGenSettings.CODEC.parse((com.mojang.serialization.Dynamic)unmodifiableIterator);
+-        return com.mojang.datafixers.util.Pair.of((java.lang.Object)((net.minecraft.world.level.levelgen.WorldGenSettings)string2.resultOrPartial(net.minecraft.Util.prefix((java.lang.String)"WorldGenSettings: ", arg_0 -> ((org.slf4j.Logger)LOGGER).error(arg_0))).orElseGet(() -> net.minecraft.world.level.storage.LevelStorageSource.lambda$readWorldGenSettings$0((com.mojang.serialization.Dynamic)unmodifiableIterator))), (java.lang.Object)string2.lifecycle());
++        com.mojang.serialization.Dynamic $$6 = $$1.update(net.minecraft.util.datafix.fixes.References.WORLD_GEN_SETTINGS, $$3, $$2, net.minecraft.SharedConstants.getCurrentVersion().getWorldVersion());
++        return net.minecraft.world.level.levelgen.WorldGenSettings.CODEC.parse($$6);
+     }
+ 
+-    public static net.minecraft.world.level.DataPackConfig readDataPackConfig(com.mojang.serialization.Dynamic<?> nbt) {
+-        return (net.minecraft.world.level.DataPackConfig)net.minecraft.world.level.DataPackConfig.CODEC.parse(nbt).resultOrPartial(arg_0 -> ((org.slf4j.Logger)LOGGER).error(arg_0)).orElse((java.lang.Object)net.minecraft.world.level.DataPackConfig.DEFAULT);
++    public static net.minecraft.world.level.WorldDataConfiguration readDataConfig(com.mojang.serialization.Dynamic<?> $$0) {
++        return (net.minecraft.world.level.WorldDataConfiguration)net.minecraft.world.level.WorldDataConfiguration.CODEC.parse($$0).resultOrPartial(arg_0 -> ((org.slf4j.Logger)LOGGER).error(arg_0)).orElse((java.lang.Object)net.minecraft.world.level.WorldDataConfiguration.DEFAULT);
+     }
+ 
+     public java.lang.String getName() {
+@@ -120,7 +118,7 @@
+     }
+ 
+     @javax.annotation.Nullable
+-    public static net.minecraft.world.level.DataPackConfig getDataPacks(java.nio.file.Path $$0, com.mojang.datafixers.DataFixer $$1) {
++    public static net.minecraft.world.level.WorldDataConfiguration getDataConfiguration(java.nio.file.Path $$0, com.mojang.datafixers.DataFixer $$1) {
+         try {
+             net.minecraft.nbt.Tag $$2 = net.minecraft.world.level.storage.LevelStorageSource.readLightweightData((java.nio.file.Path)$$0);
+             if ($$2 instanceof net.minecraft.nbt.CompoundTag) {
+@@ -128,7 +126,7 @@
+                 net.minecraft.nbt.CompoundTag $$4 = $$3.getCompound("Data");
+                 int $$5 = $$4.contains("DataVersion", 99) ? $$4.getInt("DataVersion") : -1;
+                 com.mojang.serialization.Dynamic $$6 = $$1.update(net.minecraft.util.datafix.DataFixTypes.LEVEL.getType(), new com.mojang.serialization.Dynamic((com.mojang.serialization.DynamicOps)net.minecraft.nbt.NbtOps.INSTANCE, (java.lang.Object)$$4), $$5, net.minecraft.SharedConstants.getCurrentVersion().getWorldVersion());
+-                return (net.minecraft.world.level.DataPackConfig)$$6.get("DataPacks").result().map(net.minecraft.world.level.storage.LevelStorageSource::readDataPackConfig).orElse((java.lang.Object)net.minecraft.world.level.DataPackConfig.DEFAULT);
++                return net.minecraft.world.level.storage.LevelStorageSource.readDataConfig((com.mojang.serialization.Dynamic)$$6);
+             }
+         }
+         catch (java.lang.Exception $$7) {
+@@ -137,25 +135,27 @@
+         return null;
+     }
+ 
+-    public static java.util.function.BiFunction<java.nio.file.Path, com.mojang.datafixers.DataFixer, net.minecraft.world.level.storage.PrimaryLevelData> getLevelData(com.mojang.serialization.DynamicOps<net.minecraft.nbt.Tag> $$0, net.minecraft.world.level.DataPackConfig $$1, com.mojang.serialization.Lifecycle $$2) {
+-        return ($$3, $$4) -> {
++    public static java.util.function.BiFunction<java.nio.file.Path, com.mojang.datafixers.DataFixer, com.mojang.datafixers.util.Pair<net.minecraft.world.level.storage.WorldData, net.minecraft.world.level.levelgen.WorldDimensions$Complete>> getLevelData(com.mojang.serialization.DynamicOps<net.minecraft.nbt.Tag> $$0, net.minecraft.world.level.WorldDataConfiguration $$1, net.minecraft.core.Registry<net.minecraft.world.level.dimension.LevelStem> $$2, com.mojang.serialization.Lifecycle $$3) {
++        return ($$4, $$5) -> {
++            void $$8;
+             try {
+-                net.minecraft.nbt.CompoundTag $$5 = net.minecraft.nbt.NbtIo.readCompressed((java.io.File)$$3.toFile());
+-                net.minecraft.nbt.CompoundTag $$6 = $$5.getCompound("Data");
+-                net.minecraft.nbt.CompoundTag $$7 = $$6.contains("Player", 10) ? $$6.getCompound("Player") : null;
+-                $$6.remove("Player");
+-                int $$8 = $$6.contains("DataVersion", 99) ? $$6.getInt("DataVersion") : -1;
+-                com.mojang.serialization.Dynamic $$9 = $$4.update(net.minecraft.util.datafix.DataFixTypes.LEVEL.getType(), new com.mojang.serialization.Dynamic($$0, (java.lang.Object)$$6), $$8, net.minecraft.SharedConstants.getCurrentVersion().getWorldVersion());
+-                com.mojang.datafixers.util.Pair $$10 = net.minecraft.world.level.storage.LevelStorageSource.readWorldGenSettings((com.mojang.serialization.Dynamic)$$9, (com.mojang.datafixers.DataFixer)$$4, (int)$$8);
+-                net.minecraft.world.level.storage.LevelVersion $$11 = net.minecraft.world.level.storage.LevelVersion.parse((com.mojang.serialization.Dynamic)$$9);
+-                net.minecraft.world.level.LevelSettings $$12 = net.minecraft.world.level.LevelSettings.parse((com.mojang.serialization.Dynamic)$$9, (net.minecraft.world.level.DataPackConfig)$$1);
+-                com.mojang.serialization.Lifecycle $$13 = ((com.mojang.serialization.Lifecycle)$$10.getSecond()).add($$2);
+-                return net.minecraft.world.level.storage.PrimaryLevelData.parse((com.mojang.serialization.Dynamic)$$9, (com.mojang.datafixers.DataFixer)$$4, (int)$$8, (net.minecraft.nbt.CompoundTag)$$7, (net.minecraft.world.level.LevelSettings)$$12, (net.minecraft.world.level.storage.LevelVersion)$$11, (net.minecraft.world.level.levelgen.WorldGenSettings)((net.minecraft.world.level.levelgen.WorldGenSettings)$$10.getFirst()), (com.mojang.serialization.Lifecycle)$$13);
++                net.minecraft.nbt.CompoundTag $$6 = net.minecraft.nbt.NbtIo.readCompressed((java.io.File)$$4.toFile());
+             }
+-            catch (java.lang.Exception $$14) {
+-                LOGGER.error("Exception reading {}", $$3, (java.lang.Object)((java.lang.Object)$$14));
+-                return null;
++            catch (java.io.IOException $$7) {
++                throw new java.io.UncheckedIOException($$7);
+             }
++            net.minecraft.nbt.CompoundTag $$9 = $$8.getCompound("Data");
++            net.minecraft.nbt.CompoundTag $$10 = $$9.contains("Player", 10) ? $$9.getCompound("Player") : null;
++            $$9.remove("Player");
++            int $$11 = $$9.contains("DataVersion", 99) ? $$9.getInt("DataVersion") : -1;
++            com.mojang.serialization.Dynamic $$12 = $$5.update(net.minecraft.util.datafix.DataFixTypes.LEVEL.getType(), new com.mojang.serialization.Dynamic($$0, (java.lang.Object)$$9), $$11, net.minecraft.SharedConstants.getCurrentVersion().getWorldVersion());
++            net.minecraft.world.level.levelgen.WorldGenSettings $$13 = (net.minecraft.world.level.levelgen.WorldGenSettings)net.minecraft.world.level.storage.LevelStorageSource.readWorldGenSettings((com.mojang.serialization.Dynamic)$$12, (com.mojang.datafixers.DataFixer)$$5, (int)$$11).getOrThrow(false, net.minecraft.Util.prefix((java.lang.String)"WorldGenSettings: ", arg_0 -> ((org.slf4j.Logger)LOGGER).error(arg_0)));
++            net.minecraft.world.level.storage.LevelVersion $$14 = net.minecraft.world.level.storage.LevelVersion.parse((com.mojang.serialization.Dynamic)$$12);
++            net.minecraft.world.level.LevelSettings $$15 = net.minecraft.world.level.LevelSettings.parse((com.mojang.serialization.Dynamic)$$12, (net.minecraft.world.level.WorldDataConfiguration)$$1);
++            net.minecraft.world.level.levelgen.WorldDimensions$Complete $$16 = $$13.dimensions().bake($$2);
++            com.mojang.serialization.Lifecycle $$17 = $$16.lifecycle().add($$3);
++            net.minecraft.world.level.storage.PrimaryLevelData $$18 = net.minecraft.world.level.storage.PrimaryLevelData.parse((com.mojang.serialization.Dynamic)$$12, (com.mojang.datafixers.DataFixer)$$5, (int)$$11, (net.minecraft.nbt.CompoundTag)$$10, (net.minecraft.world.level.LevelSettings)$$15, (net.minecraft.world.level.storage.LevelVersion)$$14, (net.minecraft.world.level.storage.PrimaryLevelData$SpecialWorldProperty)$$16.specialWorldProperty(), (net.minecraft.world.level.levelgen.WorldOptions)$$13.options(), (com.mojang.serialization.Lifecycle)$$17);
++            return com.mojang.datafixers.util.Pair.of((java.lang.Object)$$18, (java.lang.Object)$$16);
+         };
+     }
+ 
+@@ -173,22 +173,30 @@
+                     if ($$10 == 19132 || $$10 == 19133) {
+                         boolean $$11 = $$10 != this.getStorageVersion();
+                         java.nio.file.Path $$12 = $$0.iconFile();
+-                        net.minecraft.world.level.DataPackConfig $$13 = (net.minecraft.world.level.DataPackConfig)$$8.get("DataPacks").result().map(net.minecraft.world.level.storage.LevelStorageSource::readDataPackConfig).orElse((java.lang.Object)net.minecraft.world.level.DataPackConfig.DEFAULT);
+-                        net.minecraft.world.level.LevelSettings $$14 = net.minecraft.world.level.LevelSettings.parse((com.mojang.serialization.Dynamic)$$8, (net.minecraft.world.level.DataPackConfig)$$13);
+-                        return new net.minecraft.world.level.storage.LevelSummary($$14, $$9, $$0.directoryName(), $$11, $$1, $$12);
++                        net.minecraft.world.level.WorldDataConfiguration $$13 = net.minecraft.world.level.storage.LevelStorageSource.readDataConfig((com.mojang.serialization.Dynamic)$$8);
++                        net.minecraft.world.level.LevelSettings $$14 = net.minecraft.world.level.LevelSettings.parse((com.mojang.serialization.Dynamic)$$8, (net.minecraft.world.level.WorldDataConfiguration)$$13);
++                        net.minecraft.world.flag.FeatureFlagSet $$15 = net.minecraft.world.level.storage.LevelStorageSource.parseFeatureFlagsFromSummary((com.mojang.serialization.Dynamic)$$8);
++                        boolean $$16 = net.minecraft.world.flag.FeatureFlags.isExperimental((net.minecraft.world.flag.FeatureFlagSet)$$15);
++                        return new net.minecraft.world.level.storage.LevelSummary($$14, $$9, $$0.directoryName(), $$11, $$1, $$16, $$12);
+                     }
+                 } else {
+                     LOGGER.warn("Invalid root tag in {}", $$2);
+                 }
+                 return null;
+             }
+-            catch (java.lang.Exception $$15) {
+-                LOGGER.error("Exception reading {}", $$2, (java.lang.Object)((java.lang.Object)$$15));
++            catch (java.lang.Exception $$17) {
++                LOGGER.error("Exception reading {}", $$2, (java.lang.Object)((java.lang.Object)$$17));
+                 return null;
+             }
+         };
+     }
+ 
++    public static net.minecraft.world.flag.FeatureFlagSet parseFeatureFlagsFromSummary(com.mojang.serialization.Dynamic<net.minecraft.nbt.Tag> $$02) {
++        java.util.Set $$1 = (java.util.Set)$$02.get("enabled_features").asStream().flatMap($$0 -> $$0.asString().result().map(net.minecraft.resources.ResourceLocation::tryParse).stream()).collect(java.util.stream.Collectors.toSet());
++        return net.minecraft.world.flag.FeatureFlags.REGISTRY.fromNames((java.lang.Iterable)$$1, $$0 -> {}
++);
++    }
++
+     @javax.annotation.Nullable
+     public static net.minecraft.nbt.Tag readLightweightData(java.nio.file.Path $$0) throws java.io.IOException {
+         net.minecraft.nbt.visitors.SkipFields $$1 = new net.minecraft.nbt.visitors.SkipFields(new net.minecraft.nbt.visitors.FieldSelector[]{new net.minecraft.nbt.visitors.FieldSelector("Data", net.minecraft.nbt.CompoundTag.TYPE, "Player"), new net.minecraft.nbt.visitors.FieldSelector("Data", net.minecraft.nbt.CompoundTag.TYPE, "WorldGenSettings")});
+@@ -196,20 +204,20 @@
+         return $$1.getResult();
+     }
+ 
+-    public boolean isNewLevelIdAcceptable(java.lang.String saveName) {
++    public boolean isNewLevelIdAcceptable(java.lang.String $$0) {
+         try {
+-            java.nio.file.Path path = this.baseDir.resolve(saveName);
+-            java.nio.file.Files.createDirectory((java.nio.file.Path)path, (java.nio.file.attribute.FileAttribute[])new java.nio.file.attribute.FileAttribute[0]);
+-            java.nio.file.Files.deleteIfExists((java.nio.file.Path)path);
++            java.nio.file.Path $$1 = this.baseDir.resolve($$0);
++            java.nio.file.Files.createDirectory((java.nio.file.Path)$$1, (java.nio.file.attribute.FileAttribute[])new java.nio.file.attribute.FileAttribute[0]);
++            java.nio.file.Files.deleteIfExists((java.nio.file.Path)$$1);
+             return true;
+         }
+-        catch (java.io.IOException iOException) {
++        catch (java.io.IOException $$2) {
+             return false;
+         }
+     }
+ 
+-    public boolean levelExists(java.lang.String saveName) {
+-        return java.nio.file.Files.isDirectory((java.nio.file.Path)this.baseDir.resolve(saveName), (java.nio.file.LinkOption[])new java.nio.file.LinkOption[0]);
++    public boolean levelExists(java.lang.String $$0) {
++        return java.nio.file.Files.isDirectory((java.nio.file.Path)this.baseDir.resolve($$0), (java.nio.file.LinkOption[])new java.nio.file.LinkOption[0]);
+     }
+ 
+     public java.nio.file.Path getBaseDir() {
+@@ -220,15 +228,10 @@
+         return this.backupDir;
+     }
+ 
+-    public net.minecraft.world.level.storage.LevelStorageSource$LevelStorageAccess createAccess(java.lang.String saveName) throws java.io.IOException {
+-        return new net.minecraft.world.level.storage.LevelStorageSource$LevelStorageAccess(this, saveName);
++    public net.minecraft.world.level.storage.LevelStorageSource$LevelStorageAccess createAccess(java.lang.String $$0) throws java.io.IOException {
++        return new net.minecraft.world.level.storage.LevelStorageSource$LevelStorageAccess(this, $$0);
+     }
+ 
+-    public static /* synthetic */ net.minecraft.world.level.levelgen.WorldGenSettings lambda$readWorldGenSettings$0(com.mojang.serialization.Dynamic $$0) {
+-        net.minecraft.core.RegistryAccess $$1 = net.minecraft.core.RegistryAccess.readFromDisk((com.mojang.serialization.Dynamic)$$0);
+-        return net.minecraft.world.level.levelgen.presets.WorldPresets.createNormalWorldFromPreset((net.minecraft.core.RegistryAccess)$$1);
+-    }
+-
+     static {
+         LOGGER = com.mojang.logging.LogUtils.getLogger();
+         FORMATTER = new java.time.format.DateTimeFormatterBuilder().appendValue((java.time.temporal.TemporalField)java.time.temporal.ChronoField.YEAR, 4, 10, java.time.format.SignStyle.EXCEEDS_PAD).appendLiteral('-').appendValue((java.time.temporal.TemporalField)java.time.temporal.ChronoField.MONTH_OF_YEAR, 2).appendLiteral('-').appendValue((java.time.temporal.TemporalField)java.time.temporal.ChronoField.DAY_OF_MONTH, 2).appendLiteral('_').appendValue((java.time.temporal.TemporalField)java.time.temporal.ChronoField.HOUR_OF_DAY, 2).appendLiteral('-').appendValue((java.time.temporal.TemporalField)java.time.temporal.ChronoField.MINUTE_OF_HOUR, 2).appendLiteral('-').appendValue((java.time.temporal.TemporalField)java.time.temporal.ChronoField.SECOND_OF_MINUTE, 2).toFormatter();

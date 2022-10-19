@@ -1,0 +1,244 @@
+--- net/minecraft/world/level/levelgen/structure/LegacyStructureDataHandler.java
++++ net/minecraft/world/level/levelgen/structure/LegacyStructureDataHandler.java
+@@ -14,150 +14,147 @@
+     public java.util.List<java.lang.String> legacyKeys;
+     public java.util.List<java.lang.String> currentKeys;
+ 
+-    public net.minecraft.world.level.levelgen.structure.LegacyStructureDataHandler(@javax.annotation.Nullable net.minecraft.world.level.storage.DimensionDataStorage storage, java.util.List<java.lang.String> legacyKeys, java.util.List<java.lang.String> currentKeys) {
++    public net.minecraft.world.level.levelgen.structure.LegacyStructureDataHandler(@javax.annotation.Nullable net.minecraft.world.level.storage.DimensionDataStorage $$0, java.util.List<java.lang.String> $$1, java.util.List<java.lang.String> $$2) {
+         this.dataMap = com.google.common.collect.Maps.newHashMap();
+         this.indexMap = com.google.common.collect.Maps.newHashMap();
+-        this.legacyKeys = legacyKeys;
+-        this.currentKeys = currentKeys;
+-        this.populateCaches(storage);
+-        boolean bl = false;
+-        for (java.lang.String string : this.currentKeys) {
+-            bl |= this.dataMap.get((java.lang.Object)string) != null;
++        this.legacyKeys = $$1;
++        this.currentKeys = $$2;
++        this.populateCaches($$0);
++        boolean $$3 = false;
++        for (java.lang.String $$4 : this.currentKeys) {
++            $$3 |= this.dataMap.get((java.lang.Object)$$4) != null;
+         }
+-        this.hasLegacyData = bl;
++        this.hasLegacyData = $$3;
+     }
+ 
+-    public void removeIndex(long chunkValue) {
+-        for (java.lang.String string : this.legacyKeys) {
+-            net.minecraft.world.level.levelgen.structure.StructureFeatureIndexSavedData structureFeatureIndexSavedData = (net.minecraft.world.level.levelgen.structure.StructureFeatureIndexSavedData)this.indexMap.get((java.lang.Object)string);
+-            if (structureFeatureIndexSavedData == null || !structureFeatureIndexSavedData.hasUnhandledIndex(chunkValue)) continue;
+-            structureFeatureIndexSavedData.removeIndex(chunkValue);
+-            structureFeatureIndexSavedData.setDirty();
++    public void removeIndex(long $$0) {
++        for (java.lang.String $$1 : this.legacyKeys) {
++            net.minecraft.world.level.levelgen.structure.StructureFeatureIndexSavedData $$2 = (net.minecraft.world.level.levelgen.structure.StructureFeatureIndexSavedData)this.indexMap.get((java.lang.Object)$$1);
++            if ($$2 == null || !$$2.hasUnhandledIndex($$0)) continue;
++            $$2.removeIndex($$0);
++            $$2.setDirty();
+         }
+     }
+ 
+-    public net.minecraft.nbt.CompoundTag updateFromLegacy(net.minecraft.nbt.CompoundTag tag) {
+-        net.minecraft.nbt.CompoundTag compoundTag = tag.getCompound("Level");
+-        net.minecraft.world.level.ChunkPos chunkPos = new net.minecraft.world.level.ChunkPos(compoundTag.getInt("xPos"), compoundTag.getInt("zPos"));
+-        if (this.isUnhandledStructureStart(chunkPos.x, chunkPos.z)) {
+-            tag = this.updateStructureStart(tag, chunkPos);
++    public net.minecraft.nbt.CompoundTag updateFromLegacy(net.minecraft.nbt.CompoundTag $$0) {
++        net.minecraft.nbt.CompoundTag $$1 = $$0.getCompound("Level");
++        net.minecraft.world.level.ChunkPos $$2 = new net.minecraft.world.level.ChunkPos($$1.getInt("xPos"), $$1.getInt("zPos"));
++        if (this.isUnhandledStructureStart($$2.x, $$2.z)) {
++            $$0 = this.updateStructureStart($$0, $$2);
+         }
+-        net.minecraft.nbt.CompoundTag compoundTag2 = compoundTag.getCompound("Structures");
+-        net.minecraft.nbt.CompoundTag compoundTag3 = compoundTag2.getCompound("References");
+-        for (java.lang.String string : this.currentKeys) {
+-            boolean bl = OLD_STRUCTURE_REGISTRY_KEYS.contains((java.lang.Object)string.toLowerCase(java.util.Locale.ROOT));
+-            if (compoundTag3.contains(string, 12) || !bl) continue;
+-            int n = 8;
+-            it.unimi.dsi.fastutil.longs.LongArrayList longArrayList = new it.unimi.dsi.fastutil.longs.LongArrayList();
+-            for (int i = chunkPos.x - 8; i <= chunkPos.x + 8; ++i) {
+-                for (int j = chunkPos.z - 8; j <= chunkPos.z + 8; ++j) {
+-                    if (!this.hasLegacyStart(i, j, string)) continue;
+-                    longArrayList.add(net.minecraft.world.level.ChunkPos.asLong((int)i, (int)j));
++        net.minecraft.nbt.CompoundTag $$3 = $$1.getCompound("Structures");
++        net.minecraft.nbt.CompoundTag $$4 = $$3.getCompound("References");
++        for (java.lang.String $$5 : this.currentKeys) {
++            boolean $$6 = OLD_STRUCTURE_REGISTRY_KEYS.contains((java.lang.Object)$$5.toLowerCase(java.util.Locale.ROOT));
++            if ($$4.contains($$5, 12) || !$$6) continue;
++            int $$7 = 8;
++            it.unimi.dsi.fastutil.longs.LongArrayList $$8 = new it.unimi.dsi.fastutil.longs.LongArrayList();
++            for (int $$9 = $$2.x - 8; $$9 <= $$2.x + 8; ++$$9) {
++                for (int $$10 = $$2.z - 8; $$10 <= $$2.z + 8; ++$$10) {
++                    if (!this.hasLegacyStart($$9, $$10, $$5)) continue;
++                    $$8.add(net.minecraft.world.level.ChunkPos.asLong((int)$$9, (int)$$10));
+                 }
+             }
+-            compoundTag3.putLongArray(string, (java.util.List)longArrayList);
++            $$4.putLongArray($$5, (java.util.List)$$8);
+         }
+-        compoundTag2.put("References", (net.minecraft.nbt.Tag)compoundTag3);
+-        compoundTag.put("Structures", (net.minecraft.nbt.Tag)compoundTag2);
+-        tag.put("Level", (net.minecraft.nbt.Tag)compoundTag);
+-        return tag;
++        $$3.put("References", (net.minecraft.nbt.Tag)$$4);
++        $$1.put("Structures", (net.minecraft.nbt.Tag)$$3);
++        $$0.put("Level", (net.minecraft.nbt.Tag)$$1);
++        return $$0;
+     }
+ 
+-    public boolean hasLegacyStart(int chunkX, int chunkZ, java.lang.String key) {
++    public boolean hasLegacyStart(int $$0, int $$1, java.lang.String $$2) {
+         if (!this.hasLegacyData) {
+             return false;
+         }
+-        return this.dataMap.get((java.lang.Object)key) != null && ((net.minecraft.world.level.levelgen.structure.StructureFeatureIndexSavedData)this.indexMap.get(CURRENT_TO_LEGACY_MAP.get((java.lang.Object)key))).hasStartIndex(net.minecraft.world.level.ChunkPos.asLong((int)chunkX, (int)chunkZ));
++        return this.dataMap.get((java.lang.Object)$$2) != null && ((net.minecraft.world.level.levelgen.structure.StructureFeatureIndexSavedData)this.indexMap.get(CURRENT_TO_LEGACY_MAP.get((java.lang.Object)$$2))).hasStartIndex(net.minecraft.world.level.ChunkPos.asLong((int)$$0, (int)$$1));
+     }
+ 
+-    public boolean isUnhandledStructureStart(int chunkX, int chunkZ) {
++    public boolean isUnhandledStructureStart(int $$0, int $$1) {
+         if (!this.hasLegacyData) {
+             return false;
+         }
+-        for (java.lang.String string : this.currentKeys) {
+-            if (this.dataMap.get((java.lang.Object)string) == null || !((net.minecraft.world.level.levelgen.structure.StructureFeatureIndexSavedData)this.indexMap.get(CURRENT_TO_LEGACY_MAP.get((java.lang.Object)string))).hasUnhandledIndex(net.minecraft.world.level.ChunkPos.asLong((int)chunkX, (int)chunkZ))) continue;
++        for (java.lang.String $$2 : this.currentKeys) {
++            if (this.dataMap.get((java.lang.Object)$$2) == null || !((net.minecraft.world.level.levelgen.structure.StructureFeatureIndexSavedData)this.indexMap.get(CURRENT_TO_LEGACY_MAP.get((java.lang.Object)$$2))).hasUnhandledIndex(net.minecraft.world.level.ChunkPos.asLong((int)$$0, (int)$$1))) continue;
+             return true;
+         }
+         return false;
+     }
+ 
+-    public net.minecraft.nbt.CompoundTag updateStructureStart(net.minecraft.nbt.CompoundTag tag, net.minecraft.world.level.ChunkPos chunkPos) {
+-        net.minecraft.nbt.CompoundTag compoundTag = tag.getCompound("Level");
+-        net.minecraft.nbt.CompoundTag compoundTag2 = compoundTag.getCompound("Structures");
+-        net.minecraft.nbt.CompoundTag compoundTag3 = compoundTag2.getCompound("Starts");
+-        for (java.lang.String string : this.currentKeys) {
+-            net.minecraft.nbt.CompoundTag compoundTag4;
+-            it.unimi.dsi.fastutil.longs.Long2ObjectMap long2ObjectMap = (it.unimi.dsi.fastutil.longs.Long2ObjectMap)this.dataMap.get((java.lang.Object)string);
+-            if (long2ObjectMap == null) continue;
+-            long l = chunkPos.toLong();
+-            if (!((net.minecraft.world.level.levelgen.structure.StructureFeatureIndexSavedData)this.indexMap.get(CURRENT_TO_LEGACY_MAP.get((java.lang.Object)string))).hasUnhandledIndex(l) || (compoundTag4 = (net.minecraft.nbt.CompoundTag)long2ObjectMap.get(l)) == null) continue;
+-            compoundTag3.put(string, (net.minecraft.nbt.Tag)compoundTag4);
++    public net.minecraft.nbt.CompoundTag updateStructureStart(net.minecraft.nbt.CompoundTag $$0, net.minecraft.world.level.ChunkPos $$1) {
++        net.minecraft.nbt.CompoundTag $$2 = $$0.getCompound("Level");
++        net.minecraft.nbt.CompoundTag $$3 = $$2.getCompound("Structures");
++        net.minecraft.nbt.CompoundTag $$4 = $$3.getCompound("Starts");
++        for (java.lang.String $$5 : this.currentKeys) {
++            net.minecraft.nbt.CompoundTag $$8;
++            it.unimi.dsi.fastutil.longs.Long2ObjectMap $$6 = (it.unimi.dsi.fastutil.longs.Long2ObjectMap)this.dataMap.get((java.lang.Object)$$5);
++            if ($$6 == null) continue;
++            long $$7 = $$1.toLong();
++            if (!((net.minecraft.world.level.levelgen.structure.StructureFeatureIndexSavedData)this.indexMap.get(CURRENT_TO_LEGACY_MAP.get((java.lang.Object)$$5))).hasUnhandledIndex($$7) || ($$8 = (net.minecraft.nbt.CompoundTag)$$6.get($$7)) == null) continue;
++            $$4.put($$5, (net.minecraft.nbt.Tag)$$8);
+         }
+-        compoundTag2.put("Starts", (net.minecraft.nbt.Tag)compoundTag3);
+-        compoundTag.put("Structures", (net.minecraft.nbt.Tag)compoundTag2);
+-        tag.put("Level", (net.minecraft.nbt.Tag)compoundTag);
+-        return tag;
++        $$3.put("Starts", (net.minecraft.nbt.Tag)$$4);
++        $$2.put("Structures", (net.minecraft.nbt.Tag)$$3);
++        $$0.put("Level", (net.minecraft.nbt.Tag)$$2);
++        return $$0;
+     }
+ 
+-    public void populateCaches(@javax.annotation.Nullable net.minecraft.world.level.storage.DimensionDataStorage storage) {
+-        if (storage == null) {
++    public void populateCaches(@javax.annotation.Nullable net.minecraft.world.level.storage.DimensionDataStorage $$02) {
++        if ($$02 == null) {
+             return;
+         }
+-        for (java.lang.String string : this.legacyKeys) {
+-            net.minecraft.nbt.ListTag listTag;
+-            net.minecraft.nbt.CompoundTag compoundTag;
+-            java.lang.String string22;
+-            net.minecraft.nbt.CompoundTag compoundTag2 = new net.minecraft.nbt.CompoundTag();
++        for (java.lang.String $$1 : this.legacyKeys) {
++            net.minecraft.nbt.CompoundTag $$2 = new net.minecraft.nbt.CompoundTag();
+             try {
+-                compoundTag2 = storage.readTagFromDisk(string, 1493).getCompound("data").getCompound("Features");
+-                if (compoundTag2.isEmpty()) {
++                $$2 = $$02.readTagFromDisk($$1, 1493).getCompound("data").getCompound("Features");
++                if ($$2.isEmpty()) {
+                     continue;
+                 }
+             }
+             catch (java.io.IOException iOException) {
+                 // empty catch block
+             }
+-            for (java.lang.String string22 : compoundTag2.getAllKeys()) {
+-                java.lang.String string3;
+-                java.lang.String string4;
+-                compoundTag = compoundTag2.getCompound(string22);
+-                long l = net.minecraft.world.level.ChunkPos.asLong((int)compoundTag.getInt("ChunkX"), (int)compoundTag.getInt("ChunkZ"));
+-                listTag = compoundTag.getList("Children", 10);
+-                if (!listTag.isEmpty() && (string4 = (java.lang.String)LEGACY_TO_CURRENT_MAP.get((java.lang.Object)(string3 = listTag.getCompound(0).getString("id")))) != null) {
+-                    compoundTag.putString("id", string4);
++            for (java.lang.String $$3 : $$2.getAllKeys()) {
++                java.lang.String $$7;
++                java.lang.String $$8;
++                net.minecraft.nbt.CompoundTag $$4 = $$2.getCompound($$3);
++                long $$5 = net.minecraft.world.level.ChunkPos.asLong((int)$$4.getInt("ChunkX"), (int)$$4.getInt("ChunkZ"));
++                net.minecraft.nbt.ListTag $$6 = $$4.getList("Children", 10);
++                if (!$$6.isEmpty() && ($$8 = (java.lang.String)LEGACY_TO_CURRENT_MAP.get((java.lang.Object)($$7 = $$6.getCompound(0).getString("id")))) != null) {
++                    $$4.putString("id", $$8);
+                 }
+-                string3 = compoundTag.getString("id");
+-                ((it.unimi.dsi.fastutil.longs.Long2ObjectMap)this.dataMap.computeIfAbsent((java.lang.Object)string3, $$0 -> new it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap())).put(l, (java.lang.Object)compoundTag);
++                java.lang.String $$9 = $$4.getString("id");
++                ((it.unimi.dsi.fastutil.longs.Long2ObjectMap)this.dataMap.computeIfAbsent((java.lang.Object)$$9, $$0 -> new it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap())).put($$5, (java.lang.Object)$$4);
+             }
+-            java.util.Iterator iterator = string + "_index";
+-            string22 = (net.minecraft.world.level.levelgen.structure.StructureFeatureIndexSavedData)storage.computeIfAbsent(net.minecraft.world.level.levelgen.structure.StructureFeatureIndexSavedData::load, net.minecraft.world.level.levelgen.structure.StructureFeatureIndexSavedData::new, (java.lang.String)iterator);
+-            if (string22.getAll().isEmpty()) {
+-                compoundTag = new net.minecraft.world.level.levelgen.structure.StructureFeatureIndexSavedData();
+-                this.indexMap.put((java.lang.Object)string, (java.lang.Object)compoundTag);
+-                for (java.lang.String string5 : compoundTag2.getAllKeys()) {
+-                    listTag = compoundTag2.getCompound(string5);
+-                    compoundTag.addIndex(net.minecraft.world.level.ChunkPos.asLong((int)listTag.getInt("ChunkX"), (int)listTag.getInt("ChunkZ")));
++            java.lang.String $$10 = $$1 + "_index";
++            net.minecraft.world.level.levelgen.structure.StructureFeatureIndexSavedData $$11 = (net.minecraft.world.level.levelgen.structure.StructureFeatureIndexSavedData)$$02.computeIfAbsent(net.minecraft.world.level.levelgen.structure.StructureFeatureIndexSavedData::load, net.minecraft.world.level.levelgen.structure.StructureFeatureIndexSavedData::new, $$10);
++            if ($$11.getAll().isEmpty()) {
++                net.minecraft.world.level.levelgen.structure.StructureFeatureIndexSavedData $$12 = new net.minecraft.world.level.levelgen.structure.StructureFeatureIndexSavedData();
++                this.indexMap.put((java.lang.Object)$$1, (java.lang.Object)$$12);
++                for (java.lang.String $$13 : $$2.getAllKeys()) {
++                    net.minecraft.nbt.CompoundTag $$14 = $$2.getCompound($$13);
++                    $$12.addIndex(net.minecraft.world.level.ChunkPos.asLong((int)$$14.getInt("ChunkX"), (int)$$14.getInt("ChunkZ")));
+                 }
+-                compoundTag.setDirty();
++                $$12.setDirty();
+                 continue;
+             }
+-            this.indexMap.put((java.lang.Object)string, (java.lang.Object)string22);
++            this.indexMap.put((java.lang.Object)$$1, (java.lang.Object)$$11);
+         }
+     }
+ 
+-    public static net.minecraft.world.level.levelgen.structure.LegacyStructureDataHandler getLegacyStructureHandler(net.minecraft.resources.ResourceKey<net.minecraft.world.level.Level> level, @javax.annotation.Nullable net.minecraft.world.level.storage.DimensionDataStorage storage) {
+-        if (level == net.minecraft.world.level.Level.OVERWORLD) {
+-            return new net.minecraft.world.level.levelgen.structure.LegacyStructureDataHandler(storage, (java.util.List)com.google.common.collect.ImmutableList.of((java.lang.Object)"Monument", (java.lang.Object)"Stronghold", (java.lang.Object)"Village", (java.lang.Object)"Mineshaft", (java.lang.Object)"Temple", (java.lang.Object)"Mansion"), (java.util.List)com.google.common.collect.ImmutableList.of((java.lang.Object)"Village", (java.lang.Object)"Mineshaft", (java.lang.Object)"Mansion", (java.lang.Object)"Igloo", (java.lang.Object)"Desert_Pyramid", (java.lang.Object)"Jungle_Pyramid", (java.lang.Object)"Swamp_Hut", (java.lang.Object)"Stronghold", (java.lang.Object)"Monument"));
++    public static net.minecraft.world.level.levelgen.structure.LegacyStructureDataHandler getLegacyStructureHandler(net.minecraft.resources.ResourceKey<net.minecraft.world.level.Level> $$0, @javax.annotation.Nullable net.minecraft.world.level.storage.DimensionDataStorage $$1) {
++        if ($$0 == net.minecraft.world.level.Level.OVERWORLD) {
++            return new net.minecraft.world.level.levelgen.structure.LegacyStructureDataHandler($$1, (java.util.List)com.google.common.collect.ImmutableList.of((java.lang.Object)"Monument", (java.lang.Object)"Stronghold", (java.lang.Object)"Village", (java.lang.Object)"Mineshaft", (java.lang.Object)"Temple", (java.lang.Object)"Mansion"), (java.util.List)com.google.common.collect.ImmutableList.of((java.lang.Object)"Village", (java.lang.Object)"Mineshaft", (java.lang.Object)"Mansion", (java.lang.Object)"Igloo", (java.lang.Object)"Desert_Pyramid", (java.lang.Object)"Jungle_Pyramid", (java.lang.Object)"Swamp_Hut", (java.lang.Object)"Stronghold", (java.lang.Object)"Monument"));
+         }
+-        if (level == net.minecraft.world.level.Level.NETHER) {
+-            com.google.common.collect.ImmutableList immutableList = com.google.common.collect.ImmutableList.of((java.lang.Object)"Fortress");
+-            return new net.minecraft.world.level.levelgen.structure.LegacyStructureDataHandler(storage, (java.util.List)immutableList, (java.util.List)immutableList);
++        if ($$0 == net.minecraft.world.level.Level.NETHER) {
++            com.google.common.collect.ImmutableList $$2 = com.google.common.collect.ImmutableList.of((java.lang.Object)"Fortress");
++            return new net.minecraft.world.level.levelgen.structure.LegacyStructureDataHandler($$1, (java.util.List)$$2, (java.util.List)$$2);
+         }
+-        if (level == net.minecraft.world.level.Level.END) {
+-            com.google.common.collect.ImmutableList immutableList = com.google.common.collect.ImmutableList.of((java.lang.Object)"EndCity");
+-            return new net.minecraft.world.level.levelgen.structure.LegacyStructureDataHandler(storage, (java.util.List)immutableList, (java.util.List)immutableList);
++        if ($$0 == net.minecraft.world.level.Level.END) {
++            com.google.common.collect.ImmutableList $$3 = com.google.common.collect.ImmutableList.of((java.lang.Object)"EndCity");
++            return new net.minecraft.world.level.levelgen.structure.LegacyStructureDataHandler($$1, (java.util.List)$$3, (java.util.List)$$3);
+         }
+-        throw new java.lang.RuntimeException(java.lang.String.format((java.util.Locale)java.util.Locale.ROOT, (java.lang.String)"Unknown dimension type : %s", (java.lang.Object[])new java.lang.Object[]{level}));
++        throw new java.lang.RuntimeException(java.lang.String.format((java.util.Locale)java.util.Locale.ROOT, (java.lang.String)"Unknown dimension type : %s", (java.lang.Object[])new java.lang.Object[]{$$0}));
+     }
+ 
+     public static /* synthetic */ void lambda$static$1(java.util.HashMap $$0) {

@@ -1,0 +1,60 @@
+--- net/minecraft/client/gui/screens/ConnectScreen$1.java
++++ net/minecraft/client/gui/screens/ConnectScreen$1.java
+@@ -8,14 +8,16 @@
+  {
+     public /* synthetic */ net.minecraft.client.multiplayer.resolver.ServerAddress val$hostAndPort;
+     public /* synthetic */ net.minecraft.client.Minecraft val$minecraft;
+-    public /* synthetic */ java.util.concurrent.CompletableFuture val$publicKey;
++    public /* synthetic */ java.util.concurrent.CompletableFuture val$chatSessionFuture;
++    public /* synthetic */ net.minecraft.client.multiplayer.ServerData val$server;
+     public /* synthetic */ net.minecraft.client.gui.screens.ConnectScreen this$0;
+ 
+-    public net.minecraft.client.gui.screens.ConnectScreen$1(net.minecraft.client.gui.screens.ConnectScreen $$0, java.lang.String $$1, net.minecraft.client.multiplayer.resolver.ServerAddress serverAddress, net.minecraft.client.Minecraft minecraft, java.util.concurrent.CompletableFuture completableFuture) {
++    public net.minecraft.client.gui.screens.ConnectScreen$1(net.minecraft.client.gui.screens.ConnectScreen $$0, java.lang.String $$1, net.minecraft.client.multiplayer.resolver.ServerAddress serverAddress, net.minecraft.client.Minecraft minecraft, java.util.concurrent.CompletableFuture completableFuture, net.minecraft.client.multiplayer.ServerData serverData) {
+         this.this$0 = $$0;
+         this.val$hostAndPort = serverAddress;
+         this.val$minecraft = minecraft;
+-        this.val$publicKey = completableFuture;
++        this.val$chatSessionFuture = completableFuture;
++        this.val$server = serverData;
+         super($$1);
+     }
+ 
+@@ -35,25 +37,26 @@
+             }
+             $$0 = (java.net.InetSocketAddress)$$1.get();
+             this.this$0.connection = net.minecraft.network.Connection.connectToServer((java.net.InetSocketAddress)$$0, (boolean)this.val$minecraft.options.useNativeTransport());
+-            this.this$0.connection.setListener((net.minecraft.network.PacketListener)new net.minecraft.client.multiplayer.ClientHandshakePacketListenerImpl(this.this$0.connection, this.val$minecraft, this.this$0.parent, arg_0 -> ((net.minecraft.client.gui.screens.ConnectScreen)this.this$0).updateStatus(arg_0)));
++            net.minecraft.network.chat.LocalChatSession $$2 = (net.minecraft.network.chat.LocalChatSession)this.val$chatSessionFuture.join();
++            this.this$0.connection.setListener((net.minecraft.network.PacketListener)new net.minecraft.client.multiplayer.ClientHandshakePacketListenerImpl(this.this$0.connection, this.val$minecraft, $$2, this.val$server, this.this$0.parent, arg_0 -> ((net.minecraft.client.gui.screens.ConnectScreen)this.this$0).updateStatus(arg_0)));
+             this.this$0.connection.send((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.handshake.ClientIntentionPacket($$0.getHostName(), $$0.getPort(), net.minecraft.network.ConnectionProtocol.LOGIN));
+-            this.this$0.connection.send((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.login.ServerboundHelloPacket(this.val$minecraft.getUser().getName(), (java.util.Optional)this.val$publicKey.join(), java.util.Optional.ofNullable((java.lang.Object)this.val$minecraft.getUser().getProfileId())));
++            this.this$0.connection.send((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.login.ServerboundHelloPacket(this.val$minecraft.getUser().getName(), $$2.asRemote().asData(), java.util.Optional.ofNullable((java.lang.Object)this.val$minecraft.getUser().getProfileId())));
+         }
+-        catch (java.lang.Exception $$2) {
+-            java.lang.Exception $$5;
++        catch (java.lang.Exception $$3) {
++            java.lang.Exception $$6;
+             if (this.this$0.aborted) {
+                 return;
+             }
+-            java.lang.Throwable throwable = $$2.getCause();
++            java.lang.Throwable throwable = $$3.getCause();
+             if (throwable instanceof java.lang.Exception) {
+-                java.lang.Exception $$3;
+-                java.lang.Exception $$4 = $$3 = (java.lang.Exception)throwable;
++                java.lang.Exception $$4;
++                java.lang.Exception $$5 = $$4 = (java.lang.Exception)throwable;
+             } else {
+-                $$5 = $$2;
++                $$6 = $$3;
+             }
+-            net.minecraft.client.gui.screens.ConnectScreen.LOGGER.error("Couldn't connect to server", (java.lang.Throwable)$$2);
+-            java.lang.String $$6 = $$0 == null ? $$5.getMessage() : $$5.getMessage().replaceAll($$0.getHostName() + ":" + $$0.getPort(), "").replaceAll($$0.toString(), "");
+-            this.val$minecraft.execute(() -> this.val$minecraft.setScreen((net.minecraft.client.gui.screens.Screen)new net.minecraft.client.gui.screens.DisconnectedScreen(this.this$0.parent, net.minecraft.network.chat.CommonComponents.CONNECT_FAILED, (net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"disconnect.genericReason", (java.lang.Object[])new java.lang.Object[]{$$6}))));
++            net.minecraft.client.gui.screens.ConnectScreen.LOGGER.error("Couldn't connect to server", (java.lang.Throwable)$$3);
++            java.lang.String $$7 = $$0 == null ? $$6.getMessage() : $$6.getMessage().replaceAll($$0.getHostName() + ":" + $$0.getPort(), "").replaceAll($$0.toString(), "");
++            this.val$minecraft.execute(() -> this.val$minecraft.setScreen((net.minecraft.client.gui.screens.Screen)new net.minecraft.client.gui.screens.DisconnectedScreen(this.this$0.parent, net.minecraft.network.chat.CommonComponents.CONNECT_FAILED, (net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"disconnect.genericReason", (java.lang.Object[])new java.lang.Object[]{$$7}))));
+         }
+     }
+ }

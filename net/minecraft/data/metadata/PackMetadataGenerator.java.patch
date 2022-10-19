@@ -1,0 +1,41 @@
+--- net/minecraft/data/metadata/PackMetadataGenerator.java
++++ net/minecraft/data/metadata/PackMetadataGenerator.java
+@@ -1,0 +1,38 @@
++/*
++ * Decompiled with CFR 0.151.
++ */
++package net.minecraft.data.metadata;
++
++public class net.minecraft.data.metadata.PackMetadataGenerator
++implements net.minecraft.data.DataProvider
++ {
++    public java.lang.String name;
++    public net.minecraft.data.PackOutput output;
++    public java.util.Map<java.lang.String, java.util.function.Supplier<com.google.gson.JsonElement>> elements;
++
++    public net.minecraft.data.metadata.PackMetadataGenerator(net.minecraft.data.PackOutput $$0, java.lang.String $$1) {
++        this.elements = new java.util.HashMap();
++        this.output = $$0;
++        this.name = $$1;
++    }
++
++    public <T> net.minecraft.data.metadata.PackMetadataGenerator add(net.minecraft.server.packs.metadata.MetadataSectionType<T> $$0, T $$1) {
++        this.elements.put((java.lang.Object)$$0.getMetadataSectionName(), () -> $$0.toJson($$1));
++        return this;
++    }
++
++    public void run(net.minecraft.data.CachedOutput $$0) throws java.io.IOException {
++        com.google.gson.JsonObject $$12 = new com.google.gson.JsonObject();
++        this.elements.forEach(($$1, $$2) -> $$12.add($$1, (com.google.gson.JsonElement)$$2.get()));
++        net.minecraft.data.DataProvider.saveStable((net.minecraft.data.CachedOutput)$$0, (com.google.gson.JsonElement)$$12, (java.nio.file.Path)this.output.getOutputFolder().resolve("pack.mcmeta"));
++    }
++
++    public java.lang.String getName() {
++        return this.name;
++    }
++
++    public static net.minecraft.data.metadata.PackMetadataGenerator forFeaturePack(net.minecraft.data.PackOutput $$0, java.lang.String $$1, net.minecraft.network.chat.Component $$2, net.minecraft.world.flag.FeatureFlagSet $$3) {
++        return new net.minecraft.data.metadata.PackMetadataGenerator($$0, "Pack metadata for " + $$1).add(net.minecraft.server.packs.metadata.pack.PackMetadataSection.TYPE, (java.lang.Object)new net.minecraft.server.packs.metadata.pack.PackMetadataSection($$2, net.minecraft.DetectedVersion.BUILT_IN.getPackVersion(com.mojang.bridge.game.PackType.DATA))).add(net.minecraft.server.packs.FeatureFlagsMetadataSection.TYPE, (java.lang.Object)new net.minecraft.server.packs.FeatureFlagsMetadataSection($$3));
++    }
++}
++

@@ -1,0 +1,510 @@
+--- net/minecraft/client/particle/ParticleEngine.java
++++ net/minecraft/client/particle/ParticleEngine.java
+@@ -6,6 +6,8 @@
+ public class net.minecraft.client.particle.ParticleEngine
+ implements net.minecraft.server.packs.resources.PreparableReloadListener
+  {
++    public static org.slf4j.Logger LOGGER;
++    public static net.minecraft.resources.FileToIdConverter PARTICLE_LISTER;
+     public static int MAX_PARTICLES_PER_LAYER = 16384;
+     public static java.util.List<net.minecraft.client.particle.ParticleRenderType> RENDER_ORDER;
+     public net.minecraft.client.multiplayer.ClientLevel level;
+@@ -19,7 +21,7 @@
+     public net.minecraft.client.renderer.texture.TextureAtlas textureAtlas;
+     public it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap<net.minecraft.core.particles.ParticleGroup> trackedParticleCounts;
+ 
+-    public net.minecraft.client.particle.ParticleEngine(net.minecraft.client.multiplayer.ClientLevel level, net.minecraft.client.renderer.texture.TextureManager textureManager) {
++    public net.minecraft.client.particle.ParticleEngine(net.minecraft.client.multiplayer.ClientLevel $$0, net.minecraft.client.renderer.texture.TextureManager $$1) {
+         this.particles = com.google.common.collect.Maps.newIdentityHashMap();
+         this.trackingEmitters = com.google.common.collect.Queues.newArrayDeque();
+         this.random = net.minecraft.util.RandomSource.create();
+@@ -28,9 +30,9 @@
+         this.spriteSets = com.google.common.collect.Maps.newHashMap();
+         this.trackedParticleCounts = new it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap();
+         this.textureAtlas = new net.minecraft.client.renderer.texture.TextureAtlas(net.minecraft.client.renderer.texture.TextureAtlas.LOCATION_PARTICLES);
+-        textureManager.register(this.textureAtlas.location(), (net.minecraft.client.renderer.texture.AbstractTexture)this.textureAtlas);
+-        this.level = level;
+-        this.textureManager = textureManager;
++        $$1.register(this.textureAtlas.location(), (net.minecraft.client.renderer.texture.AbstractTexture)this.textureAtlas);
++        this.level = $$0;
++        this.textureManager = $$1;
+         this.registerProviders();
+     }
+ 
+@@ -130,120 +132,170 @@
+         this.register(net.minecraft.core.particles.ParticleTypes.SHRIEK, net.minecraft.client.particle.ShriekParticle$Provider::new);
+     }
+ 
+-    public <T extends net.minecraft.core.particles.ParticleOptions> void register(net.minecraft.core.particles.ParticleType<T> particleType, net.minecraft.client.particle.ParticleProvider<T> particleFactory) {
+-        this.providers.put(net.minecraft.core.Registry.PARTICLE_TYPE.getId(particleType), particleFactory);
++    public <T extends net.minecraft.core.particles.ParticleOptions> void register(net.minecraft.core.particles.ParticleType<T> $$0, net.minecraft.client.particle.ParticleProvider<T> $$1) {
++        this.providers.put(net.minecraft.core.Registry.PARTICLE_TYPE.getId($$0), $$1);
+     }
+ 
+-    public <T extends net.minecraft.core.particles.ParticleOptions> void register(net.minecraft.core.particles.ParticleType<T> particleType, net.minecraft.client.particle.ParticleEngine$SpriteParticleRegistration<T> particleMetaFactory) {
+-        net.minecraft.client.particle.ParticleEngine$MutableSpriteSet mutableSpriteSet = new net.minecraft.client.particle.ParticleEngine$MutableSpriteSet();
+-        this.spriteSets.put((java.lang.Object)net.minecraft.core.Registry.PARTICLE_TYPE.getKey(particleType), (java.lang.Object)mutableSpriteSet);
+-        this.providers.put(net.minecraft.core.Registry.PARTICLE_TYPE.getId(particleType), (java.lang.Object)particleMetaFactory.create((net.minecraft.client.particle.SpriteSet)mutableSpriteSet));
++    public <T extends net.minecraft.core.particles.ParticleOptions> void register(net.minecraft.core.particles.ParticleType<T> $$0, net.minecraft.client.particle.ParticleEngine$SpriteParticleRegistration<T> $$1) {
++        net.minecraft.client.particle.ParticleEngine$MutableSpriteSet $$2 = new net.minecraft.client.particle.ParticleEngine$MutableSpriteSet();
++        this.spriteSets.put((java.lang.Object)net.minecraft.core.Registry.PARTICLE_TYPE.getKey($$0), (java.lang.Object)$$2);
++        this.providers.put(net.minecraft.core.Registry.PARTICLE_TYPE.getId($$0), (java.lang.Object)$$1.create((net.minecraft.client.particle.SpriteSet)$$2));
+     }
+ 
+-    public java.util.concurrent.CompletableFuture<java.lang.Void> reload(net.minecraft.server.packs.resources.PreparableReloadListener$PreparationBarrier stage, net.minecraft.server.packs.resources.ResourceManager resourceManager, net.minecraft.util.profiling.ProfilerFiller preparationsProfiler, net.minecraft.util.profiling.ProfilerFiller reloadProfiler, java.util.concurrent.Executor backgroundExecutor, java.util.concurrent.Executor gameExecutor) {
+-        java.util.concurrent.ConcurrentMap concurrentMap = com.google.common.collect.Maps.newConcurrentMap();
+-        java.util.concurrent.CompletableFuture[] completableFutureArray = (java.util.concurrent.CompletableFuture[])net.minecraft.core.Registry.PARTICLE_TYPE.keySet().stream().map(arg_0 -> this.lambda$reload$1(resourceManager, (java.util.Map)concurrentMap, backgroundExecutor, arg_0)).toArray(java.util.concurrent.CompletableFuture[]::new);
+-        return java.util.concurrent.CompletableFuture.allOf((java.util.concurrent.CompletableFuture[])completableFutureArray).thenApplyAsync(arg_0 -> this.lambda$reload$3(preparationsProfiler, resourceManager, (java.util.Map)concurrentMap, arg_0), backgroundExecutor).thenCompose(arg_0 -> ((net.minecraft.server.packs.resources.PreparableReloadListener$PreparationBarrier)stage).wait(arg_0)).thenAcceptAsync(arg_0 -> this.lambda$reload$5(reloadProfiler, (java.util.Map)concurrentMap, arg_0), gameExecutor);
++    public java.util.concurrent.CompletableFuture<java.lang.Void> reload(net.minecraft.server.packs.resources.PreparableReloadListener$PreparationBarrier $$0, net.minecraft.server.packs.resources.ResourceManager $$12, net.minecraft.util.profiling.ProfilerFiller $$2, net.minecraft.util.profiling.ProfilerFiller $$32, java.util.concurrent.Executor $$4, java.util.concurrent.Executor $$5) {
++        java.util.concurrent.CompletableFuture $$6 = java.util.concurrent.CompletableFuture.supplyAsync(() -> PARTICLE_LISTER.listMatchingResources($$12), (java.util.concurrent.Executor)$$4).thenCompose($$1 -> {
++            java.util.ArrayList $$2 = new java.util.ArrayList($$1.size());
++            $$1.forEach((arg_0, arg_1) -> this.lambda$reload$2((java.util.List)$$2, $$4, arg_0, arg_1));
++            return net.minecraft.Util.sequence((java.util.List)$$2);
++        });
++        java.util.concurrent.CompletableFuture $$7 = java.util.concurrent.CompletableFuture.supplyAsync(() -> net.minecraft.client.renderer.texture.SpriteLoader.listSprites((net.minecraft.server.packs.resources.ResourceManager)$$12, (java.lang.String)"particle"), (java.util.concurrent.Executor)$$4).thenCompose($$1 -> net.minecraft.client.renderer.texture.SpriteLoader.create((net.minecraft.client.renderer.texture.TextureAtlas)this.textureAtlas).stitch($$1, 0, $$4)).thenCompose(net.minecraft.client.renderer.texture.SpriteLoader$Preparations::waitForUpload);
++        return java.util.concurrent.CompletableFuture.allOf((java.util.concurrent.CompletableFuture[])new java.util.concurrent.CompletableFuture[]{$$7, $$6}).thenCompose(arg_0 -> ((net.minecraft.server.packs.resources.PreparableReloadListener$PreparationBarrier)$$0).wait(arg_0)).thenAcceptAsync($$3 -> {
++            this.particles.clear();
++            $$32.startTick();
++            $$32.push("upload");
++            net.minecraft.client.renderer.texture.SpriteLoader$Preparations $$4 = (net.minecraft.client.renderer.texture.SpriteLoader$Preparations)$$7.join();
++            this.textureAtlas.upload($$4);
++            $$32.popPush("bindSpriteSets");
++            java.util.HashSet $$5 = new java.util.HashSet();
++            net.minecraft.client.renderer.texture.TextureAtlasSprite $$6 = $$4.missing();
++            ((java.util.List)$$6.join()).forEach(arg_0 -> this.lambda$reload$6($$4, (java.util.Set)$$5, $$6, arg_0));
++            if (!$$5.isEmpty()) {
++                LOGGER.warn("Missing particle sprites: {}", $$5.stream().sorted().map(net.minecraft.resources.ResourceLocation::toString).collect(java.util.stream.Collectors.joining((java.lang.CharSequence)",")));
++            }
++            $$32.pop();
++            $$32.endTick();
++        }, $$5);
+     }
+ 
+     public void close() {
+         this.textureAtlas.clearTextureData();
+     }
+ 
+-    public void loadParticleDescription(net.minecraft.server.packs.resources.ResourceManager manager, net.minecraft.resources.ResourceLocation registryName, java.util.Map<net.minecraft.resources.ResourceLocation, java.util.List<net.minecraft.resources.ResourceLocation>> textures) {
+-        net.minecraft.resources.ResourceLocation resourceLocation = new net.minecraft.resources.ResourceLocation(registryName.getNamespace(), "particles/" + registryName.getPath() + ".json");
+-        try (java.io.BufferedReader bufferedReader = manager.openAsReader(resourceLocation);
+-){
+-            net.minecraft.client.particle.ParticleDescription particleDescription = net.minecraft.client.particle.ParticleDescription.fromJson((com.google.gson.JsonObject)net.minecraft.util.GsonHelper.parse((java.io.Reader)bufferedReader));
+-            java.util.List list = particleDescription.getTextures();
+-            boolean bl = this.spriteSets.containsKey((java.lang.Object)registryName);
+-            if (list == null) {
+-                if (bl) {
+-                    throw new java.lang.IllegalStateException("Missing texture list for particle " + registryName);
++    /*
++     * Loose catch block
++     */
++    public java.util.Optional<java.util.List<net.minecraft.resources.ResourceLocation>> loadParticleDescription(net.minecraft.resources.ResourceLocation $$02, net.minecraft.server.packs.resources.Resource $$1) {
++        java.util.Optional optional;
++block14:        {
++            boolean $$5;
++            java.util.List $$4;
++            java.io.BufferedReader $$2;
++block12:            {
++                java.util.Optional optional2;
++block13:                {
++                    $$2 = $$1.openAsReader();
++                    net.minecraft.client.particle.ParticleDescription $$3 = net.minecraft.client.particle.ParticleDescription.fromJson((com.google.gson.JsonObject)net.minecraft.util.GsonHelper.parse((java.io.Reader)$$2));
++                    $$4 = $$3.getTextures();
++                    $$5 = this.spriteSets.containsKey((java.lang.Object)$$02);
++                    if ($$4 != null) break block12;
++                    if ($$5) {
++                        throw new java.lang.IllegalStateException("Missing texture list for particle " + $$02);
++                    }
++                    optional2 = java.util.Optional.empty();
++                    if ($$2 == null) break block13;
++                    $$2.close();
+                 }
+-            } else {
+-                if (!bl) {
+-                    throw new java.lang.IllegalStateException("Redundant texture list for particle " + registryName);
++                return optional2;
++            }
++            if (!$$5) {
++                throw new java.lang.IllegalStateException("Redundant texture list for particle " + $$02);
++            }
++            optional = java.util.Optional.of((java.lang.Object)((java.util.List)$$4.stream().map($$0 -> $$0.withPrefix("particle/")).collect(java.util.stream.Collectors.toList())));
++            if ($$2 == null) break block14;
++            {
++                catch (java.lang.Throwable throwable) {
++                    try {
++                        if ($$2 != null) {
++                            try {
++                                $$2.close();
++                            }
++                            catch (java.lang.Throwable throwable2) {
++                                throwable.addSuppressed(throwable2);
++                            }
++                        }
++                        throw throwable;
++                    }
++                    catch (java.io.IOException $$6) {
++                        throw new java.lang.IllegalStateException("Failed to load description for particle " + $$02, (java.lang.Throwable)$$6);
++                    }
+                 }
+-                textures.put((java.lang.Object)registryName, (java.lang.Object)((java.util.List)list.stream().map($$0 -> new net.minecraft.resources.ResourceLocation($$0.getNamespace(), "particle/" + $$0.getPath())).collect(java.util.stream.Collectors.toList())));
+             }
++            $$2.close();
+         }
+-        catch (java.io.IOException iOException) {
+-            throw new java.lang.IllegalStateException("Failed to load description for particle " + registryName, (java.lang.Throwable)iOException);
+-        }
++        return optional;
+     }
+ 
+-    public void createTrackingEmitter(net.minecraft.world.entity.Entity entity, net.minecraft.core.particles.ParticleOptions particleData) {
+-        this.trackingEmitters.add((java.lang.Object)new net.minecraft.client.particle.TrackingEmitter(this.level, entity, particleData));
++    public void createTrackingEmitter(net.minecraft.world.entity.Entity $$0, net.minecraft.core.particles.ParticleOptions $$1) {
++        this.trackingEmitters.add((java.lang.Object)new net.minecraft.client.particle.TrackingEmitter(this.level, $$0, $$1));
+     }
+ 
+-    public void createTrackingEmitter(net.minecraft.world.entity.Entity entity, net.minecraft.core.particles.ParticleOptions data, int lifetime) {
+-        this.trackingEmitters.add((java.lang.Object)new net.minecraft.client.particle.TrackingEmitter(this.level, entity, data, lifetime));
++    public void createTrackingEmitter(net.minecraft.world.entity.Entity $$0, net.minecraft.core.particles.ParticleOptions $$1, int $$2) {
++        this.trackingEmitters.add((java.lang.Object)new net.minecraft.client.particle.TrackingEmitter(this.level, $$0, $$1, $$2));
+     }
+ 
+     @javax.annotation.Nullable
+-    public net.minecraft.client.particle.Particle createParticle(net.minecraft.core.particles.ParticleOptions particleData, double x, double y, double z, double xSpeed, double ySpeed, double zSpeed) {
+-        net.minecraft.client.particle.Particle particle = this.makeParticle(particleData, x, y, z, xSpeed, ySpeed, zSpeed);
+-        if (particle != null) {
+-            this.add(particle);
+-            return particle;
++    public net.minecraft.client.particle.Particle createParticle(net.minecraft.core.particles.ParticleOptions $$0, double $$1, double $$2, double $$3, double $$4, double $$5, double $$6) {
++        net.minecraft.client.particle.Particle $$7 = this.makeParticle($$0, $$1, $$2, $$3, $$4, $$5, $$6);
++        if ($$7 != null) {
++            this.add($$7);
++            return $$7;
+         }
+         return null;
+     }
+ 
+     @javax.annotation.Nullable
+-    public <T extends net.minecraft.core.particles.ParticleOptions> net.minecraft.client.particle.Particle makeParticle(T particleData, double x, double y, double z, double xSpeed, double ySpeed, double zSpeed) {
+-        net.minecraft.client.particle.ParticleProvider particleProvider = (net.minecraft.client.particle.ParticleProvider)this.providers.get(net.minecraft.core.Registry.PARTICLE_TYPE.getId((java.lang.Object)particleData.getType()));
+-        if (particleProvider == null) {
++    public <T extends net.minecraft.core.particles.ParticleOptions> net.minecraft.client.particle.Particle makeParticle(T $$0, double $$1, double $$2, double $$3, double $$4, double $$5, double $$6) {
++        net.minecraft.client.particle.ParticleProvider $$7 = (net.minecraft.client.particle.ParticleProvider)this.providers.get(net.minecraft.core.Registry.PARTICLE_TYPE.getId((java.lang.Object)$$0.getType()));
++        if ($$7 == null) {
+             return null;
+         }
+-        return particleProvider.createParticle(particleData, this.level, x, y, z, xSpeed, ySpeed, zSpeed);
++        return $$7.createParticle($$0, this.level, $$1, $$2, $$3, $$4, $$5, $$6);
+     }
+ 
+-    public void add(net.minecraft.client.particle.Particle effect) {
+-        java.util.Optional optional = effect.getParticleGroup();
+-        if (optional.isPresent()) {
+-            if (this.hasSpaceInParticleLimit((net.minecraft.core.particles.ParticleGroup)optional.get())) {
+-                this.particlesToAdd.add((java.lang.Object)effect);
+-                this.updateCount((net.minecraft.core.particles.ParticleGroup)optional.get(), 1);
++    public void add(net.minecraft.client.particle.Particle $$0) {
++        java.util.Optional $$1 = $$0.getParticleGroup();
++        if ($$1.isPresent()) {
++            if (this.hasSpaceInParticleLimit((net.minecraft.core.particles.ParticleGroup)$$1.get())) {
++                this.particlesToAdd.add((java.lang.Object)$$0);
++                this.updateCount((net.minecraft.core.particles.ParticleGroup)$$1.get(), 1);
+             }
+         } else {
+-            this.particlesToAdd.add((java.lang.Object)effect);
++            this.particlesToAdd.add((java.lang.Object)$$0);
+         }
+     }
+ 
+     public void tick() {
+-        this.particles.forEach((renderType, queue) -> {
+-            this.level.getProfiler().push(renderType.toString());
+-            this.tickParticleList((java.util.Collection)queue);
++        this.particles.forEach(($$0, $$1) -> {
++            this.level.getProfiler().push($$0.toString());
++            this.tickParticleList((java.util.Collection)$$1);
+             this.level.getProfiler().pop();
+         });
+         if (!this.trackingEmitters.isEmpty()) {
+-            java.util.ArrayList $$0 = com.google.common.collect.Lists.newArrayList();
+-            for (net.minecraft.client.particle.TrackingEmitter $$1 : this.trackingEmitters) {
+-                $$1.tick();
+-                if ($$1.isAlive()) continue;
+-                $$0.add((java.lang.Object)$$1);
++            java.util.ArrayList $$02 = com.google.common.collect.Lists.newArrayList();
++            for (net.minecraft.client.particle.TrackingEmitter $$12 : this.trackingEmitters) {
++                $$12.tick();
++                if ($$12.isAlive()) continue;
++                $$02.add((java.lang.Object)$$12);
+             }
+-            this.trackingEmitters.removeAll((java.util.Collection)$$0);
++            this.trackingEmitters.removeAll((java.util.Collection)$$02);
+         }
+         if (!this.particlesToAdd.isEmpty()) {
+             net.minecraft.client.particle.Particle $$2;
+             while (($$2 = (net.minecraft.client.particle.Particle)this.particlesToAdd.poll()) != null) {
+-                ((java.util.Queue)this.particles.computeIfAbsent((java.lang.Object)$$2.getRenderType(), renderType -> com.google.common.collect.EvictingQueue.create((int)16384))).add((java.lang.Object)$$2);
++                ((java.util.Queue)this.particles.computeIfAbsent((java.lang.Object)$$2.getRenderType(), $$0 -> com.google.common.collect.EvictingQueue.create((int)16384))).add((java.lang.Object)$$2);
+             }
+         }
+     }
+ 
+-    public void tickParticleList(java.util.Collection<net.minecraft.client.particle.Particle> particles) {
+-        if (!particles.isEmpty()) {
+-            java.util.Iterator iterator = particles.iterator();
+-            while (iterator.hasNext()) {
+-                net.minecraft.client.particle.Particle particle = (net.minecraft.client.particle.Particle)iterator.next();
+-                this.tickParticle(particle);
+-                if (particle.isAlive()) continue;
+-                particle.getParticleGroup().ifPresent($$0 -> this.updateCount($$0, -1));
+-                iterator.remove();
++    public void tickParticleList(java.util.Collection<net.minecraft.client.particle.Particle> $$02) {
++        if (!$$02.isEmpty()) {
++            java.util.Iterator $$1 = $$02.iterator();
++            while ($$1.hasNext()) {
++                net.minecraft.client.particle.Particle $$2 = (net.minecraft.client.particle.Particle)$$1.next();
++                this.tickParticle($$2);
++                if ($$2.isAlive()) continue;
++                $$2.getParticleGroup().ifPresent($$0 -> this.updateCount($$0, -1));
++                $$1.remove();
+             }
+         }
+     }
+@@ -252,69 +304,69 @@
+         this.trackedParticleCounts.addTo((java.lang.Object)$$0, $$1);
+     }
+ 
+-    public void tickParticle(net.minecraft.client.particle.Particle particle) {
++    public void tickParticle(net.minecraft.client.particle.Particle $$0) {
+         try {
+-            particle.tick();
++            $$0.tick();
+         }
+-        catch (java.lang.Throwable throwable) {
+-            net.minecraft.CrashReport crashReport = net.minecraft.CrashReport.forThrowable((java.lang.Throwable)throwable, (java.lang.String)"Ticking Particle");
+-            net.minecraft.CrashReportCategory crashReportCategory = crashReport.addCategory("Particle being ticked");
+-            crashReportCategory.setDetail("Particle", () -> ((net.minecraft.client.particle.Particle)particle).toString());
+-            crashReportCategory.setDetail("Particle Type", () -> ((net.minecraft.client.particle.ParticleRenderType)particle.getRenderType()).toString());
+-            throw new net.minecraft.ReportedException(crashReport);
++        catch (java.lang.Throwable $$1) {
++            net.minecraft.CrashReport $$2 = net.minecraft.CrashReport.forThrowable((java.lang.Throwable)$$1, (java.lang.String)"Ticking Particle");
++            net.minecraft.CrashReportCategory $$3 = $$2.addCategory("Particle being ticked");
++            $$3.setDetail("Particle", () -> ((net.minecraft.client.particle.Particle)$$0).toString());
++            $$3.setDetail("Particle Type", () -> ((net.minecraft.client.particle.ParticleRenderType)$$0.getRenderType()).toString());
++            throw new net.minecraft.ReportedException($$2);
+         }
+     }
+ 
+-    public void render(com.mojang.blaze3d.vertex.PoseStack matrixStack, net.minecraft.client.renderer.MultiBufferSource$BufferSource buffer, net.minecraft.client.renderer.LightTexture lightTexture, net.minecraft.client.Camera activeRenderInfo, float partialTicks) {
+-        lightTexture.turnOnLightLayer();
++    public void render(com.mojang.blaze3d.vertex.PoseStack $$0, net.minecraft.client.renderer.MultiBufferSource$BufferSource $$1, net.minecraft.client.renderer.LightTexture $$2, net.minecraft.client.Camera $$3, float $$4) {
++        $$2.turnOnLightLayer();
+         com.mojang.blaze3d.systems.RenderSystem.enableDepthTest();
+-        com.mojang.blaze3d.vertex.PoseStack poseStack = com.mojang.blaze3d.systems.RenderSystem.getModelViewStack();
+-        poseStack.pushPose();
+-        poseStack.mulPoseMatrix(matrixStack.last().pose());
++        com.mojang.blaze3d.vertex.PoseStack $$5 = com.mojang.blaze3d.systems.RenderSystem.getModelViewStack();
++        $$5.pushPose();
++        $$5.mulPoseMatrix($$0.last().pose());
+         com.mojang.blaze3d.systems.RenderSystem.applyModelViewMatrix();
+-        for (net.minecraft.client.particle.ParticleRenderType particleRenderType : RENDER_ORDER) {
+-            java.lang.Iterable iterable = (java.lang.Iterable)this.particles.get((java.lang.Object)particleRenderType);
+-            if (iterable == null) continue;
++        for (net.minecraft.client.particle.ParticleRenderType $$6 : RENDER_ORDER) {
++            java.lang.Iterable $$7 = (java.lang.Iterable)this.particles.get((java.lang.Object)$$6);
++            if ($$7 == null) continue;
+             com.mojang.blaze3d.systems.RenderSystem.setShader(net.minecraft.client.renderer.GameRenderer::getParticleShader);
+             com.mojang.blaze3d.systems.RenderSystem.setShaderColor((float)1.0f, (float)1.0f, (float)1.0f, (float)1.0f);
+-            com.mojang.blaze3d.vertex.Tesselator tesselator = com.mojang.blaze3d.vertex.Tesselator.getInstance();
+-            com.mojang.blaze3d.vertex.BufferBuilder bufferBuilder = tesselator.getBuilder();
+-            particleRenderType.begin(bufferBuilder, this.textureManager);
+-            for (net.minecraft.client.particle.Particle particle : iterable) {
++            com.mojang.blaze3d.vertex.Tesselator $$8 = com.mojang.blaze3d.vertex.Tesselator.getInstance();
++            com.mojang.blaze3d.vertex.BufferBuilder $$9 = $$8.getBuilder();
++            $$6.begin($$9, this.textureManager);
++            for (net.minecraft.client.particle.Particle $$10 : $$7) {
+                 try {
+-                    particle.render((com.mojang.blaze3d.vertex.VertexConsumer)bufferBuilder, activeRenderInfo, partialTicks);
++                    $$10.render((com.mojang.blaze3d.vertex.VertexConsumer)$$9, $$3, $$4);
+                 }
+-                catch (java.lang.Throwable throwable) {
+-                    net.minecraft.CrashReport crashReport = net.minecraft.CrashReport.forThrowable((java.lang.Throwable)throwable, (java.lang.String)"Rendering Particle");
+-                    net.minecraft.CrashReportCategory crashReportCategory = crashReport.addCategory("Particle being rendered");
+-                    crashReportCategory.setDetail("Particle", () -> ((net.minecraft.client.particle.Particle)particle).toString());
+-                    crashReportCategory.setDetail("Particle Type", () -> ((net.minecraft.client.particle.ParticleRenderType)particleRenderType).toString());
+-                    throw new net.minecraft.ReportedException(crashReport);
++                catch (java.lang.Throwable $$11) {
++                    net.minecraft.CrashReport $$12 = net.minecraft.CrashReport.forThrowable((java.lang.Throwable)$$11, (java.lang.String)"Rendering Particle");
++                    net.minecraft.CrashReportCategory $$13 = $$12.addCategory("Particle being rendered");
++                    $$13.setDetail("Particle", () -> ((net.minecraft.client.particle.Particle)$$10).toString());
++                    $$13.setDetail("Particle Type", () -> ((net.minecraft.client.particle.ParticleRenderType)$$6).toString());
++                    throw new net.minecraft.ReportedException($$12);
+                 }
+             }
+-            particleRenderType.end(tesselator);
++            $$6.end($$8);
+         }
+-        poseStack.popPose();
++        $$5.popPose();
+         com.mojang.blaze3d.systems.RenderSystem.applyModelViewMatrix();
+         com.mojang.blaze3d.systems.RenderSystem.depthMask((boolean)true);
+         com.mojang.blaze3d.systems.RenderSystem.disableBlend();
+-        lightTexture.turnOffLightLayer();
++        $$2.turnOffLightLayer();
+     }
+ 
+-    public void setLevel(@javax.annotation.Nullable net.minecraft.client.multiplayer.ClientLevel level) {
+-        this.level = level;
++    public void setLevel(@javax.annotation.Nullable net.minecraft.client.multiplayer.ClientLevel $$0) {
++        this.level = $$0;
+         this.particles.clear();
+         this.trackingEmitters.clear();
+         this.trackedParticleCounts.clear();
+     }
+ 
+-    public void destroy(net.minecraft.core.BlockPos pos, net.minecraft.world.level.block.state.BlockState state) {
+-        if (state.isAir()) {
++    public void destroy(net.minecraft.core.BlockPos $$0, net.minecraft.world.level.block.state.BlockState $$1) {
++        if ($$1.isAir() || !$$1.shouldSpawnParticlesOnBreak()) {
+             return;
+         }
+-        net.minecraft.world.phys.shapes.VoxelShape voxelShape = state.getShape((net.minecraft.world.level.BlockGetter)this.level, pos);
+-        double d = 0.25;
+-        voxelShape.forAllBoxes(($$2, $$3, $$4, $$5, $$6, $$7) -> {
++        net.minecraft.world.phys.shapes.VoxelShape $$22 = $$1.getShape((net.minecraft.world.level.BlockGetter)this.level, $$0);
++        double $$32 = 0.25;
++        $$22.forAllBoxes(($$2, $$3, $$4, $$5, $$6, $$7) -> {
+             double $$8 = java.lang.Math.min((double)1.0, (double)($$5 - $$2));
+             double $$9 = java.lang.Math.min((double)1.0, (double)($$6 - $$3));
+             double $$10 = java.lang.Math.min((double)1.0, (double)($$7 - $$4));
+@@ -330,45 +382,45 @@
+                         double $$20 = $$17 * $$8 + $$2;
+                         double $$21 = $$18 * $$9 + $$3;
+                         double $$22 = $$19 * $$10 + $$4;
+-                        this.add((net.minecraft.client.particle.Particle)new net.minecraft.client.particle.TerrainParticle(this.level, (double)pos.getX() + $$20, (double)pos.getY() + $$21, (double)pos.getZ() + $$22, $$17 - 0.5, $$18 - 0.5, $$19 - 0.5, state, pos));
++                        this.add((net.minecraft.client.particle.Particle)new net.minecraft.client.particle.TerrainParticle(this.level, (double)$$0.getX() + $$20, (double)$$0.getY() + $$21, (double)$$0.getZ() + $$22, $$17 - 0.5, $$18 - 0.5, $$19 - 0.5, $$1, $$0));
+                     }
+                 }
+             }
+         });
+     }
+ 
+-    public void crack(net.minecraft.core.BlockPos pos, net.minecraft.core.Direction side) {
+-        net.minecraft.world.level.block.state.BlockState blockState = this.level.getBlockState(pos);
+-        if (blockState.getRenderShape() == net.minecraft.world.level.block.RenderShape.INVISIBLE) {
++    public void crack(net.minecraft.core.BlockPos $$0, net.minecraft.core.Direction $$1) {
++        net.minecraft.world.level.block.state.BlockState $$2 = this.level.getBlockState($$0);
++        if ($$2.getRenderShape() == net.minecraft.world.level.block.RenderShape.INVISIBLE) {
+             return;
+         }
+-        int n = pos.getX();
+-        int n2 = pos.getY();
+-        int n3 = pos.getZ();
+-        float f = 0.1f;
+-        net.minecraft.world.phys.AABB aABB = blockState.getShape((net.minecraft.world.level.BlockGetter)this.level, pos).bounds();
+-        double d = (double)n + this.random.nextDouble() * (aABB.maxX - aABB.minX - (double)0.2f) + (double)0.1f + aABB.minX;
+-        double d2 = (double)n2 + this.random.nextDouble() * (aABB.maxY - aABB.minY - (double)0.2f) + (double)0.1f + aABB.minY;
+-        double d3 = (double)n3 + this.random.nextDouble() * (aABB.maxZ - aABB.minZ - (double)0.2f) + (double)0.1f + aABB.minZ;
+-        if (side == net.minecraft.core.Direction.DOWN) {
+-            d2 = (double)n2 + aABB.minY - (double)0.1f;
++        int $$3 = $$0.getX();
++        int $$4 = $$0.getY();
++        int $$5 = $$0.getZ();
++        float $$6 = 0.1f;
++        net.minecraft.world.phys.AABB $$7 = $$2.getShape((net.minecraft.world.level.BlockGetter)this.level, $$0).bounds();
++        double $$8 = (double)$$3 + this.random.nextDouble() * ($$7.maxX - $$7.minX - (double)0.2f) + (double)0.1f + $$7.minX;
++        double $$9 = (double)$$4 + this.random.nextDouble() * ($$7.maxY - $$7.minY - (double)0.2f) + (double)0.1f + $$7.minY;
++        double $$10 = (double)$$5 + this.random.nextDouble() * ($$7.maxZ - $$7.minZ - (double)0.2f) + (double)0.1f + $$7.minZ;
++        if ($$1 == net.minecraft.core.Direction.DOWN) {
++            $$9 = (double)$$4 + $$7.minY - (double)0.1f;
+         }
+-        if (side == net.minecraft.core.Direction.UP) {
+-            d2 = (double)n2 + aABB.maxY + (double)0.1f;
++        if ($$1 == net.minecraft.core.Direction.UP) {
++            $$9 = (double)$$4 + $$7.maxY + (double)0.1f;
+         }
+-        if (side == net.minecraft.core.Direction.NORTH) {
+-            d3 = (double)n3 + aABB.minZ - (double)0.1f;
++        if ($$1 == net.minecraft.core.Direction.NORTH) {
++            $$10 = (double)$$5 + $$7.minZ - (double)0.1f;
+         }
+-        if (side == net.minecraft.core.Direction.SOUTH) {
+-            d3 = (double)n3 + aABB.maxZ + (double)0.1f;
++        if ($$1 == net.minecraft.core.Direction.SOUTH) {
++            $$10 = (double)$$5 + $$7.maxZ + (double)0.1f;
+         }
+-        if (side == net.minecraft.core.Direction.WEST) {
+-            d = (double)n + aABB.minX - (double)0.1f;
++        if ($$1 == net.minecraft.core.Direction.WEST) {
++            $$8 = (double)$$3 + $$7.minX - (double)0.1f;
+         }
+-        if (side == net.minecraft.core.Direction.EAST) {
+-            d = (double)n + aABB.maxX + (double)0.1f;
++        if ($$1 == net.minecraft.core.Direction.EAST) {
++            $$8 = (double)$$3 + $$7.maxX + (double)0.1f;
+         }
+-        this.add(new net.minecraft.client.particle.TerrainParticle(this.level, d, d2, d3, 0.0, 0.0, 0.0, blockState, pos).setPower(0.2f).scale(0.6f));
++        this.add(new net.minecraft.client.particle.TerrainParticle(this.level, $$8, $$9, $$10, 0.0, 0.0, 0.0, $$2, $$0).setPower(0.2f).scale(0.6f));
+     }
+ 
+     public java.lang.String countParticles() {
+@@ -379,35 +431,37 @@
+         return this.trackedParticleCounts.getInt((java.lang.Object)$$0) < $$0.getLimit();
+     }
+ 
+-    public /* synthetic */ void lambda$reload$5(net.minecraft.util.profiling.ProfilerFiller profilerFiller, java.util.Map map, net.minecraft.client.renderer.texture.TextureAtlas$Preparations preparations) {
+-        this.particles.clear();
+-        profilerFiller.startTick();
+-        profilerFiller.push("upload");
+-        this.textureAtlas.reload(preparations);
+-        profilerFiller.popPush("bindSpriteSets");
+-        net.minecraft.client.renderer.texture.TextureAtlasSprite textureAtlasSprite = this.textureAtlas.getSprite(net.minecraft.client.renderer.texture.MissingTextureAtlasSprite.getLocation());
+-        map.forEach(($$1, $$2) -> {
+-            com.google.common.collect.ImmutableList $$3 = $$2.isEmpty() ? com.google.common.collect.ImmutableList.of((java.lang.Object)textureAtlasSprite) : (com.google.common.collect.ImmutableList)$$2.stream().map(arg_0 -> ((net.minecraft.client.renderer.texture.TextureAtlas)this.textureAtlas).getSprite(arg_0)).collect(com.google.common.collect.ImmutableList.toImmutableList());
+-            ((net.minecraft.client.particle.ParticleEngine$MutableSpriteSet)this.spriteSets.get($$1)).rebind((java.util.List)$$3);
+-        });
+-        profilerFiller.pop();
+-        profilerFiller.endTick();
++    public /* synthetic */ void lambda$reload$6(net.minecraft.client.renderer.texture.SpriteLoader$Preparations $$0, java.util.Set $$1, net.minecraft.client.renderer.texture.TextureAtlasSprite $$2, net.minecraft.client.particle.ParticleEngine$1ParticleDefinition $$3) {
++        java.util.Optional $$4 = $$3.sprites();
++        if ($$4.isEmpty()) {
++            return;
++        }
++        java.util.ArrayList $$5 = new java.util.ArrayList();
++        for (net.minecraft.resources.ResourceLocation $$6 : (java.util.List)$$4.get()) {
++            net.minecraft.client.renderer.texture.TextureAtlasSprite $$7 = (net.minecraft.client.renderer.texture.TextureAtlasSprite)$$0.regions().get((java.lang.Object)$$6);
++            if ($$7 == null) {
++                $$1.add((java.lang.Object)$$6);
++                $$5.add((java.lang.Object)$$2);
++                continue;
++            }
++            $$5.add((java.lang.Object)$$7);
++        }
++        if ($$5.isEmpty()) {
++            $$5.add((java.lang.Object)$$2);
++        }
++        ((net.minecraft.client.particle.ParticleEngine$MutableSpriteSet)this.spriteSets.get((java.lang.Object)$$3.id())).rebind((java.util.List)$$5);
+     }
+ 
+-    public /* synthetic */ net.minecraft.client.renderer.texture.TextureAtlas$Preparations lambda$reload$3(net.minecraft.util.profiling.ProfilerFiller profilerFiller, net.minecraft.server.packs.resources.ResourceManager resourceManager, java.util.Map map, java.lang.Void v) {
+-        profilerFiller.startTick();
+-        profilerFiller.push("stitching");
+-        net.minecraft.client.renderer.texture.TextureAtlas$Preparations preparations = this.textureAtlas.prepareToStitch(resourceManager, map.values().stream().flatMap(java.util.Collection::stream), profilerFiller, 0);
+-        profilerFiller.pop();
+-        profilerFiller.endTick();
+-        return preparations;
++    public /* synthetic */ void lambda$reload$2(java.util.List $$0, java.util.concurrent.Executor $$1, net.minecraft.resources.ResourceLocation $$2, net.minecraft.server.packs.resources.Resource $$3) {
++        net.minecraft.resources.ResourceLocation $$4 = PARTICLE_LISTER.fileToId($$2);
++        $$0.add((java.lang.Object)java.util.concurrent.CompletableFuture.supplyAsync(() -> {
++            return new ParticleDefinition($$4, this.loadParticleDescription($$4, $$3));
++        }, (java.util.concurrent.Executor)$$1));
+     }
+ 
+-    public /* synthetic */ java.util.concurrent.CompletableFuture lambda$reload$1(net.minecraft.server.packs.resources.ResourceManager resourceManager, java.util.Map map, java.util.concurrent.Executor executor, net.minecraft.resources.ResourceLocation registryName) {
+-        return java.util.concurrent.CompletableFuture.runAsync(() -> this.loadParticleDescription(resourceManager, registryName, map), (java.util.concurrent.Executor)executor);
+-    }
+-
+     static {
++        LOGGER = com.mojang.logging.LogUtils.getLogger();
++        PARTICLE_LISTER = net.minecraft.resources.FileToIdConverter.json((java.lang.String)"particles");
+         RENDER_ORDER = com.google.common.collect.ImmutableList.of((java.lang.Object)net.minecraft.client.particle.ParticleRenderType.TERRAIN_SHEET, (java.lang.Object)net.minecraft.client.particle.ParticleRenderType.PARTICLE_SHEET_OPAQUE, (java.lang.Object)net.minecraft.client.particle.ParticleRenderType.PARTICLE_SHEET_LIT, (java.lang.Object)net.minecraft.client.particle.ParticleRenderType.PARTICLE_SHEET_TRANSLUCENT, (java.lang.Object)net.minecraft.client.particle.ParticleRenderType.CUSTOM);
+     }
+ }

@@ -1,0 +1,119 @@
+--- net/minecraft/advancements/critereon/LocationPredicate.java
++++ net/minecraft/advancements/critereon/LocationPredicate.java
+@@ -35,12 +35,12 @@
+         this.fluid = $$9;
+     }
+ 
+-    public static net.minecraft.advancements.critereon.LocationPredicate inBiome(net.minecraft.resources.ResourceKey<net.minecraft.world.level.biome.Biome> biome) {
+-        return new net.minecraft.advancements.critereon.LocationPredicate(net.minecraft.advancements.critereon.MinMaxBounds$Doubles.ANY, net.minecraft.advancements.critereon.MinMaxBounds$Doubles.ANY, net.minecraft.advancements.critereon.MinMaxBounds$Doubles.ANY, biome, null, null, null, net.minecraft.advancements.critereon.LightPredicate.ANY, net.minecraft.advancements.critereon.BlockPredicate.ANY, net.minecraft.advancements.critereon.FluidPredicate.ANY);
++    public static net.minecraft.advancements.critereon.LocationPredicate inBiome(net.minecraft.resources.ResourceKey<net.minecraft.world.level.biome.Biome> $$0) {
++        return new net.minecraft.advancements.critereon.LocationPredicate(net.minecraft.advancements.critereon.MinMaxBounds$Doubles.ANY, net.minecraft.advancements.critereon.MinMaxBounds$Doubles.ANY, net.minecraft.advancements.critereon.MinMaxBounds$Doubles.ANY, $$0, null, null, null, net.minecraft.advancements.critereon.LightPredicate.ANY, net.minecraft.advancements.critereon.BlockPredicate.ANY, net.minecraft.advancements.critereon.FluidPredicate.ANY);
+     }
+ 
+-    public static net.minecraft.advancements.critereon.LocationPredicate inDimension(net.minecraft.resources.ResourceKey<net.minecraft.world.level.Level> dimension) {
+-        return new net.minecraft.advancements.critereon.LocationPredicate(net.minecraft.advancements.critereon.MinMaxBounds$Doubles.ANY, net.minecraft.advancements.critereon.MinMaxBounds$Doubles.ANY, net.minecraft.advancements.critereon.MinMaxBounds$Doubles.ANY, null, null, dimension, null, net.minecraft.advancements.critereon.LightPredicate.ANY, net.minecraft.advancements.critereon.BlockPredicate.ANY, net.minecraft.advancements.critereon.FluidPredicate.ANY);
++    public static net.minecraft.advancements.critereon.LocationPredicate inDimension(net.minecraft.resources.ResourceKey<net.minecraft.world.level.Level> $$0) {
++        return new net.minecraft.advancements.critereon.LocationPredicate(net.minecraft.advancements.critereon.MinMaxBounds$Doubles.ANY, net.minecraft.advancements.critereon.MinMaxBounds$Doubles.ANY, net.minecraft.advancements.critereon.MinMaxBounds$Doubles.ANY, null, null, $$0, null, net.minecraft.advancements.critereon.LightPredicate.ANY, net.minecraft.advancements.critereon.BlockPredicate.ANY, net.minecraft.advancements.critereon.FluidPredicate.ANY);
+     }
+ 
+     public static net.minecraft.advancements.critereon.LocationPredicate inStructure(net.minecraft.resources.ResourceKey<net.minecraft.world.level.levelgen.structure.Structure> $$0) {
+@@ -51,37 +51,37 @@
+         return new net.minecraft.advancements.critereon.LocationPredicate(net.minecraft.advancements.critereon.MinMaxBounds$Doubles.ANY, $$0, net.minecraft.advancements.critereon.MinMaxBounds$Doubles.ANY, null, null, null, null, net.minecraft.advancements.critereon.LightPredicate.ANY, net.minecraft.advancements.critereon.BlockPredicate.ANY, net.minecraft.advancements.critereon.FluidPredicate.ANY);
+     }
+ 
+-    public boolean matches(net.minecraft.server.level.ServerLevel level, double x, double y, double z) {
+-        if (!this.x.matches(x)) {
++    public boolean matches(net.minecraft.server.level.ServerLevel $$0, double $$1, double $$2, double $$3) {
++        if (!this.x.matches($$1)) {
+             return false;
+         }
+-        if (!this.y.matches(y)) {
++        if (!this.y.matches($$2)) {
+             return false;
+         }
+-        if (!this.z.matches(z)) {
++        if (!this.z.matches($$3)) {
+             return false;
+         }
+-        if (this.dimension != null && this.dimension != level.dimension()) {
++        if (this.dimension != null && this.dimension != $$0.dimension()) {
+             return false;
+         }
+-        net.minecraft.core.BlockPos blockPos = new net.minecraft.core.BlockPos(x, y, z);
+-        boolean bl = level.isLoaded(blockPos);
+-        if (!(this.biome == null || bl && level.getBiome(blockPos).is(this.biome))) {
++        net.minecraft.core.BlockPos $$4 = new net.minecraft.core.BlockPos($$1, $$2, $$3);
++        boolean $$5 = $$0.isLoaded($$4);
++        if (!(this.biome == null || $$5 && $$0.getBiome($$4).is(this.biome))) {
+             return false;
+         }
+-        if (!(this.structure == null || bl && level.structureManager().getStructureWithPieceAt(blockPos, this.structure).isValid())) {
++        if (!(this.structure == null || $$5 && $$0.structureManager().getStructureWithPieceAt($$4, this.structure).isValid())) {
+             return false;
+         }
+-        if (!(this.smokey == null || bl && this.smokey == net.minecraft.world.level.block.CampfireBlock.isSmokeyPos((net.minecraft.world.level.Level)level, (net.minecraft.core.BlockPos)blockPos))) {
++        if (!(this.smokey == null || $$5 && this.smokey == net.minecraft.world.level.block.CampfireBlock.isSmokeyPos((net.minecraft.world.level.Level)$$0, (net.minecraft.core.BlockPos)$$4))) {
+             return false;
+         }
+-        if (!this.light.matches(level, blockPos)) {
++        if (!this.light.matches($$0, $$4)) {
+             return false;
+         }
+-        if (!this.block.matches(level, blockPos)) {
++        if (!this.block.matches($$0, $$4)) {
+             return false;
+         }
+-        return this.fluid.matches(level, blockPos);
++        return this.fluid.matches($$0, $$4);
+     }
+ 
+     public com.google.gson.JsonElement serializeToJson() {
+@@ -114,29 +114,28 @@
+         return $$0;
+     }
+ 
+-    public static net.minecraft.advancements.critereon.LocationPredicate fromJson(@javax.annotation.Nullable com.google.gson.JsonElement element) {
+-        net.minecraft.resources.ResourceLocation resourceLocation;
+-        net.minecraft.resources.ResourceKey resourceKey;
+-        if (element == null || element.isJsonNull()) {
++    public static net.minecraft.advancements.critereon.LocationPredicate fromJson(@javax.annotation.Nullable com.google.gson.JsonElement $$02) {
++        net.minecraft.resources.ResourceKey $$6;
++        if ($$02 == null || $$02.isJsonNull()) {
+             return ANY;
+         }
+-        com.google.gson.JsonObject jsonObject = net.minecraft.util.GsonHelper.convertToJsonObject((com.google.gson.JsonElement)element, (java.lang.String)"location");
+-        com.google.gson.JsonObject jsonObject2 = net.minecraft.util.GsonHelper.getAsJsonObject((com.google.gson.JsonObject)jsonObject, (java.lang.String)"position", (com.google.gson.JsonObject)new com.google.gson.JsonObject());
+-        net.minecraft.advancements.critereon.MinMaxBounds$Doubles doubles = net.minecraft.advancements.critereon.MinMaxBounds$Doubles.fromJson((com.google.gson.JsonElement)jsonObject2.get("x"));
+-        net.minecraft.advancements.critereon.MinMaxBounds$Doubles doubles2 = net.minecraft.advancements.critereon.MinMaxBounds$Doubles.fromJson((com.google.gson.JsonElement)jsonObject2.get("y"));
+-        net.minecraft.advancements.critereon.MinMaxBounds$Doubles doubles3 = net.minecraft.advancements.critereon.MinMaxBounds$Doubles.fromJson((com.google.gson.JsonElement)jsonObject2.get("z"));
+-        net.minecraft.resources.ResourceKey resourceKey2 = jsonObject.has("dimension") ? (net.minecraft.resources.ResourceKey)net.minecraft.resources.ResourceLocation.CODEC.parse((com.mojang.serialization.DynamicOps)com.mojang.serialization.JsonOps.INSTANCE, (java.lang.Object)jsonObject.get("dimension")).resultOrPartial(arg_0 -> ((org.slf4j.Logger)LOGGER).error(arg_0)).map($$0 -> net.minecraft.resources.ResourceKey.create((net.minecraft.resources.ResourceKey)net.minecraft.core.Registry.DIMENSION_REGISTRY, (net.minecraft.resources.ResourceLocation)$$0)).orElse(null) : (resourceKey = null);
+-        net.minecraft.resources.ResourceKey resourceKey3 = jsonObject.has("structure") ? (net.minecraft.resources.ResourceKey)net.minecraft.resources.ResourceLocation.CODEC.parse((com.mojang.serialization.DynamicOps)com.mojang.serialization.JsonOps.INSTANCE, (java.lang.Object)jsonObject.get("structure")).resultOrPartial(arg_0 -> ((org.slf4j.Logger)LOGGER).error(arg_0)).map($$0 -> net.minecraft.resources.ResourceKey.create((net.minecraft.resources.ResourceKey)net.minecraft.core.Registry.STRUCTURE_REGISTRY, (net.minecraft.resources.ResourceLocation)$$0)).orElse(null) : null;
+-        net.minecraft.resources.ResourceKey resourceKey4 = null;
+-        if (jsonObject.has("biome")) {
+-            resourceLocation = new net.minecraft.resources.ResourceLocation(net.minecraft.util.GsonHelper.getAsString((com.google.gson.JsonObject)jsonObject, (java.lang.String)"biome"));
+-            resourceKey4 = net.minecraft.resources.ResourceKey.create((net.minecraft.resources.ResourceKey)net.minecraft.core.Registry.BIOME_REGISTRY, (net.minecraft.resources.ResourceLocation)resourceLocation);
++        com.google.gson.JsonObject $$1 = net.minecraft.util.GsonHelper.convertToJsonObject((com.google.gson.JsonElement)$$02, (java.lang.String)"location");
++        com.google.gson.JsonObject $$2 = net.minecraft.util.GsonHelper.getAsJsonObject((com.google.gson.JsonObject)$$1, (java.lang.String)"position", (com.google.gson.JsonObject)new com.google.gson.JsonObject());
++        net.minecraft.advancements.critereon.MinMaxBounds$Doubles $$3 = net.minecraft.advancements.critereon.MinMaxBounds$Doubles.fromJson((com.google.gson.JsonElement)$$2.get("x"));
++        net.minecraft.advancements.critereon.MinMaxBounds$Doubles $$4 = net.minecraft.advancements.critereon.MinMaxBounds$Doubles.fromJson((com.google.gson.JsonElement)$$2.get("y"));
++        net.minecraft.advancements.critereon.MinMaxBounds$Doubles $$5 = net.minecraft.advancements.critereon.MinMaxBounds$Doubles.fromJson((com.google.gson.JsonElement)$$2.get("z"));
++        net.minecraft.resources.ResourceKey resourceKey = $$1.has("dimension") ? (net.minecraft.resources.ResourceKey)net.minecraft.resources.ResourceLocation.CODEC.parse((com.mojang.serialization.DynamicOps)com.mojang.serialization.JsonOps.INSTANCE, (java.lang.Object)$$1.get("dimension")).resultOrPartial(arg_0 -> ((org.slf4j.Logger)LOGGER).error(arg_0)).map($$0 -> net.minecraft.resources.ResourceKey.create((net.minecraft.resources.ResourceKey)net.minecraft.core.Registry.DIMENSION_REGISTRY, (net.minecraft.resources.ResourceLocation)$$0)).orElse(null) : ($$6 = null);
++        net.minecraft.resources.ResourceKey $$7 = $$1.has("structure") ? (net.minecraft.resources.ResourceKey)net.minecraft.resources.ResourceLocation.CODEC.parse((com.mojang.serialization.DynamicOps)com.mojang.serialization.JsonOps.INSTANCE, (java.lang.Object)$$1.get("structure")).resultOrPartial(arg_0 -> ((org.slf4j.Logger)LOGGER).error(arg_0)).map($$0 -> net.minecraft.resources.ResourceKey.create((net.minecraft.resources.ResourceKey)net.minecraft.core.Registry.STRUCTURE_REGISTRY, (net.minecraft.resources.ResourceLocation)$$0)).orElse(null) : null;
++        net.minecraft.resources.ResourceKey $$8 = null;
++        if ($$1.has("biome")) {
++            net.minecraft.resources.ResourceLocation $$9 = new net.minecraft.resources.ResourceLocation(net.minecraft.util.GsonHelper.getAsString((com.google.gson.JsonObject)$$1, (java.lang.String)"biome"));
++            $$8 = net.minecraft.resources.ResourceKey.create((net.minecraft.resources.ResourceKey)net.minecraft.core.Registry.BIOME_REGISTRY, (net.minecraft.resources.ResourceLocation)$$9);
+         }
+-        resourceLocation = jsonObject.has("smokey") ? java.lang.Boolean.valueOf((boolean)jsonObject.get("smokey").getAsBoolean()) : null;
+-        net.minecraft.advancements.critereon.LightPredicate lightPredicate = net.minecraft.advancements.critereon.LightPredicate.fromJson((com.google.gson.JsonElement)jsonObject.get("light"));
+-        net.minecraft.advancements.critereon.BlockPredicate blockPredicate = net.minecraft.advancements.critereon.BlockPredicate.fromJson((com.google.gson.JsonElement)jsonObject.get("block"));
+-        net.minecraft.advancements.critereon.FluidPredicate fluidPredicate = net.minecraft.advancements.critereon.FluidPredicate.fromJson((com.google.gson.JsonElement)jsonObject.get("fluid"));
+-        return new net.minecraft.advancements.critereon.LocationPredicate(doubles, doubles2, doubles3, resourceKey4, resourceKey3, resourceKey, (java.lang.Boolean)resourceLocation, lightPredicate, blockPredicate, fluidPredicate);
++        java.lang.Boolean $$10 = $$1.has("smokey") ? java.lang.Boolean.valueOf((boolean)$$1.get("smokey").getAsBoolean()) : null;
++        net.minecraft.advancements.critereon.LightPredicate $$11 = net.minecraft.advancements.critereon.LightPredicate.fromJson((com.google.gson.JsonElement)$$1.get("light"));
++        net.minecraft.advancements.critereon.BlockPredicate $$12 = net.minecraft.advancements.critereon.BlockPredicate.fromJson((com.google.gson.JsonElement)$$1.get("block"));
++        net.minecraft.advancements.critereon.FluidPredicate $$13 = net.minecraft.advancements.critereon.FluidPredicate.fromJson((com.google.gson.JsonElement)$$1.get("fluid"));
++        return new net.minecraft.advancements.critereon.LocationPredicate($$3, $$4, $$5, $$8, $$7, $$6, $$10, $$11, $$12, $$13);
+     }
+ 
+     static {

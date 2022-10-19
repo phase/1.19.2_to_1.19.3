@@ -1,0 +1,229 @@
+--- net/minecraft/world/SimpleContainer.java
++++ net/minecraft/world/SimpleContainer.java
+@@ -12,34 +12,34 @@
+     @javax.annotation.Nullable
+     public java.util.List<net.minecraft.world.ContainerListener> listeners;
+ 
+-    public net.minecraft.world.SimpleContainer(int size) {
+-        this.size = size;
+-        this.items = net.minecraft.core.NonNullList.withSize((int)size, (java.lang.Object)net.minecraft.world.item.ItemStack.EMPTY);
++    public net.minecraft.world.SimpleContainer(int $$0) {
++        this.size = $$0;
++        this.items = net.minecraft.core.NonNullList.withSize((int)$$0, (java.lang.Object)net.minecraft.world.item.ItemStack.EMPTY);
+     }
+ 
+-    public net.minecraft.world.SimpleContainer(net.minecraft.world.item.ItemStack ... items) {
+-        this.size = items.length;
+-        this.items = net.minecraft.core.NonNullList.of((java.lang.Object)net.minecraft.world.item.ItemStack.EMPTY, (java.lang.Object[])items);
++    public net.minecraft.world.SimpleContainer(net.minecraft.world.item.ItemStack ... $$0) {
++        this.size = $$0.length;
++        this.items = net.minecraft.core.NonNullList.of((java.lang.Object)net.minecraft.world.item.ItemStack.EMPTY, (java.lang.Object[])$$0);
+     }
+ 
+-    public void addListener(net.minecraft.world.ContainerListener listener) {
++    public void addListener(net.minecraft.world.ContainerListener $$0) {
+         if (this.listeners == null) {
+             this.listeners = com.google.common.collect.Lists.newArrayList();
+         }
+-        this.listeners.add((java.lang.Object)listener);
++        this.listeners.add((java.lang.Object)$$0);
+     }
+ 
+-    public void removeListener(net.minecraft.world.ContainerListener listener) {
++    public void removeListener(net.minecraft.world.ContainerListener $$0) {
+         if (this.listeners != null) {
+-            this.listeners.remove((java.lang.Object)listener);
++            this.listeners.remove((java.lang.Object)$$0);
+         }
+     }
+ 
+-    public net.minecraft.world.item.ItemStack getItem(int index) {
+-        if (index < 0 || index >= this.items.size()) {
++    public net.minecraft.world.item.ItemStack getItem(int $$0) {
++        if ($$0 < 0 || $$0 >= this.items.size()) {
+             return net.minecraft.world.item.ItemStack.EMPTY;
+         }
+-        return (net.minecraft.world.item.ItemStack)this.items.get(index);
++        return (net.minecraft.world.item.ItemStack)this.items.get($$0);
+     }
+ 
+     public java.util.List<net.minecraft.world.item.ItemStack> removeAllItems() {
+@@ -48,66 +48,66 @@
+         return $$02;
+     }
+ 
+-    public net.minecraft.world.item.ItemStack removeItem(int index, int count) {
+-        net.minecraft.world.item.ItemStack itemStack = net.minecraft.world.ContainerHelper.removeItem((java.util.List)this.items, (int)index, (int)count);
+-        if (!itemStack.isEmpty()) {
++    public net.minecraft.world.item.ItemStack removeItem(int $$0, int $$1) {
++        net.minecraft.world.item.ItemStack $$2 = net.minecraft.world.ContainerHelper.removeItem((java.util.List)this.items, (int)$$0, (int)$$1);
++        if (!$$2.isEmpty()) {
+             this.setChanged();
+         }
+-        return itemStack;
++        return $$2;
+     }
+ 
+-    public net.minecraft.world.item.ItemStack removeItemType(net.minecraft.world.item.Item item, int amount) {
+-        net.minecraft.world.item.ItemStack itemStack = new net.minecraft.world.item.ItemStack((net.minecraft.world.level.ItemLike)item, 0);
+-        for (int i = this.size - 1; i >= 0; --i) {
+-            net.minecraft.world.item.ItemStack itemStack2 = this.getItem(i);
+-            if (!itemStack2.getItem().equals((java.lang.Object)item)) continue;
+-            int n = amount - itemStack.getCount();
+-            net.minecraft.world.item.ItemStack itemStack3 = itemStack2.split(n);
+-            itemStack.grow(itemStack3.getCount());
+-            if (itemStack.getCount() == amount) break;
++    public net.minecraft.world.item.ItemStack removeItemType(net.minecraft.world.item.Item $$0, int $$1) {
++        net.minecraft.world.item.ItemStack $$2 = new net.minecraft.world.item.ItemStack((net.minecraft.world.level.ItemLike)$$0, 0);
++        for (int $$3 = this.size - 1; $$3 >= 0; --$$3) {
++            net.minecraft.world.item.ItemStack $$4 = this.getItem($$3);
++            if (!$$4.getItem().equals((java.lang.Object)$$0)) continue;
++            int $$5 = $$1 - $$2.getCount();
++            net.minecraft.world.item.ItemStack $$6 = $$4.split($$5);
++            $$2.grow($$6.getCount());
++            if ($$2.getCount() == $$1) break;
+         }
+-        if (!itemStack.isEmpty()) {
++        if (!$$2.isEmpty()) {
+             this.setChanged();
+         }
+-        return itemStack;
++        return $$2;
+     }
+ 
+-    public net.minecraft.world.item.ItemStack addItem(net.minecraft.world.item.ItemStack stack) {
+-        net.minecraft.world.item.ItemStack itemStack = stack.copy();
+-        this.moveItemToOccupiedSlotsWithSameType(itemStack);
+-        if (itemStack.isEmpty()) {
++    public net.minecraft.world.item.ItemStack addItem(net.minecraft.world.item.ItemStack $$0) {
++        net.minecraft.world.item.ItemStack $$1 = $$0.copy();
++        this.moveItemToOccupiedSlotsWithSameType($$1);
++        if ($$1.isEmpty()) {
+             return net.minecraft.world.item.ItemStack.EMPTY;
+         }
+-        this.moveItemToEmptySlots(itemStack);
+-        if (itemStack.isEmpty()) {
++        this.moveItemToEmptySlots($$1);
++        if ($$1.isEmpty()) {
+             return net.minecraft.world.item.ItemStack.EMPTY;
+         }
+-        return itemStack;
++        return $$1;
+     }
+ 
+-    public boolean canAddItem(net.minecraft.world.item.ItemStack stack) {
+-        boolean bl = false;
+-        for (net.minecraft.world.item.ItemStack itemStack : this.items) {
+-            if (!itemStack.isEmpty() && (!net.minecraft.world.item.ItemStack.isSameItemSameTags((net.minecraft.world.item.ItemStack)itemStack, (net.minecraft.world.item.ItemStack)stack) || itemStack.getCount() >= itemStack.getMaxStackSize())) continue;
+-            bl = true;
++    public boolean canAddItem(net.minecraft.world.item.ItemStack $$0) {
++        boolean $$1 = false;
++        for (net.minecraft.world.item.ItemStack $$2 : this.items) {
++            if (!$$2.isEmpty() && (!net.minecraft.world.item.ItemStack.isSameItemSameTags((net.minecraft.world.item.ItemStack)$$2, (net.minecraft.world.item.ItemStack)$$0) || $$2.getCount() >= $$2.getMaxStackSize())) continue;
++            $$1 = true;
+             break;
+         }
+-        return bl;
++        return $$1;
+     }
+ 
+-    public net.minecraft.world.item.ItemStack removeItemNoUpdate(int index) {
+-        net.minecraft.world.item.ItemStack itemStack = (net.minecraft.world.item.ItemStack)this.items.get(index);
+-        if (itemStack.isEmpty()) {
++    public net.minecraft.world.item.ItemStack removeItemNoUpdate(int $$0) {
++        net.minecraft.world.item.ItemStack $$1 = (net.minecraft.world.item.ItemStack)this.items.get($$0);
++        if ($$1.isEmpty()) {
+             return net.minecraft.world.item.ItemStack.EMPTY;
+         }
+-        this.items.set(index, (java.lang.Object)net.minecraft.world.item.ItemStack.EMPTY);
+-        return itemStack;
++        this.items.set($$0, (java.lang.Object)net.minecraft.world.item.ItemStack.EMPTY);
++        return $$1;
+     }
+ 
+-    public void setItem(int index, net.minecraft.world.item.ItemStack stack) {
+-        this.items.set(index, (java.lang.Object)stack);
+-        if (!stack.isEmpty() && stack.getCount() > this.getMaxStackSize()) {
+-            stack.setCount(this.getMaxStackSize());
++    public void setItem(int $$0, net.minecraft.world.item.ItemStack $$1) {
++        this.items.set($$0, (java.lang.Object)$$1);
++        if (!$$1.isEmpty() && $$1.getCount() > this.getMaxStackSize()) {
++            $$1.setCount(this.getMaxStackSize());
+         }
+         this.setChanged();
+     }
+@@ -132,7 +132,7 @@
+         }
+     }
+ 
+-    public boolean stillValid(net.minecraft.world.entity.player.Player player) {
++    public boolean stillValid(net.minecraft.world.entity.player.Player $$0) {
+         return true;
+     }
+ 
+@@ -141,9 +141,9 @@
+         this.setChanged();
+     }
+ 
+-    public void fillStackedContents(net.minecraft.world.entity.player.StackedContents helper) {
+-        for (net.minecraft.world.item.ItemStack itemStack : this.items) {
+-            helper.accountStack(itemStack);
++    public void fillStackedContents(net.minecraft.world.entity.player.StackedContents $$0) {
++        for (net.minecraft.world.item.ItemStack $$1 : this.items) {
++            $$0.accountStack($$1);
+         }
+     }
+ 
+@@ -151,22 +151,22 @@
+         return ((java.util.List)this.items.stream().filter($$0 -> !$$0.isEmpty()).collect(java.util.stream.Collectors.toList())).toString();
+     }
+ 
+-    public void moveItemToEmptySlots(net.minecraft.world.item.ItemStack stack) {
+-        for (int i = 0; i < this.size; ++i) {
+-            net.minecraft.world.item.ItemStack itemStack = this.getItem(i);
+-            if (!itemStack.isEmpty()) continue;
+-            this.setItem(i, stack.copy());
+-            stack.setCount(0);
++    public void moveItemToEmptySlots(net.minecraft.world.item.ItemStack $$0) {
++        for (int $$1 = 0; $$1 < this.size; ++$$1) {
++            net.minecraft.world.item.ItemStack $$2 = this.getItem($$1);
++            if (!$$2.isEmpty()) continue;
++            this.setItem($$1, $$0.copy());
++            $$0.setCount(0);
+             return;
+         }
+     }
+ 
+-    public void moveItemToOccupiedSlotsWithSameType(net.minecraft.world.item.ItemStack stack) {
+-        for (int i = 0; i < this.size; ++i) {
+-            net.minecraft.world.item.ItemStack itemStack = this.getItem(i);
+-            if (!net.minecraft.world.item.ItemStack.isSameItemSameTags((net.minecraft.world.item.ItemStack)itemStack, (net.minecraft.world.item.ItemStack)stack)) continue;
+-            this.moveItemsBetweenStacks(stack, itemStack);
+-            if (!stack.isEmpty()) continue;
++    public void moveItemToOccupiedSlotsWithSameType(net.minecraft.world.item.ItemStack $$0) {
++        for (int $$1 = 0; $$1 < this.size; ++$$1) {
++            net.minecraft.world.item.ItemStack $$2 = this.getItem($$1);
++            if (!net.minecraft.world.item.ItemStack.isSameItemSameTags((net.minecraft.world.item.ItemStack)$$2, (net.minecraft.world.item.ItemStack)$$0)) continue;
++            this.moveItemsBetweenStacks($$0, $$2);
++            if (!$$0.isEmpty()) continue;
+             return;
+         }
+     }
+@@ -181,11 +181,12 @@
+         }
+     }
+ 
+-    public void fromTag(net.minecraft.nbt.ListTag containerNbt) {
+-        for (int i = 0; i < containerNbt.size(); ++i) {
+-            net.minecraft.world.item.ItemStack itemStack = net.minecraft.world.item.ItemStack.of((net.minecraft.nbt.CompoundTag)containerNbt.getCompound(i));
+-            if (itemStack.isEmpty()) continue;
+-            this.addItem(itemStack);
++    public void fromTag(net.minecraft.nbt.ListTag $$0) {
++        this.clearContent();
++        for (int $$1 = 0; $$1 < $$0.size(); ++$$1) {
++            net.minecraft.world.item.ItemStack $$2 = net.minecraft.world.item.ItemStack.of((net.minecraft.nbt.CompoundTag)$$0.getCompound($$1));
++            if ($$2.isEmpty()) continue;
++            this.addItem($$2);
+         }
+     }
+ 

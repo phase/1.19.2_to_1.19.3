@@ -1,0 +1,169 @@
+--- net/minecraft/server/packs/FilePackResources.java
++++ net/minecraft/server/packs/FilePackResources.java
+@@ -8,61 +8,80 @@
+  {
+     public static org.slf4j.Logger LOGGER;
+     public static com.google.common.base.Splitter SPLITTER;
++    public java.io.File file;
+     @javax.annotation.Nullable
+     public java.util.zip.ZipFile zipFile;
++    public boolean failedToLoad;
+ 
+-    public net.minecraft.server.packs.FilePackResources(java.io.File $$0) {
++    public net.minecraft.server.packs.FilePackResources(java.lang.String $$0, java.io.File $$1) {
+         super($$0);
++        this.file = $$1;
+     }
+ 
+-    public java.util.zip.ZipFile getOrCreateZipFile() throws java.io.IOException {
++    @javax.annotation.Nullable
++    public java.util.zip.ZipFile getOrCreateZipFile() {
++        if (this.failedToLoad) {
++            return null;
++        }
+         if (this.zipFile == null) {
+-            this.zipFile = new java.util.zip.ZipFile(this.file);
++            try {
++                this.zipFile = new java.util.zip.ZipFile(this.file);
++            }
++            catch (java.io.IOException $$0) {
++                LOGGER.error("Failed to open pack {}", (java.lang.Object)this.file, (java.lang.Object)((java.lang.Object)$$0));
++                this.failedToLoad = true;
++                return null;
++            }
+         }
+         return this.zipFile;
+     }
+ 
+-    public java.io.InputStream getResource(java.lang.String resourcePath) throws java.io.IOException {
+-        java.util.zip.ZipFile zipFile = this.getOrCreateZipFile();
+-        java.util.zip.ZipEntry zipEntry = zipFile.getEntry(resourcePath);
+-        if (zipEntry == null) {
+-            throw new net.minecraft.server.packs.ResourcePackFileNotFoundException(this.file, resourcePath);
+-        }
+-        return zipFile.getInputStream(zipEntry);
++    public static java.lang.String getPathFromLocation(net.minecraft.server.packs.PackType $$0, net.minecraft.resources.ResourceLocation $$1) {
++        return java.lang.String.format((java.util.Locale)java.util.Locale.ROOT, (java.lang.String)"%s/%s/%s", (java.lang.Object[])new java.lang.Object[]{$$0.getDirectory(), $$1.getNamespace(), $$1.getPath()});
+     }
+ 
+-    public boolean hasResource(java.lang.String resourcePath) {
+-        try {
+-            return this.getOrCreateZipFile().getEntry(resourcePath) != null;
++    @javax.annotation.Nullable
++    public net.minecraft.server.packs.resources.IoSupplier<java.io.InputStream> getRootResource(java.lang.String ... $$0) {
++        return this.getResource(java.lang.String.join((java.lang.CharSequence)"/", (java.lang.CharSequence[])$$0));
++    }
++
++    public net.minecraft.server.packs.resources.IoSupplier<java.io.InputStream> getResource(net.minecraft.server.packs.PackType $$0, net.minecraft.resources.ResourceLocation $$1) {
++        return this.getResource(net.minecraft.server.packs.FilePackResources.getPathFromLocation((net.minecraft.server.packs.PackType)$$0, (net.minecraft.resources.ResourceLocation)$$1));
++    }
++
++    @javax.annotation.Nullable
++    public net.minecraft.server.packs.resources.IoSupplier<java.io.InputStream> getResource(java.lang.String $$0) {
++        java.util.zip.ZipFile $$1 = this.getOrCreateZipFile();
++        if ($$1 == null) {
++            return null;
+         }
+-        catch (java.io.IOException iOException) {
+-            return false;
++        java.util.zip.ZipEntry $$2 = $$1.getEntry($$0);
++        if ($$2 == null) {
++            return null;
+         }
++        return net.minecraft.server.packs.resources.IoSupplier.create((java.util.zip.ZipFile)$$1, (java.util.zip.ZipEntry)$$2);
+     }
+ 
+-    public java.util.Set<java.lang.String> getNamespaces(net.minecraft.server.packs.PackType type) {
+-        java.util.zip.ZipFile zipFile;
+-        try {
+-            zipFile = this.getOrCreateZipFile();
++    public java.util.Set<java.lang.String> getNamespaces(net.minecraft.server.packs.PackType $$0) {
++        java.util.zip.ZipFile $$1 = this.getOrCreateZipFile();
++        if ($$1 == null) {
++            return java.util.Set.of();
+         }
+-        catch (java.io.IOException iOException) {
+-            return java.util.Collections.emptySet();
+-        }
+-        java.util.Enumeration enumeration = zipFile.entries();
+-        java.util.HashSet hashSet = com.google.common.collect.Sets.newHashSet();
+-        while (enumeration.hasMoreElements()) {
+-            java.util.ArrayList arrayList;
+-            java.util.zip.ZipEntry zipEntry = (java.util.zip.ZipEntry)enumeration.nextElement();
+-            java.lang.String string = zipEntry.getName();
+-            if (!string.startsWith(type.getDirectory() + "/") || (arrayList = com.google.common.collect.Lists.newArrayList((java.lang.Iterable)SPLITTER.split((java.lang.CharSequence)string))).size() <= 1) continue;
+-            java.lang.String string2 = (java.lang.String)arrayList.get(1);
+-            if (string2.equals((java.lang.Object)string2.toLowerCase(java.util.Locale.ROOT))) {
+-                hashSet.add((java.lang.Object)string2);
++        java.util.Enumeration $$2 = $$1.entries();
++        java.util.HashSet $$3 = com.google.common.collect.Sets.newHashSet();
++        while ($$2.hasMoreElements()) {
++            java.util.ArrayList $$6;
++            java.util.zip.ZipEntry $$4 = (java.util.zip.ZipEntry)$$2.nextElement();
++            java.lang.String $$5 = $$4.getName();
++            if (!$$5.startsWith($$0.getDirectory() + "/") || ($$6 = com.google.common.collect.Lists.newArrayList((java.lang.Iterable)SPLITTER.split((java.lang.CharSequence)$$5))).size() <= 1) continue;
++            java.lang.String $$7 = (java.lang.String)$$6.get(1);
++            if ($$7.equals((java.lang.Object)$$7.toLowerCase(java.util.Locale.ROOT))) {
++                $$3.add((java.lang.Object)$$7);
+                 continue;
+             }
+-            this.logWarning(string2);
++            LOGGER.warn("Ignored non-lowercase namespace: {} in {}", (java.lang.Object)$$7, (java.lang.Object)this.file);
+         }
+-        return hashSet;
++        return $$3;
+     }
+ 
+     public void finalize() throws java.lang.Throwable {
+@@ -77,35 +96,26 @@
+         }
+     }
+ 
+-    /*
+-     * WARNING - void declaration
+-     */
+-    public java.util.Collection<net.minecraft.resources.ResourceLocation> getResources(net.minecraft.server.packs.PackType $$0, java.lang.String $$1, java.lang.String $$2, java.util.function.Predicate<net.minecraft.resources.ResourceLocation> $$3) {
+-        void $$6;
+-        try {
+-            java.util.zip.ZipFile $$4 = this.getOrCreateZipFile();
++    public void listResources(net.minecraft.server.packs.PackType $$0, java.lang.String $$1, java.lang.String $$2, net.minecraft.server.packs.PackResources$ResourceOutput $$3) {
++        java.util.zip.ZipFile $$4 = this.getOrCreateZipFile();
++        if ($$4 == null) {
++            return;
+         }
+-        catch (java.io.IOException $$5) {
+-            return java.util.Collections.emptySet();
+-        }
+-        java.util.Enumeration $$7 = $$6.entries();
+-        java.util.ArrayList $$8 = com.google.common.collect.Lists.newArrayList();
+-        java.lang.String $$9 = $$0.getDirectory() + "/" + $$1 + "/";
+-        java.lang.String $$10 = $$9 + $$2 + "/";
+-        while ($$7.hasMoreElements()) {
+-            java.lang.String $$12;
+-            java.util.zip.ZipEntry $$11 = (java.util.zip.ZipEntry)$$7.nextElement();
+-            if ($$11.isDirectory() || ($$12 = $$11.getName()).endsWith(".mcmeta") || !$$12.startsWith($$10)) continue;
+-            java.lang.String $$13 = $$12.substring($$9.length());
+-            net.minecraft.resources.ResourceLocation $$14 = net.minecraft.resources.ResourceLocation.tryBuild((java.lang.String)$$1, (java.lang.String)$$13);
+-            if ($$14 == null) {
+-                LOGGER.warn("Invalid path in datapack: {}:{}, ignoring", (java.lang.Object)$$1, (java.lang.Object)$$13);
++        java.util.Enumeration $$5 = $$4.entries();
++        java.lang.String $$6 = $$0.getDirectory() + "/" + $$1 + "/";
++        java.lang.String $$7 = $$6 + $$2 + "/";
++        while ($$5.hasMoreElements()) {
++            java.lang.String $$9;
++            java.util.zip.ZipEntry $$8 = (java.util.zip.ZipEntry)$$5.nextElement();
++            if ($$8.isDirectory() || !($$9 = $$8.getName()).startsWith($$7)) continue;
++            java.lang.String $$10 = $$9.substring($$6.length());
++            net.minecraft.resources.ResourceLocation $$11 = net.minecraft.resources.ResourceLocation.tryBuild((java.lang.String)$$1, (java.lang.String)$$10);
++            if ($$11 != null) {
++                $$3.accept((java.lang.Object)$$11, (java.lang.Object)net.minecraft.server.packs.resources.IoSupplier.create((java.util.zip.ZipFile)$$4, (java.util.zip.ZipEntry)$$8));
+                 continue;
+             }
+-            if (!$$3.test((java.lang.Object)$$14)) continue;
+-            $$8.add((java.lang.Object)$$14);
++            LOGGER.warn("Invalid path in datapack: {}:{}, ignoring", (java.lang.Object)$$1, (java.lang.Object)$$10);
+         }
+-        return $$8;
+     }
+ 
+     static {

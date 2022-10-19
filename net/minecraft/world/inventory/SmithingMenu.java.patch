@@ -1,0 +1,86 @@
+--- net/minecraft/world/inventory/SmithingMenu.java
++++ net/minecraft/world/inventory/SmithingMenu.java
+@@ -11,36 +11,36 @@
+     public net.minecraft.world.item.crafting.UpgradeRecipe selectedRecipe;
+     public java.util.List<net.minecraft.world.item.crafting.UpgradeRecipe> recipes;
+ 
+-    public net.minecraft.world.inventory.SmithingMenu(int containerId, net.minecraft.world.entity.player.Inventory playerInventory) {
+-        this(containerId, playerInventory, net.minecraft.world.inventory.ContainerLevelAccess.NULL);
++    public net.minecraft.world.inventory.SmithingMenu(int $$0, net.minecraft.world.entity.player.Inventory $$1) {
++        this($$0, $$1, net.minecraft.world.inventory.ContainerLevelAccess.NULL);
+     }
+ 
+-    public net.minecraft.world.inventory.SmithingMenu(int containerId, net.minecraft.world.entity.player.Inventory playerInventory, net.minecraft.world.inventory.ContainerLevelAccess access) {
+-        super(net.minecraft.world.inventory.MenuType.SMITHING, containerId, playerInventory, access);
+-        this.level = playerInventory.player.level;
++    public net.minecraft.world.inventory.SmithingMenu(int $$0, net.minecraft.world.entity.player.Inventory $$1, net.minecraft.world.inventory.ContainerLevelAccess $$2) {
++        super(net.minecraft.world.inventory.MenuType.SMITHING, $$0, $$1, $$2);
++        this.level = $$1.player.level;
+         this.recipes = this.level.getRecipeManager().getAllRecipesFor(net.minecraft.world.item.crafting.RecipeType.SMITHING);
+     }
+ 
+-    public boolean isValidBlock(net.minecraft.world.level.block.state.BlockState state) {
+-        return state.is(net.minecraft.world.level.block.Blocks.SMITHING_TABLE);
++    public boolean isValidBlock(net.minecraft.world.level.block.state.BlockState $$0) {
++        return $$0.is(net.minecraft.world.level.block.Blocks.SMITHING_TABLE);
+     }
+ 
+-    public boolean mayPickup(net.minecraft.world.entity.player.Player player, boolean hasStack) {
++    public boolean mayPickup(net.minecraft.world.entity.player.Player $$0, boolean $$1) {
+         return this.selectedRecipe != null && this.selectedRecipe.matches(this.inputSlots, this.level);
+     }
+ 
+-    public void onTake(net.minecraft.world.entity.player.Player $$0, net.minecraft.world.item.ItemStack $$1) {
+-        $$1.onCraftedBy($$0.level, $$0, $$1.getCount());
+-        this.resultSlots.awardUsedRecipes($$0);
++    public void onTake(net.minecraft.world.entity.player.Player $$02, net.minecraft.world.item.ItemStack $$12) {
++        $$12.onCraftedBy($$02.level, $$02, $$12.getCount());
++        this.resultSlots.awardUsedRecipes($$02);
+         this.shrinkStackInSlot(0);
+         this.shrinkStackInSlot(1);
+-        this.access.execute((level, blockPos) -> level.levelEvent(1044, blockPos, 0));
++        this.access.execute(($$0, $$1) -> $$0.levelEvent(1044, $$1, 0));
+     }
+ 
+-    public void shrinkStackInSlot(int index) {
+-        net.minecraft.world.item.ItemStack itemStack = this.inputSlots.getItem(index);
+-        itemStack.shrink(1);
+-        this.inputSlots.setItem(index, itemStack);
++    public void shrinkStackInSlot(int $$0) {
++        net.minecraft.world.item.ItemStack $$1 = this.inputSlots.getItem($$0);
++        $$1.shrink(1);
++        this.inputSlots.setItem($$0, $$1);
+     }
+ 
+     public void createResult() {
+@@ -48,19 +48,22 @@
+         if ($$0.isEmpty()) {
+             this.resultSlots.setItem(0, net.minecraft.world.item.ItemStack.EMPTY);
+         } else {
+-            this.selectedRecipe = (net.minecraft.world.item.crafting.UpgradeRecipe)$$0.get(0);
+-            net.minecraft.world.item.ItemStack $$1 = this.selectedRecipe.assemble(this.inputSlots);
+-            this.resultSlots.setRecipeUsed((net.minecraft.world.item.crafting.Recipe)this.selectedRecipe);
+-            this.resultSlots.setItem(0, $$1);
++            net.minecraft.world.item.crafting.UpgradeRecipe $$1 = (net.minecraft.world.item.crafting.UpgradeRecipe)$$0.get(0);
++            net.minecraft.world.item.ItemStack $$2 = $$1.assemble(this.inputSlots);
++            if ($$2.isItemEnabled(this.level.enabledFeatures())) {
++                this.selectedRecipe = $$1;
++                this.resultSlots.setRecipeUsed((net.minecraft.world.item.crafting.Recipe)$$1);
++                this.resultSlots.setItem(0, $$2);
++            }
+         }
+     }
+ 
+-    public boolean shouldQuickMoveToAdditionalSlot(net.minecraft.world.item.ItemStack stack) {
+-        return this.recipes.stream().anyMatch(playerInventory -> playerInventory.isAdditionIngredient(stack));
++    public boolean shouldQuickMoveToAdditionalSlot(net.minecraft.world.item.ItemStack $$0) {
++        return this.recipes.stream().anyMatch($$1 -> $$1.isAdditionIngredient($$0));
+     }
+ 
+-    public boolean canTakeItemForPickAll(net.minecraft.world.item.ItemStack stack, net.minecraft.world.inventory.Slot slot) {
+-        return slot.container != this.resultSlots && super.canTakeItemForPickAll(stack, slot);
++    public boolean canTakeItemForPickAll(net.minecraft.world.item.ItemStack $$0, net.minecraft.world.inventory.Slot $$1) {
++        return $$1.container != this.resultSlots && super.canTakeItemForPickAll($$0, $$1);
+     }
+ }
+ 

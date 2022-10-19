@@ -1,0 +1,119 @@
+--- net/minecraft/data/structures/SnbtToNbt.java
++++ net/minecraft/data/structures/SnbtToNbt.java
+@@ -9,31 +9,33 @@
+     @javax.annotation.Nullable
+     public static java.nio.file.Path DUMP_SNBT_TO;
+     public static org.slf4j.Logger LOGGER;
+-    public net.minecraft.data.DataGenerator generator;
++    public net.minecraft.data.PackOutput output;
++    public java.lang.Iterable<java.nio.file.Path> inputFolders;
+     public java.util.List<net.minecraft.data.structures.SnbtToNbt$Filter> filters;
+ 
+-    public net.minecraft.data.structures.SnbtToNbt(net.minecraft.data.DataGenerator generator) {
++    public net.minecraft.data.structures.SnbtToNbt(net.minecraft.data.PackOutput $$0, java.lang.Iterable<java.nio.file.Path> $$1) {
+         this.filters = com.google.common.collect.Lists.newArrayList();
+-        this.generator = generator;
++        this.output = $$0;
++        this.inputFolders = $$1;
+     }
+ 
+-    public net.minecraft.data.structures.SnbtToNbt addFilter(net.minecraft.data.structures.SnbtToNbt$Filter filter) {
+-        this.filters.add((java.lang.Object)filter);
++    public net.minecraft.data.structures.SnbtToNbt addFilter(net.minecraft.data.structures.SnbtToNbt$Filter $$0) {
++        this.filters.add((java.lang.Object)$$0);
+         return this;
+     }
+ 
+-    public net.minecraft.nbt.CompoundTag applyFilters(java.lang.String fileName, net.minecraft.nbt.CompoundTag tag) {
+-        net.minecraft.nbt.CompoundTag compoundTag = tag;
+-        for (net.minecraft.data.structures.SnbtToNbt$Filter filter : this.filters) {
+-            compoundTag = filter.apply(fileName, compoundTag);
++    public net.minecraft.nbt.CompoundTag applyFilters(java.lang.String $$0, net.minecraft.nbt.CompoundTag $$1) {
++        net.minecraft.nbt.CompoundTag $$2 = $$1;
++        for (net.minecraft.data.structures.SnbtToNbt$Filter $$3 : this.filters) {
++            $$2 = $$3.apply($$0, $$2);
+         }
+-        return compoundTag;
++        return $$2;
+     }
+ 
+     public void run(net.minecraft.data.CachedOutput $$02) throws java.io.IOException {
+-        java.nio.file.Path $$1 = this.generator.getOutputFolder();
++        java.nio.file.Path $$1 = this.output.getOutputFolder();
+         java.util.ArrayList $$2 = com.google.common.collect.Lists.newArrayList();
+-        for (java.nio.file.Path $$3 : this.generator.getInputFolders()) {
++        for (java.nio.file.Path $$3 : this.inputFolders) {
+             java.nio.file.Files.walk((java.nio.file.Path)$$3, (java.nio.file.FileVisitOption[])new java.nio.file.FileVisitOption[0]).filter($$0 -> $$0.toString().endsWith(".snbt")).forEach(arg_0 -> this.lambda$run$2((java.util.List)$$2, $$3, arg_0));
+         }
+         boolean $$4 = false;
+@@ -55,32 +57,37 @@
+         return "SNBT -> NBT";
+     }
+ 
+-    public java.lang.String getName(java.nio.file.Path inputFolder, java.nio.file.Path file) {
+-        java.lang.String string = inputFolder.relativize(file).toString().replaceAll("\\\\", "/");
+-        return string.substring(0, string.length() - ".snbt".length());
++    public java.lang.String getName(java.nio.file.Path $$0, java.nio.file.Path $$1) {
++        java.lang.String $$2 = $$0.relativize($$1).toString().replaceAll("\\\\", "/");
++        return $$2.substring(0, $$2.length() - ".snbt".length());
+     }
+ 
+-    public net.minecraft.data.structures.SnbtToNbt$TaskResult readStructure(java.nio.file.Path filePath, java.lang.String fileName) {
++    public net.minecraft.data.structures.SnbtToNbt$TaskResult readStructure(java.nio.file.Path $$0, java.lang.String $$1) {
+         net.minecraft.data.structures.SnbtToNbt$TaskResult taskResult;
+-block8:        {
+-            java.io.BufferedReader bufferedReader = java.nio.file.Files.newBufferedReader((java.nio.file.Path)filePath);
++block10:        {
++            java.io.BufferedReader $$2 = java.nio.file.Files.newBufferedReader((java.nio.file.Path)$$0);
+             try {
+-                java.lang.String string = org.apache.commons.io.IOUtils.toString((java.io.Reader)bufferedReader);
+-                net.minecraft.nbt.CompoundTag compoundTag = this.applyFilters(fileName, net.minecraft.nbt.NbtUtils.snbtToStructure((java.lang.String)string));
+-                java.io.ByteArrayOutputStream byteArrayOutputStream = new java.io.ByteArrayOutputStream();
+-                com.google.common.hash.HashingOutputStream hashingOutputStream = new com.google.common.hash.HashingOutputStream(com.google.common.hash.Hashing.sha1(), (java.io.OutputStream)byteArrayOutputStream);
+-                net.minecraft.nbt.NbtIo.writeCompressed((net.minecraft.nbt.CompoundTag)compoundTag, (java.io.OutputStream)hashingOutputStream);
+-                byte[] byArray = byteArrayOutputStream.toByteArray();
+-                com.google.common.hash.HashCode hashCode = hashingOutputStream.hash();
+-                java.lang.String string2 = DUMP_SNBT_TO != null ? net.minecraft.nbt.NbtUtils.structureToSnbt((net.minecraft.nbt.CompoundTag)compoundTag) : null;
+-                taskResult = new net.minecraft.data.structures.SnbtToNbt$TaskResult(fileName, byArray, string2, hashCode);
+-                if (bufferedReader == null) break block8;
++                java.lang.String $$10;
++                java.lang.String $$3 = org.apache.commons.io.IOUtils.toString((java.io.Reader)$$2);
++                net.minecraft.nbt.CompoundTag $$4 = this.applyFilters($$1, net.minecraft.nbt.NbtUtils.snbtToStructure((java.lang.String)$$3));
++                java.io.ByteArrayOutputStream $$5 = new java.io.ByteArrayOutputStream();
++                com.google.common.hash.HashingOutputStream $$6 = new com.google.common.hash.HashingOutputStream(com.google.common.hash.Hashing.sha1(), (java.io.OutputStream)$$5);
++                net.minecraft.nbt.NbtIo.writeCompressed((net.minecraft.nbt.CompoundTag)$$4, (java.io.OutputStream)$$6);
++                byte[] $$7 = $$5.toByteArray();
++                com.google.common.hash.HashCode $$8 = $$6.hash();
++                if (DUMP_SNBT_TO != null) {
++                    java.lang.String $$9 = net.minecraft.nbt.NbtUtils.structureToSnbt((net.minecraft.nbt.CompoundTag)$$4);
++                } else {
++                    $$10 = null;
++                }
++                taskResult = new net.minecraft.data.structures.SnbtToNbt$TaskResult($$1, $$7, $$10, $$8);
++                if ($$2 == null) break block10;
+             }
+             catch (java.lang.Throwable throwable) {
+                 try {
+-                    if (bufferedReader != null) {
++                    if ($$2 != null) {
+                         try {
+-                            bufferedReader.close();
++                            $$2.close();
+                         }
+                         catch (java.lang.Throwable throwable2) {
+                             throwable.addSuppressed(throwable2);
+@@ -88,11 +95,11 @@
+                     }
+                     throw throwable;
+                 }
+-                catch (java.lang.Throwable throwable3) {
+-                    throw new net.minecraft.data.structures.SnbtToNbt$StructureConversionException(filePath, throwable3);
++                catch (java.lang.Throwable $$11) {
++                    throw new net.minecraft.data.structures.SnbtToNbt$StructureConversionException($$0, $$11);
+                 }
+             }
+-            bufferedReader.close();
++            $$2.close();
+         }
+         return taskResult;
+     }

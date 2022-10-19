@@ -1,0 +1,287 @@
+--- net/minecraft/world/entity/EntityType.java
++++ net/minecraft/world/entity/EntityType.java
+@@ -4,7 +4,8 @@
+ package net.minecraft.world.entity;
+ 
+ public class net.minecraft.world.entity.EntityType<T extends net.minecraft.world.entity.Entity>
+-implements net.minecraft.world.level.entity.EntityTypeTest<net.minecraft.world.entity.Entity, T>
++implements net.minecraft.world.flag.FeatureElement,
++net.minecraft.world.level.entity.EntityTypeTest<net.minecraft.world.entity.Entity, T>
+  {
+     public static org.slf4j.Logger LOGGER;
+     public static java.lang.String ENTITY_TAG = "EntityTag";
+@@ -21,6 +22,7 @@
+     public static net.minecraft.world.entity.EntityType<net.minecraft.world.entity.vehicle.Boat> BOAT;
+     public static net.minecraft.world.entity.EntityType<net.minecraft.world.entity.vehicle.ChestBoat> CHEST_BOAT;
+     public static net.minecraft.world.entity.EntityType<net.minecraft.world.entity.animal.Cat> CAT;
++    public static net.minecraft.world.entity.EntityType<net.minecraft.world.entity.animal.camel.Camel> CAMEL;
+     public static net.minecraft.world.entity.EntityType<net.minecraft.world.entity.monster.CaveSpider> CAVE_SPIDER;
+     public static net.minecraft.world.entity.EntityType<net.minecraft.world.entity.animal.Chicken> CHICKEN;
+     public static net.minecraft.world.entity.EntityType<net.minecraft.world.entity.animal.Cod> COD;
+@@ -144,100 +146,102 @@
+     @javax.annotation.Nullable
+     public net.minecraft.resources.ResourceLocation lootTable;
+     public net.minecraft.world.entity.EntityDimensions dimensions;
++    public net.minecraft.world.flag.FeatureFlagSet requiredFeatures;
+ 
+-    public static <T extends net.minecraft.world.entity.Entity> net.minecraft.world.entity.EntityType<T> register(java.lang.String key, net.minecraft.world.entity.EntityType$Builder<T> builder) {
+-        return (net.minecraft.world.entity.EntityType)net.minecraft.core.Registry.register((net.minecraft.core.Registry)net.minecraft.core.Registry.ENTITY_TYPE, (java.lang.String)key, (java.lang.Object)builder.build(key));
++    public static <T extends net.minecraft.world.entity.Entity> net.minecraft.world.entity.EntityType<T> register(java.lang.String $$0, net.minecraft.world.entity.EntityType$Builder<T> $$1) {
++        return (net.minecraft.world.entity.EntityType)net.minecraft.core.Registry.register((net.minecraft.core.Registry)net.minecraft.core.Registry.ENTITY_TYPE, (java.lang.String)$$0, (java.lang.Object)$$1.build($$0));
+     }
+ 
+-    public static net.minecraft.resources.ResourceLocation getKey(net.minecraft.world.entity.EntityType<?> entityType) {
+-        return net.minecraft.core.Registry.ENTITY_TYPE.getKey(entityType);
++    public static net.minecraft.resources.ResourceLocation getKey(net.minecraft.world.entity.EntityType<?> $$0) {
++        return net.minecraft.core.Registry.ENTITY_TYPE.getKey($$0);
+     }
+ 
+-    public static java.util.Optional<net.minecraft.world.entity.EntityType<?>> byString(java.lang.String key) {
+-        return net.minecraft.core.Registry.ENTITY_TYPE.getOptional(net.minecraft.resources.ResourceLocation.tryParse((java.lang.String)key));
++    public static java.util.Optional<net.minecraft.world.entity.EntityType<?>> byString(java.lang.String $$0) {
++        return net.minecraft.core.Registry.ENTITY_TYPE.getOptional(net.minecraft.resources.ResourceLocation.tryParse((java.lang.String)$$0));
+     }
+ 
+-    public net.minecraft.world.entity.EntityType(net.minecraft.world.entity.EntityType$EntityFactory<T> factory, net.minecraft.world.entity.MobCategory category, boolean serialize, boolean summon, boolean fireImmune, boolean canSpawnFarFromPlayer, com.google.common.collect.ImmutableSet<net.minecraft.world.level.block.Block> immuneTo, net.minecraft.world.entity.EntityDimensions dimensions, int clientTrackingRange, int updateInterval) {
++    public net.minecraft.world.entity.EntityType(net.minecraft.world.entity.EntityType$EntityFactory<T> $$0, net.minecraft.world.entity.MobCategory $$1, boolean $$2, boolean $$3, boolean $$4, boolean $$5, com.google.common.collect.ImmutableSet<net.minecraft.world.level.block.Block> $$6, net.minecraft.world.entity.EntityDimensions $$7, int $$8, int $$9, net.minecraft.world.flag.FeatureFlagSet $$10) {
+         this.builtInRegistryHolder = net.minecraft.core.Registry.ENTITY_TYPE.createIntrusiveHolder((java.lang.Object)this);
+-        this.factory = factory;
+-        this.category = category;
+-        this.canSpawnFarFromPlayer = canSpawnFarFromPlayer;
+-        this.serialize = serialize;
+-        this.summon = summon;
+-        this.fireImmune = fireImmune;
+-        this.immuneTo = immuneTo;
+-        this.dimensions = dimensions;
+-        this.clientTrackingRange = clientTrackingRange;
+-        this.updateInterval = updateInterval;
++        this.factory = $$0;
++        this.category = $$1;
++        this.canSpawnFarFromPlayer = $$5;
++        this.serialize = $$2;
++        this.summon = $$3;
++        this.fireImmune = $$4;
++        this.immuneTo = $$6;
++        this.dimensions = $$7;
++        this.clientTrackingRange = $$8;
++        this.updateInterval = $$9;
++        this.requiredFeatures = $$10;
+     }
+ 
+     @javax.annotation.Nullable
+-    public net.minecraft.world.entity.Entity spawn(net.minecraft.server.level.ServerLevel serverLevel, @javax.annotation.Nullable net.minecraft.world.item.ItemStack stack, @javax.annotation.Nullable net.minecraft.world.entity.player.Player player, net.minecraft.core.BlockPos pos, net.minecraft.world.entity.MobSpawnType spawnType, boolean shouldOffsetY, boolean shouldOffsetYMore) {
+-        return this.spawn(serverLevel, stack == null ? null : stack.getTag(), stack != null && stack.hasCustomHoverName() ? stack.getHoverName() : null, player, pos, spawnType, shouldOffsetY, shouldOffsetYMore);
++    public net.minecraft.world.entity.Entity spawn(net.minecraft.server.level.ServerLevel $$0, @javax.annotation.Nullable net.minecraft.world.item.ItemStack $$1, @javax.annotation.Nullable net.minecraft.world.entity.player.Player $$2, net.minecraft.core.BlockPos $$3, net.minecraft.world.entity.MobSpawnType $$4, boolean $$5, boolean $$6) {
++        return this.spawn($$0, $$1 == null ? null : $$1.getTag(), $$1 != null && $$1.hasCustomHoverName() ? $$1.getHoverName() : null, $$2, $$3, $$4, $$5, $$6);
+     }
+ 
+     @javax.annotation.Nullable
+-    public T spawn(net.minecraft.server.level.ServerLevel level, @javax.annotation.Nullable net.minecraft.nbt.CompoundTag compound, @javax.annotation.Nullable net.minecraft.network.chat.Component customName, @javax.annotation.Nullable net.minecraft.world.entity.player.Player player, net.minecraft.core.BlockPos pos, net.minecraft.world.entity.MobSpawnType spawnType, boolean shouldOffsetY, boolean shouldOffsetYMore) {
+-        net.minecraft.world.entity.Entity entity = this.create(level, compound, customName, player, pos, spawnType, shouldOffsetY, shouldOffsetYMore);
+-        if (entity != null) {
+-            level.addFreshEntityWithPassengers(entity);
++    public T spawn(net.minecraft.server.level.ServerLevel $$0, @javax.annotation.Nullable net.minecraft.nbt.CompoundTag $$1, @javax.annotation.Nullable net.minecraft.network.chat.Component $$2, @javax.annotation.Nullable net.minecraft.world.entity.player.Player $$3, net.minecraft.core.BlockPos $$4, net.minecraft.world.entity.MobSpawnType $$5, boolean $$6, boolean $$7) {
++        net.minecraft.world.entity.Entity $$8 = this.create($$0, $$1, $$2, $$3, $$4, $$5, $$6, $$7);
++        if ($$8 != null) {
++            $$0.addFreshEntityWithPassengers($$8);
+         }
+-        return (T)entity;
++        return (T)$$8;
+     }
+ 
+     @javax.annotation.Nullable
+-    public T create(net.minecraft.server.level.ServerLevel level, @javax.annotation.Nullable net.minecraft.nbt.CompoundTag compound, @javax.annotation.Nullable net.minecraft.network.chat.Component customName, @javax.annotation.Nullable net.minecraft.world.entity.player.Player player, net.minecraft.core.BlockPos pos, net.minecraft.world.entity.MobSpawnType spawnType, boolean shouldOffsetY, boolean shouldOffsetYMore) {
+-        double d;
+-        net.minecraft.world.entity.Entity entity = this.create((net.minecraft.world.level.Level)level);
+-        if (entity == null) {
++    public T create(net.minecraft.server.level.ServerLevel $$0, @javax.annotation.Nullable net.minecraft.nbt.CompoundTag $$1, @javax.annotation.Nullable net.minecraft.network.chat.Component $$2, @javax.annotation.Nullable net.minecraft.world.entity.player.Player $$3, net.minecraft.core.BlockPos $$4, net.minecraft.world.entity.MobSpawnType $$5, boolean $$6, boolean $$7) {
++        double $$10;
++        net.minecraft.world.entity.Entity $$8 = this.create((net.minecraft.world.level.Level)$$0);
++        if ($$8 == null) {
+             return null;
+         }
+-        if (shouldOffsetY) {
+-            entity.setPos((double)pos.getX() + 0.5, (double)(pos.getY() + 1), (double)pos.getZ() + 0.5);
+-            d = net.minecraft.world.entity.EntityType.getYOffset((net.minecraft.world.level.LevelReader)level, (net.minecraft.core.BlockPos)pos, (boolean)shouldOffsetYMore, (net.minecraft.world.phys.AABB)entity.getBoundingBox());
++        if ($$6) {
++            $$8.setPos((double)$$4.getX() + 0.5, (double)($$4.getY() + 1), (double)$$4.getZ() + 0.5);
++            double $$9 = net.minecraft.world.entity.EntityType.getYOffset((net.minecraft.world.level.LevelReader)$$0, (net.minecraft.core.BlockPos)$$4, (boolean)$$7, (net.minecraft.world.phys.AABB)$$8.getBoundingBox());
+         } else {
+-            d = 0.0;
++            $$10 = 0.0;
+         }
+-        entity.moveTo((double)pos.getX() + 0.5, (double)pos.getY() + d, (double)pos.getZ() + 0.5, net.minecraft.util.Mth.wrapDegrees((float)(level.random.nextFloat() * 360.0f)), 0.0f);
+-        if (entity instanceof net.minecraft.world.entity.Mob) {
+-            net.minecraft.world.entity.Mob mob = (net.minecraft.world.entity.Mob)entity;
+-            mob.yHeadRot = mob.getYRot();
+-            mob.yBodyRot = mob.getYRot();
+-            mob.finalizeSpawn((net.minecraft.world.level.ServerLevelAccessor)level, level.getCurrentDifficultyAt(mob.blockPosition()), spawnType, null, compound);
+-            mob.playAmbientSound();
++        $$8.moveTo((double)$$4.getX() + 0.5, (double)$$4.getY() + $$10, (double)$$4.getZ() + 0.5, net.minecraft.util.Mth.wrapDegrees((float)($$0.random.nextFloat() * 360.0f)), 0.0f);
++        if ($$8 instanceof net.minecraft.world.entity.Mob) {
++            net.minecraft.world.entity.Mob $$11 = (net.minecraft.world.entity.Mob)$$8;
++            $$11.yHeadRot = $$11.getYRot();
++            $$11.yBodyRot = $$11.getYRot();
++            $$11.finalizeSpawn((net.minecraft.world.level.ServerLevelAccessor)$$0, $$0.getCurrentDifficultyAt($$11.blockPosition()), $$5, null, $$1);
++            $$11.playAmbientSound();
+         }
+-        if (customName != null && entity instanceof net.minecraft.world.entity.LivingEntity) {
+-            entity.setCustomName(customName);
++        if ($$2 != null && $$8 instanceof net.minecraft.world.entity.LivingEntity) {
++            $$8.setCustomName($$2);
+         }
+-        net.minecraft.world.entity.EntityType.updateCustomEntityTag((net.minecraft.world.level.Level)level, (net.minecraft.world.entity.player.Player)player, (net.minecraft.world.entity.Entity)entity, (net.minecraft.nbt.CompoundTag)compound);
+-        return (T)entity;
++        net.minecraft.world.entity.EntityType.updateCustomEntityTag((net.minecraft.world.level.Level)$$0, (net.minecraft.world.entity.player.Player)$$3, (net.minecraft.world.entity.Entity)$$8, (net.minecraft.nbt.CompoundTag)$$1);
++        return (T)$$8;
+     }
+ 
+-    public static double getYOffset(net.minecraft.world.level.LevelReader level, net.minecraft.core.BlockPos pos, boolean shouldOffsetYMore, net.minecraft.world.phys.AABB box) {
+-        net.minecraft.world.phys.AABB aABB = new net.minecraft.world.phys.AABB(pos);
+-        if (shouldOffsetYMore) {
+-            aABB = aABB.expandTowards(0.0, -1.0, 0.0);
++    public static double getYOffset(net.minecraft.world.level.LevelReader $$0, net.minecraft.core.BlockPos $$1, boolean $$2, net.minecraft.world.phys.AABB $$3) {
++        net.minecraft.world.phys.AABB $$4 = new net.minecraft.world.phys.AABB($$1);
++        if ($$2) {
++            $$4 = $$4.expandTowards(0.0, -1.0, 0.0);
+         }
+-        java.lang.Iterable iterable = level.getCollisions(null, aABB);
+-        return 1.0 + net.minecraft.world.phys.shapes.Shapes.collide((net.minecraft.core.Direction$Axis)net.minecraft.core.Direction$Axis.Y, (net.minecraft.world.phys.AABB)box, (java.lang.Iterable)iterable, (double)(shouldOffsetYMore ? -2.0 : -1.0));
++        java.lang.Iterable $$5 = $$0.getCollisions(null, $$4);
++        return 1.0 + net.minecraft.world.phys.shapes.Shapes.collide((net.minecraft.core.Direction$Axis)net.minecraft.core.Direction$Axis.Y, (net.minecraft.world.phys.AABB)$$3, (java.lang.Iterable)$$5, (double)($$2 ? -2.0 : -1.0));
+     }
+ 
+-    public static void updateCustomEntityTag(net.minecraft.world.level.Level level, @javax.annotation.Nullable net.minecraft.world.entity.player.Player player, @javax.annotation.Nullable net.minecraft.world.entity.Entity spawnedEntity, @javax.annotation.Nullable net.minecraft.nbt.CompoundTag itemNBT) {
+-        if (itemNBT == null || !itemNBT.contains("EntityTag", 10)) {
++    public static void updateCustomEntityTag(net.minecraft.world.level.Level $$0, @javax.annotation.Nullable net.minecraft.world.entity.player.Player $$1, @javax.annotation.Nullable net.minecraft.world.entity.Entity $$2, @javax.annotation.Nullable net.minecraft.nbt.CompoundTag $$3) {
++        if ($$3 == null || !$$3.contains("EntityTag", 10)) {
+             return;
+         }
+-        net.minecraft.server.MinecraftServer minecraftServer = level.getServer();
+-        if (minecraftServer == null || spawnedEntity == null) {
++        net.minecraft.server.MinecraftServer $$4 = $$0.getServer();
++        if ($$4 == null || $$2 == null) {
+             return;
+         }
+-        if (!(level.isClientSide || !spawnedEntity.onlyOpCanSetNbt() || player != null && minecraftServer.getPlayerList().isOp(player.getGameProfile()))) {
++        if (!($$0.isClientSide || !$$2.onlyOpCanSetNbt() || $$1 != null && $$4.getPlayerList().isOp($$1.getGameProfile()))) {
+             return;
+         }
+-        net.minecraft.nbt.CompoundTag compoundTag = spawnedEntity.saveWithoutId(new net.minecraft.nbt.CompoundTag());
+-        java.util.UUID uUID = spawnedEntity.getUUID();
+-        compoundTag.merge(itemNBT.getCompound("EntityTag"));
+-        spawnedEntity.setUUID(uUID);
+-        spawnedEntity.load(compoundTag);
++        net.minecraft.nbt.CompoundTag $$5 = $$2.saveWithoutId(new net.minecraft.nbt.CompoundTag());
++        java.util.UUID $$6 = $$2.getUUID();
++        $$5.merge($$3.getCompound("EntityTag"));
++        $$2.setUUID($$6);
++        $$2.load($$5);
+     }
+ 
+     public boolean canSerialize() {
+@@ -286,7 +290,7 @@
+     public net.minecraft.resources.ResourceLocation getDefaultLootTable() {
+         if (this.lootTable == null) {
+             net.minecraft.resources.ResourceLocation $$0 = net.minecraft.core.Registry.ENTITY_TYPE.getKey((java.lang.Object)this);
+-            this.lootTable = new net.minecraft.resources.ResourceLocation($$0.getNamespace(), "entities/" + $$0.getPath());
++            this.lootTable = $$0.withPrefix("entities/");
+         }
+         return this.lootTable;
+     }
+@@ -299,45 +303,52 @@
+         return this.dimensions.height;
+     }
+ 
++    public net.minecraft.world.flag.FeatureFlagSet requiredFeatures() {
++        return this.requiredFeatures;
++    }
++
+     @javax.annotation.Nullable
+-    public T create(net.minecraft.world.level.Level level) {
+-        return (T)this.factory.create(this, level);
++    public T create(net.minecraft.world.level.Level $$0) {
++        if (!this.isEnabled($$0.enabledFeatures())) {
++            return null;
++        }
++        return (T)this.factory.create(this, $$0);
+     }
+ 
+-    public static java.util.Optional<net.minecraft.world.entity.Entity> create(net.minecraft.nbt.CompoundTag compound, net.minecraft.world.level.Level level) {
+-        return net.minecraft.Util.ifElse((java.util.Optional)net.minecraft.world.entity.EntityType.by((net.minecraft.nbt.CompoundTag)compound).map($$1 -> $$1.create(level)), $$1 -> $$1.load(compound), () -> LOGGER.warn("Skipping Entity with id {}", (java.lang.Object)compound.getString("id")));
++    public static java.util.Optional<net.minecraft.world.entity.Entity> create(net.minecraft.nbt.CompoundTag $$0, net.minecraft.world.level.Level $$12) {
++        return net.minecraft.Util.ifElse((java.util.Optional)net.minecraft.world.entity.EntityType.by((net.minecraft.nbt.CompoundTag)$$0).map($$1 -> $$1.create($$12)), $$1 -> $$1.load($$0), () -> LOGGER.warn("Skipping Entity with id {}", (java.lang.Object)$$0.getString("id")));
+     }
+ 
+-    public net.minecraft.world.phys.AABB getAABB(double x, double y, double z) {
+-        float f = this.getWidth() / 2.0f;
+-        return new net.minecraft.world.phys.AABB(x - (double)f, y, z - (double)f, x + (double)f, y + (double)this.getHeight(), z + (double)f);
++    public net.minecraft.world.phys.AABB getAABB(double $$0, double $$1, double $$2) {
++        float $$3 = this.getWidth() / 2.0f;
++        return new net.minecraft.world.phys.AABB($$0 - (double)$$3, $$1, $$2 - (double)$$3, $$0 + (double)$$3, $$1 + (double)this.getHeight(), $$2 + (double)$$3);
+     }
+ 
+-    public boolean isBlockDangerous(net.minecraft.world.level.block.state.BlockState state) {
+-        if (this.immuneTo.contains((java.lang.Object)state.getBlock())) {
++    public boolean isBlockDangerous(net.minecraft.world.level.block.state.BlockState $$0) {
++        if (this.immuneTo.contains((java.lang.Object)$$0.getBlock())) {
+             return false;
+         }
+-        if (!this.fireImmune && net.minecraft.world.level.pathfinder.WalkNodeEvaluator.isBurningBlock((net.minecraft.world.level.block.state.BlockState)state)) {
++        if (!this.fireImmune && net.minecraft.world.level.pathfinder.WalkNodeEvaluator.isBurningBlock((net.minecraft.world.level.block.state.BlockState)$$0)) {
+             return true;
+         }
+-        return state.is(net.minecraft.world.level.block.Blocks.WITHER_ROSE) || state.is(net.minecraft.world.level.block.Blocks.SWEET_BERRY_BUSH) || state.is(net.minecraft.world.level.block.Blocks.CACTUS) || state.is(net.minecraft.world.level.block.Blocks.POWDER_SNOW);
++        return $$0.is(net.minecraft.world.level.block.Blocks.WITHER_ROSE) || $$0.is(net.minecraft.world.level.block.Blocks.SWEET_BERRY_BUSH) || $$0.is(net.minecraft.world.level.block.Blocks.CACTUS) || $$0.is(net.minecraft.world.level.block.Blocks.POWDER_SNOW);
+     }
+ 
+     public net.minecraft.world.entity.EntityDimensions getDimensions() {
+         return this.dimensions;
+     }
+ 
+-    public static java.util.Optional<net.minecraft.world.entity.EntityType<?>> by(net.minecraft.nbt.CompoundTag compound) {
+-        return net.minecraft.core.Registry.ENTITY_TYPE.getOptional(new net.minecraft.resources.ResourceLocation(compound.getString("id")));
++    public static java.util.Optional<net.minecraft.world.entity.EntityType<?>> by(net.minecraft.nbt.CompoundTag $$0) {
++        return net.minecraft.core.Registry.ENTITY_TYPE.getOptional(new net.minecraft.resources.ResourceLocation($$0.getString("id")));
+     }
+ 
+     @javax.annotation.Nullable
+-    public static net.minecraft.world.entity.Entity loadEntityRecursive(net.minecraft.nbt.CompoundTag compound, net.minecraft.world.level.Level level, java.util.function.Function<net.minecraft.world.entity.Entity, net.minecraft.world.entity.Entity> entityFunction) {
+-        return (net.minecraft.world.entity.Entity)net.minecraft.world.entity.EntityType.loadStaticEntity((net.minecraft.nbt.CompoundTag)compound, (net.minecraft.world.level.Level)level).map(entityFunction).map($$3 -> {
+-            if (compound.contains("Passengers", 9)) {
+-                net.minecraft.nbt.ListTag $$4 = compound.getList("Passengers", 10);
++    public static net.minecraft.world.entity.Entity loadEntityRecursive(net.minecraft.nbt.CompoundTag $$0, net.minecraft.world.level.Level $$1, java.util.function.Function<net.minecraft.world.entity.Entity, net.minecraft.world.entity.Entity> $$2) {
++        return (net.minecraft.world.entity.Entity)net.minecraft.world.entity.EntityType.loadStaticEntity((net.minecraft.nbt.CompoundTag)$$0, (net.minecraft.world.level.Level)$$1).map($$2).map($$3 -> {
++            if ($$0.contains("Passengers", 9)) {
++                net.minecraft.nbt.ListTag $$4 = $$0.getList("Passengers", 10);
+                 for (int $$5 = 0; $$5 < $$4.size(); ++$$5) {
+-                    net.minecraft.world.entity.Entity $$6 = net.minecraft.world.entity.EntityType.loadEntityRecursive((net.minecraft.nbt.CompoundTag)$$4.getCompound($$5), (net.minecraft.world.level.Level)level, (java.util.function.Function)entityFunction);
++                    net.minecraft.world.entity.Entity $$6 = net.minecraft.world.entity.EntityType.loadEntityRecursive((net.minecraft.nbt.CompoundTag)$$4.getCompound($$5), (net.minecraft.world.level.Level)$$1, (java.util.function.Function)$$2);
+                     if ($$6 == null) continue;
+                     $$6.startRiding($$3, true);
+                 }
+@@ -351,12 +362,12 @@
+         return java.util.stream.StreamSupport.stream((java.util.Spliterator)new /* Unavailable Anonymous Inner Class!! */, (boolean)false);
+     }
+ 
+-    public static java.util.Optional<net.minecraft.world.entity.Entity> loadStaticEntity(net.minecraft.nbt.CompoundTag compound, net.minecraft.world.level.Level level) {
++    public static java.util.Optional<net.minecraft.world.entity.Entity> loadStaticEntity(net.minecraft.nbt.CompoundTag $$0, net.minecraft.world.level.Level $$1) {
+         try {
+-            return net.minecraft.world.entity.EntityType.create((net.minecraft.nbt.CompoundTag)compound, (net.minecraft.world.level.Level)level);
++            return net.minecraft.world.entity.EntityType.create((net.minecraft.nbt.CompoundTag)$$0, (net.minecraft.world.level.Level)$$1);
+         }
+-        catch (java.lang.RuntimeException runtimeException) {
+-            LOGGER.warn("Exception loading entity: ", (java.lang.Throwable)runtimeException);
++        catch (java.lang.RuntimeException $$2) {
++            LOGGER.warn("Exception loading entity: ", (java.lang.Throwable)$$2);
+             return java.util.Optional.empty();
+         }
+     }
+@@ -404,6 +415,7 @@
+         BOAT = net.minecraft.world.entity.EntityType.register((java.lang.String)"boat", (net.minecraft.world.entity.EntityType$Builder)net.minecraft.world.entity.EntityType$Builder.of(net.minecraft.world.entity.vehicle.Boat::new, (net.minecraft.world.entity.MobCategory)net.minecraft.world.entity.MobCategory.MISC).sized(1.375f, 0.5625f).clientTrackingRange(10));
+         CHEST_BOAT = net.minecraft.world.entity.EntityType.register((java.lang.String)"chest_boat", (net.minecraft.world.entity.EntityType$Builder)net.minecraft.world.entity.EntityType$Builder.of(net.minecraft.world.entity.vehicle.ChestBoat::new, (net.minecraft.world.entity.MobCategory)net.minecraft.world.entity.MobCategory.MISC).sized(1.375f, 0.5625f).clientTrackingRange(10));
+         CAT = net.minecraft.world.entity.EntityType.register((java.lang.String)"cat", (net.minecraft.world.entity.EntityType$Builder)net.minecraft.world.entity.EntityType$Builder.of(net.minecraft.world.entity.animal.Cat::new, (net.minecraft.world.entity.MobCategory)net.minecraft.world.entity.MobCategory.CREATURE).sized(0.6f, 0.7f).clientTrackingRange(8));
++        CAMEL = net.minecraft.world.entity.EntityType.register((java.lang.String)"camel", (net.minecraft.world.entity.EntityType$Builder)net.minecraft.world.entity.EntityType$Builder.of(net.minecraft.world.entity.animal.camel.Camel::new, (net.minecraft.world.entity.MobCategory)net.minecraft.world.entity.MobCategory.CREATURE).sized(1.7f, 2.375f).clientTrackingRange(10).requiredFeatures(new net.minecraft.world.flag.FeatureFlag[]{net.minecraft.world.flag.FeatureFlags.UPDATE_1_20}));
+         CAVE_SPIDER = net.minecraft.world.entity.EntityType.register((java.lang.String)"cave_spider", (net.minecraft.world.entity.EntityType$Builder)net.minecraft.world.entity.EntityType$Builder.of(net.minecraft.world.entity.monster.CaveSpider::new, (net.minecraft.world.entity.MobCategory)net.minecraft.world.entity.MobCategory.MONSTER).sized(0.7f, 0.5f).clientTrackingRange(8));
+         CHICKEN = net.minecraft.world.entity.EntityType.register((java.lang.String)"chicken", (net.minecraft.world.entity.EntityType$Builder)net.minecraft.world.entity.EntityType$Builder.of(net.minecraft.world.entity.animal.Chicken::new, (net.minecraft.world.entity.MobCategory)net.minecraft.world.entity.MobCategory.CREATURE).sized(0.4f, 0.7f).clientTrackingRange(10));
+         COD = net.minecraft.world.entity.EntityType.register((java.lang.String)"cod", (net.minecraft.world.entity.EntityType$Builder)net.minecraft.world.entity.EntityType$Builder.of(net.minecraft.world.entity.animal.Cod::new, (net.minecraft.world.entity.MobCategory)net.minecraft.world.entity.MobCategory.WATER_AMBIENT).sized(0.5f, 0.3f).clientTrackingRange(4));

@@ -1,0 +1,106 @@
+--- com/mojang/blaze3d/audio/Channel.java
++++ com/mojang/blaze3d/audio/Channel.java
+@@ -24,10 +24,10 @@
+         return new com.mojang.blaze3d.audio.Channel($$0[0]);
+     }
+ 
+-    public com.mojang.blaze3d.audio.Channel(int source) {
++    public com.mojang.blaze3d.audio.Channel(int $$0) {
+         this.initialized = new java.util.concurrent.atomic.AtomicBoolean(true);
+         this.streamingBufferSize = 16384;
+-        this.source = source;
++        this.source = $$0;
+     }
+ 
+     public void destroy() {
+@@ -87,63 +87,63 @@
+         return this.getState() == 4116;
+     }
+ 
+-    public void setSelfPosition(net.minecraft.world.phys.Vec3 source) {
+-        org.lwjgl.openal.AL10.alSourcefv((int)this.source, (int)4100, (float[])new float[]{(float)source.x, (float)source.y, (float)source.z});
++    public void setSelfPosition(net.minecraft.world.phys.Vec3 $$0) {
++        org.lwjgl.openal.AL10.alSourcefv((int)this.source, (int)4100, (float[])new float[]{(float)$$0.x, (float)$$0.y, (float)$$0.z});
+     }
+ 
+-    public void setPitch(float pitch) {
+-        org.lwjgl.openal.AL10.alSourcef((int)this.source, (int)4099, (float)pitch);
++    public void setPitch(float $$0) {
++        org.lwjgl.openal.AL10.alSourcef((int)this.source, (int)4099, (float)$$0);
+     }
+ 
+-    public void setLooping(boolean looping) {
+-        org.lwjgl.openal.AL10.alSourcei((int)this.source, (int)4103, (int)(looping ? 1 : 0));
++    public void setLooping(boolean $$0) {
++        org.lwjgl.openal.AL10.alSourcei((int)this.source, (int)4103, (int)($$0 ? 1 : 0));
+     }
+ 
+-    public void setVolume(float volume) {
+-        org.lwjgl.openal.AL10.alSourcef((int)this.source, (int)4106, (float)volume);
++    public void setVolume(float $$0) {
++        org.lwjgl.openal.AL10.alSourcef((int)this.source, (int)4106, (float)$$0);
+     }
+ 
+     public void disableAttenuation() {
+         org.lwjgl.openal.AL10.alSourcei((int)this.source, (int)53248, (int)0);
+     }
+ 
+-    public void linearAttenuation(float linearAttenuation) {
++    public void linearAttenuation(float $$0) {
+         org.lwjgl.openal.AL10.alSourcei((int)this.source, (int)53248, (int)53251);
+-        org.lwjgl.openal.AL10.alSourcef((int)this.source, (int)4131, (float)linearAttenuation);
++        org.lwjgl.openal.AL10.alSourcef((int)this.source, (int)4131, (float)$$0);
+         org.lwjgl.openal.AL10.alSourcef((int)this.source, (int)4129, (float)1.0f);
+         org.lwjgl.openal.AL10.alSourcef((int)this.source, (int)4128, (float)0.0f);
+     }
+ 
+-    public void setRelative(boolean relative) {
+-        org.lwjgl.openal.AL10.alSourcei((int)this.source, (int)514, (int)(relative ? 1 : 0));
++    public void setRelative(boolean $$0) {
++        org.lwjgl.openal.AL10.alSourcei((int)this.source, (int)514, (int)($$0 ? 1 : 0));
+     }
+ 
+-    public void attachStaticBuffer(com.mojang.blaze3d.audio.SoundBuffer buffer) {
+-        buffer.getAlBuffer().ifPresent(value -> org.lwjgl.openal.AL10.alSourcei((int)this.source, (int)4105, (int)value));
++    public void attachStaticBuffer(com.mojang.blaze3d.audio.SoundBuffer $$02) {
++        $$02.getAlBuffer().ifPresent($$0 -> org.lwjgl.openal.AL10.alSourcei((int)this.source, (int)4105, (int)$$0));
+     }
+ 
+-    public void attachBufferStream(net.minecraft.client.sounds.AudioStream stream) {
+-        this.stream = stream;
+-        javax.sound.sampled.AudioFormat audioFormat = stream.getFormat();
+-        this.streamingBufferSize = com.mojang.blaze3d.audio.Channel.calculateBufferSize((javax.sound.sampled.AudioFormat)audioFormat, (int)1);
++    public void attachBufferStream(net.minecraft.client.sounds.AudioStream $$0) {
++        this.stream = $$0;
++        javax.sound.sampled.AudioFormat $$1 = $$0.getFormat();
++        this.streamingBufferSize = com.mojang.blaze3d.audio.Channel.calculateBufferSize((javax.sound.sampled.AudioFormat)$$1, (int)1);
+         this.pumpBuffers(4);
+     }
+ 
+-    public static int calculateBufferSize(javax.sound.sampled.AudioFormat format, int sampleAmount) {
+-        return (int)((float)(sampleAmount * format.getSampleSizeInBits()) / 8.0f * (float)format.getChannels() * format.getSampleRate());
++    public static int calculateBufferSize(javax.sound.sampled.AudioFormat $$0, int $$1) {
++        return (int)((float)($$1 * $$0.getSampleSizeInBits()) / 8.0f * (float)$$0.getChannels() * $$0.getSampleRate());
+     }
+ 
+-    public void pumpBuffers(int readCount) {
++    public void pumpBuffers(int $$02) {
+         if (this.stream != null) {
+             try {
+-                for (int i = 0; i < readCount; ++i) {
+-                    java.nio.ByteBuffer byteBuffer = this.stream.read(this.streamingBufferSize);
+-                    if (byteBuffer == null) continue;
+-                    new com.mojang.blaze3d.audio.SoundBuffer(byteBuffer, this.stream.getFormat()).releaseAlBuffer().ifPresent(bufferName -> org.lwjgl.openal.AL10.alSourceQueueBuffers((int)this.source, (int[])new int[]{bufferName}));
++                for (int $$1 = 0; $$1 < $$02; ++$$1) {
++                    java.nio.ByteBuffer $$2 = this.stream.read(this.streamingBufferSize);
++                    if ($$2 == null) continue;
++                    new com.mojang.blaze3d.audio.SoundBuffer($$2, this.stream.getFormat()).releaseAlBuffer().ifPresent($$0 -> org.lwjgl.openal.AL10.alSourceQueueBuffers((int)this.source, (int[])new int[]{$$0}));
+                 }
+             }
+-            catch (java.io.IOException iOException) {
+-                LOGGER.error("Failed to read from audio stream", (java.lang.Throwable)iOException);
++            catch (java.io.IOException $$3) {
++                LOGGER.error("Failed to read from audio stream", (java.lang.Throwable)$$3);
+             }
+         }
+     }

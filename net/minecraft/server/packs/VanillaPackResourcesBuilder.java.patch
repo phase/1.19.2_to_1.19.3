@@ -1,0 +1,211 @@
+--- net/minecraft/server/packs/VanillaPackResourcesBuilder.java
++++ net/minecraft/server/packs/VanillaPackResourcesBuilder.java
+@@ -1,0 +1,208 @@
++/*
++ * Decompiled with CFR 0.151.
++ */
++package net.minecraft.server.packs;
++
++public class net.minecraft.server.packs.VanillaPackResourcesBuilder
++ {
++    public static org.slf4j.Logger LOGGER;
++    public static java.util.function.Consumer<net.minecraft.server.packs.VanillaPackResourcesBuilder> developmentConfig;
++    public static java.util.Map<net.minecraft.server.packs.PackType, java.nio.file.Path> ROOT_DIR_BY_TYPE;
++    public java.util.Set<java.nio.file.Path> rootPaths;
++    public java.util.Map<net.minecraft.server.packs.PackType, java.util.Set<java.nio.file.Path>> pathsForType;
++    public net.minecraft.server.packs.BuiltInMetadata metadata;
++    public java.util.Set<java.lang.String> namespaces;
++
++    public net.minecraft.server.packs.VanillaPackResourcesBuilder() {
++        this.rootPaths = new java.util.LinkedHashSet();
++        this.pathsForType = new java.util.EnumMap(net.minecraft.server.packs.PackType.class);
++        this.metadata = net.minecraft.server.packs.BuiltInMetadata.of();
++        this.namespaces = new java.util.HashSet();
++    }
++
++    public static java.nio.file.Path safeGetPath(java.net.URI $$0) throws java.io.IOException {
++        try {
++            return java.nio.file.Paths.get((java.net.URI)$$0);
++        }
++        catch (java.nio.file.FileSystemNotFoundException fileSystemNotFoundException) {
++        }
++        catch (java.lang.Throwable $$1) {
++            LOGGER.warn("Unable to get path for: {}", (java.lang.Object)$$0, (java.lang.Object)((java.lang.Object)$$1));
++        }
++        try {
++            java.nio.file.FileSystems.newFileSystem((java.net.URI)$$0, (java.util.Map)java.util.Collections.emptyMap());
++        }
++        catch (java.nio.file.FileSystemAlreadyExistsException fileSystemAlreadyExistsException) {
++            // empty catch block
++        }
++        return java.nio.file.Paths.get((java.net.URI)$$0);
++    }
++
++    public boolean validateDirPath(java.nio.file.Path $$0) {
++        if (!java.nio.file.Files.exists((java.nio.file.Path)$$0, (java.nio.file.LinkOption[])new java.nio.file.LinkOption[0])) {
++            return false;
++        }
++        if (!java.nio.file.Files.isDirectory((java.nio.file.Path)$$0, (java.nio.file.LinkOption[])new java.nio.file.LinkOption[0])) {
++            throw new java.lang.IllegalArgumentException("Path " + $$0.toAbsolutePath() + " is not directory");
++        }
++        return true;
++    }
++
++    public void pushRootPath(java.nio.file.Path $$0) {
++        if (this.validateDirPath($$0)) {
++            this.rootPaths.add((java.lang.Object)$$0);
++        }
++    }
++
++    public void pushPathForType(net.minecraft.server.packs.PackType $$02, java.nio.file.Path $$1) {
++        if (this.validateDirPath($$1)) {
++            ((java.util.Set)this.pathsForType.computeIfAbsent((java.lang.Object)$$02, $$0 -> new java.util.LinkedHashSet())).add((java.lang.Object)$$1);
++        }
++    }
++
++    public net.minecraft.server.packs.VanillaPackResourcesBuilder pushJarResources() {
++        ROOT_DIR_BY_TYPE.forEach(($$0, $$1) -> {
++            this.pushRootPath($$1.getParent());
++            this.pushPathForType($$0, $$1);
++        });
++        return this;
++    }
++
++    public net.minecraft.server.packs.VanillaPackResourcesBuilder pushClasspathResources(net.minecraft.server.packs.PackType $$0, java.lang.Class<?> $$1) {
++        java.util.Enumeration $$2 = null;
++        try {
++            $$2 = $$1.getClassLoader().getResources($$0.getDirectory() + "/");
++        }
++        catch (java.io.IOException iOException) {
++            // empty catch block
++        }
++        while ($$2 != null && $$2.hasMoreElements()) {
++            java.net.URL $$3 = (java.net.URL)$$2.nextElement();
++            try {
++                java.net.URI $$4 = $$3.toURI();
++                if (!"file".equals((java.lang.Object)$$4.getScheme())) continue;
++                java.nio.file.Path $$5 = java.nio.file.Paths.get((java.net.URI)$$4);
++                this.pushRootPath($$5.getParent());
++                this.pushPathForType($$0, $$5);
++            }
++            catch (java.lang.Exception $$6) {
++                LOGGER.error("Failed to extract path from {}", (java.lang.Object)$$3, (java.lang.Object)((java.lang.Object)$$6));
++            }
++        }
++        return this;
++    }
++
++    public net.minecraft.server.packs.VanillaPackResourcesBuilder applyDevelopmentConfig() {
++        developmentConfig.accept((java.lang.Object)this);
++        return this;
++    }
++
++    public net.minecraft.server.packs.VanillaPackResourcesBuilder pushUniversalPath(java.nio.file.Path $$0) {
++        this.pushRootPath($$0);
++        for (net.minecraft.server.packs.PackType $$1 : net.minecraft.server.packs.PackType.values()) {
++            this.pushPathForType($$1, $$0.resolve($$1.getDirectory()));
++        }
++        return this;
++    }
++
++    public net.minecraft.server.packs.VanillaPackResourcesBuilder pushAssetPath(net.minecraft.server.packs.PackType $$0, java.nio.file.Path $$1) {
++        this.pushRootPath($$1);
++        this.pushPathForType($$0, $$1);
++        return this;
++    }
++
++    public net.minecraft.server.packs.VanillaPackResourcesBuilder setMetadata(net.minecraft.server.packs.BuiltInMetadata $$0) {
++        this.metadata = $$0;
++        return this;
++    }
++
++    public net.minecraft.server.packs.VanillaPackResourcesBuilder exposeNamespace(java.lang.String ... $$0) {
++        this.namespaces.addAll((java.util.Collection)java.util.Arrays.asList((java.lang.Object[])$$0));
++        return this;
++    }
++
++    public net.minecraft.server.packs.VanillaPackResources build() {
++        java.util.EnumMap $$0 = new java.util.EnumMap(net.minecraft.server.packs.PackType.class);
++        for (net.minecraft.server.packs.PackType $$1 : net.minecraft.server.packs.PackType.values()) {
++            java.util.List $$2 = net.minecraft.server.packs.VanillaPackResourcesBuilder.copyAndReverse((java.util.Collection)((java.util.Collection)this.pathsForType.getOrDefault((java.lang.Object)$$1, (java.lang.Object)java.util.Set.of())));
++            $$0.put((java.lang.Object)$$1, (java.lang.Object)$$2);
++        }
++        return new net.minecraft.server.packs.VanillaPackResources(this.metadata, java.util.Set.copyOf((java.util.Collection)this.namespaces), net.minecraft.server.packs.VanillaPackResourcesBuilder.copyAndReverse((java.util.Collection)this.rootPaths), (java.util.Map)$$0);
++    }
++
++    public static java.util.List<java.nio.file.Path> copyAndReverse(java.util.Collection<java.nio.file.Path> $$0) {
++        java.util.ArrayList $$1 = new java.util.ArrayList($$0);
++        java.util.Collections.reverse((java.util.List)$$1);
++        return java.util.List.copyOf((java.util.Collection)$$1);
++    }
++
++    /*
++     * WARNING - Removed try catching itself - possible behaviour change.
++     */
++    public static /* synthetic */ com.google.common.collect.ImmutableMap lambda$static$1() {
++        java.lang.Class<net.minecraft.server.packs.VanillaPackResources> clazz = net.minecraft.server.packs.VanillaPackResources.class;
++        synchronized (net.minecraft.server.packs.VanillaPackResources.class) {
++            com.google.common.collect.ImmutableMap$Builder $$0 = com.google.common.collect.ImmutableMap.builder();
++            for (net.minecraft.server.packs.PackType $$1 : net.minecraft.server.packs.PackType.values()) {
++                java.lang.String $$2 = "/" + $$1.getDirectory() + "/.mcassetsroot";
++                java.net.URL $$3 = net.minecraft.server.packs.VanillaPackResources.class.getResource($$2);
++                if ($$3 == null) {
++                    LOGGER.error("File {} does not exist in classpath", (java.lang.Object)$$2);
++                    continue;
++                }
++                try {
++                    java.net.URI $$4 = $$3.toURI();
++                    java.lang.String $$5 = $$4.getScheme();
++                    if (!"jar".equals((java.lang.Object)$$5) && !"file".equals((java.lang.Object)$$5)) {
++                        LOGGER.warn("Assets URL '{}' uses unexpected schema", (java.lang.Object)$$4);
++                    }
++                    java.nio.file.Path $$6 = net.minecraft.server.packs.VanillaPackResourcesBuilder.safeGetPath((java.net.URI)$$4);
++                    $$0.put((java.lang.Object)$$1, (java.lang.Object)$$6.getParent());
++                }
++                catch (java.lang.Exception $$7) {
++                    LOGGER.error("Couldn't resolve path to vanilla assets", (java.lang.Throwable)$$7);
++                }
++            }
++            // ** MonitorExit[var0] (shouldn't be in output)
++            return $$0.build();
++        }
++    }
++
++    public static /* synthetic */ void lambda$static$0(net.minecraft.server.packs.VanillaPackResourcesBuilder $$0) {
++    }
++
++    static {
++        LOGGER = com.mojang.logging.LogUtils.getLogger();
++        developmentConfig = $$0 -> {}
++;
++        ROOT_DIR_BY_TYPE = (java.util.Map)net.minecraft.Util.make(() -> {
++            java.lang.Class<net.minecraft.server.packs.VanillaPackResources> clazz = net.minecraft.server.packs.VanillaPackResources.class;
++            synchronized (net.minecraft.server.packs.VanillaPackResources.class) {
++                com.google.common.collect.ImmutableMap$Builder $$0 = com.google.common.collect.ImmutableMap.builder();
++                for (net.minecraft.server.packs.PackType $$1 : net.minecraft.server.packs.PackType.values()) {
++                    java.lang.String $$2 = "/" + $$1.getDirectory() + "/.mcassetsroot";
++                    java.net.URL $$3 = net.minecraft.server.packs.VanillaPackResources.class.getResource($$2);
++                    if ($$3 == null) {
++                        LOGGER.error("File {} does not exist in classpath", (java.lang.Object)$$2);
++                        continue;
++                    }
++                    try {
++                        java.net.URI $$4 = $$3.toURI();
++                        java.lang.String $$5 = $$4.getScheme();
++                        if (!"jar".equals((java.lang.Object)$$5) && !"file".equals((java.lang.Object)$$5)) {
++                            LOGGER.warn("Assets URL '{}' uses unexpected schema", (java.lang.Object)$$4);
++                        }
++                        java.nio.file.Path $$6 = net.minecraft.server.packs.VanillaPackResourcesBuilder.safeGetPath((java.net.URI)$$4);
++                        $$0.put((java.lang.Object)$$1, (java.lang.Object)$$6.getParent());
++                    }
++                    catch (java.lang.Exception $$7) {
++                        LOGGER.error("Couldn't resolve path to vanilla assets", (java.lang.Throwable)$$7);
++                    }
++                }
++                // ** MonitorExit[var0] (shouldn't be in output)
++                return $$0.build();
++            }
++        });
++    }
++}
++

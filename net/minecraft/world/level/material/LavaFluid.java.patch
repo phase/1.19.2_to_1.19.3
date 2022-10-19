@@ -1,0 +1,106 @@
+--- net/minecraft/world/level/material/LavaFluid.java
++++ net/minecraft/world/level/material/LavaFluid.java
+@@ -71,19 +71,19 @@
+         }
+     }
+ 
+-    public boolean hasFlammableNeighbours(net.minecraft.world.level.LevelReader level, net.minecraft.core.BlockPos pos) {
+-        for (net.minecraft.core.Direction direction : net.minecraft.core.Direction.values()) {
+-            if (!this.isFlammable(level, pos.relative(direction))) continue;
++    public boolean hasFlammableNeighbours(net.minecraft.world.level.LevelReader $$0, net.minecraft.core.BlockPos $$1) {
++        for (net.minecraft.core.Direction $$2 : net.minecraft.core.Direction.values()) {
++            if (!this.isFlammable($$0, $$1.relative($$2))) continue;
+             return true;
+         }
+         return false;
+     }
+ 
+-    public boolean isFlammable(net.minecraft.world.level.LevelReader level, net.minecraft.core.BlockPos pos) {
+-        if (pos.getY() >= level.getMinBuildHeight() && pos.getY() < level.getMaxBuildHeight() && !level.hasChunkAt(pos)) {
++    public boolean isFlammable(net.minecraft.world.level.LevelReader $$0, net.minecraft.core.BlockPos $$1) {
++        if ($$1.getY() >= $$0.getMinBuildHeight() && $$1.getY() < $$0.getMaxBuildHeight() && !$$0.hasChunkAt($$1)) {
+             return false;
+         }
+-        return level.getBlockState(pos).getMaterial().isFlammable();
++        return $$0.getBlockState($$1).getMaterial().isFlammable();
+     }
+ 
+     @javax.annotation.Nullable
+@@ -91,28 +91,28 @@
+         return net.minecraft.core.particles.ParticleTypes.DRIPPING_LAVA;
+     }
+ 
+-    public void beforeDestroyingBlock(net.minecraft.world.level.LevelAccessor level, net.minecraft.core.BlockPos pos, net.minecraft.world.level.block.state.BlockState state) {
+-        this.fizz(level, pos);
++    public void beforeDestroyingBlock(net.minecraft.world.level.LevelAccessor $$0, net.minecraft.core.BlockPos $$1, net.minecraft.world.level.block.state.BlockState $$2) {
++        this.fizz($$0, $$1);
+     }
+ 
+-    public int getSlopeFindDistance(net.minecraft.world.level.LevelReader level) {
+-        return level.dimensionType().ultraWarm() ? 4 : 2;
++    public int getSlopeFindDistance(net.minecraft.world.level.LevelReader $$0) {
++        return $$0.dimensionType().ultraWarm() ? 4 : 2;
+     }
+ 
+-    public net.minecraft.world.level.block.state.BlockState createLegacyBlock(net.minecraft.world.level.material.FluidState state) {
+-        return (net.minecraft.world.level.block.state.BlockState)net.minecraft.world.level.block.Blocks.LAVA.defaultBlockState().setValue((net.minecraft.world.level.block.state.properties.Property)net.minecraft.world.level.block.LiquidBlock.LEVEL, (java.lang.Comparable)java.lang.Integer.valueOf((int)net.minecraft.world.level.material.LavaFluid.getLegacyLevel((net.minecraft.world.level.material.FluidState)state)));
++    public net.minecraft.world.level.block.state.BlockState createLegacyBlock(net.minecraft.world.level.material.FluidState $$0) {
++        return (net.minecraft.world.level.block.state.BlockState)net.minecraft.world.level.block.Blocks.LAVA.defaultBlockState().setValue((net.minecraft.world.level.block.state.properties.Property)net.minecraft.world.level.block.LiquidBlock.LEVEL, (java.lang.Comparable)java.lang.Integer.valueOf((int)net.minecraft.world.level.material.LavaFluid.getLegacyLevel((net.minecraft.world.level.material.FluidState)$$0)));
+     }
+ 
+-    public boolean isSame(net.minecraft.world.level.material.Fluid fluid) {
+-        return fluid == net.minecraft.world.level.material.Fluids.LAVA || fluid == net.minecraft.world.level.material.Fluids.FLOWING_LAVA;
++    public boolean isSame(net.minecraft.world.level.material.Fluid $$0) {
++        return $$0 == net.minecraft.world.level.material.Fluids.LAVA || $$0 == net.minecraft.world.level.material.Fluids.FLOWING_LAVA;
+     }
+ 
+-    public int getDropOff(net.minecraft.world.level.LevelReader level) {
+-        return level.dimensionType().ultraWarm() ? 1 : 2;
++    public int getDropOff(net.minecraft.world.level.LevelReader $$0) {
++        return $$0.dimensionType().ultraWarm() ? 1 : 2;
+     }
+ 
+-    public boolean canBeReplacedWith(net.minecraft.world.level.material.FluidState fluidState, net.minecraft.world.level.BlockGetter blockReader, net.minecraft.core.BlockPos pos, net.minecraft.world.level.material.Fluid fluid, net.minecraft.core.Direction direction) {
+-        return fluidState.getHeight(blockReader, pos) >= 0.44444445f && fluid.is(net.minecraft.tags.FluidTags.WATER);
++    public boolean canBeReplacedWith(net.minecraft.world.level.material.FluidState $$0, net.minecraft.world.level.BlockGetter $$1, net.minecraft.core.BlockPos $$2, net.minecraft.world.level.material.Fluid $$3, net.minecraft.core.Direction $$4) {
++        return $$0.getHeight($$1, $$2) >= 0.44444445f && $$3.is(net.minecraft.tags.FluidTags.WATER);
+     }
+ 
+     public int getTickDelay(net.minecraft.world.level.LevelReader $$0) {
+@@ -127,26 +127,26 @@
+         return $$4;
+     }
+ 
+-    public void fizz(net.minecraft.world.level.LevelAccessor level, net.minecraft.core.BlockPos pos) {
+-        level.levelEvent(1501, pos, 0);
++    public void fizz(net.minecraft.world.level.LevelAccessor $$0, net.minecraft.core.BlockPos $$1) {
++        $$0.levelEvent(1501, $$1, 0);
+     }
+ 
+     public boolean canConvertToSource() {
+         return false;
+     }
+ 
+-    public void spreadTo(net.minecraft.world.level.LevelAccessor level, net.minecraft.core.BlockPos pos, net.minecraft.world.level.block.state.BlockState blockState, net.minecraft.core.Direction direction, net.minecraft.world.level.material.FluidState fluidState) {
+-        if (direction == net.minecraft.core.Direction.DOWN) {
+-            net.minecraft.world.level.material.FluidState fluidState2 = level.getFluidState(pos);
+-            if (this.is(net.minecraft.tags.FluidTags.LAVA) && fluidState2.is(net.minecraft.tags.FluidTags.WATER)) {
+-                if (blockState.getBlock() instanceof net.minecraft.world.level.block.LiquidBlock) {
+-                    level.setBlock(pos, net.minecraft.world.level.block.Blocks.STONE.defaultBlockState(), 3);
++    public void spreadTo(net.minecraft.world.level.LevelAccessor $$0, net.minecraft.core.BlockPos $$1, net.minecraft.world.level.block.state.BlockState $$2, net.minecraft.core.Direction $$3, net.minecraft.world.level.material.FluidState $$4) {
++        if ($$3 == net.minecraft.core.Direction.DOWN) {
++            net.minecraft.world.level.material.FluidState $$5 = $$0.getFluidState($$1);
++            if (this.is(net.minecraft.tags.FluidTags.LAVA) && $$5.is(net.minecraft.tags.FluidTags.WATER)) {
++                if ($$2.getBlock() instanceof net.minecraft.world.level.block.LiquidBlock) {
++                    $$0.setBlock($$1, net.minecraft.world.level.block.Blocks.STONE.defaultBlockState(), 3);
+                 }
+-                this.fizz(level, pos);
++                this.fizz($$0, $$1);
+                 return;
+             }
+         }
+-        super.spreadTo(level, pos, blockState, direction, fluidState);
++        super.spreadTo($$0, $$1, $$2, $$3, $$4);
+     }
+ 
+     public boolean isRandomlyTicking() {

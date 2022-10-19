@@ -1,0 +1,628 @@
+--- net/minecraft/client/gui/components/EditBox.java
++++ net/minecraft/client/gui/components/EditBox.java
+@@ -37,12 +37,12 @@
+     public java.util.function.Predicate<java.lang.String> filter;
+     public java.util.function.BiFunction<java.lang.String, java.lang.Integer, net.minecraft.util.FormattedCharSequence> formatter;
+ 
+-    public net.minecraft.client.gui.components.EditBox(net.minecraft.client.gui.Font font, int x, int y, int width, int height, net.minecraft.network.chat.Component message) {
+-        this(font, x, y, width, height, null, message);
++    public net.minecraft.client.gui.components.EditBox(net.minecraft.client.gui.Font $$0, int $$1, int $$2, int $$3, int $$4, net.minecraft.network.chat.Component $$5) {
++        this($$0, $$1, $$2, $$3, $$4, null, $$5);
+     }
+ 
+-    public net.minecraft.client.gui.components.EditBox(net.minecraft.client.gui.Font font, int x, int y, int width, int height, @javax.annotation.Nullable net.minecraft.client.gui.components.EditBox editBox, net.minecraft.network.chat.Component message) {
+-        super(x, y, width, height, message);
++    public net.minecraft.client.gui.components.EditBox(net.minecraft.client.gui.Font $$02, int $$12, int $$2, int $$3, int $$4, @javax.annotation.Nullable net.minecraft.client.gui.components.EditBox $$5, net.minecraft.network.chat.Component $$6) {
++        super($$12, $$2, $$3, $$4, $$6);
+         this.value = "";
+         this.maxLength = 32;
+         this.bordered = true;
+@@ -52,18 +52,18 @@
+         this.textColorUneditable = 0x707070;
+         this.filter = java.util.Objects::nonNull;
+         this.formatter = ($$0, $$1) -> net.minecraft.util.FormattedCharSequence.forward((java.lang.String)$$0, (net.minecraft.network.chat.Style)net.minecraft.network.chat.Style.EMPTY);
+-        this.font = font;
+-        if (editBox != null) {
+-            this.setValue(editBox.getValue());
++        this.font = $$02;
++        if ($$5 != null) {
++            this.setValue($$5.getValue());
+         }
+     }
+ 
+-    public void setResponder(java.util.function.Consumer<java.lang.String> responder) {
+-        this.responder = responder;
++    public void setResponder(java.util.function.Consumer<java.lang.String> $$0) {
++        this.responder = $$0;
+     }
+ 
+-    public void setFormatter(java.util.function.BiFunction<java.lang.String, java.lang.Integer, net.minecraft.util.FormattedCharSequence> textFormatter) {
+-        this.formatter = textFormatter;
++    public void setFormatter(java.util.function.BiFunction<java.lang.String, java.lang.Integer, net.minecraft.util.FormattedCharSequence> $$0) {
++        this.formatter = $$0;
+     }
+ 
+     public void tick() {
+@@ -75,14 +75,14 @@
+         return net.minecraft.network.chat.Component.translatable((java.lang.String)"gui.narrate.editBox", (java.lang.Object[])new java.lang.Object[]{$$0, this.value});
+     }
+ 
+-    public void setValue(java.lang.String text) {
+-        if (!this.filter.test((java.lang.Object)text)) {
++    public void setValue(java.lang.String $$0) {
++        if (!this.filter.test((java.lang.Object)$$0)) {
+             return;
+         }
+-        this.value = text.length() > this.maxLength ? text.substring(0, this.maxLength) : text;
++        this.value = $$0.length() > this.maxLength ? $$0.substring(0, this.maxLength) : $$0;
+         this.moveCursorToEnd();
+         this.setHighlightPos(this.cursorPos);
+-        this.onValueChange(text);
++        this.onValueChange($$0);
+     }
+ 
+     public java.lang.String getValue() {
+@@ -95,33 +95,33 @@
+         return this.value.substring($$0, $$1);
+     }
+ 
+-    public void setFilter(java.util.function.Predicate<java.lang.String> validator) {
+-        this.filter = validator;
++    public void setFilter(java.util.function.Predicate<java.lang.String> $$0) {
++        this.filter = $$0;
+     }
+ 
+-    public void insertText(java.lang.String textToWrite) {
+-        java.lang.String string;
+-        java.lang.String string2;
+-        int n;
+-        int n2 = java.lang.Math.min((int)this.cursorPos, (int)this.highlightPos);
+-        int n3 = java.lang.Math.max((int)this.cursorPos, (int)this.highlightPos);
+-        int n4 = this.maxLength - this.value.length() - (n2 - n3);
+-        if (n4 < (n = (string2 = net.minecraft.SharedConstants.filterText((java.lang.String)textToWrite)).length())) {
+-            string2 = string2.substring(0, n4);
+-            n = n4;
++    public void insertText(java.lang.String $$0) {
++        java.lang.String $$6;
++        java.lang.String $$4;
++        int $$5;
++        int $$1 = java.lang.Math.min((int)this.cursorPos, (int)this.highlightPos);
++        int $$2 = java.lang.Math.max((int)this.cursorPos, (int)this.highlightPos);
++        int $$3 = this.maxLength - this.value.length() - ($$1 - $$2);
++        if ($$3 < ($$5 = ($$4 = net.minecraft.SharedConstants.filterText((java.lang.String)$$0)).length())) {
++            $$4 = $$4.substring(0, $$3);
++            $$5 = $$3;
+         }
+-        if (!this.filter.test((java.lang.Object)(string = new java.lang.StringBuilder(this.value).replace(n2, n3, string2).toString()))) {
++        if (!this.filter.test((java.lang.Object)($$6 = new java.lang.StringBuilder(this.value).replace($$1, $$2, $$4).toString()))) {
+             return;
+         }
+-        this.value = string;
+-        this.setCursorPosition(n2 + n);
++        this.value = $$6;
++        this.setCursorPosition($$1 + $$5);
+         this.setHighlightPos(this.cursorPos);
+         this.onValueChange(this.value);
+     }
+ 
+-    public void onValueChange(java.lang.String newText) {
++    public void onValueChange(java.lang.String $$0) {
+         if (this.responder != null) {
+-            this.responder.accept((java.lang.Object)newText);
++            this.responder.accept((java.lang.Object)$$0);
+         }
+     }
+ 
+@@ -133,7 +133,7 @@
+         }
+     }
+ 
+-    public void deleteWords(int num) {
++    public void deleteWords(int $$0) {
+         if (this.value.isEmpty()) {
+             return;
+         }
+@@ -141,11 +141,11 @@
+             this.insertText("");
+             return;
+         }
+-        this.deleteChars(this.getWordPosition(num) - this.cursorPos);
++        this.deleteChars(this.getWordPosition($$0) - this.cursorPos);
+     }
+ 
+-    public void deleteChars(int num) {
+-        int n;
++    public void deleteChars(int $$0) {
++        int $$3;
+         if (this.value.isEmpty()) {
+             return;
+         }
+@@ -153,71 +153,71 @@
+             this.insertText("");
+             return;
+         }
+-        int n2 = this.getCursorPos(num);
+-        int n3 = java.lang.Math.min((int)n2, (int)this.cursorPos);
+-        if (n3 == (n = java.lang.Math.max((int)n2, (int)this.cursorPos))) {
++        int $$1 = this.getCursorPos($$0);
++        int $$2 = java.lang.Math.min((int)$$1, (int)this.cursorPos);
++        if ($$2 == ($$3 = java.lang.Math.max((int)$$1, (int)this.cursorPos))) {
+             return;
+         }
+-        java.lang.String string = new java.lang.StringBuilder(this.value).delete(n3, n).toString();
+-        if (!this.filter.test((java.lang.Object)string)) {
++        java.lang.String $$4 = new java.lang.StringBuilder(this.value).delete($$2, $$3).toString();
++        if (!this.filter.test((java.lang.Object)$$4)) {
+             return;
+         }
+-        this.value = string;
+-        this.moveCursorTo(n3);
++        this.value = $$4;
++        this.moveCursorTo($$2);
+     }
+ 
+-    public int getWordPosition(int numWords) {
+-        return this.getWordPosition(numWords, this.getCursorPosition());
++    public int getWordPosition(int $$0) {
++        return this.getWordPosition($$0, this.getCursorPosition());
+     }
+ 
+-    public int getWordPosition(int n, int pos) {
+-        return this.getWordPosition(n, pos, true);
++    public int getWordPosition(int $$0, int $$1) {
++        return this.getWordPosition($$0, $$1, true);
+     }
+ 
+-    public int getWordPosition(int n, int pos, boolean skipWs) {
+-        int n2 = pos;
+-        boolean bl = n < 0;
+-        int n3 = java.lang.Math.abs((int)n);
+-        for (int i = 0; i < n3; ++i) {
+-            if (bl) {
+-                while (skipWs && n2 > 0 && this.value.charAt(n2 - 1) == ' ') {
+-                    --n2;
++    public int getWordPosition(int $$0, int $$1, boolean $$2) {
++        int $$3 = $$1;
++        boolean $$4 = $$0 < 0;
++        int $$5 = java.lang.Math.abs((int)$$0);
++        for (int $$6 = 0; $$6 < $$5; ++$$6) {
++            if ($$4) {
++                while ($$2 && $$3 > 0 && this.value.charAt($$3 - 1) == ' ') {
++                    --$$3;
+                 }
+-                while (n2 > 0 && this.value.charAt(n2 - 1) != ' ') {
+-                    --n2;
++                while ($$3 > 0 && this.value.charAt($$3 - 1) != ' ') {
++                    --$$3;
+                 }
+                 continue;
+             }
+-            int n4 = this.value.length();
+-            if ((n2 = this.value.indexOf(32, n2)) == -1) {
+-                n2 = n4;
++            int $$7 = this.value.length();
++            if (($$3 = this.value.indexOf(32, $$3)) == -1) {
++                $$3 = $$7;
+                 continue;
+             }
+-            while (skipWs && n2 < n4 && this.value.charAt(n2) == ' ') {
+-                ++n2;
++            while ($$2 && $$3 < $$7 && this.value.charAt($$3) == ' ') {
++                ++$$3;
+             }
+         }
+-        return n2;
++        return $$3;
+     }
+ 
+-    public void moveCursor(int delta) {
+-        this.moveCursorTo(this.getCursorPos(delta));
++    public void moveCursor(int $$0) {
++        this.moveCursorTo(this.getCursorPos($$0));
+     }
+ 
+-    public int getCursorPos(int delta) {
+-        return net.minecraft.Util.offsetByCodepoints((java.lang.String)this.value, (int)this.cursorPos, (int)delta);
++    public int getCursorPos(int $$0) {
++        return net.minecraft.Util.offsetByCodepoints((java.lang.String)this.value, (int)this.cursorPos, (int)$$0);
+     }
+ 
+-    public void moveCursorTo(int pos) {
+-        this.setCursorPosition(pos);
++    public void moveCursorTo(int $$0) {
++        this.setCursorPosition($$0);
+         if (!this.shiftPressed) {
+             this.setHighlightPos(this.cursorPos);
+         }
+         this.onValueChange(this.value);
+     }
+ 
+-    public void setCursorPosition(int pos) {
+-        this.cursorPos = net.minecraft.util.Mth.clamp((int)pos, (int)0, (int)this.value.length());
++    public void setCursorPosition(int $$0) {
++        this.cursorPos = net.minecraft.util.Mth.clamp((int)$$0, (int)0, (int)this.value.length());
+     }
+ 
+     public void moveCursorToStart() {
+@@ -228,34 +228,34 @@
+         this.moveCursorTo(this.value.length());
+     }
+ 
+-    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
++    public boolean keyPressed(int $$0, int $$1, int $$2) {
+         if (!this.canConsumeInput()) {
+             return false;
+         }
+         this.shiftPressed = net.minecraft.client.gui.screens.Screen.hasShiftDown();
+-        if (net.minecraft.client.gui.screens.Screen.isSelectAll((int)keyCode)) {
++        if (net.minecraft.client.gui.screens.Screen.isSelectAll((int)$$0)) {
+             this.moveCursorToEnd();
+             this.setHighlightPos(0);
+             return true;
+         }
+-        if (net.minecraft.client.gui.screens.Screen.isCopy((int)keyCode)) {
++        if (net.minecraft.client.gui.screens.Screen.isCopy((int)$$0)) {
+             net.minecraft.client.Minecraft.getInstance().keyboardHandler.setClipboard(this.getHighlighted());
+             return true;
+         }
+-        if (net.minecraft.client.gui.screens.Screen.isPaste((int)keyCode)) {
++        if (net.minecraft.client.gui.screens.Screen.isPaste((int)$$0)) {
+             if (this.isEditable) {
+                 this.insertText(net.minecraft.client.Minecraft.getInstance().keyboardHandler.getClipboard());
+             }
+             return true;
+         }
+-        if (net.minecraft.client.gui.screens.Screen.isCut((int)keyCode)) {
++        if (net.minecraft.client.gui.screens.Screen.isCut((int)$$0)) {
+             net.minecraft.client.Minecraft.getInstance().keyboardHandler.setClipboard(this.getHighlighted());
+             if (this.isEditable) {
+                 this.insertText("");
+             }
+             return true;
+         }
+-        switch (keyCode) {
++        switch ($$0) {
+             case 263: {
+                 if (net.minecraft.client.gui.screens.Screen.hasControlDown()) {
+                     this.moveCursorTo(this.getWordPosition(-1));
+@@ -304,139 +304,137 @@
+         return this.isVisible() && this.isFocused() && this.isEditable();
+     }
+ 
+-    public boolean charTyped(char codePoint, int modifiers) {
++    public boolean charTyped(char $$0, int $$1) {
+         if (!this.canConsumeInput()) {
+             return false;
+         }
+-        if (net.minecraft.SharedConstants.isAllowedChatCharacter((char)codePoint)) {
++        if (net.minecraft.SharedConstants.isAllowedChatCharacter((char)$$0)) {
+             if (this.isEditable) {
+-                this.insertText(java.lang.Character.toString((char)codePoint));
++                this.insertText(java.lang.Character.toString((char)$$0));
+             }
+             return true;
+         }
+         return false;
+     }
+ 
+-    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+-        boolean bl;
++    public boolean mouseClicked(double $$0, double $$1, int $$2) {
++        boolean $$3;
+         if (!this.isVisible()) {
+             return false;
+         }
+-        boolean bl2 = bl = mouseX >= (double)this.x && mouseX < (double)(this.x + this.width) && mouseY >= (double)this.y && mouseY < (double)(this.y + this.height);
++        boolean bl = $$3 = $$0 >= (double)this.x && $$0 < (double)(this.x + this.width) && $$1 >= (double)this.y && $$1 < (double)(this.y + this.height);
+         if (this.canLoseFocus) {
+-            this.setFocus(bl);
++            this.setFocus($$3);
+         }
+-        if (this.isFocused() && bl && button == 0) {
+-            int n = net.minecraft.util.Mth.floor((double)mouseX) - this.x;
++        if (this.isFocused() && $$3 && $$2 == 0) {
++            int $$4 = net.minecraft.util.Mth.floor((double)$$0) - this.x;
+             if (this.bordered) {
+-                n -= 4;
++                $$4 -= 4;
+             }
+-            java.lang.String string = this.font.plainSubstrByWidth(this.value.substring(this.displayPos), this.getInnerWidth());
+-            this.moveCursorTo(this.font.plainSubstrByWidth(string, n).length() + this.displayPos);
++            java.lang.String $$5 = this.font.plainSubstrByWidth(this.value.substring(this.displayPos), this.getInnerWidth());
++            this.moveCursorTo(this.font.plainSubstrByWidth($$5, $$4).length() + this.displayPos);
+             return true;
+         }
+         return false;
+     }
+ 
+-    public void setFocus(boolean isFocused) {
+-        this.setFocused(isFocused);
++    public void setFocus(boolean $$0) {
++        this.setFocused($$0);
+     }
+ 
+-    public void renderButton(com.mojang.blaze3d.vertex.PoseStack matrixStack, int mouseX, int mouseY, float partialTicks) {
+-        int n;
++    public void renderButton(com.mojang.blaze3d.vertex.PoseStack $$0, int $$1, int $$2, float $$3) {
+         if (!this.isVisible()) {
+             return;
+         }
+         if (this.isBordered()) {
+-            n = this.isFocused() ? -1 : -6250336;
+-            net.minecraft.client.gui.components.EditBox.fill((com.mojang.blaze3d.vertex.PoseStack)matrixStack, (int)(this.x - 1), (int)(this.y - 1), (int)(this.x + this.width + 1), (int)(this.y + this.height + 1), (int)n);
+-            net.minecraft.client.gui.components.EditBox.fill((com.mojang.blaze3d.vertex.PoseStack)matrixStack, (int)this.x, (int)this.y, (int)(this.x + this.width), (int)(this.y + this.height), (int)-16777216);
++            int $$4 = this.isFocused() ? -1 : -6250336;
++            net.minecraft.client.gui.components.EditBox.fill((com.mojang.blaze3d.vertex.PoseStack)$$0, (int)(this.x - 1), (int)(this.y - 1), (int)(this.x + this.width + 1), (int)(this.y + this.height + 1), (int)$$4);
++            net.minecraft.client.gui.components.EditBox.fill((com.mojang.blaze3d.vertex.PoseStack)$$0, (int)this.x, (int)this.y, (int)(this.x + this.width), (int)(this.y + this.height), (int)-16777216);
+         }
+-        n = this.isEditable ? this.textColor : this.textColorUneditable;
+-        int n2 = this.cursorPos - this.displayPos;
+-        int n3 = this.highlightPos - this.displayPos;
+-        java.lang.String string = this.font.plainSubstrByWidth(this.value.substring(this.displayPos), this.getInnerWidth());
+-        boolean bl = n2 >= 0 && n2 <= string.length();
+-        boolean bl2 = this.isFocused() && this.frame / 6 % 2 == 0 && bl;
+-        int n4 = this.bordered ? this.x + 4 : this.x;
+-        int n5 = this.bordered ? this.y + (this.height - 8) / 2 : this.y;
+-        int n6 = n4;
+-        if (n3 > string.length()) {
+-            n3 = string.length();
++        int $$5 = this.isEditable ? this.textColor : this.textColorUneditable;
++        int $$6 = this.cursorPos - this.displayPos;
++        int $$7 = this.highlightPos - this.displayPos;
++        java.lang.String $$8 = this.font.plainSubstrByWidth(this.value.substring(this.displayPos), this.getInnerWidth());
++        boolean $$9 = $$6 >= 0 && $$6 <= $$8.length();
++        boolean $$10 = this.isFocused() && this.frame / 6 % 2 == 0 && $$9;
++        int $$11 = this.bordered ? this.x + 4 : this.x;
++        int $$12 = this.bordered ? this.y + (this.height - 8) / 2 : this.y;
++        int $$13 = $$11;
++        if ($$7 > $$8.length()) {
++            $$7 = $$8.length();
+         }
+-        if (!string.isEmpty()) {
+-            java.lang.String string2 = bl ? string.substring(0, n2) : string;
+-            n6 = this.font.drawShadow(matrixStack, (net.minecraft.util.FormattedCharSequence)this.formatter.apply((java.lang.Object)string2, (java.lang.Object)this.displayPos), (float)n6, (float)n5, n);
++        if (!$$8.isEmpty()) {
++            java.lang.String $$14 = $$9 ? $$8.substring(0, $$6) : $$8;
++            $$13 = this.font.drawShadow($$0, (net.minecraft.util.FormattedCharSequence)this.formatter.apply((java.lang.Object)$$14, (java.lang.Object)this.displayPos), (float)$$13, (float)$$12, $$5);
+         }
+-        boolean bl3 = this.cursorPos < this.value.length() || this.value.length() >= this.getMaxLength();
+-        int n7 = n6;
+-        if (!bl) {
+-            n7 = n2 > 0 ? n4 + this.width : n4;
+-        } else if (bl3) {
+-            --n7;
+-            --n6;
++        boolean $$15 = this.cursorPos < this.value.length() || this.value.length() >= this.getMaxLength();
++        int $$16 = $$13;
++        if (!$$9) {
++            $$16 = $$6 > 0 ? $$11 + this.width : $$11;
++        } else if ($$15) {
++            --$$16;
++            --$$13;
+         }
+-        if (!string.isEmpty() && bl && n2 < string.length()) {
+-            this.font.drawShadow(matrixStack, (net.minecraft.util.FormattedCharSequence)this.formatter.apply((java.lang.Object)string.substring(n2), (java.lang.Object)this.cursorPos), (float)n6, (float)n5, n);
++        if (!$$8.isEmpty() && $$9 && $$6 < $$8.length()) {
++            this.font.drawShadow($$0, (net.minecraft.util.FormattedCharSequence)this.formatter.apply((java.lang.Object)$$8.substring($$6), (java.lang.Object)this.cursorPos), (float)$$13, (float)$$12, $$5);
+         }
+-        if (!bl3 && this.suggestion != null) {
+-            this.font.drawShadow(matrixStack, this.suggestion, (float)(n7 - 1), (float)n5, -8355712);
++        if (!$$15 && this.suggestion != null) {
++            this.font.drawShadow($$0, this.suggestion, (float)($$16 - 1), (float)$$12, -8355712);
+         }
+-        if (bl2) {
+-            if (bl3) {
++        if ($$10) {
++            if ($$15) {
+                 java.util.Objects.requireNonNull((java.lang.Object)this.font);
+-                net.minecraft.client.gui.GuiComponent.fill((com.mojang.blaze3d.vertex.PoseStack)matrixStack, (int)n7, (int)(n5 - 1), (int)(n7 + 1), (int)(n5 + 1 + 9), (int)-3092272);
++                net.minecraft.client.gui.GuiComponent.fill((com.mojang.blaze3d.vertex.PoseStack)$$0, (int)$$16, (int)($$12 - 1), (int)($$16 + 1), (int)($$12 + 1 + 9), (int)-3092272);
+             } else {
+-                this.font.drawShadow(matrixStack, "_", (float)n7, (float)n5, n);
++                this.font.drawShadow($$0, "_", (float)$$16, (float)$$12, $$5);
+             }
+         }
+-        if (n3 != n2) {
+-            int n8 = n4 + this.font.width(string.substring(0, n3));
++        if ($$7 != $$6) {
++            int $$17 = $$11 + this.font.width($$8.substring(0, $$7));
+             java.util.Objects.requireNonNull((java.lang.Object)this.font);
+-            this.renderHighlight(n7, n5 - 1, n8 - 1, n5 + 1 + 9);
++            this.renderHighlight($$16, $$12 - 1, $$17 - 1, $$12 + 1 + 9);
+         }
+     }
+ 
+-    public void renderHighlight(int startX, int startY, int endX, int endY) {
+-        int n;
+-        if (startX < endX) {
+-            n = startX;
+-            startX = endX;
+-            endX = n;
++    public void renderHighlight(int $$0, int $$1, int $$2, int $$3) {
++        if ($$0 < $$2) {
++            int $$4 = $$0;
++            $$0 = $$2;
++            $$2 = $$4;
+         }
+-        if (startY < endY) {
+-            n = startY;
+-            startY = endY;
+-            endY = n;
++        if ($$1 < $$3) {
++            int $$5 = $$1;
++            $$1 = $$3;
++            $$3 = $$5;
+         }
+-        if (endX > this.x + this.width) {
+-            endX = this.x + this.width;
++        if ($$2 > this.x + this.width) {
++            $$2 = this.x + this.width;
+         }
+-        if (startX > this.x + this.width) {
+-            startX = this.x + this.width;
++        if ($$0 > this.x + this.width) {
++            $$0 = this.x + this.width;
+         }
+-        com.mojang.blaze3d.vertex.Tesselator tesselator = com.mojang.blaze3d.vertex.Tesselator.getInstance();
+-        com.mojang.blaze3d.vertex.BufferBuilder bufferBuilder = tesselator.getBuilder();
++        com.mojang.blaze3d.vertex.Tesselator $$6 = com.mojang.blaze3d.vertex.Tesselator.getInstance();
++        com.mojang.blaze3d.vertex.BufferBuilder $$7 = $$6.getBuilder();
+         com.mojang.blaze3d.systems.RenderSystem.setShader(net.minecraft.client.renderer.GameRenderer::getPositionShader);
+         com.mojang.blaze3d.systems.RenderSystem.setShaderColor((float)0.0f, (float)0.0f, (float)1.0f, (float)1.0f);
+         com.mojang.blaze3d.systems.RenderSystem.disableTexture();
+         com.mojang.blaze3d.systems.RenderSystem.enableColorLogicOp();
+         com.mojang.blaze3d.systems.RenderSystem.logicOp((com.mojang.blaze3d.platform.GlStateManager$LogicOp)com.mojang.blaze3d.platform.GlStateManager$LogicOp.OR_REVERSE);
+-        bufferBuilder.begin(com.mojang.blaze3d.vertex.VertexFormat$Mode.QUADS, com.mojang.blaze3d.vertex.DefaultVertexFormat.POSITION);
+-        bufferBuilder.vertex((double)startX, (double)endY, 0.0).endVertex();
+-        bufferBuilder.vertex((double)endX, (double)endY, 0.0).endVertex();
+-        bufferBuilder.vertex((double)endX, (double)startY, 0.0).endVertex();
+-        bufferBuilder.vertex((double)startX, (double)startY, 0.0).endVertex();
+-        tesselator.end();
++        $$7.begin(com.mojang.blaze3d.vertex.VertexFormat$Mode.QUADS, com.mojang.blaze3d.vertex.DefaultVertexFormat.POSITION);
++        $$7.vertex((double)$$0, (double)$$3, 0.0).endVertex();
++        $$7.vertex((double)$$2, (double)$$3, 0.0).endVertex();
++        $$7.vertex((double)$$2, (double)$$1, 0.0).endVertex();
++        $$7.vertex((double)$$0, (double)$$1, 0.0).endVertex();
++        $$6.end();
+         com.mojang.blaze3d.systems.RenderSystem.setShaderColor((float)1.0f, (float)1.0f, (float)1.0f, (float)1.0f);
+         com.mojang.blaze3d.systems.RenderSystem.disableColorLogicOp();
+         com.mojang.blaze3d.systems.RenderSystem.enableTexture();
+     }
+ 
+-    public void setMaxLength(int length) {
+-        this.maxLength = length;
+-        if (this.value.length() > length) {
+-            this.value = this.value.substring(0, length);
++    public void setMaxLength(int $$0) {
++        this.maxLength = $$0;
++        if (this.value.length() > $$0) {
++            this.value = this.value.substring(0, $$0);
+             this.onValueChange(this.value);
+         }
+     }
+@@ -453,31 +451,31 @@
+         return this.bordered;
+     }
+ 
+-    public void setBordered(boolean enableBackgroundDrawing) {
+-        this.bordered = enableBackgroundDrawing;
++    public void setBordered(boolean $$0) {
++        this.bordered = $$0;
+     }
+ 
+-    public void setTextColor(int color) {
+-        this.textColor = color;
++    public void setTextColor(int $$0) {
++        this.textColor = $$0;
+     }
+ 
+-    public void setTextColorUneditable(int color) {
+-        this.textColorUneditable = color;
++    public void setTextColorUneditable(int $$0) {
++        this.textColorUneditable = $$0;
+     }
+ 
+-    public boolean changeFocus(boolean focus) {
++    public boolean changeFocus(boolean $$0) {
+         if (!this.visible || !this.isEditable) {
+             return false;
+         }
+-        return super.changeFocus(focus);
++        return super.changeFocus($$0);
+     }
+ 
+-    public boolean isMouseOver(double mouseX, double mouseY) {
+-        return this.visible && mouseX >= (double)this.x && mouseX < (double)(this.x + this.width) && mouseY >= (double)this.y && mouseY < (double)(this.y + this.height);
++    public boolean isMouseOver(double $$0, double $$1) {
++        return this.visible && $$0 >= (double)this.x && $$0 < (double)(this.x + this.width) && $$1 >= (double)this.y && $$1 < (double)(this.y + this.height);
+     }
+ 
+-    public void onFocusedChanged(boolean focused) {
+-        if (focused) {
++    public void onFocusedChanged(boolean $$0) {
++        if ($$0) {
+             this.frame = 0;
+         }
+     }
+@@ -486,50 +484,50 @@
+         return this.isEditable;
+     }
+ 
+-    public void setEditable(boolean enabled) {
+-        this.isEditable = enabled;
++    public void setEditable(boolean $$0) {
++        this.isEditable = $$0;
+     }
+ 
+     public int getInnerWidth() {
+         return this.isBordered() ? this.width - 8 : this.width;
+     }
+ 
+-    public void setHighlightPos(int position) {
+-        int n = this.value.length();
+-        this.highlightPos = net.minecraft.util.Mth.clamp((int)position, (int)0, (int)n);
++    public void setHighlightPos(int $$0) {
++        int $$1 = this.value.length();
++        this.highlightPos = net.minecraft.util.Mth.clamp((int)$$0, (int)0, (int)$$1);
+         if (this.font != null) {
+-            if (this.displayPos > n) {
+-                this.displayPos = n;
++            if (this.displayPos > $$1) {
++                this.displayPos = $$1;
+             }
+-            int n2 = this.getInnerWidth();
+-            java.lang.String string = this.font.plainSubstrByWidth(this.value.substring(this.displayPos), n2);
+-            int n3 = string.length() + this.displayPos;
++            int $$2 = this.getInnerWidth();
++            java.lang.String $$3 = this.font.plainSubstrByWidth(this.value.substring(this.displayPos), $$2);
++            int $$4 = $$3.length() + this.displayPos;
+             if (this.highlightPos == this.displayPos) {
+-                this.displayPos -= this.font.plainSubstrByWidth(this.value, n2, true).length();
++                this.displayPos -= this.font.plainSubstrByWidth(this.value, $$2, true).length();
+             }
+-            if (this.highlightPos > n3) {
+-                this.displayPos += this.highlightPos - n3;
++            if (this.highlightPos > $$4) {
++                this.displayPos += this.highlightPos - $$4;
+             } else if (this.highlightPos <= this.displayPos) {
+                 this.displayPos -= this.displayPos - this.highlightPos;
+             }
+-            this.displayPos = net.minecraft.util.Mth.clamp((int)this.displayPos, (int)0, (int)n);
++            this.displayPos = net.minecraft.util.Mth.clamp((int)this.displayPos, (int)0, (int)$$1);
+         }
+     }
+ 
+-    public void setCanLoseFocus(boolean canLoseFocus) {
+-        this.canLoseFocus = canLoseFocus;
++    public void setCanLoseFocus(boolean $$0) {
++        this.canLoseFocus = $$0;
+     }
+ 
+     public boolean isVisible() {
+         return this.visible;
+     }
+ 
+-    public void setVisible(boolean isVisible) {
+-        this.visible = isVisible;
++    public void setVisible(boolean $$0) {
++        this.visible = $$0;
+     }
+ 
+-    public void setSuggestion(@javax.annotation.Nullable java.lang.String suggestion) {
+-        this.suggestion = suggestion;
++    public void setSuggestion(@javax.annotation.Nullable java.lang.String $$0) {
++        this.suggestion = $$0;
+     }
+ 
+     public int getScreenX(int $$0) {
+@@ -539,8 +537,8 @@
+         return this.x + this.font.width(this.value.substring(0, $$0));
+     }
+ 
+-    public void setX(int x) {
+-        this.x = x;
++    public void setX(int $$0) {
++        this.x = $$0;
+     }
+ 
+     public void updateNarration(net.minecraft.client.gui.narration.NarrationElementOutput $$0) {

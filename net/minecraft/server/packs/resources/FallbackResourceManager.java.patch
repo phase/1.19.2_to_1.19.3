@@ -1,0 +1,301 @@
+--- net/minecraft/server/packs/resources/FallbackResourceManager.java
++++ net/minecraft/server/packs/resources/FallbackResourceManager.java
+@@ -18,11 +18,11 @@
+     }
+ 
+     public void push(net.minecraft.server.packs.PackResources $$0) {
+-        this.pushInternal($$0.getName(), $$0, null);
++        this.pushInternal($$0.packId(), $$0, null);
+     }
+ 
+     public void push(net.minecraft.server.packs.PackResources $$0, java.util.function.Predicate<net.minecraft.resources.ResourceLocation> $$1) {
+-        this.pushInternal($$0.getName(), $$0, $$1);
++        this.pushInternal($$0.packId(), $$0, $$1);
+     }
+ 
+     public void pushFilterOnly(java.lang.String $$0, java.util.function.Predicate<net.minecraft.resources.ResourceLocation> $$1) {
+@@ -38,14 +38,13 @@
+     }
+ 
+     public java.util.Optional<net.minecraft.server.packs.resources.Resource> getResource(net.minecraft.resources.ResourceLocation $$0) {
+-        if (!this.isValidLocation($$0)) {
+-            return java.util.Optional.empty();
+-        }
+         for (int $$1 = this.fallbacks.size() - 1; $$1 >= 0; --$$1) {
++            net.minecraft.server.packs.resources.IoSupplier $$4;
+             net.minecraft.server.packs.resources.FallbackResourceManager$PackEntry $$2 = (net.minecraft.server.packs.resources.FallbackResourceManager$PackEntry)this.fallbacks.get($$1);
+             net.minecraft.server.packs.PackResources $$3 = $$2.resources;
+-            if ($$3 != null && $$3.hasResource(this.type, $$0)) {
+-                return java.util.Optional.of((java.lang.Object)new net.minecraft.server.packs.resources.Resource($$3.getName(), this.createResourceGetter($$0, $$3), this.createStackMetadataFinder($$0, $$1)));
++            if ($$3 != null && ($$4 = $$3.getResource(this.type, $$0)) != null) {
++                net.minecraft.server.packs.resources.IoSupplier $$5 = this.createStackMetadataFinder($$0, $$1);
++                return java.util.Optional.of((java.lang.Object)net.minecraft.server.packs.resources.FallbackResourceManager.createResource((net.minecraft.server.packs.PackResources)$$3, (net.minecraft.resources.ResourceLocation)$$0, (net.minecraft.server.packs.resources.IoSupplier)$$4, (net.minecraft.server.packs.resources.IoSupplier)$$5));
+             }
+             if (!$$2.isFiltered($$0)) continue;
+             LOGGER.warn("Resource {} not found, but was filtered by pack {}", (java.lang.Object)$$0, (java.lang.Object)$$2.name);
+@@ -54,79 +53,91 @@
+         return java.util.Optional.empty();
+     }
+ 
+-    public net.minecraft.server.packs.resources.Resource$IoSupplier<java.io.InputStream> createResourceGetter(net.minecraft.resources.ResourceLocation $$0, net.minecraft.server.packs.PackResources $$1) {
++    public static net.minecraft.server.packs.resources.Resource createResource(net.minecraft.server.packs.PackResources $$0, net.minecraft.resources.ResourceLocation $$1, net.minecraft.server.packs.resources.IoSupplier<java.io.InputStream> $$2, net.minecraft.server.packs.resources.IoSupplier<net.minecraft.server.packs.resources.ResourceMetadata> $$3) {
++        return new net.minecraft.server.packs.resources.Resource($$0, net.minecraft.server.packs.resources.FallbackResourceManager.wrapForDebug((net.minecraft.resources.ResourceLocation)$$1, (net.minecraft.server.packs.PackResources)$$0, $$2), $$3);
++    }
++
++    public static net.minecraft.server.packs.resources.IoSupplier<java.io.InputStream> wrapForDebug(net.minecraft.resources.ResourceLocation $$0, net.minecraft.server.packs.PackResources $$1, net.minecraft.server.packs.resources.IoSupplier<java.io.InputStream> $$2) {
+         if (LOGGER.isDebugEnabled()) {
+-            return () -> {
+-                java.io.InputStream $$2 = $$1.getResource(this.type, $$0);
+-                return new net.minecraft.server.packs.resources.FallbackResourceManager$LeakedResourceWarningInputStream($$2, $$0, $$1.getName());
+-            };
++            return () -> new net.minecraft.server.packs.resources.FallbackResourceManager$LeakedResourceWarningInputStream((java.io.InputStream)$$2.get(), $$0, $$1.packId());
+         }
+-        return () -> $$1.getResource(this.type, $$0);
++        return $$2;
+     }
+ 
+-    public boolean isValidLocation(net.minecraft.resources.ResourceLocation $$0) {
+-        return !$$0.getPath().contains((java.lang.CharSequence)"..");
+-    }
+-
+     public java.util.List<net.minecraft.server.packs.resources.Resource> getResourceStack(net.minecraft.resources.ResourceLocation $$0) {
+-        if (!this.isValidLocation($$0)) {
+-            return java.util.List.of();
+-        }
+-        java.util.ArrayList $$1 = com.google.common.collect.Lists.newArrayList();
+-        net.minecraft.resources.ResourceLocation $$2 = net.minecraft.server.packs.resources.FallbackResourceManager.getMetadataLocation((net.minecraft.resources.ResourceLocation)$$0);
+-        java.lang.String $$3 = null;
+-        for (net.minecraft.server.packs.resources.FallbackResourceManager$PackEntry $$4 : this.fallbacks) {
+-            net.minecraft.server.packs.PackResources $$5;
+-            if ($$4.isFiltered($$0)) {
+-                if (!$$1.isEmpty()) {
+-                    $$3 = $$4.name;
++        net.minecraft.resources.ResourceLocation $$1 = net.minecraft.server.packs.resources.FallbackResourceManager.getMetadataLocation((net.minecraft.resources.ResourceLocation)$$0);
++        java.util.ArrayList $$2 = new java.util.ArrayList();
++        boolean $$3 = false;
++        java.lang.String $$4 = null;
++        for (int $$5 = this.fallbacks.size() - 1; $$5 >= 0; --$$5) {
++            net.minecraft.server.packs.resources.IoSupplier $$8;
++            net.minecraft.server.packs.resources.FallbackResourceManager$PackEntry $$6 = (net.minecraft.server.packs.resources.FallbackResourceManager$PackEntry)this.fallbacks.get($$5);
++            net.minecraft.server.packs.PackResources $$7 = $$6.resources;
++            if ($$7 != null && ($$8 = $$7.getResource(this.type, $$0)) != null) {
++                net.minecraft.server.packs.resources.IoSupplier $$10;
++                if ($$3) {
++                    net.minecraft.server.packs.resources.IoSupplier $$9 = net.minecraft.server.packs.resources.ResourceMetadata.EMPTY_SUPPLIER;
++                } else {
++                    $$10 = () -> {
++                        net.minecraft.server.packs.resources.IoSupplier $$2 = $$7.getResource(this.type, $$1);
++                        return $$2 != null ? net.minecraft.server.packs.resources.FallbackResourceManager.parseMetadata((net.minecraft.server.packs.resources.IoSupplier)$$2) : net.minecraft.server.packs.resources.ResourceMetadata.EMPTY;
++                    };
+                 }
+-                $$1.clear();
+-            } else if ($$4.isFiltered($$2)) {
+-                $$1.forEach(net.minecraft.server.packs.resources.FallbackResourceManager$SinglePackResourceThunkSupplier::ignoreMeta);
++                $$2.add((java.lang.Object)new net.minecraft.server.packs.resources.Resource($$7, $$8, $$10));
+             }
+-            if (($$5 = $$4.resources) == null || !$$5.hasResource(this.type, $$0)) continue;
+-            $$1.add((java.lang.Object)new net.minecraft.server.packs.resources.FallbackResourceManager$SinglePackResourceThunkSupplier(this, $$0, $$2, $$5));
++            if ($$6.isFiltered($$0)) {
++                $$4 = $$6.name;
++                break;
++            }
++            if (!$$6.isFiltered($$1)) continue;
++            $$3 = true;
+         }
+-        if ($$1.isEmpty() && $$3 != null) {
+-            LOGGER.info("Resource {} was filtered by pack {}", (java.lang.Object)$$0, $$3);
++        if ($$2.isEmpty() && $$4 != null) {
++            LOGGER.warn("Resource {} not found, but was filtered by pack {}", (java.lang.Object)$$0, $$4);
+         }
+-        return $$1.stream().map(net.minecraft.server.packs.resources.FallbackResourceManager$SinglePackResourceThunkSupplier::create).toList();
++        return com.google.common.collect.Lists.reverse((java.util.List)$$2);
+     }
+ 
++    public static boolean isMetadata(net.minecraft.resources.ResourceLocation $$0) {
++        return $$0.getPath().endsWith(".mcmeta");
++    }
++
++    public static net.minecraft.resources.ResourceLocation getResourceLocationFromMetadata(net.minecraft.resources.ResourceLocation $$0) {
++        java.lang.String $$1 = $$0.getPath().substring(0, $$0.getPath().length() - ".mcmeta".length());
++        return $$0.withPath($$1);
++    }
++
++    public static net.minecraft.resources.ResourceLocation getMetadataLocation(net.minecraft.resources.ResourceLocation $$0) {
++        return $$0.withPath($$0.getPath() + ".mcmeta");
++    }
++
+     public java.util.Map<net.minecraft.resources.ResourceLocation, net.minecraft.server.packs.resources.Resource> listResources(java.lang.String $$0, java.util.function.Predicate<net.minecraft.resources.ResourceLocation> $$1) {
+-        it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap $$2 = new it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap();
+-        int $$3 = this.fallbacks.size();
+-        for (int $$4 = 0; $$4 < $$3; ++$$4) {
+-            net.minecraft.server.packs.resources.FallbackResourceManager$PackEntry $$5 = (net.minecraft.server.packs.resources.FallbackResourceManager$PackEntry)this.fallbacks.get($$4);
+-            $$5.filterAll((java.util.Collection)$$2.keySet());
+-            if ($$5.resources == null) continue;
+-            for (net.minecraft.resources.ResourceLocation $$6 : $$5.resources.getResources(this.type, this.namespace, $$0, $$1)) {
+-                $$2.put((java.lang.Object)$$6, $$4);
+-            }
++        java.util.HashMap $$2 = new java.util.HashMap();
++        java.util.HashMap $$3 = new java.util.HashMap();
++        int $$4 = this.fallbacks.size();
++        for (int $$5 = 0; $$5 < $$4; ++$$5) {
++            net.minecraft.server.packs.resources.FallbackResourceManager$PackEntry $$6 = (net.minecraft.server.packs.resources.FallbackResourceManager$PackEntry)this.fallbacks.get($$5);
++            $$6.filterAll((java.util.Collection)$$2.keySet());
++            $$6.filterAll((java.util.Collection)$$3.keySet());
++            net.minecraft.server.packs.PackResources $$7 = $$6.resources;
++            if ($$7 == null) continue;
++            int $$8 = $$5;
++            $$7.listResources(this.type, this.namespace, $$0, (arg_0, arg_1) -> net.minecraft.server.packs.resources.FallbackResourceManager.lambda$listResources$2($$1, (java.util.Map)$$3, $$7, $$8, (java.util.Map)$$2, arg_0, arg_1));
+         }
+-        java.util.TreeMap $$7 = com.google.common.collect.Maps.newTreeMap();
+-        for (it.unimi.dsi.fastutil.objects.Object2IntMap$Entry $$8 : it.unimi.dsi.fastutil.objects.Object2IntMaps.fastIterable((it.unimi.dsi.fastutil.objects.Object2IntMap)$$2)) {
+-            int $$9 = $$8.getIntValue();
+-            net.minecraft.resources.ResourceLocation $$10 = (net.minecraft.resources.ResourceLocation)$$8.getKey();
+-            net.minecraft.server.packs.PackResources $$11 = ((net.minecraft.server.packs.resources.FallbackResourceManager$PackEntry)this.fallbacks.get((int)$$9)).resources;
+-            $$7.put((java.lang.Object)$$10, (java.lang.Object)new net.minecraft.server.packs.resources.Resource($$11.getName(), this.createResourceGetter($$10, $$11), this.createStackMetadataFinder($$10, $$9)));
+-        }
+-        return $$7;
++        java.util.TreeMap $$9 = com.google.common.collect.Maps.newTreeMap();
++        $$2.forEach((arg_0, arg_1) -> net.minecraft.server.packs.resources.FallbackResourceManager.lambda$listResources$3((java.util.Map)$$3, (java.util.Map)$$9, arg_0, arg_1));
++        return $$9;
+     }
+ 
+-    public net.minecraft.server.packs.resources.Resource$IoSupplier<net.minecraft.server.packs.resources.ResourceMetadata> createStackMetadataFinder(net.minecraft.resources.ResourceLocation $$0, int $$1) {
++    public net.minecraft.server.packs.resources.IoSupplier<net.minecraft.server.packs.resources.ResourceMetadata> createStackMetadataFinder(net.minecraft.resources.ResourceLocation $$0, int $$1) {
+         return () -> {
+             net.minecraft.resources.ResourceLocation $$2 = net.minecraft.server.packs.resources.FallbackResourceManager.getMetadataLocation((net.minecraft.resources.ResourceLocation)$$0);
+             for (int $$3 = this.fallbacks.size() - 1; $$3 >= $$1; --$$3) {
++                net.minecraft.server.packs.resources.IoSupplier $$6;
+                 net.minecraft.server.packs.resources.FallbackResourceManager$PackEntry $$4 = (net.minecraft.server.packs.resources.FallbackResourceManager$PackEntry)this.fallbacks.get($$3);
+                 net.minecraft.server.packs.PackResources $$5 = $$4.resources;
+-                if ($$5 != null && $$5.hasResource(this.type, $$2)) {
+-                    try (java.io.InputStream $$6 = $$5.getResource(this.type, $$2);
+-){
+-                        net.minecraft.server.packs.resources.ResourceMetadata resourceMetadata = net.minecraft.server.packs.resources.ResourceMetadata.fromJsonStream((java.io.InputStream)$$6);
+-                        return resourceMetadata;
+-                    }
++                if ($$5 != null && ($$6 = $$5.getResource(this.type, $$2)) != null) {
++                    return net.minecraft.server.packs.resources.FallbackResourceManager.parseMetadata((net.minecraft.server.packs.resources.IoSupplier)$$6);
+                 }
+                 if ($$4.isFiltered($$2)) break;
+             }
+@@ -134,40 +145,68 @@
+         };
+     }
+ 
++    public static net.minecraft.server.packs.resources.IoSupplier<net.minecraft.server.packs.resources.ResourceMetadata> convertToMetadata(net.minecraft.server.packs.resources.IoSupplier<java.io.InputStream> $$0) {
++        return () -> net.minecraft.server.packs.resources.FallbackResourceManager.parseMetadata((net.minecraft.server.packs.resources.IoSupplier)$$0);
++    }
++
++    public static net.minecraft.server.packs.resources.ResourceMetadata parseMetadata(net.minecraft.server.packs.resources.IoSupplier<java.io.InputStream> $$0) throws java.io.IOException {
++        try (java.io.InputStream $$1 = (java.io.InputStream)$$0.get();
++){
++            net.minecraft.server.packs.resources.ResourceMetadata resourceMetadata = net.minecraft.server.packs.resources.ResourceMetadata.fromJsonStream((java.io.InputStream)$$1);
++            return resourceMetadata;
++        }
++    }
++
+     public static void applyPackFiltersToExistingResources(net.minecraft.server.packs.resources.FallbackResourceManager$PackEntry $$0, java.util.Map<net.minecraft.resources.ResourceLocation, net.minecraft.server.packs.resources.FallbackResourceManager$EntryStack> $$1) {
+-        java.util.Iterator $$2 = $$1.entrySet().iterator();
+-        while ($$2.hasNext()) {
+-            java.util.Map$Entry $$3 = (java.util.Map$Entry)$$2.next();
+-            net.minecraft.resources.ResourceLocation $$4 = (net.minecraft.resources.ResourceLocation)$$3.getKey();
+-            net.minecraft.server.packs.resources.FallbackResourceManager$EntryStack $$5 = (net.minecraft.server.packs.resources.FallbackResourceManager$EntryStack)$$3.getValue();
+-            if ($$0.isFiltered($$4)) {
+-                $$2.remove();
++        for (net.minecraft.server.packs.resources.FallbackResourceManager$EntryStack $$2 : $$1.values()) {
++            if ($$0.isFiltered($$2.fileLocation)) {
++                $$2.fileSources.clear();
+                 continue;
+             }
+-            if (!$$0.isFiltered($$5.metadataLocation())) continue;
+-            $$5.entries.forEach(net.minecraft.server.packs.resources.FallbackResourceManager$SinglePackResourceThunkSupplier::ignoreMeta);
++            if (!$$0.isFiltered($$2.metadataLocation())) continue;
++            $$2.metaSources.clear();
+         }
+     }
+ 
+-    public void listPackResources(net.minecraft.server.packs.resources.FallbackResourceManager$PackEntry $$0, java.lang.String $$12, java.util.function.Predicate<net.minecraft.resources.ResourceLocation> $$2, java.util.Map<net.minecraft.resources.ResourceLocation, net.minecraft.server.packs.resources.FallbackResourceManager$EntryStack> $$3) {
+-        net.minecraft.server.packs.PackResources $$4 = $$0.resources;
+-        if ($$4 == null) {
++    public void listPackResources(net.minecraft.server.packs.resources.FallbackResourceManager$PackEntry $$0, java.lang.String $$1, java.util.function.Predicate<net.minecraft.resources.ResourceLocation> $$2, java.util.Map<net.minecraft.resources.ResourceLocation, net.minecraft.server.packs.resources.FallbackResourceManager$EntryStack> $$32) {
++        net.minecraft.server.packs.PackResources $$42 = $$0.resources;
++        if ($$42 == null) {
+             return;
+         }
+-        for (net.minecraft.resources.ResourceLocation $$5 : $$4.getResources(this.type, this.namespace, $$12, $$2)) {
+-            net.minecraft.resources.ResourceLocation $$6 = net.minecraft.server.packs.resources.FallbackResourceManager.getMetadataLocation((net.minecraft.resources.ResourceLocation)$$5);
+-            ((net.minecraft.server.packs.resources.FallbackResourceManager$EntryStack)$$3.computeIfAbsent((java.lang.Object)$$5, $$1 -> new net.minecraft.server.packs.resources.FallbackResourceManager$EntryStack($$6, (java.util.List)com.google.common.collect.Lists.newArrayList()))).entries().add((java.lang.Object)new net.minecraft.server.packs.resources.FallbackResourceManager$SinglePackResourceThunkSupplier(this, $$5, $$6, $$4));
+-        }
++        $$42.listResources(this.type, this.namespace, $$1, ($$3, $$4) -> {
++            if (net.minecraft.server.packs.resources.FallbackResourceManager.isMetadata((net.minecraft.resources.ResourceLocation)$$3)) {
++                net.minecraft.resources.ResourceLocation $$5 = net.minecraft.server.packs.resources.FallbackResourceManager.getResourceLocationFromMetadata((net.minecraft.resources.ResourceLocation)$$3);
++                if (!$$2.test((java.lang.Object)$$5)) {
++                    return;
++                }
++                ((net.minecraft.server.packs.resources.FallbackResourceManager$EntryStack)$$1.computeIfAbsent((java.lang.Object)$$5, (java.util.function.Function)(java.util.function.Function)java.lang.invoke.LambdaMetafactory.metafactory(null, null, null, (Ljava/lang/Object;)Ljava/lang/Object;, <init>(net.minecraft.resources.ResourceLocation ), (Lnet/minecraft/resources/ResourceLocation;)Lnet/minecraft/server/packs/resources/FallbackResourceManager$EntryStack;)())).metaSources.put((java.lang.Object)$$42, $$4);
++            } else {
++                if (!$$2.test($$3)) {
++                    return;
++                }
++                ((net.minecraft.server.packs.resources.FallbackResourceManager$EntryStack)$$1.computeIfAbsent((java.lang.Object)$$3, (java.util.function.Function)(java.util.function.Function)java.lang.invoke.LambdaMetafactory.metafactory(null, null, null, (Ljava/lang/Object;)Ljava/lang/Object;, <init>(net.minecraft.resources.ResourceLocation ), (Lnet/minecraft/resources/ResourceLocation;)Lnet/minecraft/server/packs/resources/FallbackResourceManager$EntryStack;)())).fileSources.add((java.lang.Object)new net.minecraft.server.packs.resources.FallbackResourceManager$ResourceWithSource($$42, $$4));
++            }
++        });
+     }
+ 
+-    public java.util.Map<net.minecraft.resources.ResourceLocation, java.util.List<net.minecraft.server.packs.resources.Resource>> listResourceStacks(java.lang.String $$0, java.util.function.Predicate<net.minecraft.resources.ResourceLocation> $$12) {
+-        java.util.HashMap $$22 = com.google.common.collect.Maps.newHashMap();
++    public java.util.Map<net.minecraft.resources.ResourceLocation, java.util.List<net.minecraft.server.packs.resources.Resource>> listResourceStacks(java.lang.String $$0, java.util.function.Predicate<net.minecraft.resources.ResourceLocation> $$1) {
++        java.util.HashMap $$2 = com.google.common.collect.Maps.newHashMap();
+         for (net.minecraft.server.packs.resources.FallbackResourceManager$PackEntry $$3 : this.fallbacks) {
+-            net.minecraft.server.packs.resources.FallbackResourceManager.applyPackFiltersToExistingResources((net.minecraft.server.packs.resources.FallbackResourceManager$PackEntry)$$3, (java.util.Map)$$22);
+-            this.listPackResources($$3, $$0, $$12, (java.util.Map)$$22);
++            net.minecraft.server.packs.resources.FallbackResourceManager.applyPackFiltersToExistingResources((net.minecraft.server.packs.resources.FallbackResourceManager$PackEntry)$$3, (java.util.Map)$$2);
++            this.listPackResources($$3, $$0, $$1, (java.util.Map)$$2);
+         }
+         java.util.TreeMap $$4 = com.google.common.collect.Maps.newTreeMap();
+-        $$22.forEach(($$1, $$2) -> $$4.put($$1, (java.lang.Object)$$2.createThunks()));
++        for (net.minecraft.server.packs.resources.FallbackResourceManager$EntryStack $$5 : $$2.values()) {
++            if ($$5.fileSources.isEmpty()) continue;
++            java.util.ArrayList $$6 = new java.util.ArrayList();
++            for (net.minecraft.server.packs.resources.FallbackResourceManager$ResourceWithSource $$7 : $$5.fileSources) {
++                net.minecraft.server.packs.PackResources $$8 = $$7.source;
++                net.minecraft.server.packs.resources.IoSupplier $$9 = (net.minecraft.server.packs.resources.IoSupplier)$$5.metaSources.get((java.lang.Object)$$8);
++                net.minecraft.server.packs.resources.IoSupplier $$10 = $$9 != null ? net.minecraft.server.packs.resources.FallbackResourceManager.convertToMetadata((net.minecraft.server.packs.resources.IoSupplier)$$9) : net.minecraft.server.packs.resources.ResourceMetadata.EMPTY_SUPPLIER;
++                $$6.add((java.lang.Object)net.minecraft.server.packs.resources.FallbackResourceManager.createResource((net.minecraft.server.packs.PackResources)$$8, (net.minecraft.resources.ResourceLocation)$$5.fileLocation, (net.minecraft.server.packs.resources.IoSupplier)$$7.resource, (net.minecraft.server.packs.resources.IoSupplier)$$10));
++            }
++            $$4.put((java.lang.Object)$$5.fileLocation, (java.lang.Object)$$6);
++        }
+         return $$4;
+     }
+ 
+@@ -175,10 +214,28 @@
+         return this.fallbacks.stream().map($$0 -> $$0.resources).filter(java.util.Objects::nonNull);
+     }
+ 
+-    public static net.minecraft.resources.ResourceLocation getMetadataLocation(net.minecraft.resources.ResourceLocation location) {
+-        return new net.minecraft.resources.ResourceLocation(location.getNamespace(), location.getPath() + ".mcmeta");
++    public static /* synthetic */ void lambda$listResources$3(java.util.Map $$0, java.util.Map $$1, net.minecraft.resources.ResourceLocation $$2, net.minecraft.server.packs.resources.FallbackResourceManager$1ResourceWithSourceAndIndex $$3) {
++        net.minecraft.server.packs.resources.IoSupplier $$7;
++        net.minecraft.resources.ResourceLocation $$4 = net.minecraft.server.packs.resources.FallbackResourceManager.getMetadataLocation((net.minecraft.resources.ResourceLocation)$$2);
++        ResourceWithSourceAndIndex $$5 = (ResourceWithSourceAndIndex)$$0.get((java.lang.Object)$$4);
++        if ($$5 != null && $$5.packIndex >= $$3.packIndex) {
++            net.minecraft.server.packs.resources.IoSupplier $$6 = net.minecraft.server.packs.resources.FallbackResourceManager.convertToMetadata((net.minecraft.server.packs.resources.IoSupplier)$$5.resource);
++        } else {
++            $$7 = net.minecraft.server.packs.resources.ResourceMetadata.EMPTY_SUPPLIER;
++        }
++        $$1.put((java.lang.Object)$$2, (java.lang.Object)net.minecraft.server.packs.resources.FallbackResourceManager.createResource((net.minecraft.server.packs.PackResources)$$3.packResources, (net.minecraft.resources.ResourceLocation)$$2, (net.minecraft.server.packs.resources.IoSupplier)$$3.resource, (net.minecraft.server.packs.resources.IoSupplier)$$7));
+     }
+ 
++    public static /* synthetic */ void lambda$listResources$2(java.util.function.Predicate $$0, java.util.Map $$1, net.minecraft.server.packs.PackResources $$2, int $$3, java.util.Map $$4, net.minecraft.resources.ResourceLocation $$5, net.minecraft.server.packs.resources.IoSupplier $$6) {
++        if (net.minecraft.server.packs.resources.FallbackResourceManager.isMetadata((net.minecraft.resources.ResourceLocation)$$5)) {
++            if ($$0.test((java.lang.Object)net.minecraft.server.packs.resources.FallbackResourceManager.getResourceLocationFromMetadata((net.minecraft.resources.ResourceLocation)$$5))) {
++                $$1.put((java.lang.Object)$$5, (java.lang.Object)new ResourceWithSourceAndIndex($$2, $$6, $$3));
++            }
++        } else if ($$0.test((java.lang.Object)$$5)) {
++            $$4.put((java.lang.Object)$$5, (java.lang.Object)new ResourceWithSourceAndIndex($$2, $$6, $$3));
++        }
++    }
++
+     static {
+         LOGGER = com.mojang.logging.LogUtils.getLogger();
+     }

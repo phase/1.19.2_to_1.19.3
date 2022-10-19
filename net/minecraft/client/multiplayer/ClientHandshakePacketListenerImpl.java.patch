@@ -1,0 +1,192 @@
+--- net/minecraft/client/multiplayer/ClientHandshakePacketListenerImpl.java
++++ net/minecraft/client/multiplayer/ClientHandshakePacketListenerImpl.java
+@@ -8,81 +8,77 @@
+  {
+     public static org.slf4j.Logger LOGGER;
+     public net.minecraft.client.Minecraft minecraft;
++    public net.minecraft.network.chat.LocalChatSession chatSession;
+     @javax.annotation.Nullable
++    public net.minecraft.client.multiplayer.ServerData serverData;
++    @javax.annotation.Nullable
+     public net.minecraft.client.gui.screens.Screen parent;
+     public java.util.function.Consumer<net.minecraft.network.chat.Component> updateStatus;
+     public net.minecraft.network.Connection connection;
+     public com.mojang.authlib.GameProfile localGameProfile;
+ 
+-    public net.minecraft.client.multiplayer.ClientHandshakePacketListenerImpl(net.minecraft.network.Connection $$0, net.minecraft.client.Minecraft $$1, @javax.annotation.Nullable net.minecraft.client.gui.screens.Screen $$2, java.util.function.Consumer<net.minecraft.network.chat.Component> $$3) {
++    public net.minecraft.client.multiplayer.ClientHandshakePacketListenerImpl(net.minecraft.network.Connection $$0, net.minecraft.client.Minecraft $$1, net.minecraft.network.chat.LocalChatSession $$2, @javax.annotation.Nullable net.minecraft.client.multiplayer.ServerData $$3, @javax.annotation.Nullable net.minecraft.client.gui.screens.Screen $$4, java.util.function.Consumer<net.minecraft.network.chat.Component> $$5) {
+         this.connection = $$0;
+         this.minecraft = $$1;
+-        this.parent = $$2;
+-        this.updateStatus = $$3;
++        this.chatSession = $$2;
++        this.serverData = $$3;
++        this.parent = $$4;
++        this.updateStatus = $$5;
+     }
+ 
+-    public void handleHello(net.minecraft.network.protocol.login.ClientboundHelloPacket packet) {
+-        net.minecraft.network.protocol.login.ServerboundKeyPacket serverboundKeyPacket;
+-        javax.crypto.Cipher cipher;
+-        javax.crypto.Cipher cipher2;
+-        java.lang.String string;
++    /*
++     * WARNING - void declaration
++     */
++    public void handleHello(net.minecraft.network.protocol.login.ClientboundHelloPacket $$0) {
++        void $$14;
++        void $$13;
++        void $$16;
++        void $$15;
+         try {
+-            javax.crypto.SecretKey secretKey = net.minecraft.util.Crypt.generateSecretKey();
+-            java.security.PublicKey publicKey = packet.getPublicKey();
+-            string = new java.math.BigInteger(net.minecraft.util.Crypt.digestData((java.lang.String)packet.getServerId(), (java.security.PublicKey)publicKey, (javax.crypto.SecretKey)secretKey)).toString(16);
+-            cipher2 = net.minecraft.util.Crypt.getCipher((int)2, (java.security.Key)secretKey);
+-            cipher = net.minecraft.util.Crypt.getCipher((int)1, (java.security.Key)secretKey);
+-            byte[] byArray = packet.getNonce();
+-            net.minecraft.util.Signer signer = this.minecraft.getProfileKeyPairManager().signer();
+-            if (signer == null) {
+-                serverboundKeyPacket = new net.minecraft.network.protocol.login.ServerboundKeyPacket(secretKey, publicKey, byArray);
++            javax.crypto.SecretKey $$1 = net.minecraft.util.Crypt.generateSecretKey();
++            java.security.PublicKey $$22 = $$0.getPublicKey();
++            java.lang.String $$3 = new java.math.BigInteger(net.minecraft.util.Crypt.digestData((java.lang.String)$$0.getServerId(), (java.security.PublicKey)$$22, (javax.crypto.SecretKey)$$1)).toString(16);
++            javax.crypto.Cipher $$4 = net.minecraft.util.Crypt.getCipher((int)2, (java.security.Key)$$1);
++            javax.crypto.Cipher $$5 = net.minecraft.util.Crypt.getCipher((int)1, (java.security.Key)$$1);
++            byte[] $$6 = $$0.getNonce();
++            net.minecraft.util.Signer $$7 = this.chatSession.createSigner();
++            if ($$7 == null) {
++                net.minecraft.network.protocol.login.ServerboundKeyPacket $$8 = new net.minecraft.network.protocol.login.ServerboundKeyPacket($$1, $$22, $$6);
+             } else {
+-                long l = net.minecraft.util.Crypt$SaltSupplier.getLong();
+-                byte[] byArray2 = signer.sign($$2 -> {
+-                    $$2.update(byArray);
+-                    $$2.update(com.google.common.primitives.Longs.toByteArray((long)l));
++                long $$9 = net.minecraft.util.Crypt$SaltSupplier.getLong();
++                byte[] $$10 = $$7.sign($$2 -> {
++                    $$2.update($$6);
++                    $$2.update(com.google.common.primitives.Longs.toByteArray((long)$$9));
+                 });
+-                serverboundKeyPacket = new net.minecraft.network.protocol.login.ServerboundKeyPacket(secretKey, publicKey, l, byArray2);
++                net.minecraft.network.protocol.login.ServerboundKeyPacket $$11 = new net.minecraft.network.protocol.login.ServerboundKeyPacket($$1, $$22, $$9, $$10);
+             }
+         }
+-        catch (java.lang.Exception exception) {
+-            throw new java.lang.IllegalStateException("Protocol error", (java.lang.Throwable)exception);
++        catch (java.lang.Exception $$12) {
++            throw new java.lang.IllegalStateException("Protocol error", (java.lang.Throwable)$$12);
+         }
+         this.updateStatus.accept((java.lang.Object)net.minecraft.network.chat.Component.translatable((java.lang.String)"connect.authorizing"));
+-        net.minecraft.util.HttpUtil.DOWNLOAD_EXECUTOR.submit(() -> {
+-            net.minecraft.network.chat.Component $$4 = this.authenticateServer(string);
+-            if ($$4 != null) {
+-                if (this.minecraft.getCurrentServer() != null && this.minecraft.getCurrentServer().isLan()) {
+-                    LOGGER.warn($$4.getString());
+-                } else {
+-                    this.connection.disconnect($$4);
+-                    return;
+-                }
+-            }
+-            this.updateStatus.accept((java.lang.Object)net.minecraft.network.chat.Component.translatable((java.lang.String)"connect.encrypting"));
+-            this.connection.send((net.minecraft.network.protocol.Packet)serverboundKeyPacket, net.minecraft.network.PacketSendListener.thenRun(() -> this.connection.setEncryptionKey(cipher2, cipher)));
+-        });
++        net.minecraft.util.HttpUtil.DOWNLOAD_EXECUTOR.submit(() -> this.lambda$handleHello$2((java.lang.String)$$15, (net.minecraft.network.protocol.login.ServerboundKeyPacket)$$16, (javax.crypto.Cipher)$$13, (javax.crypto.Cipher)$$14));
+     }
+ 
+     @javax.annotation.Nullable
+-    public net.minecraft.network.chat.Component authenticateServer(java.lang.String serverHash) {
++    public net.minecraft.network.chat.Component authenticateServer(java.lang.String $$0) {
+         try {
+-            this.getMinecraftSessionService().joinServer(this.minecraft.getUser().getGameProfile(), this.minecraft.getUser().getAccessToken(), serverHash);
++            this.getMinecraftSessionService().joinServer(this.minecraft.getUser().getGameProfile(), this.minecraft.getUser().getAccessToken(), $$0);
+         }
+-        catch (com.mojang.authlib.exceptions.AuthenticationUnavailableException authenticationUnavailableException) {
++        catch (com.mojang.authlib.exceptions.AuthenticationUnavailableException $$1) {
+             return net.minecraft.network.chat.Component.translatable((java.lang.String)"disconnect.loginFailedInfo", (java.lang.Object[])new java.lang.Object[]{net.minecraft.network.chat.Component.translatable((java.lang.String)"disconnect.loginFailedInfo.serversUnavailable")});
+         }
+-        catch (com.mojang.authlib.exceptions.InvalidCredentialsException invalidCredentialsException) {
++        catch (com.mojang.authlib.exceptions.InvalidCredentialsException $$2) {
+             return net.minecraft.network.chat.Component.translatable((java.lang.String)"disconnect.loginFailedInfo", (java.lang.Object[])new java.lang.Object[]{net.minecraft.network.chat.Component.translatable((java.lang.String)"disconnect.loginFailedInfo.invalidSession")});
+         }
+-        catch (com.mojang.authlib.exceptions.InsufficientPrivilegesException insufficientPrivilegesException) {
++        catch (com.mojang.authlib.exceptions.InsufficientPrivilegesException $$3) {
+             return net.minecraft.network.chat.Component.translatable((java.lang.String)"disconnect.loginFailedInfo", (java.lang.Object[])new java.lang.Object[]{net.minecraft.network.chat.Component.translatable((java.lang.String)"disconnect.loginFailedInfo.insufficientPrivileges")});
+         }
+-        catch (com.mojang.authlib.exceptions.UserBannedException userBannedException) {
++        catch (com.mojang.authlib.exceptions.UserBannedException $$4) {
+             return net.minecraft.network.chat.Component.translatable((java.lang.String)"disconnect.loginFailedInfo", (java.lang.Object[])new java.lang.Object[]{net.minecraft.network.chat.Component.translatable((java.lang.String)"disconnect.loginFailedInfo.userBanned")});
+         }
+-        catch (com.mojang.authlib.exceptions.AuthenticationException authenticationException) {
+-            return net.minecraft.network.chat.Component.translatable((java.lang.String)"disconnect.loginFailedInfo", (java.lang.Object[])new java.lang.Object[]{authenticationException.getMessage()});
++        catch (com.mojang.authlib.exceptions.AuthenticationException $$5) {
++            return net.minecraft.network.chat.Component.translatable((java.lang.String)"disconnect.loginFailedInfo", (java.lang.Object[])new java.lang.Object[]{$$5.getMessage()});
+         }
+         return null;
+     }
+@@ -91,18 +87,18 @@
+         return this.minecraft.getMinecraftSessionService();
+     }
+ 
+-    public void handleGameProfile(net.minecraft.network.protocol.login.ClientboundGameProfilePacket packet) {
++    public void handleGameProfile(net.minecraft.network.protocol.login.ClientboundGameProfilePacket $$0) {
+         this.updateStatus.accept((java.lang.Object)net.minecraft.network.chat.Component.translatable((java.lang.String)"connect.joining"));
+-        this.localGameProfile = packet.getGameProfile();
++        this.localGameProfile = $$0.getGameProfile();
+         this.connection.setProtocol(net.minecraft.network.ConnectionProtocol.PLAY);
+-        this.connection.setListener((net.minecraft.network.PacketListener)new net.minecraft.client.multiplayer.ClientPacketListener(this.minecraft, this.parent, this.connection, this.localGameProfile, this.minecraft.createTelemetryManager()));
++        this.connection.setListener((net.minecraft.network.PacketListener)new net.minecraft.client.multiplayer.ClientPacketListener(this.minecraft, this.parent, this.connection, this.chatSession, this.serverData, this.localGameProfile, this.minecraft.createTelemetryManager()));
+     }
+ 
+-    public void onDisconnect(net.minecraft.network.chat.Component reason) {
++    public void onDisconnect(net.minecraft.network.chat.Component $$0) {
+         if (this.parent != null && this.parent instanceof net.minecraft.realms.RealmsScreen) {
+-            this.minecraft.setScreen((net.minecraft.client.gui.screens.Screen)new net.minecraft.realms.DisconnectedRealmsScreen(this.parent, net.minecraft.network.chat.CommonComponents.CONNECT_FAILED, reason));
++            this.minecraft.setScreen((net.minecraft.client.gui.screens.Screen)new net.minecraft.realms.DisconnectedRealmsScreen(this.parent, net.minecraft.network.chat.CommonComponents.CONNECT_FAILED, $$0));
+         } else {
+-            this.minecraft.setScreen((net.minecraft.client.gui.screens.Screen)new net.minecraft.client.gui.screens.DisconnectedScreen(this.parent, net.minecraft.network.chat.CommonComponents.CONNECT_FAILED, reason));
++            this.minecraft.setScreen((net.minecraft.client.gui.screens.Screen)new net.minecraft.client.gui.screens.DisconnectedScreen(this.parent, net.minecraft.network.chat.CommonComponents.CONNECT_FAILED, $$0));
+         }
+     }
+ 
+@@ -110,21 +106,35 @@
+         return this.connection;
+     }
+ 
+-    public void handleDisconnect(net.minecraft.network.protocol.login.ClientboundLoginDisconnectPacket packet) {
+-        this.connection.disconnect(packet.getReason());
++    public void handleDisconnect(net.minecraft.network.protocol.login.ClientboundLoginDisconnectPacket $$0) {
++        this.connection.disconnect($$0.getReason());
+     }
+ 
+-    public void handleCompression(net.minecraft.network.protocol.login.ClientboundLoginCompressionPacket packet) {
++    public void handleCompression(net.minecraft.network.protocol.login.ClientboundLoginCompressionPacket $$0) {
+         if (!this.connection.isMemoryConnection()) {
+-            this.connection.setupCompression(packet.getCompressionThreshold(), false);
++            this.connection.setupCompression($$0.getCompressionThreshold(), false);
+         }
+     }
+ 
+-    public void handleCustomQuery(net.minecraft.network.protocol.login.ClientboundCustomQueryPacket packet) {
++    public void handleCustomQuery(net.minecraft.network.protocol.login.ClientboundCustomQueryPacket $$0) {
+         this.updateStatus.accept((java.lang.Object)net.minecraft.network.chat.Component.translatable((java.lang.String)"connect.negotiating"));
+-        this.connection.send((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.login.ServerboundCustomQueryPacket(packet.getTransactionId(), null));
++        this.connection.send((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.login.ServerboundCustomQueryPacket($$0.getTransactionId(), null));
+     }
+ 
++    public /* synthetic */ void lambda$handleHello$2(java.lang.String $$0, net.minecraft.network.protocol.login.ServerboundKeyPacket $$1, javax.crypto.Cipher $$2, javax.crypto.Cipher $$3) {
++        net.minecraft.network.chat.Component $$4 = this.authenticateServer($$0);
++        if ($$4 != null) {
++            if (this.serverData != null && this.serverData.isLan()) {
++                LOGGER.warn($$4.getString());
++            } else {
++                this.connection.disconnect($$4);
++                return;
++            }
++        }
++        this.updateStatus.accept((java.lang.Object)net.minecraft.network.chat.Component.translatable((java.lang.String)"connect.encrypting"));
++        this.connection.send((net.minecraft.network.protocol.Packet)$$1, net.minecraft.network.PacketSendListener.thenRun(() -> this.connection.setEncryptionKey($$2, $$3)));
++    }
++
+     static {
+         LOGGER = com.mojang.logging.LogUtils.getLogger();
+     }

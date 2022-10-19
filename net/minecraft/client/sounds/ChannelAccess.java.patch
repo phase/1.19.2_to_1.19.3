@@ -1,0 +1,43 @@
+--- net/minecraft/client/sounds/ChannelAccess.java
++++ net/minecraft/client/sounds/ChannelAccess.java
+@@ -9,29 +9,29 @@
+     public com.mojang.blaze3d.audio.Library library;
+     public java.util.concurrent.Executor executor;
+ 
+-    public net.minecraft.client.sounds.ChannelAccess(com.mojang.blaze3d.audio.Library library, java.util.concurrent.Executor executor) {
++    public net.minecraft.client.sounds.ChannelAccess(com.mojang.blaze3d.audio.Library $$0, java.util.concurrent.Executor $$1) {
+         this.channels = com.google.common.collect.Sets.newIdentityHashSet();
+-        this.library = library;
+-        this.executor = executor;
++        this.library = $$0;
++        this.executor = $$1;
+     }
+ 
+-    public java.util.concurrent.CompletableFuture<net.minecraft.client.sounds.ChannelAccess$ChannelHandle> createHandle(com.mojang.blaze3d.audio.Library$Pool systemMode) {
+-        java.util.concurrent.CompletableFuture completableFuture = new java.util.concurrent.CompletableFuture();
++    public java.util.concurrent.CompletableFuture<net.minecraft.client.sounds.ChannelAccess$ChannelHandle> createHandle(com.mojang.blaze3d.audio.Library$Pool $$0) {
++        java.util.concurrent.CompletableFuture $$1 = new java.util.concurrent.CompletableFuture();
+         this.executor.execute(() -> {
+-            com.mojang.blaze3d.audio.Channel $$2 = this.library.acquireChannel(systemMode);
++            com.mojang.blaze3d.audio.Channel $$2 = this.library.acquireChannel($$0);
+             if ($$2 != null) {
+                 net.minecraft.client.sounds.ChannelAccess$ChannelHandle $$3 = new net.minecraft.client.sounds.ChannelAccess$ChannelHandle(this, $$2);
+                 this.channels.add((java.lang.Object)$$3);
+-                completableFuture.complete((java.lang.Object)$$3);
++                $$1.complete((java.lang.Object)$$3);
+             } else {
+-                completableFuture.complete(null);
++                $$1.complete(null);
+             }
+         });
+-        return completableFuture;
++        return $$1;
+     }
+ 
+-    public void executeOnChannels(java.util.function.Consumer<java.util.stream.Stream<com.mojang.blaze3d.audio.Channel>> sourceStreamConsumer) {
+-        this.executor.execute(() -> sourceStreamConsumer.accept((java.lang.Object)this.channels.stream().map($$0 -> $$0.channel).filter(java.util.Objects::nonNull)));
++    public void executeOnChannels(java.util.function.Consumer<java.util.stream.Stream<com.mojang.blaze3d.audio.Channel>> $$0) {
++        this.executor.execute(() -> $$0.accept((java.lang.Object)this.channels.stream().map($$0 -> $$0.channel).filter(java.util.Objects::nonNull)));
+     }
+ 
+     public void scheduleTick() {

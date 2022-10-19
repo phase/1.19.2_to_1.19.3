@@ -1,0 +1,56 @@
+--- net/minecraft/server/commands/GameModeCommand.java
++++ net/minecraft/server/commands/GameModeCommand.java
+@@ -10,34 +10,34 @@
+     public net.minecraft.server.commands.GameModeCommand() {
+     }
+ 
+-    public static void register(com.mojang.brigadier.CommandDispatcher<net.minecraft.commands.CommandSourceStack> dispatcher) {
+-        com.mojang.brigadier.builder.LiteralArgumentBuilder literalArgumentBuilder = (com.mojang.brigadier.builder.LiteralArgumentBuilder)net.minecraft.commands.Commands.literal((java.lang.String)"gamemode").requires($$0 -> $$0.hasPermission(2));
+-        for (net.minecraft.world.level.GameType gameType : net.minecraft.world.level.GameType.values()) {
+-            literalArgumentBuilder.then(((com.mojang.brigadier.builder.LiteralArgumentBuilder)net.minecraft.commands.Commands.literal((java.lang.String)gameType.getName()).executes($$1 -> net.minecraft.server.commands.GameModeCommand.setMode((com.mojang.brigadier.context.CommandContext)$$1, (java.util.Collection)java.util.Collections.singleton((java.lang.Object)((net.minecraft.commands.CommandSourceStack)$$1.getSource()).getPlayerOrException()), (net.minecraft.world.level.GameType)gameType))).then(net.minecraft.commands.Commands.argument((java.lang.String)"target", (com.mojang.brigadier.arguments.ArgumentType)net.minecraft.commands.arguments.EntityArgument.players()).executes($$1 -> net.minecraft.server.commands.GameModeCommand.setMode((com.mojang.brigadier.context.CommandContext)$$1, (java.util.Collection)net.minecraft.commands.arguments.EntityArgument.getPlayers((com.mojang.brigadier.context.CommandContext)$$1, (java.lang.String)"target"), (net.minecraft.world.level.GameType)gameType))));
++    public static void register(com.mojang.brigadier.CommandDispatcher<net.minecraft.commands.CommandSourceStack> $$02) {
++        com.mojang.brigadier.builder.LiteralArgumentBuilder $$12 = (com.mojang.brigadier.builder.LiteralArgumentBuilder)net.minecraft.commands.Commands.literal((java.lang.String)"gamemode").requires($$0 -> $$0.hasPermission(2));
++        for (net.minecraft.world.level.GameType $$2 : net.minecraft.world.level.GameType.values()) {
++            $$12.then(((com.mojang.brigadier.builder.LiteralArgumentBuilder)net.minecraft.commands.Commands.literal((java.lang.String)$$2.getName()).executes($$1 -> net.minecraft.server.commands.GameModeCommand.setMode((com.mojang.brigadier.context.CommandContext)$$1, (java.util.Collection)java.util.Collections.singleton((java.lang.Object)((net.minecraft.commands.CommandSourceStack)$$1.getSource()).getPlayerOrException()), (net.minecraft.world.level.GameType)$$2))).then(net.minecraft.commands.Commands.argument((java.lang.String)"target", (com.mojang.brigadier.arguments.ArgumentType)net.minecraft.commands.arguments.EntityArgument.players()).executes($$1 -> net.minecraft.server.commands.GameModeCommand.setMode((com.mojang.brigadier.context.CommandContext)$$1, (java.util.Collection)net.minecraft.commands.arguments.EntityArgument.getPlayers((com.mojang.brigadier.context.CommandContext)$$1, (java.lang.String)"target"), (net.minecraft.world.level.GameType)$$2))));
+         }
+-        dispatcher.register(literalArgumentBuilder);
++        $$02.register($$12);
+     }
+ 
+-    public static void logGamemodeChange(net.minecraft.commands.CommandSourceStack source, net.minecraft.server.level.ServerPlayer player, net.minecraft.world.level.GameType gameType) {
+-        net.minecraft.network.chat.MutableComponent mutableComponent = net.minecraft.network.chat.Component.translatable((java.lang.String)("gameMode." + gameType.getName()));
+-        if (source.getEntity() == player) {
+-            source.sendSuccess((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"commands.gamemode.success.self", (java.lang.Object[])new java.lang.Object[]{mutableComponent}), true);
++    public static void logGamemodeChange(net.minecraft.commands.CommandSourceStack $$0, net.minecraft.server.level.ServerPlayer $$1, net.minecraft.world.level.GameType $$2) {
++        net.minecraft.network.chat.MutableComponent $$3 = net.minecraft.network.chat.Component.translatable((java.lang.String)("gameMode." + $$2.getName()));
++        if ($$0.getEntity() == $$1) {
++            $$0.sendSuccess((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"commands.gamemode.success.self", (java.lang.Object[])new java.lang.Object[]{$$3}), true);
+         } else {
+-            if (source.getLevel().getGameRules().getBoolean(net.minecraft.world.level.GameRules.RULE_SENDCOMMANDFEEDBACK)) {
+-                player.sendSystemMessage((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"gameMode.changed", (java.lang.Object[])new java.lang.Object[]{mutableComponent}));
++            if ($$0.getLevel().getGameRules().getBoolean(net.minecraft.world.level.GameRules.RULE_SENDCOMMANDFEEDBACK)) {
++                $$1.sendSystemMessage((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"gameMode.changed", (java.lang.Object[])new java.lang.Object[]{$$3}));
+             }
+-            source.sendSuccess((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"commands.gamemode.success.other", (java.lang.Object[])new java.lang.Object[]{player.getDisplayName(), mutableComponent}), true);
++            $$0.sendSuccess((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"commands.gamemode.success.other", (java.lang.Object[])new java.lang.Object[]{$$1.getDisplayName(), $$3}), true);
+         }
+     }
+ 
+-    public static int setMode(com.mojang.brigadier.context.CommandContext<net.minecraft.commands.CommandSourceStack> source, java.util.Collection<net.minecraft.server.level.ServerPlayer> players, net.minecraft.world.level.GameType gameType) {
+-        int n = 0;
+-        for (net.minecraft.server.level.ServerPlayer serverPlayer : players) {
+-            if (!serverPlayer.setGameMode(gameType)) continue;
+-            net.minecraft.server.commands.GameModeCommand.logGamemodeChange((net.minecraft.commands.CommandSourceStack)((net.minecraft.commands.CommandSourceStack)source.getSource()), (net.minecraft.server.level.ServerPlayer)serverPlayer, (net.minecraft.world.level.GameType)gameType);
+-            ++n;
++    public static int setMode(com.mojang.brigadier.context.CommandContext<net.minecraft.commands.CommandSourceStack> $$0, java.util.Collection<net.minecraft.server.level.ServerPlayer> $$1, net.minecraft.world.level.GameType $$2) {
++        int $$3 = 0;
++        for (net.minecraft.server.level.ServerPlayer $$4 : $$1) {
++            if (!$$4.setGameMode($$2)) continue;
++            net.minecraft.server.commands.GameModeCommand.logGamemodeChange((net.minecraft.commands.CommandSourceStack)((net.minecraft.commands.CommandSourceStack)$$0.getSource()), (net.minecraft.server.level.ServerPlayer)$$4, (net.minecraft.world.level.GameType)$$2);
++            ++$$3;
+         }
+-        return n;
++        return $$3;
+     }
+ }
+ 

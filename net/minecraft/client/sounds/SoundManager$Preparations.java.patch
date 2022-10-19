@@ -1,0 +1,86 @@
+--- net/minecraft/client/sounds/SoundManager$Preparations.java
++++ net/minecraft/client/sounds/SoundManager$Preparations.java
+@@ -6,40 +6,60 @@
+ public class net.minecraft.client.sounds.SoundManager$Preparations
+  {
+     public java.util.Map<net.minecraft.resources.ResourceLocation, net.minecraft.client.sounds.WeighedSoundEvents> registry;
++    public java.util.Map<net.minecraft.resources.ResourceLocation, net.minecraft.server.packs.resources.Resource> soundCache;
+ 
+     public net.minecraft.client.sounds.SoundManager$Preparations() {
+         this.registry = com.google.common.collect.Maps.newHashMap();
++        this.soundCache = java.util.Map.of();
+     }
+ 
+-    public void handleRegistration(net.minecraft.resources.ResourceLocation soundLocation, net.minecraft.client.resources.sounds.SoundEventRegistration soundList, net.minecraft.server.packs.resources.ResourceManager resourceManager) {
+-        boolean bl;
+-        net.minecraft.client.sounds.WeighedSoundEvents weighedSoundEvents = (net.minecraft.client.sounds.WeighedSoundEvents)this.registry.get((java.lang.Object)soundLocation);
+-        boolean bl2 = bl = weighedSoundEvents == null;
+-        if (bl || soundList.isReplace()) {
+-            if (!bl) {
+-                net.minecraft.client.sounds.SoundManager.LOGGER.debug("Replaced sound event location {}", (java.lang.Object)soundLocation);
++    public void listResources(net.minecraft.server.packs.resources.ResourceManager $$0) {
++        this.soundCache = net.minecraft.client.resources.sounds.Sound.SOUND_LISTER.listMatchingResources($$0);
++    }
++
++    /*
++     * WARNING - void declaration
++     */
++    public void handleRegistration(net.minecraft.resources.ResourceLocation $$0, net.minecraft.client.resources.sounds.SoundEventRegistration $$1) {
++        boolean $$3;
++        net.minecraft.client.sounds.WeighedSoundEvents $$2 = (net.minecraft.client.sounds.WeighedSoundEvents)this.registry.get((java.lang.Object)$$0);
++        boolean bl = $$3 = $$2 == null;
++        if ($$3 || $$1.isReplace()) {
++            if (!$$3) {
++                net.minecraft.client.sounds.SoundManager.LOGGER.debug("Replaced sound event location {}", (java.lang.Object)$$0);
+             }
+-            weighedSoundEvents = new net.minecraft.client.sounds.WeighedSoundEvents(soundLocation, soundList.getSubtitle());
+-            this.registry.put((java.lang.Object)soundLocation, (java.lang.Object)weighedSoundEvents);
++            $$2 = new net.minecraft.client.sounds.WeighedSoundEvents($$0, $$1.getSubtitle());
++            this.registry.put((java.lang.Object)$$0, (java.lang.Object)$$2);
+         }
+-block4:        for (net.minecraft.client.resources.sounds.Sound sound : soundList.getSounds()) {
+-            net.minecraft.resources.ResourceLocation resourceLocation = sound.getLocation();
+-            weighedSoundEvents.addSound((net.minecraft.client.sounds.Weighted)(switch (net.minecraft.client.sounds.SoundManager$2.$SwitchMap$net$minecraft$client$resources$sounds$Sound$Type[sound.getType().ordinal()]) {
+-                case 1 -> {
+-                    if (!net.minecraft.client.sounds.SoundManager.validateSoundResource((net.minecraft.client.resources.sounds.Sound)sound, (net.minecraft.resources.ResourceLocation)soundLocation, (net.minecraft.server.packs.resources.ResourceManager)resourceManager)) continue block4;
+-                    yield sound;
++        net.minecraft.server.packs.resources.ResourceProvider $$4 = net.minecraft.server.packs.resources.ResourceProvider.fromMap((java.util.Map)this.soundCache);
++block4:        for (net.minecraft.client.resources.sounds.Sound $$5 : $$1.getSounds()) {
++            void $$9;
++            net.minecraft.resources.ResourceLocation $$6 = $$5.getLocation();
++            switch (net.minecraft.client.sounds.SoundManager$2.$SwitchMap$net$minecraft$client$resources$sounds$Sound$Type[$$5.getType().ordinal()]) {
++                case 1: {
++                    if (!net.minecraft.client.sounds.SoundManager.validateSoundResource((net.minecraft.client.resources.sounds.Sound)$$5, (net.minecraft.resources.ResourceLocation)$$0, (net.minecraft.server.packs.resources.ResourceProvider)$$4)) continue block4;
++                    net.minecraft.client.resources.sounds.Sound $$7 = $$5;
++                    break;
+                 }
+-                case 2 -> new /* Unavailable Anonymous Inner Class!! */;
+-                default -> throw new java.lang.IllegalStateException("Unknown SoundEventRegistration type: " + sound.getType());
+-            }));
++                case 2: {
++                    net.minecraft.client.sounds.SoundManager$Preparations$1 $$8 = new /* Unavailable Anonymous Inner Class!! */;
++                    break;
++                }
++                default: {
++                    throw new java.lang.IllegalStateException("Unknown SoundEventRegistration type: " + $$5.getType());
++                }
++            }
++            $$2.addSound((net.minecraft.client.sounds.Weighted)$$9);
+         }
+     }
+ 
+-    public void apply(java.util.Map<net.minecraft.resources.ResourceLocation, net.minecraft.client.sounds.WeighedSoundEvents> soundRegistry, net.minecraft.client.sounds.SoundEngine soundManager) {
+-        soundRegistry.clear();
+-        for (java.util.Map$Entry entry : this.registry.entrySet()) {
+-            soundRegistry.put((java.lang.Object)((net.minecraft.resources.ResourceLocation)entry.getKey()), (java.lang.Object)((net.minecraft.client.sounds.WeighedSoundEvents)entry.getValue()));
+-            ((net.minecraft.client.sounds.WeighedSoundEvents)entry.getValue()).preloadIfRequired(soundManager);
++    public void apply(java.util.Map<net.minecraft.resources.ResourceLocation, net.minecraft.client.sounds.WeighedSoundEvents> $$0, java.util.Map<net.minecraft.resources.ResourceLocation, net.minecraft.server.packs.resources.Resource> $$1, net.minecraft.client.sounds.SoundEngine $$2) {
++        $$0.clear();
++        $$1.clear();
++        $$1.putAll(this.soundCache);
++        for (java.util.Map$Entry $$3 : this.registry.entrySet()) {
++            $$0.put((java.lang.Object)((net.minecraft.resources.ResourceLocation)$$3.getKey()), (java.lang.Object)((net.minecraft.client.sounds.WeighedSoundEvents)$$3.getValue()));
++            ((net.minecraft.client.sounds.WeighedSoundEvents)$$3.getValue()).preloadIfRequired($$2);
+         }
+     }
+ }

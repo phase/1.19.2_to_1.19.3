@@ -1,0 +1,426 @@
+--- net/minecraft/world/entity/monster/Zombie.java
++++ net/minecraft/world/entity/monster/Zombie.java
+@@ -27,8 +27,8 @@
+         this.breakDoorGoal = new net.minecraft.world.entity.ai.goal.BreakDoorGoal((net.minecraft.world.entity.Mob)this, DOOR_BREAKING_PREDICATE);
+     }
+ 
+-    public net.minecraft.world.entity.monster.Zombie(net.minecraft.world.level.Level level) {
+-        this(net.minecraft.world.entity.EntityType.ZOMBIE, level);
++    public net.minecraft.world.entity.monster.Zombie(net.minecraft.world.level.Level $$0) {
++        this(net.minecraft.world.entity.EntityType.ZOMBIE, $$0);
+     }
+ 
+     public void registerGoals() {
+@@ -68,12 +68,12 @@
+         return this.canBreakDoors;
+     }
+ 
+-    public void setCanBreakDoors(boolean canBreakDoors) {
++    public void setCanBreakDoors(boolean $$0) {
+         if (this.supportsBreakDoorGoal() && net.minecraft.world.entity.ai.util.GoalUtils.hasGroundPathNavigation((net.minecraft.world.entity.Mob)this)) {
+-            if (this.canBreakDoors != canBreakDoors) {
+-                this.canBreakDoors = canBreakDoors;
+-                ((net.minecraft.world.entity.ai.navigation.GroundPathNavigation)this.getNavigation()).setCanOpenDoors(canBreakDoors);
+-                if (canBreakDoors) {
++            if (this.canBreakDoors != $$0) {
++                this.canBreakDoors = $$0;
++                ((net.minecraft.world.entity.ai.navigation.GroundPathNavigation)this.getNavigation()).setCanOpenDoors($$0);
++                if ($$0) {
+                     this.goalSelector.addGoal(1, (net.minecraft.world.entity.ai.goal.Goal)this.breakDoorGoal);
+                 } else {
+                     this.goalSelector.removeGoal((net.minecraft.world.entity.ai.goal.Goal)this.breakDoorGoal);
+@@ -100,22 +100,22 @@
+         return super.getExperienceReward();
+     }
+ 
+-    public void setBaby(boolean childZombie) {
+-        this.getEntityData().set(DATA_BABY_ID, (java.lang.Object)childZombie);
++    public void setBaby(boolean $$0) {
++        this.getEntityData().set(DATA_BABY_ID, (java.lang.Object)$$0);
+         if (this.level != null && !this.level.isClientSide) {
+-            net.minecraft.world.entity.ai.attributes.AttributeInstance attributeInstance = this.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.MOVEMENT_SPEED);
+-            attributeInstance.removeModifier(SPEED_MODIFIER_BABY);
+-            if (childZombie) {
+-                attributeInstance.addTransientModifier(SPEED_MODIFIER_BABY);
++            net.minecraft.world.entity.ai.attributes.AttributeInstance $$1 = this.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.MOVEMENT_SPEED);
++            $$1.removeModifier(SPEED_MODIFIER_BABY);
++            if ($$0) {
++                $$1.addTransientModifier(SPEED_MODIFIER_BABY);
+             }
+         }
+     }
+ 
+-    public void onSyncedDataUpdated(net.minecraft.network.syncher.EntityDataAccessor<?> key) {
+-        if (DATA_BABY_ID.equals(key)) {
++    public void onSyncedDataUpdated(net.minecraft.network.syncher.EntityDataAccessor<?> $$0) {
++        if (DATA_BABY_ID.equals($$0)) {
+             this.refreshDimensions();
+         }
+-        super.onSyncedDataUpdated(key);
++        super.onSyncedDataUpdated($$0);
+     }
+ 
+     public boolean convertsInWater() {
+@@ -167,8 +167,8 @@
+         super.aiStep();
+     }
+ 
+-    public void startUnderWaterConversion(int conversionTime) {
+-        this.conversionTime = conversionTime;
++    public void startUnderWaterConversion(int $$0) {
++        this.conversionTime = $$0;
+         this.getEntityData().set(DATA_DROWNED_CONVERSION_ID, (java.lang.Object)true);
+     }
+ 
+@@ -179,11 +179,11 @@
+         }
+     }
+ 
+-    public void convertToZombieType(net.minecraft.world.entity.EntityType<? extends net.minecraft.world.entity.monster.Zombie> entityType) {
+-        net.minecraft.world.entity.monster.Zombie zombie = (net.minecraft.world.entity.monster.Zombie)this.convertTo(entityType, true);
+-        if (zombie != null) {
+-            zombie.handleAttributes(zombie.level.getCurrentDifficultyAt(zombie.blockPosition()).getSpecialMultiplier());
+-            zombie.setCanBreakDoors(zombie.supportsBreakDoorGoal() && this.canBreakDoors());
++    public void convertToZombieType(net.minecraft.world.entity.EntityType<? extends net.minecraft.world.entity.monster.Zombie> $$0) {
++        net.minecraft.world.entity.monster.Zombie $$1 = (net.minecraft.world.entity.monster.Zombie)this.convertTo($$0, true);
++        if ($$1 != null) {
++            $$1.handleAttributes($$1.level.getCurrentDifficultyAt($$1.blockPosition()).getSpecialMultiplier());
++            $$1.setCanBreakDoors($$1.supportsBreakDoorGoal() && this.canBreakDoors());
+         }
+     }
+ 
+@@ -191,60 +191,60 @@
+         return true;
+     }
+ 
+-    public boolean hurt(net.minecraft.world.damagesource.DamageSource source, float amount) {
+-        if (!super.hurt(source, amount)) {
++    public boolean hurt(net.minecraft.world.damagesource.DamageSource $$0, float $$1) {
++        if (!super.hurt($$0, $$1)) {
+             return false;
+         }
+         if (!(this.level instanceof net.minecraft.server.level.ServerLevel)) {
+             return false;
+         }
+-        net.minecraft.server.level.ServerLevel serverLevel = (net.minecraft.server.level.ServerLevel)this.level;
+-        net.minecraft.world.entity.LivingEntity livingEntity = this.getTarget();
+-        if (livingEntity == null && source.getEntity() instanceof net.minecraft.world.entity.LivingEntity) {
+-            livingEntity = (net.minecraft.world.entity.LivingEntity)source.getEntity();
++        net.minecraft.server.level.ServerLevel $$2 = (net.minecraft.server.level.ServerLevel)this.level;
++        net.minecraft.world.entity.LivingEntity $$3 = this.getTarget();
++        if ($$3 == null && $$0.getEntity() instanceof net.minecraft.world.entity.LivingEntity) {
++            $$3 = (net.minecraft.world.entity.LivingEntity)$$0.getEntity();
+         }
+-        if (livingEntity != null && this.level.getDifficulty() == net.minecraft.world.Difficulty.HARD && (double)this.random.nextFloat() < this.getAttributeValue(net.minecraft.world.entity.ai.attributes.Attributes.SPAWN_REINFORCEMENTS_CHANCE) && this.level.getGameRules().getBoolean(net.minecraft.world.level.GameRules.RULE_DOMOBSPAWNING)) {
+-            int n = net.minecraft.util.Mth.floor((double)this.getX());
+-            int n2 = net.minecraft.util.Mth.floor((double)this.getY());
+-            int n3 = net.minecraft.util.Mth.floor((double)this.getZ());
+-            net.minecraft.world.entity.monster.Zombie zombie = new net.minecraft.world.entity.monster.Zombie(this.level);
+-            for (int i = 0; i < 50; ++i) {
+-                int n4 = n + net.minecraft.util.Mth.nextInt((net.minecraft.util.RandomSource)this.random, (int)7, (int)40) * net.minecraft.util.Mth.nextInt((net.minecraft.util.RandomSource)this.random, (int)-1, (int)1);
+-                int n5 = n2 + net.minecraft.util.Mth.nextInt((net.minecraft.util.RandomSource)this.random, (int)7, (int)40) * net.minecraft.util.Mth.nextInt((net.minecraft.util.RandomSource)this.random, (int)-1, (int)1);
+-                int n6 = n3 + net.minecraft.util.Mth.nextInt((net.minecraft.util.RandomSource)this.random, (int)7, (int)40) * net.minecraft.util.Mth.nextInt((net.minecraft.util.RandomSource)this.random, (int)-1, (int)1);
+-                net.minecraft.core.BlockPos blockPos = new net.minecraft.core.BlockPos(n4, n5, n6);
+-                net.minecraft.world.entity.EntityType entityType = zombie.getType();
+-                net.minecraft.world.entity.SpawnPlacements$Type type = net.minecraft.world.entity.SpawnPlacements.getPlacementType((net.minecraft.world.entity.EntityType)entityType);
+-                if (!net.minecraft.world.level.NaturalSpawner.isSpawnPositionOk((net.minecraft.world.entity.SpawnPlacements$Type)type, (net.minecraft.world.level.LevelReader)this.level, (net.minecraft.core.BlockPos)blockPos, (net.minecraft.world.entity.EntityType)entityType) || !net.minecraft.world.entity.SpawnPlacements.checkSpawnRules((net.minecraft.world.entity.EntityType)entityType, (net.minecraft.world.level.ServerLevelAccessor)serverLevel, (net.minecraft.world.entity.MobSpawnType)net.minecraft.world.entity.MobSpawnType.REINFORCEMENT, (net.minecraft.core.BlockPos)blockPos, (net.minecraft.util.RandomSource)this.level.random)) continue;
+-                zombie.setPos((double)n4, (double)n5, (double)n6);
+-                if (this.level.hasNearbyAlivePlayer((double)n4, (double)n5, (double)n6, 7.0) || !this.level.isUnobstructed((net.minecraft.world.entity.Entity)zombie) || !this.level.noCollision((net.minecraft.world.entity.Entity)zombie) || this.level.containsAnyLiquid(zombie.getBoundingBox())) continue;
+-                zombie.setTarget(livingEntity);
+-                zombie.finalizeSpawn((net.minecraft.world.level.ServerLevelAccessor)serverLevel, this.level.getCurrentDifficultyAt(zombie.blockPosition()), net.minecraft.world.entity.MobSpawnType.REINFORCEMENT, null, null);
+-                serverLevel.addFreshEntityWithPassengers((net.minecraft.world.entity.Entity)zombie);
++        if ($$3 != null && this.level.getDifficulty() == net.minecraft.world.Difficulty.HARD && (double)this.random.nextFloat() < this.getAttributeValue(net.minecraft.world.entity.ai.attributes.Attributes.SPAWN_REINFORCEMENTS_CHANCE) && this.level.getGameRules().getBoolean(net.minecraft.world.level.GameRules.RULE_DOMOBSPAWNING)) {
++            int $$4 = net.minecraft.util.Mth.floor((double)this.getX());
++            int $$5 = net.minecraft.util.Mth.floor((double)this.getY());
++            int $$6 = net.minecraft.util.Mth.floor((double)this.getZ());
++            net.minecraft.world.entity.monster.Zombie $$7 = new net.minecraft.world.entity.monster.Zombie(this.level);
++            for (int $$8 = 0; $$8 < 50; ++$$8) {
++                int $$9 = $$4 + net.minecraft.util.Mth.nextInt((net.minecraft.util.RandomSource)this.random, (int)7, (int)40) * net.minecraft.util.Mth.nextInt((net.minecraft.util.RandomSource)this.random, (int)-1, (int)1);
++                int $$10 = $$5 + net.minecraft.util.Mth.nextInt((net.minecraft.util.RandomSource)this.random, (int)7, (int)40) * net.minecraft.util.Mth.nextInt((net.minecraft.util.RandomSource)this.random, (int)-1, (int)1);
++                int $$11 = $$6 + net.minecraft.util.Mth.nextInt((net.minecraft.util.RandomSource)this.random, (int)7, (int)40) * net.minecraft.util.Mth.nextInt((net.minecraft.util.RandomSource)this.random, (int)-1, (int)1);
++                net.minecraft.core.BlockPos $$12 = new net.minecraft.core.BlockPos($$9, $$10, $$11);
++                net.minecraft.world.entity.EntityType $$13 = $$7.getType();
++                net.minecraft.world.entity.SpawnPlacements$Type $$14 = net.minecraft.world.entity.SpawnPlacements.getPlacementType((net.minecraft.world.entity.EntityType)$$13);
++                if (!net.minecraft.world.level.NaturalSpawner.isSpawnPositionOk((net.minecraft.world.entity.SpawnPlacements$Type)$$14, (net.minecraft.world.level.LevelReader)this.level, (net.minecraft.core.BlockPos)$$12, (net.minecraft.world.entity.EntityType)$$13) || !net.minecraft.world.entity.SpawnPlacements.checkSpawnRules((net.minecraft.world.entity.EntityType)$$13, (net.minecraft.world.level.ServerLevelAccessor)$$2, (net.minecraft.world.entity.MobSpawnType)net.minecraft.world.entity.MobSpawnType.REINFORCEMENT, (net.minecraft.core.BlockPos)$$12, (net.minecraft.util.RandomSource)this.level.random)) continue;
++                $$7.setPos((double)$$9, (double)$$10, (double)$$11);
++                if (this.level.hasNearbyAlivePlayer((double)$$9, (double)$$10, (double)$$11, 7.0) || !this.level.isUnobstructed((net.minecraft.world.entity.Entity)$$7) || !this.level.noCollision((net.minecraft.world.entity.Entity)$$7) || this.level.containsAnyLiquid($$7.getBoundingBox())) continue;
++                $$7.setTarget($$3);
++                $$7.finalizeSpawn((net.minecraft.world.level.ServerLevelAccessor)$$2, this.level.getCurrentDifficultyAt($$7.blockPosition()), net.minecraft.world.entity.MobSpawnType.REINFORCEMENT, null, null);
++                $$2.addFreshEntityWithPassengers((net.minecraft.world.entity.Entity)$$7);
+                 this.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.SPAWN_REINFORCEMENTS_CHANCE).addPermanentModifier(new net.minecraft.world.entity.ai.attributes.AttributeModifier("Zombie reinforcement caller charge", (double)-0.05f, net.minecraft.world.entity.ai.attributes.AttributeModifier$Operation.ADDITION));
+-                zombie.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.SPAWN_REINFORCEMENTS_CHANCE).addPermanentModifier(new net.minecraft.world.entity.ai.attributes.AttributeModifier("Zombie reinforcement callee charge", (double)-0.05f, net.minecraft.world.entity.ai.attributes.AttributeModifier$Operation.ADDITION));
++                $$7.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.SPAWN_REINFORCEMENTS_CHANCE).addPermanentModifier(new net.minecraft.world.entity.ai.attributes.AttributeModifier("Zombie reinforcement callee charge", (double)-0.05f, net.minecraft.world.entity.ai.attributes.AttributeModifier$Operation.ADDITION));
+                 break;
+             }
+         }
+         return true;
+     }
+ 
+-    public boolean doHurtTarget(net.minecraft.world.entity.Entity entity) {
+-        boolean bl = super.doHurtTarget(entity);
+-        if (bl) {
+-            float f = this.level.getCurrentDifficultyAt(this.blockPosition()).getEffectiveDifficulty();
+-            if (this.getMainHandItem().isEmpty() && this.isOnFire() && this.random.nextFloat() < f * 0.3f) {
+-                entity.setSecondsOnFire(2 * (int)f);
++    public boolean doHurtTarget(net.minecraft.world.entity.Entity $$0) {
++        boolean $$1 = super.doHurtTarget($$0);
++        if ($$1) {
++            float $$2 = this.level.getCurrentDifficultyAt(this.blockPosition()).getEffectiveDifficulty();
++            if (this.getMainHandItem().isEmpty() && this.isOnFire() && this.random.nextFloat() < $$2 * 0.3f) {
++                $$0.setSecondsOnFire(2 * (int)$$2);
+             }
+         }
+-        return bl;
++        return $$1;
+     }
+ 
+     public net.minecraft.sounds.SoundEvent getAmbientSound() {
+         return net.minecraft.sounds.SoundEvents.ZOMBIE_AMBIENT;
+     }
+ 
+-    public net.minecraft.sounds.SoundEvent getHurtSound(net.minecraft.world.damagesource.DamageSource damageSource) {
++    public net.minecraft.sounds.SoundEvent getHurtSound(net.minecraft.world.damagesource.DamageSource $$0) {
+         return net.minecraft.sounds.SoundEvents.ZOMBIE_HURT;
+     }
+ 
+@@ -256,7 +256,7 @@
+         return net.minecraft.sounds.SoundEvents.ZOMBIE_STEP;
+     }
+ 
+-    public void playStepSound(net.minecraft.core.BlockPos pos, net.minecraft.world.level.block.state.BlockState block) {
++    public void playStepSound(net.minecraft.core.BlockPos $$0, net.minecraft.world.level.block.state.BlockState $$1) {
+         this.playSound(this.getStepSound(), 0.15f, 1.0f);
+     }
+ 
+@@ -278,54 +278,56 @@
+         }
+     }
+ 
+-    public void addAdditionalSaveData(net.minecraft.nbt.CompoundTag compound) {
+-        super.addAdditionalSaveData(compound);
+-        compound.putBoolean("IsBaby", this.isBaby());
+-        compound.putBoolean("CanBreakDoors", this.canBreakDoors());
+-        compound.putInt("InWaterTime", this.isInWater() ? this.inWaterTime : -1);
+-        compound.putInt("DrownedConversionTime", this.isUnderWaterConverting() ? this.conversionTime : -1);
++    public void addAdditionalSaveData(net.minecraft.nbt.CompoundTag $$0) {
++        super.addAdditionalSaveData($$0);
++        $$0.putBoolean("IsBaby", this.isBaby());
++        $$0.putBoolean("CanBreakDoors", this.canBreakDoors());
++        $$0.putInt("InWaterTime", this.isInWater() ? this.inWaterTime : -1);
++        $$0.putInt("DrownedConversionTime", this.isUnderWaterConverting() ? this.conversionTime : -1);
+     }
+ 
+-    public void readAdditionalSaveData(net.minecraft.nbt.CompoundTag compound) {
+-        super.readAdditionalSaveData(compound);
+-        this.setBaby(compound.getBoolean("IsBaby"));
+-        this.setCanBreakDoors(compound.getBoolean("CanBreakDoors"));
+-        this.inWaterTime = compound.getInt("InWaterTime");
+-        if (compound.contains("DrownedConversionTime", 99) && compound.getInt("DrownedConversionTime") > -1) {
+-            this.startUnderWaterConversion(compound.getInt("DrownedConversionTime"));
++    public void readAdditionalSaveData(net.minecraft.nbt.CompoundTag $$0) {
++        super.readAdditionalSaveData($$0);
++        this.setBaby($$0.getBoolean("IsBaby"));
++        this.setCanBreakDoors($$0.getBoolean("CanBreakDoors"));
++        this.inWaterTime = $$0.getInt("InWaterTime");
++        if ($$0.contains("DrownedConversionTime", 99) && $$0.getInt("DrownedConversionTime") > -1) {
++            this.startUnderWaterConversion($$0.getInt("DrownedConversionTime"));
+         }
+     }
+ 
+     public boolean wasKilled(net.minecraft.server.level.ServerLevel $$0, net.minecraft.world.entity.LivingEntity $$1) {
+         boolean $$2 = super.wasKilled($$0, $$1);
+         if (($$0.getDifficulty() == net.minecraft.world.Difficulty.NORMAL || $$0.getDifficulty() == net.minecraft.world.Difficulty.HARD) && $$1 instanceof net.minecraft.world.entity.npc.Villager) {
++            net.minecraft.world.entity.npc.Villager $$3 = (net.minecraft.world.entity.npc.Villager)$$1;
+             if ($$0.getDifficulty() != net.minecraft.world.Difficulty.HARD && this.random.nextBoolean()) {
+                 return $$2;
+             }
+-            net.minecraft.world.entity.npc.Villager $$3 = (net.minecraft.world.entity.npc.Villager)$$1;
+             net.minecraft.world.entity.monster.ZombieVillager $$4 = (net.minecraft.world.entity.monster.ZombieVillager)$$3.convertTo(net.minecraft.world.entity.EntityType.ZOMBIE_VILLAGER, false);
+-            $$4.finalizeSpawn((net.minecraft.world.level.ServerLevelAccessor)$$0, $$0.getCurrentDifficultyAt($$4.blockPosition()), net.minecraft.world.entity.MobSpawnType.CONVERSION, (net.minecraft.world.entity.SpawnGroupData)new net.minecraft.world.entity.monster.Zombie$ZombieGroupData(false, true), null);
+-            $$4.setVillagerData($$3.getVillagerData());
+-            $$4.setGossips((net.minecraft.nbt.Tag)$$3.getGossips().store((com.mojang.serialization.DynamicOps)net.minecraft.nbt.NbtOps.INSTANCE).getValue());
+-            $$4.setTradeOffers($$3.getOffers().createTag());
+-            $$4.setVillagerXp($$3.getVillagerXp());
+-            if (!this.isSilent()) {
+-                $$0.levelEvent(null, 1026, this.blockPosition(), 0);
++            if ($$4 != null) {
++                $$4.finalizeSpawn((net.minecraft.world.level.ServerLevelAccessor)$$0, $$0.getCurrentDifficultyAt($$4.blockPosition()), net.minecraft.world.entity.MobSpawnType.CONVERSION, (net.minecraft.world.entity.SpawnGroupData)new net.minecraft.world.entity.monster.Zombie$ZombieGroupData(false, true), null);
++                $$4.setVillagerData($$3.getVillagerData());
++                $$4.setGossips((net.minecraft.nbt.Tag)$$3.getGossips().store((com.mojang.serialization.DynamicOps)net.minecraft.nbt.NbtOps.INSTANCE).getValue());
++                $$4.setTradeOffers($$3.getOffers().createTag());
++                $$4.setVillagerXp($$3.getVillagerXp());
++                if (!this.isSilent()) {
++                    $$0.levelEvent(null, 1026, this.blockPosition(), 0);
++                }
++                $$2 = false;
+             }
+-            $$2 = false;
+         }
+         return $$2;
+     }
+ 
+-    public float getStandingEyeHeight(net.minecraft.world.entity.Pose pose, net.minecraft.world.entity.EntityDimensions size) {
++    public float getStandingEyeHeight(net.minecraft.world.entity.Pose $$0, net.minecraft.world.entity.EntityDimensions $$1) {
+         return this.isBaby() ? 0.93f : 1.74f;
+     }
+ 
+-    public boolean canHoldItem(net.minecraft.world.item.ItemStack stack) {
+-        if (stack.is(net.minecraft.world.item.Items.EGG) && this.isBaby() && this.isPassenger()) {
++    public boolean canHoldItem(net.minecraft.world.item.ItemStack $$0) {
++        if ($$0.is(net.minecraft.world.item.Items.EGG) && this.isBaby() && this.isPassenger()) {
+             return false;
+         }
+-        return super.canHoldItem(stack);
++        return super.canHoldItem($$0);
+     }
+ 
+     public boolean wantsToPickUp(net.minecraft.world.item.ItemStack $$0) {
+@@ -336,66 +338,65 @@
+     }
+ 
+     @javax.annotation.Nullable
+-    public net.minecraft.world.entity.SpawnGroupData finalizeSpawn(net.minecraft.world.level.ServerLevelAccessor level, net.minecraft.world.DifficultyInstance difficulty, net.minecraft.world.entity.MobSpawnType reason, @javax.annotation.Nullable net.minecraft.world.entity.SpawnGroupData spawnData, @javax.annotation.Nullable net.minecraft.nbt.CompoundTag dataTag) {
+-        net.minecraft.world.entity.monster.Zombie$ZombieGroupData zombieGroupData;
+-        net.minecraft.util.RandomSource randomSource = level.getRandom();
+-        spawnData = super.finalizeSpawn(level, difficulty, reason, spawnData, dataTag);
+-        float f = difficulty.getSpecialMultiplier();
+-        this.setCanPickUpLoot(randomSource.nextFloat() < 0.55f * f);
+-        if (spawnData == null) {
+-            spawnData = new net.minecraft.world.entity.monster.Zombie$ZombieGroupData(net.minecraft.world.entity.monster.Zombie.getSpawnAsBabyOdds((net.minecraft.util.RandomSource)randomSource), true);
++    public net.minecraft.world.entity.SpawnGroupData finalizeSpawn(net.minecraft.world.level.ServerLevelAccessor $$0, net.minecraft.world.DifficultyInstance $$1, net.minecraft.world.entity.MobSpawnType $$2, @javax.annotation.Nullable net.minecraft.world.entity.SpawnGroupData $$3, @javax.annotation.Nullable net.minecraft.nbt.CompoundTag $$4) {
++        net.minecraft.util.RandomSource $$5 = $$0.getRandom();
++        $$3 = super.finalizeSpawn($$0, $$1, $$2, $$3, $$4);
++        float $$6 = $$1.getSpecialMultiplier();
++        this.setCanPickUpLoot($$5.nextFloat() < 0.55f * $$6);
++        if ($$3 == null) {
++            $$3 = new net.minecraft.world.entity.monster.Zombie$ZombieGroupData(net.minecraft.world.entity.monster.Zombie.getSpawnAsBabyOdds((net.minecraft.util.RandomSource)$$5), true);
+         }
+-        if (spawnData instanceof net.minecraft.world.entity.monster.Zombie$ZombieGroupData) {
+-            zombieGroupData = (net.minecraft.world.entity.monster.Zombie$ZombieGroupData)spawnData;
+-            if (zombieGroupData.isBaby) {
++        if ($$3 instanceof net.minecraft.world.entity.monster.Zombie$ZombieGroupData) {
++            net.minecraft.world.entity.monster.Zombie$ZombieGroupData $$7 = (net.minecraft.world.entity.monster.Zombie$ZombieGroupData)$$3;
++            if ($$7.isBaby) {
+                 this.setBaby(true);
+-                if (zombieGroupData.canSpawnJockey) {
+-                    if ((double)randomSource.nextFloat() < 0.05) {
+-                        var9_9 = level.getEntitiesOfClass(net.minecraft.world.entity.animal.Chicken.class, this.getBoundingBox().inflate(5.0, 3.0, 5.0), net.minecraft.world.entity.EntitySelector.ENTITY_NOT_BEING_RIDDEN);
+-                        if (!var9_9.isEmpty()) {
+-                            net.minecraft.world.entity.animal.Chicken chicken = (net.minecraft.world.entity.animal.Chicken)var9_9.get(0);
+-                            chicken.setChickenJockey(true);
+-                            this.startRiding((net.minecraft.world.entity.Entity)chicken);
++                if ($$7.canSpawnJockey) {
++                    net.minecraft.world.entity.animal.Chicken $$10;
++                    if ((double)$$5.nextFloat() < 0.05) {
++                        java.util.List $$8 = $$0.getEntitiesOfClass(net.minecraft.world.entity.animal.Chicken.class, this.getBoundingBox().inflate(5.0, 3.0, 5.0), net.minecraft.world.entity.EntitySelector.ENTITY_NOT_BEING_RIDDEN);
++                        if (!$$8.isEmpty()) {
++                            net.minecraft.world.entity.animal.Chicken $$9 = (net.minecraft.world.entity.animal.Chicken)$$8.get(0);
++                            $$9.setChickenJockey(true);
++                            this.startRiding((net.minecraft.world.entity.Entity)$$9);
+                         }
+-                    } else if ((double)randomSource.nextFloat() < 0.05) {
+-                        var9_9 = (net.minecraft.world.entity.animal.Chicken)net.minecraft.world.entity.EntityType.CHICKEN.create(this.level);
+-                        var9_9.moveTo(this.getX(), this.getY(), this.getZ(), this.getYRot(), 0.0f);
+-                        var9_9.finalizeSpawn(level, difficulty, net.minecraft.world.entity.MobSpawnType.JOCKEY, null, null);
+-                        var9_9.setChickenJockey(true);
+-                        this.startRiding((net.minecraft.world.entity.Entity)var9_9);
+-                        level.addFreshEntity((net.minecraft.world.entity.Entity)var9_9);
++                    } else if ((double)$$5.nextFloat() < 0.05 && ($$10 = (net.minecraft.world.entity.animal.Chicken)net.minecraft.world.entity.EntityType.CHICKEN.create(this.level)) != null) {
++                        $$10.moveTo(this.getX(), this.getY(), this.getZ(), this.getYRot(), 0.0f);
++                        $$10.finalizeSpawn($$0, $$1, net.minecraft.world.entity.MobSpawnType.JOCKEY, null, null);
++                        $$10.setChickenJockey(true);
++                        this.startRiding((net.minecraft.world.entity.Entity)$$10);
++                        $$0.addFreshEntity((net.minecraft.world.entity.Entity)$$10);
+                     }
+                 }
+             }
+-            this.setCanBreakDoors(this.supportsBreakDoorGoal() && randomSource.nextFloat() < f * 0.1f);
+-            this.populateDefaultEquipmentSlots(randomSource, difficulty);
+-            this.populateDefaultEquipmentEnchantments(randomSource, difficulty);
++            this.setCanBreakDoors(this.supportsBreakDoorGoal() && $$5.nextFloat() < $$6 * 0.1f);
++            this.populateDefaultEquipmentSlots($$5, $$1);
++            this.populateDefaultEquipmentEnchantments($$5, $$1);
+         }
+         if (this.getItemBySlot(net.minecraft.world.entity.EquipmentSlot.HEAD).isEmpty()) {
+-            zombieGroupData = java.time.LocalDate.now();
+-            int n = zombieGroupData.get((java.time.temporal.TemporalField)java.time.temporal.ChronoField.DAY_OF_MONTH);
+-            int n2 = zombieGroupData.get((java.time.temporal.TemporalField)java.time.temporal.ChronoField.MONTH_OF_YEAR);
+-            if (n2 == 10 && n == 31 && randomSource.nextFloat() < 0.25f) {
+-                this.setItemSlot(net.minecraft.world.entity.EquipmentSlot.HEAD, new net.minecraft.world.item.ItemStack((net.minecraft.world.level.ItemLike)(randomSource.nextFloat() < 0.1f ? net.minecraft.world.level.block.Blocks.JACK_O_LANTERN : net.minecraft.world.level.block.Blocks.CARVED_PUMPKIN)));
++            java.time.LocalDate $$11 = java.time.LocalDate.now();
++            int $$12 = $$11.get((java.time.temporal.TemporalField)java.time.temporal.ChronoField.DAY_OF_MONTH);
++            int $$13 = $$11.get((java.time.temporal.TemporalField)java.time.temporal.ChronoField.MONTH_OF_YEAR);
++            if ($$13 == 10 && $$12 == 31 && $$5.nextFloat() < 0.25f) {
++                this.setItemSlot(net.minecraft.world.entity.EquipmentSlot.HEAD, new net.minecraft.world.item.ItemStack((net.minecraft.world.level.ItemLike)($$5.nextFloat() < 0.1f ? net.minecraft.world.level.block.Blocks.JACK_O_LANTERN : net.minecraft.world.level.block.Blocks.CARVED_PUMPKIN)));
+                 this.armorDropChances[net.minecraft.world.entity.EquipmentSlot.HEAD.getIndex()] = 0.0f;
+             }
+         }
+-        this.handleAttributes(f);
+-        return spawnData;
++        this.handleAttributes($$6);
++        return $$3;
+     }
+ 
+     public static boolean getSpawnAsBabyOdds(net.minecraft.util.RandomSource $$0) {
+         return $$0.nextFloat() < 0.05f;
+     }
+ 
+-    public void handleAttributes(float difficulty) {
++    public void handleAttributes(float $$0) {
+         this.randomizeReinforcementsChance();
+         this.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.KNOCKBACK_RESISTANCE).addPermanentModifier(new net.minecraft.world.entity.ai.attributes.AttributeModifier("Random spawn bonus", this.random.nextDouble() * (double)0.05f, net.minecraft.world.entity.ai.attributes.AttributeModifier$Operation.ADDITION));
+-        double d = this.random.nextDouble() * 1.5 * (double)difficulty;
+-        if (d > 1.0) {
+-            this.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.FOLLOW_RANGE).addPermanentModifier(new net.minecraft.world.entity.ai.attributes.AttributeModifier("Random zombie-spawn bonus", d, net.minecraft.world.entity.ai.attributes.AttributeModifier$Operation.MULTIPLY_TOTAL));
++        double $$1 = this.random.nextDouble() * 1.5 * (double)$$0;
++        if ($$1 > 1.0) {
++            this.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.FOLLOW_RANGE).addPermanentModifier(new net.minecraft.world.entity.ai.attributes.AttributeModifier("Random zombie-spawn bonus", $$1, net.minecraft.world.entity.ai.attributes.AttributeModifier$Operation.MULTIPLY_TOTAL));
+         }
+-        if (this.random.nextFloat() < difficulty * 0.05f) {
++        if (this.random.nextFloat() < $$0 * 0.05f) {
+             this.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.SPAWN_REINFORCEMENTS_CHANCE).addPermanentModifier(new net.minecraft.world.entity.ai.attributes.AttributeModifier("Leader zombie bonus", this.random.nextDouble() * 0.25 + 0.5, net.minecraft.world.entity.ai.attributes.AttributeModifier$Operation.ADDITION));
+             this.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.MAX_HEALTH).addPermanentModifier(new net.minecraft.world.entity.ai.attributes.AttributeModifier("Leader zombie bonus", this.random.nextDouble() * 3.0 + 1.0, net.minecraft.world.entity.ai.attributes.AttributeModifier$Operation.MULTIPLY_TOTAL));
+             this.setCanBreakDoors(this.supportsBreakDoorGoal());
+@@ -410,14 +411,14 @@
+         return this.isBaby() ? 0.0 : -0.45;
+     }
+ 
+-    public void dropCustomDeathLoot(net.minecraft.world.damagesource.DamageSource source, int looting, boolean recentlyHit) {
+-        net.minecraft.world.item.ItemStack itemStack;
+-        net.minecraft.world.entity.monster.Creeper creeper;
+-        super.dropCustomDeathLoot(source, looting, recentlyHit);
+-        net.minecraft.world.entity.Entity entity = source.getEntity();
+-        if (entity instanceof net.minecraft.world.entity.monster.Creeper && (creeper = (net.minecraft.world.entity.monster.Creeper)entity).canDropMobsSkull() && !(itemStack = this.getSkull()).isEmpty()) {
+-            creeper.increaseDroppedSkulls();
+-            this.spawnAtLocation(itemStack);
++    public void dropCustomDeathLoot(net.minecraft.world.damagesource.DamageSource $$0, int $$1, boolean $$2) {
++        net.minecraft.world.item.ItemStack $$5;
++        net.minecraft.world.entity.monster.Creeper $$4;
++        super.dropCustomDeathLoot($$0, $$1, $$2);
++        net.minecraft.world.entity.Entity $$3 = $$0.getEntity();
++        if ($$3 instanceof net.minecraft.world.entity.monster.Creeper && ($$4 = (net.minecraft.world.entity.monster.Creeper)$$3).canDropMobsSkull() && !($$5 = this.getSkull()).isEmpty()) {
++            $$4.increaseDroppedSkulls();
++            this.spawnAtLocation($$5);
+         }
+     }
+ 
+@@ -425,8 +426,8 @@
+         return new net.minecraft.world.item.ItemStack((net.minecraft.world.level.ItemLike)net.minecraft.world.item.Items.ZOMBIE_HEAD);
+     }
+ 
+-    public static /* synthetic */ boolean lambda$static$0(net.minecraft.world.Difficulty difficulty) {
+-        return difficulty == net.minecraft.world.Difficulty.HARD;
++    public static /* synthetic */ boolean lambda$static$0(net.minecraft.world.Difficulty $$0) {
++        return $$0 == net.minecraft.world.Difficulty.HARD;
+     }
+ 
+     public static /* synthetic */ net.minecraft.util.RandomSource access$000(net.minecraft.world.entity.monster.Zombie $$0) {
+@@ -439,7 +440,7 @@
+         DATA_BABY_ID = net.minecraft.network.syncher.SynchedEntityData.defineId(net.minecraft.world.entity.monster.Zombie.class, (net.minecraft.network.syncher.EntityDataSerializer)net.minecraft.network.syncher.EntityDataSerializers.BOOLEAN);
+         DATA_SPECIAL_TYPE_ID = net.minecraft.network.syncher.SynchedEntityData.defineId(net.minecraft.world.entity.monster.Zombie.class, (net.minecraft.network.syncher.EntityDataSerializer)net.minecraft.network.syncher.EntityDataSerializers.INT);
+         DATA_DROWNED_CONVERSION_ID = net.minecraft.network.syncher.SynchedEntityData.defineId(net.minecraft.world.entity.monster.Zombie.class, (net.minecraft.network.syncher.EntityDataSerializer)net.minecraft.network.syncher.EntityDataSerializers.BOOLEAN);
+-        DOOR_BREAKING_PREDICATE = difficulty -> difficulty == net.minecraft.world.Difficulty.HARD;
++        DOOR_BREAKING_PREDICATE = $$0 -> $$0 == net.minecraft.world.Difficulty.HARD;
+     }
+ }
+ 

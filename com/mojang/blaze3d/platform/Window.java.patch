@@ -1,0 +1,424 @@
+--- com/mojang/blaze3d/platform/Window.java
++++ com/mojang/blaze3d/platform/Window.java
+@@ -32,22 +32,21 @@
+     public int framerateLimit;
+     public boolean vsync;
+ 
+-    public com.mojang.blaze3d.platform.Window(com.mojang.blaze3d.platform.WindowEventHandler eventHandler, com.mojang.blaze3d.platform.ScreenManager screenManager, com.mojang.blaze3d.platform.DisplayData displayData, @javax.annotation.Nullable java.lang.String preferredFullscreenVideoMode, java.lang.String title) {
+-        java.lang.Object object;
++    public com.mojang.blaze3d.platform.Window(com.mojang.blaze3d.platform.WindowEventHandler $$0, com.mojang.blaze3d.platform.ScreenManager $$1, com.mojang.blaze3d.platform.DisplayData $$2, @javax.annotation.Nullable java.lang.String $$3, java.lang.String $$4) {
+         this.defaultErrorCallback = org.lwjgl.glfw.GLFWErrorCallback.create((arg_0, arg_1) -> this.defaultErrorCallback(arg_0, arg_1));
+         this.errorSection = "";
+         com.mojang.blaze3d.systems.RenderSystem.assertInInitPhase();
+-        this.screenManager = screenManager;
++        this.screenManager = $$1;
+         this.setBootErrorCallback();
+         this.setErrorSection("Pre startup");
+-        this.eventHandler = eventHandler;
+-        java.util.Optional optional = com.mojang.blaze3d.platform.VideoMode.read((java.lang.String)preferredFullscreenVideoMode);
+-        this.preferredFullscreenVideoMode = optional.isPresent() ? optional : (displayData.fullscreenWidth.isPresent() && displayData.fullscreenHeight.isPresent() ? java.util.Optional.of((java.lang.Object)new com.mojang.blaze3d.platform.VideoMode(displayData.fullscreenWidth.getAsInt(), displayData.fullscreenHeight.getAsInt(), 8, 8, 8, 60)) : java.util.Optional.empty());
+-        this.actuallyFullscreen = this.fullscreen = displayData.isFullscreen;
+-        com.mojang.blaze3d.platform.Monitor monitor = screenManager.getMonitor(org.lwjgl.glfw.GLFW.glfwGetPrimaryMonitor());
+-        this.width = displayData.width > 0 ? displayData.width : 1;
++        this.eventHandler = $$0;
++        java.util.Optional $$5 = com.mojang.blaze3d.platform.VideoMode.read((java.lang.String)$$3);
++        this.preferredFullscreenVideoMode = $$5.isPresent() ? $$5 : ($$2.fullscreenWidth.isPresent() && $$2.fullscreenHeight.isPresent() ? java.util.Optional.of((java.lang.Object)new com.mojang.blaze3d.platform.VideoMode($$2.fullscreenWidth.getAsInt(), $$2.fullscreenHeight.getAsInt(), 8, 8, 8, 60)) : java.util.Optional.empty());
++        this.actuallyFullscreen = this.fullscreen = $$2.isFullscreen;
++        com.mojang.blaze3d.platform.Monitor $$6 = $$1.getMonitor(org.lwjgl.glfw.GLFW.glfwGetPrimaryMonitor());
++        this.width = $$2.width > 0 ? $$2.width : 1;
+         this.windowedWidth = this.width;
+-        this.height = displayData.height > 0 ? displayData.height : 1;
++        this.height = $$2.height > 0 ? $$2.height : 1;
+         this.windowedHeight = this.height;
+         org.lwjgl.glfw.GLFW.glfwDefaultWindowHints();
+         org.lwjgl.glfw.GLFW.glfwWindowHint((int)139265, (int)196609);
+@@ -56,23 +55,23 @@
+         org.lwjgl.glfw.GLFW.glfwWindowHint((int)139267, (int)2);
+         org.lwjgl.glfw.GLFW.glfwWindowHint((int)139272, (int)204801);
+         org.lwjgl.glfw.GLFW.glfwWindowHint((int)139270, (int)1);
+-        this.window = org.lwjgl.glfw.GLFW.glfwCreateWindow((int)this.width, (int)this.height, (java.lang.CharSequence)title, (long)(this.fullscreen && monitor != null ? monitor.getMonitor() : 0L), (long)0L);
+-        if (monitor != null) {
+-            object = monitor.getPreferredVidMode(this.fullscreen ? this.preferredFullscreenVideoMode : java.util.Optional.empty());
+-            this.windowedX = this.x = monitor.getX() + object.getWidth() / 2 - this.width / 2;
+-            this.windowedY = this.y = monitor.getY() + object.getHeight() / 2 - this.height / 2;
++        this.window = org.lwjgl.glfw.GLFW.glfwCreateWindow((int)this.width, (int)this.height, (java.lang.CharSequence)$$4, (long)(this.fullscreen && $$6 != null ? $$6.getMonitor() : 0L), (long)0L);
++        if ($$6 != null) {
++            com.mojang.blaze3d.platform.VideoMode $$7 = $$6.getPreferredVidMode(this.fullscreen ? this.preferredFullscreenVideoMode : java.util.Optional.empty());
++            this.windowedX = this.x = $$6.getX() + $$7.getWidth() / 2 - this.width / 2;
++            this.windowedY = this.y = $$6.getY() + $$7.getHeight() / 2 - this.height / 2;
+         } else {
+-            object = new int[1];
+-            int[] nArray = new int[1];
+-            org.lwjgl.glfw.GLFW.glfwGetWindowPos((long)this.window, (int[])object, (int[])nArray);
+-            this.windowedX = this.x = object[0];
+-            this.windowedY = this.y = nArray[0];
++            int[] $$8 = new int[1];
++            int[] $$9 = new int[1];
++            org.lwjgl.glfw.GLFW.glfwGetWindowPos((long)this.window, (int[])$$8, (int[])$$9);
++            this.windowedX = this.x = $$8[0];
++            this.windowedY = this.y = $$9[0];
+         }
+         org.lwjgl.glfw.GLFW.glfwMakeContextCurrent((long)this.window);
+-        object = java.util.Locale.getDefault((java.util.Locale$Category)java.util.Locale$Category.FORMAT);
++        java.util.Locale $$10 = java.util.Locale.getDefault((java.util.Locale$Category)java.util.Locale$Category.FORMAT);
+         java.util.Locale.setDefault((java.util.Locale$Category)java.util.Locale$Category.FORMAT, (java.util.Locale)java.util.Locale.ROOT);
+         org.lwjgl.opengl.GL.createCapabilities();
+-        java.util.Locale.setDefault((java.util.Locale$Category)java.util.Locale$Category.FORMAT, (java.util.Locale)object);
++        java.util.Locale.setDefault((java.util.Locale$Category)java.util.Locale$Category.FORMAT, (java.util.Locale)$$10);
+         this.setMode();
+         this.refreshFramebufferSize();
+         org.lwjgl.glfw.GLFW.glfwSetFramebufferSizeCallback((long)this.window, (arg_0, arg_1, arg_2) -> this.onFramebufferResize(arg_0, arg_1, arg_2));
+@@ -91,82 +90,103 @@
+         return com.mojang.blaze3d.platform.GLX._shouldClose((com.mojang.blaze3d.platform.Window)this);
+     }
+ 
+-    public static void checkGlfwError(java.util.function.BiConsumer<java.lang.Integer, java.lang.String> errorConsumer) {
++    public static void checkGlfwError(java.util.function.BiConsumer<java.lang.Integer, java.lang.String> $$0) {
+         com.mojang.blaze3d.systems.RenderSystem.assertInInitPhase();
+-        try (org.lwjgl.system.MemoryStack memoryStack = org.lwjgl.system.MemoryStack.stackPush();
++        try (org.lwjgl.system.MemoryStack $$1 = org.lwjgl.system.MemoryStack.stackPush();
+ ){
+-            org.lwjgl.PointerBuffer pointerBuffer = memoryStack.mallocPointer(1);
+-            int n = org.lwjgl.glfw.GLFW.glfwGetError((org.lwjgl.PointerBuffer)pointerBuffer);
+-            if (n != 0) {
+-                long l = pointerBuffer.get();
+-                java.lang.String string = l == 0L ? "" : org.lwjgl.system.MemoryUtil.memUTF8((long)l);
+-                errorConsumer.accept((java.lang.Object)n, (java.lang.Object)string);
++            org.lwjgl.PointerBuffer $$2 = $$1.mallocPointer(1);
++            int $$3 = org.lwjgl.glfw.GLFW.glfwGetError((org.lwjgl.PointerBuffer)$$2);
++            if ($$3 != 0) {
++                long $$4 = $$2.get();
++                java.lang.String $$5 = $$4 == 0L ? "" : org.lwjgl.system.MemoryUtil.memUTF8((long)$$4);
++                $$0.accept((java.lang.Object)$$3, (java.lang.Object)$$5);
+             }
+         }
+     }
+ 
+-    public void setIcon(java.io.InputStream iconStream16X, java.io.InputStream iconStream32X) {
++    public void setIcon(net.minecraft.server.packs.resources.IoSupplier<java.io.InputStream> $$0, net.minecraft.server.packs.resources.IoSupplier<java.io.InputStream> $$1) {
+         com.mojang.blaze3d.systems.RenderSystem.assertInInitPhase();
+-        try (org.lwjgl.system.MemoryStack memoryStack = org.lwjgl.system.MemoryStack.stackPush();
++        try (org.lwjgl.system.MemoryStack $$2 = org.lwjgl.system.MemoryStack.stackPush();
+ ){
+-            if (iconStream16X == null) {
+-                throw new java.io.FileNotFoundException("icons/icon_16x16.png");
+-            }
+-            if (iconStream32X == null) {
+-                throw new java.io.FileNotFoundException("icons/icon_32x32.png");
+-            }
+-            java.nio.IntBuffer intBuffer = memoryStack.mallocInt(1);
+-            java.nio.IntBuffer intBuffer2 = memoryStack.mallocInt(1);
+-            java.nio.IntBuffer intBuffer3 = memoryStack.mallocInt(1);
+-            org.lwjgl.glfw.GLFWImage$Buffer buffer = org.lwjgl.glfw.GLFWImage.mallocStack((int)2, (org.lwjgl.system.MemoryStack)memoryStack);
+-            java.nio.ByteBuffer byteBuffer = this.readIconPixels(iconStream16X, intBuffer, intBuffer2, intBuffer3);
+-            if (byteBuffer == null) {
++            java.nio.IntBuffer $$3 = $$2.mallocInt(1);
++            java.nio.IntBuffer $$4 = $$2.mallocInt(1);
++            java.nio.IntBuffer $$5 = $$2.mallocInt(1);
++            org.lwjgl.glfw.GLFWImage$Buffer $$6 = org.lwjgl.glfw.GLFWImage.malloc((int)2, (org.lwjgl.system.MemoryStack)$$2);
++            java.nio.ByteBuffer $$7 = this.readIconPixels($$0, $$3, $$4, $$5);
++            if ($$7 == null) {
+                 throw new java.lang.IllegalStateException("Could not load icon: " + org.lwjgl.stb.STBImage.stbi_failure_reason());
+             }
+-            buffer.position(0);
+-            buffer.width(intBuffer.get(0));
+-            buffer.height(intBuffer2.get(0));
+-            buffer.pixels(byteBuffer);
+-            java.nio.ByteBuffer byteBuffer2 = this.readIconPixels(iconStream32X, intBuffer, intBuffer2, intBuffer3);
+-            if (byteBuffer2 == null) {
++            $$6.position(0);
++            $$6.width($$3.get(0));
++            $$6.height($$4.get(0));
++            $$6.pixels($$7);
++            java.nio.ByteBuffer $$8 = this.readIconPixels($$1, $$3, $$4, $$5);
++            if ($$8 == null) {
++                org.lwjgl.stb.STBImage.stbi_image_free((java.nio.ByteBuffer)$$7);
+                 throw new java.lang.IllegalStateException("Could not load icon: " + org.lwjgl.stb.STBImage.stbi_failure_reason());
+             }
+-            buffer.position(1);
+-            buffer.width(intBuffer.get(0));
+-            buffer.height(intBuffer2.get(0));
+-            buffer.pixels(byteBuffer2);
+-            buffer.position(0);
+-            org.lwjgl.glfw.GLFW.glfwSetWindowIcon((long)this.window, (org.lwjgl.glfw.GLFWImage$Buffer)buffer);
+-            org.lwjgl.stb.STBImage.stbi_image_free((java.nio.ByteBuffer)byteBuffer);
+-            org.lwjgl.stb.STBImage.stbi_image_free((java.nio.ByteBuffer)byteBuffer2);
++            $$6.position(1);
++            $$6.width($$3.get(0));
++            $$6.height($$4.get(0));
++            $$6.pixels($$8);
++            $$6.position(0);
++            org.lwjgl.glfw.GLFW.glfwSetWindowIcon((long)this.window, (org.lwjgl.glfw.GLFWImage$Buffer)$$6);
++            org.lwjgl.stb.STBImage.stbi_image_free((java.nio.ByteBuffer)$$7);
++            org.lwjgl.stb.STBImage.stbi_image_free((java.nio.ByteBuffer)$$8);
+         }
+-        catch (java.io.IOException iOException) {
+-            LOGGER.error("Couldn't set icon", (java.lang.Throwable)iOException);
++        catch (java.io.IOException $$9) {
++            LOGGER.error("Couldn't set icon", (java.lang.Throwable)$$9);
+         }
+     }
+ 
+     /*
+-     * WARNING - Removed try catching itself - possible behaviour change.
++     * Loose catch block
+      */
+     @javax.annotation.Nullable
+-    public java.nio.ByteBuffer readIconPixels(java.io.InputStream textureStream, java.nio.IntBuffer x, java.nio.IntBuffer y, java.nio.IntBuffer channelInFile) throws java.io.IOException {
+-        com.mojang.blaze3d.systems.RenderSystem.assertInInitPhase();
+-        java.nio.ByteBuffer byteBuffer = null;
+-        try {
+-            byteBuffer = com.mojang.blaze3d.platform.TextureUtil.readResource((java.io.InputStream)textureStream);
+-            byteBuffer.rewind();
+-            java.nio.ByteBuffer byteBuffer2 = org.lwjgl.stb.STBImage.stbi_load_from_memory((java.nio.ByteBuffer)byteBuffer, (java.nio.IntBuffer)x, (java.nio.IntBuffer)y, (java.nio.IntBuffer)channelInFile, (int)0);
+-            return byteBuffer2;
++    public java.nio.ByteBuffer readIconPixels(net.minecraft.server.packs.resources.IoSupplier<java.io.InputStream> $$0, java.nio.IntBuffer $$1, java.nio.IntBuffer $$2, java.nio.IntBuffer $$3) throws java.io.IOException {
++        java.nio.ByteBuffer byteBuffer;
++        java.io.InputStream $$5;
++        java.nio.ByteBuffer $$4;
++block10:        {
++block9:            {
++                com.mojang.blaze3d.systems.RenderSystem.assertInInitPhase();
++                $$4 = null;
++                $$5 = (java.io.InputStream)$$0.get();
++                $$4 = com.mojang.blaze3d.platform.TextureUtil.readResource((java.io.InputStream)$$5);
++                $$4.rewind();
++                byteBuffer = org.lwjgl.stb.STBImage.stbi_load_from_memory((java.nio.ByteBuffer)$$4, (java.nio.IntBuffer)$$1, (java.nio.IntBuffer)$$2, (java.nio.IntBuffer)$$3, (int)0);
++                if ($$5 == null) break block9;
++                $$5.close();
++            }
++            if ($$4 == null) break block10;
++            org.lwjgl.system.MemoryUtil.memFree((java.nio.Buffer)$$4);
+         }
+-        finally {
+-            if (byteBuffer != null) {
+-                org.lwjgl.system.MemoryUtil.memFree((java.nio.Buffer)byteBuffer);
++        return byteBuffer;
++        {
++            catch (java.lang.Throwable throwable) {
++                try {
++                    if ($$5 != null) {
++                        try {
++                            $$5.close();
++                        }
++                        catch (java.lang.Throwable throwable2) {
++                            throwable.addSuppressed(throwable2);
++                        }
++                    }
++                    throw throwable;
++                }
++                catch (java.lang.Throwable throwable3) {
++                    if ($$4 != null) {
++                        org.lwjgl.system.MemoryUtil.memFree($$4);
++                    }
++                    throw throwable3;
++                }
+             }
+         }
+     }
+ 
+-    public void setErrorSection(java.lang.String errorSection) {
+-        this.errorSection = errorSection;
++    public void setErrorSection(java.lang.String $$0) {
++        this.errorSection = $$0;
+     }
+ 
+     public void setBootErrorCallback() {
+@@ -174,19 +194,19 @@
+         org.lwjgl.glfw.GLFW.glfwSetErrorCallback(com.mojang.blaze3d.platform.Window::bootCrash);
+     }
+ 
+-    public static void bootCrash(int error, long description) {
++    public static void bootCrash(int $$0, long $$1) {
+         com.mojang.blaze3d.systems.RenderSystem.assertInInitPhase();
+-        java.lang.String string = "GLFW error " + error + ": " + org.lwjgl.system.MemoryUtil.memUTF8((long)description);
+-        org.lwjgl.util.tinyfd.TinyFileDialogs.tinyfd_messageBox((java.lang.CharSequence)"Minecraft", (java.lang.CharSequence)(string + ".\n\nPlease make sure you have up-to-date drivers (see aka.ms/mcdriver for instructions)."), (java.lang.CharSequence)"ok", (java.lang.CharSequence)"error", (boolean)false);
+-        throw new com.mojang.blaze3d.platform.Window$WindowInitFailed(string);
++        java.lang.String $$2 = "GLFW error " + $$0 + ": " + org.lwjgl.system.MemoryUtil.memUTF8((long)$$1);
++        org.lwjgl.util.tinyfd.TinyFileDialogs.tinyfd_messageBox((java.lang.CharSequence)"Minecraft", (java.lang.CharSequence)($$2 + ".\n\nPlease make sure you have up-to-date drivers (see aka.ms/mcdriver for instructions)."), (java.lang.CharSequence)"ok", (java.lang.CharSequence)"error", (boolean)false);
++        throw new com.mojang.blaze3d.platform.Window$WindowInitFailed($$2);
+     }
+ 
+-    public void defaultErrorCallback(int error, long description) {
++    public void defaultErrorCallback(int $$0, long $$1) {
+         com.mojang.blaze3d.systems.RenderSystem.assertOnRenderThread();
+-        java.lang.String string = org.lwjgl.system.MemoryUtil.memUTF8((long)description);
++        java.lang.String $$2 = org.lwjgl.system.MemoryUtil.memUTF8((long)$$1);
+         LOGGER.error("########## GL ERROR ##########");
+         LOGGER.error("@ {}", (java.lang.Object)this.errorSection);
+-        LOGGER.error("{}: {}", (java.lang.Object)error, (java.lang.Object)string);
++        LOGGER.error("{}: {}", (java.lang.Object)$$0, (java.lang.Object)$$2);
+     }
+ 
+     public void setDefaultErrorCallback() {
+@@ -196,10 +216,10 @@
+         }
+     }
+ 
+-    public void updateVsync(boolean vsync) {
++    public void updateVsync(boolean $$0) {
+         com.mojang.blaze3d.systems.RenderSystem.assertOnRenderThreadOrInit();
+-        this.vsync = vsync;
+-        org.lwjgl.glfw.GLFW.glfwSwapInterval((int)(vsync ? 1 : 0));
++        this.vsync = $$0;
++        org.lwjgl.glfw.GLFW.glfwSwapInterval((int)($$0 ? 1 : 0));
+     }
+ 
+     public void close() {
+@@ -210,23 +230,23 @@
+         org.lwjgl.glfw.GLFW.glfwTerminate();
+     }
+ 
+-    public void onMove(long window, int x, int y) {
+-        this.x = x;
+-        this.y = y;
++    public void onMove(long $$0, int $$1, int $$2) {
++        this.x = $$1;
++        this.y = $$2;
+     }
+ 
+-    public void onFramebufferResize(long window, int framebufferWidth, int framebufferHeight) {
+-        if (window != this.window) {
++    public void onFramebufferResize(long $$0, int $$1, int $$2) {
++        if ($$0 != this.window) {
+             return;
+         }
+-        int n = this.getWidth();
+-        int n2 = this.getHeight();
+-        if (framebufferWidth == 0 || framebufferHeight == 0) {
++        int $$3 = this.getWidth();
++        int $$4 = this.getHeight();
++        if ($$1 == 0 || $$2 == 0) {
+             return;
+         }
+-        this.framebufferWidth = framebufferWidth;
+-        this.framebufferHeight = framebufferHeight;
+-        if (this.getWidth() != n || this.getHeight() != n2) {
++        this.framebufferWidth = $$1;
++        this.framebufferHeight = $$2;
++        if (this.getWidth() != $$3 || this.getHeight() != $$4) {
+             this.eventHandler.resizeDisplay();
+         }
+     }
+@@ -240,25 +260,25 @@
+         this.framebufferHeight = $$1[0] > 0 ? $$1[0] : 1;
+     }
+ 
+-    public void onResize(long window, int width, int height) {
+-        this.width = width;
+-        this.height = height;
++    public void onResize(long $$0, int $$1, int $$2) {
++        this.width = $$1;
++        this.height = $$2;
+     }
+ 
+-    public void onFocus(long window, boolean hasFocus) {
+-        if (window == this.window) {
+-            this.eventHandler.setWindowActive(hasFocus);
++    public void onFocus(long $$0, boolean $$1) {
++        if ($$0 == this.window) {
++            this.eventHandler.setWindowActive($$1);
+         }
+     }
+ 
+-    public void onEnter(long window, boolean cursorEntered) {
+-        if (cursorEntered) {
++    public void onEnter(long $$0, boolean $$1) {
++        if ($$1) {
+             this.eventHandler.cursorEntered();
+         }
+     }
+ 
+-    public void setFramerateLimit(int limit) {
+-        this.framerateLimit = limit;
++    public void setFramerateLimit(int $$0) {
++        this.framerateLimit = $$0;
+     }
+ 
+     public int getFramerateLimit() {
+@@ -277,10 +297,10 @@
+         return this.preferredFullscreenVideoMode;
+     }
+ 
+-    public void setPreferredFullscreenVideoMode(java.util.Optional<com.mojang.blaze3d.platform.VideoMode> preferredFullscreenVideoMode) {
+-        boolean bl = !preferredFullscreenVideoMode.equals((java.lang.Object)this.preferredFullscreenVideoMode);
+-        this.preferredFullscreenVideoMode = preferredFullscreenVideoMode;
+-        if (bl) {
++    public void setPreferredFullscreenVideoMode(java.util.Optional<com.mojang.blaze3d.platform.VideoMode> $$0) {
++        boolean $$1 = !$$0.equals((java.lang.Object)this.preferredFullscreenVideoMode);
++        this.preferredFullscreenVideoMode = $$0;
++        if ($$1) {
+             this.dirty = true;
+         }
+     }
+@@ -339,40 +359,40 @@
+         this.setMode();
+     }
+ 
+-    public void updateFullscreen(boolean vsyncEnabled) {
++    public void updateFullscreen(boolean $$0) {
+         com.mojang.blaze3d.systems.RenderSystem.assertOnRenderThread();
+         try {
+             this.setMode();
+             this.eventHandler.resizeDisplay();
+-            this.updateVsync(vsyncEnabled);
++            this.updateVsync($$0);
+             this.updateDisplay();
+         }
+-        catch (java.lang.Exception exception) {
+-            LOGGER.error("Couldn't toggle fullscreen", (java.lang.Throwable)exception);
++        catch (java.lang.Exception $$1) {
++            LOGGER.error("Couldn't toggle fullscreen", (java.lang.Throwable)$$1);
+         }
+     }
+ 
+-    public int calculateScale(int guiScale, boolean forceUnicode) {
+-        int n;
+-        for (n = 1;
+- n != guiScale && n < this.framebufferWidth && n < this.framebufferHeight && this.framebufferWidth / (n + 1) >= 320 && this.framebufferHeight / (n + 1) >= 240; ++n) {
++    public int calculateScale(int $$0, boolean $$1) {
++        int $$2;
++        for ($$2 = 1;
++ $$2 != $$0 && $$2 < this.framebufferWidth && $$2 < this.framebufferHeight && this.framebufferWidth / ($$2 + 1) >= 320 && this.framebufferHeight / ($$2 + 1) >= 240; ++$$2) {
+         }
+-        if (forceUnicode && n % 2 != 0) {
+-            ++n;
++        if ($$1 && $$2 % 2 != 0) {
++            ++$$2;
+         }
+-        return n;
++        return $$2;
+     }
+ 
+-    public void setGuiScale(double scaleFactor) {
+-        this.guiScale = scaleFactor;
+-        int n = (int)((double)this.framebufferWidth / scaleFactor);
+-        this.guiScaledWidth = (double)this.framebufferWidth / scaleFactor > (double)n ? n + 1 : n;
+-        int n2 = (int)((double)this.framebufferHeight / scaleFactor);
+-        this.guiScaledHeight = (double)this.framebufferHeight / scaleFactor > (double)n2 ? n2 + 1 : n2;
++    public void setGuiScale(double $$0) {
++        this.guiScale = $$0;
++        int $$1 = (int)((double)this.framebufferWidth / $$0);
++        this.guiScaledWidth = (double)this.framebufferWidth / $$0 > (double)$$1 ? $$1 + 1 : $$1;
++        int $$2 = (int)((double)this.framebufferHeight / $$0);
++        this.guiScaledHeight = (double)this.framebufferHeight / $$0 > (double)$$2 ? $$2 + 1 : $$2;
+     }
+ 
+-    public void setTitle(java.lang.String title) {
+-        org.lwjgl.glfw.GLFW.glfwSetWindowTitle((long)this.window, (java.lang.CharSequence)title);
++    public void setTitle(java.lang.String $$0) {
++        org.lwjgl.glfw.GLFW.glfwSetWindowTitle((long)this.window, (java.lang.CharSequence)$$0);
+     }
+ 
+     public long getWindow() {
+@@ -432,8 +452,8 @@
+         return this.screenManager.findBestMonitor(this);
+     }
+ 
+-    public void updateRawMouseInput(boolean enableRawMouseMotion) {
+-        com.mojang.blaze3d.platform.InputConstants.updateRawMouseInput((long)this.window, (boolean)enableRawMouseMotion);
++    public void updateRawMouseInput(boolean $$0) {
++        com.mojang.blaze3d.platform.InputConstants.updateRawMouseInput((long)this.window, (boolean)$$0);
+     }
+ 
+     static {

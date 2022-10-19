@@ -1,0 +1,65 @@
+--- net/minecraft/data/DataGenerator.java
++++ net/minecraft/data/DataGenerator.java
+@@ -6,36 +6,24 @@
+ public class net.minecraft.data.DataGenerator
+  {
+     public static org.slf4j.Logger LOGGER;
+-    public java.util.Collection<java.nio.file.Path> inputFolders;
+-    public java.nio.file.Path outputFolder;
++    public java.nio.file.Path rootOutputFolder;
++    public net.minecraft.data.PackOutput vanillaPackOutput;
+     public java.util.List<net.minecraft.data.DataProvider> allProviders;
+     public java.util.List<net.minecraft.data.DataProvider> providersToRun;
+     public net.minecraft.WorldVersion version;
+     public boolean alwaysGenerate;
+ 
+-    public net.minecraft.data.DataGenerator(java.nio.file.Path $$0, java.util.Collection<java.nio.file.Path> $$1, net.minecraft.WorldVersion $$2, boolean $$3) {
++    public net.minecraft.data.DataGenerator(java.nio.file.Path $$0, net.minecraft.WorldVersion $$1, boolean $$2) {
+         this.allProviders = com.google.common.collect.Lists.newArrayList();
+         this.providersToRun = com.google.common.collect.Lists.newArrayList();
+-        this.outputFolder = $$0;
+-        this.inputFolders = $$1;
+-        this.version = $$2;
+-        this.alwaysGenerate = $$3;
++        this.rootOutputFolder = $$0;
++        this.vanillaPackOutput = new net.minecraft.data.PackOutput(this.rootOutputFolder);
++        this.version = $$1;
++        this.alwaysGenerate = $$2;
+     }
+ 
+-    public java.util.Collection<java.nio.file.Path> getInputFolders() {
+-        return this.inputFolders;
+-    }
+-
+-    public java.nio.file.Path getOutputFolder() {
+-        return this.outputFolder;
+-    }
+-
+-    public java.nio.file.Path getOutputFolder(net.minecraft.data.DataGenerator$Target $$0) {
+-        return this.getOutputFolder().resolve($$0.directory);
+-    }
+-
+     public void run() throws java.io.IOException {
+-        net.minecraft.data.HashCache $$0 = new net.minecraft.data.HashCache(this.outputFolder, this.allProviders, this.version);
++        net.minecraft.data.HashCache $$0 = new net.minecraft.data.HashCache(this.rootOutputFolder, this.allProviders, this.version);
+         com.google.common.base.Stopwatch $$1 = com.google.common.base.Stopwatch.createStarted();
+         com.google.common.base.Stopwatch $$2 = com.google.common.base.Stopwatch.createUnstarted();
+         for (net.minecraft.data.DataProvider $$3 : this.providersToRun) {
+@@ -61,10 +49,15 @@
+         this.allProviders.add((java.lang.Object)$$1);
+     }
+ 
+-    public net.minecraft.data.DataGenerator$PathProvider createPathProvider(net.minecraft.data.DataGenerator$Target $$0, java.lang.String $$1) {
+-        return new net.minecraft.data.DataGenerator$PathProvider(this, $$0, $$1);
++    public net.minecraft.data.PackOutput getVanillaPackOutput() {
++        return this.vanillaPackOutput;
+     }
+ 
++    public net.minecraft.data.PackOutput createBuiltinDatapackOutput(java.lang.String $$0) {
++        java.nio.file.Path $$1 = this.vanillaPackOutput.getOutputFolder(net.minecraft.data.PackOutput$Target.DATA_PACK).resolve("minecraft").resolve("datapacks").resolve($$0);
++        return new net.minecraft.data.PackOutput($$1);
++    }
++
+     static {
+         LOGGER = com.mojang.logging.LogUtils.getLogger();
+         net.minecraft.server.Bootstrap.bootStrap();

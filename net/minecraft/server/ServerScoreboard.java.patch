@@ -1,0 +1,199 @@
+--- net/minecraft/server/ServerScoreboard.java
++++ net/minecraft/server/ServerScoreboard.java
+@@ -16,104 +16,104 @@
+         this.server = $$0;
+     }
+ 
+-    public void onScoreChanged(net.minecraft.world.scores.Score score) {
+-        super.onScoreChanged(score);
+-        if (this.trackedObjectives.contains((java.lang.Object)score.getObjective())) {
+-            this.server.getPlayerList().broadcastAll((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ClientboundSetScorePacket(net.minecraft.server.ServerScoreboard$Method.CHANGE, score.getObjective().getName(), score.getOwner(), score.getScore()));
++    public void onScoreChanged(net.minecraft.world.scores.Score $$0) {
++        super.onScoreChanged($$0);
++        if (this.trackedObjectives.contains((java.lang.Object)$$0.getObjective())) {
++            this.server.getPlayerList().broadcastAll((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ClientboundSetScorePacket(net.minecraft.server.ServerScoreboard$Method.CHANGE, $$0.getObjective().getName(), $$0.getOwner(), $$0.getScore()));
+         }
+         this.setDirty();
+     }
+ 
+-    public void onPlayerRemoved(java.lang.String scoreName) {
+-        super.onPlayerRemoved(scoreName);
+-        this.server.getPlayerList().broadcastAll((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ClientboundSetScorePacket(net.minecraft.server.ServerScoreboard$Method.REMOVE, null, scoreName, 0));
++    public void onPlayerRemoved(java.lang.String $$0) {
++        super.onPlayerRemoved($$0);
++        this.server.getPlayerList().broadcastAll((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ClientboundSetScorePacket(net.minecraft.server.ServerScoreboard$Method.REMOVE, null, $$0, 0));
+         this.setDirty();
+     }
+ 
+-    public void onPlayerScoreRemoved(java.lang.String scoreName, net.minecraft.world.scores.Objective objective) {
+-        super.onPlayerScoreRemoved(scoreName, objective);
+-        if (this.trackedObjectives.contains((java.lang.Object)objective)) {
+-            this.server.getPlayerList().broadcastAll((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ClientboundSetScorePacket(net.minecraft.server.ServerScoreboard$Method.REMOVE, objective.getName(), scoreName, 0));
++    public void onPlayerScoreRemoved(java.lang.String $$0, net.minecraft.world.scores.Objective $$1) {
++        super.onPlayerScoreRemoved($$0, $$1);
++        if (this.trackedObjectives.contains((java.lang.Object)$$1)) {
++            this.server.getPlayerList().broadcastAll((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ClientboundSetScorePacket(net.minecraft.server.ServerScoreboard$Method.REMOVE, $$1.getName(), $$0, 0));
+         }
+         this.setDirty();
+     }
+ 
+-    public void setDisplayObjective(int objectiveSlot, @javax.annotation.Nullable net.minecraft.world.scores.Objective objective) {
+-        net.minecraft.world.scores.Objective objective2 = this.getDisplayObjective(objectiveSlot);
+-        super.setDisplayObjective(objectiveSlot, objective);
+-        if (objective2 != objective && objective2 != null) {
+-            if (this.getObjectiveDisplaySlotCount(objective2) > 0) {
+-                this.server.getPlayerList().broadcastAll((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ClientboundSetDisplayObjectivePacket(objectiveSlot, objective));
++    public void setDisplayObjective(int $$0, @javax.annotation.Nullable net.minecraft.world.scores.Objective $$1) {
++        net.minecraft.world.scores.Objective $$2 = this.getDisplayObjective($$0);
++        super.setDisplayObjective($$0, $$1);
++        if ($$2 != $$1 && $$2 != null) {
++            if (this.getObjectiveDisplaySlotCount($$2) > 0) {
++                this.server.getPlayerList().broadcastAll((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ClientboundSetDisplayObjectivePacket($$0, $$1));
+             } else {
+-                this.stopTrackingObjective(objective2);
++                this.stopTrackingObjective($$2);
+             }
+         }
+-        if (objective != null) {
+-            if (this.trackedObjectives.contains((java.lang.Object)objective)) {
+-                this.server.getPlayerList().broadcastAll((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ClientboundSetDisplayObjectivePacket(objectiveSlot, objective));
++        if ($$1 != null) {
++            if (this.trackedObjectives.contains((java.lang.Object)$$1)) {
++                this.server.getPlayerList().broadcastAll((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ClientboundSetDisplayObjectivePacket($$0, $$1));
+             } else {
+-                this.startTrackingObjective(objective);
++                this.startTrackingObjective($$1);
+             }
+         }
+         this.setDirty();
+     }
+ 
+-    public boolean addPlayerToTeam(java.lang.String playerName, net.minecraft.world.scores.PlayerTeam team) {
+-        if (super.addPlayerToTeam(playerName, team)) {
+-            this.server.getPlayerList().broadcastAll((net.minecraft.network.protocol.Packet)net.minecraft.network.protocol.game.ClientboundSetPlayerTeamPacket.createPlayerPacket((net.minecraft.world.scores.PlayerTeam)team, (java.lang.String)playerName, (net.minecraft.network.protocol.game.ClientboundSetPlayerTeamPacket$Action)net.minecraft.network.protocol.game.ClientboundSetPlayerTeamPacket$Action.ADD));
++    public boolean addPlayerToTeam(java.lang.String $$0, net.minecraft.world.scores.PlayerTeam $$1) {
++        if (super.addPlayerToTeam($$0, $$1)) {
++            this.server.getPlayerList().broadcastAll((net.minecraft.network.protocol.Packet)net.minecraft.network.protocol.game.ClientboundSetPlayerTeamPacket.createPlayerPacket((net.minecraft.world.scores.PlayerTeam)$$1, (java.lang.String)$$0, (net.minecraft.network.protocol.game.ClientboundSetPlayerTeamPacket$Action)net.minecraft.network.protocol.game.ClientboundSetPlayerTeamPacket$Action.ADD));
+             this.setDirty();
+             return true;
+         }
+         return false;
+     }
+ 
+-    public void removePlayerFromTeam(java.lang.String username, net.minecraft.world.scores.PlayerTeam playerTeam) {
+-        super.removePlayerFromTeam(username, playerTeam);
+-        this.server.getPlayerList().broadcastAll((net.minecraft.network.protocol.Packet)net.minecraft.network.protocol.game.ClientboundSetPlayerTeamPacket.createPlayerPacket((net.minecraft.world.scores.PlayerTeam)playerTeam, (java.lang.String)username, (net.minecraft.network.protocol.game.ClientboundSetPlayerTeamPacket$Action)net.minecraft.network.protocol.game.ClientboundSetPlayerTeamPacket$Action.REMOVE));
++    public void removePlayerFromTeam(java.lang.String $$0, net.minecraft.world.scores.PlayerTeam $$1) {
++        super.removePlayerFromTeam($$0, $$1);
++        this.server.getPlayerList().broadcastAll((net.minecraft.network.protocol.Packet)net.minecraft.network.protocol.game.ClientboundSetPlayerTeamPacket.createPlayerPacket((net.minecraft.world.scores.PlayerTeam)$$1, (java.lang.String)$$0, (net.minecraft.network.protocol.game.ClientboundSetPlayerTeamPacket$Action)net.minecraft.network.protocol.game.ClientboundSetPlayerTeamPacket$Action.REMOVE));
+         this.setDirty();
+     }
+ 
+-    public void onObjectiveAdded(net.minecraft.world.scores.Objective objective) {
+-        super.onObjectiveAdded(objective);
++    public void onObjectiveAdded(net.minecraft.world.scores.Objective $$0) {
++        super.onObjectiveAdded($$0);
+         this.setDirty();
+     }
+ 
+-    public void onObjectiveChanged(net.minecraft.world.scores.Objective objective) {
+-        super.onObjectiveChanged(objective);
+-        if (this.trackedObjectives.contains((java.lang.Object)objective)) {
+-            this.server.getPlayerList().broadcastAll((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ClientboundSetObjectivePacket(objective, 2));
++    public void onObjectiveChanged(net.minecraft.world.scores.Objective $$0) {
++        super.onObjectiveChanged($$0);
++        if (this.trackedObjectives.contains((java.lang.Object)$$0)) {
++            this.server.getPlayerList().broadcastAll((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ClientboundSetObjectivePacket($$0, 2));
+         }
+         this.setDirty();
+     }
+ 
+-    public void onObjectiveRemoved(net.minecraft.world.scores.Objective objective) {
+-        super.onObjectiveRemoved(objective);
+-        if (this.trackedObjectives.contains((java.lang.Object)objective)) {
+-            this.stopTrackingObjective(objective);
++    public void onObjectiveRemoved(net.minecraft.world.scores.Objective $$0) {
++        super.onObjectiveRemoved($$0);
++        if (this.trackedObjectives.contains((java.lang.Object)$$0)) {
++            this.stopTrackingObjective($$0);
+         }
+         this.setDirty();
+     }
+ 
+-    public void onTeamAdded(net.minecraft.world.scores.PlayerTeam playerTeam) {
+-        super.onTeamAdded(playerTeam);
+-        this.server.getPlayerList().broadcastAll((net.minecraft.network.protocol.Packet)net.minecraft.network.protocol.game.ClientboundSetPlayerTeamPacket.createAddOrModifyPacket((net.minecraft.world.scores.PlayerTeam)playerTeam, (boolean)true));
++    public void onTeamAdded(net.minecraft.world.scores.PlayerTeam $$0) {
++        super.onTeamAdded($$0);
++        this.server.getPlayerList().broadcastAll((net.minecraft.network.protocol.Packet)net.minecraft.network.protocol.game.ClientboundSetPlayerTeamPacket.createAddOrModifyPacket((net.minecraft.world.scores.PlayerTeam)$$0, (boolean)true));
+         this.setDirty();
+     }
+ 
+-    public void onTeamChanged(net.minecraft.world.scores.PlayerTeam playerTeam) {
+-        super.onTeamChanged(playerTeam);
+-        this.server.getPlayerList().broadcastAll((net.minecraft.network.protocol.Packet)net.minecraft.network.protocol.game.ClientboundSetPlayerTeamPacket.createAddOrModifyPacket((net.minecraft.world.scores.PlayerTeam)playerTeam, (boolean)false));
++    public void onTeamChanged(net.minecraft.world.scores.PlayerTeam $$0) {
++        super.onTeamChanged($$0);
++        this.server.getPlayerList().broadcastAll((net.minecraft.network.protocol.Packet)net.minecraft.network.protocol.game.ClientboundSetPlayerTeamPacket.createAddOrModifyPacket((net.minecraft.world.scores.PlayerTeam)$$0, (boolean)false));
+         this.setDirty();
+     }
+ 
+-    public void onTeamRemoved(net.minecraft.world.scores.PlayerTeam playerTeam) {
+-        super.onTeamRemoved(playerTeam);
+-        this.server.getPlayerList().broadcastAll((net.minecraft.network.protocol.Packet)net.minecraft.network.protocol.game.ClientboundSetPlayerTeamPacket.createRemovePacket((net.minecraft.world.scores.PlayerTeam)playerTeam));
++    public void onTeamRemoved(net.minecraft.world.scores.PlayerTeam $$0) {
++        super.onTeamRemoved($$0);
++        this.server.getPlayerList().broadcastAll((net.minecraft.network.protocol.Packet)net.minecraft.network.protocol.game.ClientboundSetPlayerTeamPacket.createRemovePacket((net.minecraft.world.scores.PlayerTeam)$$0));
+         this.setDirty();
+     }
+ 
+-    public void addDirtyListener(java.lang.Runnable runnable) {
+-        this.dirtyListeners.add((java.lang.Object)runnable);
++    public void addDirtyListener(java.lang.Runnable $$0) {
++        this.dirtyListeners.add((java.lang.Object)$$0);
+     }
+ 
+     public void setDirty() {
+@@ -122,27 +122,27 @@
+         }
+     }
+ 
+-    public java.util.List<net.minecraft.network.protocol.Packet<?>> getStartTrackingPackets(net.minecraft.world.scores.Objective objective) {
+-        java.util.ArrayList arrayList = com.google.common.collect.Lists.newArrayList();
+-        arrayList.add((java.lang.Object)new net.minecraft.network.protocol.game.ClientboundSetObjectivePacket(objective, 0));
+-        for (int i = 0; i < 19; ++i) {
+-            if (this.getDisplayObjective(i) != objective) continue;
+-            arrayList.add((java.lang.Object)new net.minecraft.network.protocol.game.ClientboundSetDisplayObjectivePacket(i, objective));
++    public java.util.List<net.minecraft.network.protocol.Packet<?>> getStartTrackingPackets(net.minecraft.world.scores.Objective $$0) {
++        java.util.ArrayList $$1 = com.google.common.collect.Lists.newArrayList();
++        $$1.add((java.lang.Object)new net.minecraft.network.protocol.game.ClientboundSetObjectivePacket($$0, 0));
++        for (int $$2 = 0; $$2 < 19; ++$$2) {
++            if (this.getDisplayObjective($$2) != $$0) continue;
++            $$1.add((java.lang.Object)new net.minecraft.network.protocol.game.ClientboundSetDisplayObjectivePacket($$2, $$0));
+         }
+-        for (net.minecraft.world.scores.Score score : this.getPlayerScores(objective)) {
+-            arrayList.add((java.lang.Object)new net.minecraft.network.protocol.game.ClientboundSetScorePacket(net.minecraft.server.ServerScoreboard$Method.CHANGE, score.getObjective().getName(), score.getOwner(), score.getScore()));
++        for (net.minecraft.world.scores.Score $$3 : this.getPlayerScores($$0)) {
++            $$1.add((java.lang.Object)new net.minecraft.network.protocol.game.ClientboundSetScorePacket(net.minecraft.server.ServerScoreboard$Method.CHANGE, $$3.getObjective().getName(), $$3.getOwner(), $$3.getScore()));
+         }
+-        return arrayList;
++        return $$1;
+     }
+ 
+-    public void startTrackingObjective(net.minecraft.world.scores.Objective objective) {
+-        java.util.List list = this.getStartTrackingPackets(objective);
+-        for (net.minecraft.server.level.ServerPlayer serverPlayer : this.server.getPlayerList().getPlayers()) {
+-            for (net.minecraft.network.protocol.Packet packet : list) {
+-                serverPlayer.connection.send(packet);
++    public void startTrackingObjective(net.minecraft.world.scores.Objective $$0) {
++        java.util.List $$1 = this.getStartTrackingPackets($$0);
++        for (net.minecraft.server.level.ServerPlayer $$2 : this.server.getPlayerList().getPlayers()) {
++            for (net.minecraft.network.protocol.Packet $$3 : $$1) {
++                $$2.connection.send($$3);
+             }
+         }
+-        this.trackedObjectives.add((java.lang.Object)objective);
++        this.trackedObjectives.add((java.lang.Object)$$0);
+     }
+ 
+     public java.util.List<net.minecraft.network.protocol.Packet<?>> getStopTrackingPackets(net.minecraft.world.scores.Objective $$0) {

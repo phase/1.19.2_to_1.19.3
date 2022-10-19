@@ -1,0 +1,453 @@
+--- net/minecraft/world/level/block/piston/PistonBaseBlock.java
++++ net/minecraft/world/level/block/piston/PistonBaseBlock.java
+@@ -19,15 +19,15 @@
+     public static net.minecraft.world.phys.shapes.VoxelShape DOWN_AABB;
+     public boolean isSticky;
+ 
+-    public net.minecraft.world.level.block.piston.PistonBaseBlock(boolean isSticky, net.minecraft.world.level.block.state.BlockBehaviour$Properties properties) {
+-        super(properties);
++    public net.minecraft.world.level.block.piston.PistonBaseBlock(boolean $$0, net.minecraft.world.level.block.state.BlockBehaviour$Properties $$1) {
++        super($$1);
+         this.registerDefaultState((net.minecraft.world.level.block.state.BlockState)((net.minecraft.world.level.block.state.BlockState)((net.minecraft.world.level.block.state.BlockState)this.stateDefinition.any()).setValue((net.minecraft.world.level.block.state.properties.Property)FACING, (java.lang.Comparable)net.minecraft.core.Direction.NORTH)).setValue((net.minecraft.world.level.block.state.properties.Property)EXTENDED, (java.lang.Comparable)java.lang.Boolean.valueOf((boolean)false)));
+-        this.isSticky = isSticky;
++        this.isSticky = $$0;
+     }
+ 
+-    public net.minecraft.world.phys.shapes.VoxelShape getShape(net.minecraft.world.level.block.state.BlockState state, net.minecraft.world.level.BlockGetter level, net.minecraft.core.BlockPos pos, net.minecraft.world.phys.shapes.CollisionContext context) {
+-        if (((java.lang.Boolean)state.getValue((net.minecraft.world.level.block.state.properties.Property)EXTENDED)).booleanValue()) {
+-            switch (net.minecraft.world.level.block.piston.PistonBaseBlock$1.$SwitchMap$net$minecraft$core$Direction[((net.minecraft.core.Direction)state.getValue((net.minecraft.world.level.block.state.properties.Property)FACING)).ordinal()]) {
++    public net.minecraft.world.phys.shapes.VoxelShape getShape(net.minecraft.world.level.block.state.BlockState $$0, net.minecraft.world.level.BlockGetter $$1, net.minecraft.core.BlockPos $$2, net.minecraft.world.phys.shapes.CollisionContext $$3) {
++        if (((java.lang.Boolean)$$0.getValue((net.minecraft.world.level.block.state.properties.Property)EXTENDED)).booleanValue()) {
++            switch (net.minecraft.world.level.block.piston.PistonBaseBlock$1.$SwitchMap$net$minecraft$core$Direction[((net.minecraft.core.Direction)$$0.getValue((net.minecraft.world.level.block.state.properties.Property)FACING)).ordinal()]) {
+                 case 1: {
+                     return DOWN_AABB;
+                 }
+@@ -50,273 +50,262 @@
+         return net.minecraft.world.phys.shapes.Shapes.block();
+     }
+ 
+-    public void setPlacedBy(net.minecraft.world.level.Level level, net.minecraft.core.BlockPos pos, net.minecraft.world.level.block.state.BlockState state, net.minecraft.world.entity.LivingEntity placer, net.minecraft.world.item.ItemStack stack) {
+-        if (!level.isClientSide) {
+-            this.checkIfExtend(level, pos, state);
++    public void setPlacedBy(net.minecraft.world.level.Level $$0, net.minecraft.core.BlockPos $$1, net.minecraft.world.level.block.state.BlockState $$2, net.minecraft.world.entity.LivingEntity $$3, net.minecraft.world.item.ItemStack $$4) {
++        if (!$$0.isClientSide) {
++            this.checkIfExtend($$0, $$1, $$2);
+         }
+     }
+ 
+-    public void neighborChanged(net.minecraft.world.level.block.state.BlockState state, net.minecraft.world.level.Level level, net.minecraft.core.BlockPos pos, net.minecraft.world.level.block.Block block, net.minecraft.core.BlockPos fromPos, boolean isMoving) {
+-        if (!level.isClientSide) {
+-            this.checkIfExtend(level, pos, state);
++    public void neighborChanged(net.minecraft.world.level.block.state.BlockState $$0, net.minecraft.world.level.Level $$1, net.minecraft.core.BlockPos $$2, net.minecraft.world.level.block.Block $$3, net.minecraft.core.BlockPos $$4, boolean $$5) {
++        if (!$$1.isClientSide) {
++            this.checkIfExtend($$1, $$2, $$0);
+         }
+     }
+ 
+-    public void onPlace(net.minecraft.world.level.block.state.BlockState state, net.minecraft.world.level.Level level, net.minecraft.core.BlockPos pos, net.minecraft.world.level.block.state.BlockState oldState, boolean isMoving) {
+-        if (oldState.is(state.getBlock())) {
++    public void onPlace(net.minecraft.world.level.block.state.BlockState $$0, net.minecraft.world.level.Level $$1, net.minecraft.core.BlockPos $$2, net.minecraft.world.level.block.state.BlockState $$3, boolean $$4) {
++        if ($$3.is($$0.getBlock())) {
+             return;
+         }
+-        if (!level.isClientSide && level.getBlockEntity(pos) == null) {
+-            this.checkIfExtend(level, pos, state);
++        if (!$$1.isClientSide && $$1.getBlockEntity($$2) == null) {
++            this.checkIfExtend($$1, $$2, $$0);
+         }
+     }
+ 
+-    public net.minecraft.world.level.block.state.BlockState getStateForPlacement(net.minecraft.world.item.context.BlockPlaceContext context) {
+-        return (net.minecraft.world.level.block.state.BlockState)((net.minecraft.world.level.block.state.BlockState)this.defaultBlockState().setValue((net.minecraft.world.level.block.state.properties.Property)FACING, (java.lang.Comparable)context.getNearestLookingDirection().getOpposite())).setValue((net.minecraft.world.level.block.state.properties.Property)EXTENDED, (java.lang.Comparable)java.lang.Boolean.valueOf((boolean)false));
++    public net.minecraft.world.level.block.state.BlockState getStateForPlacement(net.minecraft.world.item.context.BlockPlaceContext $$0) {
++        return (net.minecraft.world.level.block.state.BlockState)((net.minecraft.world.level.block.state.BlockState)this.defaultBlockState().setValue((net.minecraft.world.level.block.state.properties.Property)FACING, (java.lang.Comparable)$$0.getNearestLookingDirection().getOpposite())).setValue((net.minecraft.world.level.block.state.properties.Property)EXTENDED, (java.lang.Comparable)java.lang.Boolean.valueOf((boolean)false));
+     }
+ 
+-    public void checkIfExtend(net.minecraft.world.level.Level level, net.minecraft.core.BlockPos pos, net.minecraft.world.level.block.state.BlockState state) {
+-        net.minecraft.core.Direction direction = (net.minecraft.core.Direction)state.getValue((net.minecraft.world.level.block.state.properties.Property)FACING);
+-        boolean bl = this.getNeighborSignal(level, pos, direction);
+-        if (bl && !((java.lang.Boolean)state.getValue((net.minecraft.world.level.block.state.properties.Property)EXTENDED)).booleanValue()) {
+-            if (new net.minecraft.world.level.block.piston.PistonStructureResolver(level, pos, direction, true).resolve()) {
+-                level.blockEvent(pos, (net.minecraft.world.level.block.Block)this, 0, direction.get3DDataValue());
++    public void checkIfExtend(net.minecraft.world.level.Level $$0, net.minecraft.core.BlockPos $$1, net.minecraft.world.level.block.state.BlockState $$2) {
++        net.minecraft.core.Direction $$3 = (net.minecraft.core.Direction)$$2.getValue((net.minecraft.world.level.block.state.properties.Property)FACING);
++        boolean $$4 = this.getNeighborSignal($$0, $$1, $$3);
++        if ($$4 && !((java.lang.Boolean)$$2.getValue((net.minecraft.world.level.block.state.properties.Property)EXTENDED)).booleanValue()) {
++            if (new net.minecraft.world.level.block.piston.PistonStructureResolver($$0, $$1, $$3, true).resolve()) {
++                $$0.blockEvent($$1, (net.minecraft.world.level.block.Block)this, 0, $$3.get3DDataValue());
+             }
+-        } else if (!bl && ((java.lang.Boolean)state.getValue((net.minecraft.world.level.block.state.properties.Property)EXTENDED)).booleanValue()) {
+-            net.minecraft.world.level.block.piston.PistonMovingBlockEntity pistonMovingBlockEntity;
+-            net.minecraft.world.level.block.entity.BlockEntity blockEntity;
+-            net.minecraft.core.BlockPos blockPos = pos.relative(direction, 2);
+-            net.minecraft.world.level.block.state.BlockState blockState = level.getBlockState(blockPos);
+-            int n = 1;
+-            if (blockState.is(net.minecraft.world.level.block.Blocks.MOVING_PISTON) && blockState.getValue((net.minecraft.world.level.block.state.properties.Property)FACING) == direction && (blockEntity = level.getBlockEntity(blockPos)) instanceof net.minecraft.world.level.block.piston.PistonMovingBlockEntity && (pistonMovingBlockEntity = (net.minecraft.world.level.block.piston.PistonMovingBlockEntity)blockEntity).isExtending() && (pistonMovingBlockEntity.getProgress(0.0f) < 0.5f || level.getGameTime() == pistonMovingBlockEntity.getLastTicked() || ((net.minecraft.server.level.ServerLevel)level).isHandlingTick())) {
+-                n = 2;
++        } else if (!$$4 && ((java.lang.Boolean)$$2.getValue((net.minecraft.world.level.block.state.properties.Property)EXTENDED)).booleanValue()) {
++            net.minecraft.world.level.block.piston.PistonMovingBlockEntity $$9;
++            net.minecraft.world.level.block.entity.BlockEntity $$8;
++            net.minecraft.core.BlockPos $$5 = $$1.relative($$3, 2);
++            net.minecraft.world.level.block.state.BlockState $$6 = $$0.getBlockState($$5);
++            int $$7 = 1;
++            if ($$6.is(net.minecraft.world.level.block.Blocks.MOVING_PISTON) && $$6.getValue((net.minecraft.world.level.block.state.properties.Property)FACING) == $$3 && ($$8 = $$0.getBlockEntity($$5)) instanceof net.minecraft.world.level.block.piston.PistonMovingBlockEntity && ($$9 = (net.minecraft.world.level.block.piston.PistonMovingBlockEntity)$$8).isExtending() && ($$9.getProgress(0.0f) < 0.5f || $$0.getGameTime() == $$9.getLastTicked() || ((net.minecraft.server.level.ServerLevel)$$0).isHandlingTick())) {
++                $$7 = 2;
+             }
+-            level.blockEvent(pos, (net.minecraft.world.level.block.Block)this, n, direction.get3DDataValue());
++            $$0.blockEvent($$1, (net.minecraft.world.level.block.Block)this, $$7, $$3.get3DDataValue());
+         }
+     }
+ 
+-    public boolean getNeighborSignal(net.minecraft.world.level.Level level, net.minecraft.core.BlockPos pos, net.minecraft.core.Direction facing) {
+-        for (net.minecraft.core.Direction direction : net.minecraft.core.Direction.values()) {
+-            if (direction == facing || !level.hasSignal(pos.relative(direction), direction)) continue;
++    public boolean getNeighborSignal(net.minecraft.world.level.Level $$0, net.minecraft.core.BlockPos $$1, net.minecraft.core.Direction $$2) {
++        for (net.minecraft.core.Direction $$3 : net.minecraft.core.Direction.values()) {
++            if ($$3 == $$2 || !$$0.hasSignal($$1.relative($$3), $$3)) continue;
+             return true;
+         }
+-        if (level.hasSignal(pos, net.minecraft.core.Direction.DOWN)) {
++        if ($$0.hasSignal($$1, net.minecraft.core.Direction.DOWN)) {
+             return true;
+         }
+-        net.minecraft.core.BlockPos blockPos = pos.above();
+-        for (net.minecraft.core.Direction direction : net.minecraft.core.Direction.values()) {
+-            if (direction == net.minecraft.core.Direction.DOWN || !level.hasSignal(blockPos.relative(direction), direction)) continue;
++        net.minecraft.core.BlockPos $$4 = $$1.above();
++        for (net.minecraft.core.Direction $$5 : net.minecraft.core.Direction.values()) {
++            if ($$5 == net.minecraft.core.Direction.DOWN || !$$0.hasSignal($$4.relative($$5), $$5)) continue;
+             return true;
+         }
+         return false;
+     }
+ 
+-    public boolean triggerEvent(net.minecraft.world.level.block.state.BlockState state, net.minecraft.world.level.Level level, net.minecraft.core.BlockPos pos, int id, int param) {
++    public boolean triggerEvent(net.minecraft.world.level.block.state.BlockState $$0, net.minecraft.world.level.Level $$1, net.minecraft.core.BlockPos $$2, int $$3, int $$4) {
+ block14:        {
+-            net.minecraft.core.Direction direction = (net.minecraft.core.Direction)state.getValue((net.minecraft.world.level.block.state.properties.Property)FACING);
+-            if (!level.isClientSide) {
+-                boolean bl = this.getNeighborSignal(level, pos, direction);
+-                if (bl && (id == 1 || id == 2)) {
+-                    level.setBlock(pos, (net.minecraft.world.level.block.state.BlockState)state.setValue((net.minecraft.world.level.block.state.properties.Property)EXTENDED, (java.lang.Comparable)java.lang.Boolean.valueOf((boolean)true)), 2);
++            net.minecraft.core.Direction $$5 = (net.minecraft.core.Direction)$$0.getValue((net.minecraft.world.level.block.state.properties.Property)FACING);
++            if (!$$1.isClientSide) {
++                boolean $$6 = this.getNeighborSignal($$1, $$2, $$5);
++                if ($$6 && ($$3 == 1 || $$3 == 2)) {
++                    $$1.setBlock($$2, (net.minecraft.world.level.block.state.BlockState)$$0.setValue((net.minecraft.world.level.block.state.properties.Property)EXTENDED, (java.lang.Comparable)java.lang.Boolean.valueOf((boolean)true)), 2);
+                     return false;
+                 }
+-                if (!bl && id == 0) {
++                if (!$$6 && $$3 == 0) {
+                     return false;
+                 }
+             }
+-            if (id == 0) {
+-                if (this.moveBlocks(level, pos, direction, true)) {
+-                    level.setBlock(pos, (net.minecraft.world.level.block.state.BlockState)state.setValue((net.minecraft.world.level.block.state.properties.Property)EXTENDED, (java.lang.Comparable)java.lang.Boolean.valueOf((boolean)true)), 67);
+-                    level.playSound(null, pos, net.minecraft.sounds.SoundEvents.PISTON_EXTEND, net.minecraft.sounds.SoundSource.BLOCKS, 0.5f, level.random.nextFloat() * 0.25f + 0.6f);
+-                    level.gameEvent(null, net.minecraft.world.level.gameevent.GameEvent.PISTON_EXTEND, pos);
++            if ($$3 == 0) {
++                if (this.moveBlocks($$1, $$2, $$5, true)) {
++                    $$1.setBlock($$2, (net.minecraft.world.level.block.state.BlockState)$$0.setValue((net.minecraft.world.level.block.state.properties.Property)EXTENDED, (java.lang.Comparable)java.lang.Boolean.valueOf((boolean)true)), 67);
++                    $$1.playSound(null, $$2, net.minecraft.sounds.SoundEvents.PISTON_EXTEND, net.minecraft.sounds.SoundSource.BLOCKS, 0.5f, $$1.random.nextFloat() * 0.25f + 0.6f);
++                    $$1.gameEvent(null, net.minecraft.world.level.gameevent.GameEvent.PISTON_EXTEND, $$2);
+                     break block14;
+                 } else {
+                     return false;
+                 }
+             }
+-            if (id == 1 || id == 2) {
+-                net.minecraft.world.level.block.entity.BlockEntity blockEntity = level.getBlockEntity(pos.relative(direction));
+-                if (blockEntity instanceof net.minecraft.world.level.block.piston.PistonMovingBlockEntity) {
+-                    ((net.minecraft.world.level.block.piston.PistonMovingBlockEntity)blockEntity).finalTick();
++            if ($$3 == 1 || $$3 == 2) {
++                net.minecraft.world.level.block.entity.BlockEntity $$7 = $$1.getBlockEntity($$2.relative($$5));
++                if ($$7 instanceof net.minecraft.world.level.block.piston.PistonMovingBlockEntity) {
++                    ((net.minecraft.world.level.block.piston.PistonMovingBlockEntity)$$7).finalTick();
+                 }
+-                net.minecraft.world.level.block.state.BlockState blockState = (net.minecraft.world.level.block.state.BlockState)((net.minecraft.world.level.block.state.BlockState)net.minecraft.world.level.block.Blocks.MOVING_PISTON.defaultBlockState().setValue((net.minecraft.world.level.block.state.properties.Property)net.minecraft.world.level.block.piston.MovingPistonBlock.FACING, (java.lang.Comparable)direction)).setValue((net.minecraft.world.level.block.state.properties.Property)net.minecraft.world.level.block.piston.MovingPistonBlock.TYPE, (java.lang.Comparable)(this.isSticky ? net.minecraft.world.level.block.state.properties.PistonType.STICKY : net.minecraft.world.level.block.state.properties.PistonType.DEFAULT));
+-                level.setBlock(pos, blockState, 20);
+-                level.setBlockEntity(net.minecraft.world.level.block.piston.MovingPistonBlock.newMovingBlockEntity((net.minecraft.core.BlockPos)pos, (net.minecraft.world.level.block.state.BlockState)blockState, (net.minecraft.world.level.block.state.BlockState)((net.minecraft.world.level.block.state.BlockState)this.defaultBlockState().setValue((net.minecraft.world.level.block.state.properties.Property)FACING, (java.lang.Comparable)net.minecraft.core.Direction.from3DDataValue((int)(param & 7)))), (net.minecraft.core.Direction)direction, (boolean)false, (boolean)true));
+-                level.blockUpdated(pos, blockState.getBlock());
+-                blockState.updateNeighbourShapes((net.minecraft.world.level.LevelAccessor)level, pos, 2);
++                net.minecraft.world.level.block.state.BlockState $$8 = (net.minecraft.world.level.block.state.BlockState)((net.minecraft.world.level.block.state.BlockState)net.minecraft.world.level.block.Blocks.MOVING_PISTON.defaultBlockState().setValue((net.minecraft.world.level.block.state.properties.Property)net.minecraft.world.level.block.piston.MovingPistonBlock.FACING, (java.lang.Comparable)$$5)).setValue((net.minecraft.world.level.block.state.properties.Property)net.minecraft.world.level.block.piston.MovingPistonBlock.TYPE, (java.lang.Comparable)(this.isSticky ? net.minecraft.world.level.block.state.properties.PistonType.STICKY : net.minecraft.world.level.block.state.properties.PistonType.DEFAULT));
++                $$1.setBlock($$2, $$8, 20);
++                $$1.setBlockEntity(net.minecraft.world.level.block.piston.MovingPistonBlock.newMovingBlockEntity((net.minecraft.core.BlockPos)$$2, (net.minecraft.world.level.block.state.BlockState)$$8, (net.minecraft.world.level.block.state.BlockState)((net.minecraft.world.level.block.state.BlockState)this.defaultBlockState().setValue((net.minecraft.world.level.block.state.properties.Property)FACING, (java.lang.Comparable)net.minecraft.core.Direction.from3DDataValue((int)($$4 & 7)))), (net.minecraft.core.Direction)$$5, (boolean)false, (boolean)true));
++                $$1.blockUpdated($$2, $$8.getBlock());
++                $$8.updateNeighbourShapes((net.minecraft.world.level.LevelAccessor)$$1, $$2, 2);
+                 if (this.isSticky) {
+-                    net.minecraft.world.level.block.piston.PistonMovingBlockEntity pistonMovingBlockEntity;
+-                    net.minecraft.world.level.block.entity.BlockEntity blockEntity2;
+-                    net.minecraft.core.BlockPos blockPos = pos.offset(direction.getStepX() * 2, direction.getStepY() * 2, direction.getStepZ() * 2);
+-                    net.minecraft.world.level.block.state.BlockState blockState2 = level.getBlockState(blockPos);
+-                    boolean bl = false;
+-                    if (blockState2.is(net.minecraft.world.level.block.Blocks.MOVING_PISTON) && (blockEntity2 = level.getBlockEntity(blockPos)) instanceof net.minecraft.world.level.block.piston.PistonMovingBlockEntity && (pistonMovingBlockEntity = (net.minecraft.world.level.block.piston.PistonMovingBlockEntity)blockEntity2).getDirection() == direction && pistonMovingBlockEntity.isExtending()) {
+-                        pistonMovingBlockEntity.finalTick();
+-                        bl = true;
++                    net.minecraft.world.level.block.piston.PistonMovingBlockEntity $$13;
++                    net.minecraft.world.level.block.entity.BlockEntity $$12;
++                    net.minecraft.core.BlockPos $$9 = $$2.offset($$5.getStepX() * 2, $$5.getStepY() * 2, $$5.getStepZ() * 2);
++                    net.minecraft.world.level.block.state.BlockState $$10 = $$1.getBlockState($$9);
++                    boolean $$11 = false;
++                    if ($$10.is(net.minecraft.world.level.block.Blocks.MOVING_PISTON) && ($$12 = $$1.getBlockEntity($$9)) instanceof net.minecraft.world.level.block.piston.PistonMovingBlockEntity && ($$13 = (net.minecraft.world.level.block.piston.PistonMovingBlockEntity)$$12).getDirection() == $$5 && $$13.isExtending()) {
++                        $$13.finalTick();
++                        $$11 = true;
+                     }
+-                    if (!bl) {
+-                        if (id == 1 && !blockState2.isAir() && net.minecraft.world.level.block.piston.PistonBaseBlock.isPushable((net.minecraft.world.level.block.state.BlockState)blockState2, (net.minecraft.world.level.Level)level, (net.minecraft.core.BlockPos)blockPos, (net.minecraft.core.Direction)direction.getOpposite(), (boolean)false, (net.minecraft.core.Direction)direction) && (blockState2.getPistonPushReaction() == net.minecraft.world.level.material.PushReaction.NORMAL || blockState2.is(net.minecraft.world.level.block.Blocks.PISTON) || blockState2.is(net.minecraft.world.level.block.Blocks.STICKY_PISTON))) {
+-                            this.moveBlocks(level, pos, direction, false);
++                    if (!$$11) {
++                        if ($$3 == 1 && !$$10.isAir() && net.minecraft.world.level.block.piston.PistonBaseBlock.isPushable((net.minecraft.world.level.block.state.BlockState)$$10, (net.minecraft.world.level.Level)$$1, (net.minecraft.core.BlockPos)$$9, (net.minecraft.core.Direction)$$5.getOpposite(), (boolean)false, (net.minecraft.core.Direction)$$5) && ($$10.getPistonPushReaction() == net.minecraft.world.level.material.PushReaction.NORMAL || $$10.is(net.minecraft.world.level.block.Blocks.PISTON) || $$10.is(net.minecraft.world.level.block.Blocks.STICKY_PISTON))) {
++                            this.moveBlocks($$1, $$2, $$5, false);
+                         } else {
+-                            level.removeBlock(pos.relative(direction), false);
++                            $$1.removeBlock($$2.relative($$5), false);
+                         }
+                     }
+                 } else {
+-                    level.removeBlock(pos.relative(direction), false);
++                    $$1.removeBlock($$2.relative($$5), false);
+                 }
+-                level.playSound(null, pos, net.minecraft.sounds.SoundEvents.PISTON_CONTRACT, net.minecraft.sounds.SoundSource.BLOCKS, 0.5f, level.random.nextFloat() * 0.15f + 0.6f);
+-                level.gameEvent(null, net.minecraft.world.level.gameevent.GameEvent.PISTON_CONTRACT, pos);
++                $$1.playSound(null, $$2, net.minecraft.sounds.SoundEvents.PISTON_CONTRACT, net.minecraft.sounds.SoundSource.BLOCKS, 0.5f, $$1.random.nextFloat() * 0.15f + 0.6f);
++                $$1.gameEvent(null, net.minecraft.world.level.gameevent.GameEvent.PISTON_CONTRACT, $$2);
+             }
+         }
+         return true;
+     }
+ 
+-    public static boolean isPushable(net.minecraft.world.level.block.state.BlockState blockState, net.minecraft.world.level.Level level, net.minecraft.core.BlockPos pos, net.minecraft.core.Direction facing, boolean destroyBlocks, net.minecraft.core.Direction direction) {
+-        if (pos.getY() < level.getMinBuildHeight() || pos.getY() > level.getMaxBuildHeight() - 1 || !level.getWorldBorder().isWithinBounds(pos)) {
++    public static boolean isPushable(net.minecraft.world.level.block.state.BlockState $$0, net.minecraft.world.level.Level $$1, net.minecraft.core.BlockPos $$2, net.minecraft.core.Direction $$3, boolean $$4, net.minecraft.core.Direction $$5) {
++        if ($$2.getY() < $$1.getMinBuildHeight() || $$2.getY() > $$1.getMaxBuildHeight() - 1 || !$$1.getWorldBorder().isWithinBounds($$2)) {
+             return false;
+         }
+-        if (blockState.isAir()) {
++        if ($$0.isAir()) {
+             return true;
+         }
+-        if (blockState.is(net.minecraft.world.level.block.Blocks.OBSIDIAN) || blockState.is(net.minecraft.world.level.block.Blocks.CRYING_OBSIDIAN) || blockState.is(net.minecraft.world.level.block.Blocks.RESPAWN_ANCHOR) || blockState.is(net.minecraft.world.level.block.Blocks.REINFORCED_DEEPSLATE)) {
++        if ($$0.is(net.minecraft.world.level.block.Blocks.OBSIDIAN) || $$0.is(net.minecraft.world.level.block.Blocks.CRYING_OBSIDIAN) || $$0.is(net.minecraft.world.level.block.Blocks.RESPAWN_ANCHOR) || $$0.is(net.minecraft.world.level.block.Blocks.REINFORCED_DEEPSLATE)) {
+             return false;
+         }
+-        if (facing == net.minecraft.core.Direction.DOWN && pos.getY() == level.getMinBuildHeight()) {
++        if ($$3 == net.minecraft.core.Direction.DOWN && $$2.getY() == $$1.getMinBuildHeight()) {
+             return false;
+         }
+-        if (facing == net.minecraft.core.Direction.UP && pos.getY() == level.getMaxBuildHeight() - 1) {
++        if ($$3 == net.minecraft.core.Direction.UP && $$2.getY() == $$1.getMaxBuildHeight() - 1) {
+             return false;
+         }
+-        if (blockState.is(net.minecraft.world.level.block.Blocks.PISTON) || blockState.is(net.minecraft.world.level.block.Blocks.STICKY_PISTON)) {
+-            if (((java.lang.Boolean)blockState.getValue((net.minecraft.world.level.block.state.properties.Property)EXTENDED)).booleanValue()) {
++        if ($$0.is(net.minecraft.world.level.block.Blocks.PISTON) || $$0.is(net.minecraft.world.level.block.Blocks.STICKY_PISTON)) {
++            if (((java.lang.Boolean)$$0.getValue((net.minecraft.world.level.block.state.properties.Property)EXTENDED)).booleanValue()) {
+                 return false;
+             }
+         } else {
+-            if (blockState.getDestroySpeed((net.minecraft.world.level.BlockGetter)level, pos) == -1.0f) {
++            if ($$0.getDestroySpeed((net.minecraft.world.level.BlockGetter)$$1, $$2) == -1.0f) {
+                 return false;
+             }
+-            switch (net.minecraft.world.level.block.piston.PistonBaseBlock$1.$SwitchMap$net$minecraft$world$level$material$PushReaction[blockState.getPistonPushReaction().ordinal()]) {
++            switch (net.minecraft.world.level.block.piston.PistonBaseBlock$1.$SwitchMap$net$minecraft$world$level$material$PushReaction[$$0.getPistonPushReaction().ordinal()]) {
+                 case 1: {
+                     return false;
+                 }
+                 case 2: {
+-                    return destroyBlocks;
++                    return $$4;
+                 }
+                 case 3: {
+-                    return facing == direction;
++                    return $$3 == $$5;
+                 }
+             }
+         }
+-        return !blockState.hasBlockEntity();
++        return !$$0.hasBlockEntity();
+     }
+ 
+-    public boolean moveBlocks(net.minecraft.world.level.Level level, net.minecraft.core.BlockPos pos, net.minecraft.core.Direction direction, boolean extending) {
+-        int n;
+-        net.minecraft.world.level.block.entity.BlockEntity blockEntity;
+-        net.minecraft.world.level.block.state.BlockState blockState4;
+-        net.minecraft.core.BlockPos blockPos;
+-        int n2;
+-        net.minecraft.world.level.block.state.BlockState blockState2;
+-        net.minecraft.world.level.block.state.BlockState[] blockStateArray;
+-        net.minecraft.world.level.block.piston.PistonStructureResolver pistonStructureResolver;
+-        net.minecraft.core.BlockPos blockPos2 = pos.relative(direction);
+-        if (!extending && level.getBlockState(blockPos2).is(net.minecraft.world.level.block.Blocks.PISTON_HEAD)) {
+-            level.setBlock(blockPos2, net.minecraft.world.level.block.Blocks.AIR.defaultBlockState(), 20);
++    public boolean moveBlocks(net.minecraft.world.level.Level $$0, net.minecraft.core.BlockPos $$1, net.minecraft.core.Direction $$2, boolean $$3) {
++        net.minecraft.world.level.block.piston.PistonStructureResolver $$5;
++        net.minecraft.core.BlockPos $$4 = $$1.relative($$2);
++        if (!$$3 && $$0.getBlockState($$4).is(net.minecraft.world.level.block.Blocks.PISTON_HEAD)) {
++            $$0.setBlock($$4, net.minecraft.world.level.block.Blocks.AIR.defaultBlockState(), 20);
+         }
+-        if (!(pistonStructureResolver = new net.minecraft.world.level.block.piston.PistonStructureResolver(level, pos, direction, extending)).resolve()) {
++        if (!($$5 = new net.minecraft.world.level.block.piston.PistonStructureResolver($$0, $$1, $$2, $$3)).resolve()) {
+             return false;
+         }
+-        java.util.HashMap hashMap = com.google.common.collect.Maps.newHashMap();
+-        java.util.List list = pistonStructureResolver.getToPush();
+-        java.util.ArrayList arrayList = com.google.common.collect.Lists.newArrayList();
+-        for (int i = 0; i < list.size(); ++i) {
+-            blockStateArray = (net.minecraft.world.level.block.state.BlockState[])list.get(i);
+-            blockState2 = level.getBlockState((net.minecraft.core.BlockPos)blockStateArray);
+-            arrayList.add((java.lang.Object)blockState2);
+-            hashMap.put((java.lang.Object)blockStateArray, (java.lang.Object)blockState2);
++        java.util.HashMap $$6 = com.google.common.collect.Maps.newHashMap();
++        java.util.List $$7 = $$5.getToPush();
++        java.util.ArrayList $$8 = com.google.common.collect.Lists.newArrayList();
++        for (int $$9 = 0; $$9 < $$7.size(); ++$$9) {
++            net.minecraft.core.BlockPos $$10 = (net.minecraft.core.BlockPos)$$7.get($$9);
++            net.minecraft.world.level.block.state.BlockState $$11 = $$0.getBlockState($$10);
++            $$8.add((java.lang.Object)$$11);
++            $$6.put((java.lang.Object)$$10, (java.lang.Object)$$11);
+         }
+-        java.util.List list2 = pistonStructureResolver.getToDestroy();
+-        blockStateArray = new net.minecraft.world.level.block.state.BlockState[list.size() + list2.size()];
+-        blockState2 = extending ? direction : direction.getOpposite();
+-        int n3 = 0;
+-        for (n2 = list2.size() - 1;
+- n2 >= 0; --n2) {
+-            blockPos = (net.minecraft.core.BlockPos)list2.get(n2);
+-            blockState4 = level.getBlockState(blockPos);
+-            blockEntity = blockState4.hasBlockEntity() ? level.getBlockEntity(blockPos) : null;
+-            net.minecraft.world.level.block.piston.PistonBaseBlock.dropResources((net.minecraft.world.level.block.state.BlockState)blockState4, (net.minecraft.world.level.LevelAccessor)level, (net.minecraft.core.BlockPos)blockPos, (net.minecraft.world.level.block.entity.BlockEntity)blockEntity);
+-            level.setBlock(blockPos, net.minecraft.world.level.block.Blocks.AIR.defaultBlockState(), 18);
+-            level.gameEvent(net.minecraft.world.level.gameevent.GameEvent.BLOCK_DESTROY, blockPos, net.minecraft.world.level.gameevent.GameEvent$Context.of((net.minecraft.world.level.block.state.BlockState)blockState4));
+-            if (!blockState4.is(net.minecraft.tags.BlockTags.FIRE)) {
+-                level.addDestroyBlockEffect(blockPos, blockState4);
++        java.util.List $$12 = $$5.getToDestroy();
++        net.minecraft.world.level.block.state.BlockState[] $$13 = new net.minecraft.world.level.block.state.BlockState[$$7.size() + $$12.size()];
++        net.minecraft.core.Direction $$14 = $$3 ? $$2 : $$2.getOpposite();
++        int $$15 = 0;
++        for (int $$16 = $$12.size() - 1; $$16 >= 0; --$$16) {
++            net.minecraft.core.BlockPos $$17 = (net.minecraft.core.BlockPos)$$12.get($$16);
++            net.minecraft.world.level.block.state.BlockState $$18 = $$0.getBlockState($$17);
++            net.minecraft.world.level.block.entity.BlockEntity $$19 = $$18.hasBlockEntity() ? $$0.getBlockEntity($$17) : null;
++            net.minecraft.world.level.block.piston.PistonBaseBlock.dropResources((net.minecraft.world.level.block.state.BlockState)$$18, (net.minecraft.world.level.LevelAccessor)$$0, (net.minecraft.core.BlockPos)$$17, (net.minecraft.world.level.block.entity.BlockEntity)$$19);
++            $$0.setBlock($$17, net.minecraft.world.level.block.Blocks.AIR.defaultBlockState(), 18);
++            $$0.gameEvent(net.minecraft.world.level.gameevent.GameEvent.BLOCK_DESTROY, $$17, net.minecraft.world.level.gameevent.GameEvent$Context.of((net.minecraft.world.level.block.state.BlockState)$$18));
++            if (!$$18.is(net.minecraft.tags.BlockTags.FIRE)) {
++                $$0.addDestroyBlockEffect($$17, $$18);
+             }
+-            blockStateArray[n3++] = blockState4;
++            $$13[$$15++] = $$18;
+         }
+-        for (n2 = list.size() - 1;
+- n2 >= 0; --n2) {
+-            blockPos = (net.minecraft.core.BlockPos)list.get(n2);
+-            blockState4 = level.getBlockState(blockPos);
+-            blockPos = blockPos.relative((net.minecraft.core.Direction)blockState2);
+-            hashMap.remove((java.lang.Object)blockPos);
+-            blockEntity = (net.minecraft.world.level.block.state.BlockState)net.minecraft.world.level.block.Blocks.MOVING_PISTON.defaultBlockState().setValue((net.minecraft.world.level.block.state.properties.Property)FACING, (java.lang.Comparable)direction);
+-            level.setBlock(blockPos, (net.minecraft.world.level.block.state.BlockState)blockEntity, 68);
+-            level.setBlockEntity(net.minecraft.world.level.block.piston.MovingPistonBlock.newMovingBlockEntity((net.minecraft.core.BlockPos)blockPos, (net.minecraft.world.level.block.state.BlockState)blockEntity, (net.minecraft.world.level.block.state.BlockState)((net.minecraft.world.level.block.state.BlockState)arrayList.get(n2)), (net.minecraft.core.Direction)direction, (boolean)extending, (boolean)false));
+-            blockStateArray[n3++] = blockState4;
++        for (int $$20 = $$7.size() - 1; $$20 >= 0; --$$20) {
++            net.minecraft.core.BlockPos $$21 = (net.minecraft.core.BlockPos)$$7.get($$20);
++            net.minecraft.world.level.block.state.BlockState $$22 = $$0.getBlockState($$21);
++            $$21 = $$21.relative($$14);
++            $$6.remove((java.lang.Object)$$21);
++            net.minecraft.world.level.block.state.BlockState $$23 = (net.minecraft.world.level.block.state.BlockState)net.minecraft.world.level.block.Blocks.MOVING_PISTON.defaultBlockState().setValue((net.minecraft.world.level.block.state.properties.Property)FACING, (java.lang.Comparable)$$2);
++            $$0.setBlock($$21, $$23, 68);
++            $$0.setBlockEntity(net.minecraft.world.level.block.piston.MovingPistonBlock.newMovingBlockEntity((net.minecraft.core.BlockPos)$$21, (net.minecraft.world.level.block.state.BlockState)$$23, (net.minecraft.world.level.block.state.BlockState)((net.minecraft.world.level.block.state.BlockState)$$8.get($$20)), (net.minecraft.core.Direction)$$2, (boolean)$$3, (boolean)false));
++            $$13[$$15++] = $$22;
+         }
+-        if (extending) {
+-            net.minecraft.world.level.block.state.properties.PistonType pistonType = this.isSticky ? net.minecraft.world.level.block.state.properties.PistonType.STICKY : net.minecraft.world.level.block.state.properties.PistonType.DEFAULT;
+-            blockPos = (net.minecraft.world.level.block.state.BlockState)((net.minecraft.world.level.block.state.BlockState)net.minecraft.world.level.block.Blocks.PISTON_HEAD.defaultBlockState().setValue((net.minecraft.world.level.block.state.properties.Property)net.minecraft.world.level.block.piston.PistonHeadBlock.FACING, (java.lang.Comparable)direction)).setValue((net.minecraft.world.level.block.state.properties.Property)net.minecraft.world.level.block.piston.PistonHeadBlock.TYPE, (java.lang.Comparable)pistonType);
+-            blockState4 = (net.minecraft.world.level.block.state.BlockState)((net.minecraft.world.level.block.state.BlockState)net.minecraft.world.level.block.Blocks.MOVING_PISTON.defaultBlockState().setValue((net.minecraft.world.level.block.state.properties.Property)net.minecraft.world.level.block.piston.MovingPistonBlock.FACING, (java.lang.Comparable)direction)).setValue((net.minecraft.world.level.block.state.properties.Property)net.minecraft.world.level.block.piston.MovingPistonBlock.TYPE, (java.lang.Comparable)(this.isSticky ? net.minecraft.world.level.block.state.properties.PistonType.STICKY : net.minecraft.world.level.block.state.properties.PistonType.DEFAULT));
+-            hashMap.remove((java.lang.Object)blockPos2);
+-            level.setBlock(blockPos2, blockState4, 68);
+-            level.setBlockEntity(net.minecraft.world.level.block.piston.MovingPistonBlock.newMovingBlockEntity((net.minecraft.core.BlockPos)blockPos2, (net.minecraft.world.level.block.state.BlockState)blockState4, (net.minecraft.world.level.block.state.BlockState)blockPos, (net.minecraft.core.Direction)direction, (boolean)true, (boolean)true));
++        if ($$3) {
++            net.minecraft.world.level.block.state.properties.PistonType $$24 = this.isSticky ? net.minecraft.world.level.block.state.properties.PistonType.STICKY : net.minecraft.world.level.block.state.properties.PistonType.DEFAULT;
++            java.util.Iterator $$25 = (net.minecraft.world.level.block.state.BlockState)((net.minecraft.world.level.block.state.BlockState)net.minecraft.world.level.block.Blocks.PISTON_HEAD.defaultBlockState().setValue((net.minecraft.world.level.block.state.properties.Property)net.minecraft.world.level.block.piston.PistonHeadBlock.FACING, (java.lang.Comparable)$$2)).setValue((net.minecraft.world.level.block.state.properties.Property)net.minecraft.world.level.block.piston.PistonHeadBlock.TYPE, (java.lang.Comparable)$$24);
++            net.minecraft.world.level.block.state.BlockState $$26 = (net.minecraft.world.level.block.state.BlockState)((net.minecraft.world.level.block.state.BlockState)net.minecraft.world.level.block.Blocks.MOVING_PISTON.defaultBlockState().setValue((net.minecraft.world.level.block.state.properties.Property)net.minecraft.world.level.block.piston.MovingPistonBlock.FACING, (java.lang.Comparable)$$2)).setValue((net.minecraft.world.level.block.state.properties.Property)net.minecraft.world.level.block.piston.MovingPistonBlock.TYPE, (java.lang.Comparable)(this.isSticky ? net.minecraft.world.level.block.state.properties.PistonType.STICKY : net.minecraft.world.level.block.state.properties.PistonType.DEFAULT));
++            $$6.remove((java.lang.Object)$$4);
++            $$0.setBlock($$4, $$26, 68);
++            $$0.setBlockEntity(net.minecraft.world.level.block.piston.MovingPistonBlock.newMovingBlockEntity((net.minecraft.core.BlockPos)$$4, (net.minecraft.world.level.block.state.BlockState)$$26, (net.minecraft.world.level.block.state.BlockState)$$25, (net.minecraft.core.Direction)$$2, (boolean)true, (boolean)true));
+         }
+-        net.minecraft.world.level.block.state.BlockState blockState3 = net.minecraft.world.level.block.Blocks.AIR.defaultBlockState();
+-        for (net.minecraft.world.level.block.state.BlockState blockState4 : hashMap.keySet()) {
+-            level.setBlock((net.minecraft.core.BlockPos)blockState4, blockState3, 82);
++        net.minecraft.world.level.block.state.BlockState $$27 = net.minecraft.world.level.block.Blocks.AIR.defaultBlockState();
++        for (net.minecraft.core.BlockPos $$28 : $$6.keySet()) {
++            $$0.setBlock($$28, $$27, 82);
+         }
+-        for (net.minecraft.world.level.block.state.BlockState blockState4 : hashMap.entrySet()) {
+-            blockEntity = (net.minecraft.core.BlockPos)blockState4.getKey();
+-            net.minecraft.world.level.block.state.BlockState blockState5 = (net.minecraft.world.level.block.state.BlockState)blockState4.getValue();
+-            blockState5.updateIndirectNeighbourShapes((net.minecraft.world.level.LevelAccessor)level, (net.minecraft.core.BlockPos)blockEntity, 2);
+-            blockState3.updateNeighbourShapes((net.minecraft.world.level.LevelAccessor)level, (net.minecraft.core.BlockPos)blockEntity, 2);
+-            blockState3.updateIndirectNeighbourShapes((net.minecraft.world.level.LevelAccessor)level, (net.minecraft.core.BlockPos)blockEntity, 2);
++        for (java.util.Map$Entry $$29 : $$6.entrySet()) {
++            net.minecraft.core.BlockPos $$30 = (net.minecraft.core.BlockPos)$$29.getKey();
++            net.minecraft.world.level.block.state.BlockState $$31 = (net.minecraft.world.level.block.state.BlockState)$$29.getValue();
++            $$31.updateIndirectNeighbourShapes((net.minecraft.world.level.LevelAccessor)$$0, $$30, 2);
++            $$27.updateNeighbourShapes((net.minecraft.world.level.LevelAccessor)$$0, $$30, 2);
++            $$27.updateIndirectNeighbourShapes((net.minecraft.world.level.LevelAccessor)$$0, $$30, 2);
+         }
+-        n3 = 0;
+-        for (n = list2.size() - 1;
+- n >= 0; --n) {
+-            blockState4 = blockStateArray[n3++];
+-            blockEntity = (net.minecraft.core.BlockPos)list2.get(n);
+-            blockState4.updateIndirectNeighbourShapes((net.minecraft.world.level.LevelAccessor)level, (net.minecraft.core.BlockPos)blockEntity, 2);
+-            level.updateNeighborsAt((net.minecraft.core.BlockPos)blockEntity, blockState4.getBlock());
++        $$15 = 0;
++        for (int $$32 = $$12.size() - 1; $$32 >= 0; --$$32) {
++            net.minecraft.world.level.block.state.BlockState $$33 = $$13[$$15++];
++            net.minecraft.core.BlockPos $$34 = (net.minecraft.core.BlockPos)$$12.get($$32);
++            $$33.updateIndirectNeighbourShapes((net.minecraft.world.level.LevelAccessor)$$0, $$34, 2);
++            $$0.updateNeighborsAt($$34, $$33.getBlock());
+         }
+-        for (n = list.size() - 1;
+- n >= 0; --n) {
+-            level.updateNeighborsAt((net.minecraft.core.BlockPos)list.get(n), blockStateArray[n3++].getBlock());
++        for (int $$35 = $$7.size() - 1; $$35 >= 0; --$$35) {
++            $$0.updateNeighborsAt((net.minecraft.core.BlockPos)$$7.get($$35), $$13[$$15++].getBlock());
+         }
+-        if (extending) {
+-            level.updateNeighborsAt(blockPos2, net.minecraft.world.level.block.Blocks.PISTON_HEAD);
++        if ($$3) {
++            $$0.updateNeighborsAt($$4, net.minecraft.world.level.block.Blocks.PISTON_HEAD);
+         }
+         return true;
+     }
+ 
+-    public net.minecraft.world.level.block.state.BlockState rotate(net.minecraft.world.level.block.state.BlockState state, net.minecraft.world.level.block.Rotation rot) {
+-        return (net.minecraft.world.level.block.state.BlockState)state.setValue((net.minecraft.world.level.block.state.properties.Property)FACING, (java.lang.Comparable)rot.rotate((net.minecraft.core.Direction)state.getValue((net.minecraft.world.level.block.state.properties.Property)FACING)));
++    public net.minecraft.world.level.block.state.BlockState rotate(net.minecraft.world.level.block.state.BlockState $$0, net.minecraft.world.level.block.Rotation $$1) {
++        return (net.minecraft.world.level.block.state.BlockState)$$0.setValue((net.minecraft.world.level.block.state.properties.Property)FACING, (java.lang.Comparable)$$1.rotate((net.minecraft.core.Direction)$$0.getValue((net.minecraft.world.level.block.state.properties.Property)FACING)));
+     }
+ 
+-    public net.minecraft.world.level.block.state.BlockState mirror(net.minecraft.world.level.block.state.BlockState state, net.minecraft.world.level.block.Mirror mirror) {
+-        return state.rotate(mirror.getRotation((net.minecraft.core.Direction)state.getValue((net.minecraft.world.level.block.state.properties.Property)FACING)));
++    public net.minecraft.world.level.block.state.BlockState mirror(net.minecraft.world.level.block.state.BlockState $$0, net.minecraft.world.level.block.Mirror $$1) {
++        return $$0.rotate($$1.getRotation((net.minecraft.core.Direction)$$0.getValue((net.minecraft.world.level.block.state.properties.Property)FACING)));
+     }
+ 
+-    public void createBlockStateDefinition(net.minecraft.world.level.block.state.StateDefinition$Builder<net.minecraft.world.level.block.Block, net.minecraft.world.level.block.state.BlockState> builder) {
+-        builder.add(new net.minecraft.world.level.block.state.properties.Property[]{FACING, EXTENDED});
++    public void createBlockStateDefinition(net.minecraft.world.level.block.state.StateDefinition$Builder<net.minecraft.world.level.block.Block, net.minecraft.world.level.block.state.BlockState> $$0) {
++        $$0.add(new net.minecraft.world.level.block.state.properties.Property[]{FACING, EXTENDED});
+     }
+ 
+-    public boolean useShapeForLightOcclusion(net.minecraft.world.level.block.state.BlockState state) {
+-        return (java.lang.Boolean)state.getValue((net.minecraft.world.level.block.state.properties.Property)EXTENDED);
++    public boolean useShapeForLightOcclusion(net.minecraft.world.level.block.state.BlockState $$0) {
++        return (java.lang.Boolean)$$0.getValue((net.minecraft.world.level.block.state.properties.Property)EXTENDED);
+     }
+ 
+-    public boolean isPathfindable(net.minecraft.world.level.block.state.BlockState state, net.minecraft.world.level.BlockGetter level, net.minecraft.core.BlockPos pos, net.minecraft.world.level.pathfinder.PathComputationType type) {
++    public boolean isPathfindable(net.minecraft.world.level.block.state.BlockState $$0, net.minecraft.world.level.BlockGetter $$1, net.minecraft.core.BlockPos $$2, net.minecraft.world.level.pathfinder.PathComputationType $$3) {
+         return false;
+     }
+ 

@@ -1,0 +1,133 @@
+--- net/minecraft/world/level/chunk/PalettedContainer.java
++++ net/minecraft/world/level/chunk/PalettedContainer.java
+@@ -69,21 +69,21 @@
+         return $$2.createData(this.registry, (net.minecraft.world.level.chunk.PaletteResize)this, this.strategy.size());
+     }
+ 
+-    public int onResize(int bits, T t) {
+-        net.minecraft.world.level.chunk.PalettedContainer$Data data = this.data;
+-        net.minecraft.world.level.chunk.PalettedContainer$Data data2 = this.createOrReuseData(data, bits);
+-        data2.copyFrom(data.palette, data.storage);
+-        this.data = data2;
+-        return data2.palette.idFor(t);
++    public int onResize(int $$0, T $$1) {
++        net.minecraft.world.level.chunk.PalettedContainer$Data $$2 = this.data;
++        net.minecraft.world.level.chunk.PalettedContainer$Data $$3 = this.createOrReuseData($$2, $$0);
++        $$3.copyFrom($$2.palette, $$2.storage);
++        this.data = $$3;
++        return $$3.palette.idFor($$1);
+     }
+ 
+     /*
+      * WARNING - Removed try catching itself - possible behaviour change.
+      */
+-    public T getAndSet(int x, int y, int z, T state) {
++    public T getAndSet(int $$0, int $$1, int $$2, T $$3) {
+         this.acquire();
+         try {
+-            java.lang.Object object = this.getAndSet(this.strategy.getIndex(x, y, z), state);
++            java.lang.Object object = this.getAndSet(this.strategy.getIndex($$0, $$1, $$2), $$3);
+             return (T)object;
+         }
+         finally {
+@@ -91,14 +91,14 @@
+         }
+     }
+ 
+-    public T getAndSetUnchecked(int x, int y, int z, T state) {
+-        return (T)this.getAndSet(this.strategy.getIndex(x, y, z), state);
++    public T getAndSetUnchecked(int $$0, int $$1, int $$2, T $$3) {
++        return (T)this.getAndSet(this.strategy.getIndex($$0, $$1, $$2), $$3);
+     }
+ 
+-    public T getAndSet(int index, T state) {
+-        int n = this.data.palette.idFor(state);
+-        int n2 = this.data.storage.getAndSet(index, n);
+-        return (T)this.data.palette.valueFor(n2);
++    public T getAndSet(int $$0, T $$1) {
++        int $$2 = this.data.palette.idFor($$1);
++        int $$3 = this.data.storage.getAndSet($$0, $$2);
++        return (T)this.data.palette.valueFor($$3);
+     }
+ 
+     /*
+@@ -114,18 +114,18 @@
+         }
+     }
+ 
+-    public void set(int index, T state) {
+-        int n = this.data.palette.idFor(state);
+-        this.data.storage.set(index, n);
++    public void set(int $$0, T $$1) {
++        int $$2 = this.data.palette.idFor($$1);
++        this.data.storage.set($$0, $$2);
+     }
+ 
+-    public T get(int x, int y, int z) {
+-        return (T)this.get(this.strategy.getIndex(x, y, z));
++    public T get(int $$0, int $$1, int $$2) {
++        return (T)this.get(this.strategy.getIndex($$0, $$1, $$2));
+     }
+ 
+-    public T get(int index) {
+-        net.minecraft.world.level.chunk.PalettedContainer$Data data = this.data;
+-        return (T)data.palette.valueFor(data.storage.get(index));
++    public T get(int $$0) {
++        net.minecraft.world.level.chunk.PalettedContainer$Data $$1 = this.data;
++        return (T)$$1.palette.valueFor($$1.storage.get($$0));
+     }
+ 
+     public void getAll(java.util.function.Consumer<T> $$0) {
+@@ -138,24 +138,24 @@
+     /*
+      * WARNING - Removed try catching itself - possible behaviour change.
+      */
+-    public void read(net.minecraft.network.FriendlyByteBuf buf) {
++    public void read(net.minecraft.network.FriendlyByteBuf $$0) {
+         this.acquire();
+         try {
+-            byte by = buf.readByte();
+-            net.minecraft.world.level.chunk.PalettedContainer$Data data = this.createOrReuseData(this.data, (int)by);
+-            data.palette.read(buf);
+-            buf.readLongArray(data.storage.getRaw());
+-            this.data = data;
++            byte $$1 = $$0.readByte();
++            net.minecraft.world.level.chunk.PalettedContainer$Data $$2 = this.createOrReuseData(this.data, (int)$$1);
++            $$2.palette.read($$0);
++            $$0.readLongArray($$2.storage.getRaw());
++            this.data = $$2;
+         }
+         finally {
+             this.release();
+         }
+     }
+ 
+-    public void write(net.minecraft.network.FriendlyByteBuf buf) {
++    public void write(net.minecraft.network.FriendlyByteBuf $$0) {
+         this.acquire();
+         try {
+-            this.data.write(buf);
++            this.data.write($$0);
+         }
+         finally {
+             this.release();
+@@ -254,14 +254,14 @@
+         return new net.minecraft.world.level.chunk.PalettedContainer(this.registry, this.data.palette.valueFor(0), this.strategy);
+     }
+ 
+-    public void count(net.minecraft.world.level.chunk.PalettedContainer$CountConsumer<T> countConsumer) {
++    public void count(net.minecraft.world.level.chunk.PalettedContainer$CountConsumer<T> $$0) {
+         if (this.data.palette.getSize() == 1) {
+-            countConsumer.accept(this.data.palette.valueFor(0), this.data.storage.getSize());
++            $$0.accept(this.data.palette.valueFor(0), this.data.storage.getSize());
+             return;
+         }
+-        it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap int2IntOpenHashMap = new it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap();
+-        this.data.storage.getAll($$1 -> int2IntOpenHashMap.addTo($$1, 1));
+-        int2IntOpenHashMap.int2IntEntrySet().forEach($$1 -> countConsumer.accept(this.data.palette.valueFor($$1.getIntKey()), $$1.getIntValue()));
++        it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap $$12 = new it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap();
++        this.data.storage.getAll($$1 -> $$12.addTo($$1, 1));
++        $$12.int2IntEntrySet().forEach($$1 -> $$0.accept(this.data.palette.valueFor($$1.getIntKey()), $$1.getIntValue()));
+     }
+ 
+     public static /* synthetic */ int lambda$unpack$8(net.minecraft.core.IdMap $$0, net.minecraft.world.level.chunk.Palette $$1, int $$2) {

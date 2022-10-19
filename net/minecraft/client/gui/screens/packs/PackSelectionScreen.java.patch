@@ -1,0 +1,81 @@
+--- net/minecraft/client/gui/screens/packs/PackSelectionScreen.java
++++ net/minecraft/client/gui/screens/packs/PackSelectionScreen.java
+@@ -19,17 +19,17 @@
+     public long ticksToReload;
+     public net.minecraft.client.gui.screens.packs.TransferableSelectionList availablePackList;
+     public net.minecraft.client.gui.screens.packs.TransferableSelectionList selectedPackList;
+-    public java.io.File packDir;
++    public java.nio.file.Path packDir;
+     public net.minecraft.client.gui.components.Button doneButton;
+     public java.util.Map<java.lang.String, net.minecraft.resources.ResourceLocation> packIcons;
+ 
+-    public net.minecraft.client.gui.screens.packs.PackSelectionScreen(net.minecraft.client.gui.screens.Screen $$0, net.minecraft.server.packs.repository.PackRepository $$1, java.util.function.Consumer<net.minecraft.server.packs.repository.PackRepository> $$2, java.io.File $$3, net.minecraft.network.chat.Component $$4) {
++    public net.minecraft.client.gui.screens.packs.PackSelectionScreen(net.minecraft.client.gui.screens.Screen $$0, net.minecraft.server.packs.repository.PackRepository $$1, java.util.function.Consumer<net.minecraft.server.packs.repository.PackRepository> $$2, java.nio.file.Path $$3, net.minecraft.network.chat.Component $$4) {
+         super($$4);
+         this.packIcons = com.google.common.collect.Maps.newHashMap();
+         this.lastScreen = $$0;
+         this.model = new net.minecraft.client.gui.screens.packs.PackSelectionModel(() -> this.populateLists(), arg_0 -> this.getPackIcon(arg_0), $$1, $$2);
+         this.packDir = $$3;
+-        this.watcher = net.minecraft.client.gui.screens.packs.PackSelectionScreen$Watcher.create((java.io.File)$$3);
++        this.watcher = net.minecraft.client.gui.screens.packs.PackSelectionScreen$Watcher.create((java.nio.file.Path)$$3);
+     }
+ 
+     public void onClose() {
+@@ -52,7 +52,7 @@
+ 
+     public void init() {
+         this.doneButton = (net.minecraft.client.gui.components.Button)this.addRenderableWidget((net.minecraft.client.gui.components.events.GuiEventListener)new net.minecraft.client.gui.components.Button(this.width / 2 + 4, this.height - 48, 150, 20, net.minecraft.network.chat.CommonComponents.GUI_DONE, $$0 -> this.onClose()));
+-        this.addRenderableWidget((net.minecraft.client.gui.components.events.GuiEventListener)new net.minecraft.client.gui.components.Button(this.width / 2 - 154, this.height - 48, 150, 20, (net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"pack.openFolder"), $$0 -> net.minecraft.Util.getPlatform().openFile(this.packDir), (net.minecraft.client.gui.components.Button$OnTooltip)new /* Unavailable Anonymous Inner Class!! */));
++        this.addRenderableWidget((net.minecraft.client.gui.components.events.GuiEventListener)new net.minecraft.client.gui.components.Button(this.width / 2 - 154, this.height - 48, 150, 20, (net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"pack.openFolder"), $$0 -> net.minecraft.Util.getPlatform().openUri(this.packDir.toUri()), (net.minecraft.client.gui.components.Button$OnTooltip)new /* Unavailable Anonymous Inner Class!! */));
+         this.availablePackList = new net.minecraft.client.gui.screens.packs.TransferableSelectionList(this.minecraft, 200, this.height, (net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"pack.available.title"));
+         this.availablePackList.setLeftPos(this.width / 2 - 4 - 200);
+         this.addWidget((net.minecraft.client.gui.components.events.GuiEventListener)this.availablePackList);
+@@ -97,13 +97,13 @@
+         this.packIcons.clear();
+     }
+ 
+-    public void render(com.mojang.blaze3d.vertex.PoseStack matrixStack, int mouseX, int mouseY, float partialTicks) {
++    public void render(com.mojang.blaze3d.vertex.PoseStack $$0, int $$1, int $$2, float $$3) {
+         this.renderDirtBackground(0);
+-        this.availablePackList.render(matrixStack, mouseX, mouseY, partialTicks);
+-        this.selectedPackList.render(matrixStack, mouseX, mouseY, partialTicks);
+-        net.minecraft.client.gui.screens.packs.PackSelectionScreen.drawCenteredString((com.mojang.blaze3d.vertex.PoseStack)matrixStack, (net.minecraft.client.gui.Font)this.font, (net.minecraft.network.chat.Component)this.title, (int)(this.width / 2), (int)8, (int)0xFFFFFF);
+-        net.minecraft.client.gui.screens.packs.PackSelectionScreen.drawCenteredString((com.mojang.blaze3d.vertex.PoseStack)matrixStack, (net.minecraft.client.gui.Font)this.font, (net.minecraft.network.chat.Component)DRAG_AND_DROP, (int)(this.width / 2), (int)20, (int)0xFFFFFF);
+-        super.render(matrixStack, mouseX, mouseY, partialTicks);
++        this.availablePackList.render($$0, $$1, $$2, $$3);
++        this.selectedPackList.render($$0, $$1, $$2, $$3);
++        net.minecraft.client.gui.screens.packs.PackSelectionScreen.drawCenteredString((com.mojang.blaze3d.vertex.PoseStack)$$0, (net.minecraft.client.gui.Font)this.font, (net.minecraft.network.chat.Component)this.title, (int)(this.width / 2), (int)8, (int)0xFFFFFF);
++        net.minecraft.client.gui.screens.packs.PackSelectionScreen.drawCenteredString((com.mojang.blaze3d.vertex.PoseStack)$$0, (net.minecraft.client.gui.Font)this.font, (net.minecraft.network.chat.Component)DRAG_AND_DROP, (int)(this.width / 2), (int)20, (int)0xFFFFFF);
++        super.render($$0, $$1, $$2, $$3);
+     }
+ 
+     public static void copyPacks(net.minecraft.client.Minecraft $$0, java.util.List<java.nio.file.Path> $$1, java.nio.file.Path $$22) {
+@@ -131,15 +131,15 @@
+         }
+     }
+ 
+-    public void onFilesDrop(java.util.List<java.nio.file.Path> packs) {
+-        java.lang.String string = (java.lang.String)packs.stream().map(java.nio.file.Path::getFileName).map(java.nio.file.Path::toString).collect(java.util.stream.Collectors.joining((java.lang.CharSequence)", "));
++    public void onFilesDrop(java.util.List<java.nio.file.Path> $$0) {
++        java.lang.String $$12 = (java.lang.String)$$0.stream().map(java.nio.file.Path::getFileName).map(java.nio.file.Path::toString).collect(java.util.stream.Collectors.joining((java.lang.CharSequence)", "));
+         this.minecraft.setScreen((net.minecraft.client.gui.screens.Screen)new net.minecraft.client.gui.screens.ConfirmScreen($$1 -> {
+             if ($$1) {
+-                net.minecraft.client.gui.screens.packs.PackSelectionScreen.copyPacks((net.minecraft.client.Minecraft)this.minecraft, (java.util.List)packs, (java.nio.file.Path)this.packDir.toPath());
++                net.minecraft.client.gui.screens.packs.PackSelectionScreen.copyPacks((net.minecraft.client.Minecraft)this.minecraft, (java.util.List)$$0, (java.nio.file.Path)this.packDir);
+                 this.reload();
+             }
+             this.minecraft.setScreen((net.minecraft.client.gui.screens.Screen)this);
+-        }, (net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"pack.dropConfirm"), (net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.literal((java.lang.String)string)));
++        }, (net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"pack.dropConfirm"), (net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.literal((java.lang.String)$$12)));
+     }
+ 
+     /*
+@@ -149,7 +149,7 @@
+         /*
+          * This method has failed to decompile.  When submitting a bug report, please provide this stack trace, and (if you hold appropriate legal rights) the relevant class file.
+ 
+-         * org.benf.cfr.reader.util.ConfusedCFRException: Started 3 blocks at once
++         * org.benf.cfr.reader.util.ConfusedCFRException: Started 2 blocks at once
+          *     at org.benf.cfr.reader.bytecode.analysis.opgraph.Op04StructuredStatement.getStartingBlocks(Op04StructuredStatement.java:412)
+          *     at org.benf.cfr.reader.bytecode.analysis.opgraph.Op04StructuredStatement.buildNestedBlocks(Op04StructuredStatement.java:487)
+          *     at org.benf.cfr.reader.bytecode.analysis.opgraph.Op03SimpleStatement.createInitialStructuredBlock(Op03SimpleStatement.java:736)

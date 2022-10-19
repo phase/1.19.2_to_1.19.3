@@ -1,0 +1,99 @@
+--- net/minecraft/client/renderer/entity/BoatRenderer.java
++++ net/minecraft/client/renderer/entity/BoatRenderer.java
+@@ -6,7 +6,7 @@
+ public class net.minecraft.client.renderer.entity.BoatRenderer
+ extends net.minecraft.client.renderer.entity.EntityRenderer<net.minecraft.world.entity.vehicle.Boat>
+  {
+-    public java.util.Map<net.minecraft.world.entity.vehicle.Boat$Type, com.mojang.datafixers.util.Pair<net.minecraft.resources.ResourceLocation, net.minecraft.client.model.BoatModel>> boatResources;
++    public java.util.Map<net.minecraft.world.entity.vehicle.Boat$Type, com.mojang.datafixers.util.Pair<net.minecraft.resources.ResourceLocation, net.minecraft.client.model.ListModel<net.minecraft.world.entity.vehicle.Boat>>> boatResources;
+ 
+     public net.minecraft.client.renderer.entity.BoatRenderer(net.minecraft.client.renderer.entity.EntityRendererProvider$Context $$02, boolean $$1) {
+         super($$02);
+@@ -14,9 +14,13 @@
+         this.boatResources = (java.util.Map)java.util.stream.Stream.of((java.lang.Object[])net.minecraft.world.entity.vehicle.Boat$Type.values()).collect(com.google.common.collect.ImmutableMap.toImmutableMap($$0 -> $$0, $$2 -> com.mojang.datafixers.util.Pair.of((java.lang.Object)new net.minecraft.resources.ResourceLocation(net.minecraft.client.renderer.entity.BoatRenderer.getTextureLocation((net.minecraft.world.entity.vehicle.Boat$Type)$$2, (boolean)$$1)), (java.lang.Object)this.createBoatModel($$02, $$2, $$1))));
+     }
+ 
+-    public net.minecraft.client.model.BoatModel createBoatModel(net.minecraft.client.renderer.entity.EntityRendererProvider$Context $$0, net.minecraft.world.entity.vehicle.Boat$Type $$1, boolean $$2) {
++    public net.minecraft.client.model.ListModel<net.minecraft.world.entity.vehicle.Boat> createBoatModel(net.minecraft.client.renderer.entity.EntityRendererProvider$Context $$0, net.minecraft.world.entity.vehicle.Boat$Type $$1, boolean $$2) {
+         net.minecraft.client.model.geom.ModelLayerLocation $$3 = $$2 ? net.minecraft.client.model.geom.ModelLayers.createChestBoatModelName((net.minecraft.world.entity.vehicle.Boat$Type)$$1) : net.minecraft.client.model.geom.ModelLayers.createBoatModelName((net.minecraft.world.entity.vehicle.Boat$Type)$$1);
+-        return new net.minecraft.client.model.BoatModel($$0.bakeLayer($$3), $$2);
++        net.minecraft.client.model.geom.ModelPart $$4 = $$0.bakeLayer($$3);
++        if ($$1 == net.minecraft.world.entity.vehicle.Boat$Type.BAMBOO) {
++            return $$2 ? new net.minecraft.client.model.ChestRaftModel($$4) : new net.minecraft.client.model.RaftModel($$4);
++        }
++        return $$2 ? new net.minecraft.client.model.ChestBoatModel($$4) : new net.minecraft.client.model.BoatModel($$4);
+     }
+ 
+     public static java.lang.String getTextureLocation(net.minecraft.world.entity.vehicle.Boat$Type $$0, boolean $$1) {
+@@ -26,40 +30,43 @@
+         return "textures/entity/boat/" + $$0.getName() + ".png";
+     }
+ 
+-    public void render(net.minecraft.world.entity.vehicle.Boat entity, float entityYaw, float partialTicks, com.mojang.blaze3d.vertex.PoseStack matrixStack, net.minecraft.client.renderer.MultiBufferSource buffer, int packedLight) {
+-        float f;
+-        matrixStack.pushPose();
+-        matrixStack.translate(0.0, 0.375, 0.0);
+-        matrixStack.mulPose(com.mojang.math.Vector3f.YP.rotationDegrees(180.0f - entityYaw));
+-        float f2 = (float)entity.getHurtTime() - partialTicks;
+-        float f3 = entity.getDamage() - partialTicks;
+-        if (f3 < 0.0f) {
+-            f3 = 0.0f;
++    public void render(net.minecraft.world.entity.vehicle.Boat $$0, float $$1, float $$2, com.mojang.blaze3d.vertex.PoseStack $$3, net.minecraft.client.renderer.MultiBufferSource $$4, int $$5) {
++        float $$8;
++        $$3.pushPose();
++        $$3.translate(0.0, 0.375, 0.0);
++        $$3.mulPose(com.mojang.math.Vector3f.YP.rotationDegrees(180.0f - $$1));
++        float $$6 = (float)$$0.getHurtTime() - $$2;
++        float $$7 = $$0.getDamage() - $$2;
++        if ($$7 < 0.0f) {
++            $$7 = 0.0f;
+         }
+-        if (f2 > 0.0f) {
+-            matrixStack.mulPose(com.mojang.math.Vector3f.XP.rotationDegrees(net.minecraft.util.Mth.sin((float)f2) * f2 * f3 / 10.0f * (float)entity.getHurtDir()));
++        if ($$6 > 0.0f) {
++            $$3.mulPose(com.mojang.math.Vector3f.XP.rotationDegrees(net.minecraft.util.Mth.sin((float)$$6) * $$6 * $$7 / 10.0f * (float)$$0.getHurtDir()));
+         }
+-        if (!net.minecraft.util.Mth.equal((float)(f = entity.getBubbleAngle(partialTicks)), (float)0.0f)) {
+-            matrixStack.mulPose(new com.mojang.math.Quaternion(new com.mojang.math.Vector3f(1.0f, 0.0f, 1.0f), entity.getBubbleAngle(partialTicks), true));
++        if (!net.minecraft.util.Mth.equal((float)($$8 = $$0.getBubbleAngle($$2)), (float)0.0f)) {
++            $$3.mulPose(new com.mojang.math.Quaternion(new com.mojang.math.Vector3f(1.0f, 0.0f, 1.0f), $$0.getBubbleAngle($$2), true));
+         }
+-        com.mojang.datafixers.util.Pair pair = (com.mojang.datafixers.util.Pair)this.boatResources.get((java.lang.Object)entity.getBoatType());
+-        net.minecraft.resources.ResourceLocation resourceLocation = (net.minecraft.resources.ResourceLocation)pair.getFirst();
+-        net.minecraft.client.model.BoatModel boatModel = (net.minecraft.client.model.BoatModel)pair.getSecond();
+-        matrixStack.scale(-1.0f, -1.0f, 1.0f);
+-        matrixStack.mulPose(com.mojang.math.Vector3f.YP.rotationDegrees(90.0f));
+-        boatModel.setupAnim(entity, partialTicks, 0.0f, -0.1f, 0.0f, 0.0f);
+-        com.mojang.blaze3d.vertex.VertexConsumer vertexConsumer = buffer.getBuffer(boatModel.renderType(resourceLocation));
+-        boatModel.renderToBuffer(matrixStack, vertexConsumer, packedLight, net.minecraft.client.renderer.texture.OverlayTexture.NO_OVERLAY, 1.0f, 1.0f, 1.0f, 1.0f);
+-        if (!entity.isUnderWater()) {
+-            com.mojang.blaze3d.vertex.VertexConsumer vertexConsumer2 = buffer.getBuffer(net.minecraft.client.renderer.RenderType.waterMask());
+-            boatModel.waterPatch().render(matrixStack, vertexConsumer2, packedLight, net.minecraft.client.renderer.texture.OverlayTexture.NO_OVERLAY);
++        com.mojang.datafixers.util.Pair $$9 = (com.mojang.datafixers.util.Pair)this.boatResources.get((java.lang.Object)$$0.getBoatType());
++        net.minecraft.resources.ResourceLocation $$10 = (net.minecraft.resources.ResourceLocation)$$9.getFirst();
++        net.minecraft.client.model.ListModel $$11 = (net.minecraft.client.model.ListModel)$$9.getSecond();
++        $$3.scale(-1.0f, -1.0f, 1.0f);
++        $$3.mulPose(com.mojang.math.Vector3f.YP.rotationDegrees(90.0f));
++        $$11.setupAnim((net.minecraft.world.entity.Entity)$$0, $$2, 0.0f, -0.1f, 0.0f, 0.0f);
++        com.mojang.blaze3d.vertex.VertexConsumer $$12 = $$4.getBuffer($$11.renderType($$10));
++        $$11.renderToBuffer($$3, $$12, $$5, net.minecraft.client.renderer.texture.OverlayTexture.NO_OVERLAY, 1.0f, 1.0f, 1.0f, 1.0f);
++        if (!$$0.isUnderWater()) {
++            com.mojang.blaze3d.vertex.VertexConsumer $$13 = $$4.getBuffer(net.minecraft.client.renderer.RenderType.waterMask());
++            if ($$11 instanceof net.minecraft.client.model.WaterPatchModel) {
++                net.minecraft.client.model.WaterPatchModel $$14 = (net.minecraft.client.model.WaterPatchModel)$$11;
++                $$14.waterPatch().render($$3, $$13, $$5, net.minecraft.client.renderer.texture.OverlayTexture.NO_OVERLAY);
++            }
+         }
+-        matrixStack.popPose();
+-        super.render((net.minecraft.world.entity.Entity)entity, entityYaw, partialTicks, matrixStack, buffer, packedLight);
++        $$3.popPose();
++        super.render((net.minecraft.world.entity.Entity)$$0, $$1, $$2, $$3, $$4, $$5);
+     }
+ 
+-    public net.minecraft.resources.ResourceLocation getTextureLocation(net.minecraft.world.entity.vehicle.Boat entity) {
+-        return (net.minecraft.resources.ResourceLocation)((com.mojang.datafixers.util.Pair)this.boatResources.get((java.lang.Object)entity.getBoatType())).getFirst();
++    public net.minecraft.resources.ResourceLocation getTextureLocation(net.minecraft.world.entity.vehicle.Boat $$0) {
++        return (net.minecraft.resources.ResourceLocation)((com.mojang.datafixers.util.Pair)this.boatResources.get((java.lang.Object)$$0.getBoatType())).getFirst();
+     }
+ }
+ 

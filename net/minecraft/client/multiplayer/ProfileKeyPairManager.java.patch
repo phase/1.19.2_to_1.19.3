@@ -1,0 +1,67 @@
+--- net/minecraft/client/multiplayer/ProfileKeyPairManager.java
++++ net/minecraft/client/multiplayer/ProfileKeyPairManager.java
+@@ -9,7 +9,7 @@
+     public static java.nio.file.Path PROFILE_KEY_PAIR_DIR;
+     public com.mojang.authlib.minecraft.UserApiService userApiService;
+     public java.nio.file.Path profileKeyPairPath;
+-    public java.util.concurrent.CompletableFuture<java.util.Optional<net.minecraft.client.multiplayer.ProfileKeyPairManager$Result>> keyPair;
++    public java.util.concurrent.CompletableFuture<java.util.Optional<net.minecraft.world.entity.player.ProfileKeyPair>> keyPair;
+ 
+     public net.minecraft.client.multiplayer.ProfileKeyPairManager(com.mojang.authlib.minecraft.UserApiService $$0, java.util.UUID $$1, java.nio.file.Path $$2) {
+         this.userApiService = $$0;
+@@ -17,21 +17,18 @@
+         this.keyPair = java.util.concurrent.CompletableFuture.supplyAsync(() -> this.readProfileKeyPair().filter($$0 -> !$$0.publicKey().data().hasExpired()), (java.util.concurrent.Executor)net.minecraft.Util.backgroundExecutor()).thenCompose(arg_0 -> this.readOrFetchProfileKeyPair(arg_0));
+     }
+ 
+-    public java.util.concurrent.CompletableFuture<java.util.Optional<net.minecraft.world.entity.player.ProfilePublicKey$Data>> preparePublicKey() {
+-        this.keyPair = this.keyPair.thenCompose($$0 -> {
+-            java.util.Optional $$1 = $$0.map(net.minecraft.client.multiplayer.ProfileKeyPairManager$Result::keyPair);
+-            return this.readOrFetchProfileKeyPair($$1);
+-        });
+-        return this.keyPair.thenApply($$02 -> $$02.map($$0 -> $$0.keyPair().publicKey().data()));
++    public java.util.concurrent.CompletableFuture<net.minecraft.network.chat.LocalChatSession> prepareChatSession() {
++        this.keyPair = this.keyPair.thenCompose(arg_0 -> this.readOrFetchProfileKeyPair(arg_0));
++        return this.keyPair.thenApply($$0 -> net.minecraft.network.chat.LocalChatSession.create((net.minecraft.world.entity.player.ProfileKeyPair)((net.minecraft.world.entity.player.ProfileKeyPair)$$0.orElse(null))));
+     }
+ 
+-    public java.util.concurrent.CompletableFuture<java.util.Optional<net.minecraft.client.multiplayer.ProfileKeyPairManager$Result>> readOrFetchProfileKeyPair(java.util.Optional<net.minecraft.world.entity.player.ProfileKeyPair> $$02) {
++    public java.util.concurrent.CompletableFuture<java.util.Optional<net.minecraft.world.entity.player.ProfileKeyPair>> readOrFetchProfileKeyPair(java.util.Optional<net.minecraft.world.entity.player.ProfileKeyPair> $$0) {
+         return java.util.concurrent.CompletableFuture.supplyAsync(() -> {
+-            if ($$02.isPresent() && !((net.minecraft.world.entity.player.ProfileKeyPair)$$02.get()).dueRefresh()) {
++            if ($$0.isPresent() && !((net.minecraft.world.entity.player.ProfileKeyPair)$$0.get()).dueRefresh()) {
+                 if (!net.minecraft.SharedConstants.IS_RUNNING_IN_IDE) {
+                     this.writeProfileKeyPair(null);
+                 } else {
+-                    return $$02;
++                    return $$0;
+                 }
+             }
+             try {
+@@ -42,9 +39,9 @@
+             catch (com.mojang.authlib.exceptions.MinecraftClientException | java.io.IOException | net.minecraft.util.CryptException $$2) {
+                 LOGGER.error("Failed to retrieve profile key pair", $$2);
+                 this.writeProfileKeyPair(null);
+-                return $$02;
++                return $$0;
+             }
+-        }, (java.util.concurrent.Executor)net.minecraft.Util.backgroundExecutor()).thenApply($$0 -> $$0.map(net.minecraft.client.multiplayer.ProfileKeyPairManager$Result::new));
++        }, (java.util.concurrent.Executor)net.minecraft.Util.backgroundExecutor());
+     }
+ 
+     public java.util.Optional<net.minecraft.world.entity.player.ProfileKeyPair> readProfileKeyPair() {
+@@ -128,15 +125,6 @@
+         }
+     }
+ 
+-    @javax.annotation.Nullable
+-    public net.minecraft.util.Signer signer() {
+-        return (net.minecraft.util.Signer)((java.util.Optional)this.keyPair.join()).map(net.minecraft.client.multiplayer.ProfileKeyPairManager$Result::signer).orElse(null);
+-    }
+-
+-    public java.util.Optional<net.minecraft.world.entity.player.ProfilePublicKey> profilePublicKey() {
+-        return ((java.util.Optional)this.keyPair.join()).map($$0 -> $$0.keyPair().publicKey());
+-    }
+-
+     static {
+         LOGGER = com.mojang.logging.LogUtils.getLogger();
+         PROFILE_KEY_PAIR_DIR = java.nio.file.Path.of((java.lang.String)"profilekeys", (java.lang.String[])new java.lang.String[0]);

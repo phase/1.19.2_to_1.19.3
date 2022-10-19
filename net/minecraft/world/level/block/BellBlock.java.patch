@@ -1,0 +1,275 @@
+--- net/minecraft/world/level/block/BellBlock.java
++++ net/minecraft/world/level/block/BellBlock.java
+@@ -28,54 +28,54 @@
+         this.registerDefaultState((net.minecraft.world.level.block.state.BlockState)((net.minecraft.world.level.block.state.BlockState)((net.minecraft.world.level.block.state.BlockState)((net.minecraft.world.level.block.state.BlockState)this.stateDefinition.any()).setValue((net.minecraft.world.level.block.state.properties.Property)FACING, (java.lang.Comparable)net.minecraft.core.Direction.NORTH)).setValue((net.minecraft.world.level.block.state.properties.Property)ATTACHMENT, (java.lang.Comparable)net.minecraft.world.level.block.state.properties.BellAttachType.FLOOR)).setValue((net.minecraft.world.level.block.state.properties.Property)POWERED, (java.lang.Comparable)java.lang.Boolean.valueOf((boolean)false)));
+     }
+ 
+-    public void neighborChanged(net.minecraft.world.level.block.state.BlockState state, net.minecraft.world.level.Level level, net.minecraft.core.BlockPos pos, net.minecraft.world.level.block.Block block, net.minecraft.core.BlockPos fromPos, boolean isMoving) {
+-        boolean bl = level.hasNeighborSignal(pos);
+-        if (bl != (java.lang.Boolean)state.getValue((net.minecraft.world.level.block.state.properties.Property)POWERED)) {
+-            if (bl) {
+-                this.attemptToRing(level, pos, null);
++    public void neighborChanged(net.minecraft.world.level.block.state.BlockState $$0, net.minecraft.world.level.Level $$1, net.minecraft.core.BlockPos $$2, net.minecraft.world.level.block.Block $$3, net.minecraft.core.BlockPos $$4, boolean $$5) {
++        boolean $$6 = $$1.hasNeighborSignal($$2);
++        if ($$6 != (java.lang.Boolean)$$0.getValue((net.minecraft.world.level.block.state.properties.Property)POWERED)) {
++            if ($$6) {
++                this.attemptToRing($$1, $$2, null);
+             }
+-            level.setBlock(pos, (net.minecraft.world.level.block.state.BlockState)state.setValue((net.minecraft.world.level.block.state.properties.Property)POWERED, (java.lang.Comparable)java.lang.Boolean.valueOf((boolean)bl)), 3);
++            $$1.setBlock($$2, (net.minecraft.world.level.block.state.BlockState)$$0.setValue((net.minecraft.world.level.block.state.properties.Property)POWERED, (java.lang.Comparable)java.lang.Boolean.valueOf((boolean)$$6)), 3);
+         }
+     }
+ 
+-    public void onProjectileHit(net.minecraft.world.level.Level level, net.minecraft.world.level.block.state.BlockState state, net.minecraft.world.phys.BlockHitResult hit, net.minecraft.world.entity.projectile.Projectile projectile) {
+-        net.minecraft.world.entity.Entity entity = projectile.getOwner();
+-        net.minecraft.world.entity.player.Player player = entity instanceof net.minecraft.world.entity.player.Player ? (net.minecraft.world.entity.player.Player)entity : null;
+-        this.onHit(level, state, hit, player, true);
++    public void onProjectileHit(net.minecraft.world.level.Level $$0, net.minecraft.world.level.block.state.BlockState $$1, net.minecraft.world.phys.BlockHitResult $$2, net.minecraft.world.entity.projectile.Projectile $$3) {
++        net.minecraft.world.entity.Entity $$4 = $$3.getOwner();
++        net.minecraft.world.entity.player.Player $$5 = $$4 instanceof net.minecraft.world.entity.player.Player ? (net.minecraft.world.entity.player.Player)$$4 : null;
++        this.onHit($$0, $$1, $$2, $$5, true);
+     }
+ 
+-    public net.minecraft.world.InteractionResult use(net.minecraft.world.level.block.state.BlockState state, net.minecraft.world.level.Level level, net.minecraft.core.BlockPos pos, net.minecraft.world.entity.player.Player player, net.minecraft.world.InteractionHand hand, net.minecraft.world.phys.BlockHitResult hit) {
+-        return this.onHit(level, state, hit, player, true) ? net.minecraft.world.InteractionResult.sidedSuccess((boolean)level.isClientSide) : net.minecraft.world.InteractionResult.PASS;
++    public net.minecraft.world.InteractionResult use(net.minecraft.world.level.block.state.BlockState $$0, net.minecraft.world.level.Level $$1, net.minecraft.core.BlockPos $$2, net.minecraft.world.entity.player.Player $$3, net.minecraft.world.InteractionHand $$4, net.minecraft.world.phys.BlockHitResult $$5) {
++        return this.onHit($$1, $$0, $$5, $$3, true) ? net.minecraft.world.InteractionResult.sidedSuccess((boolean)$$1.isClientSide) : net.minecraft.world.InteractionResult.PASS;
+     }
+ 
+-    public boolean onHit(net.minecraft.world.level.Level level, net.minecraft.world.level.block.state.BlockState state, net.minecraft.world.phys.BlockHitResult result, @javax.annotation.Nullable net.minecraft.world.entity.player.Player player, boolean canRingBell) {
+-        boolean bl;
+-        net.minecraft.core.Direction direction = result.getDirection();
+-        net.minecraft.core.BlockPos blockPos = result.getBlockPos();
+-        boolean bl2 = bl = !canRingBell || this.isProperHit(state, direction, result.getLocation().y - (double)blockPos.getY());
+-        if (bl) {
+-            boolean bl3 = this.attemptToRing((net.minecraft.world.entity.Entity)player, level, blockPos, direction);
+-            if (bl3 && player != null) {
+-                player.awardStat(net.minecraft.stats.Stats.BELL_RING);
++    public boolean onHit(net.minecraft.world.level.Level $$0, net.minecraft.world.level.block.state.BlockState $$1, net.minecraft.world.phys.BlockHitResult $$2, @javax.annotation.Nullable net.minecraft.world.entity.player.Player $$3, boolean $$4) {
++        boolean $$7;
++        net.minecraft.core.Direction $$5 = $$2.getDirection();
++        net.minecraft.core.BlockPos $$6 = $$2.getBlockPos();
++        boolean bl = $$7 = !$$4 || this.isProperHit($$1, $$5, $$2.getLocation().y - (double)$$6.getY());
++        if ($$7) {
++            boolean $$8 = this.attemptToRing((net.minecraft.world.entity.Entity)$$3, $$0, $$6, $$5);
++            if ($$8 && $$3 != null) {
++                $$3.awardStat(net.minecraft.stats.Stats.BELL_RING);
+             }
+             return true;
+         }
+         return false;
+     }
+ 
+-    public boolean isProperHit(net.minecraft.world.level.block.state.BlockState pos, net.minecraft.core.Direction direction, double distanceY) {
+-        if (direction.getAxis() == net.minecraft.core.Direction$Axis.Y || distanceY > (double)0.8124f) {
++    public boolean isProperHit(net.minecraft.world.level.block.state.BlockState $$0, net.minecraft.core.Direction $$1, double $$2) {
++        if ($$1.getAxis() == net.minecraft.core.Direction$Axis.Y || $$2 > (double)0.8124f) {
+             return false;
+         }
+-        net.minecraft.core.Direction direction2 = (net.minecraft.core.Direction)pos.getValue((net.minecraft.world.level.block.state.properties.Property)FACING);
+-        net.minecraft.world.level.block.state.properties.BellAttachType bellAttachType = (net.minecraft.world.level.block.state.properties.BellAttachType)pos.getValue((net.minecraft.world.level.block.state.properties.Property)ATTACHMENT);
+-        switch (net.minecraft.world.level.block.BellBlock$1.$SwitchMap$net$minecraft$world$level$block$state$properties$BellAttachType[bellAttachType.ordinal()]) {
++        net.minecraft.core.Direction $$3 = (net.minecraft.core.Direction)$$0.getValue((net.minecraft.world.level.block.state.properties.Property)FACING);
++        net.minecraft.world.level.block.state.properties.BellAttachType $$4 = (net.minecraft.world.level.block.state.properties.BellAttachType)$$0.getValue((net.minecraft.world.level.block.state.properties.Property)ATTACHMENT);
++        switch (net.minecraft.world.level.block.BellBlock$1.$SwitchMap$net$minecraft$world$level$block$state$properties$BellAttachType[$$4.ordinal()]) {
+             case 1: {
+-                return direction2.getAxis() == direction.getAxis();
++                return $$3.getAxis() == $$1.getAxis();
+             }
+             case 2: 
+             case 3: {
+-                return direction2.getAxis() != direction.getAxis();
++                return $$3.getAxis() != $$1.getAxis();
+             }
+             case 4: {
+                 return true;
+@@ -84,8 +84,8 @@
+         return false;
+     }
+ 
+-    public boolean attemptToRing(net.minecraft.world.level.Level level, net.minecraft.core.BlockPos pos, @javax.annotation.Nullable net.minecraft.core.Direction direction) {
+-        return this.attemptToRing(null, level, pos, direction);
++    public boolean attemptToRing(net.minecraft.world.level.Level $$0, net.minecraft.core.BlockPos $$1, @javax.annotation.Nullable net.minecraft.core.Direction $$2) {
++        return this.attemptToRing(null, $$0, $$1, $$2);
+     }
+ 
+     public boolean attemptToRing(@javax.annotation.Nullable net.minecraft.world.entity.Entity $$0, net.minecraft.world.level.Level $$1, net.minecraft.core.BlockPos $$2, @javax.annotation.Nullable net.minecraft.core.Direction $$3) {
+@@ -102,100 +102,100 @@
+         return false;
+     }
+ 
+-    public net.minecraft.world.phys.shapes.VoxelShape getVoxelShape(net.minecraft.world.level.block.state.BlockState state) {
+-        net.minecraft.core.Direction direction = (net.minecraft.core.Direction)state.getValue((net.minecraft.world.level.block.state.properties.Property)FACING);
+-        net.minecraft.world.level.block.state.properties.BellAttachType bellAttachType = (net.minecraft.world.level.block.state.properties.BellAttachType)state.getValue((net.minecraft.world.level.block.state.properties.Property)ATTACHMENT);
+-        if (bellAttachType == net.minecraft.world.level.block.state.properties.BellAttachType.FLOOR) {
+-            if (direction == net.minecraft.core.Direction.NORTH || direction == net.minecraft.core.Direction.SOUTH) {
++    public net.minecraft.world.phys.shapes.VoxelShape getVoxelShape(net.minecraft.world.level.block.state.BlockState $$0) {
++        net.minecraft.core.Direction $$1 = (net.minecraft.core.Direction)$$0.getValue((net.minecraft.world.level.block.state.properties.Property)FACING);
++        net.minecraft.world.level.block.state.properties.BellAttachType $$2 = (net.minecraft.world.level.block.state.properties.BellAttachType)$$0.getValue((net.minecraft.world.level.block.state.properties.Property)ATTACHMENT);
++        if ($$2 == net.minecraft.world.level.block.state.properties.BellAttachType.FLOOR) {
++            if ($$1 == net.minecraft.core.Direction.NORTH || $$1 == net.minecraft.core.Direction.SOUTH) {
+                 return NORTH_SOUTH_FLOOR_SHAPE;
+             }
+             return EAST_WEST_FLOOR_SHAPE;
+         }
+-        if (bellAttachType == net.minecraft.world.level.block.state.properties.BellAttachType.CEILING) {
++        if ($$2 == net.minecraft.world.level.block.state.properties.BellAttachType.CEILING) {
+             return CEILING_SHAPE;
+         }
+-        if (bellAttachType == net.minecraft.world.level.block.state.properties.BellAttachType.DOUBLE_WALL) {
+-            if (direction == net.minecraft.core.Direction.NORTH || direction == net.minecraft.core.Direction.SOUTH) {
++        if ($$2 == net.minecraft.world.level.block.state.properties.BellAttachType.DOUBLE_WALL) {
++            if ($$1 == net.minecraft.core.Direction.NORTH || $$1 == net.minecraft.core.Direction.SOUTH) {
+                 return NORTH_SOUTH_BETWEEN;
+             }
+             return EAST_WEST_BETWEEN;
+         }
+-        if (direction == net.minecraft.core.Direction.NORTH) {
++        if ($$1 == net.minecraft.core.Direction.NORTH) {
+             return TO_NORTH;
+         }
+-        if (direction == net.minecraft.core.Direction.SOUTH) {
++        if ($$1 == net.minecraft.core.Direction.SOUTH) {
+             return TO_SOUTH;
+         }
+-        if (direction == net.minecraft.core.Direction.EAST) {
++        if ($$1 == net.minecraft.core.Direction.EAST) {
+             return TO_EAST;
+         }
+         return TO_WEST;
+     }
+ 
+-    public net.minecraft.world.phys.shapes.VoxelShape getCollisionShape(net.minecraft.world.level.block.state.BlockState state, net.minecraft.world.level.BlockGetter level, net.minecraft.core.BlockPos pos, net.minecraft.world.phys.shapes.CollisionContext context) {
+-        return this.getVoxelShape(state);
++    public net.minecraft.world.phys.shapes.VoxelShape getCollisionShape(net.minecraft.world.level.block.state.BlockState $$0, net.minecraft.world.level.BlockGetter $$1, net.minecraft.core.BlockPos $$2, net.minecraft.world.phys.shapes.CollisionContext $$3) {
++        return this.getVoxelShape($$0);
+     }
+ 
+-    public net.minecraft.world.phys.shapes.VoxelShape getShape(net.minecraft.world.level.block.state.BlockState state, net.minecraft.world.level.BlockGetter level, net.minecraft.core.BlockPos pos, net.minecraft.world.phys.shapes.CollisionContext context) {
+-        return this.getVoxelShape(state);
++    public net.minecraft.world.phys.shapes.VoxelShape getShape(net.minecraft.world.level.block.state.BlockState $$0, net.minecraft.world.level.BlockGetter $$1, net.minecraft.core.BlockPos $$2, net.minecraft.world.phys.shapes.CollisionContext $$3) {
++        return this.getVoxelShape($$0);
+     }
+ 
+-    public net.minecraft.world.level.block.RenderShape getRenderShape(net.minecraft.world.level.block.state.BlockState state) {
++    public net.minecraft.world.level.block.RenderShape getRenderShape(net.minecraft.world.level.block.state.BlockState $$0) {
+         return net.minecraft.world.level.block.RenderShape.MODEL;
+     }
+ 
+     @javax.annotation.Nullable
+-    public net.minecraft.world.level.block.state.BlockState getStateForPlacement(net.minecraft.world.item.context.BlockPlaceContext context) {
+-        net.minecraft.core.Direction direction = context.getClickedFace();
+-        net.minecraft.core.BlockPos blockPos = context.getClickedPos();
+-        net.minecraft.world.level.Level level = context.getLevel();
+-        net.minecraft.core.Direction$Axis axis = direction.getAxis();
+-        if (axis == net.minecraft.core.Direction$Axis.Y) {
+-            net.minecraft.world.level.block.state.BlockState blockState = (net.minecraft.world.level.block.state.BlockState)((net.minecraft.world.level.block.state.BlockState)this.defaultBlockState().setValue((net.minecraft.world.level.block.state.properties.Property)ATTACHMENT, (java.lang.Comparable)(direction == net.minecraft.core.Direction.DOWN ? net.minecraft.world.level.block.state.properties.BellAttachType.CEILING : net.minecraft.world.level.block.state.properties.BellAttachType.FLOOR))).setValue((net.minecraft.world.level.block.state.properties.Property)FACING, (java.lang.Comparable)context.getHorizontalDirection());
+-            if (blockState.canSurvive((net.minecraft.world.level.LevelReader)context.getLevel(), blockPos)) {
+-                return blockState;
++    public net.minecraft.world.level.block.state.BlockState getStateForPlacement(net.minecraft.world.item.context.BlockPlaceContext $$0) {
++        net.minecraft.core.Direction $$1 = $$0.getClickedFace();
++        net.minecraft.core.BlockPos $$2 = $$0.getClickedPos();
++        net.minecraft.world.level.Level $$3 = $$0.getLevel();
++        net.minecraft.core.Direction$Axis $$4 = $$1.getAxis();
++        if ($$4 == net.minecraft.core.Direction$Axis.Y) {
++            net.minecraft.world.level.block.state.BlockState $$5 = (net.minecraft.world.level.block.state.BlockState)((net.minecraft.world.level.block.state.BlockState)this.defaultBlockState().setValue((net.minecraft.world.level.block.state.properties.Property)ATTACHMENT, (java.lang.Comparable)($$1 == net.minecraft.core.Direction.DOWN ? net.minecraft.world.level.block.state.properties.BellAttachType.CEILING : net.minecraft.world.level.block.state.properties.BellAttachType.FLOOR))).setValue((net.minecraft.world.level.block.state.properties.Property)FACING, (java.lang.Comparable)$$0.getHorizontalDirection());
++            if ($$5.canSurvive((net.minecraft.world.level.LevelReader)$$0.getLevel(), $$2)) {
++                return $$5;
+             }
+         } else {
+-            boolean bl = axis == net.minecraft.core.Direction$Axis.X && level.getBlockState(blockPos.west()).isFaceSturdy((net.minecraft.world.level.BlockGetter)level, blockPos.west(), net.minecraft.core.Direction.EAST) && level.getBlockState(blockPos.east()).isFaceSturdy((net.minecraft.world.level.BlockGetter)level, blockPos.east(), net.minecraft.core.Direction.WEST) || axis == net.minecraft.core.Direction$Axis.Z && level.getBlockState(blockPos.north()).isFaceSturdy((net.minecraft.world.level.BlockGetter)level, blockPos.north(), net.minecraft.core.Direction.SOUTH) && level.getBlockState(blockPos.south()).isFaceSturdy((net.minecraft.world.level.BlockGetter)level, blockPos.south(), net.minecraft.core.Direction.NORTH);
+-            net.minecraft.world.level.block.state.BlockState blockState = (net.minecraft.world.level.block.state.BlockState)((net.minecraft.world.level.block.state.BlockState)this.defaultBlockState().setValue((net.minecraft.world.level.block.state.properties.Property)FACING, (java.lang.Comparable)direction.getOpposite())).setValue((net.minecraft.world.level.block.state.properties.Property)ATTACHMENT, (java.lang.Comparable)(bl ? net.minecraft.world.level.block.state.properties.BellAttachType.DOUBLE_WALL : net.minecraft.world.level.block.state.properties.BellAttachType.SINGLE_WALL));
+-            if (blockState.canSurvive((net.minecraft.world.level.LevelReader)context.getLevel(), context.getClickedPos())) {
+-                return blockState;
++            boolean $$6 = $$4 == net.minecraft.core.Direction$Axis.X && $$3.getBlockState($$2.west()).isFaceSturdy((net.minecraft.world.level.BlockGetter)$$3, $$2.west(), net.minecraft.core.Direction.EAST) && $$3.getBlockState($$2.east()).isFaceSturdy((net.minecraft.world.level.BlockGetter)$$3, $$2.east(), net.minecraft.core.Direction.WEST) || $$4 == net.minecraft.core.Direction$Axis.Z && $$3.getBlockState($$2.north()).isFaceSturdy((net.minecraft.world.level.BlockGetter)$$3, $$2.north(), net.minecraft.core.Direction.SOUTH) && $$3.getBlockState($$2.south()).isFaceSturdy((net.minecraft.world.level.BlockGetter)$$3, $$2.south(), net.minecraft.core.Direction.NORTH);
++            net.minecraft.world.level.block.state.BlockState $$7 = (net.minecraft.world.level.block.state.BlockState)((net.minecraft.world.level.block.state.BlockState)this.defaultBlockState().setValue((net.minecraft.world.level.block.state.properties.Property)FACING, (java.lang.Comparable)$$1.getOpposite())).setValue((net.minecraft.world.level.block.state.properties.Property)ATTACHMENT, (java.lang.Comparable)($$6 ? net.minecraft.world.level.block.state.properties.BellAttachType.DOUBLE_WALL : net.minecraft.world.level.block.state.properties.BellAttachType.SINGLE_WALL));
++            if ($$7.canSurvive((net.minecraft.world.level.LevelReader)$$0.getLevel(), $$0.getClickedPos())) {
++                return $$7;
+             }
+-            boolean bl2 = level.getBlockState(blockPos.below()).isFaceSturdy((net.minecraft.world.level.BlockGetter)level, blockPos.below(), net.minecraft.core.Direction.UP);
+-            if ((blockState = (net.minecraft.world.level.block.state.BlockState)blockState.setValue((net.minecraft.world.level.block.state.properties.Property)ATTACHMENT, (java.lang.Comparable)(bl2 ? net.minecraft.world.level.block.state.properties.BellAttachType.FLOOR : net.minecraft.world.level.block.state.properties.BellAttachType.CEILING))).canSurvive((net.minecraft.world.level.LevelReader)context.getLevel(), context.getClickedPos())) {
+-                return blockState;
++            boolean $$8 = $$3.getBlockState($$2.below()).isFaceSturdy((net.minecraft.world.level.BlockGetter)$$3, $$2.below(), net.minecraft.core.Direction.UP);
++            if (($$7 = (net.minecraft.world.level.block.state.BlockState)$$7.setValue((net.minecraft.world.level.block.state.properties.Property)ATTACHMENT, (java.lang.Comparable)($$8 ? net.minecraft.world.level.block.state.properties.BellAttachType.FLOOR : net.minecraft.world.level.block.state.properties.BellAttachType.CEILING))).canSurvive((net.minecraft.world.level.LevelReader)$$0.getLevel(), $$0.getClickedPos())) {
++                return $$7;
+             }
+         }
+         return null;
+     }
+ 
+-    public net.minecraft.world.level.block.state.BlockState updateShape(net.minecraft.world.level.block.state.BlockState state, net.minecraft.core.Direction facing, net.minecraft.world.level.block.state.BlockState facingState, net.minecraft.world.level.LevelAccessor level, net.minecraft.core.BlockPos currentPos, net.minecraft.core.BlockPos facingPos) {
+-        net.minecraft.world.level.block.state.properties.BellAttachType bellAttachType = (net.minecraft.world.level.block.state.properties.BellAttachType)state.getValue((net.minecraft.world.level.block.state.properties.Property)ATTACHMENT);
+-        net.minecraft.core.Direction direction = net.minecraft.world.level.block.BellBlock.getConnectedDirection((net.minecraft.world.level.block.state.BlockState)state).getOpposite();
+-        if (direction == facing && !state.canSurvive((net.minecraft.world.level.LevelReader)level, currentPos) && bellAttachType != net.minecraft.world.level.block.state.properties.BellAttachType.DOUBLE_WALL) {
++    public net.minecraft.world.level.block.state.BlockState updateShape(net.minecraft.world.level.block.state.BlockState $$0, net.minecraft.core.Direction $$1, net.minecraft.world.level.block.state.BlockState $$2, net.minecraft.world.level.LevelAccessor $$3, net.minecraft.core.BlockPos $$4, net.minecraft.core.BlockPos $$5) {
++        net.minecraft.world.level.block.state.properties.BellAttachType $$6 = (net.minecraft.world.level.block.state.properties.BellAttachType)$$0.getValue((net.minecraft.world.level.block.state.properties.Property)ATTACHMENT);
++        net.minecraft.core.Direction $$7 = net.minecraft.world.level.block.BellBlock.getConnectedDirection((net.minecraft.world.level.block.state.BlockState)$$0).getOpposite();
++        if ($$7 == $$1 && !$$0.canSurvive((net.minecraft.world.level.LevelReader)$$3, $$4) && $$6 != net.minecraft.world.level.block.state.properties.BellAttachType.DOUBLE_WALL) {
+             return net.minecraft.world.level.block.Blocks.AIR.defaultBlockState();
+         }
+-        if (facing.getAxis() == ((net.minecraft.core.Direction)state.getValue((net.minecraft.world.level.block.state.properties.Property)FACING)).getAxis()) {
+-            if (bellAttachType == net.minecraft.world.level.block.state.properties.BellAttachType.DOUBLE_WALL && !facingState.isFaceSturdy((net.minecraft.world.level.BlockGetter)level, facingPos, facing)) {
+-                return (net.minecraft.world.level.block.state.BlockState)((net.minecraft.world.level.block.state.BlockState)state.setValue((net.minecraft.world.level.block.state.properties.Property)ATTACHMENT, (java.lang.Comparable)net.minecraft.world.level.block.state.properties.BellAttachType.SINGLE_WALL)).setValue((net.minecraft.world.level.block.state.properties.Property)FACING, (java.lang.Comparable)facing.getOpposite());
++        if ($$1.getAxis() == ((net.minecraft.core.Direction)$$0.getValue((net.minecraft.world.level.block.state.properties.Property)FACING)).getAxis()) {
++            if ($$6 == net.minecraft.world.level.block.state.properties.BellAttachType.DOUBLE_WALL && !$$2.isFaceSturdy((net.minecraft.world.level.BlockGetter)$$3, $$5, $$1)) {
++                return (net.minecraft.world.level.block.state.BlockState)((net.minecraft.world.level.block.state.BlockState)$$0.setValue((net.minecraft.world.level.block.state.properties.Property)ATTACHMENT, (java.lang.Comparable)net.minecraft.world.level.block.state.properties.BellAttachType.SINGLE_WALL)).setValue((net.minecraft.world.level.block.state.properties.Property)FACING, (java.lang.Comparable)$$1.getOpposite());
+             }
+-            if (bellAttachType == net.minecraft.world.level.block.state.properties.BellAttachType.SINGLE_WALL && direction.getOpposite() == facing && facingState.isFaceSturdy((net.minecraft.world.level.BlockGetter)level, facingPos, (net.minecraft.core.Direction)state.getValue((net.minecraft.world.level.block.state.properties.Property)FACING))) {
+-                return (net.minecraft.world.level.block.state.BlockState)state.setValue((net.minecraft.world.level.block.state.properties.Property)ATTACHMENT, (java.lang.Comparable)net.minecraft.world.level.block.state.properties.BellAttachType.DOUBLE_WALL);
++            if ($$6 == net.minecraft.world.level.block.state.properties.BellAttachType.SINGLE_WALL && $$7.getOpposite() == $$1 && $$2.isFaceSturdy((net.minecraft.world.level.BlockGetter)$$3, $$5, (net.minecraft.core.Direction)$$0.getValue((net.minecraft.world.level.block.state.properties.Property)FACING))) {
++                return (net.minecraft.world.level.block.state.BlockState)$$0.setValue((net.minecraft.world.level.block.state.properties.Property)ATTACHMENT, (java.lang.Comparable)net.minecraft.world.level.block.state.properties.BellAttachType.DOUBLE_WALL);
+             }
+         }
+-        return super.updateShape(state, facing, facingState, level, currentPos, facingPos);
++        return super.updateShape($$0, $$1, $$2, $$3, $$4, $$5);
+     }
+ 
+-    public boolean canSurvive(net.minecraft.world.level.block.state.BlockState state, net.minecraft.world.level.LevelReader level, net.minecraft.core.BlockPos pos) {
+-        net.minecraft.core.Direction direction = net.minecraft.world.level.block.BellBlock.getConnectedDirection((net.minecraft.world.level.block.state.BlockState)state).getOpposite();
+-        if (direction == net.minecraft.core.Direction.UP) {
+-            return net.minecraft.world.level.block.Block.canSupportCenter((net.minecraft.world.level.LevelReader)level, (net.minecraft.core.BlockPos)pos.above(), (net.minecraft.core.Direction)net.minecraft.core.Direction.DOWN);
++    public boolean canSurvive(net.minecraft.world.level.block.state.BlockState $$0, net.minecraft.world.level.LevelReader $$1, net.minecraft.core.BlockPos $$2) {
++        net.minecraft.core.Direction $$3 = net.minecraft.world.level.block.BellBlock.getConnectedDirection((net.minecraft.world.level.block.state.BlockState)$$0).getOpposite();
++        if ($$3 == net.minecraft.core.Direction.UP) {
++            return net.minecraft.world.level.block.Block.canSupportCenter((net.minecraft.world.level.LevelReader)$$1, (net.minecraft.core.BlockPos)$$2.above(), (net.minecraft.core.Direction)net.minecraft.core.Direction.DOWN);
+         }
+-        return net.minecraft.world.level.block.FaceAttachedHorizontalDirectionalBlock.canAttach((net.minecraft.world.level.LevelReader)level, (net.minecraft.core.BlockPos)pos, (net.minecraft.core.Direction)direction);
++        return net.minecraft.world.level.block.FaceAttachedHorizontalDirectionalBlock.canAttach((net.minecraft.world.level.LevelReader)$$1, (net.minecraft.core.BlockPos)$$2, (net.minecraft.core.Direction)$$3);
+     }
+ 
+-    public static net.minecraft.core.Direction getConnectedDirection(net.minecraft.world.level.block.state.BlockState state) {
+-        switch (net.minecraft.world.level.block.BellBlock$1.$SwitchMap$net$minecraft$world$level$block$state$properties$BellAttachType[((net.minecraft.world.level.block.state.properties.BellAttachType)state.getValue((net.minecraft.world.level.block.state.properties.Property)ATTACHMENT)).ordinal()]) {
++    public static net.minecraft.core.Direction getConnectedDirection(net.minecraft.world.level.block.state.BlockState $$0) {
++        switch (net.minecraft.world.level.block.BellBlock$1.$SwitchMap$net$minecraft$world$level$block$state$properties$BellAttachType[((net.minecraft.world.level.block.state.properties.BellAttachType)$$0.getValue((net.minecraft.world.level.block.state.properties.Property)ATTACHMENT)).ordinal()]) {
+             case 4: {
+                 return net.minecraft.core.Direction.DOWN;
+             }
+@@ -203,15 +203,15 @@
+                 return net.minecraft.core.Direction.UP;
+             }
+         }
+-        return ((net.minecraft.core.Direction)state.getValue((net.minecraft.world.level.block.state.properties.Property)FACING)).getOpposite();
++        return ((net.minecraft.core.Direction)$$0.getValue((net.minecraft.world.level.block.state.properties.Property)FACING)).getOpposite();
+     }
+ 
+-    public net.minecraft.world.level.material.PushReaction getPistonPushReaction(net.minecraft.world.level.block.state.BlockState state) {
++    public net.minecraft.world.level.material.PushReaction getPistonPushReaction(net.minecraft.world.level.block.state.BlockState $$0) {
+         return net.minecraft.world.level.material.PushReaction.DESTROY;
+     }
+ 
+-    public void createBlockStateDefinition(net.minecraft.world.level.block.state.StateDefinition$Builder<net.minecraft.world.level.block.Block, net.minecraft.world.level.block.state.BlockState> builder) {
+-        builder.add(new net.minecraft.world.level.block.state.properties.Property[]{FACING, ATTACHMENT, POWERED});
++    public void createBlockStateDefinition(net.minecraft.world.level.block.state.StateDefinition$Builder<net.minecraft.world.level.block.Block, net.minecraft.world.level.block.state.BlockState> $$0) {
++        $$0.add(new net.minecraft.world.level.block.state.properties.Property[]{FACING, ATTACHMENT, POWERED});
+     }
+ 
+     @javax.annotation.Nullable
+@@ -224,7 +224,7 @@
+         return net.minecraft.world.level.block.BellBlock.createTickerHelper($$2, (net.minecraft.world.level.block.entity.BlockEntityType)net.minecraft.world.level.block.entity.BlockEntityType.BELL, (net.minecraft.world.level.block.entity.BlockEntityTicker)($$0.isClientSide ? net.minecraft.world.level.block.entity.BellBlockEntity::clientTick : net.minecraft.world.level.block.entity.BellBlockEntity::serverTick));
+     }
+ 
+-    public boolean isPathfindable(net.minecraft.world.level.block.state.BlockState state, net.minecraft.world.level.BlockGetter level, net.minecraft.core.BlockPos pos, net.minecraft.world.level.pathfinder.PathComputationType type) {
++    public boolean isPathfindable(net.minecraft.world.level.block.state.BlockState $$0, net.minecraft.world.level.BlockGetter $$1, net.minecraft.core.BlockPos $$2, net.minecraft.world.level.pathfinder.PathComputationType $$3) {
+         return false;
+     }
+ 

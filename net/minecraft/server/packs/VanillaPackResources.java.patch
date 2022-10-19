@@ -1,0 +1,394 @@
+--- net/minecraft/server/packs/VanillaPackResources.java
++++ net/minecraft/server/packs/VanillaPackResources.java
+@@ -6,168 +6,85 @@
+ public class net.minecraft.server.packs.VanillaPackResources
+ implements net.minecraft.server.packs.PackResources
+  {
+-    @javax.annotation.Nullable
+-    public static java.nio.file.Path generatedDir;
+     public static org.slf4j.Logger LOGGER;
+-    public static java.lang.Class<?> clientObject;
+-    public static java.util.Map<net.minecraft.server.packs.PackType, java.nio.file.Path> ROOT_DIR_BY_TYPE;
+-    public net.minecraft.server.packs.metadata.pack.PackMetadataSection packMetadata;
++    public net.minecraft.server.packs.BuiltInMetadata metadata;
+     public java.util.Set<java.lang.String> namespaces;
++    public java.util.List<java.nio.file.Path> rootPaths;
++    public java.util.Map<net.minecraft.server.packs.PackType, java.util.List<java.nio.file.Path>> pathsForType;
+ 
+-    public static java.nio.file.Path safeGetPath(java.net.URI $$0) throws java.io.IOException {
+-        try {
+-            return java.nio.file.Paths.get((java.net.URI)$$0);
+-        }
+-        catch (java.nio.file.FileSystemNotFoundException fileSystemNotFoundException) {
+-        }
+-        catch (java.lang.Throwable $$1) {
+-            LOGGER.warn("Unable to get path for: {}", (java.lang.Object)$$0, (java.lang.Object)((java.lang.Object)$$1));
+-        }
+-        try {
+-            java.nio.file.FileSystems.newFileSystem((java.net.URI)$$0, (java.util.Map)java.util.Collections.emptyMap());
+-        }
+-        catch (java.nio.file.FileSystemAlreadyExistsException fileSystemAlreadyExistsException) {
+-            // empty catch block
+-        }
+-        return java.nio.file.Paths.get((java.net.URI)$$0);
++    public net.minecraft.server.packs.VanillaPackResources(net.minecraft.server.packs.BuiltInMetadata $$0, java.util.Set<java.lang.String> $$1, java.util.List<java.nio.file.Path> $$2, java.util.Map<net.minecraft.server.packs.PackType, java.util.List<java.nio.file.Path>> $$3) {
++        this.metadata = $$0;
++        this.namespaces = $$1;
++        this.rootPaths = $$2;
++        this.pathsForType = $$3;
+     }
+ 
+-    public net.minecraft.server.packs.VanillaPackResources(net.minecraft.server.packs.metadata.pack.PackMetadataSection $$0, java.lang.String ... $$1) {
+-        this.packMetadata = $$0;
+-        this.namespaces = com.google.common.collect.ImmutableSet.copyOf((java.lang.Object[])$$1);
+-    }
+-
+-    public java.io.InputStream getRootResource(java.lang.String fileName) throws java.io.IOException {
+-        java.nio.file.Path path;
+-        if (fileName.contains((java.lang.CharSequence)"/") || fileName.contains((java.lang.CharSequence)"\\")) {
+-            throw new java.lang.IllegalArgumentException("Root resources can only be filenames, not paths (no / allowed!)");
++    @javax.annotation.Nullable
++    public net.minecraft.server.packs.resources.IoSupplier<java.io.InputStream> getRootResource(java.lang.String ... $$0) {
++        net.minecraft.FileUtil.validatePath((java.lang.String[])$$0);
++        java.util.List $$1 = java.util.List.of((java.lang.Object[])$$0);
++        for (java.nio.file.Path $$2 : this.rootPaths) {
++            java.nio.file.Path $$3 = net.minecraft.FileUtil.resolvePath((java.nio.file.Path)$$2, (java.util.List)$$1);
++            if (!java.nio.file.Files.exists((java.nio.file.Path)$$3, (java.nio.file.LinkOption[])new java.nio.file.LinkOption[0]) || !net.minecraft.server.packs.PathPackResources.validatePath((java.nio.file.Path)$$3)) continue;
++            return net.minecraft.server.packs.resources.IoSupplier.create((java.nio.file.Path)$$3);
+         }
+-        if (generatedDir != null && java.nio.file.Files.exists((java.nio.file.Path)(path = generatedDir.resolve(fileName)), (java.nio.file.LinkOption[])new java.nio.file.LinkOption[0])) {
+-            return java.nio.file.Files.newInputStream((java.nio.file.Path)path, (java.nio.file.OpenOption[])new java.nio.file.OpenOption[0]);
+-        }
+-        return this.getResourceAsStream(fileName);
++        return null;
+     }
+ 
+-    public java.io.InputStream getResource(net.minecraft.server.packs.PackType type, net.minecraft.resources.ResourceLocation location) throws java.io.IOException {
+-        java.io.InputStream inputStream = this.getResourceAsStream(type, location);
+-        if (inputStream != null) {
+-            return inputStream;
+-        }
+-        throw new java.io.FileNotFoundException(location.getPath());
++    public void listRawPaths(net.minecraft.server.packs.PackType $$0, net.minecraft.resources.ResourceLocation $$12, java.util.function.Consumer<java.nio.file.Path> $$2) {
++        net.minecraft.FileUtil.decomposePath((java.lang.String)$$12.getPath()).get().ifLeft($$3 -> {
++            java.lang.String $$4 = $$12.getNamespace();
++            for (java.nio.file.Path $$5 : (java.util.List)this.pathsForType.get((java.lang.Object)$$0)) {
++                java.nio.file.Path $$6 = $$5.resolve($$4);
++                $$2.accept((java.lang.Object)net.minecraft.FileUtil.resolvePath((java.nio.file.Path)$$6, (java.util.List)$$3));
++            }
++        }).ifRight($$1 -> LOGGER.error("Invalid path {}: {}", (java.lang.Object)$$12, (java.lang.Object)$$1.message()));
+     }
+ 
+-    public java.util.Collection<net.minecraft.resources.ResourceLocation> getResources(net.minecraft.server.packs.PackType $$0, java.lang.String $$1, java.lang.String $$2, java.util.function.Predicate<net.minecraft.resources.ResourceLocation> $$3) {
+-        java.util.HashSet $$4 = com.google.common.collect.Sets.newHashSet();
+-        if (generatedDir != null) {
+-            try {
+-                net.minecraft.server.packs.VanillaPackResources.getResources((java.util.Collection)$$4, (java.lang.String)$$1, (java.nio.file.Path)generatedDir.resolve($$0.getDirectory()), (java.lang.String)$$2, $$3);
+-            }
+-            catch (java.io.IOException iOException) {
+-                // empty catch block
+-            }
+-            if ($$0 == net.minecraft.server.packs.PackType.CLIENT_RESOURCES) {
+-                java.util.Enumeration $$5 = null;
+-                try {
+-                    $$5 = clientObject.getClassLoader().getResources($$0.getDirectory() + "/");
++    public void listResources(net.minecraft.server.packs.PackType $$0, java.lang.String $$12, java.lang.String $$2, net.minecraft.server.packs.PackResources$ResourceOutput $$32) {
++        net.minecraft.FileUtil.decomposePath((java.lang.String)$$2).get().ifLeft($$3 -> {
++            java.util.List $$4 = (java.util.List)this.pathsForType.get((java.lang.Object)$$0);
++            int $$5 = $$4.size();
++            if ($$5 == 1) {
++                net.minecraft.server.packs.VanillaPackResources.getResources((net.minecraft.server.packs.PackResources$ResourceOutput)$$32, (java.lang.String)$$12, (java.nio.file.Path)((java.nio.file.Path)$$4.get(0)), (java.util.List)$$3);
++            } else if ($$5 > 1) {
++                java.util.HashMap $$6 = new java.util.HashMap();
++                for (int $$7 = 0; $$7 < $$5 - 1; ++$$7) {
++                    net.minecraft.server.packs.VanillaPackResources.getResources((arg_0, arg_1) -> ((java.util.Map)$$6).putIfAbsent(arg_0, arg_1), (java.lang.String)$$12, (java.nio.file.Path)((java.nio.file.Path)$$4.get($$7)), (java.util.List)$$3);
+                 }
+-                catch (java.io.IOException iOException) {
+-                    // empty catch block
++                java.nio.file.Path $$8 = (java.nio.file.Path)$$4.get($$5 - 1);
++                if ($$6.isEmpty()) {
++                    net.minecraft.server.packs.VanillaPackResources.getResources((net.minecraft.server.packs.PackResources$ResourceOutput)$$32, (java.lang.String)$$12, (java.nio.file.Path)$$8, (java.util.List)$$3);
++                } else {
++                    net.minecraft.server.packs.VanillaPackResources.getResources((arg_0, arg_1) -> ((java.util.Map)$$6).putIfAbsent(arg_0, arg_1), (java.lang.String)$$12, (java.nio.file.Path)$$8, (java.util.List)$$3);
++                    $$6.forEach((java.util.function.BiConsumer)$$32);
+                 }
+-                while ($$5 != null && $$5.hasMoreElements()) {
+-                    try {
+-                        java.net.URI $$6 = ((java.net.URL)$$5.nextElement()).toURI();
+-                        if (!"file".equals((java.lang.Object)$$6.getScheme())) continue;
+-                        net.minecraft.server.packs.VanillaPackResources.getResources((java.util.Collection)$$4, (java.lang.String)$$1, (java.nio.file.Path)java.nio.file.Paths.get((java.net.URI)$$6), (java.lang.String)$$2, $$3);
+-                    }
+-                    catch (java.io.IOException | java.net.URISyntaxException throwable) {}
+-                }
+             }
+-        }
+-        try {
+-            java.nio.file.Path $$7 = (java.nio.file.Path)ROOT_DIR_BY_TYPE.get((java.lang.Object)$$0);
+-            if ($$7 != null) {
+-                net.minecraft.server.packs.VanillaPackResources.getResources((java.util.Collection)$$4, (java.lang.String)$$1, (java.nio.file.Path)$$7, (java.lang.String)$$2, $$3);
+-            } else {
+-                LOGGER.error("Can't access assets root for type: {}", (java.lang.Object)$$0);
+-            }
+-        }
+-        catch (java.io.FileNotFoundException | java.nio.file.NoSuchFileException $$7) {
+-        }
+-        catch (java.io.IOException $$8) {
+-            LOGGER.error("Couldn't get a list of all vanilla resources", (java.lang.Throwable)$$8);
+-        }
+-        return $$4;
++        }).ifRight($$1 -> LOGGER.error("Invalid path {}: {}", (java.lang.Object)$$2, (java.lang.Object)$$1.message()));
+     }
+ 
+-    public static void getResources(java.util.Collection<net.minecraft.resources.ResourceLocation> $$02, java.lang.String $$1, java.nio.file.Path $$22, java.lang.String $$32, java.util.function.Predicate<net.minecraft.resources.ResourceLocation> $$4) throws java.io.IOException {
+-        java.nio.file.Path $$5 = $$22.resolve($$1);
+-        try (java.util.stream.Stream $$6 = java.nio.file.Files.walk((java.nio.file.Path)$$5.resolve($$32), (java.nio.file.FileVisitOption[])new java.nio.file.FileVisitOption[0]);
+-){
+-            $$6.filter($$0 -> !$$0.endsWith(".mcmeta") && java.nio.file.Files.isRegularFile((java.nio.file.Path)$$0, (java.nio.file.LinkOption[])new java.nio.file.LinkOption[0])).mapMulti(($$2, $$3) -> {
+-                java.lang.String $$4 = $$5.relativize($$2).toString().replaceAll("\\\\", "/");
+-                net.minecraft.resources.ResourceLocation $$5 = net.minecraft.resources.ResourceLocation.tryBuild((java.lang.String)$$1, (java.lang.String)$$4);
+-                if ($$5 == null) {
+-                    net.minecraft.Util.logAndPauseIfInIde((java.lang.String)java.lang.String.format((java.util.Locale)java.util.Locale.ROOT, (java.lang.String)"Invalid path in datapack: %s:%s, ignoring", (java.lang.Object[])new java.lang.Object[]{$$1, $$4}));
+-                } else {
+-                    $$3.accept((java.lang.Object)$$5);
+-                }
+-            }).filter($$4).forEach(arg_0 -> $$02.add(arg_0));
+-        }
++    public static void getResources(net.minecraft.server.packs.PackResources$ResourceOutput $$0, java.lang.String $$1, java.nio.file.Path $$2, java.util.List<java.lang.String> $$3) {
++        java.nio.file.Path $$4 = $$2.resolve($$1);
++        net.minecraft.server.packs.PathPackResources.listPath((java.lang.String)$$1, (java.nio.file.Path)$$4, $$3, (net.minecraft.server.packs.PackResources$ResourceOutput)$$0);
+     }
+ 
+     @javax.annotation.Nullable
+-    public java.io.InputStream getResourceAsStream(net.minecraft.server.packs.PackType type, net.minecraft.resources.ResourceLocation location) {
+-        java.net.URL uRL;
+-        java.lang.String string = net.minecraft.server.packs.VanillaPackResources.createPath((net.minecraft.server.packs.PackType)type, (net.minecraft.resources.ResourceLocation)location);
+-        if (generatedDir != null && java.nio.file.Files.exists((java.nio.file.Path)(uRL = generatedDir.resolve(type.getDirectory() + "/" + location.getNamespace() + "/" + location.getPath())), (java.nio.file.LinkOption[])new java.nio.file.LinkOption[0])) {
+-            try {
+-                return java.nio.file.Files.newInputStream((java.nio.file.Path)uRL, (java.nio.file.OpenOption[])new java.nio.file.OpenOption[0]);
++    public net.minecraft.server.packs.resources.IoSupplier<java.io.InputStream> getResource(net.minecraft.server.packs.PackType $$0, net.minecraft.resources.ResourceLocation $$12) {
++        return (net.minecraft.server.packs.resources.IoSupplier)net.minecraft.FileUtil.decomposePath((java.lang.String)$$12.getPath()).get().map($$2 -> {
++            java.lang.String $$3 = $$12.getNamespace();
++            for (java.nio.file.Path $$4 : (java.util.List)this.pathsForType.get((java.lang.Object)$$0)) {
++                java.nio.file.Path $$5 = net.minecraft.FileUtil.resolvePath((java.nio.file.Path)$$4.resolve($$3), (java.util.List)$$2);
++                if (!java.nio.file.Files.exists((java.nio.file.Path)$$5, (java.nio.file.LinkOption[])new java.nio.file.LinkOption[0]) || !net.minecraft.server.packs.PathPackResources.validatePath((java.nio.file.Path)$$5)) continue;
++                return net.minecraft.server.packs.resources.IoSupplier.create((java.nio.file.Path)$$5);
+             }
+-            catch (java.io.IOException iOException) {
+-                // empty catch block
+-            }
+-        }
+-        try {
+-            uRL = net.minecraft.server.packs.VanillaPackResources.class.getResource(string);
+-            if (net.minecraft.server.packs.VanillaPackResources.isResourceUrlValid((java.lang.String)string, (java.net.URL)uRL)) {
+-                return uRL.openStream();
+-            }
+-        }
+-        catch (java.io.IOException iOException) {
+-            return net.minecraft.server.packs.VanillaPackResources.class.getResourceAsStream(string);
+-        }
+-        return null;
++            return null;
++        }, $$1 -> {
++            LOGGER.error("Invalid path {}: {}", (java.lang.Object)$$12, (java.lang.Object)$$1.message());
++            return null;
++        });
+     }
+ 
+-    public static java.lang.String createPath(net.minecraft.server.packs.PackType packType, net.minecraft.resources.ResourceLocation location) {
+-        return "/" + packType.getDirectory() + "/" + location.getNamespace() + "/" + location.getPath();
+-    }
+-
+-    public static boolean isResourceUrlValid(java.lang.String path, @javax.annotation.Nullable java.net.URL url) throws java.io.IOException {
+-        return url != null && (url.getProtocol().equals((java.lang.Object)"jar") || net.minecraft.server.packs.FolderPackResources.validatePath((java.io.File)new java.io.File(url.getFile()), (java.lang.String)path));
+-    }
+-
+-    @javax.annotation.Nullable
+-    public java.io.InputStream getResourceAsStream(java.lang.String path) {
+-        return net.minecraft.server.packs.VanillaPackResources.class.getResourceAsStream("/" + path);
+-    }
+-
+-    public boolean hasResource(net.minecraft.server.packs.PackType type, net.minecraft.resources.ResourceLocation location) {
+-        java.net.URL uRL;
+-        java.lang.String string = net.minecraft.server.packs.VanillaPackResources.createPath((net.minecraft.server.packs.PackType)type, (net.minecraft.resources.ResourceLocation)location);
+-        if (generatedDir != null && java.nio.file.Files.exists((java.nio.file.Path)(uRL = generatedDir.resolve(type.getDirectory() + "/" + location.getNamespace() + "/" + location.getPath())), (java.nio.file.LinkOption[])new java.nio.file.LinkOption[0])) {
+-            return true;
+-        }
+-        try {
+-            uRL = net.minecraft.server.packs.VanillaPackResources.class.getResource(string);
+-            return net.minecraft.server.packs.VanillaPackResources.isResourceUrlValid((java.lang.String)string, (java.net.URL)uRL);
+-        }
+-        catch (java.io.IOException iOException) {
+-            return false;
+-        }
+-    }
+-
+-    public java.util.Set<java.lang.String> getNamespaces(net.minecraft.server.packs.PackType type) {
++    public java.util.Set<java.lang.String> getNamespaces(net.minecraft.server.packs.PackType $$0) {
+         return this.namespaces;
+     }
+ 
+@@ -175,123 +92,67 @@
+      * Loose catch block
+      */
+     @javax.annotation.Nullable
+-    public <T> T getMetadataSection(net.minecraft.server.packs.metadata.MetadataSectionSerializer<T> deserializer) throws java.io.IOException {
++    public <T> T getMetadataSection(net.minecraft.server.packs.metadata.MetadataSectionSerializer<T> $$0) {
+ block12:        {
+-            java.io.InputStream inputStream;
+-block10:            {
+-                java.lang.Object object;
+-block11:                {
+-                    java.lang.Object object2;
+-                    inputStream = this.getRootResource("pack.mcmeta");
+-                    if (inputStream == null || (object2 = net.minecraft.server.packs.AbstractPackResources.getMetadataFromStream(deserializer, (java.io.InputStream)inputStream)) == null) break block10;
+-                    object = object2;
+-                    if (inputStream == null) break block11;
+-                    inputStream.close();
++            net.minecraft.server.packs.resources.IoSupplier $$1 = this.getRootResource(new java.lang.String[]{"pack.mcmeta"});
++            if ($$1 != null) {
++                java.io.InputStream $$2;
++block10:                {
++                    java.lang.Object object;
++block11:                    {
++                        $$2 = (java.io.InputStream)$$1.get();
++                        java.lang.Object $$3 = net.minecraft.server.packs.AbstractPackResources.getMetadataFromStream($$0, (java.io.InputStream)$$2);
++                        if ($$3 == null) break block10;
++                        object = $$3;
++                        if ($$2 == null) break block11;
++                        $$2.close();
++                    }
++                    return (T)object;
+                 }
+-                return (T)object;
+-            }
+-            try {
+-                if (inputStream != null) {
+-                    inputStream.close();
+-                }
+-                break block12;
+-                {
+-                    catch (java.lang.Throwable throwable) {
+-                        if (inputStream != null) {
+-                            try {
+-                                inputStream.close();
++                try {
++                    if ($$2 != null) {
++                        $$2.close();
++                    }
++                    break block12;
++                    {
++                        catch (java.lang.Throwable throwable) {
++                            if ($$2 != null) {
++                                try {
++                                    $$2.close();
++                                }
++                                catch (java.lang.Throwable throwable2) {
++                                    throwable.addSuppressed(throwable2);
++                                }
+                             }
+-                            catch (java.lang.Throwable throwable2) {
+-                                throwable.addSuppressed(throwable2);
+-                            }
++                            throw throwable;
+                         }
+-                        throw throwable;
+                     }
+                 }
++                catch (java.io.IOException iOException) {
++                    // empty catch block
++                }
+             }
+-            catch (java.io.FileNotFoundException | java.lang.RuntimeException throwable) {
+-                // empty catch block
+-            }
+         }
+-        if (deserializer == net.minecraft.server.packs.metadata.pack.PackMetadataSection.SERIALIZER) {
+-            return (T)this.packMetadata;
+-        }
+-        return null;
++        return (T)this.metadata.get($$0);
+     }
+ 
+-    public java.lang.String getName() {
+-        return "Default";
++    public java.lang.String packId() {
++        return "vanilla";
+     }
+ 
++    public boolean isBuiltin() {
++        return true;
++    }
++
+     public void close() {
+     }
+ 
+     public net.minecraft.server.packs.resources.ResourceProvider asProvider() {
+-        return $$0 -> java.util.Optional.of((java.lang.Object)new net.minecraft.server.packs.resources.Resource(this.getName(), () -> this.getResource(net.minecraft.server.packs.PackType.CLIENT_RESOURCES, $$0)));
++        return $$02 -> java.util.Optional.ofNullable((java.lang.Object)this.getResource(net.minecraft.server.packs.PackType.CLIENT_RESOURCES, $$02)).map($$0 -> new net.minecraft.server.packs.resources.Resource((net.minecraft.server.packs.PackResources)this, $$0));
+     }
+ 
+-    /*
+-     * WARNING - Removed try catching itself - possible behaviour change.
+-     */
+-    public static /* synthetic */ com.google.common.collect.ImmutableMap lambda$static$0() {
+-        java.lang.Class<net.minecraft.server.packs.VanillaPackResources> clazz = net.minecraft.server.packs.VanillaPackResources.class;
+-        synchronized (net.minecraft.server.packs.VanillaPackResources.class) {
+-            com.google.common.collect.ImmutableMap$Builder $$0 = com.google.common.collect.ImmutableMap.builder();
+-            for (net.minecraft.server.packs.PackType $$1 : net.minecraft.server.packs.PackType.values()) {
+-                java.lang.String $$2 = "/" + $$1.getDirectory() + "/.mcassetsroot";
+-                java.net.URL $$3 = net.minecraft.server.packs.VanillaPackResources.class.getResource($$2);
+-                if ($$3 == null) {
+-                    LOGGER.error("File {} does not exist in classpath", (java.lang.Object)$$2);
+-                    continue;
+-                }
+-                try {
+-                    java.net.URI $$4 = $$3.toURI();
+-                    java.lang.String $$5 = $$4.getScheme();
+-                    if (!"jar".equals((java.lang.Object)$$5) && !"file".equals((java.lang.Object)$$5)) {
+-                        LOGGER.warn("Assets URL '{}' uses unexpected schema", (java.lang.Object)$$4);
+-                    }
+-                    java.nio.file.Path $$6 = net.minecraft.server.packs.VanillaPackResources.safeGetPath((java.net.URI)$$4);
+-                    $$0.put((java.lang.Object)$$1, (java.lang.Object)$$6.getParent());
+-                }
+-                catch (java.lang.Exception $$7) {
+-                    LOGGER.error("Couldn't resolve path to vanilla assets", (java.lang.Throwable)$$7);
+-                }
+-            }
+-            // ** MonitorExit[var0] (shouldn't be in output)
+-            return $$0.build();
+-        }
+-    }
+-
+     static {
+         LOGGER = com.mojang.logging.LogUtils.getLogger();
+-        ROOT_DIR_BY_TYPE = (java.util.Map)net.minecraft.Util.make(() -> {
+-            java.lang.Class<net.minecraft.server.packs.VanillaPackResources> clazz = net.minecraft.server.packs.VanillaPackResources.class;
+-            synchronized (net.minecraft.server.packs.VanillaPackResources.class) {
+-                com.google.common.collect.ImmutableMap$Builder $$0 = com.google.common.collect.ImmutableMap.builder();
+-                for (net.minecraft.server.packs.PackType $$1 : net.minecraft.server.packs.PackType.values()) {
+-                    java.lang.String $$2 = "/" + $$1.getDirectory() + "/.mcassetsroot";
+-                    java.net.URL $$3 = net.minecraft.server.packs.VanillaPackResources.class.getResource($$2);
+-                    if ($$3 == null) {
+-                        LOGGER.error("File {} does not exist in classpath", (java.lang.Object)$$2);
+-                        continue;
+-                    }
+-                    try {
+-                        java.net.URI $$4 = $$3.toURI();
+-                        java.lang.String $$5 = $$4.getScheme();
+-                        if (!"jar".equals((java.lang.Object)$$5) && !"file".equals((java.lang.Object)$$5)) {
+-                            LOGGER.warn("Assets URL '{}' uses unexpected schema", (java.lang.Object)$$4);
+-                        }
+-                        java.nio.file.Path $$6 = net.minecraft.server.packs.VanillaPackResources.safeGetPath((java.net.URI)$$4);
+-                        $$0.put((java.lang.Object)$$1, (java.lang.Object)$$6.getParent());
+-                    }
+-                    catch (java.lang.Exception $$7) {
+-                        LOGGER.error("Couldn't resolve path to vanilla assets", (java.lang.Throwable)$$7);
+-                    }
+-                }
+-                // ** MonitorExit[var0] (shouldn't be in output)
+-                return $$0.build();
+-            }
+-        });
+     }
+ }
+ 

@@ -1,0 +1,73 @@
+--- net/minecraft/world/entity/decoration/Painting.java
++++ net/minecraft/world/entity/decoration/Painting.java
+@@ -75,17 +75,17 @@
+         this.setDirection($$2);
+     }
+ 
+-    public void addAdditionalSaveData(net.minecraft.nbt.CompoundTag compound) {
+-        compound.putString("variant", ((net.minecraft.resources.ResourceKey)this.getVariant().unwrapKey().orElse((java.lang.Object)DEFAULT_VARIANT)).location().toString());
+-        compound.putByte("facing", (byte)this.direction.get2DDataValue());
+-        super.addAdditionalSaveData(compound);
++    public void addAdditionalSaveData(net.minecraft.nbt.CompoundTag $$0) {
++        $$0.putString("variant", ((net.minecraft.resources.ResourceKey)this.getVariant().unwrapKey().orElse((java.lang.Object)DEFAULT_VARIANT)).location().toString());
++        $$0.putByte("facing", (byte)this.direction.get2DDataValue());
++        super.addAdditionalSaveData($$0);
+     }
+ 
+-    public void readAdditionalSaveData(net.minecraft.nbt.CompoundTag compound) {
+-        net.minecraft.resources.ResourceKey resourceKey = net.minecraft.resources.ResourceKey.create((net.minecraft.resources.ResourceKey)net.minecraft.core.Registry.PAINTING_VARIANT_REGISTRY, (net.minecraft.resources.ResourceLocation)net.minecraft.resources.ResourceLocation.tryParse((java.lang.String)compound.getString("variant")));
+-        this.setVariant((net.minecraft.core.Holder)net.minecraft.core.Registry.PAINTING_VARIANT.getHolder(resourceKey).orElseGet(net.minecraft.world.entity.decoration.Painting::getDefaultVariant));
+-        this.direction = net.minecraft.core.Direction.from2DDataValue((int)compound.getByte("facing"));
+-        super.readAdditionalSaveData(compound);
++    public void readAdditionalSaveData(net.minecraft.nbt.CompoundTag $$02) {
++        net.minecraft.core.Holder $$1 = (net.minecraft.core.Holder)java.util.Optional.ofNullable((java.lang.Object)net.minecraft.resources.ResourceLocation.tryParse((java.lang.String)$$02.getString("variant"))).map($$0 -> net.minecraft.resources.ResourceKey.create((net.minecraft.resources.ResourceKey)net.minecraft.core.Registry.PAINTING_VARIANT_REGISTRY, (net.minecraft.resources.ResourceLocation)$$0)).flatMap(arg_0 -> ((net.minecraft.core.DefaultedRegistry)net.minecraft.core.Registry.PAINTING_VARIANT).getHolder(arg_0)).map($$0 -> $$0).orElseGet(net.minecraft.world.entity.decoration.Painting::getDefaultVariant);
++        this.setVariant($$1);
++        this.direction = net.minecraft.core.Direction.from2DDataValue((int)$$02.getByte("facing"));
++        super.readAdditionalSaveData($$02);
+         this.setDirection(this.direction);
+     }
+ 
+@@ -97,14 +97,14 @@
+         return ((net.minecraft.world.entity.decoration.PaintingVariant)this.getVariant().value()).getHeight();
+     }
+ 
+-    public void dropItem(@javax.annotation.Nullable net.minecraft.world.entity.Entity brokenEntity) {
++    public void dropItem(@javax.annotation.Nullable net.minecraft.world.entity.Entity $$0) {
+         if (!this.level.getGameRules().getBoolean(net.minecraft.world.level.GameRules.RULE_DOENTITYDROPS)) {
+             return;
+         }
+         this.playSound(net.minecraft.sounds.SoundEvents.PAINTING_BREAK, 1.0f, 1.0f);
+-        if (brokenEntity instanceof net.minecraft.world.entity.player.Player) {
+-            net.minecraft.world.entity.player.Player player = (net.minecraft.world.entity.player.Player)brokenEntity;
+-            if (player.getAbilities().instabuild) {
++        if ($$0 instanceof net.minecraft.world.entity.player.Player) {
++            net.minecraft.world.entity.player.Player $$1 = (net.minecraft.world.entity.player.Player)$$0;
++            if ($$1.getAbilities().instabuild) {
+                 return;
+             }
+         }
+@@ -115,19 +115,19 @@
+         this.playSound(net.minecraft.sounds.SoundEvents.PAINTING_PLACE, 1.0f, 1.0f);
+     }
+ 
+-    public void moveTo(double x, double y, double z, float yaw, float pitch) {
+-        this.setPos(x, y, z);
++    public void moveTo(double $$0, double $$1, double $$2, float $$3, float $$4) {
++        this.setPos($$0, $$1, $$2);
+     }
+ 
+-    public void lerpTo(double x, double y, double z, float yaw, float pitch, int posRotationIncrements, boolean teleport) {
+-        this.setPos(x, y, z);
++    public void lerpTo(double $$0, double $$1, double $$2, float $$3, float $$4, int $$5, boolean $$6) {
++        this.setPos($$0, $$1, $$2);
+     }
+ 
+     public net.minecraft.world.phys.Vec3 trackingPosition() {
+         return net.minecraft.world.phys.Vec3.atLowerCornerOf((net.minecraft.core.Vec3i)this.pos);
+     }
+ 
+-    public net.minecraft.network.protocol.Packet<?> getAddEntityPacket() {
++    public net.minecraft.network.protocol.Packet<net.minecraft.network.protocol.game.ClientGamePacketListener> getAddEntityPacket() {
+         return new net.minecraft.network.protocol.game.ClientboundAddEntityPacket((net.minecraft.world.entity.Entity)this, this.direction.get3DDataValue(), this.getPos());
+     }
+ 

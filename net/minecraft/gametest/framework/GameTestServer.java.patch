@@ -1,0 +1,61 @@
+--- net/minecraft/gametest/framework/GameTestServer.java
++++ net/minecraft/gametest/framework/GameTestServer.java
+@@ -12,31 +12,33 @@
+     public java.util.List<net.minecraft.gametest.framework.GameTestBatch> testBatches;
+     public net.minecraft.core.BlockPos spawnPos;
+     public static net.minecraft.world.level.GameRules TEST_GAME_RULES;
+-    public static net.minecraft.world.level.LevelSettings TEST_SETTINGS;
++    public static net.minecraft.world.level.levelgen.WorldOptions WORLD_OPTIONS;
+     @javax.annotation.Nullable
+     public net.minecraft.gametest.framework.MultipleTestTracker testTracker;
+ 
+-    public static net.minecraft.gametest.framework.GameTestServer create(java.lang.Thread $$0, net.minecraft.world.level.storage.LevelStorageSource$LevelStorageAccess $$1, net.minecraft.server.packs.repository.PackRepository $$2, java.util.Collection<net.minecraft.gametest.framework.GameTestBatch> $$3, net.minecraft.core.BlockPos $$4) {
++    public static net.minecraft.gametest.framework.GameTestServer create(java.lang.Thread $$0, net.minecraft.world.level.storage.LevelStorageSource$LevelStorageAccess $$1, net.minecraft.server.packs.repository.PackRepository $$22, java.util.Collection<net.minecraft.gametest.framework.GameTestBatch> $$3, net.minecraft.core.BlockPos $$4) {
+         if ($$3.isEmpty()) {
+             throw new java.lang.IllegalArgumentException("No test batches were given!");
+         }
+-        net.minecraft.server.WorldLoader$PackConfig $$5 = new net.minecraft.server.WorldLoader$PackConfig($$2, net.minecraft.world.level.DataPackConfig.DEFAULT, false);
+-        net.minecraft.server.WorldLoader$InitConfig $$6 = new net.minecraft.server.WorldLoader$InitConfig($$5, net.minecraft.commands.Commands$CommandSelection.DEDICATED, 4);
++        $$22.reload();
++        net.minecraft.world.level.WorldDataConfiguration $$5 = new net.minecraft.world.level.WorldDataConfiguration(new net.minecraft.world.level.DataPackConfig((java.util.List)new java.util.ArrayList($$22.getAvailableIds()), java.util.List.of()), net.minecraft.world.flag.FeatureFlags.REGISTRY.allFlags());
++        net.minecraft.world.level.LevelSettings $$6 = new net.minecraft.world.level.LevelSettings("Test Level", net.minecraft.world.level.GameType.CREATIVE, false, net.minecraft.world.Difficulty.NORMAL, true, TEST_GAME_RULES, $$5);
++        net.minecraft.server.WorldLoader$PackConfig $$7 = new net.minecraft.server.WorldLoader$PackConfig($$22, $$5, false, true);
++        net.minecraft.server.WorldLoader$InitConfig $$8 = new net.minecraft.server.WorldLoader$InitConfig($$7, net.minecraft.commands.Commands$CommandSelection.DEDICATED, 4);
+         try {
+             LOGGER.debug("Starting resource loading");
+-            com.google.common.base.Stopwatch $$7 = com.google.common.base.Stopwatch.createStarted();
+-            net.minecraft.server.WorldStem $$8 = (net.minecraft.server.WorldStem)net.minecraft.Util.blockUntilDone($$12 -> net.minecraft.server.WorldStem.load((net.minecraft.server.WorldLoader$InitConfig)$$6, ($$0, $$1) -> {
+-                net.minecraft.core.RegistryAccess$Frozen $$2 = (net.minecraft.core.RegistryAccess$Frozen)net.minecraft.core.RegistryAccess.BUILTIN.get();
+-                net.minecraft.world.level.levelgen.WorldGenSettings $$3 = ((net.minecraft.world.level.levelgen.presets.WorldPreset)$$2.registryOrThrow(net.minecraft.core.Registry.WORLD_PRESET_REGISTRY).getHolderOrThrow(net.minecraft.world.level.levelgen.presets.WorldPresets.FLAT).value()).createWorldGenSettings(0L, false, false);
+-                net.minecraft.world.level.storage.PrimaryLevelData $$4 = new net.minecraft.world.level.storage.PrimaryLevelData(TEST_SETTINGS, $$3, com.mojang.serialization.Lifecycle.stable());
+-                return com.mojang.datafixers.util.Pair.of((java.lang.Object)$$4, (java.lang.Object)$$2);
+-            }, (java.util.concurrent.Executor)net.minecraft.Util.backgroundExecutor(), (java.util.concurrent.Executor)$$12)).get();
+-            $$7.stop();
+-            LOGGER.debug("Finished resource loading after {} ms", (java.lang.Object)$$7.elapsed(java.util.concurrent.TimeUnit.MILLISECONDS));
+-            return new net.minecraft.gametest.framework.GameTestServer($$0, $$1, $$2, $$8, $$3, $$4);
++            com.google.common.base.Stopwatch $$9 = com.google.common.base.Stopwatch.createStarted();
++            net.minecraft.server.WorldStem $$10 = (net.minecraft.server.WorldStem)net.minecraft.Util.blockUntilDone($$2 -> net.minecraft.server.WorldLoader.load((net.minecraft.server.WorldLoader$InitConfig)$$8, $$1 -> {
++                java.lang.Object $$2 = new net.minecraft.core.MappedRegistry(net.minecraft.core.Registry.LEVEL_STEM_REGISTRY, com.mojang.serialization.Lifecycle.stable()).freeze();
++                net.minecraft.world.level.levelgen.WorldDimensions$Complete $$3 = ((net.minecraft.world.level.levelgen.presets.WorldPreset)$$1.datapackWorldgen().registryOrThrow(net.minecraft.core.Registry.WORLD_PRESET_REGISTRY).getHolderOrThrow(net.minecraft.world.level.levelgen.presets.WorldPresets.FLAT).value()).createWorldDimensions().bake($$2);
++                return new net.minecraft.server.WorldLoader$DataLoadOutput((java.lang.Object)new net.minecraft.world.level.storage.PrimaryLevelData($$6, WORLD_OPTIONS, $$3.specialWorldProperty(), $$3.lifecycle()), $$3.dimensionsRegistryAccess());
++            }, net.minecraft.server.WorldStem::new, (java.util.concurrent.Executor)net.minecraft.Util.backgroundExecutor(), (java.util.concurrent.Executor)$$2)).get();
++            $$9.stop();
++            LOGGER.debug("Finished resource loading after {} ms", (java.lang.Object)$$9.elapsed(java.util.concurrent.TimeUnit.MILLISECONDS));
++            return new net.minecraft.gametest.framework.GameTestServer($$0, $$1, $$22, $$10, $$3, $$4);
+         }
+-        catch (java.lang.Exception $$9) {
+-            LOGGER.warn("Failed to load vanilla datapack, bit oops", (java.lang.Throwable)$$9);
++        catch (java.lang.Exception $$11) {
++            LOGGER.warn("Failed to load vanilla datapack, bit oops", (java.lang.Throwable)$$11);
+             java.lang.System.exit((int)-1);
+             throw new java.lang.IllegalStateException();
+         }
+@@ -170,7 +172,7 @@
+             ((net.minecraft.world.level.GameRules$BooleanValue)$$0.getRule(net.minecraft.world.level.GameRules.RULE_DOMOBSPAWNING)).set(false, null);
+             ((net.minecraft.world.level.GameRules$BooleanValue)$$0.getRule(net.minecraft.world.level.GameRules.RULE_WEATHER_CYCLE)).set(false, null);
+         });
+-        TEST_SETTINGS = new net.minecraft.world.level.LevelSettings("Test Level", net.minecraft.world.level.GameType.CREATIVE, false, net.minecraft.world.Difficulty.NORMAL, true, TEST_GAME_RULES, net.minecraft.world.level.DataPackConfig.DEFAULT);
++        WORLD_OPTIONS = new net.minecraft.world.level.levelgen.WorldOptions(0L, false, false);
+     }
+ }
+ 

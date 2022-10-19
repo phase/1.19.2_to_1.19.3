@@ -1,0 +1,38 @@
+--- net/minecraft/data/advancements/AdvancementProvider.java
++++ net/minecraft/data/advancements/AdvancementProvider.java
+@@ -7,24 +7,26 @@
+ implements net.minecraft.data.DataProvider
+  {
+     public static org.slf4j.Logger LOGGER;
+-    public net.minecraft.data.DataGenerator$PathProvider pathProvider;
+-    public java.util.List<java.util.function.Consumer<java.util.function.Consumer<net.minecraft.advancements.Advancement>>> tabs;
++    public java.lang.String name;
++    public net.minecraft.data.PackOutput$PathProvider pathProvider;
++    public java.util.List<net.minecraft.data.advancements.AdvancementSubProvider> subProviders;
+ 
+-    public net.minecraft.data.advancements.AdvancementProvider(net.minecraft.data.DataGenerator generator) {
+-        this.tabs = com.google.common.collect.ImmutableList.of((java.lang.Object)new net.minecraft.data.advancements.TheEndAdvancements(), (java.lang.Object)new net.minecraft.data.advancements.HusbandryAdvancements(), (java.lang.Object)new net.minecraft.data.advancements.AdventureAdvancements(), (java.lang.Object)new net.minecraft.data.advancements.NetherAdvancements(), (java.lang.Object)new net.minecraft.data.advancements.StoryAdvancements());
+-        this.pathProvider = generator.createPathProvider(net.minecraft.data.DataGenerator$Target.DATA_PACK, "advancements");
++    public net.minecraft.data.advancements.AdvancementProvider(java.lang.String $$0, net.minecraft.data.PackOutput $$1, java.util.List<net.minecraft.data.advancements.AdvancementSubProvider> $$2) {
++        this.name = $$0;
++        this.pathProvider = $$1.createPathProvider(net.minecraft.data.PackOutput$Target.DATA_PACK, "advancements");
++        this.subProviders = $$2;
+     }
+ 
+     public void run(net.minecraft.data.CachedOutput $$0) {
+-        java.util.HashSet $$1 = com.google.common.collect.Sets.newHashSet();
++        java.util.HashSet $$1 = new java.util.HashSet();
+         java.util.function.Consumer $$2 = arg_0 -> this.lambda$run$0((java.util.Set)$$1, $$0, arg_0);
+-        for (java.util.function.Consumer $$3 : this.tabs) {
+-            $$3.accept((java.lang.Object)$$2);
++        for (net.minecraft.data.advancements.AdvancementSubProvider $$3 : this.subProviders) {
++            $$3.generate($$2);
+         }
+     }
+ 
+     public java.lang.String getName() {
+-        return "Advancements";
++        return this.name;
+     }
+ 
+     public /* synthetic */ void lambda$run$0(java.util.Set $$0, net.minecraft.data.CachedOutput $$1, net.minecraft.advancements.Advancement $$2) {

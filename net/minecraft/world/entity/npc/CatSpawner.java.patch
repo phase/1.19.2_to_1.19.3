@@ -1,0 +1,98 @@
+--- net/minecraft/world/entity/npc/CatSpawner.java
++++ net/minecraft/world/entity/npc/CatSpawner.java
+@@ -12,8 +12,8 @@
+     public net.minecraft.world.entity.npc.CatSpawner() {
+     }
+ 
+-    public int tick(net.minecraft.server.level.ServerLevel level, boolean spawnHostiles, boolean spawnPassives) {
+-        if (!spawnPassives || !level.getGameRules().getBoolean(net.minecraft.world.level.GameRules.RULE_DOMOBSPAWNING)) {
++    public int tick(net.minecraft.server.level.ServerLevel $$0, boolean $$1, boolean $$2) {
++        if (!$$2 || !$$0.getGameRules().getBoolean(net.minecraft.world.level.GameRules.RULE_DOMOBSPAWNING)) {
+             return 0;
+         }
+         --this.nextTick;
+@@ -21,55 +21,55 @@
+             return 0;
+         }
+         this.nextTick = 1200;
+-        net.minecraft.server.level.ServerPlayer serverPlayer = level.getRandomPlayer();
+-        if (serverPlayer == null) {
++        net.minecraft.server.level.ServerPlayer $$3 = $$0.getRandomPlayer();
++        if ($$3 == null) {
+             return 0;
+         }
+-        net.minecraft.util.RandomSource randomSource = level.random;
+-        int n = (8 + randomSource.nextInt(24)) * (randomSource.nextBoolean() ? -1 : 1);
+-        int n2 = (8 + randomSource.nextInt(24)) * (randomSource.nextBoolean() ? -1 : 1);
+-        net.minecraft.core.BlockPos blockPos = serverPlayer.blockPosition().offset(n, 0, n2);
+-        int n3 = 10;
+-        if (!level.hasChunksAt(blockPos.getX() - 10, blockPos.getZ() - 10, blockPos.getX() + 10, blockPos.getZ() + 10)) {
++        net.minecraft.util.RandomSource $$4 = $$0.random;
++        int $$5 = (8 + $$4.nextInt(24)) * ($$4.nextBoolean() ? -1 : 1);
++        int $$6 = (8 + $$4.nextInt(24)) * ($$4.nextBoolean() ? -1 : 1);
++        net.minecraft.core.BlockPos $$7 = $$3.blockPosition().offset($$5, 0, $$6);
++        int $$8 = 10;
++        if (!$$0.hasChunksAt($$7.getX() - 10, $$7.getZ() - 10, $$7.getX() + 10, $$7.getZ() + 10)) {
+             return 0;
+         }
+-        if (net.minecraft.world.level.NaturalSpawner.isSpawnPositionOk((net.minecraft.world.entity.SpawnPlacements$Type)net.minecraft.world.entity.SpawnPlacements$Type.ON_GROUND, (net.minecraft.world.level.LevelReader)level, (net.minecraft.core.BlockPos)blockPos, (net.minecraft.world.entity.EntityType)net.minecraft.world.entity.EntityType.CAT)) {
+-            if (level.isCloseToVillage(blockPos, 2)) {
+-                return this.spawnInVillage(level, blockPos);
++        if (net.minecraft.world.level.NaturalSpawner.isSpawnPositionOk((net.minecraft.world.entity.SpawnPlacements$Type)net.minecraft.world.entity.SpawnPlacements$Type.ON_GROUND, (net.minecraft.world.level.LevelReader)$$0, (net.minecraft.core.BlockPos)$$7, (net.minecraft.world.entity.EntityType)net.minecraft.world.entity.EntityType.CAT)) {
++            if ($$0.isCloseToVillage($$7, 2)) {
++                return this.spawnInVillage($$0, $$7);
+             }
+-            if (level.structureManager().getStructureWithPieceAt(blockPos, net.minecraft.tags.StructureTags.CATS_SPAWN_IN).isValid()) {
+-                return this.spawnInHut(level, blockPos);
++            if ($$0.structureManager().getStructureWithPieceAt($$7, net.minecraft.tags.StructureTags.CATS_SPAWN_IN).isValid()) {
++                return this.spawnInHut($$0, $$7);
+             }
+         }
+         return 0;
+     }
+ 
+-    public int spawnInVillage(net.minecraft.server.level.ServerLevel serverLevel, net.minecraft.core.BlockPos pos) {
+-        java.util.List list;
+-        int n = 48;
+-        if (serverLevel.getPoiManager().getCountInRange($$0 -> $$0.is(net.minecraft.world.entity.ai.village.poi.PoiTypes.HOME), pos, 48, net.minecraft.world.entity.ai.village.poi.PoiManager$Occupancy.IS_OCCUPIED) > 4L && (list = serverLevel.getEntitiesOfClass(net.minecraft.world.entity.animal.Cat.class, new net.minecraft.world.phys.AABB(pos).inflate(48.0, 8.0, 48.0))).size() < 5) {
+-            return this.spawnCat(pos, serverLevel);
++    public int spawnInVillage(net.minecraft.server.level.ServerLevel $$02, net.minecraft.core.BlockPos $$1) {
++        java.util.List $$3;
++        int $$2 = 48;
++        if ($$02.getPoiManager().getCountInRange($$0 -> $$0.is(net.minecraft.world.entity.ai.village.poi.PoiTypes.HOME), $$1, 48, net.minecraft.world.entity.ai.village.poi.PoiManager$Occupancy.IS_OCCUPIED) > 4L && ($$3 = $$02.getEntitiesOfClass(net.minecraft.world.entity.animal.Cat.class, new net.minecraft.world.phys.AABB($$1).inflate(48.0, 8.0, 48.0))).size() < 5) {
++            return this.spawnCat($$1, $$02);
+         }
+         return 0;
+     }
+ 
+-    public int spawnInHut(net.minecraft.server.level.ServerLevel serverLevel, net.minecraft.core.BlockPos pos) {
+-        int n = 16;
+-        java.util.List list = serverLevel.getEntitiesOfClass(net.minecraft.world.entity.animal.Cat.class, new net.minecraft.world.phys.AABB(pos).inflate(16.0, 8.0, 16.0));
+-        if (list.size() < 1) {
+-            return this.spawnCat(pos, serverLevel);
++    public int spawnInHut(net.minecraft.server.level.ServerLevel $$0, net.minecraft.core.BlockPos $$1) {
++        int $$2 = 16;
++        java.util.List $$3 = $$0.getEntitiesOfClass(net.minecraft.world.entity.animal.Cat.class, new net.minecraft.world.phys.AABB($$1).inflate(16.0, 8.0, 16.0));
++        if ($$3.size() < 1) {
++            return this.spawnCat($$1, $$0);
+         }
+         return 0;
+     }
+ 
+-    public int spawnCat(net.minecraft.core.BlockPos pos, net.minecraft.server.level.ServerLevel serverLevel) {
+-        net.minecraft.world.entity.animal.Cat cat = (net.minecraft.world.entity.animal.Cat)net.minecraft.world.entity.EntityType.CAT.create((net.minecraft.world.level.Level)serverLevel);
+-        if (cat == null) {
++    public int spawnCat(net.minecraft.core.BlockPos $$0, net.minecraft.server.level.ServerLevel $$1) {
++        net.minecraft.world.entity.animal.Cat $$2 = (net.minecraft.world.entity.animal.Cat)net.minecraft.world.entity.EntityType.CAT.create((net.minecraft.world.level.Level)$$1);
++        if ($$2 == null) {
+             return 0;
+         }
+-        cat.finalizeSpawn((net.minecraft.world.level.ServerLevelAccessor)serverLevel, serverLevel.getCurrentDifficultyAt(pos), net.minecraft.world.entity.MobSpawnType.NATURAL, null, null);
+-        cat.moveTo(pos, 0.0f, 0.0f);
+-        serverLevel.addFreshEntityWithPassengers((net.minecraft.world.entity.Entity)cat);
++        $$2.finalizeSpawn((net.minecraft.world.level.ServerLevelAccessor)$$1, $$1.getCurrentDifficultyAt($$0), net.minecraft.world.entity.MobSpawnType.NATURAL, null, null);
++        $$2.moveTo($$0, 0.0f, 0.0f);
++        $$1.addFreshEntityWithPassengers((net.minecraft.world.entity.Entity)$$2);
+         return 1;
+     }
+ }

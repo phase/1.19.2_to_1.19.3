@@ -1,0 +1,1109 @@
+--- net/minecraft/client/gui/Gui.java
++++ net/minecraft/client/gui/Gui.java
+@@ -79,12 +79,12 @@
+         this.titleFadeOutTime = 20;
+     }
+ 
+-    public void render(com.mojang.blaze3d.vertex.PoseStack matrixStack, float partialTicks) {
+-        int n;
+-        float f;
+-        this.screenWidth = this.minecraft.getWindow().getGuiScaledWidth();
+-        this.screenHeight = this.minecraft.getWindow().getGuiScaledHeight();
+-        net.minecraft.client.gui.Font font = this.getFont();
++    public void render(com.mojang.blaze3d.vertex.PoseStack $$0, float $$1) {
++        float $$6;
++        com.mojang.blaze3d.platform.Window $$2 = this.minecraft.getWindow();
++        this.screenWidth = $$2.getGuiScaledWidth();
++        this.screenHeight = $$2.getGuiScaledHeight();
++        net.minecraft.client.gui.Font $$3 = this.getFont();
+         com.mojang.blaze3d.systems.RenderSystem.enableBlend();
+         if (net.minecraft.client.Minecraft.useFancyGraphics()) {
+             this.renderVignette(this.minecraft.getCameraEntity());
+@@ -93,15 +93,15 @@
+             com.mojang.blaze3d.systems.RenderSystem.setShaderColor((float)1.0f, (float)1.0f, (float)1.0f, (float)1.0f);
+             com.mojang.blaze3d.systems.RenderSystem.defaultBlendFunc();
+         }
+-        float f2 = this.minecraft.getDeltaFrameTime();
+-        this.scopeScale = net.minecraft.util.Mth.lerp((float)(0.5f * f2), (float)this.scopeScale, (float)1.125f);
++        float $$4 = this.minecraft.getDeltaFrameTime();
++        this.scopeScale = net.minecraft.util.Mth.lerp((float)(0.5f * $$4), (float)this.scopeScale, (float)1.125f);
+         if (this.minecraft.options.getCameraType().isFirstPerson()) {
+             if (this.minecraft.player.isScoping()) {
+                 this.renderSpyglassOverlay(this.scopeScale);
+             } else {
+                 this.scopeScale = 0.5f;
+-                net.minecraft.world.item.ItemStack itemStack = this.minecraft.player.getInventory().getArmor(3);
+-                if (itemStack.is(net.minecraft.world.level.block.Blocks.CARVED_PUMPKIN.asItem())) {
++                net.minecraft.world.item.ItemStack $$5 = this.minecraft.player.getInventory().getArmor(3);
++                if ($$5.is(net.minecraft.world.level.block.Blocks.CARVED_PUMPKIN.asItem())) {
+                     this.renderTextureOverlay(PUMPKIN_BLUR_LOCATION, 1.0f);
+                 }
+             }
+@@ -109,420 +109,420 @@
+         if (this.minecraft.player.getTicksFrozen() > 0) {
+             this.renderTextureOverlay(POWDER_SNOW_OUTLINE_LOCATION, this.minecraft.player.getPercentFrozen());
+         }
+-        if ((f = net.minecraft.util.Mth.lerp((float)partialTicks, (float)this.minecraft.player.oPortalTime, (float)this.minecraft.player.portalTime)) > 0.0f && !this.minecraft.player.hasEffect(net.minecraft.world.effect.MobEffects.CONFUSION)) {
+-            this.renderPortalOverlay(f);
++        if (($$6 = net.minecraft.util.Mth.lerp((float)$$1, (float)this.minecraft.player.oPortalTime, (float)this.minecraft.player.portalTime)) > 0.0f && !this.minecraft.player.hasEffect(net.minecraft.world.effect.MobEffects.CONFUSION)) {
++            this.renderPortalOverlay($$6);
+         }
+         if (this.minecraft.gameMode.getPlayerMode() == net.minecraft.world.level.GameType.SPECTATOR) {
+-            this.spectatorGui.renderHotbar(matrixStack);
++            this.spectatorGui.renderHotbar($$0);
+         } else if (!this.minecraft.options.hideGui) {
+-            this.renderHotbar(partialTicks, matrixStack);
++            this.renderHotbar($$1, $$0);
+         }
+         if (!this.minecraft.options.hideGui) {
+             com.mojang.blaze3d.systems.RenderSystem.setShaderColor((float)1.0f, (float)1.0f, (float)1.0f, (float)1.0f);
+             com.mojang.blaze3d.systems.RenderSystem.setShader(net.minecraft.client.renderer.GameRenderer::getPositionTexShader);
+             com.mojang.blaze3d.systems.RenderSystem.setShaderTexture((int)0, (net.minecraft.resources.ResourceLocation)GUI_ICONS_LOCATION);
+             com.mojang.blaze3d.systems.RenderSystem.enableBlend();
+-            this.renderCrosshair(matrixStack);
++            this.renderCrosshair($$0);
+             com.mojang.blaze3d.systems.RenderSystem.setShader(net.minecraft.client.renderer.GameRenderer::getPositionTexShader);
+             com.mojang.blaze3d.systems.RenderSystem.defaultBlendFunc();
+             this.minecraft.getProfiler().push("bossHealth");
+-            this.bossOverlay.render(matrixStack);
++            this.bossOverlay.render($$0);
+             this.minecraft.getProfiler().pop();
+             com.mojang.blaze3d.systems.RenderSystem.setShaderColor((float)1.0f, (float)1.0f, (float)1.0f, (float)1.0f);
+             com.mojang.blaze3d.systems.RenderSystem.setShaderTexture((int)0, (net.minecraft.resources.ResourceLocation)GUI_ICONS_LOCATION);
+             if (this.minecraft.gameMode.canHurtPlayer()) {
+-                this.renderPlayerHealth(matrixStack);
++                this.renderPlayerHealth($$0);
+             }
+-            this.renderVehicleHealth(matrixStack);
++            this.renderVehicleHealth($$0);
+             com.mojang.blaze3d.systems.RenderSystem.disableBlend();
+-            int n2 = this.screenWidth / 2 - 91;
+-            if (this.minecraft.player.isRidingJumpable()) {
+-                this.renderJumpMeter(matrixStack, n2);
++            int $$7 = this.screenWidth / 2 - 91;
++            net.minecraft.world.entity.PlayerRideableJumping $$8 = this.minecraft.player.jumpableVehicle();
++            if ($$8 != null) {
++                this.renderJumpMeter($$8, $$0, $$7);
+             } else if (this.minecraft.gameMode.hasExperience()) {
+-                this.renderExperienceBar(matrixStack, n2);
++                this.renderExperienceBar($$0, $$7);
+             }
+             if (this.minecraft.options.heldItemTooltips && this.minecraft.gameMode.getPlayerMode() != net.minecraft.world.level.GameType.SPECTATOR) {
+-                this.renderSelectedItemName(matrixStack);
++                this.renderSelectedItemName($$0);
+             } else if (this.minecraft.player.isSpectator()) {
+-                this.spectatorGui.renderTooltip(matrixStack);
++                this.spectatorGui.renderTooltip($$0);
+             }
+         }
+         if (this.minecraft.player.getSleepTimer() > 0) {
+             this.minecraft.getProfiler().push("sleep");
+             com.mojang.blaze3d.systems.RenderSystem.disableDepthTest();
+-            float f3 = this.minecraft.player.getSleepTimer();
+-            float f4 = f3 / 100.0f;
+-            if (f4 > 1.0f) {
+-                f4 = 1.0f - (f3 - 100.0f) / 10.0f;
++            float $$9 = this.minecraft.player.getSleepTimer();
++            float $$10 = $$9 / 100.0f;
++            if ($$10 > 1.0f) {
++                $$10 = 1.0f - ($$9 - 100.0f) / 10.0f;
+             }
+-            n = (int)(220.0f * f4) << 24 | 0x101020;
+-            net.minecraft.client.gui.Gui.fill((com.mojang.blaze3d.vertex.PoseStack)matrixStack, (int)0, (int)0, (int)this.screenWidth, (int)this.screenHeight, (int)n);
++            int $$11 = (int)(220.0f * $$10) << 24 | 0x101020;
++            net.minecraft.client.gui.Gui.fill((com.mojang.blaze3d.vertex.PoseStack)$$0, (int)0, (int)0, (int)this.screenWidth, (int)this.screenHeight, (int)$$11);
+             com.mojang.blaze3d.systems.RenderSystem.enableDepthTest();
+             this.minecraft.getProfiler().pop();
+             com.mojang.blaze3d.systems.RenderSystem.setShaderColor((float)1.0f, (float)1.0f, (float)1.0f, (float)1.0f);
+         }
+         if (this.minecraft.isDemo()) {
+-            this.renderDemoOverlay(matrixStack);
++            this.renderDemoOverlay($$0);
+         }
+-        this.renderEffects(matrixStack);
++        this.renderEffects($$0);
+         if (this.minecraft.options.renderDebug) {
+-            this.debugScreen.render(matrixStack);
++            this.debugScreen.render($$0);
+         }
+         if (!this.minecraft.options.hideGui) {
+-            net.minecraft.world.scores.Objective objective;
+-            int n3;
+-            int n4;
++            net.minecraft.world.scores.Objective $$27;
++            int $$26;
+             if (this.overlayMessageString != null && this.overlayMessageTime > 0) {
+                 this.minecraft.getProfiler().push("overlayMessage");
+-                float f5 = (float)this.overlayMessageTime - partialTicks;
+-                int n5 = (int)(f5 * 255.0f / 20.0f);
+-                if (n5 > 255) {
+-                    n5 = 255;
++                float $$12 = (float)this.overlayMessageTime - $$1;
++                int $$13 = (int)($$12 * 255.0f / 20.0f);
++                if ($$13 > 255) {
++                    $$13 = 255;
+                 }
+-                if (n5 > 8) {
+-                    matrixStack.pushPose();
+-                    matrixStack.translate((double)(this.screenWidth / 2), (double)(this.screenHeight - 68), 0.0);
++                if ($$13 > 8) {
++                    $$0.pushPose();
++                    $$0.translate((double)(this.screenWidth / 2), (double)(this.screenHeight - 68), 0.0);
+                     com.mojang.blaze3d.systems.RenderSystem.enableBlend();
+                     com.mojang.blaze3d.systems.RenderSystem.defaultBlendFunc();
+-                    n = 0xFFFFFF;
++                    int $$14 = 0xFFFFFF;
+                     if (this.animateOverlayMessageColor) {
+-                        n = net.minecraft.util.Mth.hsvToRgb((float)(f5 / 50.0f), (float)0.7f, (float)0.6f) & 0xFFFFFF;
++                        $$14 = net.minecraft.util.Mth.hsvToRgb((float)($$12 / 50.0f), (float)0.7f, (float)0.6f) & 0xFFFFFF;
+                     }
+-                    n4 = n5 << 24 & 0xFF000000;
+-                    n3 = font.width((net.minecraft.network.chat.FormattedText)this.overlayMessageString);
+-                    this.drawBackdrop(matrixStack, font, -4, n3, 0xFFFFFF | n4);
+-                    font.drawShadow(matrixStack, this.overlayMessageString, (float)(-n3 / 2), -4.0f, n | n4);
++                    int $$15 = $$13 << 24 & 0xFF000000;
++                    int $$16 = $$3.width((net.minecraft.network.chat.FormattedText)this.overlayMessageString);
++                    this.drawBackdrop($$0, $$3, -4, $$16, 0xFFFFFF | $$15);
++                    $$3.drawShadow($$0, this.overlayMessageString, (float)(-$$16 / 2), -4.0f, $$14 | $$15);
+                     com.mojang.blaze3d.systems.RenderSystem.disableBlend();
+-                    matrixStack.popPose();
++                    $$0.popPose();
+                 }
+                 this.minecraft.getProfiler().pop();
+             }
+             if (this.title != null && this.titleTime > 0) {
+                 this.minecraft.getProfiler().push("titleAndSubtitle");
+-                float f6 = (float)this.titleTime - partialTicks;
+-                int n6 = 255;
++                float $$17 = (float)this.titleTime - $$1;
++                int $$18 = 255;
+                 if (this.titleTime > this.titleFadeOutTime + this.titleStayTime) {
+-                    float f7 = (float)(this.titleFadeInTime + this.titleStayTime + this.titleFadeOutTime) - f6;
+-                    n6 = (int)(f7 * 255.0f / (float)this.titleFadeInTime);
++                    float $$19 = (float)(this.titleFadeInTime + this.titleStayTime + this.titleFadeOutTime) - $$17;
++                    $$18 = (int)($$19 * 255.0f / (float)this.titleFadeInTime);
+                 }
+                 if (this.titleTime <= this.titleFadeOutTime) {
+-                    n6 = (int)(f6 * 255.0f / (float)this.titleFadeOutTime);
++                    $$18 = (int)($$17 * 255.0f / (float)this.titleFadeOutTime);
+                 }
+-                if ((n6 = net.minecraft.util.Mth.clamp((int)n6, (int)0, (int)255)) > 8) {
+-                    matrixStack.pushPose();
+-                    matrixStack.translate((double)(this.screenWidth / 2), (double)(this.screenHeight / 2), 0.0);
++                if (($$18 = net.minecraft.util.Mth.clamp((int)$$18, (int)0, (int)255)) > 8) {
++                    $$0.pushPose();
++                    $$0.translate((double)(this.screenWidth / 2), (double)(this.screenHeight / 2), 0.0);
+                     com.mojang.blaze3d.systems.RenderSystem.enableBlend();
+                     com.mojang.blaze3d.systems.RenderSystem.defaultBlendFunc();
+-                    matrixStack.pushPose();
+-                    matrixStack.scale(4.0f, 4.0f, 4.0f);
+-                    int n7 = n6 << 24 & 0xFF000000;
+-                    n4 = font.width((net.minecraft.network.chat.FormattedText)this.title);
+-                    this.drawBackdrop(matrixStack, font, -10, n4, 0xFFFFFF | n7);
+-                    font.drawShadow(matrixStack, this.title, (float)(-n4 / 2), -10.0f, 0xFFFFFF | n7);
+-                    matrixStack.popPose();
++                    $$0.pushPose();
++                    $$0.scale(4.0f, 4.0f, 4.0f);
++                    int $$20 = $$18 << 24 & 0xFF000000;
++                    int $$21 = $$3.width((net.minecraft.network.chat.FormattedText)this.title);
++                    this.drawBackdrop($$0, $$3, -10, $$21, 0xFFFFFF | $$20);
++                    $$3.drawShadow($$0, this.title, (float)(-$$21 / 2), -10.0f, 0xFFFFFF | $$20);
++                    $$0.popPose();
+                     if (this.subtitle != null) {
+-                        matrixStack.pushPose();
+-                        matrixStack.scale(2.0f, 2.0f, 2.0f);
+-                        n3 = font.width((net.minecraft.network.chat.FormattedText)this.subtitle);
+-                        this.drawBackdrop(matrixStack, font, 5, n3, 0xFFFFFF | n7);
+-                        font.drawShadow(matrixStack, this.subtitle, (float)(-n3 / 2), 5.0f, 0xFFFFFF | n7);
+-                        matrixStack.popPose();
++                        $$0.pushPose();
++                        $$0.scale(2.0f, 2.0f, 2.0f);
++                        int $$22 = $$3.width((net.minecraft.network.chat.FormattedText)this.subtitle);
++                        this.drawBackdrop($$0, $$3, 5, $$22, 0xFFFFFF | $$20);
++                        $$3.drawShadow($$0, this.subtitle, (float)(-$$22 / 2), 5.0f, 0xFFFFFF | $$20);
++                        $$0.popPose();
+                     }
+                     com.mojang.blaze3d.systems.RenderSystem.disableBlend();
+-                    matrixStack.popPose();
++                    $$0.popPose();
+                 }
+                 this.minecraft.getProfiler().pop();
+             }
+-            this.subtitleOverlay.render(matrixStack);
+-            net.minecraft.world.scores.Scoreboard scoreboard = this.minecraft.level.getScoreboard();
+-            net.minecraft.world.scores.Objective objective2 = null;
+-            net.minecraft.world.scores.PlayerTeam playerTeam = scoreboard.getPlayersTeam(this.minecraft.player.getScoreboardName());
+-            if (playerTeam != null && (n4 = playerTeam.getColor().getId()) >= 0) {
+-                objective2 = scoreboard.getDisplayObjective(3 + n4);
++            this.subtitleOverlay.render($$0);
++            net.minecraft.world.scores.Scoreboard $$23 = this.minecraft.level.getScoreboard();
++            net.minecraft.world.scores.Objective $$24 = null;
++            net.minecraft.world.scores.PlayerTeam $$25 = $$23.getPlayersTeam(this.minecraft.player.getScoreboardName());
++            if ($$25 != null && ($$26 = $$25.getColor().getId()) >= 0) {
++                $$24 = $$23.getDisplayObjective(3 + $$26);
+             }
+-            net.minecraft.world.scores.Objective objective3 = objective = objective2 != null ? objective2 : scoreboard.getDisplayObjective(1);
+-            if (objective != null) {
+-                this.displayScoreboardSidebar(matrixStack, objective);
++            net.minecraft.world.scores.Objective objective = $$27 = $$24 != null ? $$24 : $$23.getDisplayObjective(1);
++            if ($$27 != null) {
++                this.displayScoreboardSidebar($$0, $$27);
+             }
+             com.mojang.blaze3d.systems.RenderSystem.enableBlend();
+             com.mojang.blaze3d.systems.RenderSystem.defaultBlendFunc();
+-            matrixStack.pushPose();
+-            matrixStack.translate(0.0, (double)(this.screenHeight - 48), 0.0);
++            int $$28 = net.minecraft.util.Mth.floor((double)(this.minecraft.mouseHandler.xpos() * (double)$$2.getGuiScaledWidth() / (double)$$2.getScreenWidth()));
++            int $$29 = net.minecraft.util.Mth.floor((double)(this.minecraft.mouseHandler.ypos() * (double)$$2.getGuiScaledHeight() / (double)$$2.getScreenHeight()));
+             this.minecraft.getProfiler().push("chat");
+-            this.chat.render(matrixStack, this.tickCount);
++            this.chat.render($$0, this.tickCount, $$28, $$29);
+             this.minecraft.getProfiler().pop();
+-            matrixStack.popPose();
+-            objective = scoreboard.getDisplayObjective(0);
+-            if (this.minecraft.options.keyPlayerList.isDown() && (!this.minecraft.isLocalServer() || this.minecraft.player.connection.getOnlinePlayers().size() > 1 || objective != null)) {
++            $$27 = $$23.getDisplayObjective(0);
++            if (this.minecraft.options.keyPlayerList.isDown() && (!this.minecraft.isLocalServer() || this.minecraft.player.connection.getListedOnlinePlayers().size() > 1 || $$27 != null)) {
+                 this.tabList.setVisible(true);
+-                this.tabList.render(matrixStack, this.screenWidth, scoreboard, objective);
++                this.tabList.render($$0, this.screenWidth, $$23, $$27);
+             } else {
+                 this.tabList.setVisible(false);
+             }
+-            this.renderSavingIndicator(matrixStack);
++            this.renderSavingIndicator($$0);
+         }
+         com.mojang.blaze3d.systems.RenderSystem.setShaderColor((float)1.0f, (float)1.0f, (float)1.0f, (float)1.0f);
+     }
+ 
+-    public void drawBackdrop(com.mojang.blaze3d.vertex.PoseStack matrixStack, net.minecraft.client.gui.Font renderer, int n, int n2, int n3) {
+-        int n4 = this.minecraft.options.getBackgroundColor(0.0f);
+-        if (n4 != 0) {
+-            int n5 = -n2 / 2;
+-            java.util.Objects.requireNonNull((java.lang.Object)renderer);
+-            net.minecraft.client.gui.Gui.fill((com.mojang.blaze3d.vertex.PoseStack)matrixStack, (int)(n5 - 2), (int)(n - 2), (int)(n5 + n2 + 2), (int)(n + 9 + 2), (int)net.minecraft.util.FastColor$ARGB32.multiply((int)n4, (int)n3));
++    public void drawBackdrop(com.mojang.blaze3d.vertex.PoseStack $$0, net.minecraft.client.gui.Font $$1, int $$2, int $$3, int $$4) {
++        int $$5 = this.minecraft.options.getBackgroundColor(0.0f);
++        if ($$5 != 0) {
++            int $$6 = -$$3 / 2;
++            java.util.Objects.requireNonNull((java.lang.Object)$$1);
++            net.minecraft.client.gui.Gui.fill((com.mojang.blaze3d.vertex.PoseStack)$$0, (int)($$6 - 2), (int)($$2 - 2), (int)($$6 + $$3 + 2), (int)($$2 + 9 + 2), (int)net.minecraft.util.FastColor$ARGB32.multiply((int)$$5, (int)$$4));
+         }
+     }
+ 
+-    public void renderCrosshair(com.mojang.blaze3d.vertex.PoseStack matrixStack) {
+-        net.minecraft.client.Options options = this.minecraft.options;
+-        if (!options.getCameraType().isFirstPerson()) {
++    public void renderCrosshair(com.mojang.blaze3d.vertex.PoseStack $$0) {
++        net.minecraft.client.Options $$1 = this.minecraft.options;
++        if (!$$1.getCameraType().isFirstPerson()) {
+             return;
+         }
+         if (this.minecraft.gameMode.getPlayerMode() == net.minecraft.world.level.GameType.SPECTATOR && !this.canRenderCrosshairForSpectator(this.minecraft.hitResult)) {
+             return;
+         }
+-        if (options.renderDebug && !options.hideGui && !this.minecraft.player.isReducedDebugInfo() && !((java.lang.Boolean)options.reducedDebugInfo().get()).booleanValue()) {
+-            net.minecraft.client.Camera camera = this.minecraft.gameRenderer.getMainCamera();
+-            com.mojang.blaze3d.vertex.PoseStack poseStack = com.mojang.blaze3d.systems.RenderSystem.getModelViewStack();
+-            poseStack.pushPose();
+-            poseStack.translate((double)(this.screenWidth / 2), (double)(this.screenHeight / 2), (double)this.getBlitOffset());
+-            poseStack.mulPose(com.mojang.math.Vector3f.XN.rotationDegrees(camera.getXRot()));
+-            poseStack.mulPose(com.mojang.math.Vector3f.YP.rotationDegrees(camera.getYRot()));
+-            poseStack.scale(-1.0f, -1.0f, -1.0f);
++        if ($$1.renderDebug && !$$1.hideGui && !this.minecraft.player.isReducedDebugInfo() && !((java.lang.Boolean)$$1.reducedDebugInfo().get()).booleanValue()) {
++            net.minecraft.client.Camera $$2 = this.minecraft.gameRenderer.getMainCamera();
++            com.mojang.blaze3d.vertex.PoseStack $$3 = com.mojang.blaze3d.systems.RenderSystem.getModelViewStack();
++            $$3.pushPose();
++            $$3.translate((double)(this.screenWidth / 2), (double)(this.screenHeight / 2), (double)this.getBlitOffset());
++            $$3.mulPose(com.mojang.math.Vector3f.XN.rotationDegrees($$2.getXRot()));
++            $$3.mulPose(com.mojang.math.Vector3f.YP.rotationDegrees($$2.getYRot()));
++            $$3.scale(-1.0f, -1.0f, -1.0f);
+             com.mojang.blaze3d.systems.RenderSystem.applyModelViewMatrix();
+             com.mojang.blaze3d.systems.RenderSystem.renderCrosshair((int)10);
+-            poseStack.popPose();
++            $$3.popPose();
+             com.mojang.blaze3d.systems.RenderSystem.applyModelViewMatrix();
+         } else {
+             com.mojang.blaze3d.systems.RenderSystem.blendFuncSeparate((com.mojang.blaze3d.platform.GlStateManager$SourceFactor)com.mojang.blaze3d.platform.GlStateManager$SourceFactor.ONE_MINUS_DST_COLOR, (com.mojang.blaze3d.platform.GlStateManager$DestFactor)com.mojang.blaze3d.platform.GlStateManager$DestFactor.ONE_MINUS_SRC_COLOR, (com.mojang.blaze3d.platform.GlStateManager$SourceFactor)com.mojang.blaze3d.platform.GlStateManager$SourceFactor.ONE, (com.mojang.blaze3d.platform.GlStateManager$DestFactor)com.mojang.blaze3d.platform.GlStateManager$DestFactor.ZERO);
+-            int n = 15;
+-            this.blit(matrixStack, (this.screenWidth - 15) / 2, (this.screenHeight - 15) / 2, 0, 0, 15, 15);
++            int $$4 = 15;
++            this.blit($$0, (this.screenWidth - 15) / 2, (this.screenHeight - 15) / 2, 0, 0, 15, 15);
+             if (this.minecraft.options.attackIndicator().get() == net.minecraft.client.AttackIndicatorStatus.CROSSHAIR) {
+-                float f = this.minecraft.player.getAttackStrengthScale(0.0f);
+-                boolean bl = false;
+-                if (this.minecraft.crosshairPickEntity != null && this.minecraft.crosshairPickEntity instanceof net.minecraft.world.entity.LivingEntity && f >= 1.0f) {
+-                    bl = this.minecraft.player.getCurrentItemAttackStrengthDelay() > 5.0f;
+-                    bl &= this.minecraft.crosshairPickEntity.isAlive();
++                float $$5 = this.minecraft.player.getAttackStrengthScale(0.0f);
++                boolean $$6 = false;
++                if (this.minecraft.crosshairPickEntity != null && this.minecraft.crosshairPickEntity instanceof net.minecraft.world.entity.LivingEntity && $$5 >= 1.0f) {
++                    $$6 = this.minecraft.player.getCurrentItemAttackStrengthDelay() > 5.0f;
++                    $$6 &= this.minecraft.crosshairPickEntity.isAlive();
+                 }
+-                int n2 = this.screenHeight / 2 - 7 + 16;
+-                int n3 = this.screenWidth / 2 - 8;
+-                if (bl) {
+-                    this.blit(matrixStack, n3, n2, 68, 94, 16, 16);
+-                } else if (f < 1.0f) {
+-                    int n4 = (int)(f * 17.0f);
+-                    this.blit(matrixStack, n3, n2, 36, 94, 16, 4);
+-                    this.blit(matrixStack, n3, n2, 52, 94, n4, 4);
++                int $$7 = this.screenHeight / 2 - 7 + 16;
++                int $$8 = this.screenWidth / 2 - 8;
++                if ($$6) {
++                    this.blit($$0, $$8, $$7, 68, 94, 16, 16);
++                } else if ($$5 < 1.0f) {
++                    int $$9 = (int)($$5 * 17.0f);
++                    this.blit($$0, $$8, $$7, 36, 94, 16, 4);
++                    this.blit($$0, $$8, $$7, 52, 94, $$9, 4);
+                 }
+             }
+         }
+     }
+ 
+-    public boolean canRenderCrosshairForSpectator(net.minecraft.world.phys.HitResult rayTrace) {
+-        if (rayTrace == null) {
++    public boolean canRenderCrosshairForSpectator(net.minecraft.world.phys.HitResult $$0) {
++        if ($$0 == null) {
+             return false;
+         }
+-        if (rayTrace.getType() == net.minecraft.world.phys.HitResult$Type.ENTITY) {
+-            return ((net.minecraft.world.phys.EntityHitResult)rayTrace).getEntity() instanceof net.minecraft.world.MenuProvider;
++        if ($$0.getType() == net.minecraft.world.phys.HitResult$Type.ENTITY) {
++            return ((net.minecraft.world.phys.EntityHitResult)$$0).getEntity() instanceof net.minecraft.world.MenuProvider;
+         }
+-        if (rayTrace.getType() == net.minecraft.world.phys.HitResult$Type.BLOCK) {
+-            net.minecraft.client.multiplayer.ClientLevel clientLevel = this.minecraft.level;
+-            net.minecraft.core.BlockPos blockPos = ((net.minecraft.world.phys.BlockHitResult)rayTrace).getBlockPos();
+-            return clientLevel.getBlockState(blockPos).getMenuProvider((net.minecraft.world.level.Level)clientLevel, blockPos) != null;
++        if ($$0.getType() == net.minecraft.world.phys.HitResult$Type.BLOCK) {
++            net.minecraft.client.multiplayer.ClientLevel $$2 = this.minecraft.level;
++            net.minecraft.core.BlockPos $$1 = ((net.minecraft.world.phys.BlockHitResult)$$0).getBlockPos();
++            return $$2.getBlockState($$1).getMenuProvider((net.minecraft.world.level.Level)$$2, $$1) != null;
+         }
+         return false;
+     }
+ 
+-    public void renderEffects(com.mojang.blaze3d.vertex.PoseStack matrixStack) {
+-        net.minecraft.client.gui.screens.inventory.EffectRenderingInventoryScreen effectRenderingInventoryScreen;
++    public void renderEffects(com.mojang.blaze3d.vertex.PoseStack $$0) {
++        net.minecraft.client.gui.screens.inventory.EffectRenderingInventoryScreen $$2;
+         net.minecraft.client.gui.screens.Screen screen;
+-        java.util.Collection collection = this.minecraft.player.getActiveEffects();
+-        if (collection.isEmpty() || (screen = this.minecraft.screen) instanceof net.minecraft.client.gui.screens.inventory.EffectRenderingInventoryScreen && (effectRenderingInventoryScreen = (net.minecraft.client.gui.screens.inventory.EffectRenderingInventoryScreen)screen).canSeeEffects()) {
++        java.util.Collection $$1 = this.minecraft.player.getActiveEffects();
++        if ($$1.isEmpty() || (screen = this.minecraft.screen) instanceof net.minecraft.client.gui.screens.inventory.EffectRenderingInventoryScreen && ($$2 = (net.minecraft.client.gui.screens.inventory.EffectRenderingInventoryScreen)screen).canSeeEffects()) {
+             return;
+         }
+         com.mojang.blaze3d.systems.RenderSystem.enableBlend();
+-        int n = 0;
+-        int n2 = 0;
+-        net.minecraft.client.resources.MobEffectTextureManager mobEffectTextureManager = this.minecraft.getMobEffectTextures();
+-        java.util.ArrayList arrayList = com.google.common.collect.Lists.newArrayListWithExpectedSize((int)collection.size());
++        int $$3 = 0;
++        int $$4 = 0;
++        net.minecraft.client.resources.MobEffectTextureManager $$5 = this.minecraft.getMobEffectTextures();
++        java.util.ArrayList $$6 = com.google.common.collect.Lists.newArrayListWithExpectedSize((int)$$1.size());
+         com.mojang.blaze3d.systems.RenderSystem.setShaderTexture((int)0, (net.minecraft.resources.ResourceLocation)net.minecraft.client.gui.screens.inventory.AbstractContainerScreen.INVENTORY_LOCATION);
+-        for (net.minecraft.world.effect.MobEffectInstance mobEffectInstance : com.google.common.collect.Ordering.natural().reverse().sortedCopy((java.lang.Iterable)collection)) {
+-            net.minecraft.world.effect.MobEffect mobEffect = mobEffectInstance.getEffect();
+-            if (!mobEffectInstance.showIcon()) continue;
+-            int n3 = this.screenWidth;
+-            int n4 = 1;
++        for (net.minecraft.world.effect.MobEffectInstance $$7 : com.google.common.collect.Ordering.natural().reverse().sortedCopy((java.lang.Iterable)$$1)) {
++            net.minecraft.world.effect.MobEffect $$8 = $$7.getEffect();
++            if (!$$7.showIcon()) continue;
++            int $$9 = this.screenWidth;
++            int $$10 = 1;
+             if (this.minecraft.isDemo()) {
+-                n4 += 15;
++                $$10 += 15;
+             }
+-            if (mobEffect.isBeneficial()) {
+-                n3 -= 25 * ++n;
++            if ($$8.isBeneficial()) {
++                $$9 -= 25 * ++$$3;
+             } else {
+-                n3 -= 25 * ++n2;
+-                n4 += 26;
++                $$9 -= 25 * ++$$4;
++                $$10 += 26;
+             }
+             com.mojang.blaze3d.systems.RenderSystem.setShaderColor((float)1.0f, (float)1.0f, (float)1.0f, (float)1.0f);
+-            float f = 1.0f;
+-            if (mobEffectInstance.isAmbient()) {
+-                this.blit(matrixStack, n3, n4, 165, 166, 24, 24);
++            float $$11 = 1.0f;
++            if ($$7.isAmbient()) {
++                this.blit($$0, $$9, $$10, 165, 166, 24, 24);
+             } else {
+-                this.blit(matrixStack, n3, n4, 141, 166, 24, 24);
+-                if (mobEffectInstance.getDuration() <= 200) {
+-                    int n5 = 10 - mobEffectInstance.getDuration() / 20;
+-                    f = net.minecraft.util.Mth.clamp((float)((float)mobEffectInstance.getDuration() / 10.0f / 5.0f * 0.5f), (float)0.0f, (float)0.5f) + net.minecraft.util.Mth.cos((float)((float)mobEffectInstance.getDuration() * (float)java.lang.Math.PI / 5.0f)) * net.minecraft.util.Mth.clamp((float)((float)n5 / 10.0f * 0.25f), (float)0.0f, (float)0.25f);
++                this.blit($$0, $$9, $$10, 141, 166, 24, 24);
++                if ($$7.getDuration() <= 200) {
++                    int $$12 = 10 - $$7.getDuration() / 20;
++                    $$11 = net.minecraft.util.Mth.clamp((float)((float)$$7.getDuration() / 10.0f / 5.0f * 0.5f), (float)0.0f, (float)0.5f) + net.minecraft.util.Mth.cos((float)((float)$$7.getDuration() * (float)java.lang.Math.PI / 5.0f)) * net.minecraft.util.Mth.clamp((float)((float)$$12 / 10.0f * 0.25f), (float)0.0f, (float)0.25f);
+                 }
+             }
+-            net.minecraft.client.renderer.texture.TextureAtlasSprite textureAtlasSprite = mobEffectTextureManager.get(mobEffect);
+-            int n6 = n3;
+-            int n7 = n4;
+-            float f2 = f;
+-            arrayList.add(() -> {
+-                com.mojang.blaze3d.systems.RenderSystem.setShaderTexture((int)0, (net.minecraft.resources.ResourceLocation)textureAtlasSprite.atlas().location());
+-                com.mojang.blaze3d.systems.RenderSystem.setShaderColor((float)1.0f, (float)1.0f, (float)1.0f, (float)f2);
+-                net.minecraft.client.gui.Gui.blit((com.mojang.blaze3d.vertex.PoseStack)matrixStack, (int)(n6 + 3), (int)(n7 + 3), (int)this.getBlitOffset(), (int)18, (int)18, (net.minecraft.client.renderer.texture.TextureAtlasSprite)textureAtlasSprite);
++            net.minecraft.client.renderer.texture.TextureAtlasSprite $$13 = $$5.get($$8);
++            int $$14 = $$9;
++            int $$15 = $$10;
++            float $$16 = $$11;
++            $$6.add(() -> {
++                com.mojang.blaze3d.systems.RenderSystem.setShaderTexture((int)0, (net.minecraft.resources.ResourceLocation)$$13.atlasLocation());
++                com.mojang.blaze3d.systems.RenderSystem.setShaderColor((float)1.0f, (float)1.0f, (float)1.0f, (float)$$16);
++                net.minecraft.client.gui.Gui.blit((com.mojang.blaze3d.vertex.PoseStack)$$0, (int)($$14 + 3), (int)($$15 + 3), (int)this.getBlitOffset(), (int)18, (int)18, (net.minecraft.client.renderer.texture.TextureAtlasSprite)$$13);
+             });
+         }
+-        arrayList.forEach(java.lang.Runnable::run);
++        $$6.forEach(java.lang.Runnable::run);
+         com.mojang.blaze3d.systems.RenderSystem.setShaderColor((float)1.0f, (float)1.0f, (float)1.0f, (float)1.0f);
+     }
+ 
+-    public void renderHotbar(float partialTicks, com.mojang.blaze3d.vertex.PoseStack matrixStack) {
+-        float f;
+-        int n;
+-        int n2;
+-        int n3;
+-        net.minecraft.world.entity.player.Player player = this.getCameraPlayer();
+-        if (player == null) {
++    public void renderHotbar(float $$0, com.mojang.blaze3d.vertex.PoseStack $$1) {
++        float $$14;
++        net.minecraft.world.entity.player.Player $$2 = this.getCameraPlayer();
++        if ($$2 == null) {
+             return;
+         }
+         com.mojang.blaze3d.systems.RenderSystem.setShaderColor((float)1.0f, (float)1.0f, (float)1.0f, (float)1.0f);
+         com.mojang.blaze3d.systems.RenderSystem.setShader(net.minecraft.client.renderer.GameRenderer::getPositionTexShader);
+         com.mojang.blaze3d.systems.RenderSystem.setShaderTexture((int)0, (net.minecraft.resources.ResourceLocation)WIDGETS_LOCATION);
+-        net.minecraft.world.item.ItemStack itemStack = player.getOffhandItem();
+-        net.minecraft.world.entity.HumanoidArm humanoidArm = player.getMainArm().getOpposite();
+-        int n4 = this.screenWidth / 2;
+-        int n5 = this.getBlitOffset();
+-        int n6 = 182;
+-        int n7 = 91;
++        net.minecraft.world.item.ItemStack $$3 = $$2.getOffhandItem();
++        net.minecraft.world.entity.HumanoidArm $$4 = $$2.getMainArm().getOpposite();
++        int $$5 = this.screenWidth / 2;
++        int $$6 = this.getBlitOffset();
++        int $$7 = 182;
++        int $$8 = 91;
+         this.setBlitOffset(-90);
+-        this.blit(matrixStack, n4 - 91, this.screenHeight - 22, 0, 0, 182, 22);
+-        this.blit(matrixStack, n4 - 91 - 1 + player.getInventory().selected * 20, this.screenHeight - 22 - 1, 0, 22, 24, 22);
+-        if (!itemStack.isEmpty()) {
+-            if (humanoidArm == net.minecraft.world.entity.HumanoidArm.LEFT) {
+-                this.blit(matrixStack, n4 - 91 - 29, this.screenHeight - 23, 24, 22, 29, 24);
++        this.blit($$1, $$5 - 91, this.screenHeight - 22, 0, 0, 182, 22);
++        this.blit($$1, $$5 - 91 - 1 + $$2.getInventory().selected * 20, this.screenHeight - 22 - 1, 0, 22, 24, 22);
++        if (!$$3.isEmpty()) {
++            if ($$4 == net.minecraft.world.entity.HumanoidArm.LEFT) {
++                this.blit($$1, $$5 - 91 - 29, this.screenHeight - 23, 24, 22, 29, 24);
+             } else {
+-                this.blit(matrixStack, n4 + 91, this.screenHeight - 23, 53, 22, 29, 24);
++                this.blit($$1, $$5 + 91, this.screenHeight - 23, 53, 22, 29, 24);
+             }
+         }
+-        this.setBlitOffset(n5);
++        this.setBlitOffset($$6);
+         com.mojang.blaze3d.systems.RenderSystem.enableBlend();
+         com.mojang.blaze3d.systems.RenderSystem.defaultBlendFunc();
+-        int n8 = 1;
+-        for (n3 = 0;
+- n3 < 9; ++n3) {
+-            n2 = n4 - 90 + n3 * 20 + 2;
+-            n = this.screenHeight - 16 - 3;
+-            this.renderSlot(n2, n, partialTicks, player, (net.minecraft.world.item.ItemStack)player.getInventory().items.get(n3), n8++);
++        int $$9 = 1;
++        for (int $$10 = 0; $$10 < 9; ++$$10) {
++            int $$11 = $$5 - 90 + $$10 * 20 + 2;
++            int $$12 = this.screenHeight - 16 - 3;
++            this.renderSlot($$11, $$12, $$0, $$2, (net.minecraft.world.item.ItemStack)$$2.getInventory().items.get($$10), $$9++);
+         }
+-        if (!itemStack.isEmpty()) {
+-            n3 = this.screenHeight - 16 - 3;
+-            if (humanoidArm == net.minecraft.world.entity.HumanoidArm.LEFT) {
+-                this.renderSlot(n4 - 91 - 26, n3, partialTicks, player, itemStack, n8++);
++        if (!$$3.isEmpty()) {
++            int $$13 = this.screenHeight - 16 - 3;
++            if ($$4 == net.minecraft.world.entity.HumanoidArm.LEFT) {
++                this.renderSlot($$5 - 91 - 26, $$13, $$0, $$2, $$3, $$9++);
+             } else {
+-                this.renderSlot(n4 + 91 + 10, n3, partialTicks, player, itemStack, n8++);
++                this.renderSlot($$5 + 91 + 10, $$13, $$0, $$2, $$3, $$9++);
+             }
+         }
+-        if (this.minecraft.options.attackIndicator().get() == net.minecraft.client.AttackIndicatorStatus.HOTBAR && (f = this.minecraft.player.getAttackStrengthScale(0.0f)) < 1.0f) {
+-            n2 = this.screenHeight - 20;
+-            n = n4 + 91 + 6;
+-            if (humanoidArm == net.minecraft.world.entity.HumanoidArm.RIGHT) {
+-                n = n4 - 91 - 22;
++        if (this.minecraft.options.attackIndicator().get() == net.minecraft.client.AttackIndicatorStatus.HOTBAR && ($$14 = this.minecraft.player.getAttackStrengthScale(0.0f)) < 1.0f) {
++            int $$15 = this.screenHeight - 20;
++            int $$16 = $$5 + 91 + 6;
++            if ($$4 == net.minecraft.world.entity.HumanoidArm.RIGHT) {
++                $$16 = $$5 - 91 - 22;
+             }
+             com.mojang.blaze3d.systems.RenderSystem.setShaderTexture((int)0, (net.minecraft.resources.ResourceLocation)net.minecraft.client.gui.GuiComponent.GUI_ICONS_LOCATION);
+-            int n9 = (int)(f * 19.0f);
++            int $$17 = (int)($$14 * 19.0f);
+             com.mojang.blaze3d.systems.RenderSystem.setShaderColor((float)1.0f, (float)1.0f, (float)1.0f, (float)1.0f);
+-            this.blit(matrixStack, n, n2, 0, 94, 18, 18);
+-            this.blit(matrixStack, n, n2 + 18 - n9, 18, 112 - n9, 18, n9);
++            this.blit($$1, $$16, $$15, 0, 94, 18, 18);
++            this.blit($$1, $$16, $$15 + 18 - $$17, 18, 112 - $$17, 18, $$17);
+         }
+         com.mojang.blaze3d.systems.RenderSystem.disableBlend();
+     }
+ 
+-    public void renderJumpMeter(com.mojang.blaze3d.vertex.PoseStack matrixStack, int xPosition) {
++    public void renderJumpMeter(net.minecraft.world.entity.PlayerRideableJumping $$0, com.mojang.blaze3d.vertex.PoseStack $$1, int $$2) {
+         this.minecraft.getProfiler().push("jumpBar");
+         com.mojang.blaze3d.systems.RenderSystem.setShaderTexture((int)0, (net.minecraft.resources.ResourceLocation)net.minecraft.client.gui.GuiComponent.GUI_ICONS_LOCATION);
+-        float f = this.minecraft.player.getJumpRidingScale();
+-        int n = 182;
+-        int n2 = (int)(f * 183.0f);
+-        int n3 = this.screenHeight - 32 + 3;
+-        this.blit(matrixStack, xPosition, n3, 0, 84, 182, 5);
+-        if (n2 > 0) {
+-            this.blit(matrixStack, xPosition, n3, 0, 89, n2, 5);
++        float $$3 = this.minecraft.player.getJumpRidingScale();
++        int $$4 = 182;
++        int $$5 = (int)($$3 * 183.0f);
++        int $$6 = this.screenHeight - 32 + 3;
++        this.blit($$1, $$2, $$6, 0, 84, 182, 5);
++        if ($$0.getJumpCooldown() > 0) {
++            this.blit($$1, $$2, $$6, 0, 74, 182, 5);
++        } else if ($$5 > 0) {
++            this.blit($$1, $$2, $$6, 0, 89, $$5, 5);
+         }
+         this.minecraft.getProfiler().pop();
+     }
+ 
+-    public void renderExperienceBar(com.mojang.blaze3d.vertex.PoseStack matrixStack, int xPos) {
+-        int n;
+-        int n2;
++    public void renderExperienceBar(com.mojang.blaze3d.vertex.PoseStack $$0, int $$1) {
+         this.minecraft.getProfiler().push("expBar");
+         com.mojang.blaze3d.systems.RenderSystem.setShaderTexture((int)0, (net.minecraft.resources.ResourceLocation)net.minecraft.client.gui.GuiComponent.GUI_ICONS_LOCATION);
+-        int n3 = this.minecraft.player.getXpNeededForNextLevel();
+-        if (n3 > 0) {
+-            int n4 = 182;
+-            n2 = (int)(this.minecraft.player.experienceProgress * 183.0f);
+-            n = this.screenHeight - 32 + 3;
+-            this.blit(matrixStack, xPos, n, 0, 64, 182, 5);
+-            if (n2 > 0) {
+-                this.blit(matrixStack, xPos, n, 0, 69, n2, 5);
++        int $$2 = this.minecraft.player.getXpNeededForNextLevel();
++        if ($$2 > 0) {
++            int $$3 = 182;
++            int $$4 = (int)(this.minecraft.player.experienceProgress * 183.0f);
++            int $$5 = this.screenHeight - 32 + 3;
++            this.blit($$0, $$1, $$5, 0, 64, 182, 5);
++            if ($$4 > 0) {
++                this.blit($$0, $$1, $$5, 0, 69, $$4, 5);
+             }
+         }
+         this.minecraft.getProfiler().pop();
+         if (this.minecraft.player.experienceLevel > 0) {
+             this.minecraft.getProfiler().push("expLevel");
+-            java.lang.String string = "" + this.minecraft.player.experienceLevel;
+-            n2 = (this.screenWidth - this.getFont().width(string)) / 2;
+-            n = this.screenHeight - 31 - 4;
+-            this.getFont().draw(matrixStack, string, (float)(n2 + 1), (float)n, 0);
+-            this.getFont().draw(matrixStack, string, (float)(n2 - 1), (float)n, 0);
+-            this.getFont().draw(matrixStack, string, (float)n2, (float)(n + 1), 0);
+-            this.getFont().draw(matrixStack, string, (float)n2, (float)(n - 1), 0);
+-            this.getFont().draw(matrixStack, string, (float)n2, (float)n, 8453920);
++            java.lang.String $$6 = "" + this.minecraft.player.experienceLevel;
++            int $$7 = (this.screenWidth - this.getFont().width($$6)) / 2;
++            int $$8 = this.screenHeight - 31 - 4;
++            this.getFont().draw($$0, $$6, (float)($$7 + 1), (float)$$8, 0);
++            this.getFont().draw($$0, $$6, (float)($$7 - 1), (float)$$8, 0);
++            this.getFont().draw($$0, $$6, (float)$$7, (float)($$8 + 1), 0);
++            this.getFont().draw($$0, $$6, (float)$$7, (float)($$8 - 1), 0);
++            this.getFont().draw($$0, $$6, (float)$$7, (float)$$8, 8453920);
+             this.minecraft.getProfiler().pop();
+         }
+     }
+ 
+-    public void renderSelectedItemName(com.mojang.blaze3d.vertex.PoseStack matrixStack) {
++    public void renderSelectedItemName(com.mojang.blaze3d.vertex.PoseStack $$0) {
+         this.minecraft.getProfiler().push("selectedItemName");
+         if (this.toolHighlightTimer > 0 && !this.lastToolHighlight.isEmpty()) {
+-            int n;
+-            net.minecraft.network.chat.MutableComponent mutableComponent = net.minecraft.network.chat.Component.empty().append(this.lastToolHighlight.getHoverName()).withStyle(this.lastToolHighlight.getRarity().color);
++            int $$5;
++            net.minecraft.network.chat.MutableComponent $$1 = net.minecraft.network.chat.Component.empty().append(this.lastToolHighlight.getHoverName()).withStyle(this.lastToolHighlight.getRarity().color);
+             if (this.lastToolHighlight.hasCustomHoverName()) {
+-                mutableComponent.withStyle(net.minecraft.ChatFormatting.ITALIC);
++                $$1.withStyle(net.minecraft.ChatFormatting.ITALIC);
+             }
+-            int n2 = this.getFont().width((net.minecraft.network.chat.FormattedText)mutableComponent);
+-            int n3 = (this.screenWidth - n2) / 2;
+-            int n4 = this.screenHeight - 59;
++            int $$2 = this.getFont().width((net.minecraft.network.chat.FormattedText)$$1);
++            int $$3 = (this.screenWidth - $$2) / 2;
++            int $$4 = this.screenHeight - 59;
+             if (!this.minecraft.gameMode.canHurtPlayer()) {
+-                n4 += 14;
++                $$4 += 14;
+             }
+-            if ((n = (int)((float)this.toolHighlightTimer * 256.0f / 10.0f)) > 255) {
+-                n = 255;
++            if (($$5 = (int)((float)this.toolHighlightTimer * 256.0f / 10.0f)) > 255) {
++                $$5 = 255;
+             }
+-            if (n > 0) {
++            if ($$5 > 0) {
+                 com.mojang.blaze3d.systems.RenderSystem.enableBlend();
+                 com.mojang.blaze3d.systems.RenderSystem.defaultBlendFunc();
+                 java.util.Objects.requireNonNull((java.lang.Object)this.getFont());
+-                net.minecraft.client.gui.Gui.fill((com.mojang.blaze3d.vertex.PoseStack)matrixStack, (int)(n3 - 2), (int)(n4 - 2), (int)(n3 + n2 + 2), (int)(n4 + 9 + 2), (int)this.minecraft.options.getBackgroundColor(0));
+-                this.getFont().drawShadow(matrixStack, (net.minecraft.network.chat.Component)mutableComponent, (float)n3, (float)n4, 0xFFFFFF + (n << 24));
++                net.minecraft.client.gui.Gui.fill((com.mojang.blaze3d.vertex.PoseStack)$$0, (int)($$3 - 2), (int)($$4 - 2), (int)($$3 + $$2 + 2), (int)($$4 + 9 + 2), (int)this.minecraft.options.getBackgroundColor(0));
++                this.getFont().drawShadow($$0, (net.minecraft.network.chat.Component)$$1, (float)$$3, (float)$$4, 0xFFFFFF + ($$5 << 24));
+                 com.mojang.blaze3d.systems.RenderSystem.disableBlend();
+             }
+         }
+         this.minecraft.getProfiler().pop();
+     }
+ 
+-    public void renderDemoOverlay(com.mojang.blaze3d.vertex.PoseStack matrixStack) {
++    public void renderDemoOverlay(com.mojang.blaze3d.vertex.PoseStack $$0) {
++        net.minecraft.network.chat.MutableComponent $$2;
+         this.minecraft.getProfiler().push("demo");
+-        java.lang.Object object = this.minecraft.level.getGameTime() >= 120500L ? DEMO_EXPIRED_TEXT : net.minecraft.network.chat.Component.translatable((java.lang.String)"demo.remainingTime", (java.lang.Object[])new java.lang.Object[]{net.minecraft.util.StringUtil.formatTickDuration((int)((int)(120500L - this.minecraft.level.getGameTime())))});
+-        int n = this.getFont().width((net.minecraft.network.chat.FormattedText)object);
+-        this.getFont().drawShadow(matrixStack, object, (float)(this.screenWidth - n - 10), 5.0f, 0xFFFFFF);
++        if (this.minecraft.level.getGameTime() >= 120500L) {
++            net.minecraft.network.chat.Component $$1 = DEMO_EXPIRED_TEXT;
++        } else {
++            $$2 = net.minecraft.network.chat.Component.translatable((java.lang.String)"demo.remainingTime", (java.lang.Object[])new java.lang.Object[]{net.minecraft.util.StringUtil.formatTickDuration((int)((int)(120500L - this.minecraft.level.getGameTime())))});
++        }
++        int $$3 = this.getFont().width((net.minecraft.network.chat.FormattedText)$$2);
++        this.getFont().drawShadow($$0, (net.minecraft.network.chat.Component)$$2, (float)(this.screenWidth - $$3 - 10), 5.0f, 0xFFFFFF);
+         this.minecraft.getProfiler().pop();
+     }
+ 
+@@ -595,122 +595,115 @@
+         return null;
+     }
+ 
+-    public int getVehicleMaxHearts(net.minecraft.world.entity.LivingEntity mountEntity) {
+-        if (mountEntity == null || !mountEntity.showVehicleHealth()) {
++    public int getVehicleMaxHearts(net.minecraft.world.entity.LivingEntity $$0) {
++        if ($$0 == null || !$$0.showVehicleHealth()) {
+             return 0;
+         }
+-        float f = mountEntity.getMaxHealth();
+-        int n = (int)(f + 0.5f) / 2;
+-        if (n > 30) {
+-            n = 30;
++        float $$1 = $$0.getMaxHealth();
++        int $$2 = (int)($$1 + 0.5f) / 2;
++        if ($$2 > 30) {
++            $$2 = 30;
+         }
+-        return n;
++        return $$2;
+     }
+ 
+-    public int getVisibleVehicleHeartRows(int mountHealth) {
+-        return (int)java.lang.Math.ceil((double)((double)mountHealth / 10.0));
++    public int getVisibleVehicleHeartRows(int $$0) {
++        return (int)java.lang.Math.ceil((double)((double)$$0 / 10.0));
+     }
+ 
+-    public void renderPlayerHealth(com.mojang.blaze3d.vertex.PoseStack matrixStack) {
+-        int n;
+-        int n2;
+-        int n3;
+-        int n4;
+-        int n5;
+-        int n6;
+-        net.minecraft.world.entity.player.Player player = this.getCameraPlayer();
+-        if (player == null) {
++    public void renderPlayerHealth(com.mojang.blaze3d.vertex.PoseStack $$0) {
++        net.minecraft.world.entity.player.Player $$1 = this.getCameraPlayer();
++        if ($$1 == null) {
+             return;
+         }
+-        int n7 = net.minecraft.util.Mth.ceil((float)player.getHealth());
+-        boolean bl = this.healthBlinkTime > (long)this.tickCount && (this.healthBlinkTime - (long)this.tickCount) / 3L % 2L == 1L;
+-        long l = net.minecraft.Util.getMillis();
+-        if (n7 < this.lastHealth && player.invulnerableTime > 0) {
+-            this.lastHealthTime = l;
++        int $$2 = net.minecraft.util.Mth.ceil((float)$$1.getHealth());
++        boolean $$3 = this.healthBlinkTime > (long)this.tickCount && (this.healthBlinkTime - (long)this.tickCount) / 3L % 2L == 1L;
++        long $$4 = net.minecraft.Util.getMillis();
++        if ($$2 < this.lastHealth && $$1.invulnerableTime > 0) {
++            this.lastHealthTime = $$4;
+             this.healthBlinkTime = this.tickCount + 20;
+-        } else if (n7 > this.lastHealth && player.invulnerableTime > 0) {
+-            this.lastHealthTime = l;
++        } else if ($$2 > this.lastHealth && $$1.invulnerableTime > 0) {
++            this.lastHealthTime = $$4;
+             this.healthBlinkTime = this.tickCount + 10;
+         }
+-        if (l - this.lastHealthTime > 1000L) {
+-            this.lastHealth = n7;
+-            this.displayHealth = n7;
+-            this.lastHealthTime = l;
++        if ($$4 - this.lastHealthTime > 1000L) {
++            this.lastHealth = $$2;
++            this.displayHealth = $$2;
++            this.lastHealthTime = $$4;
+         }
+-        this.lastHealth = n7;
+-        int n8 = this.displayHealth;
++        this.lastHealth = $$2;
++        int $$5 = this.displayHealth;
+         this.random.setSeed((long)(this.tickCount * 312871));
+-        net.minecraft.world.food.FoodData foodData = player.getFoodData();
+-        int n9 = foodData.getFoodLevel();
+-        int n10 = this.screenWidth / 2 - 91;
+-        int n11 = this.screenWidth / 2 + 91;
+-        int n12 = this.screenHeight - 39;
+-        float f = java.lang.Math.max((float)((float)player.getAttributeValue(net.minecraft.world.entity.ai.attributes.Attributes.MAX_HEALTH)), (float)java.lang.Math.max((int)n8, (int)n7));
+-        int n13 = net.minecraft.util.Mth.ceil((float)player.getAbsorptionAmount());
+-        int n14 = net.minecraft.util.Mth.ceil((float)((f + (float)n13) / 2.0f / 10.0f));
+-        int n15 = java.lang.Math.max((int)(10 - (n14 - 2)), (int)3);
+-        int n16 = n12 - (n14 - 1) * n15 - 10;
+-        int n17 = n12 - 10;
+-        int n18 = player.getArmorValue();
+-        int n19 = -1;
+-        if (player.hasEffect(net.minecraft.world.effect.MobEffects.REGENERATION)) {
+-            n19 = this.tickCount % net.minecraft.util.Mth.ceil((float)(f + 5.0f));
++        net.minecraft.world.food.FoodData $$6 = $$1.getFoodData();
++        int $$7 = $$6.getFoodLevel();
++        int $$8 = this.screenWidth / 2 - 91;
++        int $$9 = this.screenWidth / 2 + 91;
++        int $$10 = this.screenHeight - 39;
++        float $$11 = java.lang.Math.max((float)((float)$$1.getAttributeValue(net.minecraft.world.entity.ai.attributes.Attributes.MAX_HEALTH)), (float)java.lang.Math.max((int)$$5, (int)$$2));
++        int $$12 = net.minecraft.util.Mth.ceil((float)$$1.getAbsorptionAmount());
++        int $$13 = net.minecraft.util.Mth.ceil((float)(($$11 + (float)$$12) / 2.0f / 10.0f));
++        int $$14 = java.lang.Math.max((int)(10 - ($$13 - 2)), (int)3);
++        int $$15 = $$10 - ($$13 - 1) * $$14 - 10;
++        int $$16 = $$10 - 10;
++        int $$17 = $$1.getArmorValue();
++        int $$18 = -1;
++        if ($$1.hasEffect(net.minecraft.world.effect.MobEffects.REGENERATION)) {
++            $$18 = this.tickCount % net.minecraft.util.Mth.ceil((float)($$11 + 5.0f));
+         }
+         this.minecraft.getProfiler().push("armor");
+-        for (int i = 0; i < 10; ++i) {
+-            if (n18 <= 0) continue;
+-            n6 = n10 + i * 8;
+-            if (i * 2 + 1 < n18) {
+-                this.blit(matrixStack, n6, n16, 34, 9, 9, 9);
++        for (int $$19 = 0; $$19 < 10; ++$$19) {
++            if ($$17 <= 0) continue;
++            int $$20 = $$8 + $$19 * 8;
++            if ($$19 * 2 + 1 < $$17) {
++                this.blit($$0, $$20, $$15, 34, 9, 9, 9);
+             }
+-            if (i * 2 + 1 == n18) {
+-                this.blit(matrixStack, n6, n16, 25, 9, 9, 9);
++            if ($$19 * 2 + 1 == $$17) {
++                this.blit($$0, $$20, $$15, 25, 9, 9, 9);
+             }
+-            if (i * 2 + 1 <= n18) continue;
+-            this.blit(matrixStack, n6, n16, 16, 9, 9, 9);
++            if ($$19 * 2 + 1 <= $$17) continue;
++            this.blit($$0, $$20, $$15, 16, 9, 9, 9);
+         }
+         this.minecraft.getProfiler().popPush("health");
+-        this.renderHearts(matrixStack, player, n10, n12, n15, n19, f, n7, n8, n13, bl);
+-        net.minecraft.world.entity.LivingEntity livingEntity = this.getPlayerVehicleWithHealth();
+-        n6 = this.getVehicleMaxHearts(livingEntity);
+-        if (n6 == 0) {
++        this.renderHearts($$0, $$1, $$8, $$10, $$14, $$18, $$11, $$2, $$5, $$12, $$3);
++        net.minecraft.world.entity.LivingEntity $$21 = this.getPlayerVehicleWithHealth();
++        int $$22 = this.getVehicleMaxHearts($$21);
++        if ($$22 == 0) {
+             this.minecraft.getProfiler().popPush("food");
+-            for (n5 = 0;
+- n5 < 10; ++n5) {
+-                n4 = n12;
+-                n3 = 16;
+-                n2 = 0;
+-                if (player.hasEffect(net.minecraft.world.effect.MobEffects.HUNGER)) {
+-                    n3 += 36;
+-                    n2 = 13;
++            for (int $$23 = 0; $$23 < 10; ++$$23) {
++                int $$24 = $$10;
++                int $$25 = 16;
++                int $$26 = 0;
++                if ($$1.hasEffect(net.minecraft.world.effect.MobEffects.HUNGER)) {
++                    $$25 += 36;
++                    $$26 = 13;
+                 }
+-                if (player.getFoodData().getSaturationLevel() <= 0.0f && this.tickCount % (n9 * 3 + 1) == 0) {
+-                    n4 += this.random.nextInt(3) - 1;
++                if ($$1.getFoodData().getSaturationLevel() <= 0.0f && this.tickCount % ($$7 * 3 + 1) == 0) {
++                    $$24 += this.random.nextInt(3) - 1;
+                 }
+-                n = n11 - n5 * 8 - 9;
+-                this.blit(matrixStack, n, n4, 16 + n2 * 9, 27, 9, 9);
+-                if (n5 * 2 + 1 < n9) {
+-                    this.blit(matrixStack, n, n4, n3 + 36, 27, 9, 9);
++                int $$27 = $$9 - $$23 * 8 - 9;
++                this.blit($$0, $$27, $$24, 16 + $$26 * 9, 27, 9, 9);
++                if ($$23 * 2 + 1 < $$7) {
++                    this.blit($$0, $$27, $$24, $$25 + 36, 27, 9, 9);
+                 }
+-                if (n5 * 2 + 1 != n9) continue;
+-                this.blit(matrixStack, n, n4, n3 + 45, 27, 9, 9);
++                if ($$23 * 2 + 1 != $$7) continue;
++                this.blit($$0, $$27, $$24, $$25 + 45, 27, 9, 9);
+             }
+-            n17 -= 10;
++            $$16 -= 10;
+         }
+         this.minecraft.getProfiler().popPush("air");
+-        n5 = player.getMaxAirSupply();
+-        n4 = java.lang.Math.min((int)player.getAirSupply(), (int)n5);
+-        if (player.isEyeInFluid(net.minecraft.tags.FluidTags.WATER) || n4 < n5) {
+-            n3 = this.getVisibleVehicleHeartRows(n6) - 1;
+-            n17 -= n3 * 10;
+-            n2 = net.minecraft.util.Mth.ceil((double)((double)(n4 - 2) * 10.0 / (double)n5));
+-            n = net.minecraft.util.Mth.ceil((double)((double)n4 * 10.0 / (double)n5)) - n2;
+-            for (int i = 0; i < n2 + n; ++i) {
+-                if (i < n2) {
+-                    this.blit(matrixStack, n11 - i * 8 - 9, n17, 16, 18, 9, 9);
++        int $$28 = $$1.getMaxAirSupply();
++        int $$29 = java.lang.Math.min((int)$$1.getAirSupply(), (int)$$28);
++        if ($$1.isEyeInFluid(net.minecraft.tags.FluidTags.WATER) || $$29 < $$28) {
++            int $$30 = this.getVisibleVehicleHeartRows($$22) - 1;
++            $$16 -= $$30 * 10;
++            int $$31 = net.minecraft.util.Mth.ceil((double)((double)($$29 - 2) * 10.0 / (double)$$28));
++            int $$32 = net.minecraft.util.Mth.ceil((double)((double)$$29 * 10.0 / (double)$$28)) - $$31;
++            for (int $$33 = 0; $$33 < $$31 + $$32; ++$$33) {
++                if ($$33 < $$31) {
++                    this.blit($$0, $$9 - $$33 * 8 - 9, $$16, 16, 18, 9, 9);
+                     continue;
+                 }
+-                this.blit(matrixStack, n11 - i * 8 - 9, n17, 25, 18, 9, 9);
++                this.blit($$0, $$9 - $$33 * 8 - 9, $$16, 25, 18, 9, 9);
+             }
+         }
+         this.minecraft.getProfiler().pop();
+@@ -756,38 +749,38 @@
+         this.blit($$0, $$2, $$3, $$1.getX($$6, $$5), $$4, 9, 9);
+     }
+ 
+-    public void renderVehicleHealth(com.mojang.blaze3d.vertex.PoseStack matrixStack) {
+-        net.minecraft.world.entity.LivingEntity livingEntity = this.getPlayerVehicleWithHealth();
+-        if (livingEntity == null) {
++    public void renderVehicleHealth(com.mojang.blaze3d.vertex.PoseStack $$0) {
++        net.minecraft.world.entity.LivingEntity $$1 = this.getPlayerVehicleWithHealth();
++        if ($$1 == null) {
+             return;
+         }
+-        int n = this.getVehicleMaxHearts(livingEntity);
+-        if (n == 0) {
++        int $$2 = this.getVehicleMaxHearts($$1);
++        if ($$2 == 0) {
+             return;
+         }
+-        int n2 = (int)java.lang.Math.ceil((double)livingEntity.getHealth());
++        int $$3 = (int)java.lang.Math.ceil((double)$$1.getHealth());
+         this.minecraft.getProfiler().popPush("mountHealth");
+-        int n3 = this.screenHeight - 39;
+-        int n4 = this.screenWidth / 2 + 91;
+-        int n5 = n3;
+-        int n6 = 0;
+-        boolean bl = false;
+-        while (n > 0) {
+-            int n7 = java.lang.Math.min((int)n, (int)10);
+-            n -= n7;
+-            for (int i = 0; i < n7; ++i) {
+-                int n8 = 52;
+-                int n9 = 0;
+-                int n10 = n4 - i * 8 - 9;
+-                this.blit(matrixStack, n10, n5, 52 + n9 * 9, 9, 9, 9);
+-                if (i * 2 + 1 + n6 < n2) {
+-                    this.blit(matrixStack, n10, n5, 88, 9, 9, 9);
++        int $$4 = this.screenHeight - 39;
++        int $$5 = this.screenWidth / 2 + 91;
++        int $$6 = $$4;
++        int $$7 = 0;
++        boolean $$8 = false;
++        while ($$2 > 0) {
++            int $$9 = java.lang.Math.min((int)$$2, (int)10);
++            $$2 -= $$9;
++            for (int $$10 = 0; $$10 < $$9; ++$$10) {
++                int $$11 = 52;
++                int $$12 = 0;
++                int $$13 = $$5 - $$10 * 8 - 9;
++                this.blit($$0, $$13, $$6, 52 + $$12 * 9, 9, 9, 9);
++                if ($$10 * 2 + 1 + $$7 < $$3) {
++                    this.blit($$0, $$13, $$6, 88, 9, 9, 9);
+                 }
+-                if (i * 2 + 1 + n6 != n2) continue;
+-                this.blit(matrixStack, n10, n5, 97, 9, 9, 9);
++                if ($$10 * 2 + 1 + $$7 != $$3) continue;
++                this.blit($$0, $$13, $$6, 97, 9, 9, 9);
+             }
+-            n5 -= 10;
+-            n6 += 20;
++            $$6 -= 10;
++            $$7 += 20;
+         }
+     }
+ 
+@@ -860,74 +853,74 @@
+         com.mojang.blaze3d.systems.RenderSystem.setShaderColor((float)1.0f, (float)1.0f, (float)1.0f, (float)1.0f);
+     }
+ 
+-    public void updateVignetteBrightness(net.minecraft.world.entity.Entity entity) {
+-        if (entity == null) {
++    public void updateVignetteBrightness(net.minecraft.world.entity.Entity $$0) {
++        if ($$0 == null) {
+             return;
+         }
+-        net.minecraft.core.BlockPos blockPos = new net.minecraft.core.BlockPos(entity.getX(), entity.getEyeY(), entity.getZ());
+-        float f = net.minecraft.client.renderer.LightTexture.getBrightness((net.minecraft.world.level.dimension.DimensionType)entity.level.dimensionType(), (int)entity.level.getMaxLocalRawBrightness(blockPos));
+-        float f2 = net.minecraft.util.Mth.clamp((float)(1.0f - f), (float)0.0f, (float)1.0f);
+-        this.vignetteBrightness += (f2 - this.vignetteBrightness) * 0.01f;
++        net.minecraft.core.BlockPos $$1 = new net.minecraft.core.BlockPos($$0.getX(), $$0.getEyeY(), $$0.getZ());
++        float $$2 = net.minecraft.client.renderer.LightTexture.getBrightness((net.minecraft.world.level.dimension.DimensionType)$$0.level.dimensionType(), (int)$$0.level.getMaxLocalRawBrightness($$1));
++        float $$3 = net.minecraft.util.Mth.clamp((float)(1.0f - $$2), (float)0.0f, (float)1.0f);
++        this.vignetteBrightness += ($$3 - this.vignetteBrightness) * 0.01f;
+     }
+ 
+-    public void renderVignette(net.minecraft.world.entity.Entity entity) {
+-        net.minecraft.world.level.border.WorldBorder worldBorder = this.minecraft.level.getWorldBorder();
+-        float f = (float)worldBorder.getDistanceToBorder(entity);
+-        double d = java.lang.Math.min((double)(worldBorder.getLerpSpeed() * (double)worldBorder.getWarningTime() * 1000.0), (double)java.lang.Math.abs((double)(worldBorder.getLerpTarget() - worldBorder.getSize())));
+-        double d2 = java.lang.Math.max((double)worldBorder.getWarningBlocks(), (double)d);
+-        f = (double)f < d2 ? 1.0f - (float)((double)f / d2) : 0.0f;
++    public void renderVignette(net.minecraft.world.entity.Entity $$0) {
++        net.minecraft.world.level.border.WorldBorder $$1 = this.minecraft.level.getWorldBorder();
++        float $$2 = (float)$$1.getDistanceToBorder($$0);
++        double $$3 = java.lang.Math.min((double)($$1.getLerpSpeed() * (double)$$1.getWarningTime() * 1000.0), (double)java.lang.Math.abs((double)($$1.getLerpTarget() - $$1.getSize())));
++        double $$4 = java.lang.Math.max((double)$$1.getWarningBlocks(), (double)$$3);
++        $$2 = (double)$$2 < $$4 ? 1.0f - (float)((double)$$2 / $$4) : 0.0f;
+         com.mojang.blaze3d.systems.RenderSystem.disableDepthTest();
+         com.mojang.blaze3d.systems.RenderSystem.depthMask((boolean)false);
+         com.mojang.blaze3d.systems.RenderSystem.blendFuncSeparate((com.mojang.blaze3d.platform.GlStateManager$SourceFactor)com.mojang.blaze3d.platform.GlStateManager$SourceFactor.ZERO, (com.mojang.blaze3d.platform.GlStateManager$DestFactor)com.mojang.blaze3d.platform.GlStateManager$DestFactor.ONE_MINUS_SRC_COLOR, (com.mojang.blaze3d.platform.GlStateManager$SourceFactor)com.mojang.blaze3d.platform.GlStateManager$SourceFactor.ONE, (com.mojang.blaze3d.platform.GlStateManager$DestFactor)com.mojang.blaze3d.platform.GlStateManager$DestFactor.ZERO);
+-        if (f > 0.0f) {
+-            f = net.minecraft.util.Mth.clamp((float)f, (float)0.0f, (float)1.0f);
+-            com.mojang.blaze3d.systems.RenderSystem.setShaderColor((float)0.0f, (float)f, (float)f, (float)1.0f);
++        if ($$2 > 0.0f) {
++            $$2 = net.minecraft.util.Mth.clamp((float)$$2, (float)0.0f, (float)1.0f);
++            com.mojang.blaze3d.systems.RenderSystem.setShaderColor((float)0.0f, (float)$$2, (float)$$2, (float)1.0f);
+         } else {
+-            float f2 = this.vignetteBrightness;
+-            f2 = net.minecraft.util.Mth.clamp((float)f2, (float)0.0f, (float)1.0f);
+-            com.mojang.blaze3d.systems.RenderSystem.setShaderColor((float)f2, (float)f2, (float)f2, (float)1.0f);
++            float $$5 = this.vignetteBrightness;
++            $$5 = net.minecraft.util.Mth.clamp((float)$$5, (float)0.0f, (float)1.0f);
++            com.mojang.blaze3d.systems.RenderSystem.setShaderColor((float)$$5, (float)$$5, (float)$$5, (float)1.0f);
+         }
+         com.mojang.blaze3d.systems.RenderSystem.setShader(net.minecraft.client.renderer.GameRenderer::getPositionTexShader);
+         com.mojang.blaze3d.systems.RenderSystem.setShaderTexture((int)0, (net.minecraft.resources.ResourceLocation)VIGNETTE_LOCATION);
+-        com.mojang.blaze3d.vertex.Tesselator tesselator = com.mojang.blaze3d.vertex.Tesselator.getInstance();
+-        com.mojang.blaze3d.vertex.BufferBuilder bufferBuilder = tesselator.getBuilder();
+-        bufferBuilder.begin(com.mojang.blaze3d.vertex.VertexFormat$Mode.QUADS, com.mojang.blaze3d.vertex.DefaultVertexFormat.POSITION_TEX);
+-        bufferBuilder.vertex(0.0, (double)this.screenHeight, -90.0).uv(0.0f, 1.0f).endVertex();
+-        bufferBuilder.vertex((double)this.screenWidth, (double)this.screenHeight, -90.0).uv(1.0f, 1.0f).endVertex();
+-        bufferBuilder.vertex((double)this.screenWidth, 0.0, -90.0).uv(1.0f, 0.0f).endVertex();
+-        bufferBuilder.vertex(0.0, 0.0, -90.0).uv(0.0f, 0.0f).endVertex();
+-        tesselator.end();
++        com.mojang.blaze3d.vertex.Tesselator $$6 = com.mojang.blaze3d.vertex.Tesselator.getInstance();
++        com.mojang.blaze3d.vertex.BufferBuilder $$7 = $$6.getBuilder();
++        $$7.begin(com.mojang.blaze3d.vertex.VertexFormat$Mode.QUADS, com.mojang.blaze3d.vertex.DefaultVertexFormat.POSITION_TEX);
++        $$7.vertex(0.0, (double)this.screenHeight, -90.0).uv(0.0f, 1.0f).endVertex();
++        $$7.vertex((double)this.screenWidth, (double)this.screenHeight, -90.0).uv(1.0f, 1.0f).endVertex();
++        $$7.vertex((double)this.screenWidth, 0.0, -90.0).uv(1.0f, 0.0f).endVertex();
++        $$7.vertex(0.0, 0.0, -90.0).uv(0.0f, 0.0f).endVertex();
++        $$6.end();
+         com.mojang.blaze3d.systems.RenderSystem.depthMask((boolean)true);
+         com.mojang.blaze3d.systems.RenderSystem.enableDepthTest();
+         com.mojang.blaze3d.systems.RenderSystem.setShaderColor((float)1.0f, (float)1.0f, (float)1.0f, (float)1.0f);
+         com.mojang.blaze3d.systems.RenderSystem.defaultBlendFunc();
+     }
+ 
+-    public void renderPortalOverlay(float timeInPortal) {
+-        if (timeInPortal < 1.0f) {
+-            timeInPortal *= timeInPortal;
+-            timeInPortal *= timeInPortal;
+-            timeInPortal = timeInPortal * 0.8f + 0.2f;
++    public void renderPortalOverlay(float $$0) {
++        if ($$0 < 1.0f) {
++            $$0 *= $$0;
++            $$0 *= $$0;
++            $$0 = $$0 * 0.8f + 0.2f;
+         }
+         com.mojang.blaze3d.systems.RenderSystem.disableDepthTest();
+         com.mojang.blaze3d.systems.RenderSystem.depthMask((boolean)false);
+         com.mojang.blaze3d.systems.RenderSystem.defaultBlendFunc();
+-        com.mojang.blaze3d.systems.RenderSystem.setShaderColor((float)1.0f, (float)1.0f, (float)1.0f, (float)timeInPortal);
++        com.mojang.blaze3d.systems.RenderSystem.setShaderColor((float)1.0f, (float)1.0f, (float)1.0f, (float)$$0);
+         com.mojang.blaze3d.systems.RenderSystem.setShaderTexture((int)0, (net.minecraft.resources.ResourceLocation)net.minecraft.client.renderer.texture.TextureAtlas.LOCATION_BLOCKS);
+         com.mojang.blaze3d.systems.RenderSystem.setShader(net.minecraft.client.renderer.GameRenderer::getPositionTexShader);
+-        net.minecraft.client.renderer.texture.TextureAtlasSprite textureAtlasSprite = this.minecraft.getBlockRenderer().getBlockModelShaper().getParticleIcon(net.minecraft.world.level.block.Blocks.NETHER_PORTAL.defaultBlockState());
+-        float f = textureAtlasSprite.getU0();
+-        float f2 = textureAtlasSprite.getV0();
+-        float f3 = textureAtlasSprite.getU1();
+-        float f4 = textureAtlasSprite.getV1();
+-        com.mojang.blaze3d.vertex.Tesselator tesselator = com.mojang.blaze3d.vertex.Tesselator.getInstance();
+-        com.mojang.blaze3d.vertex.BufferBuilder bufferBuilder = tesselator.getBuilder();
+-        bufferBuilder.begin(com.mojang.blaze3d.vertex.VertexFormat$Mode.QUADS, com.mojang.blaze3d.vertex.DefaultVertexFormat.POSITION_TEX);
+-        bufferBuilder.vertex(0.0, (double)this.screenHeight, -90.0).uv(f, f4).endVertex();
+-        bufferBuilder.vertex((double)this.screenWidth, (double)this.screenHeight, -90.0).uv(f3, f4).endVertex();
+-        bufferBuilder.vertex((double)this.screenWidth, 0.0, -90.0).uv(f3, f2).endVertex();
+-        bufferBuilder.vertex(0.0, 0.0, -90.0).uv(f, f2).endVertex();
+-        tesselator.end();
++        net.minecraft.client.renderer.texture.TextureAtlasSprite $$1 = this.minecraft.getBlockRenderer().getBlockModelShaper().getParticleIcon(net.minecraft.world.level.block.Blocks.NETHER_PORTAL.defaultBlockState());
++        float $$2 = $$1.getU0();
++        float $$3 = $$1.getV0();
++        float $$4 = $$1.getU1();
++        float $$5 = $$1.getV1();
++        com.mojang.blaze3d.vertex.Tesselator $$6 = com.mojang.blaze3d.vertex.Tesselator.getInstance();
++        com.mojang.blaze3d.vertex.BufferBuilder $$7 = $$6.getBuilder();
++        $$7.begin(com.mojang.blaze3d.vertex.VertexFormat$Mode.QUADS, com.mojang.blaze3d.vertex.DefaultVertexFormat.POSITION_TEX);
++        $$7.vertex(0.0, (double)this.screenHeight, -90.0).uv($$2, $$5).endVertex();
++        $$7.vertex((double)this.screenWidth, (double)this.screenHeight, -90.0).uv($$4, $$5).endVertex();
++        $$7.vertex((double)this.screenWidth, 0.0, -90.0).uv($$4, $$3).endVertex();
++        $$7.vertex(0.0, 0.0, -90.0).uv($$2, $$3).endVertex();
++        $$6.end();
+         com.mojang.blaze3d.systems.RenderSystem.depthMask((boolean)true);
+         com.mojang.blaze3d.systems.RenderSystem.enableDepthTest();
+         com.mojang.blaze3d.systems.RenderSystem.setShaderColor((float)1.0f, (float)1.0f, (float)1.0f, (float)1.0f);
+@@ -990,6 +983,7 @@
+             }
+             this.lastToolHighlight = $$1;
+         }
++        this.chat.tick();
+     }
+ 
+     public void tickAutosaveIndicator() {
+@@ -1005,11 +999,11 @@
+         this.minecraft.getNarrator().sayNow((net.minecraft.network.chat.Component)$$1);
+     }
+ 
+-    public void setOverlayMessage(net.minecraft.network.chat.Component component, boolean animateColor) {
++    public void setOverlayMessage(net.minecraft.network.chat.Component $$0, boolean $$1) {
+         this.setChatDisabledByPlayerShown(false);
+-        this.overlayMessageString = component;
++        this.overlayMessageString = $$0;
+         this.overlayMessageTime = 60;
+-        this.animateOverlayMessageColor = animateColor;
++        this.animateOverlayMessageColor = $$1;
+     }
+ 
+     public void setChatDisabledByPlayerShown(boolean $$0) {

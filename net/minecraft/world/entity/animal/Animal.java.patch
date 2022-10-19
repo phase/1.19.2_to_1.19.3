@@ -1,0 +1,209 @@
+--- net/minecraft/world/entity/animal/Animal.java
++++ net/minecraft/world/entity/animal/Animal.java
+@@ -40,26 +40,26 @@
+         }
+     }
+ 
+-    public boolean hurt(net.minecraft.world.damagesource.DamageSource source, float amount) {
+-        if (this.isInvulnerableTo(source)) {
++    public boolean hurt(net.minecraft.world.damagesource.DamageSource $$0, float $$1) {
++        if (this.isInvulnerableTo($$0)) {
+             return false;
+         }
+         this.inLove = 0;
+-        return super.hurt(source, amount);
++        return super.hurt($$0, $$1);
+     }
+ 
+-    public float getWalkTargetValue(net.minecraft.core.BlockPos pos, net.minecraft.world.level.LevelReader level) {
+-        if (level.getBlockState(pos.below()).is(net.minecraft.world.level.block.Blocks.GRASS_BLOCK)) {
++    public float getWalkTargetValue(net.minecraft.core.BlockPos $$0, net.minecraft.world.level.LevelReader $$1) {
++        if ($$1.getBlockState($$0.below()).is(net.minecraft.world.level.block.Blocks.GRASS_BLOCK)) {
+             return 10.0f;
+         }
+-        return level.getPathfindingCostFromLightLevels(pos);
++        return $$1.getPathfindingCostFromLightLevels($$0);
+     }
+ 
+-    public void addAdditionalSaveData(net.minecraft.nbt.CompoundTag compound) {
+-        super.addAdditionalSaveData(compound);
+-        compound.putInt("InLove", this.inLove);
++    public void addAdditionalSaveData(net.minecraft.nbt.CompoundTag $$0) {
++        super.addAdditionalSaveData($$0);
++        $$0.putInt("InLove", this.inLove);
+         if (this.loveCause != null) {
+-            compound.putUUID("LoveCause", this.loveCause);
++            $$0.putUUID("LoveCause", this.loveCause);
+         }
+     }
+ 
+@@ -67,10 +67,10 @@
+         return 0.14;
+     }
+ 
+-    public void readAdditionalSaveData(net.minecraft.nbt.CompoundTag compound) {
+-        super.readAdditionalSaveData(compound);
+-        this.inLove = compound.getInt("InLove");
+-        this.loveCause = compound.hasUUID("LoveCause") ? compound.getUUID("LoveCause") : null;
++    public void readAdditionalSaveData(net.minecraft.nbt.CompoundTag $$0) {
++        super.readAdditionalSaveData($$0);
++        this.inLove = $$0.getInt("InLove");
++        this.loveCause = $$0.hasUUID("LoveCause") ? $$0.getUUID("LoveCause") : null;
+     }
+ 
+     public static boolean checkAnimalSpawnRules(net.minecraft.world.entity.EntityType<? extends net.minecraft.world.entity.animal.Animal> $$0, net.minecraft.world.level.LevelAccessor $$1, net.minecraft.world.entity.MobSpawnType $$2, net.minecraft.core.BlockPos $$3, net.minecraft.util.RandomSource $$4) {
+@@ -85,7 +85,7 @@
+         return 120;
+     }
+ 
+-    public boolean removeWhenFarAway(double distanceToClosestPlayer) {
++    public boolean removeWhenFarAway(double $$0) {
+         return false;
+     }
+ 
+@@ -93,29 +93,29 @@
+         return 1 + this.level.random.nextInt(3);
+     }
+ 
+-    public boolean isFood(net.minecraft.world.item.ItemStack stack) {
+-        return stack.is(net.minecraft.world.item.Items.WHEAT);
++    public boolean isFood(net.minecraft.world.item.ItemStack $$0) {
++        return $$0.is(net.minecraft.world.item.Items.WHEAT);
+     }
+ 
+-    public net.minecraft.world.InteractionResult mobInteract(net.minecraft.world.entity.player.Player player, net.minecraft.world.InteractionHand hand) {
+-        net.minecraft.world.item.ItemStack itemStack = player.getItemInHand(hand);
+-        if (this.isFood(itemStack)) {
+-            int n = this.getAge();
+-            if (!this.level.isClientSide && n == 0 && this.canFallInLove()) {
+-                this.usePlayerItem(player, hand, itemStack);
+-                this.setInLove(player);
++    public net.minecraft.world.InteractionResult mobInteract(net.minecraft.world.entity.player.Player $$0, net.minecraft.world.InteractionHand $$1) {
++        net.minecraft.world.item.ItemStack $$2 = $$0.getItemInHand($$1);
++        if (this.isFood($$2)) {
++            int $$3 = this.getAge();
++            if (!this.level.isClientSide && $$3 == 0 && this.canFallInLove()) {
++                this.usePlayerItem($$0, $$1, $$2);
++                this.setInLove($$0);
+                 return net.minecraft.world.InteractionResult.SUCCESS;
+             }
+             if (this.isBaby()) {
+-                this.usePlayerItem(player, hand, itemStack);
+-                this.ageUp(net.minecraft.world.entity.animal.Animal.getSpeedUpSecondsWhenFeeding((int)(-n)), true);
++                this.usePlayerItem($$0, $$1, $$2);
++                this.ageUp(net.minecraft.world.entity.animal.Animal.getSpeedUpSecondsWhenFeeding((int)(-$$3)), true);
+                 return net.minecraft.world.InteractionResult.sidedSuccess((boolean)this.level.isClientSide);
+             }
+             if (this.level.isClientSide) {
+                 return net.minecraft.world.InteractionResult.CONSUME;
+             }
+         }
+-        return super.mobInteract(player, hand);
++        return super.mobInteract($$0, $$1);
+     }
+ 
+     public void usePlayerItem(net.minecraft.world.entity.player.Player $$0, net.minecraft.world.InteractionHand $$1, net.minecraft.world.item.ItemStack $$2) {
+@@ -128,16 +128,16 @@
+         return this.inLove <= 0;
+     }
+ 
+-    public void setInLove(@javax.annotation.Nullable net.minecraft.world.entity.player.Player player) {
++    public void setInLove(@javax.annotation.Nullable net.minecraft.world.entity.player.Player $$0) {
+         this.inLove = 600;
+-        if (player != null) {
+-            this.loveCause = player.getUUID();
++        if ($$0 != null) {
++            this.loveCause = $$0.getUUID();
+         }
+         this.level.broadcastEntityEvent((net.minecraft.world.entity.Entity)this, (byte)18);
+     }
+ 
+-    public void setInLoveTime(int inLove) {
+-        this.inLove = inLove;
++    public void setInLoveTime(int $$0) {
++        this.inLove = $$0;
+     }
+ 
+     public int getInLoveTime() {
+@@ -164,52 +164,52 @@
+         this.inLove = 0;
+     }
+ 
+-    public boolean canMate(net.minecraft.world.entity.animal.Animal otherAnimal) {
+-        if (otherAnimal == this) {
++    public boolean canMate(net.minecraft.world.entity.animal.Animal $$0) {
++        if ($$0 == this) {
+             return false;
+         }
+-        if (otherAnimal.getClass() != this.getClass()) {
++        if ($$0.getClass() != this.getClass()) {
+             return false;
+         }
+-        return this.isInLove() && otherAnimal.isInLove();
++        return this.isInLove() && $$0.isInLove();
+     }
+ 
+-    public void spawnChildFromBreeding(net.minecraft.server.level.ServerLevel level, net.minecraft.world.entity.animal.Animal mate) {
+-        net.minecraft.world.entity.AgeableMob ageableMob = this.getBreedOffspring(level, (net.minecraft.world.entity.AgeableMob)mate);
+-        if (ageableMob == null) {
++    public void spawnChildFromBreeding(net.minecraft.server.level.ServerLevel $$0, net.minecraft.world.entity.animal.Animal $$1) {
++        net.minecraft.world.entity.AgeableMob $$2 = this.getBreedOffspring($$0, (net.minecraft.world.entity.AgeableMob)$$1);
++        if ($$2 == null) {
+             return;
+         }
+-        net.minecraft.server.level.ServerPlayer serverPlayer = this.getLoveCause();
+-        if (serverPlayer == null && mate.getLoveCause() != null) {
+-            serverPlayer = mate.getLoveCause();
++        net.minecraft.server.level.ServerPlayer $$3 = this.getLoveCause();
++        if ($$3 == null && $$1.getLoveCause() != null) {
++            $$3 = $$1.getLoveCause();
+         }
+-        if (serverPlayer != null) {
+-            serverPlayer.awardStat(net.minecraft.stats.Stats.ANIMALS_BRED);
+-            net.minecraft.advancements.CriteriaTriggers.BRED_ANIMALS.trigger(serverPlayer, this, mate, ageableMob);
++        if ($$3 != null) {
++            $$3.awardStat(net.minecraft.stats.Stats.ANIMALS_BRED);
++            net.minecraft.advancements.CriteriaTriggers.BRED_ANIMALS.trigger($$3, this, $$1, $$2);
+         }
+         this.setAge(6000);
+-        mate.setAge(6000);
++        $$1.setAge(6000);
+         this.resetLove();
+-        mate.resetLove();
+-        ageableMob.setBaby(true);
+-        ageableMob.moveTo(this.getX(), this.getY(), this.getZ(), 0.0f, 0.0f);
+-        level.addFreshEntityWithPassengers((net.minecraft.world.entity.Entity)ageableMob);
+-        level.broadcastEntityEvent((net.minecraft.world.entity.Entity)this, (byte)18);
+-        if (level.getGameRules().getBoolean(net.minecraft.world.level.GameRules.RULE_DOMOBLOOT)) {
+-            level.addFreshEntity((net.minecraft.world.entity.Entity)new net.minecraft.world.entity.ExperienceOrb((net.minecraft.world.level.Level)level, this.getX(), this.getY(), this.getZ(), this.getRandom().nextInt(7) + 1));
++        $$1.resetLove();
++        $$2.setBaby(true);
++        $$2.moveTo(this.getX(), this.getY(), this.getZ(), 0.0f, 0.0f);
++        $$0.addFreshEntityWithPassengers((net.minecraft.world.entity.Entity)$$2);
++        $$0.broadcastEntityEvent((net.minecraft.world.entity.Entity)this, (byte)18);
++        if ($$0.getGameRules().getBoolean(net.minecraft.world.level.GameRules.RULE_DOMOBLOOT)) {
++            $$0.addFreshEntity((net.minecraft.world.entity.Entity)new net.minecraft.world.entity.ExperienceOrb((net.minecraft.world.level.Level)$$0, this.getX(), this.getY(), this.getZ(), this.getRandom().nextInt(7) + 1));
+         }
+     }
+ 
+-    public void handleEntityEvent(byte id) {
+-        if (id == 18) {
+-            for (int i = 0; i < 7; ++i) {
+-                double d = this.random.nextGaussian() * 0.02;
+-                double d2 = this.random.nextGaussian() * 0.02;
+-                double d3 = this.random.nextGaussian() * 0.02;
+-                this.level.addParticle((net.minecraft.core.particles.ParticleOptions)net.minecraft.core.particles.ParticleTypes.HEART, this.getRandomX(1.0), this.getRandomY() + 0.5, this.getRandomZ(1.0), d, d2, d3);
++    public void handleEntityEvent(byte $$0) {
++        if ($$0 == 18) {
++            for (int $$1 = 0; $$1 < 7; ++$$1) {
++                double $$2 = this.random.nextGaussian() * 0.02;
++                double $$3 = this.random.nextGaussian() * 0.02;
++                double $$4 = this.random.nextGaussian() * 0.02;
++                this.level.addParticle((net.minecraft.core.particles.ParticleOptions)net.minecraft.core.particles.ParticleTypes.HEART, this.getRandomX(1.0), this.getRandomY() + 0.5, this.getRandomZ(1.0), $$2, $$3, $$4);
+             }
+         } else {
+-            super.handleEntityEvent(id);
++            super.handleEntityEvent($$0);
+         }
+     }
+ }

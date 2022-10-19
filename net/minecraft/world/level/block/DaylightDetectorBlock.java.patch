@@ -1,0 +1,95 @@
+--- net/minecraft/world/level/block/DaylightDetectorBlock.java
++++ net/minecraft/world/level/block/DaylightDetectorBlock.java
+@@ -15,54 +15,54 @@
+         this.registerDefaultState((net.minecraft.world.level.block.state.BlockState)((net.minecraft.world.level.block.state.BlockState)((net.minecraft.world.level.block.state.BlockState)this.stateDefinition.any()).setValue((net.minecraft.world.level.block.state.properties.Property)POWER, (java.lang.Comparable)java.lang.Integer.valueOf((int)0))).setValue((net.minecraft.world.level.block.state.properties.Property)INVERTED, (java.lang.Comparable)java.lang.Boolean.valueOf((boolean)false)));
+     }
+ 
+-    public net.minecraft.world.phys.shapes.VoxelShape getShape(net.minecraft.world.level.block.state.BlockState state, net.minecraft.world.level.BlockGetter level, net.minecraft.core.BlockPos pos, net.minecraft.world.phys.shapes.CollisionContext context) {
++    public net.minecraft.world.phys.shapes.VoxelShape getShape(net.minecraft.world.level.block.state.BlockState $$0, net.minecraft.world.level.BlockGetter $$1, net.minecraft.core.BlockPos $$2, net.minecraft.world.phys.shapes.CollisionContext $$3) {
+         return SHAPE;
+     }
+ 
+-    public boolean useShapeForLightOcclusion(net.minecraft.world.level.block.state.BlockState state) {
++    public boolean useShapeForLightOcclusion(net.minecraft.world.level.block.state.BlockState $$0) {
+         return true;
+     }
+ 
+-    public int getSignal(net.minecraft.world.level.block.state.BlockState blockState, net.minecraft.world.level.BlockGetter blockAccess, net.minecraft.core.BlockPos pos, net.minecraft.core.Direction side) {
+-        return (java.lang.Integer)blockState.getValue((net.minecraft.world.level.block.state.properties.Property)POWER);
++    public int getSignal(net.minecraft.world.level.block.state.BlockState $$0, net.minecraft.world.level.BlockGetter $$1, net.minecraft.core.BlockPos $$2, net.minecraft.core.Direction $$3) {
++        return (java.lang.Integer)$$0.getValue((net.minecraft.world.level.block.state.properties.Property)POWER);
+     }
+ 
+-    public static void updateSignalStrength(net.minecraft.world.level.block.state.BlockState state, net.minecraft.world.level.Level level, net.minecraft.core.BlockPos pos) {
+-        int n = level.getBrightness(net.minecraft.world.level.LightLayer.SKY, pos) - level.getSkyDarken();
+-        float f = level.getSunAngle(1.0f);
+-        boolean bl = (java.lang.Boolean)state.getValue((net.minecraft.world.level.block.state.properties.Property)INVERTED);
+-        if (bl) {
+-            n = 15 - n;
+-        } else if (n > 0) {
+-            float f2 = f < (float)java.lang.Math.PI ? 0.0f : (float)java.lang.Math.PI * 2;
+-            f += (f2 - f) * 0.2f;
+-            n = java.lang.Math.round((float)((float)n * net.minecraft.util.Mth.cos((float)f)));
++    public static void updateSignalStrength(net.minecraft.world.level.block.state.BlockState $$0, net.minecraft.world.level.Level $$1, net.minecraft.core.BlockPos $$2) {
++        int $$3 = $$1.getBrightness(net.minecraft.world.level.LightLayer.SKY, $$2) - $$1.getSkyDarken();
++        float $$4 = $$1.getSunAngle(1.0f);
++        boolean $$5 = (java.lang.Boolean)$$0.getValue((net.minecraft.world.level.block.state.properties.Property)INVERTED);
++        if ($$5) {
++            $$3 = 15 - $$3;
++        } else if ($$3 > 0) {
++            float $$6 = $$4 < (float)java.lang.Math.PI ? 0.0f : (float)java.lang.Math.PI * 2;
++            $$4 += ($$6 - $$4) * 0.2f;
++            $$3 = java.lang.Math.round((float)((float)$$3 * net.minecraft.util.Mth.cos((float)$$4)));
+         }
+-        n = net.minecraft.util.Mth.clamp((int)n, (int)0, (int)15);
+-        if ((java.lang.Integer)state.getValue((net.minecraft.world.level.block.state.properties.Property)POWER) != n) {
+-            level.setBlock(pos, (net.minecraft.world.level.block.state.BlockState)state.setValue((net.minecraft.world.level.block.state.properties.Property)POWER, (java.lang.Comparable)java.lang.Integer.valueOf((int)n)), 3);
++        $$3 = net.minecraft.util.Mth.clamp((int)$$3, (int)0, (int)15);
++        if ((java.lang.Integer)$$0.getValue((net.minecraft.world.level.block.state.properties.Property)POWER) != $$3) {
++            $$1.setBlock($$2, (net.minecraft.world.level.block.state.BlockState)$$0.setValue((net.minecraft.world.level.block.state.properties.Property)POWER, (java.lang.Comparable)java.lang.Integer.valueOf((int)$$3)), 3);
+         }
+     }
+ 
+-    public net.minecraft.world.InteractionResult use(net.minecraft.world.level.block.state.BlockState state, net.minecraft.world.level.Level level, net.minecraft.core.BlockPos pos, net.minecraft.world.entity.player.Player player, net.minecraft.world.InteractionHand hand, net.minecraft.world.phys.BlockHitResult hit) {
+-        if (player.mayBuild()) {
+-            if (level.isClientSide) {
++    public net.minecraft.world.InteractionResult use(net.minecraft.world.level.block.state.BlockState $$0, net.minecraft.world.level.Level $$1, net.minecraft.core.BlockPos $$2, net.minecraft.world.entity.player.Player $$3, net.minecraft.world.InteractionHand $$4, net.minecraft.world.phys.BlockHitResult $$5) {
++        if ($$3.mayBuild()) {
++            if ($$1.isClientSide) {
+                 return net.minecraft.world.InteractionResult.SUCCESS;
+             }
+-            net.minecraft.world.level.block.state.BlockState blockState = (net.minecraft.world.level.block.state.BlockState)state.cycle((net.minecraft.world.level.block.state.properties.Property)INVERTED);
+-            level.setBlock(pos, blockState, 4);
+-            level.gameEvent(net.minecraft.world.level.gameevent.GameEvent.BLOCK_CHANGE, pos, net.minecraft.world.level.gameevent.GameEvent$Context.of((net.minecraft.world.entity.Entity)player, (net.minecraft.world.level.block.state.BlockState)blockState));
+-            net.minecraft.world.level.block.DaylightDetectorBlock.updateSignalStrength((net.minecraft.world.level.block.state.BlockState)blockState, (net.minecraft.world.level.Level)level, (net.minecraft.core.BlockPos)pos);
++            net.minecraft.world.level.block.state.BlockState $$6 = (net.minecraft.world.level.block.state.BlockState)$$0.cycle((net.minecraft.world.level.block.state.properties.Property)INVERTED);
++            $$1.setBlock($$2, $$6, 4);
++            $$1.gameEvent(net.minecraft.world.level.gameevent.GameEvent.BLOCK_CHANGE, $$2, net.minecraft.world.level.gameevent.GameEvent$Context.of((net.minecraft.world.entity.Entity)$$3, (net.minecraft.world.level.block.state.BlockState)$$6));
++            net.minecraft.world.level.block.DaylightDetectorBlock.updateSignalStrength((net.minecraft.world.level.block.state.BlockState)$$6, (net.minecraft.world.level.Level)$$1, (net.minecraft.core.BlockPos)$$2);
+             return net.minecraft.world.InteractionResult.CONSUME;
+         }
+-        return super.use(state, level, pos, player, hand, hit);
++        return super.use($$0, $$1, $$2, $$3, $$4, $$5);
+     }
+ 
+-    public net.minecraft.world.level.block.RenderShape getRenderShape(net.minecraft.world.level.block.state.BlockState state) {
++    public net.minecraft.world.level.block.RenderShape getRenderShape(net.minecraft.world.level.block.state.BlockState $$0) {
+         return net.minecraft.world.level.block.RenderShape.MODEL;
+     }
+ 
+-    public boolean isSignalSource(net.minecraft.world.level.block.state.BlockState state) {
++    public boolean isSignalSource(net.minecraft.world.level.block.state.BlockState $$0) {
+         return true;
+     }
+ 
+@@ -84,8 +84,8 @@
+         }
+     }
+ 
+-    public void createBlockStateDefinition(net.minecraft.world.level.block.state.StateDefinition$Builder<net.minecraft.world.level.block.Block, net.minecraft.world.level.block.state.BlockState> builder) {
+-        builder.add(new net.minecraft.world.level.block.state.properties.Property[]{POWER, INVERTED});
++    public void createBlockStateDefinition(net.minecraft.world.level.block.state.StateDefinition$Builder<net.minecraft.world.level.block.Block, net.minecraft.world.level.block.state.BlockState> $$0) {
++        $$0.add(new net.minecraft.world.level.block.state.properties.Property[]{POWER, INVERTED});
+     }
+ 
+     static {

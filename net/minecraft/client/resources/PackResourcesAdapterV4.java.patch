@@ -1,0 +1,333 @@
+--- net/minecraft/client/resources/PackResourcesAdapterV4.java
++++ net/minecraft/client/resources/PackResourcesAdapterV4.java
+@@ -1,330 +1,0 @@
+-/*
+- * Decompiled with CFR 0.151.
+- */
+-package net.minecraft.client.resources;
+-
+-public class net.minecraft.client.resources.PackResourcesAdapterV4
+-implements net.minecraft.server.packs.PackResources
+- {
+-    public static java.util.Map<java.lang.String, com.mojang.datafixers.util.Pair<net.minecraft.world.level.block.state.properties.ChestType, net.minecraft.resources.ResourceLocation>> CHESTS;
+-    public static java.util.List<java.lang.String> PATTERNS;
+-    public static java.util.Set<java.lang.String> SHIELDS;
+-    public static java.util.Set<java.lang.String> BANNERS;
+-    public static net.minecraft.resources.ResourceLocation SHIELD_BASE;
+-    public static net.minecraft.resources.ResourceLocation BANNER_BASE;
+-    public static int DEFAULT_CHEST_SIZE = 64;
+-    public static int DEFAULT_SHIELD_SIZE = 64;
+-    public static int DEFAULT_BANNER_SIZE = 64;
+-    public static net.minecraft.resources.ResourceLocation OLD_IRON_GOLEM_LOCATION;
+-    public static java.lang.String NEW_IRON_GOLEM_PATH = "textures/entity/iron_golem/iron_golem.png";
+-    public net.minecraft.server.packs.PackResources pack;
+-
+-    public net.minecraft.client.resources.PackResourcesAdapterV4(net.minecraft.server.packs.PackResources pack) {
+-        this.pack = pack;
+-    }
+-
+-    public java.io.InputStream getRootResource(java.lang.String fileName) throws java.io.IOException {
+-        return this.pack.getRootResource(fileName);
+-    }
+-
+-    public boolean hasResource(net.minecraft.server.packs.PackType type, net.minecraft.resources.ResourceLocation location) {
+-        if (!"minecraft".equals((java.lang.Object)location.getNamespace())) {
+-            return this.pack.hasResource(type, location);
+-        }
+-        java.lang.String string = location.getPath();
+-        if ("textures/misc/enchanted_item_glint.png".equals((java.lang.Object)string)) {
+-            return false;
+-        }
+-        if ("textures/entity/iron_golem/iron_golem.png".equals((java.lang.Object)string)) {
+-            return this.pack.hasResource(type, OLD_IRON_GOLEM_LOCATION);
+-        }
+-        if ("textures/entity/conduit/wind.png".equals((java.lang.Object)string) || "textures/entity/conduit/wind_vertical.png".equals((java.lang.Object)string)) {
+-            return false;
+-        }
+-        if (SHIELDS.contains((java.lang.Object)string)) {
+-            return this.pack.hasResource(type, SHIELD_BASE) && this.pack.hasResource(type, location);
+-        }
+-        if (BANNERS.contains((java.lang.Object)string)) {
+-            return this.pack.hasResource(type, BANNER_BASE) && this.pack.hasResource(type, location);
+-        }
+-        com.mojang.datafixers.util.Pair pair = (com.mojang.datafixers.util.Pair)CHESTS.get((java.lang.Object)string);
+-        if (pair != null && this.pack.hasResource(type, (net.minecraft.resources.ResourceLocation)pair.getSecond())) {
+-            return true;
+-        }
+-        return this.pack.hasResource(type, location);
+-    }
+-
+-    public java.io.InputStream getResource(net.minecraft.server.packs.PackType type, net.minecraft.resources.ResourceLocation location) throws java.io.IOException {
+-        if (!"minecraft".equals((java.lang.Object)location.getNamespace())) {
+-            return this.pack.getResource(type, location);
+-        }
+-        java.lang.String string = location.getPath();
+-        if ("textures/entity/iron_golem/iron_golem.png".equals((java.lang.Object)string)) {
+-            return this.pack.getResource(type, OLD_IRON_GOLEM_LOCATION);
+-        }
+-        if (SHIELDS.contains((java.lang.Object)string)) {
+-            java.io.InputStream inputStream = net.minecraft.client.resources.PackResourcesAdapterV4.fixPattern((java.io.InputStream)this.pack.getResource(type, SHIELD_BASE), (java.io.InputStream)this.pack.getResource(type, location), (int)64, (int)2, (int)2, (int)12, (int)22);
+-            if (inputStream != null) {
+-                return inputStream;
+-            }
+-        } else if (BANNERS.contains((java.lang.Object)string)) {
+-            java.io.InputStream inputStream = net.minecraft.client.resources.PackResourcesAdapterV4.fixPattern((java.io.InputStream)this.pack.getResource(type, BANNER_BASE), (java.io.InputStream)this.pack.getResource(type, location), (int)64, (int)0, (int)0, (int)42, (int)41);
+-            if (inputStream != null) {
+-                return inputStream;
+-            }
+-        } else {
+-            if ("textures/entity/enderdragon/dragon.png".equals((java.lang.Object)string) || "textures/entity/enderdragon/dragon_exploding.png".equals((java.lang.Object)string)) {
+-                try (com.mojang.blaze3d.platform.NativeImage nativeImage = com.mojang.blaze3d.platform.NativeImage.read((java.io.InputStream)this.pack.getResource(type, location));
+-){
+-                    int n = nativeImage.getWidth() / 256;
+-                    for (int i = 88 * n; i < 200 * n; ++i) {
+-                        for (int j = 56 * n; j < 112 * n; ++j) {
+-                            nativeImage.setPixelRGBA(j, i, 0);
+-                        }
+-                    }
+-                    java.io.ByteArrayInputStream byteArrayInputStream = new java.io.ByteArrayInputStream(nativeImage.asByteArray());
+-                    return byteArrayInputStream;
+-                }
+-            }
+-            if ("textures/entity/conduit/closed_eye.png".equals((java.lang.Object)string) || "textures/entity/conduit/open_eye.png".equals((java.lang.Object)string)) {
+-                return net.minecraft.client.resources.PackResourcesAdapterV4.fixConduitEyeTexture((java.io.InputStream)this.pack.getResource(type, location));
+-            }
+-            com.mojang.datafixers.util.Pair pair = (com.mojang.datafixers.util.Pair)CHESTS.get((java.lang.Object)string);
+-            if (pair != null) {
+-                net.minecraft.world.level.block.state.properties.ChestType chestType = (net.minecraft.world.level.block.state.properties.ChestType)pair.getFirst();
+-                java.io.InputStream inputStream = this.pack.getResource(type, (net.minecraft.resources.ResourceLocation)pair.getSecond());
+-                if (chestType == net.minecraft.world.level.block.state.properties.ChestType.SINGLE) {
+-                    return net.minecraft.client.resources.PackResourcesAdapterV4.fixSingleChest((java.io.InputStream)inputStream);
+-                }
+-                if (chestType == net.minecraft.world.level.block.state.properties.ChestType.LEFT) {
+-                    return net.minecraft.client.resources.PackResourcesAdapterV4.fixLeftChest((java.io.InputStream)inputStream);
+-                }
+-                if (chestType == net.minecraft.world.level.block.state.properties.ChestType.RIGHT) {
+-                    return net.minecraft.client.resources.PackResourcesAdapterV4.fixRightChest((java.io.InputStream)inputStream);
+-                }
+-            }
+-        }
+-        return this.pack.getResource(type, location);
+-    }
+-
+-    /*
+-     * Loose catch block
+-     */
+-    @javax.annotation.Nullable
+-    public static java.io.InputStream fixPattern(java.io.InputStream $$0, java.io.InputStream $$1, int $$2, int $$3, int $$4, int $$5, int $$6) throws java.io.IOException {
+-        try (com.mojang.blaze3d.platform.NativeImage $$7 = com.mojang.blaze3d.platform.NativeImage.read((java.io.InputStream)$$0);
+-             com.mojang.blaze3d.platform.NativeImage $$8 = com.mojang.blaze3d.platform.NativeImage.read((java.io.InputStream)$$1);
+-){
+-block20:            {
+-                java.io.ByteArrayInputStream byteArrayInputStream;
+-                int $$9 = $$7.getWidth();
+-                int $$10 = $$7.getHeight();
+-                if ($$9 != $$8.getWidth()) break block20;
+-                if ($$10 != $$8.getHeight()) break;
+-                try (com.mojang.blaze3d.platform.NativeImage $$11 = new com.mojang.blaze3d.platform.NativeImage($$9, $$10, true);
+-){
+-                    int $$12 = $$9 / $$2;
+-                    for (int $$13 = $$4 * $$12; $$13 < $$6 * $$12; ++$$13) {
+-                        for (int $$14 = $$3 * $$12; $$14 < $$5 * $$12; ++$$14) {
+-                            int $$15 = com.mojang.blaze3d.platform.NativeImage.getR((int)$$8.getPixelRGBA($$14, $$13));
+-                            int $$16 = $$7.getPixelRGBA($$14, $$13);
+-                            $$11.setPixelRGBA($$14, $$13, com.mojang.blaze3d.platform.NativeImage.combine((int)$$15, (int)com.mojang.blaze3d.platform.NativeImage.getB((int)$$16), (int)com.mojang.blaze3d.platform.NativeImage.getG((int)$$16), (int)com.mojang.blaze3d.platform.NativeImage.getR((int)$$16)));
+-                        }
+-                    }
+-                    byteArrayInputStream = new java.io.ByteArrayInputStream($$11.asByteArray());
+-                }
+-                return byteArrayInputStream;
+-            }
+-            {
+-                catch (java.lang.Throwable throwable) {
+-                    throw throwable;
+-                }
+-            }
+-        }
+-    }
+-
+-    public static java.io.InputStream fixConduitEyeTexture(java.io.InputStream input) throws java.io.IOException {
+-        try (com.mojang.blaze3d.platform.NativeImage nativeImage = com.mojang.blaze3d.platform.NativeImage.read((java.io.InputStream)input);
+-){
+-            java.io.ByteArrayInputStream byteArrayInputStream;
+-            int n = nativeImage.getWidth();
+-            int n2 = nativeImage.getHeight();
+-            try (com.mojang.blaze3d.platform.NativeImage nativeImage2 = new com.mojang.blaze3d.platform.NativeImage(2 * n, 2 * n2, true);
+-){
+-                net.minecraft.client.resources.PackResourcesAdapterV4.copyRect((com.mojang.blaze3d.platform.NativeImage)nativeImage, (com.mojang.blaze3d.platform.NativeImage)nativeImage2, (int)0, (int)0, (int)0, (int)0, (int)n, (int)n2, (int)1, (boolean)false, (boolean)false);
+-                byteArrayInputStream = new java.io.ByteArrayInputStream(nativeImage2.asByteArray());
+-            }
+-            return byteArrayInputStream;
+-        }
+-    }
+-
+-    public static java.io.InputStream fixLeftChest(java.io.InputStream input) throws java.io.IOException {
+-        try (com.mojang.blaze3d.platform.NativeImage nativeImage = com.mojang.blaze3d.platform.NativeImage.read((java.io.InputStream)input);
+-){
+-            java.io.ByteArrayInputStream byteArrayInputStream;
+-            int n = nativeImage.getWidth();
+-            int n2 = nativeImage.getHeight();
+-            try (com.mojang.blaze3d.platform.NativeImage nativeImage2 = new com.mojang.blaze3d.platform.NativeImage(n / 2, n2, true);
+-){
+-                int n3 = n2 / 64;
+-                net.minecraft.client.resources.PackResourcesAdapterV4.copyRect((com.mojang.blaze3d.platform.NativeImage)nativeImage, (com.mojang.blaze3d.platform.NativeImage)nativeImage2, (int)29, (int)0, (int)29, (int)0, (int)15, (int)14, (int)n3, (boolean)false, (boolean)true);
+-                net.minecraft.client.resources.PackResourcesAdapterV4.copyRect((com.mojang.blaze3d.platform.NativeImage)nativeImage, (com.mojang.blaze3d.platform.NativeImage)nativeImage2, (int)59, (int)0, (int)14, (int)0, (int)15, (int)14, (int)n3, (boolean)false, (boolean)true);
+-                net.minecraft.client.resources.PackResourcesAdapterV4.copyRect((com.mojang.blaze3d.platform.NativeImage)nativeImage, (com.mojang.blaze3d.platform.NativeImage)nativeImage2, (int)29, (int)14, (int)43, (int)14, (int)15, (int)5, (int)n3, (boolean)true, (boolean)true);
+-                net.minecraft.client.resources.PackResourcesAdapterV4.copyRect((com.mojang.blaze3d.platform.NativeImage)nativeImage, (com.mojang.blaze3d.platform.NativeImage)nativeImage2, (int)44, (int)14, (int)29, (int)14, (int)14, (int)5, (int)n3, (boolean)true, (boolean)true);
+-                net.minecraft.client.resources.PackResourcesAdapterV4.copyRect((com.mojang.blaze3d.platform.NativeImage)nativeImage, (com.mojang.blaze3d.platform.NativeImage)nativeImage2, (int)58, (int)14, (int)14, (int)14, (int)15, (int)5, (int)n3, (boolean)true, (boolean)true);
+-                net.minecraft.client.resources.PackResourcesAdapterV4.copyRect((com.mojang.blaze3d.platform.NativeImage)nativeImage, (com.mojang.blaze3d.platform.NativeImage)nativeImage2, (int)29, (int)19, (int)29, (int)19, (int)15, (int)14, (int)n3, (boolean)false, (boolean)true);
+-                net.minecraft.client.resources.PackResourcesAdapterV4.copyRect((com.mojang.blaze3d.platform.NativeImage)nativeImage, (com.mojang.blaze3d.platform.NativeImage)nativeImage2, (int)59, (int)19, (int)14, (int)19, (int)15, (int)14, (int)n3, (boolean)false, (boolean)true);
+-                net.minecraft.client.resources.PackResourcesAdapterV4.copyRect((com.mojang.blaze3d.platform.NativeImage)nativeImage, (com.mojang.blaze3d.platform.NativeImage)nativeImage2, (int)29, (int)33, (int)43, (int)33, (int)15, (int)10, (int)n3, (boolean)true, (boolean)true);
+-                net.minecraft.client.resources.PackResourcesAdapterV4.copyRect((com.mojang.blaze3d.platform.NativeImage)nativeImage, (com.mojang.blaze3d.platform.NativeImage)nativeImage2, (int)44, (int)33, (int)29, (int)33, (int)14, (int)10, (int)n3, (boolean)true, (boolean)true);
+-                net.minecraft.client.resources.PackResourcesAdapterV4.copyRect((com.mojang.blaze3d.platform.NativeImage)nativeImage, (com.mojang.blaze3d.platform.NativeImage)nativeImage2, (int)58, (int)33, (int)14, (int)33, (int)15, (int)10, (int)n3, (boolean)true, (boolean)true);
+-                net.minecraft.client.resources.PackResourcesAdapterV4.copyRect((com.mojang.blaze3d.platform.NativeImage)nativeImage, (com.mojang.blaze3d.platform.NativeImage)nativeImage2, (int)2, (int)0, (int)2, (int)0, (int)1, (int)1, (int)n3, (boolean)false, (boolean)true);
+-                net.minecraft.client.resources.PackResourcesAdapterV4.copyRect((com.mojang.blaze3d.platform.NativeImage)nativeImage, (com.mojang.blaze3d.platform.NativeImage)nativeImage2, (int)4, (int)0, (int)1, (int)0, (int)1, (int)1, (int)n3, (boolean)false, (boolean)true);
+-                net.minecraft.client.resources.PackResourcesAdapterV4.copyRect((com.mojang.blaze3d.platform.NativeImage)nativeImage, (com.mojang.blaze3d.platform.NativeImage)nativeImage2, (int)2, (int)1, (int)3, (int)1, (int)1, (int)4, (int)n3, (boolean)true, (boolean)true);
+-                net.minecraft.client.resources.PackResourcesAdapterV4.copyRect((com.mojang.blaze3d.platform.NativeImage)nativeImage, (com.mojang.blaze3d.platform.NativeImage)nativeImage2, (int)3, (int)1, (int)2, (int)1, (int)1, (int)4, (int)n3, (boolean)true, (boolean)true);
+-                net.minecraft.client.resources.PackResourcesAdapterV4.copyRect((com.mojang.blaze3d.platform.NativeImage)nativeImage, (com.mojang.blaze3d.platform.NativeImage)nativeImage2, (int)4, (int)1, (int)1, (int)1, (int)1, (int)4, (int)n3, (boolean)true, (boolean)true);
+-                byteArrayInputStream = new java.io.ByteArrayInputStream(nativeImage2.asByteArray());
+-            }
+-            return byteArrayInputStream;
+-        }
+-    }
+-
+-    public static java.io.InputStream fixRightChest(java.io.InputStream input) throws java.io.IOException {
+-        try (com.mojang.blaze3d.platform.NativeImage nativeImage = com.mojang.blaze3d.platform.NativeImage.read((java.io.InputStream)input);
+-){
+-            java.io.ByteArrayInputStream byteArrayInputStream;
+-            int n = nativeImage.getWidth();
+-            int n2 = nativeImage.getHeight();
+-            try (com.mojang.blaze3d.platform.NativeImage nativeImage2 = new com.mojang.blaze3d.platform.NativeImage(n / 2, n2, true);
+-){
+-                int n3 = n2 / 64;
+-                net.minecraft.client.resources.PackResourcesAdapterV4.copyRect((com.mojang.blaze3d.platform.NativeImage)nativeImage, (com.mojang.blaze3d.platform.NativeImage)nativeImage2, (int)14, (int)0, (int)29, (int)0, (int)15, (int)14, (int)n3, (boolean)false, (boolean)true);
+-                net.minecraft.client.resources.PackResourcesAdapterV4.copyRect((com.mojang.blaze3d.platform.NativeImage)nativeImage, (com.mojang.blaze3d.platform.NativeImage)nativeImage2, (int)44, (int)0, (int)14, (int)0, (int)15, (int)14, (int)n3, (boolean)false, (boolean)true);
+-                net.minecraft.client.resources.PackResourcesAdapterV4.copyRect((com.mojang.blaze3d.platform.NativeImage)nativeImage, (com.mojang.blaze3d.platform.NativeImage)nativeImage2, (int)0, (int)14, (int)0, (int)14, (int)14, (int)5, (int)n3, (boolean)true, (boolean)true);
+-                net.minecraft.client.resources.PackResourcesAdapterV4.copyRect((com.mojang.blaze3d.platform.NativeImage)nativeImage, (com.mojang.blaze3d.platform.NativeImage)nativeImage2, (int)14, (int)14, (int)43, (int)14, (int)15, (int)5, (int)n3, (boolean)true, (boolean)true);
+-                net.minecraft.client.resources.PackResourcesAdapterV4.copyRect((com.mojang.blaze3d.platform.NativeImage)nativeImage, (com.mojang.blaze3d.platform.NativeImage)nativeImage2, (int)73, (int)14, (int)14, (int)14, (int)15, (int)5, (int)n3, (boolean)true, (boolean)true);
+-                net.minecraft.client.resources.PackResourcesAdapterV4.copyRect((com.mojang.blaze3d.platform.NativeImage)nativeImage, (com.mojang.blaze3d.platform.NativeImage)nativeImage2, (int)14, (int)19, (int)29, (int)19, (int)15, (int)14, (int)n3, (boolean)false, (boolean)true);
+-                net.minecraft.client.resources.PackResourcesAdapterV4.copyRect((com.mojang.blaze3d.platform.NativeImage)nativeImage, (com.mojang.blaze3d.platform.NativeImage)nativeImage2, (int)44, (int)19, (int)14, (int)19, (int)15, (int)14, (int)n3, (boolean)false, (boolean)true);
+-                net.minecraft.client.resources.PackResourcesAdapterV4.copyRect((com.mojang.blaze3d.platform.NativeImage)nativeImage, (com.mojang.blaze3d.platform.NativeImage)nativeImage2, (int)0, (int)33, (int)0, (int)33, (int)14, (int)10, (int)n3, (boolean)true, (boolean)true);
+-                net.minecraft.client.resources.PackResourcesAdapterV4.copyRect((com.mojang.blaze3d.platform.NativeImage)nativeImage, (com.mojang.blaze3d.platform.NativeImage)nativeImage2, (int)14, (int)33, (int)43, (int)33, (int)15, (int)10, (int)n3, (boolean)true, (boolean)true);
+-                net.minecraft.client.resources.PackResourcesAdapterV4.copyRect((com.mojang.blaze3d.platform.NativeImage)nativeImage, (com.mojang.blaze3d.platform.NativeImage)nativeImage2, (int)73, (int)33, (int)14, (int)33, (int)15, (int)10, (int)n3, (boolean)true, (boolean)true);
+-                net.minecraft.client.resources.PackResourcesAdapterV4.copyRect((com.mojang.blaze3d.platform.NativeImage)nativeImage, (com.mojang.blaze3d.platform.NativeImage)nativeImage2, (int)1, (int)0, (int)2, (int)0, (int)1, (int)1, (int)n3, (boolean)false, (boolean)true);
+-                net.minecraft.client.resources.PackResourcesAdapterV4.copyRect((com.mojang.blaze3d.platform.NativeImage)nativeImage, (com.mojang.blaze3d.platform.NativeImage)nativeImage2, (int)3, (int)0, (int)1, (int)0, (int)1, (int)1, (int)n3, (boolean)false, (boolean)true);
+-                net.minecraft.client.resources.PackResourcesAdapterV4.copyRect((com.mojang.blaze3d.platform.NativeImage)nativeImage, (com.mojang.blaze3d.platform.NativeImage)nativeImage2, (int)0, (int)1, (int)0, (int)1, (int)1, (int)4, (int)n3, (boolean)true, (boolean)true);
+-                net.minecraft.client.resources.PackResourcesAdapterV4.copyRect((com.mojang.blaze3d.platform.NativeImage)nativeImage, (com.mojang.blaze3d.platform.NativeImage)nativeImage2, (int)1, (int)1, (int)3, (int)1, (int)1, (int)4, (int)n3, (boolean)true, (boolean)true);
+-                net.minecraft.client.resources.PackResourcesAdapterV4.copyRect((com.mojang.blaze3d.platform.NativeImage)nativeImage, (com.mojang.blaze3d.platform.NativeImage)nativeImage2, (int)5, (int)1, (int)1, (int)1, (int)1, (int)4, (int)n3, (boolean)true, (boolean)true);
+-                byteArrayInputStream = new java.io.ByteArrayInputStream(nativeImage2.asByteArray());
+-            }
+-            return byteArrayInputStream;
+-        }
+-    }
+-
+-    public static java.io.InputStream fixSingleChest(java.io.InputStream input) throws java.io.IOException {
+-        try (com.mojang.blaze3d.platform.NativeImage nativeImage = com.mojang.blaze3d.platform.NativeImage.read((java.io.InputStream)input);
+-){
+-            java.io.ByteArrayInputStream byteArrayInputStream;
+-            int n = nativeImage.getWidth();
+-            int n2 = nativeImage.getHeight();
+-            try (com.mojang.blaze3d.platform.NativeImage nativeImage2 = new com.mojang.blaze3d.platform.NativeImage(n, n2, true);
+-){
+-                int n3 = n2 / 64;
+-                net.minecraft.client.resources.PackResourcesAdapterV4.copyRect((com.mojang.blaze3d.platform.NativeImage)nativeImage, (com.mojang.blaze3d.platform.NativeImage)nativeImage2, (int)14, (int)0, (int)28, (int)0, (int)14, (int)14, (int)n3, (boolean)false, (boolean)true);
+-                net.minecraft.client.resources.PackResourcesAdapterV4.copyRect((com.mojang.blaze3d.platform.NativeImage)nativeImage, (com.mojang.blaze3d.platform.NativeImage)nativeImage2, (int)28, (int)0, (int)14, (int)0, (int)14, (int)14, (int)n3, (boolean)false, (boolean)true);
+-                net.minecraft.client.resources.PackResourcesAdapterV4.copyRect((com.mojang.blaze3d.platform.NativeImage)nativeImage, (com.mojang.blaze3d.platform.NativeImage)nativeImage2, (int)0, (int)14, (int)0, (int)14, (int)14, (int)5, (int)n3, (boolean)true, (boolean)true);
+-                net.minecraft.client.resources.PackResourcesAdapterV4.copyRect((com.mojang.blaze3d.platform.NativeImage)nativeImage, (com.mojang.blaze3d.platform.NativeImage)nativeImage2, (int)14, (int)14, (int)42, (int)14, (int)14, (int)5, (int)n3, (boolean)true, (boolean)true);
+-                net.minecraft.client.resources.PackResourcesAdapterV4.copyRect((com.mojang.blaze3d.platform.NativeImage)nativeImage, (com.mojang.blaze3d.platform.NativeImage)nativeImage2, (int)28, (int)14, (int)28, (int)14, (int)14, (int)5, (int)n3, (boolean)true, (boolean)true);
+-                net.minecraft.client.resources.PackResourcesAdapterV4.copyRect((com.mojang.blaze3d.platform.NativeImage)nativeImage, (com.mojang.blaze3d.platform.NativeImage)nativeImage2, (int)42, (int)14, (int)14, (int)14, (int)14, (int)5, (int)n3, (boolean)true, (boolean)true);
+-                net.minecraft.client.resources.PackResourcesAdapterV4.copyRect((com.mojang.blaze3d.platform.NativeImage)nativeImage, (com.mojang.blaze3d.platform.NativeImage)nativeImage2, (int)14, (int)19, (int)28, (int)19, (int)14, (int)14, (int)n3, (boolean)false, (boolean)true);
+-                net.minecraft.client.resources.PackResourcesAdapterV4.copyRect((com.mojang.blaze3d.platform.NativeImage)nativeImage, (com.mojang.blaze3d.platform.NativeImage)nativeImage2, (int)28, (int)19, (int)14, (int)19, (int)14, (int)14, (int)n3, (boolean)false, (boolean)true);
+-                net.minecraft.client.resources.PackResourcesAdapterV4.copyRect((com.mojang.blaze3d.platform.NativeImage)nativeImage, (com.mojang.blaze3d.platform.NativeImage)nativeImage2, (int)0, (int)33, (int)0, (int)33, (int)14, (int)10, (int)n3, (boolean)true, (boolean)true);
+-                net.minecraft.client.resources.PackResourcesAdapterV4.copyRect((com.mojang.blaze3d.platform.NativeImage)nativeImage, (com.mojang.blaze3d.platform.NativeImage)nativeImage2, (int)14, (int)33, (int)42, (int)33, (int)14, (int)10, (int)n3, (boolean)true, (boolean)true);
+-                net.minecraft.client.resources.PackResourcesAdapterV4.copyRect((com.mojang.blaze3d.platform.NativeImage)nativeImage, (com.mojang.blaze3d.platform.NativeImage)nativeImage2, (int)28, (int)33, (int)28, (int)33, (int)14, (int)10, (int)n3, (boolean)true, (boolean)true);
+-                net.minecraft.client.resources.PackResourcesAdapterV4.copyRect((com.mojang.blaze3d.platform.NativeImage)nativeImage, (com.mojang.blaze3d.platform.NativeImage)nativeImage2, (int)42, (int)33, (int)14, (int)33, (int)14, (int)10, (int)n3, (boolean)true, (boolean)true);
+-                net.minecraft.client.resources.PackResourcesAdapterV4.copyRect((com.mojang.blaze3d.platform.NativeImage)nativeImage, (com.mojang.blaze3d.platform.NativeImage)nativeImage2, (int)1, (int)0, (int)3, (int)0, (int)2, (int)1, (int)n3, (boolean)false, (boolean)true);
+-                net.minecraft.client.resources.PackResourcesAdapterV4.copyRect((com.mojang.blaze3d.platform.NativeImage)nativeImage, (com.mojang.blaze3d.platform.NativeImage)nativeImage2, (int)3, (int)0, (int)1, (int)0, (int)2, (int)1, (int)n3, (boolean)false, (boolean)true);
+-                net.minecraft.client.resources.PackResourcesAdapterV4.copyRect((com.mojang.blaze3d.platform.NativeImage)nativeImage, (com.mojang.blaze3d.platform.NativeImage)nativeImage2, (int)0, (int)1, (int)0, (int)1, (int)1, (int)4, (int)n3, (boolean)true, (boolean)true);
+-                net.minecraft.client.resources.PackResourcesAdapterV4.copyRect((com.mojang.blaze3d.platform.NativeImage)nativeImage, (com.mojang.blaze3d.platform.NativeImage)nativeImage2, (int)1, (int)1, (int)4, (int)1, (int)2, (int)4, (int)n3, (boolean)true, (boolean)true);
+-                net.minecraft.client.resources.PackResourcesAdapterV4.copyRect((com.mojang.blaze3d.platform.NativeImage)nativeImage, (com.mojang.blaze3d.platform.NativeImage)nativeImage2, (int)3, (int)1, (int)3, (int)1, (int)1, (int)4, (int)n3, (boolean)true, (boolean)true);
+-                net.minecraft.client.resources.PackResourcesAdapterV4.copyRect((com.mojang.blaze3d.platform.NativeImage)nativeImage, (com.mojang.blaze3d.platform.NativeImage)nativeImage2, (int)4, (int)1, (int)1, (int)1, (int)2, (int)4, (int)n3, (boolean)true, (boolean)true);
+-                byteArrayInputStream = new java.io.ByteArrayInputStream(nativeImage2.asByteArray());
+-            }
+-            return byteArrayInputStream;
+-        }
+-    }
+-
+-    public java.util.Collection<net.minecraft.resources.ResourceLocation> getResources(net.minecraft.server.packs.PackType $$0, java.lang.String $$1, java.lang.String $$2, java.util.function.Predicate<net.minecraft.resources.ResourceLocation> $$3) {
+-        return this.pack.getResources($$0, $$1, $$2, $$3);
+-    }
+-
+-    public java.util.Set<java.lang.String> getNamespaces(net.minecraft.server.packs.PackType type) {
+-        return this.pack.getNamespaces(type);
+-    }
+-
+-    @javax.annotation.Nullable
+-    public <T> T getMetadataSection(net.minecraft.server.packs.metadata.MetadataSectionSerializer<T> deserializer) throws java.io.IOException {
+-        return (T)this.pack.getMetadataSection(deserializer);
+-    }
+-
+-    public java.lang.String getName() {
+-        return this.pack.getName();
+-    }
+-
+-    public void close() {
+-        this.pack.close();
+-    }
+-
+-    public static void copyRect(com.mojang.blaze3d.platform.NativeImage $$0, com.mojang.blaze3d.platform.NativeImage $$1, int $$2, int $$3, int $$4, int $$5, int $$6, int $$7, int $$8, boolean $$9, boolean $$10) {
+-        $$6 *= $$8;
+-        $$4 *= $$8;
+-        $$5 *= $$8;
+-        $$2 *= $$8;
+-        $$3 *= $$8;
+-        for (int $$11 = 0; $$11 < ($$7 *= $$8); ++$$11) {
+-            for (int $$12 = 0; $$12 < $$6; ++$$12) {
+-                $$1.setPixelRGBA($$4 + $$12, $$5 + $$11, $$0.getPixelRGBA($$2 + ($$9 ? $$6 - 1 - $$12 : $$12), $$3 + ($$10 ? $$7 - 1 - $$11 : $$11)));
+-            }
+-        }
+-    }
+-
+-    public static /* synthetic */ java.lang.String lambda$static$2(java.lang.String name) {
+-        return "textures/entity/banner/" + name + ".png";
+-    }
+-
+-    public static /* synthetic */ java.lang.String lambda$static$1(java.lang.String name) {
+-        return "textures/entity/shield/" + name + ".png";
+-    }
+-
+-    public static /* synthetic */ void lambda$static$0(java.util.HashMap map) {
+-        map.put((java.lang.Object)"textures/entity/chest/normal_left.png", (java.lang.Object)new com.mojang.datafixers.util.Pair((java.lang.Object)net.minecraft.world.level.block.state.properties.ChestType.LEFT, (java.lang.Object)new net.minecraft.resources.ResourceLocation("textures/entity/chest/normal_double.png")));
+-        map.put((java.lang.Object)"textures/entity/chest/normal_right.png", (java.lang.Object)new com.mojang.datafixers.util.Pair((java.lang.Object)net.minecraft.world.level.block.state.properties.ChestType.RIGHT, (java.lang.Object)new net.minecraft.resources.ResourceLocation("textures/entity/chest/normal_double.png")));
+-        map.put((java.lang.Object)"textures/entity/chest/normal.png", (java.lang.Object)new com.mojang.datafixers.util.Pair((java.lang.Object)net.minecraft.world.level.block.state.properties.ChestType.SINGLE, (java.lang.Object)new net.minecraft.resources.ResourceLocation("textures/entity/chest/normal.png")));
+-        map.put((java.lang.Object)"textures/entity/chest/trapped_left.png", (java.lang.Object)new com.mojang.datafixers.util.Pair((java.lang.Object)net.minecraft.world.level.block.state.properties.ChestType.LEFT, (java.lang.Object)new net.minecraft.resources.ResourceLocation("textures/entity/chest/trapped_double.png")));
+-        map.put((java.lang.Object)"textures/entity/chest/trapped_right.png", (java.lang.Object)new com.mojang.datafixers.util.Pair((java.lang.Object)net.minecraft.world.level.block.state.properties.ChestType.RIGHT, (java.lang.Object)new net.minecraft.resources.ResourceLocation("textures/entity/chest/trapped_double.png")));
+-        map.put((java.lang.Object)"textures/entity/chest/trapped.png", (java.lang.Object)new com.mojang.datafixers.util.Pair((java.lang.Object)net.minecraft.world.level.block.state.properties.ChestType.SINGLE, (java.lang.Object)new net.minecraft.resources.ResourceLocation("textures/entity/chest/trapped.png")));
+-        map.put((java.lang.Object)"textures/entity/chest/christmas_left.png", (java.lang.Object)new com.mojang.datafixers.util.Pair((java.lang.Object)net.minecraft.world.level.block.state.properties.ChestType.LEFT, (java.lang.Object)new net.minecraft.resources.ResourceLocation("textures/entity/chest/christmas_double.png")));
+-        map.put((java.lang.Object)"textures/entity/chest/christmas_right.png", (java.lang.Object)new com.mojang.datafixers.util.Pair((java.lang.Object)net.minecraft.world.level.block.state.properties.ChestType.RIGHT, (java.lang.Object)new net.minecraft.resources.ResourceLocation("textures/entity/chest/christmas_double.png")));
+-        map.put((java.lang.Object)"textures/entity/chest/christmas.png", (java.lang.Object)new com.mojang.datafixers.util.Pair((java.lang.Object)net.minecraft.world.level.block.state.properties.ChestType.SINGLE, (java.lang.Object)new net.minecraft.resources.ResourceLocation("textures/entity/chest/christmas.png")));
+-        map.put((java.lang.Object)"textures/entity/chest/ender.png", (java.lang.Object)new com.mojang.datafixers.util.Pair((java.lang.Object)net.minecraft.world.level.block.state.properties.ChestType.SINGLE, (java.lang.Object)new net.minecraft.resources.ResourceLocation("textures/entity/chest/ender.png")));
+-    }
+-
+-    static {
+-        CHESTS = (java.util.Map)net.minecraft.Util.make((java.lang.Object)com.google.common.collect.Maps.newHashMap(), map -> {
+-            map.put((java.lang.Object)"textures/entity/chest/normal_left.png", (java.lang.Object)new com.mojang.datafixers.util.Pair((java.lang.Object)net.minecraft.world.level.block.state.properties.ChestType.LEFT, (java.lang.Object)new net.minecraft.resources.ResourceLocation("textures/entity/chest/normal_double.png")));
+-            map.put((java.lang.Object)"textures/entity/chest/normal_right.png", (java.lang.Object)new com.mojang.datafixers.util.Pair((java.lang.Object)net.minecraft.world.level.block.state.properties.ChestType.RIGHT, (java.lang.Object)new net.minecraft.resources.ResourceLocation("textures/entity/chest/normal_double.png")));
+-            map.put((java.lang.Object)"textures/entity/chest/normal.png", (java.lang.Object)new com.mojang.datafixers.util.Pair((java.lang.Object)net.minecraft.world.level.block.state.properties.ChestType.SINGLE, (java.lang.Object)new net.minecraft.resources.ResourceLocation("textures/entity/chest/normal.png")));
+-            map.put((java.lang.Object)"textures/entity/chest/trapped_left.png", (java.lang.Object)new com.mojang.datafixers.util.Pair((java.lang.Object)net.minecraft.world.level.block.state.properties.ChestType.LEFT, (java.lang.Object)new net.minecraft.resources.ResourceLocation("textures/entity/chest/trapped_double.png")));
+-            map.put((java.lang.Object)"textures/entity/chest/trapped_right.png", (java.lang.Object)new com.mojang.datafixers.util.Pair((java.lang.Object)net.minecraft.world.level.block.state.properties.ChestType.RIGHT, (java.lang.Object)new net.minecraft.resources.ResourceLocation("textures/entity/chest/trapped_double.png")));
+-            map.put((java.lang.Object)"textures/entity/chest/trapped.png", (java.lang.Object)new com.mojang.datafixers.util.Pair((java.lang.Object)net.minecraft.world.level.block.state.properties.ChestType.SINGLE, (java.lang.Object)new net.minecraft.resources.ResourceLocation("textures/entity/chest/trapped.png")));
+-            map.put((java.lang.Object)"textures/entity/chest/christmas_left.png", (java.lang.Object)new com.mojang.datafixers.util.Pair((java.lang.Object)net.minecraft.world.level.block.state.properties.ChestType.LEFT, (java.lang.Object)new net.minecraft.resources.ResourceLocation("textures/entity/chest/christmas_double.png")));
+-            map.put((java.lang.Object)"textures/entity/chest/christmas_right.png", (java.lang.Object)new com.mojang.datafixers.util.Pair((java.lang.Object)net.minecraft.world.level.block.state.properties.ChestType.RIGHT, (java.lang.Object)new net.minecraft.resources.ResourceLocation("textures/entity/chest/christmas_double.png")));
+-            map.put((java.lang.Object)"textures/entity/chest/christmas.png", (java.lang.Object)new com.mojang.datafixers.util.Pair((java.lang.Object)net.minecraft.world.level.block.state.properties.ChestType.SINGLE, (java.lang.Object)new net.minecraft.resources.ResourceLocation("textures/entity/chest/christmas.png")));
+-            map.put((java.lang.Object)"textures/entity/chest/ender.png", (java.lang.Object)new com.mojang.datafixers.util.Pair((java.lang.Object)net.minecraft.world.level.block.state.properties.ChestType.SINGLE, (java.lang.Object)new net.minecraft.resources.ResourceLocation("textures/entity/chest/ender.png")));
+-        });
+-        PATTERNS = com.google.common.collect.Lists.newArrayList((java.lang.Object[])new java.lang.String[]{"base", "border", "bricks", "circle", "creeper", "cross", "curly_border", "diagonal_left", "diagonal_right", "diagonal_up_left", "diagonal_up_right", "flower", "globe", "gradient", "gradient_up", "half_horizontal", "half_horizontal_bottom", "half_vertical", "half_vertical_right", "mojang", "rhombus", "skull", "small_stripes", "square_bottom_left", "square_bottom_right", "square_top_left", "square_top_right", "straight_cross", "stripe_bottom", "stripe_center", "stripe_downleft", "stripe_downright", "stripe_left", "stripe_middle", "stripe_right", "stripe_top", "triangle_bottom", "triangle_top", "triangles_bottom", "triangles_top"});
+-        SHIELDS = (java.util.Set)PATTERNS.stream().map(name -> "textures/entity/shield/" + name + ".png").collect(java.util.stream.Collectors.toSet());
+-        BANNERS = (java.util.Set)PATTERNS.stream().map(name -> "textures/entity/banner/" + name + ".png").collect(java.util.stream.Collectors.toSet());
+-        SHIELD_BASE = new net.minecraft.resources.ResourceLocation("textures/entity/shield_base.png");
+-        BANNER_BASE = new net.minecraft.resources.ResourceLocation("textures/entity/banner_base.png");
+-        OLD_IRON_GOLEM_LOCATION = new net.minecraft.resources.ResourceLocation("textures/entity/iron_golem.png");
+-    }
+-}
+-

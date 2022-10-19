@@ -1,0 +1,69 @@
+--- net/minecraft/resources/RegistryLoader.java
++++ net/minecraft/resources/RegistryLoader.java
+@@ -1,66 +1,0 @@
+-/*
+- * Decompiled with CFR 0.151.
+- */
+-package net.minecraft.resources;
+-
+-public class net.minecraft.resources.RegistryLoader
+- {
+-    public net.minecraft.resources.RegistryResourceAccess resources;
+-    public java.util.Map<net.minecraft.resources.ResourceKey<? extends net.minecraft.core.Registry<?>>, net.minecraft.resources.RegistryLoader$ReadCache<?>> readCache;
+-
+-    public net.minecraft.resources.RegistryLoader(net.minecraft.resources.RegistryResourceAccess $$0) {
+-        this.readCache = new java.util.IdentityHashMap();
+-        this.resources = $$0;
+-    }
+-
+-    public <E> com.mojang.serialization.DataResult<? extends net.minecraft.core.Registry<E>> overrideRegistryFromResources(net.minecraft.core.WritableRegistry<E> $$0, net.minecraft.resources.ResourceKey<? extends net.minecraft.core.Registry<E>> $$1, com.mojang.serialization.Codec<E> $$2, com.mojang.serialization.DynamicOps<com.google.gson.JsonElement> $$3) {
+-        java.util.Map $$42 = this.resources.listResources($$1);
+-        com.mojang.serialization.DataResult $$5 = com.mojang.serialization.DataResult.success($$0, (com.mojang.serialization.Lifecycle)com.mojang.serialization.Lifecycle.stable());
+-        for (java.util.Map$Entry $$6 : $$42.entrySet()) {
+-            $$5 = $$5.flatMap($$4 -> this.overrideElementFromResources($$4, $$1, $$2, (net.minecraft.resources.ResourceKey)$$6.getKey(), java.util.Optional.of((java.lang.Object)((net.minecraft.resources.RegistryResourceAccess$EntryThunk)$$6.getValue())), $$3).map($$1 -> $$4));
+-        }
+-        return $$5.setPartial($$0);
+-    }
+-
+-    public <E> com.mojang.serialization.DataResult<net.minecraft.core.Holder<E>> overrideElementFromResources(net.minecraft.core.WritableRegistry<E> $$0, net.minecraft.resources.ResourceKey<? extends net.minecraft.core.Registry<E>> $$1, com.mojang.serialization.Codec<E> $$2, net.minecraft.resources.ResourceKey<E> $$3, com.mojang.serialization.DynamicOps<com.google.gson.JsonElement> $$4) {
+-        java.util.Optional $$5 = this.resources.getResource($$3);
+-        return this.overrideElementFromResources($$0, $$1, $$2, $$3, $$5, $$4);
+-    }
+-
+-    public <E> com.mojang.serialization.DataResult<net.minecraft.core.Holder<E>> overrideElementFromResources(net.minecraft.core.WritableRegistry<E> $$0, net.minecraft.resources.ResourceKey<? extends net.minecraft.core.Registry<E>> $$12, com.mojang.serialization.Codec<E> $$2, net.minecraft.resources.ResourceKey<E> $$3, java.util.Optional<net.minecraft.resources.RegistryResourceAccess$EntryThunk<E>> $$4, com.mojang.serialization.DynamicOps<com.google.gson.JsonElement> $$5) {
+-        com.mojang.serialization.DataResult $$14;
+-        net.minecraft.resources.RegistryLoader$ReadCache $$6 = this.readCache($$12);
+-        com.mojang.serialization.DataResult $$7 = (com.mojang.serialization.DataResult)$$6.values.get($$3);
+-        if ($$7 != null) {
+-            return $$7;
+-        }
+-        net.minecraft.core.Holder $$8 = $$0.getOrCreateHolderOrThrow($$3);
+-        $$6.values.put($$3, (java.lang.Object)com.mojang.serialization.DataResult.success((java.lang.Object)$$8));
+-        if ($$4.isEmpty()) {
+-            if ($$0.containsKey($$3)) {
+-                com.mojang.serialization.DataResult $$9 = com.mojang.serialization.DataResult.success((java.lang.Object)$$8, (com.mojang.serialization.Lifecycle)com.mojang.serialization.Lifecycle.stable());
+-            } else {
+-                com.mojang.serialization.DataResult $$10 = com.mojang.serialization.DataResult.error((java.lang.String)("Missing referenced custom/removed registry entry for registry " + $$12 + " named " + $$3.location()));
+-            }
+-        } else {
+-            com.mojang.serialization.DataResult $$11 = ((net.minecraft.resources.RegistryResourceAccess$EntryThunk)$$4.get()).parseElement($$5, $$2);
+-            java.util.Optional $$122 = $$11.result();
+-            if ($$122.isPresent()) {
+-                net.minecraft.resources.RegistryResourceAccess$ParsedEntry $$13 = (net.minecraft.resources.RegistryResourceAccess$ParsedEntry)$$122.get();
+-                $$0.registerOrOverride($$13.fixedId(), $$3, $$13.value(), $$11.lifecycle());
+-            }
+-            $$14 = $$11.map($$1 -> $$8);
+-        }
+-        $$6.values.put($$3, (java.lang.Object)$$14);
+-        return $$14;
+-    }
+-
+-    public <E> net.minecraft.resources.RegistryLoader$ReadCache<E> readCache(net.minecraft.resources.ResourceKey<? extends net.minecraft.core.Registry<E>> $$02) {
+-        return (net.minecraft.resources.RegistryLoader$ReadCache)this.readCache.computeIfAbsent($$02, $$0 -> new net.minecraft.resources.RegistryLoader$ReadCache());
+-    }
+-
+-    public net.minecraft.resources.RegistryLoader$Bound bind(net.minecraft.core.RegistryAccess$Writable $$0) {
+-        return new net.minecraft.resources.RegistryLoader$Bound($$0, this);
+-    }
+-}
+-

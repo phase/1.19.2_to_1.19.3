@@ -1,0 +1,142 @@
+--- net/minecraft/commands/arguments/ScoreHolderArgument.java
++++ net/minecraft/commands/arguments/ScoreHolderArgument.java
+@@ -11,28 +11,28 @@
+     public static com.mojang.brigadier.exceptions.SimpleCommandExceptionType ERROR_NO_RESULTS;
+     public boolean multiple;
+ 
+-    public net.minecraft.commands.arguments.ScoreHolderArgument(boolean multiple) {
+-        this.multiple = multiple;
++    public net.minecraft.commands.arguments.ScoreHolderArgument(boolean $$0) {
++        this.multiple = $$0;
+     }
+ 
+-    public static java.lang.String getName(com.mojang.brigadier.context.CommandContext<net.minecraft.commands.CommandSourceStack> context, java.lang.String name) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
+-        return (java.lang.String)net.minecraft.commands.arguments.ScoreHolderArgument.getNames(context, (java.lang.String)name).iterator().next();
++    public static java.lang.String getName(com.mojang.brigadier.context.CommandContext<net.minecraft.commands.CommandSourceStack> $$0, java.lang.String $$1) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
++        return (java.lang.String)net.minecraft.commands.arguments.ScoreHolderArgument.getNames($$0, (java.lang.String)$$1).iterator().next();
+     }
+ 
+-    public static java.util.Collection<java.lang.String> getNames(com.mojang.brigadier.context.CommandContext<net.minecraft.commands.CommandSourceStack> context, java.lang.String name) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
+-        return net.minecraft.commands.arguments.ScoreHolderArgument.getNames(context, (java.lang.String)name, java.util.Collections::emptyList);
++    public static java.util.Collection<java.lang.String> getNames(com.mojang.brigadier.context.CommandContext<net.minecraft.commands.CommandSourceStack> $$0, java.lang.String $$1) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
++        return net.minecraft.commands.arguments.ScoreHolderArgument.getNames($$0, (java.lang.String)$$1, java.util.Collections::emptyList);
+     }
+ 
+-    public static java.util.Collection<java.lang.String> getNamesWithDefaultWildcard(com.mojang.brigadier.context.CommandContext<net.minecraft.commands.CommandSourceStack> context, java.lang.String name) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
+-        return net.minecraft.commands.arguments.ScoreHolderArgument.getNames(context, (java.lang.String)name, () -> ((net.minecraft.server.ServerScoreboard)((net.minecraft.commands.CommandSourceStack)context.getSource()).getServer().getScoreboard()).getTrackedPlayers());
++    public static java.util.Collection<java.lang.String> getNamesWithDefaultWildcard(com.mojang.brigadier.context.CommandContext<net.minecraft.commands.CommandSourceStack> $$0, java.lang.String $$1) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
++        return net.minecraft.commands.arguments.ScoreHolderArgument.getNames($$0, (java.lang.String)$$1, () -> ((net.minecraft.server.ServerScoreboard)((net.minecraft.commands.CommandSourceStack)$$0.getSource()).getServer().getScoreboard()).getTrackedPlayers());
+     }
+ 
+-    public static java.util.Collection<java.lang.String> getNames(com.mojang.brigadier.context.CommandContext<net.minecraft.commands.CommandSourceStack> context, java.lang.String name, java.util.function.Supplier<java.util.Collection<java.lang.String>> objectives) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
+-        java.util.Collection collection = ((net.minecraft.commands.arguments.ScoreHolderArgument$Result)context.getArgument(name, net.minecraft.commands.arguments.ScoreHolderArgument$Result.class)).getNames((net.minecraft.commands.CommandSourceStack)context.getSource(), objectives);
+-        if (collection.isEmpty()) {
++    public static java.util.Collection<java.lang.String> getNames(com.mojang.brigadier.context.CommandContext<net.minecraft.commands.CommandSourceStack> $$0, java.lang.String $$1, java.util.function.Supplier<java.util.Collection<java.lang.String>> $$2) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
++        java.util.Collection $$3 = ((net.minecraft.commands.arguments.ScoreHolderArgument$Result)$$0.getArgument($$1, net.minecraft.commands.arguments.ScoreHolderArgument$Result.class)).getNames((net.minecraft.commands.CommandSourceStack)$$0.getSource(), $$2);
++        if ($$3.isEmpty()) {
+             throw net.minecraft.commands.arguments.EntityArgument.NO_ENTITIES_FOUND.create();
+         }
+-        return collection;
++        return $$3;
+     }
+ 
+     public static net.minecraft.commands.arguments.ScoreHolderArgument scoreHolder() {
+@@ -43,31 +43,31 @@
+         return new net.minecraft.commands.arguments.ScoreHolderArgument(true);
+     }
+ 
+-    public net.minecraft.commands.arguments.ScoreHolderArgument$Result parse(com.mojang.brigadier.StringReader reader) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
+-        if (reader.canRead() && reader.peek() == '@') {
+-            net.minecraft.commands.arguments.selector.EntitySelectorParser entitySelectorParser = new net.minecraft.commands.arguments.selector.EntitySelectorParser(reader);
+-            net.minecraft.commands.arguments.selector.EntitySelector entitySelector = entitySelectorParser.parse();
+-            if (!this.multiple && entitySelector.getMaxResults() > 1) {
++    public net.minecraft.commands.arguments.ScoreHolderArgument$Result parse(com.mojang.brigadier.StringReader $$02) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
++        if ($$02.canRead() && $$02.peek() == '@') {
++            net.minecraft.commands.arguments.selector.EntitySelectorParser $$12 = new net.minecraft.commands.arguments.selector.EntitySelectorParser($$02);
++            net.minecraft.commands.arguments.selector.EntitySelector $$2 = $$12.parse();
++            if (!this.multiple && $$2.getMaxResults() > 1) {
+                 throw net.minecraft.commands.arguments.EntityArgument.ERROR_NOT_SINGLE_ENTITY.create();
+             }
+-            return new net.minecraft.commands.arguments.ScoreHolderArgument$SelectorResult(entitySelector);
++            return new net.minecraft.commands.arguments.ScoreHolderArgument$SelectorResult($$2);
+         }
+-        int n = reader.getCursor();
+-        while (reader.canRead() && reader.peek() != ' ') {
+-            reader.skip();
++        int $$3 = $$02.getCursor();
++        while ($$02.canRead() && $$02.peek() != ' ') {
++            $$02.skip();
+         }
+-        java.lang.String string = reader.getString().substring(n, reader.getCursor());
+-        if (string.equals((java.lang.Object)"*")) {
+-            return (source, objectives) -> {
+-                java.util.Collection collection = (java.util.Collection)objectives.get();
+-                if (collection.isEmpty()) {
++        java.lang.String $$4 = $$02.getString().substring($$3, $$02.getCursor());
++        if ($$4.equals((java.lang.Object)"*")) {
++            return ($$0, $$1) -> {
++                java.util.Collection $$2 = (java.util.Collection)$$1.get();
++                if ($$2.isEmpty()) {
+                     throw ERROR_NO_RESULTS.create();
+                 }
+-                return collection;
++                return $$2;
+             };
+         }
+-        java.util.Set set = java.util.Collections.singleton((java.lang.Object)string);
+-        return (arg_0, arg_1) -> net.minecraft.commands.arguments.ScoreHolderArgument.lambda$parse$3((java.util.Collection)set, arg_0, arg_1);
++        java.util.Set $$5 = java.util.Collections.singleton((java.lang.Object)$$4);
++        return (arg_0, arg_1) -> net.minecraft.commands.arguments.ScoreHolderArgument.lambda$parse$3((java.util.Collection)$$5, arg_0, arg_1);
+     }
+ 
+     public java.util.Collection<java.lang.String> getExamples() {
+@@ -78,35 +78,35 @@
+         return this.parse(stringReader);
+     }
+ 
+-    public static /* synthetic */ java.util.Collection lambda$parse$3(java.util.Collection collection, net.minecraft.commands.CommandSourceStack source, java.util.function.Supplier objectives) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
+-        return collection;
++    public static /* synthetic */ java.util.Collection lambda$parse$3(java.util.Collection $$0, net.minecraft.commands.CommandSourceStack $$1, java.util.function.Supplier $$2) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
++        return $$0;
+     }
+ 
+-    public static /* synthetic */ java.util.concurrent.CompletableFuture lambda$static$1(com.mojang.brigadier.context.CommandContext context, com.mojang.brigadier.suggestion.SuggestionsBuilder builder) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
+-        com.mojang.brigadier.StringReader stringReader = new com.mojang.brigadier.StringReader(builder.getInput());
+-        stringReader.setCursor(builder.getStart());
+-        net.minecraft.commands.arguments.selector.EntitySelectorParser entitySelectorParser = new net.minecraft.commands.arguments.selector.EntitySelectorParser(stringReader);
++    public static /* synthetic */ java.util.concurrent.CompletableFuture lambda$static$1(com.mojang.brigadier.context.CommandContext $$0, com.mojang.brigadier.suggestion.SuggestionsBuilder $$12) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
++        com.mojang.brigadier.StringReader $$2 = new com.mojang.brigadier.StringReader($$12.getInput());
++        $$2.setCursor($$12.getStart());
++        net.minecraft.commands.arguments.selector.EntitySelectorParser $$3 = new net.minecraft.commands.arguments.selector.EntitySelectorParser($$2);
+         try {
+-            entitySelectorParser.parse();
++            $$3.parse();
+         }
+         catch (com.mojang.brigadier.exceptions.CommandSyntaxException commandSyntaxException) {
+             // empty catch block
+         }
+-        return entitySelectorParser.fillSuggestions(builder, $$1 -> net.minecraft.commands.SharedSuggestionProvider.suggest((java.lang.Iterable)((net.minecraft.commands.CommandSourceStack)context.getSource()).getOnlinePlayerNames(), (com.mojang.brigadier.suggestion.SuggestionsBuilder)$$1));
++        return $$3.fillSuggestions($$12, $$1 -> net.minecraft.commands.SharedSuggestionProvider.suggest((java.lang.Iterable)((net.minecraft.commands.CommandSourceStack)$$0.getSource()).getOnlinePlayerNames(), (com.mojang.brigadier.suggestion.SuggestionsBuilder)$$1));
+     }
+ 
+     static {
+-        SUGGEST_SCORE_HOLDERS = (context, builder) -> {
+-            com.mojang.brigadier.StringReader stringReader = new com.mojang.brigadier.StringReader(builder.getInput());
+-            stringReader.setCursor(builder.getStart());
+-            net.minecraft.commands.arguments.selector.EntitySelectorParser entitySelectorParser = new net.minecraft.commands.arguments.selector.EntitySelectorParser(stringReader);
++        SUGGEST_SCORE_HOLDERS = ($$0, $$12) -> {
++            com.mojang.brigadier.StringReader $$2 = new com.mojang.brigadier.StringReader($$12.getInput());
++            $$2.setCursor($$12.getStart());
++            net.minecraft.commands.arguments.selector.EntitySelectorParser $$3 = new net.minecraft.commands.arguments.selector.EntitySelectorParser($$2);
+             try {
+-                entitySelectorParser.parse();
++                $$3.parse();
+             }
+             catch (com.mojang.brigadier.exceptions.CommandSyntaxException commandSyntaxException) {
+                 // empty catch block
+             }
+-            return entitySelectorParser.fillSuggestions(builder, $$1 -> net.minecraft.commands.SharedSuggestionProvider.suggest((java.lang.Iterable)((net.minecraft.commands.CommandSourceStack)context.getSource()).getOnlinePlayerNames(), (com.mojang.brigadier.suggestion.SuggestionsBuilder)$$1));
++            return $$3.fillSuggestions($$12, $$1 -> net.minecraft.commands.SharedSuggestionProvider.suggest((java.lang.Iterable)((net.minecraft.commands.CommandSourceStack)$$0.getSource()).getOnlinePlayerNames(), (com.mojang.brigadier.suggestion.SuggestionsBuilder)$$1));
+         };
+         EXAMPLES = java.util.Arrays.asList((java.lang.Object[])new java.lang.String[]{"Player", "0123", "*", "@e"});
+         ERROR_NO_RESULTS = new com.mojang.brigadier.exceptions.SimpleCommandExceptionType((com.mojang.brigadier.Message)net.minecraft.network.chat.Component.translatable((java.lang.String)"argument.scoreHolder.empty"));

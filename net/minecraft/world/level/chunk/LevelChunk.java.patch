@@ -1,0 +1,397 @@
+--- net/minecraft/world/level/chunk/LevelChunk.java
++++ net/minecraft/world/level/chunk/LevelChunk.java
+@@ -16,7 +16,7 @@
+     public java.util.function.Supplier<net.minecraft.server.level.ChunkHolder$FullChunkStatus> fullStatus;
+     @javax.annotation.Nullable
+     public net.minecraft.world.level.chunk.LevelChunk$PostLoadProcessor postLoad;
+-    public it.unimi.dsi.fastutil.ints.Int2ObjectMap<net.minecraft.world.level.gameevent.GameEventDispatcher> gameEventDispatcherSections;
++    public it.unimi.dsi.fastutil.ints.Int2ObjectMap<net.minecraft.world.level.gameevent.GameEventListenerRegistry> gameEventListenerRegistrySections;
+     public net.minecraft.world.ticks.LevelChunkTicks<net.minecraft.world.level.block.Block> blockTicks;
+     public net.minecraft.world.ticks.LevelChunkTicks<net.minecraft.world.level.material.Fluid> fluidTicks;
+ 
+@@ -29,7 +29,7 @@
+         this.tickersInLevel = com.google.common.collect.Maps.newHashMap();
+         this.clientLightReady = false;
+         this.level = $$0;
+-        this.gameEventDispatcherSections = new it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap();
++        this.gameEventListenerRegistrySections = new it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap();
+         for (net.minecraft.world.level.levelgen.Heightmap$Types $$9 : net.minecraft.world.level.levelgen.Heightmap$Types.values()) {
+             if (!net.minecraft.world.level.chunk.ChunkStatus.FULL.heightmapsAfter().contains((java.lang.Object)$$9)) continue;
+             this.heightmaps.put((java.lang.Object)$$9, (java.lang.Object)new net.minecraft.world.level.levelgen.Heightmap((net.minecraft.world.level.chunk.ChunkAccess)this, $$9));
+@@ -70,153 +70,153 @@
+         return new net.minecraft.world.level.chunk.ChunkAccess$TicksToSave((net.minecraft.world.ticks.SerializableTickContainer)this.blockTicks, (net.minecraft.world.ticks.SerializableTickContainer)this.fluidTicks);
+     }
+ 
+-    public net.minecraft.world.level.gameevent.GameEventDispatcher getEventDispatcher(int $$0) {
++    public net.minecraft.world.level.gameevent.GameEventListenerRegistry getListenerRegistry(int $$0) {
+         net.minecraft.world.level.Level level = this.level;
+         if (level instanceof net.minecraft.server.level.ServerLevel) {
+             net.minecraft.server.level.ServerLevel $$12 = (net.minecraft.server.level.ServerLevel)level;
+-            return (net.minecraft.world.level.gameevent.GameEventDispatcher)this.gameEventDispatcherSections.computeIfAbsent($$0, $$1 -> new net.minecraft.world.level.gameevent.EuclideanGameEventDispatcher($$12));
++            return (net.minecraft.world.level.gameevent.GameEventListenerRegistry)this.gameEventListenerRegistrySections.computeIfAbsent($$0, $$1 -> new net.minecraft.world.level.gameevent.EuclideanGameEventListenerRegistry($$12));
+         }
+-        return super.getEventDispatcher($$0);
++        return super.getListenerRegistry($$0);
+     }
+ 
+-    public net.minecraft.world.level.block.state.BlockState getBlockState(net.minecraft.core.BlockPos pos) {
+-        int n = pos.getX();
+-        int n2 = pos.getY();
+-        int n3 = pos.getZ();
++    public net.minecraft.world.level.block.state.BlockState getBlockState(net.minecraft.core.BlockPos $$0) {
++        int $$1 = $$0.getX();
++        int $$2 = $$0.getY();
++        int $$3 = $$0.getZ();
+         if (this.level.isDebug()) {
+-            net.minecraft.world.level.block.state.BlockState blockState = null;
+-            if (n2 == 60) {
+-                blockState = net.minecraft.world.level.block.Blocks.BARRIER.defaultBlockState();
++            net.minecraft.world.level.block.state.BlockState $$4 = null;
++            if ($$2 == 60) {
++                $$4 = net.minecraft.world.level.block.Blocks.BARRIER.defaultBlockState();
+             }
+-            if (n2 == 70) {
+-                blockState = net.minecraft.world.level.levelgen.DebugLevelSource.getBlockStateFor((int)n, (int)n3);
++            if ($$2 == 70) {
++                $$4 = net.minecraft.world.level.levelgen.DebugLevelSource.getBlockStateFor((int)$$1, (int)$$3);
+             }
+-            return blockState == null ? net.minecraft.world.level.block.Blocks.AIR.defaultBlockState() : blockState;
++            return $$4 == null ? net.minecraft.world.level.block.Blocks.AIR.defaultBlockState() : $$4;
+         }
+         try {
+-            net.minecraft.world.level.chunk.LevelChunkSection levelChunkSection;
+-            int n4 = this.getSectionIndex(n2);
+-            if (n4 >= 0 && n4 < this.sections.length && !(levelChunkSection = this.sections[n4]).hasOnlyAir()) {
+-                return levelChunkSection.getBlockState(n & 0xF, n2 & 0xF, n3 & 0xF);
++            net.minecraft.world.level.chunk.LevelChunkSection $$6;
++            int $$5 = this.getSectionIndex($$2);
++            if ($$5 >= 0 && $$5 < this.sections.length && !($$6 = this.sections[$$5]).hasOnlyAir()) {
++                return $$6.getBlockState($$1 & 0xF, $$2 & 0xF, $$3 & 0xF);
+             }
+             return net.minecraft.world.level.block.Blocks.AIR.defaultBlockState();
+         }
+-        catch (java.lang.Throwable throwable) {
+-            net.minecraft.CrashReport crashReport = net.minecraft.CrashReport.forThrowable((java.lang.Throwable)throwable, (java.lang.String)"Getting block state");
+-            net.minecraft.CrashReportCategory crashReportCategory = crashReport.addCategory("Block being got");
+-            crashReportCategory.setDetail("Location", () -> net.minecraft.CrashReportCategory.formatLocation((net.minecraft.world.level.LevelHeightAccessor)this, (int)n, (int)n2, (int)n3));
+-            throw new net.minecraft.ReportedException(crashReport);
++        catch (java.lang.Throwable $$7) {
++            net.minecraft.CrashReport $$8 = net.minecraft.CrashReport.forThrowable((java.lang.Throwable)$$7, (java.lang.String)"Getting block state");
++            net.minecraft.CrashReportCategory $$9 = $$8.addCategory("Block being got");
++            $$9.setDetail("Location", () -> net.minecraft.CrashReportCategory.formatLocation((net.minecraft.world.level.LevelHeightAccessor)this, (int)$$1, (int)$$2, (int)$$3));
++            throw new net.minecraft.ReportedException($$8);
+         }
+     }
+ 
+-    public net.minecraft.world.level.material.FluidState getFluidState(net.minecraft.core.BlockPos pos) {
+-        return this.getFluidState(pos.getX(), pos.getY(), pos.getZ());
++    public net.minecraft.world.level.material.FluidState getFluidState(net.minecraft.core.BlockPos $$0) {
++        return this.getFluidState($$0.getX(), $$0.getY(), $$0.getZ());
+     }
+ 
+-    public net.minecraft.world.level.material.FluidState getFluidState(int bx, int by, int bz) {
++    public net.minecraft.world.level.material.FluidState getFluidState(int $$0, int $$1, int $$2) {
+         try {
+-            net.minecraft.world.level.chunk.LevelChunkSection levelChunkSection;
+-            int n = this.getSectionIndex(by);
+-            if (n >= 0 && n < this.sections.length && !(levelChunkSection = this.sections[n]).hasOnlyAir()) {
+-                return levelChunkSection.getFluidState(bx & 0xF, by & 0xF, bz & 0xF);
++            net.minecraft.world.level.chunk.LevelChunkSection $$4;
++            int $$3 = this.getSectionIndex($$1);
++            if ($$3 >= 0 && $$3 < this.sections.length && !($$4 = this.sections[$$3]).hasOnlyAir()) {
++                return $$4.getFluidState($$0 & 0xF, $$1 & 0xF, $$2 & 0xF);
+             }
+             return net.minecraft.world.level.material.Fluids.EMPTY.defaultFluidState();
+         }
+-        catch (java.lang.Throwable throwable) {
+-            net.minecraft.CrashReport crashReport = net.minecraft.CrashReport.forThrowable((java.lang.Throwable)throwable, (java.lang.String)"Getting fluid state");
+-            net.minecraft.CrashReportCategory crashReportCategory = crashReport.addCategory("Block being got");
+-            crashReportCategory.setDetail("Location", () -> net.minecraft.CrashReportCategory.formatLocation((net.minecraft.world.level.LevelHeightAccessor)this, (int)bx, (int)by, (int)bz));
+-            throw new net.minecraft.ReportedException(crashReport);
++        catch (java.lang.Throwable $$5) {
++            net.minecraft.CrashReport $$6 = net.minecraft.CrashReport.forThrowable((java.lang.Throwable)$$5, (java.lang.String)"Getting fluid state");
++            net.minecraft.CrashReportCategory $$7 = $$6.addCategory("Block being got");
++            $$7.setDetail("Location", () -> net.minecraft.CrashReportCategory.formatLocation((net.minecraft.world.level.LevelHeightAccessor)this, (int)$$0, (int)$$1, (int)$$2));
++            throw new net.minecraft.ReportedException($$6);
+         }
+     }
+ 
+     @javax.annotation.Nullable
+-    public net.minecraft.world.level.block.state.BlockState setBlockState(net.minecraft.core.BlockPos pos, net.minecraft.world.level.block.state.BlockState state, boolean isMoving) {
+-        int n;
+-        int n2;
+-        int n3 = pos.getY();
+-        net.minecraft.world.level.chunk.LevelChunkSection levelChunkSection = this.getSection(this.getSectionIndex(n3));
+-        boolean bl = levelChunkSection.hasOnlyAir();
+-        if (bl && state.isAir()) {
++    public net.minecraft.world.level.block.state.BlockState setBlockState(net.minecraft.core.BlockPos $$0, net.minecraft.world.level.block.state.BlockState $$1, boolean $$2) {
++        int $$8;
++        int $$7;
++        int $$3 = $$0.getY();
++        net.minecraft.world.level.chunk.LevelChunkSection $$4 = this.getSection(this.getSectionIndex($$3));
++        boolean $$5 = $$4.hasOnlyAir();
++        if ($$5 && $$1.isAir()) {
+             return null;
+         }
+-        int n4 = pos.getX() & 0xF;
+-        net.minecraft.world.level.block.state.BlockState blockState = levelChunkSection.setBlockState(n4, n2 = n3 & 0xF, n = pos.getZ() & 0xF, state);
+-        if (blockState == state) {
++        int $$6 = $$0.getX() & 0xF;
++        net.minecraft.world.level.block.state.BlockState $$9 = $$4.setBlockState($$6, $$7 = $$3 & 0xF, $$8 = $$0.getZ() & 0xF, $$1);
++        if ($$9 == $$1) {
+             return null;
+         }
+-        net.minecraft.world.level.block.Block block = state.getBlock();
+-        ((net.minecraft.world.level.levelgen.Heightmap)this.heightmaps.get((java.lang.Object)net.minecraft.world.level.levelgen.Heightmap$Types.MOTION_BLOCKING)).update(n4, n3, n, state);
+-        ((net.minecraft.world.level.levelgen.Heightmap)this.heightmaps.get((java.lang.Object)net.minecraft.world.level.levelgen.Heightmap$Types.MOTION_BLOCKING_NO_LEAVES)).update(n4, n3, n, state);
+-        ((net.minecraft.world.level.levelgen.Heightmap)this.heightmaps.get((java.lang.Object)net.minecraft.world.level.levelgen.Heightmap$Types.OCEAN_FLOOR)).update(n4, n3, n, state);
+-        ((net.minecraft.world.level.levelgen.Heightmap)this.heightmaps.get((java.lang.Object)net.minecraft.world.level.levelgen.Heightmap$Types.WORLD_SURFACE)).update(n4, n3, n, state);
+-        boolean bl2 = levelChunkSection.hasOnlyAir();
+-        if (bl != bl2) {
+-            this.level.getChunkSource().getLightEngine().updateSectionStatus(pos, bl2);
++        net.minecraft.world.level.block.Block $$10 = $$1.getBlock();
++        ((net.minecraft.world.level.levelgen.Heightmap)this.heightmaps.get((java.lang.Object)net.minecraft.world.level.levelgen.Heightmap$Types.MOTION_BLOCKING)).update($$6, $$3, $$8, $$1);
++        ((net.minecraft.world.level.levelgen.Heightmap)this.heightmaps.get((java.lang.Object)net.minecraft.world.level.levelgen.Heightmap$Types.MOTION_BLOCKING_NO_LEAVES)).update($$6, $$3, $$8, $$1);
++        ((net.minecraft.world.level.levelgen.Heightmap)this.heightmaps.get((java.lang.Object)net.minecraft.world.level.levelgen.Heightmap$Types.OCEAN_FLOOR)).update($$6, $$3, $$8, $$1);
++        ((net.minecraft.world.level.levelgen.Heightmap)this.heightmaps.get((java.lang.Object)net.minecraft.world.level.levelgen.Heightmap$Types.WORLD_SURFACE)).update($$6, $$3, $$8, $$1);
++        boolean $$11 = $$4.hasOnlyAir();
++        if ($$5 != $$11) {
++            this.level.getChunkSource().getLightEngine().updateSectionStatus($$0, $$11);
+         }
+-        boolean bl3 = blockState.hasBlockEntity();
++        boolean $$12 = $$9.hasBlockEntity();
+         if (!this.level.isClientSide) {
+-            blockState.onRemove(this.level, pos, state, isMoving);
+-        } else if (!blockState.is(block) && bl3) {
+-            this.removeBlockEntity(pos);
++            $$9.onRemove(this.level, $$0, $$1, $$2);
++        } else if (!$$9.is($$10) && $$12) {
++            this.removeBlockEntity($$0);
+         }
+-        if (!levelChunkSection.getBlockState(n4, n2, n).is(block)) {
++        if (!$$4.getBlockState($$6, $$7, $$8).is($$10)) {
+             return null;
+         }
+         if (!this.level.isClientSide) {
+-            state.onPlace(this.level, pos, blockState, isMoving);
++            $$1.onPlace(this.level, $$0, $$9, $$2);
+         }
+-        if (state.hasBlockEntity()) {
+-            net.minecraft.world.level.block.entity.BlockEntity blockEntity = this.getBlockEntity(pos, net.minecraft.world.level.chunk.LevelChunk$EntityCreationType.CHECK);
+-            if (blockEntity == null) {
+-                blockEntity = ((net.minecraft.world.level.block.EntityBlock)block).newBlockEntity(pos, state);
+-                if (blockEntity != null) {
+-                    this.addAndRegisterBlockEntity(blockEntity);
++        if ($$1.hasBlockEntity()) {
++            net.minecraft.world.level.block.entity.BlockEntity $$13 = this.getBlockEntity($$0, net.minecraft.world.level.chunk.LevelChunk$EntityCreationType.CHECK);
++            if ($$13 == null) {
++                $$13 = ((net.minecraft.world.level.block.EntityBlock)$$10).newBlockEntity($$0, $$1);
++                if ($$13 != null) {
++                    this.addAndRegisterBlockEntity($$13);
+                 }
+             } else {
+-                blockEntity.setBlockState(state);
+-                this.updateBlockEntityTicker(blockEntity);
++                $$13.setBlockState($$1);
++                this.updateBlockEntityTicker($$13);
+             }
+         }
+         this.unsaved = true;
+-        return blockState;
++        return $$9;
+     }
+ 
+     @java.lang.Deprecated
+-    public void addEntity(net.minecraft.world.entity.Entity entity) {
++    public void addEntity(net.minecraft.world.entity.Entity $$0) {
+     }
+ 
+     @javax.annotation.Nullable
+-    public net.minecraft.world.level.block.entity.BlockEntity createBlockEntity(net.minecraft.core.BlockPos pos) {
+-        net.minecraft.world.level.block.state.BlockState blockState = this.getBlockState(pos);
+-        if (!blockState.hasBlockEntity()) {
++    public net.minecraft.world.level.block.entity.BlockEntity createBlockEntity(net.minecraft.core.BlockPos $$0) {
++        net.minecraft.world.level.block.state.BlockState $$1 = this.getBlockState($$0);
++        if (!$$1.hasBlockEntity()) {
+             return null;
+         }
+-        return ((net.minecraft.world.level.block.EntityBlock)blockState.getBlock()).newBlockEntity(pos, blockState);
++        return ((net.minecraft.world.level.block.EntityBlock)$$1.getBlock()).newBlockEntity($$0, $$1);
+     }
+ 
+     @javax.annotation.Nullable
+-    public net.minecraft.world.level.block.entity.BlockEntity getBlockEntity(net.minecraft.core.BlockPos pos) {
+-        return this.getBlockEntity(pos, net.minecraft.world.level.chunk.LevelChunk$EntityCreationType.CHECK);
++    public net.minecraft.world.level.block.entity.BlockEntity getBlockEntity(net.minecraft.core.BlockPos $$0) {
++        return this.getBlockEntity($$0, net.minecraft.world.level.chunk.LevelChunk$EntityCreationType.CHECK);
+     }
+ 
+     @javax.annotation.Nullable
+-    public net.minecraft.world.level.block.entity.BlockEntity getBlockEntity(net.minecraft.core.BlockPos pos, net.minecraft.world.level.chunk.LevelChunk$EntityCreationType creationMode) {
+-        net.minecraft.world.level.block.entity.BlockEntity blockEntity;
+-        net.minecraft.nbt.CompoundTag compoundTag;
+-        net.minecraft.world.level.block.entity.BlockEntity blockEntity2 = (net.minecraft.world.level.block.entity.BlockEntity)this.blockEntities.get((java.lang.Object)pos);
+-        if (blockEntity2 == null && (compoundTag = (net.minecraft.nbt.CompoundTag)this.pendingBlockEntities.remove((java.lang.Object)pos)) != null && (blockEntity = this.promotePendingBlockEntity(pos, compoundTag)) != null) {
+-            return blockEntity;
++    public net.minecraft.world.level.block.entity.BlockEntity getBlockEntity(net.minecraft.core.BlockPos $$0, net.minecraft.world.level.chunk.LevelChunk$EntityCreationType $$1) {
++        net.minecraft.world.level.block.entity.BlockEntity $$4;
++        net.minecraft.nbt.CompoundTag $$3;
++        net.minecraft.world.level.block.entity.BlockEntity $$2 = (net.minecraft.world.level.block.entity.BlockEntity)this.blockEntities.get((java.lang.Object)$$0);
++        if ($$2 == null && ($$3 = (net.minecraft.nbt.CompoundTag)this.pendingBlockEntities.remove((java.lang.Object)$$0)) != null && ($$4 = this.promotePendingBlockEntity($$0, $$3)) != null) {
++            return $$4;
+         }
+-        if (blockEntity2 == null) {
+-            if (creationMode == net.minecraft.world.level.chunk.LevelChunk$EntityCreationType.IMMEDIATE && (blockEntity2 = this.createBlockEntity(pos)) != null) {
+-                this.addAndRegisterBlockEntity(blockEntity2);
++        if ($$2 == null) {
++            if ($$1 == net.minecraft.world.level.chunk.LevelChunk$EntityCreationType.IMMEDIATE && ($$2 = this.createBlockEntity($$0)) != null) {
++                this.addAndRegisterBlockEntity($$2);
+             }
+-        } else if (blockEntity2.isRemoved()) {
+-            this.blockEntities.remove((java.lang.Object)pos);
++        } else if ($$2.isRemoved()) {
++            this.blockEntities.remove((java.lang.Object)$$0);
+             return null;
+         }
+-        return blockEntity2;
++        return $$2;
+     }
+ 
+     public void addAndRegisterBlockEntity(net.minecraft.world.level.block.entity.BlockEntity $$0) {
+@@ -261,32 +261,32 @@
+     }
+ 
+     @javax.annotation.Nullable
+-    public net.minecraft.nbt.CompoundTag getBlockEntityNbtForSaving(net.minecraft.core.BlockPos pos) {
+-        net.minecraft.world.level.block.entity.BlockEntity blockEntity = this.getBlockEntity(pos);
+-        if (blockEntity != null && !blockEntity.isRemoved()) {
+-            net.minecraft.nbt.CompoundTag compoundTag = blockEntity.saveWithFullMetadata();
+-            compoundTag.putBoolean("keepPacked", false);
+-            return compoundTag;
++    public net.minecraft.nbt.CompoundTag getBlockEntityNbtForSaving(net.minecraft.core.BlockPos $$0) {
++        net.minecraft.world.level.block.entity.BlockEntity $$1 = this.getBlockEntity($$0);
++        if ($$1 != null && !$$1.isRemoved()) {
++            net.minecraft.nbt.CompoundTag $$2 = $$1.saveWithFullMetadata();
++            $$2.putBoolean("keepPacked", false);
++            return $$2;
+         }
+-        net.minecraft.nbt.CompoundTag compoundTag = (net.minecraft.nbt.CompoundTag)this.pendingBlockEntities.get((java.lang.Object)pos);
+-        if (compoundTag != null) {
+-            compoundTag = compoundTag.copy();
+-            compoundTag.putBoolean("keepPacked", true);
++        net.minecraft.nbt.CompoundTag $$3 = (net.minecraft.nbt.CompoundTag)this.pendingBlockEntities.get((java.lang.Object)$$0);
++        if ($$3 != null) {
++            $$3 = $$3.copy();
++            $$3.putBoolean("keepPacked", true);
+         }
+-        return compoundTag;
++        return $$3;
+     }
+ 
+-    public void removeBlockEntity(net.minecraft.core.BlockPos pos) {
+-        net.minecraft.world.level.block.entity.BlockEntity blockEntity;
+-        if (this.isInLevel() && (blockEntity = (net.minecraft.world.level.block.entity.BlockEntity)this.blockEntities.remove((java.lang.Object)pos)) != null) {
++    public void removeBlockEntity(net.minecraft.core.BlockPos $$0) {
++        net.minecraft.world.level.block.entity.BlockEntity $$1;
++        if (this.isInLevel() && ($$1 = (net.minecraft.world.level.block.entity.BlockEntity)this.blockEntities.remove((java.lang.Object)$$0)) != null) {
+             net.minecraft.world.level.Level level = this.level;
+             if (level instanceof net.minecraft.server.level.ServerLevel) {
+-                net.minecraft.server.level.ServerLevel serverLevel = (net.minecraft.server.level.ServerLevel)level;
+-                this.removeGameEventListener(blockEntity, serverLevel);
++                net.minecraft.server.level.ServerLevel $$2 = (net.minecraft.server.level.ServerLevel)level;
++                this.removeGameEventListener($$1, $$2);
+             }
+-            blockEntity.setRemoved();
++            $$1.setRemoved();
+         }
+-        this.removeBlockEntityTicker(pos);
++        this.removeBlockEntityTicker($$0);
+     }
+ 
+     public <T extends net.minecraft.world.level.block.entity.BlockEntity> void removeGameEventListener(T $$0, net.minecraft.server.level.ServerLevel $$1) {
+@@ -294,10 +294,10 @@
+         net.minecraft.world.level.block.Block $$2 = $$0.getBlockState().getBlock();
+         if ($$2 instanceof net.minecraft.world.level.block.EntityBlock && ($$3 = ((net.minecraft.world.level.block.EntityBlock)$$2).getListener($$1, $$0)) != null) {
+             int $$4 = net.minecraft.core.SectionPos.blockToSectionCoord((int)$$0.getBlockPos().getY());
+-            net.minecraft.world.level.gameevent.GameEventDispatcher $$5 = this.getEventDispatcher($$4);
++            net.minecraft.world.level.gameevent.GameEventListenerRegistry $$5 = this.getListenerRegistry($$4);
+             $$5.unregister($$3);
+             if ($$5.isEmpty()) {
+-                this.gameEventDispatcherSections.remove($$4);
++                this.gameEventListenerRegistrySections.remove($$4);
+             }
+         }
+     }
+@@ -338,8 +338,8 @@
+         });
+     }
+ 
+-    public void setLoaded(boolean loaded) {
+-        this.loaded = loaded;
++    public void setLoaded(boolean $$0) {
++        this.loaded = $$0;
+     }
+ 
+     public net.minecraft.world.level.Level getLevel() {
+@@ -379,26 +379,26 @@
+     }
+ 
+     @javax.annotation.Nullable
+-    public net.minecraft.world.level.block.entity.BlockEntity promotePendingBlockEntity(net.minecraft.core.BlockPos pos, net.minecraft.nbt.CompoundTag compound) {
+-        net.minecraft.world.level.block.entity.BlockEntity blockEntity;
+-        net.minecraft.world.level.block.state.BlockState blockState = this.getBlockState(pos);
+-        if ("DUMMY".equals((java.lang.Object)compound.getString("id"))) {
+-            if (blockState.hasBlockEntity()) {
+-                blockEntity = ((net.minecraft.world.level.block.EntityBlock)blockState.getBlock()).newBlockEntity(pos, blockState);
++    public net.minecraft.world.level.block.entity.BlockEntity promotePendingBlockEntity(net.minecraft.core.BlockPos $$0, net.minecraft.nbt.CompoundTag $$1) {
++        net.minecraft.world.level.block.entity.BlockEntity $$5;
++        net.minecraft.world.level.block.state.BlockState $$2 = this.getBlockState($$0);
++        if ("DUMMY".equals((java.lang.Object)$$1.getString("id"))) {
++            if ($$2.hasBlockEntity()) {
++                net.minecraft.world.level.block.entity.BlockEntity $$3 = ((net.minecraft.world.level.block.EntityBlock)$$2.getBlock()).newBlockEntity($$0, $$2);
+             } else {
+-                blockEntity = null;
+-                LOGGER.warn("Tried to load a DUMMY block entity @ {} but found not block entity block {} at location", (java.lang.Object)pos, (java.lang.Object)blockState);
++                java.lang.Object $$4 = null;
++                LOGGER.warn("Tried to load a DUMMY block entity @ {} but found not block entity block {} at location", (java.lang.Object)$$0, (java.lang.Object)$$2);
+             }
+         } else {
+-            blockEntity = net.minecraft.world.level.block.entity.BlockEntity.loadStatic((net.minecraft.core.BlockPos)pos, (net.minecraft.world.level.block.state.BlockState)blockState, (net.minecraft.nbt.CompoundTag)compound);
++            $$5 = net.minecraft.world.level.block.entity.BlockEntity.loadStatic((net.minecraft.core.BlockPos)$$0, (net.minecraft.world.level.block.state.BlockState)$$2, (net.minecraft.nbt.CompoundTag)$$1);
+         }
+-        if (blockEntity != null) {
+-            blockEntity.setLevel(this.level);
+-            this.addAndRegisterBlockEntity(blockEntity);
++        if ($$5 != null) {
++            $$5.setLevel(this.level);
++            this.addAndRegisterBlockEntity($$5);
+         } else {
+-            LOGGER.warn("Tried to load a block entity for block {} but failed at location {}", (java.lang.Object)blockState, (java.lang.Object)pos);
++            LOGGER.warn("Tried to load a block entity for block {} but failed at location {}", (java.lang.Object)$$2, (java.lang.Object)$$0);
+         }
+-        return blockEntity;
++        return $$5;
+     }
+ 
+     public void unpackTicks(long $$0) {
+@@ -427,8 +427,8 @@
+         return (net.minecraft.server.level.ChunkHolder$FullChunkStatus)this.fullStatus.get();
+     }
+ 
+-    public void setFullStatus(java.util.function.Supplier<net.minecraft.server.level.ChunkHolder$FullChunkStatus> locationType) {
+-        this.fullStatus = locationType;
++    public void setFullStatus(java.util.function.Supplier<net.minecraft.server.level.ChunkHolder$FullChunkStatus> $$0) {
++        this.fullStatus = $$0;
+     }
+ 
+     public void clearAllBlockEntities() {
+@@ -453,8 +453,7 @@
+         net.minecraft.world.level.gameevent.GameEventListener $$3;
+         net.minecraft.world.level.block.Block $$2 = $$0.getBlockState().getBlock();
+         if ($$2 instanceof net.minecraft.world.level.block.EntityBlock && ($$3 = ((net.minecraft.world.level.block.EntityBlock)$$2).getListener($$1, $$0)) != null) {
+-            net.minecraft.world.level.gameevent.GameEventDispatcher $$4 = this.getEventDispatcher(net.minecraft.core.SectionPos.blockToSectionCoord((int)$$0.getBlockPos().getY()));
+-            $$4.register($$3);
++            this.getListenerRegistry(net.minecraft.core.SectionPos.blockToSectionCoord((int)$$0.getBlockPos().getY())).register($$3);
+         }
+     }
+ 

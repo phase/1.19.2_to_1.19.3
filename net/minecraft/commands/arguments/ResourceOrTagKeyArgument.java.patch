@@ -1,0 +1,67 @@
+--- net/minecraft/commands/arguments/ResourceOrTagKeyArgument.java
++++ net/minecraft/commands/arguments/ResourceOrTagKeyArgument.java
+@@ -1,0 +1,64 @@
++/*
++ * Decompiled with CFR 0.151.
++ */
++package net.minecraft.commands.arguments;
++
++public class net.minecraft.commands.arguments.ResourceOrTagKeyArgument<T>
++implements com.mojang.brigadier.arguments.ArgumentType<net.minecraft.commands.arguments.ResourceOrTagKeyArgument$Result<T>>
++ {
++    public static java.util.Collection<java.lang.String> EXAMPLES;
++    public net.minecraft.resources.ResourceKey<? extends net.minecraft.core.Registry<T>> registryKey;
++
++    public net.minecraft.commands.arguments.ResourceOrTagKeyArgument(net.minecraft.resources.ResourceKey<? extends net.minecraft.core.Registry<T>> $$0) {
++        this.registryKey = $$0;
++    }
++
++    public static <T> net.minecraft.commands.arguments.ResourceOrTagKeyArgument<T> resourceOrTagKey(net.minecraft.resources.ResourceKey<? extends net.minecraft.core.Registry<T>> $$0) {
++        return new net.minecraft.commands.arguments.ResourceOrTagKeyArgument($$0);
++    }
++
++    public static <T> net.minecraft.commands.arguments.ResourceOrTagKeyArgument$Result<T> getResourceOrTagKey(com.mojang.brigadier.context.CommandContext<net.minecraft.commands.CommandSourceStack> $$0, java.lang.String $$1, net.minecraft.resources.ResourceKey<net.minecraft.core.Registry<T>> $$2, com.mojang.brigadier.exceptions.DynamicCommandExceptionType $$3) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
++        net.minecraft.commands.arguments.ResourceOrTagKeyArgument$Result $$4 = (net.minecraft.commands.arguments.ResourceOrTagKeyArgument$Result)$$0.getArgument($$1, net.minecraft.commands.arguments.ResourceOrTagKeyArgument$Result.class);
++        java.util.Optional $$5 = $$4.cast($$2);
++        return (net.minecraft.commands.arguments.ResourceOrTagKeyArgument$Result)$$5.orElseThrow(() -> $$3.create((java.lang.Object)$$4));
++    }
++
++    public net.minecraft.commands.arguments.ResourceOrTagKeyArgument$Result<T> parse(com.mojang.brigadier.StringReader $$0) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
++        if ($$0.canRead() && $$0.peek() == '#') {
++            int $$1 = $$0.getCursor();
++            try {
++                $$0.skip();
++                net.minecraft.resources.ResourceLocation $$2 = net.minecraft.resources.ResourceLocation.read((com.mojang.brigadier.StringReader)$$0);
++                return new net.minecraft.commands.arguments.ResourceOrTagKeyArgument$TagResult(net.minecraft.tags.TagKey.create((net.minecraft.resources.ResourceKey)this.registryKey, (net.minecraft.resources.ResourceLocation)$$2));
++            }
++            catch (com.mojang.brigadier.exceptions.CommandSyntaxException $$3) {
++                $$0.setCursor($$1);
++                throw $$3;
++            }
++        }
++        net.minecraft.resources.ResourceLocation $$4 = net.minecraft.resources.ResourceLocation.read((com.mojang.brigadier.StringReader)$$0);
++        return new net.minecraft.commands.arguments.ResourceOrTagKeyArgument$ResourceResult(net.minecraft.resources.ResourceKey.create((net.minecraft.resources.ResourceKey)this.registryKey, (net.minecraft.resources.ResourceLocation)$$4));
++    }
++
++    public <S> java.util.concurrent.CompletableFuture<com.mojang.brigadier.suggestion.Suggestions> listSuggestions(com.mojang.brigadier.context.CommandContext<S> $$0, com.mojang.brigadier.suggestion.SuggestionsBuilder $$1) {
++        java.lang.Object object = $$0.getSource();
++        if (object instanceof net.minecraft.commands.SharedSuggestionProvider) {
++            net.minecraft.commands.SharedSuggestionProvider $$2 = (net.minecraft.commands.SharedSuggestionProvider)object;
++            return $$2.suggestRegistryElements(this.registryKey, net.minecraft.commands.SharedSuggestionProvider$ElementSuggestionType.ALL, $$1, $$0);
++        }
++        return $$1.buildFuture();
++    }
++
++    public java.util.Collection<java.lang.String> getExamples() {
++        return EXAMPLES;
++    }
++
++    public /* synthetic */ java.lang.Object parse(com.mojang.brigadier.StringReader stringReader) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
++        return this.parse(stringReader);
++    }
++
++    static {
++        EXAMPLES = java.util.Arrays.asList((java.lang.Object[])new java.lang.String[]{"foo", "foo:bar", "012", "#skeletons", "#minecraft:skeletons"});
++    }
++}
++

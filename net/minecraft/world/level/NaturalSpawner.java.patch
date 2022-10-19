@@ -1,0 +1,314 @@
+--- net/minecraft/world/level/NaturalSpawner.java
++++ net/minecraft/world/level/NaturalSpawner.java
+@@ -37,25 +37,25 @@
+         return new net.minecraft.world.level.NaturalSpawner$SpawnState($$0, $$5, $$4, $$3);
+     }
+ 
+-    public static net.minecraft.world.level.biome.Biome getRoughBiome(net.minecraft.core.BlockPos pos, net.minecraft.world.level.chunk.ChunkAccess chunk) {
+-        return (net.minecraft.world.level.biome.Biome)chunk.getNoiseBiome(net.minecraft.core.QuartPos.fromBlock((int)pos.getX()), net.minecraft.core.QuartPos.fromBlock((int)pos.getY()), net.minecraft.core.QuartPos.fromBlock((int)pos.getZ())).value();
++    public static net.minecraft.world.level.biome.Biome getRoughBiome(net.minecraft.core.BlockPos $$0, net.minecraft.world.level.chunk.ChunkAccess $$1) {
++        return (net.minecraft.world.level.biome.Biome)$$1.getNoiseBiome(net.minecraft.core.QuartPos.fromBlock((int)$$0.getX()), net.minecraft.core.QuartPos.fromBlock((int)$$0.getY()), net.minecraft.core.QuartPos.fromBlock((int)$$0.getZ())).value();
+     }
+ 
+-    public static void spawnForChunk(net.minecraft.server.level.ServerLevel level, net.minecraft.world.level.chunk.LevelChunk chunk, net.minecraft.world.level.NaturalSpawner$SpawnState spawnState, boolean spawnFriendlies, boolean spawnMonsters, boolean bl) {
+-        level.getProfiler().push("spawner");
+-        for (net.minecraft.world.entity.MobCategory mobCategory : SPAWNING_CATEGORIES) {
+-            if (!spawnFriendlies && mobCategory.isFriendly() || !spawnMonsters && !mobCategory.isFriendly() || !bl && mobCategory.isPersistent() || !spawnState.canSpawnForCategory(mobCategory, chunk.getPos())) continue;
+-            net.minecraft.world.level.NaturalSpawner.spawnCategoryForChunk((net.minecraft.world.entity.MobCategory)mobCategory, (net.minecraft.server.level.ServerLevel)level, (net.minecraft.world.level.chunk.LevelChunk)chunk, (arg_0, arg_1, arg_2) -> ((net.minecraft.world.level.NaturalSpawner$SpawnState)spawnState).canSpawn(arg_0, arg_1, arg_2), (arg_0, arg_1) -> ((net.minecraft.world.level.NaturalSpawner$SpawnState)spawnState).afterSpawn(arg_0, arg_1));
++    public static void spawnForChunk(net.minecraft.server.level.ServerLevel $$0, net.minecraft.world.level.chunk.LevelChunk $$1, net.minecraft.world.level.NaturalSpawner$SpawnState $$2, boolean $$3, boolean $$4, boolean $$5) {
++        $$0.getProfiler().push("spawner");
++        for (net.minecraft.world.entity.MobCategory $$6 : SPAWNING_CATEGORIES) {
++            if (!$$3 && $$6.isFriendly() || !$$4 && !$$6.isFriendly() || !$$5 && $$6.isPersistent() || !$$2.canSpawnForCategory($$6, $$1.getPos())) continue;
++            net.minecraft.world.level.NaturalSpawner.spawnCategoryForChunk((net.minecraft.world.entity.MobCategory)$$6, (net.minecraft.server.level.ServerLevel)$$0, (net.minecraft.world.level.chunk.LevelChunk)$$1, (arg_0, arg_1, arg_2) -> ((net.minecraft.world.level.NaturalSpawner$SpawnState)$$2).canSpawn(arg_0, arg_1, arg_2), (arg_0, arg_1) -> ((net.minecraft.world.level.NaturalSpawner$SpawnState)$$2).afterSpawn(arg_0, arg_1));
+         }
+-        level.getProfiler().pop();
++        $$0.getProfiler().pop();
+     }
+ 
+-    public static void spawnCategoryForChunk(net.minecraft.world.entity.MobCategory category, net.minecraft.server.level.ServerLevel level, net.minecraft.world.level.chunk.LevelChunk chunk, net.minecraft.world.level.NaturalSpawner$SpawnPredicate filter, net.minecraft.world.level.NaturalSpawner$AfterSpawnCallback callback) {
+-        net.minecraft.core.BlockPos blockPos = net.minecraft.world.level.NaturalSpawner.getRandomPosWithin((net.minecraft.world.level.Level)level, (net.minecraft.world.level.chunk.LevelChunk)chunk);
+-        if (blockPos.getY() < level.getMinBuildHeight() + 1) {
++    public static void spawnCategoryForChunk(net.minecraft.world.entity.MobCategory $$0, net.minecraft.server.level.ServerLevel $$1, net.minecraft.world.level.chunk.LevelChunk $$2, net.minecraft.world.level.NaturalSpawner$SpawnPredicate $$3, net.minecraft.world.level.NaturalSpawner$AfterSpawnCallback $$4) {
++        net.minecraft.core.BlockPos $$5 = net.minecraft.world.level.NaturalSpawner.getRandomPosWithin((net.minecraft.world.level.Level)$$1, (net.minecraft.world.level.chunk.LevelChunk)$$2);
++        if ($$5.getY() < $$1.getMinBuildHeight() + 1) {
+             return;
+         }
+-        net.minecraft.world.level.NaturalSpawner.spawnCategoryForPosition((net.minecraft.world.entity.MobCategory)category, (net.minecraft.server.level.ServerLevel)level, (net.minecraft.world.level.chunk.ChunkAccess)chunk, (net.minecraft.core.BlockPos)blockPos, (net.minecraft.world.level.NaturalSpawner$SpawnPredicate)filter, (net.minecraft.world.level.NaturalSpawner$AfterSpawnCallback)callback);
++        net.minecraft.world.level.NaturalSpawner.spawnCategoryForPosition((net.minecraft.world.entity.MobCategory)$$0, (net.minecraft.server.level.ServerLevel)$$1, (net.minecraft.world.level.chunk.ChunkAccess)$$2, (net.minecraft.core.BlockPos)$$5, (net.minecraft.world.level.NaturalSpawner$SpawnPredicate)$$3, (net.minecraft.world.level.NaturalSpawner$AfterSpawnCallback)$$4);
+     }
+ 
+     @net.minecraft.util.VisibleForDebug
+@@ -64,65 +64,64 @@
+ );
+     }
+ 
+-    public static void spawnCategoryForPosition(net.minecraft.world.entity.MobCategory category, net.minecraft.server.level.ServerLevel level, net.minecraft.world.level.chunk.ChunkAccess chunk, net.minecraft.core.BlockPos pos, net.minecraft.world.level.NaturalSpawner$SpawnPredicate filter, net.minecraft.world.level.NaturalSpawner$AfterSpawnCallback callback) {
+-        net.minecraft.world.level.StructureManager structureManager = level.structureManager();
+-        net.minecraft.world.level.chunk.ChunkGenerator chunkGenerator = level.getChunkSource().getGenerator();
+-        int n = pos.getY();
+-        net.minecraft.world.level.block.state.BlockState blockState = chunk.getBlockState(pos);
+-        if (blockState.isRedstoneConductor((net.minecraft.world.level.BlockGetter)chunk, pos)) {
++    public static void spawnCategoryForPosition(net.minecraft.world.entity.MobCategory $$0, net.minecraft.server.level.ServerLevel $$1, net.minecraft.world.level.chunk.ChunkAccess $$2, net.minecraft.core.BlockPos $$3, net.minecraft.world.level.NaturalSpawner$SpawnPredicate $$4, net.minecraft.world.level.NaturalSpawner$AfterSpawnCallback $$5) {
++        net.minecraft.world.level.StructureManager $$6 = $$1.structureManager();
++        net.minecraft.world.level.chunk.ChunkGenerator $$7 = $$1.getChunkSource().getGenerator();
++        int $$8 = $$3.getY();
++        net.minecraft.world.level.block.state.BlockState $$9 = $$2.getBlockState($$3);
++        if ($$9.isRedstoneConductor((net.minecraft.world.level.BlockGetter)$$2, $$3)) {
+             return;
+         }
+-        net.minecraft.core.BlockPos$MutableBlockPos mutableBlockPos = new net.minecraft.core.BlockPos$MutableBlockPos();
+-        int n2 = 0;
+-block0:        for (int i = 0; i < 3; ++i) {
+-            int n3 = pos.getX();
+-            int n4 = pos.getZ();
+-            int n5 = 6;
+-            net.minecraft.world.level.biome.MobSpawnSettings$SpawnerData spawnerData = null;
+-            net.minecraft.world.entity.SpawnGroupData spawnGroupData = null;
+-            int n6 = net.minecraft.util.Mth.ceil((float)(level.random.nextFloat() * 4.0f));
+-            int n7 = 0;
+-            for (int j = 0; j < n6; ++j) {
+-                java.util.Optional optional;
+-                double d;
+-                mutableBlockPos.set(n3 += level.random.nextInt(6) - level.random.nextInt(6), n, n4 += level.random.nextInt(6) - level.random.nextInt(6));
+-                double d2 = (double)n3 + 0.5;
+-                double d3 = (double)n4 + 0.5;
+-                net.minecraft.world.entity.player.Player player = level.getNearestPlayer(d2, (double)n, d3, -1.0, false);
+-                if (player == null || !net.minecraft.world.level.NaturalSpawner.isRightDistanceToPlayerAndSpawnPoint((net.minecraft.server.level.ServerLevel)level, (net.minecraft.world.level.chunk.ChunkAccess)chunk, (net.minecraft.core.BlockPos$MutableBlockPos)mutableBlockPos, (double)(d = player.distanceToSqr(d2, (double)n, d3)))) continue;
+-                if (spawnerData == null) {
+-                    optional = net.minecraft.world.level.NaturalSpawner.getRandomSpawnMobAt((net.minecraft.server.level.ServerLevel)level, (net.minecraft.world.level.StructureManager)structureManager, (net.minecraft.world.level.chunk.ChunkGenerator)chunkGenerator, (net.minecraft.world.entity.MobCategory)category, (net.minecraft.util.RandomSource)level.random, (net.minecraft.core.BlockPos)mutableBlockPos);
+-                    if (optional.isEmpty()) continue block0;
+-                    spawnerData = (net.minecraft.world.level.biome.MobSpawnSettings$SpawnerData)optional.get();
+-                    n6 = spawnerData.minCount + level.random.nextInt(1 + spawnerData.maxCount - spawnerData.minCount);
++        net.minecraft.core.BlockPos$MutableBlockPos $$10 = new net.minecraft.core.BlockPos$MutableBlockPos();
++        int $$11 = 0;
++block0:        for (int $$12 = 0; $$12 < 3; ++$$12) {
++            int $$13 = $$3.getX();
++            int $$14 = $$3.getZ();
++            int $$15 = 6;
++            net.minecraft.world.level.biome.MobSpawnSettings$SpawnerData $$16 = null;
++            net.minecraft.world.entity.SpawnGroupData $$17 = null;
++            int $$18 = net.minecraft.util.Mth.ceil((float)($$1.random.nextFloat() * 4.0f));
++            int $$19 = 0;
++            for (int $$20 = 0; $$20 < $$18; ++$$20) {
++                double $$24;
++                $$10.set($$13 += $$1.random.nextInt(6) - $$1.random.nextInt(6), $$8, $$14 += $$1.random.nextInt(6) - $$1.random.nextInt(6));
++                double $$21 = (double)$$13 + 0.5;
++                double $$22 = (double)$$14 + 0.5;
++                net.minecraft.world.entity.player.Player $$23 = $$1.getNearestPlayer($$21, (double)$$8, $$22, -1.0, false);
++                if ($$23 == null || !net.minecraft.world.level.NaturalSpawner.isRightDistanceToPlayerAndSpawnPoint((net.minecraft.server.level.ServerLevel)$$1, (net.minecraft.world.level.chunk.ChunkAccess)$$2, (net.minecraft.core.BlockPos$MutableBlockPos)$$10, (double)($$24 = $$23.distanceToSqr($$21, (double)$$8, $$22)))) continue;
++                if ($$16 == null) {
++                    java.util.Optional $$25 = net.minecraft.world.level.NaturalSpawner.getRandomSpawnMobAt((net.minecraft.server.level.ServerLevel)$$1, (net.minecraft.world.level.StructureManager)$$6, (net.minecraft.world.level.chunk.ChunkGenerator)$$7, (net.minecraft.world.entity.MobCategory)$$0, (net.minecraft.util.RandomSource)$$1.random, (net.minecraft.core.BlockPos)$$10);
++                    if ($$25.isEmpty()) continue block0;
++                    $$16 = (net.minecraft.world.level.biome.MobSpawnSettings$SpawnerData)$$25.get();
++                    $$18 = $$16.minCount + $$1.random.nextInt(1 + $$16.maxCount - $$16.minCount);
+                 }
+-                if (!net.minecraft.world.level.NaturalSpawner.isValidSpawnPostitionForType((net.minecraft.server.level.ServerLevel)level, (net.minecraft.world.entity.MobCategory)category, (net.minecraft.world.level.StructureManager)structureManager, (net.minecraft.world.level.chunk.ChunkGenerator)chunkGenerator, spawnerData, (net.minecraft.core.BlockPos$MutableBlockPos)mutableBlockPos, (double)d) || !filter.test(spawnerData.type, (net.minecraft.core.BlockPos)mutableBlockPos, chunk)) continue;
+-                optional = net.minecraft.world.level.NaturalSpawner.getMobForSpawn((net.minecraft.server.level.ServerLevel)level, (net.minecraft.world.entity.EntityType)spawnerData.type);
+-                if (optional == null) {
++                if (!net.minecraft.world.level.NaturalSpawner.isValidSpawnPostitionForType((net.minecraft.server.level.ServerLevel)$$1, (net.minecraft.world.entity.MobCategory)$$0, (net.minecraft.world.level.StructureManager)$$6, (net.minecraft.world.level.chunk.ChunkGenerator)$$7, $$16, (net.minecraft.core.BlockPos$MutableBlockPos)$$10, (double)$$24) || !$$4.test($$16.type, (net.minecraft.core.BlockPos)$$10, $$2)) continue;
++                net.minecraft.world.entity.Mob $$26 = net.minecraft.world.level.NaturalSpawner.getMobForSpawn((net.minecraft.server.level.ServerLevel)$$1, (net.minecraft.world.entity.EntityType)$$16.type);
++                if ($$26 == null) {
+                     return;
+                 }
+-                optional.moveTo(d2, (double)n, d3, level.random.nextFloat() * 360.0f, 0.0f);
+-                if (!net.minecraft.world.level.NaturalSpawner.isValidPositionForMob((net.minecraft.server.level.ServerLevel)level, (net.minecraft.world.entity.Mob)optional, (double)d)) continue;
+-                spawnGroupData = optional.finalizeSpawn((net.minecraft.world.level.ServerLevelAccessor)level, level.getCurrentDifficultyAt(optional.blockPosition()), net.minecraft.world.entity.MobSpawnType.NATURAL, spawnGroupData, null);
+-                ++n7;
+-                level.addFreshEntityWithPassengers((net.minecraft.world.entity.Entity)optional);
+-                callback.run((net.minecraft.world.entity.Mob)optional, chunk);
+-                if (++n2 >= optional.getMaxSpawnClusterSize()) {
++                $$26.moveTo($$21, (double)$$8, $$22, $$1.random.nextFloat() * 360.0f, 0.0f);
++                if (!net.minecraft.world.level.NaturalSpawner.isValidPositionForMob((net.minecraft.server.level.ServerLevel)$$1, (net.minecraft.world.entity.Mob)$$26, (double)$$24)) continue;
++                $$17 = $$26.finalizeSpawn((net.minecraft.world.level.ServerLevelAccessor)$$1, $$1.getCurrentDifficultyAt($$26.blockPosition()), net.minecraft.world.entity.MobSpawnType.NATURAL, $$17, null);
++                ++$$19;
++                $$1.addFreshEntityWithPassengers((net.minecraft.world.entity.Entity)$$26);
++                $$5.run($$26, $$2);
++                if (++$$11 >= $$26.getMaxSpawnClusterSize()) {
+                     return;
+                 }
+-                if (optional.isMaxGroupSizeReached(n7)) continue block0;
++                if ($$26.isMaxGroupSizeReached($$19)) continue block0;
+             }
+         }
+     }
+ 
+-    public static boolean isRightDistanceToPlayerAndSpawnPoint(net.minecraft.server.level.ServerLevel level, net.minecraft.world.level.chunk.ChunkAccess chunk, net.minecraft.core.BlockPos$MutableBlockPos pos, double distance) {
+-        if (distance <= 576.0) {
++    public static boolean isRightDistanceToPlayerAndSpawnPoint(net.minecraft.server.level.ServerLevel $$0, net.minecraft.world.level.chunk.ChunkAccess $$1, net.minecraft.core.BlockPos$MutableBlockPos $$2, double $$3) {
++        if ($$3 <= 576.0) {
+             return false;
+         }
+-        if (level.getSharedSpawnPos().closerToCenterThan((net.minecraft.core.Position)new net.minecraft.world.phys.Vec3((double)pos.getX() + 0.5, (double)pos.getY(), (double)pos.getZ() + 0.5), 24.0)) {
++        if ($$0.getSharedSpawnPos().closerToCenterThan((net.minecraft.core.Position)new net.minecraft.world.phys.Vec3((double)$$2.getX() + 0.5, (double)$$2.getY(), (double)$$2.getZ() + 0.5), 24.0)) {
+             return false;
+         }
+-        return java.util.Objects.equals((java.lang.Object)new net.minecraft.world.level.ChunkPos((net.minecraft.core.BlockPos)pos), (java.lang.Object)chunk.getPos()) || level.isNaturalSpawningAllowed((net.minecraft.core.BlockPos)pos);
++        return java.util.Objects.equals((java.lang.Object)new net.minecraft.world.level.ChunkPos((net.minecraft.core.BlockPos)$$2), (java.lang.Object)$$1.getPos()) || $$0.isNaturalSpawningAllowed((net.minecraft.core.BlockPos)$$2);
+     }
+ 
+     public static boolean isValidSpawnPostitionForType(net.minecraft.server.level.ServerLevel $$0, net.minecraft.world.entity.MobCategory $$1, net.minecraft.world.level.StructureManager $$2, net.minecraft.world.level.chunk.ChunkGenerator $$3, net.minecraft.world.level.biome.MobSpawnSettings$SpawnerData $$4, net.minecraft.core.BlockPos$MutableBlockPos $$5, double $$6) {
+@@ -147,27 +146,26 @@
+     }
+ 
+     @javax.annotation.Nullable
+-    public static net.minecraft.world.entity.Mob getMobForSpawn(net.minecraft.server.level.ServerLevel level, net.minecraft.world.entity.EntityType<?> entityType) {
+-        net.minecraft.world.entity.Mob mob;
++    public static net.minecraft.world.entity.Mob getMobForSpawn(net.minecraft.server.level.ServerLevel $$0, net.minecraft.world.entity.EntityType<?> $$1) {
+         try {
+-            net.minecraft.world.entity.Entity entity = entityType.create((net.minecraft.world.level.Level)level);
+-            if (!(entity instanceof net.minecraft.world.entity.Mob)) {
+-                throw new java.lang.IllegalStateException("Trying to spawn a non-mob: " + net.minecraft.core.Registry.ENTITY_TYPE.getKey(entityType));
++            net.minecraft.world.entity.Entity entity = $$1.create((net.minecraft.world.level.Level)$$0);
++            if (entity instanceof net.minecraft.world.entity.Mob) {
++                net.minecraft.world.entity.Mob $$2 = (net.minecraft.world.entity.Mob)entity;
++                return $$2;
+             }
+-            mob = (net.minecraft.world.entity.Mob)entity;
++            LOGGER.warn("Can't spawn entity of type: {}", (java.lang.Object)net.minecraft.core.Registry.ENTITY_TYPE.getKey($$1));
+         }
+-        catch (java.lang.Exception exception) {
+-            LOGGER.warn("Failed to create mob", (java.lang.Throwable)exception);
+-            return null;
++        catch (java.lang.Exception $$3) {
++            LOGGER.warn("Failed to create mob", (java.lang.Throwable)$$3);
+         }
+-        return mob;
++        return null;
+     }
+ 
+-    public static boolean isValidPositionForMob(net.minecraft.server.level.ServerLevel level, net.minecraft.world.entity.Mob mob, double distance) {
+-        if (distance > (double)(mob.getType().getCategory().getDespawnDistance() * mob.getType().getCategory().getDespawnDistance()) && mob.removeWhenFarAway(distance)) {
++    public static boolean isValidPositionForMob(net.minecraft.server.level.ServerLevel $$0, net.minecraft.world.entity.Mob $$1, double $$2) {
++        if ($$2 > (double)($$1.getType().getCategory().getDespawnDistance() * $$1.getType().getCategory().getDespawnDistance()) && $$1.removeWhenFarAway($$2)) {
+             return false;
+         }
+-        return mob.checkSpawnRules((net.minecraft.world.level.LevelAccessor)level, net.minecraft.world.entity.MobSpawnType.NATURAL) && mob.checkSpawnObstruction((net.minecraft.world.level.LevelReader)level);
++        return $$1.checkSpawnRules((net.minecraft.world.level.LevelAccessor)$$0, net.minecraft.world.entity.MobSpawnType.NATURAL) && $$1.checkSpawnObstruction((net.minecraft.world.level.LevelReader)$$0);
+     }
+ 
+     public static java.util.Optional<net.minecraft.world.level.biome.MobSpawnSettings$SpawnerData> getRandomSpawnMobAt(net.minecraft.server.level.ServerLevel $$0, net.minecraft.world.level.StructureManager $$1, net.minecraft.world.level.chunk.ChunkGenerator $$2, net.minecraft.world.entity.MobCategory $$3, net.minecraft.util.RandomSource $$4, net.minecraft.core.BlockPos $$5) {
+@@ -200,55 +198,55 @@
+         return $$3.getStructureAt($$0, $$4).isValid();
+     }
+ 
+-    public static net.minecraft.core.BlockPos getRandomPosWithin(net.minecraft.world.level.Level level, net.minecraft.world.level.chunk.LevelChunk chunk) {
+-        net.minecraft.world.level.ChunkPos chunkPos = chunk.getPos();
+-        int n = chunkPos.getMinBlockX() + level.random.nextInt(16);
+-        int n2 = chunkPos.getMinBlockZ() + level.random.nextInt(16);
+-        int n3 = chunk.getHeight(net.minecraft.world.level.levelgen.Heightmap$Types.WORLD_SURFACE, n, n2) + 1;
+-        int n4 = net.minecraft.util.Mth.randomBetweenInclusive((net.minecraft.util.RandomSource)level.random, (int)level.getMinBuildHeight(), (int)n3);
+-        return new net.minecraft.core.BlockPos(n, n4, n2);
++    public static net.minecraft.core.BlockPos getRandomPosWithin(net.minecraft.world.level.Level $$0, net.minecraft.world.level.chunk.LevelChunk $$1) {
++        net.minecraft.world.level.ChunkPos $$2 = $$1.getPos();
++        int $$3 = $$2.getMinBlockX() + $$0.random.nextInt(16);
++        int $$4 = $$2.getMinBlockZ() + $$0.random.nextInt(16);
++        int $$5 = $$1.getHeight(net.minecraft.world.level.levelgen.Heightmap$Types.WORLD_SURFACE, $$3, $$4) + 1;
++        int $$6 = net.minecraft.util.Mth.randomBetweenInclusive((net.minecraft.util.RandomSource)$$0.random, (int)$$0.getMinBuildHeight(), (int)$$5);
++        return new net.minecraft.core.BlockPos($$3, $$6, $$4);
+     }
+ 
+-    public static boolean isValidEmptySpawnBlock(net.minecraft.world.level.BlockGetter block, net.minecraft.core.BlockPos pos, net.minecraft.world.level.block.state.BlockState blockState, net.minecraft.world.level.material.FluidState fluidState, net.minecraft.world.entity.EntityType<?> entityType) {
+-        if (blockState.isCollisionShapeFullBlock(block, pos)) {
++    public static boolean isValidEmptySpawnBlock(net.minecraft.world.level.BlockGetter $$0, net.minecraft.core.BlockPos $$1, net.minecraft.world.level.block.state.BlockState $$2, net.minecraft.world.level.material.FluidState $$3, net.minecraft.world.entity.EntityType<?> $$4) {
++        if ($$2.isCollisionShapeFullBlock($$0, $$1)) {
+             return false;
+         }
+-        if (blockState.isSignalSource()) {
++        if ($$2.isSignalSource()) {
+             return false;
+         }
+-        if (!fluidState.isEmpty()) {
++        if (!$$3.isEmpty()) {
+             return false;
+         }
+-        if (blockState.is(net.minecraft.tags.BlockTags.PREVENT_MOB_SPAWNING_INSIDE)) {
++        if ($$2.is(net.minecraft.tags.BlockTags.PREVENT_MOB_SPAWNING_INSIDE)) {
+             return false;
+         }
+-        return !entityType.isBlockDangerous(blockState);
++        return !$$4.isBlockDangerous($$2);
+     }
+ 
+-    public static boolean isSpawnPositionOk(net.minecraft.world.entity.SpawnPlacements$Type placeType, net.minecraft.world.level.LevelReader level, net.minecraft.core.BlockPos pos, @javax.annotation.Nullable net.minecraft.world.entity.EntityType<?> entityType) {
+-        if (placeType == net.minecraft.world.entity.SpawnPlacements$Type.NO_RESTRICTIONS) {
++    public static boolean isSpawnPositionOk(net.minecraft.world.entity.SpawnPlacements$Type $$0, net.minecraft.world.level.LevelReader $$1, net.minecraft.core.BlockPos $$2, @javax.annotation.Nullable net.minecraft.world.entity.EntityType<?> $$3) {
++        if ($$0 == net.minecraft.world.entity.SpawnPlacements$Type.NO_RESTRICTIONS) {
+             return true;
+         }
+-        if (entityType == null || !level.getWorldBorder().isWithinBounds(pos)) {
++        if ($$3 == null || !$$1.getWorldBorder().isWithinBounds($$2)) {
+             return false;
+         }
+-        net.minecraft.world.level.block.state.BlockState blockState = level.getBlockState(pos);
+-        net.minecraft.world.level.material.FluidState fluidState = level.getFluidState(pos);
+-        net.minecraft.core.BlockPos blockPos = pos.above();
+-        net.minecraft.core.BlockPos blockPos2 = pos.below();
+-        switch (net.minecraft.world.level.NaturalSpawner$1.$SwitchMap$net$minecraft$world$entity$SpawnPlacements$Type[placeType.ordinal()]) {
++        net.minecraft.world.level.block.state.BlockState $$4 = $$1.getBlockState($$2);
++        net.minecraft.world.level.material.FluidState $$5 = $$1.getFluidState($$2);
++        net.minecraft.core.BlockPos $$6 = $$2.above();
++        net.minecraft.core.BlockPos $$7 = $$2.below();
++        switch (net.minecraft.world.level.NaturalSpawner$1.$SwitchMap$net$minecraft$world$entity$SpawnPlacements$Type[$$0.ordinal()]) {
+             case 1: {
+-                return fluidState.is(net.minecraft.tags.FluidTags.WATER) && !level.getBlockState(blockPos).isRedstoneConductor((net.minecraft.world.level.BlockGetter)level, blockPos);
++                return $$5.is(net.minecraft.tags.FluidTags.WATER) && !$$1.getBlockState($$6).isRedstoneConductor((net.minecraft.world.level.BlockGetter)$$1, $$6);
+             }
+             case 2: {
+-                return fluidState.is(net.minecraft.tags.FluidTags.LAVA);
++                return $$5.is(net.minecraft.tags.FluidTags.LAVA);
+             }
+         }
+-        net.minecraft.world.level.block.state.BlockState blockState2 = level.getBlockState(blockPos2);
+-        if (!blockState2.isValidSpawn((net.minecraft.world.level.BlockGetter)level, blockPos2, entityType)) {
++        net.minecraft.world.level.block.state.BlockState $$8 = $$1.getBlockState($$7);
++        if (!$$8.isValidSpawn((net.minecraft.world.level.BlockGetter)$$1, $$7, $$3)) {
+             return false;
+         }
+-        return net.minecraft.world.level.NaturalSpawner.isValidEmptySpawnBlock((net.minecraft.world.level.BlockGetter)level, (net.minecraft.core.BlockPos)pos, (net.minecraft.world.level.block.state.BlockState)blockState, (net.minecraft.world.level.material.FluidState)fluidState, entityType) && net.minecraft.world.level.NaturalSpawner.isValidEmptySpawnBlock((net.minecraft.world.level.BlockGetter)level, (net.minecraft.core.BlockPos)blockPos, (net.minecraft.world.level.block.state.BlockState)level.getBlockState(blockPos), (net.minecraft.world.level.material.FluidState)level.getFluidState(blockPos), entityType);
++        return net.minecraft.world.level.NaturalSpawner.isValidEmptySpawnBlock((net.minecraft.world.level.BlockGetter)$$1, (net.minecraft.core.BlockPos)$$2, (net.minecraft.world.level.block.state.BlockState)$$4, (net.minecraft.world.level.material.FluidState)$$5, $$3) && net.minecraft.world.level.NaturalSpawner.isValidEmptySpawnBlock((net.minecraft.world.level.BlockGetter)$$1, (net.minecraft.core.BlockPos)$$6, (net.minecraft.world.level.block.state.BlockState)$$1.getBlockState($$6), (net.minecraft.world.level.material.FluidState)$$1.getFluidState($$6), $$3);
+     }
+ 
+     /*
+@@ -290,6 +288,7 @@
+                             LOGGER.warn("Failed to create mob", (java.lang.Throwable)$$24);
+                             continue;
+                         }
++                        if ($$25 == null) continue;
+                         $$25.moveTo($$21, (double)$$19.getY(), $$22, $$3.nextFloat() * 360.0f, 0.0f);
+                         if ($$25 instanceof net.minecraft.world.entity.Mob && ($$26 = (net.minecraft.world.entity.Mob)$$25).checkSpawnRules((net.minecraft.world.level.LevelAccessor)$$0, net.minecraft.world.entity.MobSpawnType.CHUNK_GENERATION) && $$26.checkSpawnObstruction((net.minecraft.world.level.LevelReader)$$0)) {
+                             $$11 = $$26.finalizeSpawn($$0, $$0.getCurrentDifficultyAt($$26.blockPosition()), net.minecraft.world.entity.MobSpawnType.CHUNK_GENERATION, $$11, null);
+@@ -308,22 +307,22 @@
+         }
+     }
+ 
+-    public static net.minecraft.core.BlockPos getTopNonCollidingPos(net.minecraft.world.level.LevelReader level, net.minecraft.world.entity.EntityType<?> entityType, int x, int z) {
+-        net.minecraft.core.BlockPos blockPos;
+-        int n = level.getHeight(net.minecraft.world.entity.SpawnPlacements.getHeightmapType(entityType), x, z);
+-        net.minecraft.core.BlockPos$MutableBlockPos mutableBlockPos = new net.minecraft.core.BlockPos$MutableBlockPos(x, n, z);
+-        if (level.dimensionType().hasCeiling()) {
++    public static net.minecraft.core.BlockPos getTopNonCollidingPos(net.minecraft.world.level.LevelReader $$0, net.minecraft.world.entity.EntityType<?> $$1, int $$2, int $$3) {
++        net.minecraft.core.BlockPos $$6;
++        int $$4 = $$0.getHeight(net.minecraft.world.entity.SpawnPlacements.getHeightmapType($$1), $$2, $$3);
++        net.minecraft.core.BlockPos$MutableBlockPos $$5 = new net.minecraft.core.BlockPos$MutableBlockPos($$2, $$4, $$3);
++        if ($$0.dimensionType().hasCeiling()) {
+             do {
+-                mutableBlockPos.move(net.minecraft.core.Direction.DOWN);
+-            } while (!level.getBlockState((net.minecraft.core.BlockPos)mutableBlockPos).isAir());
++                $$5.move(net.minecraft.core.Direction.DOWN);
++            } while (!$$0.getBlockState((net.minecraft.core.BlockPos)$$5).isAir());
+             do {
+-                mutableBlockPos.move(net.minecraft.core.Direction.DOWN);
+-            } while (level.getBlockState((net.minecraft.core.BlockPos)mutableBlockPos).isAir() && mutableBlockPos.getY() > level.getMinBuildHeight());
++                $$5.move(net.minecraft.core.Direction.DOWN);
++            } while ($$0.getBlockState((net.minecraft.core.BlockPos)$$5).isAir() && $$5.getY() > $$0.getMinBuildHeight());
+         }
+-        if (net.minecraft.world.entity.SpawnPlacements.getPlacementType(entityType) == net.minecraft.world.entity.SpawnPlacements$Type.ON_GROUND && level.getBlockState(blockPos = mutableBlockPos.below()).isPathfindable((net.minecraft.world.level.BlockGetter)level, blockPos, net.minecraft.world.level.pathfinder.PathComputationType.LAND)) {
+-            return blockPos;
++        if (net.minecraft.world.entity.SpawnPlacements.getPlacementType($$1) == net.minecraft.world.entity.SpawnPlacements$Type.ON_GROUND && $$0.getBlockState($$6 = $$5.below()).isPathfindable((net.minecraft.world.level.BlockGetter)$$0, $$6, net.minecraft.world.level.pathfinder.PathComputationType.LAND)) {
++            return $$6;
+         }
+-        return mutableBlockPos.immutable();
++        return $$5.immutable();
+     }
+ 
+     public static /* synthetic */ net.minecraft.world.entity.MobCategory[] lambda$static$1(int $$0) {

@@ -1,0 +1,106 @@
+--- net/minecraft/advancements/AdvancementRewards.java
++++ net/minecraft/advancements/AdvancementRewards.java
+@@ -11,42 +11,42 @@
+     public net.minecraft.resources.ResourceLocation[] recipes;
+     public net.minecraft.commands.CommandFunction$CacheableFunction function;
+ 
+-    public net.minecraft.advancements.AdvancementRewards(int experience, net.minecraft.resources.ResourceLocation[] loot, net.minecraft.resources.ResourceLocation[] recipes, net.minecraft.commands.CommandFunction$CacheableFunction function) {
+-        this.experience = experience;
+-        this.loot = loot;
+-        this.recipes = recipes;
+-        this.function = function;
++    public net.minecraft.advancements.AdvancementRewards(int $$0, net.minecraft.resources.ResourceLocation[] $$1, net.minecraft.resources.ResourceLocation[] $$2, net.minecraft.commands.CommandFunction$CacheableFunction $$3) {
++        this.experience = $$0;
++        this.loot = $$1;
++        this.recipes = $$2;
++        this.function = $$3;
+     }
+ 
+     public net.minecraft.resources.ResourceLocation[] getRecipes() {
+         return this.recipes;
+     }
+ 
+-    public void grant(net.minecraft.server.level.ServerPlayer player) {
+-        player.giveExperiencePoints(this.experience);
+-        net.minecraft.world.level.storage.loot.LootContext lootContext = new net.minecraft.world.level.storage.loot.LootContext$Builder(player.getLevel()).withParameter(net.minecraft.world.level.storage.loot.parameters.LootContextParams.THIS_ENTITY, (java.lang.Object)player).withParameter(net.minecraft.world.level.storage.loot.parameters.LootContextParams.ORIGIN, (java.lang.Object)player.position()).withRandom(player.getRandom()).create(net.minecraft.world.level.storage.loot.parameters.LootContextParamSets.ADVANCEMENT_REWARD);
+-        boolean bl = false;
+-        for (net.minecraft.resources.ResourceLocation resourceLocation : this.loot) {
+-            for (net.minecraft.world.item.ItemStack itemStack : player.server.getLootTables().get(resourceLocation).getRandomItems(lootContext)) {
+-                if (player.addItem(itemStack)) {
+-                    player.level.playSound(null, player.getX(), player.getY(), player.getZ(), net.minecraft.sounds.SoundEvents.ITEM_PICKUP, net.minecraft.sounds.SoundSource.PLAYERS, 0.2f, ((player.getRandom().nextFloat() - player.getRandom().nextFloat()) * 0.7f + 1.0f) * 2.0f);
+-                    bl = true;
++    public void grant(net.minecraft.server.level.ServerPlayer $$0) {
++        $$0.giveExperiencePoints(this.experience);
++        net.minecraft.world.level.storage.loot.LootContext $$1 = new net.minecraft.world.level.storage.loot.LootContext$Builder($$0.getLevel()).withParameter(net.minecraft.world.level.storage.loot.parameters.LootContextParams.THIS_ENTITY, (java.lang.Object)$$0).withParameter(net.minecraft.world.level.storage.loot.parameters.LootContextParams.ORIGIN, (java.lang.Object)$$0.position()).withRandom($$0.getRandom()).create(net.minecraft.world.level.storage.loot.parameters.LootContextParamSets.ADVANCEMENT_REWARD);
++        boolean $$22 = false;
++        for (net.minecraft.resources.ResourceLocation $$3 : this.loot) {
++            for (net.minecraft.world.item.ItemStack $$4 : $$0.server.getLootTables().get($$3).getRandomItems($$1)) {
++                if ($$0.addItem($$4)) {
++                    $$0.level.playSound(null, $$0.getX(), $$0.getY(), $$0.getZ(), net.minecraft.sounds.SoundEvents.ITEM_PICKUP, net.minecraft.sounds.SoundSource.PLAYERS, 0.2f, (($$0.getRandom().nextFloat() - $$0.getRandom().nextFloat()) * 0.7f + 1.0f) * 2.0f);
++                    $$22 = true;
+                     continue;
+                 }
+-                net.minecraft.world.entity.item.ItemEntity itemEntity = player.drop(itemStack, false);
+-                if (itemEntity == null) continue;
+-                itemEntity.setNoPickUpDelay();
+-                itemEntity.setOwner(player.getUUID());
++                net.minecraft.world.entity.item.ItemEntity $$5 = $$0.drop($$4, false);
++                if ($$5 == null) continue;
++                $$5.setNoPickUpDelay();
++                $$5.setOwner($$0.getUUID());
+             }
+         }
+-        if (bl) {
+-            player.containerMenu.broadcastChanges();
++        if ($$22) {
++            $$0.containerMenu.broadcastChanges();
+         }
+         if (this.recipes.length > 0) {
+-            player.awardRecipesByKey(this.recipes);
++            $$0.awardRecipesByKey(this.recipes);
+         }
+-        net.minecraft.server.MinecraftServer minecraftServer = player.server;
+-        this.function.get(minecraftServer.getFunctions()).ifPresent($$2 -> minecraftServer.getFunctions().execute($$2, player.createCommandSourceStack().withSuppressedOutput().withPermission(2)));
++        net.minecraft.server.MinecraftServer $$6 = $$0.server;
++        this.function.get($$6.getFunctions()).ifPresent($$2 -> $$6.getFunctions().execute($$2, $$0.createCommandSourceStack().withSuppressedOutput().withPermission(2)));
+     }
+ 
+     public java.lang.String toString() {
+@@ -81,20 +81,25 @@
+         return $$0;
+     }
+ 
+-    public static net.minecraft.advancements.AdvancementRewards deserialize(com.google.gson.JsonObject json) throws com.google.gson.JsonParseException {
+-        int n = net.minecraft.util.GsonHelper.getAsInt((com.google.gson.JsonObject)json, (java.lang.String)"experience", (int)0);
+-        com.google.gson.JsonArray jsonArray = net.minecraft.util.GsonHelper.getAsJsonArray((com.google.gson.JsonObject)json, (java.lang.String)"loot", (com.google.gson.JsonArray)new com.google.gson.JsonArray());
+-        net.minecraft.resources.ResourceLocation[] resourceLocationArray = new net.minecraft.resources.ResourceLocation[jsonArray.size()];
+-        for (int i = 0; i < resourceLocationArray.length; ++i) {
+-            resourceLocationArray[i] = new net.minecraft.resources.ResourceLocation(net.minecraft.util.GsonHelper.convertToString((com.google.gson.JsonElement)jsonArray.get(i), (java.lang.String)("loot[" + i + "]")));
++    public static net.minecraft.advancements.AdvancementRewards deserialize(com.google.gson.JsonObject $$0) throws com.google.gson.JsonParseException {
++        net.minecraft.commands.CommandFunction$CacheableFunction $$9;
++        int $$1 = net.minecraft.util.GsonHelper.getAsInt((com.google.gson.JsonObject)$$0, (java.lang.String)"experience", (int)0);
++        com.google.gson.JsonArray $$2 = net.minecraft.util.GsonHelper.getAsJsonArray((com.google.gson.JsonObject)$$0, (java.lang.String)"loot", (com.google.gson.JsonArray)new com.google.gson.JsonArray());
++        net.minecraft.resources.ResourceLocation[] $$3 = new net.minecraft.resources.ResourceLocation[$$2.size()];
++        for (int $$4 = 0; $$4 < $$3.length; ++$$4) {
++            $$3[$$4] = new net.minecraft.resources.ResourceLocation(net.minecraft.util.GsonHelper.convertToString((com.google.gson.JsonElement)$$2.get($$4), (java.lang.String)("loot[" + $$4 + "]")));
+         }
+-        com.google.gson.JsonArray jsonArray2 = net.minecraft.util.GsonHelper.getAsJsonArray((com.google.gson.JsonObject)json, (java.lang.String)"recipes", (com.google.gson.JsonArray)new com.google.gson.JsonArray());
+-        net.minecraft.resources.ResourceLocation[] resourceLocationArray2 = new net.minecraft.resources.ResourceLocation[jsonArray2.size()];
+-        for (int i = 0; i < resourceLocationArray2.length; ++i) {
+-            resourceLocationArray2[i] = new net.minecraft.resources.ResourceLocation(net.minecraft.util.GsonHelper.convertToString((com.google.gson.JsonElement)jsonArray2.get(i), (java.lang.String)("recipes[" + i + "]")));
++        com.google.gson.JsonArray $$5 = net.minecraft.util.GsonHelper.getAsJsonArray((com.google.gson.JsonObject)$$0, (java.lang.String)"recipes", (com.google.gson.JsonArray)new com.google.gson.JsonArray());
++        net.minecraft.resources.ResourceLocation[] $$6 = new net.minecraft.resources.ResourceLocation[$$5.size()];
++        for (int $$7 = 0; $$7 < $$6.length; ++$$7) {
++            $$6[$$7] = new net.minecraft.resources.ResourceLocation(net.minecraft.util.GsonHelper.convertToString((com.google.gson.JsonElement)$$5.get($$7), (java.lang.String)("recipes[" + $$7 + "]")));
+         }
+-        net.minecraft.commands.CommandFunction$CacheableFunction cacheableFunction = json.has("function") ? new net.minecraft.commands.CommandFunction$CacheableFunction(new net.minecraft.resources.ResourceLocation(net.minecraft.util.GsonHelper.getAsString((com.google.gson.JsonObject)json, (java.lang.String)"function"))) : net.minecraft.commands.CommandFunction$CacheableFunction.NONE;
+-        return new net.minecraft.advancements.AdvancementRewards(n, resourceLocationArray, resourceLocationArray2, cacheableFunction);
++        if ($$0.has("function")) {
++            net.minecraft.commands.CommandFunction$CacheableFunction $$8 = new net.minecraft.commands.CommandFunction$CacheableFunction(new net.minecraft.resources.ResourceLocation(net.minecraft.util.GsonHelper.getAsString((com.google.gson.JsonObject)$$0, (java.lang.String)"function")));
++        } else {
++            $$9 = net.minecraft.commands.CommandFunction$CacheableFunction.NONE;
++        }
++        return new net.minecraft.advancements.AdvancementRewards($$1, $$3, $$6, $$9);
+     }
+ 
+     static {

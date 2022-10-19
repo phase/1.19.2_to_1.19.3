@@ -1,0 +1,255 @@
+--- net/minecraft/world/entity/animal/MushroomCow.java
++++ net/minecraft/world/entity/animal/MushroomCow.java
+@@ -19,22 +19,22 @@
+         super($$0, $$1);
+     }
+ 
+-    public float getWalkTargetValue(net.minecraft.core.BlockPos pos, net.minecraft.world.level.LevelReader level) {
+-        if (level.getBlockState(pos.below()).is(net.minecraft.world.level.block.Blocks.MYCELIUM)) {
++    public float getWalkTargetValue(net.minecraft.core.BlockPos $$0, net.minecraft.world.level.LevelReader $$1) {
++        if ($$1.getBlockState($$0.below()).is(net.minecraft.world.level.block.Blocks.MYCELIUM)) {
+             return 10.0f;
+         }
+-        return level.getPathfindingCostFromLightLevels(pos);
++        return $$1.getPathfindingCostFromLightLevels($$0);
+     }
+ 
+     public static boolean checkMushroomSpawnRules(net.minecraft.world.entity.EntityType<net.minecraft.world.entity.animal.MushroomCow> $$0, net.minecraft.world.level.LevelAccessor $$1, net.minecraft.world.entity.MobSpawnType $$2, net.minecraft.core.BlockPos $$3, net.minecraft.util.RandomSource $$4) {
+         return $$1.getBlockState($$3.below()).is(net.minecraft.tags.BlockTags.MOOSHROOMS_SPAWNABLE_ON) && net.minecraft.world.entity.animal.MushroomCow.isBrightEnoughToSpawn((net.minecraft.world.level.BlockAndTintGetter)$$1, (net.minecraft.core.BlockPos)$$3);
+     }
+ 
+-    public void thunderHit(net.minecraft.server.level.ServerLevel level, net.minecraft.world.entity.LightningBolt lightning) {
+-        java.util.UUID uUID = lightning.getUUID();
+-        if (!uUID.equals((java.lang.Object)this.lastLightningBoltUUID)) {
++    public void thunderHit(net.minecraft.server.level.ServerLevel $$0, net.minecraft.world.entity.LightningBolt $$1) {
++        java.util.UUID $$2 = $$1.getUUID();
++        if (!$$2.equals((java.lang.Object)this.lastLightningBoltUUID)) {
+             this.setMushroomType(this.getMushroomType() == net.minecraft.world.entity.animal.MushroomCow$MushroomType.RED ? net.minecraft.world.entity.animal.MushroomCow$MushroomType.BROWN : net.minecraft.world.entity.animal.MushroomCow$MushroomType.RED);
+-            this.lastLightningBoltUUID = uUID;
++            this.lastLightningBoltUUID = $$2;
+             this.playSound(net.minecraft.sounds.SoundEvents.MOOSHROOM_CONVERT, 2.0f, 1.0f);
+         }
+     }
+@@ -44,79 +44,84 @@
+         this.entityData.define(DATA_TYPE, (java.lang.Object)net.minecraft.world.entity.animal.MushroomCow$MushroomType.RED.type);
+     }
+ 
+-    public net.minecraft.world.InteractionResult mobInteract(net.minecraft.world.entity.player.Player player, net.minecraft.world.InteractionHand hand) {
+-        net.minecraft.world.item.ItemStack itemStack = player.getItemInHand(hand);
+-        if (itemStack.is(net.minecraft.world.item.Items.BOWL) && !this.isBaby()) {
+-            net.minecraft.world.item.ItemStack itemStack2;
+-            boolean bl = false;
++    public net.minecraft.world.InteractionResult mobInteract(net.minecraft.world.entity.player.Player $$0, net.minecraft.world.InteractionHand $$12) {
++        net.minecraft.world.item.ItemStack $$2 = $$0.getItemInHand($$12);
++        if ($$2.is(net.minecraft.world.item.Items.BOWL) && !this.isBaby()) {
++            net.minecraft.sounds.SoundEvent $$8;
++            net.minecraft.world.item.ItemStack $$5;
++            boolean $$3 = false;
+             if (this.effect != null) {
+-                bl = true;
+-                itemStack2 = new net.minecraft.world.item.ItemStack((net.minecraft.world.level.ItemLike)net.minecraft.world.item.Items.SUSPICIOUS_STEW);
+-                net.minecraft.world.item.SuspiciousStewItem.saveMobEffect((net.minecraft.world.item.ItemStack)itemStack2, (net.minecraft.world.effect.MobEffect)this.effect, (int)this.effectDuration);
++                $$3 = true;
++                net.minecraft.world.item.ItemStack $$4 = new net.minecraft.world.item.ItemStack((net.minecraft.world.level.ItemLike)net.minecraft.world.item.Items.SUSPICIOUS_STEW);
++                net.minecraft.world.item.SuspiciousStewItem.saveMobEffect((net.minecraft.world.item.ItemStack)$$4, (net.minecraft.world.effect.MobEffect)this.effect, (int)this.effectDuration);
+                 this.effect = null;
+                 this.effectDuration = 0;
+             } else {
+-                itemStack2 = new net.minecraft.world.item.ItemStack((net.minecraft.world.level.ItemLike)net.minecraft.world.item.Items.MUSHROOM_STEW);
++                $$5 = new net.minecraft.world.item.ItemStack((net.minecraft.world.level.ItemLike)net.minecraft.world.item.Items.MUSHROOM_STEW);
+             }
+-            net.minecraft.world.item.ItemStack itemStack3 = net.minecraft.world.item.ItemUtils.createFilledResult((net.minecraft.world.item.ItemStack)itemStack, (net.minecraft.world.entity.player.Player)player, (net.minecraft.world.item.ItemStack)itemStack2, (boolean)false);
+-            player.setItemInHand(hand, itemStack3);
+-            net.minecraft.sounds.SoundEvent soundEvent = bl ? net.minecraft.sounds.SoundEvents.MOOSHROOM_MILK_SUSPICIOUSLY : net.minecraft.sounds.SoundEvents.MOOSHROOM_MILK;
+-            this.playSound(soundEvent, 1.0f, 1.0f);
++            net.minecraft.world.item.ItemStack $$6 = net.minecraft.world.item.ItemUtils.createFilledResult((net.minecraft.world.item.ItemStack)$$2, (net.minecraft.world.entity.player.Player)$$0, (net.minecraft.world.item.ItemStack)$$5, (boolean)false);
++            $$0.setItemInHand($$12, $$6);
++            if ($$3) {
++                net.minecraft.sounds.SoundEvent $$7 = net.minecraft.sounds.SoundEvents.MOOSHROOM_MILK_SUSPICIOUSLY;
++            } else {
++                $$8 = net.minecraft.sounds.SoundEvents.MOOSHROOM_MILK;
++            }
++            this.playSound($$8, 1.0f, 1.0f);
+             return net.minecraft.world.InteractionResult.sidedSuccess((boolean)this.level.isClientSide);
+         }
+-        if (itemStack.is(net.minecraft.world.item.Items.SHEARS) && this.readyForShearing()) {
++        if ($$2.is(net.minecraft.world.item.Items.SHEARS) && this.readyForShearing()) {
+             this.shear(net.minecraft.sounds.SoundSource.PLAYERS);
+-            this.gameEvent(net.minecraft.world.level.gameevent.GameEvent.SHEAR, (net.minecraft.world.entity.Entity)player);
++            this.gameEvent(net.minecraft.world.level.gameevent.GameEvent.SHEAR, (net.minecraft.world.entity.Entity)$$0);
+             if (!this.level.isClientSide) {
+-                itemStack.hurtAndBreak(1, (net.minecraft.world.entity.LivingEntity)player, entity -> entity.broadcastBreakEvent(hand));
++                $$2.hurtAndBreak(1, (net.minecraft.world.entity.LivingEntity)$$0, $$1 -> $$1.broadcastBreakEvent($$12));
+             }
+             return net.minecraft.world.InteractionResult.sidedSuccess((boolean)this.level.isClientSide);
+         }
+-        if (this.getMushroomType() == net.minecraft.world.entity.animal.MushroomCow$MushroomType.BROWN && itemStack.is(net.minecraft.tags.ItemTags.SMALL_FLOWERS)) {
++        if (this.getMushroomType() == net.minecraft.world.entity.animal.MushroomCow$MushroomType.BROWN && $$2.is(net.minecraft.tags.ItemTags.SMALL_FLOWERS)) {
+             if (this.effect != null) {
+-                for (int i = 0; i < 2; ++i) {
++                for (int $$9 = 0; $$9 < 2; ++$$9) {
+                     this.level.addParticle((net.minecraft.core.particles.ParticleOptions)net.minecraft.core.particles.ParticleTypes.SMOKE, this.getX() + this.random.nextDouble() / 2.0, this.getY(0.5), this.getZ() + this.random.nextDouble() / 2.0, 0.0, this.random.nextDouble() / 5.0, 0.0);
+                 }
+             } else {
+-                java.util.Optional optional = this.getEffectFromItemStack(itemStack);
+-                if (!optional.isPresent()) {
++                java.util.Optional $$10 = this.getEffectFromItemStack($$2);
++                if (!$$10.isPresent()) {
+                     return net.minecraft.world.InteractionResult.PASS;
+                 }
+-                org.apache.commons.lang3.tuple.Pair pair = (org.apache.commons.lang3.tuple.Pair)optional.get();
+-                if (!player.getAbilities().instabuild) {
+-                    itemStack.shrink(1);
++                org.apache.commons.lang3.tuple.Pair $$11 = (org.apache.commons.lang3.tuple.Pair)$$10.get();
++                if (!$$0.getAbilities().instabuild) {
++                    $$2.shrink(1);
+                 }
+-                for (int i = 0; i < 4; ++i) {
++                for (int $$122 = 0; $$122 < 4; ++$$122) {
+                     this.level.addParticle((net.minecraft.core.particles.ParticleOptions)net.minecraft.core.particles.ParticleTypes.EFFECT, this.getX() + this.random.nextDouble() / 2.0, this.getY(0.5), this.getZ() + this.random.nextDouble() / 2.0, 0.0, this.random.nextDouble() / 5.0, 0.0);
+                 }
+-                this.effect = (net.minecraft.world.effect.MobEffect)pair.getLeft();
+-                this.effectDuration = (java.lang.Integer)pair.getRight();
++                this.effect = (net.minecraft.world.effect.MobEffect)$$11.getLeft();
++                this.effectDuration = (java.lang.Integer)$$11.getRight();
+                 this.playSound(net.minecraft.sounds.SoundEvents.MOOSHROOM_EAT, 2.0f, 1.0f);
+             }
+             return net.minecraft.world.InteractionResult.sidedSuccess((boolean)this.level.isClientSide);
+         }
+-        return super.mobInteract(player, hand);
++        return super.mobInteract($$0, $$12);
+     }
+ 
+-    public void shear(net.minecraft.sounds.SoundSource category) {
+-        this.level.playSound(null, (net.minecraft.world.entity.Entity)this, net.minecraft.sounds.SoundEvents.MOOSHROOM_SHEAR, category, 1.0f, 1.0f);
+-        if (!this.level.isClientSide()) {
++    public void shear(net.minecraft.sounds.SoundSource $$0) {
++        net.minecraft.world.entity.animal.Cow $$1;
++        this.level.playSound(null, (net.minecraft.world.entity.Entity)this, net.minecraft.sounds.SoundEvents.MOOSHROOM_SHEAR, $$0, 1.0f, 1.0f);
++        if (!this.level.isClientSide() && ($$1 = (net.minecraft.world.entity.animal.Cow)net.minecraft.world.entity.EntityType.COW.create(this.level)) != null) {
+             ((net.minecraft.server.level.ServerLevel)this.level).sendParticles((net.minecraft.core.particles.ParticleOptions)net.minecraft.core.particles.ParticleTypes.EXPLOSION, this.getX(), this.getY(0.5), this.getZ(), 1, 0.0, 0.0, 0.0, 0.0);
+             this.discard();
+-            net.minecraft.world.entity.animal.Cow cow = (net.minecraft.world.entity.animal.Cow)net.minecraft.world.entity.EntityType.COW.create(this.level);
+-            cow.moveTo(this.getX(), this.getY(), this.getZ(), this.getYRot(), this.getXRot());
+-            cow.setHealth(this.getHealth());
+-            cow.yBodyRot = this.yBodyRot;
++            $$1.moveTo(this.getX(), this.getY(), this.getZ(), this.getYRot(), this.getXRot());
++            $$1.setHealth(this.getHealth());
++            $$1.yBodyRot = this.yBodyRot;
+             if (this.hasCustomName()) {
+-                cow.setCustomName(this.getCustomName());
+-                cow.setCustomNameVisible(this.isCustomNameVisible());
++                $$1.setCustomName(this.getCustomName());
++                $$1.setCustomNameVisible(this.isCustomNameVisible());
+             }
+             if (this.isPersistenceRequired()) {
+-                cow.setPersistenceRequired();
++                $$1.setPersistenceRequired();
+             }
+-            cow.setInvulnerable(this.isInvulnerable());
+-            this.level.addFreshEntity((net.minecraft.world.entity.Entity)cow);
+-            for (int i = 0; i < 5; ++i) {
++            $$1.setInvulnerable(this.isInvulnerable());
++            this.level.addFreshEntity((net.minecraft.world.entity.Entity)$$1);
++            for (int $$2 = 0; $$2 < 5; ++$$2) {
+                 this.level.addFreshEntity((net.minecraft.world.entity.Entity)new net.minecraft.world.entity.item.ItemEntity(this.level, this.getX(), this.getY(1.0), this.getZ(), new net.minecraft.world.item.ItemStack((net.minecraft.world.level.ItemLike)this.getMushroomType().blockState.getBlock())));
+             }
+         }
+@@ -126,61 +131,71 @@
+         return this.isAlive() && !this.isBaby();
+     }
+ 
+-    public void addAdditionalSaveData(net.minecraft.nbt.CompoundTag compound) {
+-        super.addAdditionalSaveData(compound);
+-        compound.putString("Type", this.getMushroomType().type);
++    public void addAdditionalSaveData(net.minecraft.nbt.CompoundTag $$0) {
++        super.addAdditionalSaveData($$0);
++        $$0.putString("Type", this.getMushroomType().type);
+         if (this.effect != null) {
+-            compound.putInt("EffectId", net.minecraft.world.effect.MobEffect.getId((net.minecraft.world.effect.MobEffect)this.effect));
+-            compound.putInt("EffectDuration", this.effectDuration);
++            $$0.putInt("EffectId", net.minecraft.world.effect.MobEffect.getId((net.minecraft.world.effect.MobEffect)this.effect));
++            $$0.putInt("EffectDuration", this.effectDuration);
+         }
+     }
+ 
+-    public void readAdditionalSaveData(net.minecraft.nbt.CompoundTag compound) {
+-        super.readAdditionalSaveData(compound);
+-        this.setMushroomType(net.minecraft.world.entity.animal.MushroomCow$MushroomType.byType((java.lang.String)compound.getString("Type")));
+-        if (compound.contains("EffectId", 1)) {
+-            this.effect = net.minecraft.world.effect.MobEffect.byId((int)compound.getInt("EffectId"));
++    public void readAdditionalSaveData(net.minecraft.nbt.CompoundTag $$0) {
++        super.readAdditionalSaveData($$0);
++        this.setMushroomType(net.minecraft.world.entity.animal.MushroomCow$MushroomType.byType((java.lang.String)$$0.getString("Type")));
++        if ($$0.contains("EffectId", 1)) {
++            this.effect = net.minecraft.world.effect.MobEffect.byId((int)$$0.getInt("EffectId"));
+         }
+-        if (compound.contains("EffectDuration", 3)) {
+-            this.effectDuration = compound.getInt("EffectDuration");
++        if ($$0.contains("EffectDuration", 3)) {
++            this.effectDuration = $$0.getInt("EffectDuration");
+         }
+     }
+ 
+-    public java.util.Optional<org.apache.commons.lang3.tuple.Pair<net.minecraft.world.effect.MobEffect, java.lang.Integer>> getEffectFromItemStack(net.minecraft.world.item.ItemStack stack) {
+-        net.minecraft.world.level.block.Block block;
+-        net.minecraft.world.item.Item item = stack.getItem();
+-        if (item instanceof net.minecraft.world.item.BlockItem && (block = ((net.minecraft.world.item.BlockItem)item).getBlock()) instanceof net.minecraft.world.level.block.FlowerBlock) {
+-            net.minecraft.world.level.block.FlowerBlock flowerBlock = (net.minecraft.world.level.block.FlowerBlock)block;
+-            return java.util.Optional.of((java.lang.Object)org.apache.commons.lang3.tuple.Pair.of((java.lang.Object)flowerBlock.getSuspiciousStewEffect(), (java.lang.Object)flowerBlock.getEffectDuration()));
++    public java.util.Optional<org.apache.commons.lang3.tuple.Pair<net.minecraft.world.effect.MobEffect, java.lang.Integer>> getEffectFromItemStack(net.minecraft.world.item.ItemStack $$0) {
++        net.minecraft.world.level.block.Block $$2;
++        net.minecraft.world.item.Item $$1 = $$0.getItem();
++        if ($$1 instanceof net.minecraft.world.item.BlockItem && ($$2 = ((net.minecraft.world.item.BlockItem)$$1).getBlock()) instanceof net.minecraft.world.level.block.FlowerBlock) {
++            net.minecraft.world.level.block.FlowerBlock $$3 = (net.minecraft.world.level.block.FlowerBlock)$$2;
++            return java.util.Optional.of((java.lang.Object)org.apache.commons.lang3.tuple.Pair.of((java.lang.Object)$$3.getSuspiciousStewEffect(), (java.lang.Object)$$3.getEffectDuration()));
+         }
+         return java.util.Optional.empty();
+     }
+ 
+-    public void setMushroomType(net.minecraft.world.entity.animal.MushroomCow$MushroomType type) {
+-        this.entityData.set(DATA_TYPE, (java.lang.Object)type.type);
++    public void setMushroomType(net.minecraft.world.entity.animal.MushroomCow$MushroomType $$0) {
++        this.entityData.set(DATA_TYPE, (java.lang.Object)$$0.type);
+     }
+ 
+     public net.minecraft.world.entity.animal.MushroomCow$MushroomType getMushroomType() {
+         return net.minecraft.world.entity.animal.MushroomCow$MushroomType.byType((java.lang.String)((java.lang.String)this.entityData.get(DATA_TYPE)));
+     }
+ 
++    @javax.annotation.Nullable
+     public net.minecraft.world.entity.animal.MushroomCow getBreedOffspring(net.minecraft.server.level.ServerLevel $$0, net.minecraft.world.entity.AgeableMob $$1) {
+         net.minecraft.world.entity.animal.MushroomCow $$2 = (net.minecraft.world.entity.animal.MushroomCow)net.minecraft.world.entity.EntityType.MOOSHROOM.create((net.minecraft.world.level.Level)$$0);
+-        $$2.setMushroomType(this.getOffspringType((net.minecraft.world.entity.animal.MushroomCow)$$1));
++        if ($$2 != null) {
++            $$2.setMushroomType(this.getOffspringType((net.minecraft.world.entity.animal.MushroomCow)$$1));
++        }
+         return $$2;
+     }
+ 
+-    public net.minecraft.world.entity.animal.MushroomCow$MushroomType getOffspringType(net.minecraft.world.entity.animal.MushroomCow mate) {
+-        net.minecraft.world.entity.animal.MushroomCow$MushroomType mushroomType;
+-        net.minecraft.world.entity.animal.MushroomCow$MushroomType mushroomType2 = this.getMushroomType();
+-        net.minecraft.world.entity.animal.MushroomCow$MushroomType mushroomType3 = mushroomType2 == (mushroomType = mate.getMushroomType()) && this.random.nextInt(1024) == 0 ? (mushroomType2 == net.minecraft.world.entity.animal.MushroomCow$MushroomType.BROWN ? net.minecraft.world.entity.animal.MushroomCow$MushroomType.RED : net.minecraft.world.entity.animal.MushroomCow$MushroomType.BROWN) : (this.random.nextBoolean() ? mushroomType2 : mushroomType);
+-        return mushroomType3;
++    public net.minecraft.world.entity.animal.MushroomCow$MushroomType getOffspringType(net.minecraft.world.entity.animal.MushroomCow $$0) {
++        net.minecraft.world.entity.animal.MushroomCow$MushroomType $$4;
++        net.minecraft.world.entity.animal.MushroomCow$MushroomType $$2;
++        net.minecraft.world.entity.animal.MushroomCow$MushroomType $$1 = this.getMushroomType();
++        if ($$1 == ($$2 = $$0.getMushroomType()) && this.random.nextInt(1024) == 0) {
++            net.minecraft.world.entity.animal.MushroomCow$MushroomType $$3 = $$1 == net.minecraft.world.entity.animal.MushroomCow$MushroomType.BROWN ? net.minecraft.world.entity.animal.MushroomCow$MushroomType.RED : net.minecraft.world.entity.animal.MushroomCow$MushroomType.BROWN;
++        } else {
++            $$4 = this.random.nextBoolean() ? $$1 : $$2;
++        }
++        return $$4;
+     }
+ 
++    @javax.annotation.Nullable
+     public /* synthetic */ net.minecraft.world.entity.animal.Cow getBreedOffspring(net.minecraft.server.level.ServerLevel serverLevel, net.minecraft.world.entity.AgeableMob ageableMob) {
+         return this.getBreedOffspring(serverLevel, ageableMob);
+     }
+ 
++    @javax.annotation.Nullable
+     public /* synthetic */ net.minecraft.world.entity.AgeableMob getBreedOffspring(net.minecraft.server.level.ServerLevel serverLevel, net.minecraft.world.entity.AgeableMob ageableMob) {
+         return this.getBreedOffspring(serverLevel, ageableMob);
+     }

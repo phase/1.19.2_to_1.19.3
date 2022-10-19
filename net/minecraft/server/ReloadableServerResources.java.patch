@@ -1,0 +1,37 @@
+--- net/minecraft/server/ReloadableServerResources.java
++++ net/minecraft/server/ReloadableServerResources.java
+@@ -17,17 +17,17 @@
+     public net.minecraft.server.ServerAdvancementManager advancements;
+     public net.minecraft.server.ServerFunctionLibrary functionLibrary;
+ 
+-    public net.minecraft.server.ReloadableServerResources(net.minecraft.core.RegistryAccess$Frozen $$0, net.minecraft.commands.Commands$CommandSelection $$1, int $$2) {
++    public net.minecraft.server.ReloadableServerResources(net.minecraft.core.RegistryAccess$Frozen $$0, net.minecraft.world.flag.FeatureFlagSet $$1, net.minecraft.commands.Commands$CommandSelection $$2, int $$3) {
+         this.recipes = new net.minecraft.world.item.crafting.RecipeManager();
+         this.predicateManager = new net.minecraft.world.level.storage.loot.PredicateManager();
+         this.lootTables = new net.minecraft.world.level.storage.loot.LootTables(this.predicateManager);
+         this.itemModifierManager = new net.minecraft.world.level.storage.loot.ItemModifierManager(this.predicateManager, this.lootTables);
+         this.advancements = new net.minecraft.server.ServerAdvancementManager(this.predicateManager);
+         this.tagManager = new net.minecraft.tags.TagManager((net.minecraft.core.RegistryAccess)$$0);
+-        this.commandBuildContext = new net.minecraft.commands.CommandBuildContext((net.minecraft.core.RegistryAccess)$$0);
+-        this.commands = new net.minecraft.commands.Commands($$1, this.commandBuildContext);
++        this.commandBuildContext = new net.minecraft.commands.CommandBuildContext((net.minecraft.core.RegistryAccess)$$0, $$1);
++        this.commands = new net.minecraft.commands.Commands($$2, this.commandBuildContext);
+         this.commandBuildContext.missingTagAccessPolicy(net.minecraft.commands.CommandBuildContext$MissingTagAccessPolicy.CREATE_NEW);
+-        this.functionLibrary = new net.minecraft.server.ServerFunctionLibrary($$2, this.commands.getDispatcher());
++        this.functionLibrary = new net.minecraft.server.ServerFunctionLibrary($$3, this.commands.getDispatcher());
+     }
+ 
+     public net.minecraft.server.ServerFunctionLibrary getFunctionLibrary() {
+@@ -62,9 +62,9 @@
+         return java.util.List.of((java.lang.Object)this.tagManager, (java.lang.Object)this.predicateManager, (java.lang.Object)this.recipes, (java.lang.Object)this.lootTables, (java.lang.Object)this.itemModifierManager, (java.lang.Object)this.functionLibrary, (java.lang.Object)this.advancements);
+     }
+ 
+-    public static java.util.concurrent.CompletableFuture<net.minecraft.server.ReloadableServerResources> loadResources(net.minecraft.server.packs.resources.ResourceManager $$0, net.minecraft.core.RegistryAccess$Frozen $$12, net.minecraft.commands.Commands$CommandSelection $$22, int $$3, java.util.concurrent.Executor $$4, java.util.concurrent.Executor $$5) {
+-        net.minecraft.server.ReloadableServerResources $$6 = new net.minecraft.server.ReloadableServerResources($$12, $$22, $$3);
+-        return net.minecraft.server.packs.resources.SimpleReloadInstance.create((net.minecraft.server.packs.resources.ResourceManager)$$0, (java.util.List)$$6.listeners(), (java.util.concurrent.Executor)$$4, (java.util.concurrent.Executor)$$5, (java.util.concurrent.CompletableFuture)DATA_RELOAD_INITIAL_TASK, (boolean)LOGGER.isDebugEnabled()).done().whenComplete(($$1, $$2) -> $$0.commandBuildContext.missingTagAccessPolicy(net.minecraft.commands.CommandBuildContext$MissingTagAccessPolicy.FAIL)).thenApply($$1 -> $$6);
++    public static java.util.concurrent.CompletableFuture<net.minecraft.server.ReloadableServerResources> loadResources(net.minecraft.server.packs.resources.ResourceManager $$0, net.minecraft.core.RegistryAccess$Frozen $$12, net.minecraft.world.flag.FeatureFlagSet $$22, net.minecraft.commands.Commands$CommandSelection $$3, int $$4, java.util.concurrent.Executor $$5, java.util.concurrent.Executor $$6) {
++        net.minecraft.server.ReloadableServerResources $$7 = new net.minecraft.server.ReloadableServerResources($$12, $$22, $$3, $$4);
++        return net.minecraft.server.packs.resources.SimpleReloadInstance.create((net.minecraft.server.packs.resources.ResourceManager)$$0, (java.util.List)$$7.listeners(), (java.util.concurrent.Executor)$$5, (java.util.concurrent.Executor)$$6, (java.util.concurrent.CompletableFuture)DATA_RELOAD_INITIAL_TASK, (boolean)LOGGER.isDebugEnabled()).done().whenComplete(($$1, $$2) -> $$0.commandBuildContext.missingTagAccessPolicy(net.minecraft.commands.CommandBuildContext$MissingTagAccessPolicy.FAIL)).thenApply($$1 -> $$7);
+     }
+ 
+     public void updateRegistryTags(net.minecraft.core.RegistryAccess $$0) {

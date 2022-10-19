@@ -1,0 +1,70 @@
+--- net/minecraft/world/level/chunk/storage/RegionFileStorage.java
++++ net/minecraft/world/level/chunk/storage/RegionFileStorage.java
+@@ -18,32 +18,32 @@
+         this.sync = $$1;
+     }
+ 
+-    public net.minecraft.world.level.chunk.storage.RegionFile getRegionFile(net.minecraft.world.level.ChunkPos chunkPos) throws java.io.IOException {
+-        long l = net.minecraft.world.level.ChunkPos.asLong((int)chunkPos.getRegionX(), (int)chunkPos.getRegionZ());
+-        net.minecraft.world.level.chunk.storage.RegionFile regionFile = (net.minecraft.world.level.chunk.storage.RegionFile)this.regionCache.getAndMoveToFirst(l);
+-        if (regionFile != null) {
+-            return regionFile;
++    public net.minecraft.world.level.chunk.storage.RegionFile getRegionFile(net.minecraft.world.level.ChunkPos $$0) throws java.io.IOException {
++        long $$1 = net.minecraft.world.level.ChunkPos.asLong((int)$$0.getRegionX(), (int)$$0.getRegionZ());
++        net.minecraft.world.level.chunk.storage.RegionFile $$2 = (net.minecraft.world.level.chunk.storage.RegionFile)this.regionCache.getAndMoveToFirst($$1);
++        if ($$2 != null) {
++            return $$2;
+         }
+         if (this.regionCache.size() >= 256) {
+             ((net.minecraft.world.level.chunk.storage.RegionFile)this.regionCache.removeLast()).close();
+         }
+         java.nio.file.Files.createDirectories((java.nio.file.Path)this.folder, (java.nio.file.attribute.FileAttribute[])new java.nio.file.attribute.FileAttribute[0]);
+-        java.nio.file.Path path = this.folder.resolve("r." + chunkPos.getRegionX() + "." + chunkPos.getRegionZ() + ".mca");
+-        net.minecraft.world.level.chunk.storage.RegionFile regionFile2 = new net.minecraft.world.level.chunk.storage.RegionFile(path, this.folder, this.sync);
+-        this.regionCache.putAndMoveToFirst(l, (java.lang.Object)regionFile2);
+-        return regionFile2;
++        java.nio.file.Path $$3 = this.folder.resolve("r." + $$0.getRegionX() + "." + $$0.getRegionZ() + ".mca");
++        net.minecraft.world.level.chunk.storage.RegionFile $$4 = new net.minecraft.world.level.chunk.storage.RegionFile($$3, this.folder, this.sync);
++        this.regionCache.putAndMoveToFirst($$1, (java.lang.Object)$$4);
++        return $$4;
+     }
+ 
+     @javax.annotation.Nullable
+-    public net.minecraft.nbt.CompoundTag read(net.minecraft.world.level.ChunkPos chunkPos) throws java.io.IOException {
+-        net.minecraft.world.level.chunk.storage.RegionFile regionFile = this.getRegionFile(chunkPos);
+-        try (java.io.DataInputStream dataInputStream = regionFile.getChunkDataInputStream(chunkPos);
++    public net.minecraft.nbt.CompoundTag read(net.minecraft.world.level.ChunkPos $$0) throws java.io.IOException {
++        net.minecraft.world.level.chunk.storage.RegionFile $$1 = this.getRegionFile($$0);
++        try (java.io.DataInputStream $$2 = $$1.getChunkDataInputStream($$0);
+ ){
+-            if (dataInputStream == null) {
++            if ($$2 == null) {
+                 net.minecraft.nbt.CompoundTag compoundTag = null;
+                 return compoundTag;
+             }
+-            net.minecraft.nbt.CompoundTag compoundTag = net.minecraft.nbt.NbtIo.read((java.io.DataInput)dataInputStream);
++            net.minecraft.nbt.CompoundTag compoundTag = net.minecraft.nbt.NbtIo.read((java.io.DataInput)$$2);
+             return compoundTag;
+         }
+     }
+@@ -58,14 +58,14 @@
+         }
+     }
+ 
+-    public void write(net.minecraft.world.level.ChunkPos chunkPos, @javax.annotation.Nullable net.minecraft.nbt.CompoundTag chunkData) throws java.io.IOException {
+-        net.minecraft.world.level.chunk.storage.RegionFile regionFile = this.getRegionFile(chunkPos);
+-        if (chunkData == null) {
+-            regionFile.clear(chunkPos);
++    public void write(net.minecraft.world.level.ChunkPos $$0, @javax.annotation.Nullable net.minecraft.nbt.CompoundTag $$1) throws java.io.IOException {
++        net.minecraft.world.level.chunk.storage.RegionFile $$2 = this.getRegionFile($$0);
++        if ($$1 == null) {
++            $$2.clear($$0);
+         } else {
+-            try (java.io.DataOutputStream dataOutputStream = regionFile.getChunkDataOutputStream(chunkPos);
++            try (java.io.DataOutputStream $$3 = $$2.getChunkDataOutputStream($$0);
+ ){
+-                net.minecraft.nbt.NbtIo.write((net.minecraft.nbt.CompoundTag)chunkData, (java.io.DataOutput)dataOutputStream);
++                net.minecraft.nbt.NbtIo.write((net.minecraft.nbt.CompoundTag)$$1, (java.io.DataOutput)$$3);
+             }
+         }
+     }

@@ -1,0 +1,46 @@
+--- net/minecraft/network/protocol/login/ServerboundKeyPacket.java
++++ net/minecraft/network/protocol/login/ServerboundKeyPacket.java
+@@ -9,9 +9,9 @@
+     public byte[] keybytes;
+     public com.mojang.datafixers.util.Either<byte[], net.minecraft.util.Crypt$SaltSignaturePair> nonceOrSaltSignature;
+ 
+-    public net.minecraft.network.protocol.login.ServerboundKeyPacket(javax.crypto.SecretKey secretKey, java.security.PublicKey publicKey, byte[] nonce) throws net.minecraft.util.CryptException {
+-        this.keybytes = net.minecraft.util.Crypt.encryptUsingKey((java.security.Key)publicKey, (byte[])secretKey.getEncoded());
+-        this.nonceOrSaltSignature = com.mojang.datafixers.util.Either.left((java.lang.Object)net.minecraft.util.Crypt.encryptUsingKey((java.security.Key)publicKey, (byte[])nonce));
++    public net.minecraft.network.protocol.login.ServerboundKeyPacket(javax.crypto.SecretKey $$0, java.security.PublicKey $$1, byte[] $$2) throws net.minecraft.util.CryptException {
++        this.keybytes = net.minecraft.util.Crypt.encryptUsingKey((java.security.Key)$$1, (byte[])$$0.getEncoded());
++        this.nonceOrSaltSignature = com.mojang.datafixers.util.Either.left((java.lang.Object)net.minecraft.util.Crypt.encryptUsingKey((java.security.Key)$$1, (byte[])$$2));
+     }
+ 
+     public net.minecraft.network.protocol.login.ServerboundKeyPacket(javax.crypto.SecretKey $$0, java.security.PublicKey $$1, long $$2, byte[] $$3) throws net.minecraft.util.CryptException {
+@@ -24,21 +24,21 @@
+         this.nonceOrSaltSignature = $$0.readEither(net.minecraft.network.FriendlyByteBuf::readByteArray, net.minecraft.util.Crypt$SaltSignaturePair::new);
+     }
+ 
+-    public void write(net.minecraft.network.FriendlyByteBuf buffer) {
+-        buffer.writeByteArray(this.keybytes);
+-        buffer.writeEither(this.nonceOrSaltSignature, net.minecraft.network.FriendlyByteBuf::writeByteArray, net.minecraft.util.Crypt$SaltSignaturePair::write);
++    public void write(net.minecraft.network.FriendlyByteBuf $$0) {
++        $$0.writeByteArray(this.keybytes);
++        $$0.writeEither(this.nonceOrSaltSignature, net.minecraft.network.FriendlyByteBuf::writeByteArray, net.minecraft.util.Crypt$SaltSignaturePair::write);
+     }
+ 
+-    public void handle(net.minecraft.network.protocol.login.ServerLoginPacketListener handler) {
+-        handler.handleKey(this);
++    public void handle(net.minecraft.network.protocol.login.ServerLoginPacketListener $$0) {
++        $$0.handleKey(this);
+     }
+ 
+-    public javax.crypto.SecretKey getSecretKey(java.security.PrivateKey key) throws net.minecraft.util.CryptException {
+-        return net.minecraft.util.Crypt.decryptByteToSecretKey((java.security.PrivateKey)key, (byte[])this.keybytes);
++    public javax.crypto.SecretKey getSecretKey(java.security.PrivateKey $$0) throws net.minecraft.util.CryptException {
++        return net.minecraft.util.Crypt.decryptByteToSecretKey((java.security.PrivateKey)$$0, (byte[])this.keybytes);
+     }
+ 
+-    public boolean isChallengeSignatureValid(byte[] $$02, net.minecraft.world.entity.player.ProfilePublicKey $$1) {
+-        return (java.lang.Boolean)this.nonceOrSaltSignature.map($$0 -> false, $$22 -> $$1.createSignatureValidator().validate($$2 -> {
++    public boolean isChallengeSignatureValid(byte[] $$02, net.minecraft.util.SignatureValidator $$1) {
++        return (java.lang.Boolean)this.nonceOrSaltSignature.map($$0 -> false, $$22 -> $$1.validate($$2 -> {
+             $$2.update($$02);
+             $$2.update($$22.saltAsBytes());
+         }, $$22.signature()));

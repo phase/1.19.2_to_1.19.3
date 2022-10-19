@@ -1,0 +1,228 @@
+--- net/minecraft/client/renderer/FogRenderer.java
++++ net/minecraft/client/renderer/FogRenderer.java
+@@ -18,124 +18,132 @@
+     public net.minecraft.client.renderer.FogRenderer() {
+     }
+ 
+-    public static void setupColor(net.minecraft.client.Camera activeRenderInfo, float partialTicks, net.minecraft.client.multiplayer.ClientLevel level, int renderDistanceChunks, float bossColorModifier) {
+-        net.minecraft.world.entity.LivingEntity livingEntity;
+-        net.minecraft.client.renderer.FogRenderer$MobEffectFogFunction mobEffectFogFunction;
+-        net.minecraft.world.level.material.FogType fogType = activeRenderInfo.getFluidInCamera();
+-        net.minecraft.world.entity.Entity entity = activeRenderInfo.getEntity();
+-        if (fogType == net.minecraft.world.level.material.FogType.WATER) {
+-            long l = net.minecraft.Util.getMillis();
+-            int n = ((net.minecraft.world.level.biome.Biome)level.getBiome(new net.minecraft.core.BlockPos(activeRenderInfo.getPosition())).value()).getWaterFogColor();
++    public static void setupColor(net.minecraft.client.Camera $$0, float $$1, net.minecraft.client.multiplayer.ClientLevel $$2, int $$32, float $$42) {
++        float $$44;
++        net.minecraft.world.entity.LivingEntity $$422;
++        net.minecraft.world.level.material.FogType $$52 = $$0.getFluidInCamera();
++        net.minecraft.world.entity.Entity $$6 = $$0.getEntity();
++        if ($$52 == net.minecraft.world.level.material.FogType.WATER) {
++            long $$7 = net.minecraft.Util.getMillis();
++            int $$8 = ((net.minecraft.world.level.biome.Biome)$$2.getBiome(new net.minecraft.core.BlockPos($$0.getPosition())).value()).getWaterFogColor();
+             if (biomeChangedTime < 0L) {
+-                targetBiomeFog = n;
+-                previousBiomeFog = n;
+-                biomeChangedTime = l;
++                targetBiomeFog = $$8;
++                previousBiomeFog = $$8;
++                biomeChangedTime = $$7;
+             }
+-            int n2 = targetBiomeFog >> 16 & 0xFF;
+-            int n3 = targetBiomeFog >> 8 & 0xFF;
+-            int n4 = targetBiomeFog & 0xFF;
+-            int n5 = previousBiomeFog >> 16 & 0xFF;
+-            int n6 = previousBiomeFog >> 8 & 0xFF;
+-            int n7 = previousBiomeFog & 0xFF;
+-            float f = net.minecraft.util.Mth.clamp((float)((float)(l - biomeChangedTime) / 5000.0f), (float)0.0f, (float)1.0f);
+-            float f2 = net.minecraft.util.Mth.lerp((float)f, (float)n5, (float)n2);
+-            float f3 = net.minecraft.util.Mth.lerp((float)f, (float)n6, (float)n3);
+-            float f4 = net.minecraft.util.Mth.lerp((float)f, (float)n7, (float)n4);
+-            fogRed = f2 / 255.0f;
+-            fogGreen = f3 / 255.0f;
+-            fogBlue = f4 / 255.0f;
+-            if (targetBiomeFog != n) {
+-                targetBiomeFog = n;
+-                previousBiomeFog = net.minecraft.util.Mth.floor((float)f2) << 16 | net.minecraft.util.Mth.floor((float)f3) << 8 | net.minecraft.util.Mth.floor((float)f4);
+-                biomeChangedTime = l;
++            int $$9 = targetBiomeFog >> 16 & 0xFF;
++            int $$10 = targetBiomeFog >> 8 & 0xFF;
++            int $$11 = targetBiomeFog & 0xFF;
++            int $$12 = previousBiomeFog >> 16 & 0xFF;
++            int $$13 = previousBiomeFog >> 8 & 0xFF;
++            int $$14 = previousBiomeFog & 0xFF;
++            float $$15 = net.minecraft.util.Mth.clamp((float)((float)($$7 - biomeChangedTime) / 5000.0f), (float)0.0f, (float)1.0f);
++            float $$16 = net.minecraft.util.Mth.lerp((float)$$15, (float)$$12, (float)$$9);
++            float $$17 = net.minecraft.util.Mth.lerp((float)$$15, (float)$$13, (float)$$10);
++            float $$18 = net.minecraft.util.Mth.lerp((float)$$15, (float)$$14, (float)$$11);
++            fogRed = $$16 / 255.0f;
++            fogGreen = $$17 / 255.0f;
++            fogBlue = $$18 / 255.0f;
++            if (targetBiomeFog != $$8) {
++                targetBiomeFog = $$8;
++                previousBiomeFog = net.minecraft.util.Mth.floor((float)$$16) << 16 | net.minecraft.util.Mth.floor((float)$$17) << 8 | net.minecraft.util.Mth.floor((float)$$18);
++                biomeChangedTime = $$7;
+             }
+-        } else if (fogType == net.minecraft.world.level.material.FogType.LAVA) {
++        } else if ($$52 == net.minecraft.world.level.material.FogType.LAVA) {
+             fogRed = 0.6f;
+             fogGreen = 0.1f;
+             fogBlue = 0.0f;
+             biomeChangedTime = -1L;
+-        } else if (fogType == net.minecraft.world.level.material.FogType.POWDER_SNOW) {
++        } else if ($$52 == net.minecraft.world.level.material.FogType.POWDER_SNOW) {
+             fogRed = 0.623f;
+             fogGreen = 0.734f;
+             fogBlue = 0.785f;
+             biomeChangedTime = -1L;
+             com.mojang.blaze3d.systems.RenderSystem.clearColor((float)fogRed, (float)fogGreen, (float)fogBlue, (float)0.0f);
+         } else {
+-            float f;
+-            float f5;
+-            float f6;
+-            float f7 = 0.25f + 0.75f * (float)renderDistanceChunks / 32.0f;
+-            f7 = 1.0f - (float)java.lang.Math.pow((double)f7, (double)0.25);
+-            mobEffectFogFunction = level.getSkyColor(activeRenderInfo.getPosition(), partialTicks);
+-            float f8 = (float)mobEffectFogFunction.x;
+-            float f9 = (float)mobEffectFogFunction.y;
+-            float f10 = (float)mobEffectFogFunction.z;
+-            float f11 = net.minecraft.util.Mth.clamp((float)(net.minecraft.util.Mth.cos((float)(level.getTimeOfDay(partialTicks) * ((float)java.lang.Math.PI * 2))) * 2.0f + 0.5f), (float)0.0f, (float)1.0f);
+-            net.minecraft.world.level.biome.BiomeManager biomeManager = level.getBiomeManager();
+-            net.minecraft.world.phys.Vec3 vec3 = activeRenderInfo.getPosition().subtract(2.0, 2.0, 2.0).scale(0.25);
+-            net.minecraft.world.phys.Vec3 vec32 = net.minecraft.util.CubicSampler.gaussianSampleVec3((net.minecraft.world.phys.Vec3)vec3, ($$3, $$4, $$5) -> level.effects().getBrightnessDependentFogColor(net.minecraft.world.phys.Vec3.fromRGB24((int)((net.minecraft.world.level.biome.Biome)biomeManager.getNoiseBiomeAtQuart($$3, $$4, $$5).value()).getFogColor()), f11));
+-            fogRed = (float)vec32.x();
+-            fogGreen = (float)vec32.y();
+-            fogBlue = (float)vec32.z();
+-            if (renderDistanceChunks >= 4) {
+-                float[] fArray;
+-                f6 = net.minecraft.util.Mth.sin((float)level.getSunAngle(partialTicks)) > 0.0f ? -1.0f : 1.0f;
+-                com.mojang.math.Vector3f vector3f = new com.mojang.math.Vector3f(f6, 0.0f, 0.0f);
+-                f5 = activeRenderInfo.getLookVector().dot(vector3f);
+-                if (f5 < 0.0f) {
+-                    f5 = 0.0f;
++            float $$35;
++            float $$19 = 0.25f + 0.75f * (float)$$32 / 32.0f;
++            $$19 = 1.0f - (float)java.lang.Math.pow((double)$$19, (double)0.25);
++            net.minecraft.world.phys.Vec3 $$20 = $$2.getSkyColor($$0.getPosition(), $$1);
++            float $$21 = (float)$$20.x;
++            float $$22 = (float)$$20.y;
++            float $$23 = (float)$$20.z;
++            float $$24 = net.minecraft.util.Mth.clamp((float)(net.minecraft.util.Mth.cos((float)($$2.getTimeOfDay($$1) * ((float)java.lang.Math.PI * 2))) * 2.0f + 0.5f), (float)0.0f, (float)1.0f);
++            net.minecraft.world.level.biome.BiomeManager $$25 = $$2.getBiomeManager();
++            net.minecraft.world.phys.Vec3 $$26 = $$0.getPosition().subtract(2.0, 2.0, 2.0).scale(0.25);
++            net.minecraft.world.phys.Vec3 $$27 = net.minecraft.util.CubicSampler.gaussianSampleVec3((net.minecraft.world.phys.Vec3)$$26, ($$3, $$4, $$5) -> $$2.effects().getBrightnessDependentFogColor(net.minecraft.world.phys.Vec3.fromRGB24((int)((net.minecraft.world.level.biome.Biome)$$25.getNoiseBiomeAtQuart($$3, $$4, $$5).value()).getFogColor()), $$24));
++            fogRed = (float)$$27.x();
++            fogGreen = (float)$$27.y();
++            fogBlue = (float)$$27.z();
++            if ($$32 >= 4) {
++                float[] $$31;
++                float $$28 = net.minecraft.util.Mth.sin((float)$$2.getSunAngle($$1)) > 0.0f ? -1.0f : 1.0f;
++                com.mojang.math.Vector3f $$29 = new com.mojang.math.Vector3f($$28, 0.0f, 0.0f);
++                float $$30 = $$0.getLookVector().dot($$29);
++                if ($$30 < 0.0f) {
++                    $$30 = 0.0f;
+                 }
+-                if (f5 > 0.0f && (fArray = level.effects().getSunriseColor(level.getTimeOfDay(partialTicks), partialTicks)) != null) {
+-                    fogRed = fogRed * (1.0f - (f5 *= fArray[3])) + fArray[0] * f5;
+-                    fogGreen = fogGreen * (1.0f - f5) + fArray[1] * f5;
+-                    fogBlue = fogBlue * (1.0f - f5) + fArray[2] * f5;
++                if ($$30 > 0.0f && ($$31 = $$2.effects().getSunriseColor($$2.getTimeOfDay($$1), $$1)) != null) {
++                    fogRed = fogRed * (1.0f - ($$30 *= $$31[3])) + $$31[0] * $$30;
++                    fogGreen = fogGreen * (1.0f - $$30) + $$31[1] * $$30;
++                    fogBlue = fogBlue * (1.0f - $$30) + $$31[2] * $$30;
+                 }
+             }
+-            fogRed += (f8 - fogRed) * f7;
+-            fogGreen += (f9 - fogGreen) * f7;
+-            fogBlue += (f10 - fogBlue) * f7;
+-            f6 = level.getRainLevel(partialTicks);
+-            if (f6 > 0.0f) {
+-                float f12 = 1.0f - f6 * 0.5f;
+-                f5 = 1.0f - f6 * 0.4f;
+-                fogRed *= f12;
+-                fogGreen *= f12;
+-                fogBlue *= f5;
++            fogRed += ($$21 - fogRed) * $$19;
++            fogGreen += ($$22 - fogGreen) * $$19;
++            fogBlue += ($$23 - fogBlue) * $$19;
++            float $$322 = $$2.getRainLevel($$1);
++            if ($$322 > 0.0f) {
++                float $$33 = 1.0f - $$322 * 0.5f;
++                float $$34 = 1.0f - $$322 * 0.4f;
++                fogRed *= $$33;
++                fogGreen *= $$33;
++                fogBlue *= $$34;
+             }
+-            if ((f = level.getThunderLevel(partialTicks)) > 0.0f) {
+-                f5 = 1.0f - f * 0.5f;
+-                fogRed *= f5;
+-                fogGreen *= f5;
+-                fogBlue *= f5;
++            if (($$35 = $$2.getThunderLevel($$1)) > 0.0f) {
++                float $$36 = 1.0f - $$35 * 0.5f;
++                fogRed *= $$36;
++                fogGreen *= $$36;
++                fogBlue *= $$36;
+             }
+             biomeChangedTime = -1L;
+         }
+-        float f = ((float)activeRenderInfo.getPosition().y - (float)level.getMinBuildHeight()) * level.getLevelData().getClearColorScale();
+-        mobEffectFogFunction = net.minecraft.client.renderer.FogRenderer.getPriorityFogFunction((net.minecraft.world.entity.Entity)entity, (float)partialTicks);
+-        if (mobEffectFogFunction != null) {
+-            net.minecraft.world.entity.LivingEntity livingEntity2 = (net.minecraft.world.entity.LivingEntity)entity;
+-            f = mobEffectFogFunction.getModifiedVoidDarkness(livingEntity2, livingEntity2.getEffect(mobEffectFogFunction.getMobEffect()), f, partialTicks);
++        float $$37 = ((float)$$0.getPosition().y - (float)$$2.getMinBuildHeight()) * $$2.getLevelData().getClearColorScale();
++        net.minecraft.client.renderer.FogRenderer$MobEffectFogFunction $$38 = net.minecraft.client.renderer.FogRenderer.getPriorityFogFunction((net.minecraft.world.entity.Entity)$$6, (float)$$1);
++        if ($$38 != null) {
++            net.minecraft.world.entity.LivingEntity $$39 = (net.minecraft.world.entity.LivingEntity)$$6;
++            $$37 = $$38.getModifiedVoidDarkness($$39, $$39.getEffect($$38.getMobEffect()), $$37, $$1);
+         }
+-        if (f < 1.0f && fogType != net.minecraft.world.level.material.FogType.LAVA && fogType != net.minecraft.world.level.material.FogType.POWDER_SNOW) {
+-            if (f < 0.0f) {
+-                f = 0.0f;
++        if ($$37 < 1.0f && $$52 != net.minecraft.world.level.material.FogType.LAVA && $$52 != net.minecraft.world.level.material.FogType.POWDER_SNOW) {
++            if ($$37 < 0.0f) {
++                $$37 = 0.0f;
+             }
+-            f *= f;
+-            fogRed *= f;
+-            fogGreen *= f;
+-            fogBlue *= f;
++            $$37 *= $$37;
++            fogRed *= $$37;
++            fogGreen *= $$37;
++            fogBlue *= $$37;
+         }
+-        if (bossColorModifier > 0.0f) {
+-            fogRed = fogRed * (1.0f - bossColorModifier) + fogRed * 0.7f * bossColorModifier;
+-            fogGreen = fogGreen * (1.0f - bossColorModifier) + fogGreen * 0.6f * bossColorModifier;
+-            fogBlue = fogBlue * (1.0f - bossColorModifier) + fogBlue * 0.6f * bossColorModifier;
++        if ($$42 > 0.0f) {
++            fogRed = fogRed * (1.0f - $$42) + fogRed * 0.7f * $$42;
++            fogGreen = fogGreen * (1.0f - $$42) + fogGreen * 0.6f * $$42;
++            fogBlue = fogBlue * (1.0f - $$42) + fogBlue * 0.6f * $$42;
+         }
+-        float f13 = fogType == net.minecraft.world.level.material.FogType.WATER ? (entity instanceof net.minecraft.client.player.LocalPlayer ? ((net.minecraft.client.player.LocalPlayer)entity).getWaterVision() : 1.0f) : (entity instanceof net.minecraft.world.entity.LivingEntity && (livingEntity = (net.minecraft.world.entity.LivingEntity)entity).hasEffect(net.minecraft.world.effect.MobEffects.NIGHT_VISION) && !livingEntity.hasEffect(net.minecraft.world.effect.MobEffects.DARKNESS) ? net.minecraft.client.renderer.GameRenderer.getNightVisionScale((net.minecraft.world.entity.LivingEntity)livingEntity, (float)partialTicks) : 0.0f);
++        if ($$52 == net.minecraft.world.level.material.FogType.WATER) {
++            if ($$6 instanceof net.minecraft.client.player.LocalPlayer) {
++                float $$40 = ((net.minecraft.client.player.LocalPlayer)$$6).getWaterVision();
++            } else {
++                float $$41 = 1.0f;
++            }
++        } else if ($$6 instanceof net.minecraft.world.entity.LivingEntity && ($$422 = (net.minecraft.world.entity.LivingEntity)$$6).hasEffect(net.minecraft.world.effect.MobEffects.NIGHT_VISION) && !$$422.hasEffect(net.minecraft.world.effect.MobEffects.DARKNESS)) {
++            float $$43 = net.minecraft.client.renderer.GameRenderer.getNightVisionScale((net.minecraft.world.entity.LivingEntity)$$422, (float)$$1);
++        } else {
++            $$44 = 0.0f;
++        }
+         if (fogRed != 0.0f && fogGreen != 0.0f && fogBlue != 0.0f) {
+-            float f14 = java.lang.Math.min((float)(1.0f / fogRed), (float)java.lang.Math.min((float)(1.0f / fogGreen), (float)(1.0f / fogBlue)));
+-            fogRed = fogRed * (1.0f - f13) + fogRed * f14 * f13;
+-            fogGreen = fogGreen * (1.0f - f13) + fogGreen * f14 * f13;
+-            fogBlue = fogBlue * (1.0f - f13) + fogBlue * f14 * f13;
++            float $$45 = java.lang.Math.min((float)(1.0f / fogRed), (float)java.lang.Math.min((float)(1.0f / fogGreen), (float)(1.0f / fogBlue)));
++            fogRed = fogRed * (1.0f - $$44) + fogRed * $$45 * $$44;
++            fogGreen = fogGreen * (1.0f - $$44) + fogGreen * $$45 * $$44;
++            fogBlue = fogBlue * (1.0f - $$44) + fogBlue * $$45 * $$44;
+         }
+         com.mojang.blaze3d.systems.RenderSystem.clearColor((float)fogRed, (float)fogGreen, (float)fogBlue, (float)0.0f);
+     }

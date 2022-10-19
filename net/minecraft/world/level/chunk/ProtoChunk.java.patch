@@ -1,0 +1,261 @@
+--- net/minecraft/world/level/chunk/ProtoChunk.java
++++ net/minecraft/world/level/chunk/ProtoChunk.java
+@@ -43,28 +43,28 @@
+         return new net.minecraft.world.level.chunk.ChunkAccess$TicksToSave((net.minecraft.world.ticks.SerializableTickContainer)this.blockTicks, (net.minecraft.world.ticks.SerializableTickContainer)this.fluidTicks);
+     }
+ 
+-    public net.minecraft.world.level.block.state.BlockState getBlockState(net.minecraft.core.BlockPos pos) {
+-        int n = pos.getY();
+-        if (this.isOutsideBuildHeight(n)) {
++    public net.minecraft.world.level.block.state.BlockState getBlockState(net.minecraft.core.BlockPos $$0) {
++        int $$1 = $$0.getY();
++        if (this.isOutsideBuildHeight($$1)) {
+             return net.minecraft.world.level.block.Blocks.VOID_AIR.defaultBlockState();
+         }
+-        net.minecraft.world.level.chunk.LevelChunkSection levelChunkSection = this.getSection(this.getSectionIndex(n));
+-        if (levelChunkSection.hasOnlyAir()) {
++        net.minecraft.world.level.chunk.LevelChunkSection $$2 = this.getSection(this.getSectionIndex($$1));
++        if ($$2.hasOnlyAir()) {
+             return net.minecraft.world.level.block.Blocks.AIR.defaultBlockState();
+         }
+-        return levelChunkSection.getBlockState(pos.getX() & 0xF, n & 0xF, pos.getZ() & 0xF);
++        return $$2.getBlockState($$0.getX() & 0xF, $$1 & 0xF, $$0.getZ() & 0xF);
+     }
+ 
+-    public net.minecraft.world.level.material.FluidState getFluidState(net.minecraft.core.BlockPos pos) {
+-        int n = pos.getY();
+-        if (this.isOutsideBuildHeight(n)) {
++    public net.minecraft.world.level.material.FluidState getFluidState(net.minecraft.core.BlockPos $$0) {
++        int $$1 = $$0.getY();
++        if (this.isOutsideBuildHeight($$1)) {
+             return net.minecraft.world.level.material.Fluids.EMPTY.defaultFluidState();
+         }
+-        net.minecraft.world.level.chunk.LevelChunkSection levelChunkSection = this.getSection(this.getSectionIndex(n));
+-        if (levelChunkSection.hasOnlyAir()) {
++        net.minecraft.world.level.chunk.LevelChunkSection $$2 = this.getSection(this.getSectionIndex($$1));
++        if ($$2.hasOnlyAir()) {
+             return net.minecraft.world.level.material.Fluids.EMPTY.defaultFluidState();
+         }
+-        return levelChunkSection.getFluidState(pos.getX() & 0xF, n & 0xF, pos.getZ() & 0xF);
++        return $$2.getFluidState($$0.getX() & 0xF, $$1 & 0xF, $$0.getZ() & 0xF);
+     }
+ 
+     public java.util.stream.Stream<net.minecraft.core.BlockPos> getLights() {
+@@ -79,51 +79,51 @@
+         return $$0;
+     }
+ 
+-    public void addLight(short packedPosition, int lightValue) {
+-        this.addLight(net.minecraft.world.level.chunk.ProtoChunk.unpackOffsetCoordinates((short)packedPosition, (int)this.getSectionYFromSectionIndex(lightValue), (net.minecraft.world.level.ChunkPos)this.chunkPos));
++    public void addLight(short $$0, int $$1) {
++        this.addLight(net.minecraft.world.level.chunk.ProtoChunk.unpackOffsetCoordinates((short)$$0, (int)this.getSectionYFromSectionIndex($$1), (net.minecraft.world.level.ChunkPos)this.chunkPos));
+     }
+ 
+-    public void addLight(net.minecraft.core.BlockPos lightPos) {
+-        this.lights.add((java.lang.Object)lightPos.immutable());
++    public void addLight(net.minecraft.core.BlockPos $$0) {
++        this.lights.add((java.lang.Object)$$0.immutable());
+     }
+ 
+     @javax.annotation.Nullable
+-    public net.minecraft.world.level.block.state.BlockState setBlockState(net.minecraft.core.BlockPos pos, net.minecraft.world.level.block.state.BlockState state, boolean isMoving) {
+-        int n = pos.getX();
+-        int n2 = pos.getY();
+-        int n3 = pos.getZ();
+-        if (n2 < this.getMinBuildHeight() || n2 >= this.getMaxBuildHeight()) {
++    public net.minecraft.world.level.block.state.BlockState setBlockState(net.minecraft.core.BlockPos $$0, net.minecraft.world.level.block.state.BlockState $$1, boolean $$2) {
++        int $$3 = $$0.getX();
++        int $$4 = $$0.getY();
++        int $$5 = $$0.getZ();
++        if ($$4 < this.getMinBuildHeight() || $$4 >= this.getMaxBuildHeight()) {
+             return net.minecraft.world.level.block.Blocks.VOID_AIR.defaultBlockState();
+         }
+-        int n4 = this.getSectionIndex(n2);
+-        if (this.sections[n4].hasOnlyAir() && state.is(net.minecraft.world.level.block.Blocks.AIR)) {
+-            return state;
++        int $$6 = this.getSectionIndex($$4);
++        if (this.sections[$$6].hasOnlyAir() && $$1.is(net.minecraft.world.level.block.Blocks.AIR)) {
++            return $$1;
+         }
+-        if (state.getLightEmission() > 0) {
+-            this.lights.add((java.lang.Object)new net.minecraft.core.BlockPos((n & 0xF) + this.getPos().getMinBlockX(), n2, (n3 & 0xF) + this.getPos().getMinBlockZ()));
++        if ($$1.getLightEmission() > 0) {
++            this.lights.add((java.lang.Object)new net.minecraft.core.BlockPos(($$3 & 0xF) + this.getPos().getMinBlockX(), $$4, ($$5 & 0xF) + this.getPos().getMinBlockZ()));
+         }
+-        net.minecraft.world.level.chunk.LevelChunkSection levelChunkSection = this.getSection(n4);
+-        net.minecraft.world.level.block.state.BlockState blockState = levelChunkSection.setBlockState(n & 0xF, n2 & 0xF, n3 & 0xF, state);
+-        if (this.status.isOrAfter(net.minecraft.world.level.chunk.ChunkStatus.FEATURES) && state != blockState && (state.getLightBlock((net.minecraft.world.level.BlockGetter)this, pos) != blockState.getLightBlock((net.minecraft.world.level.BlockGetter)this, pos) || state.getLightEmission() != blockState.getLightEmission() || state.useShapeForLightOcclusion() || blockState.useShapeForLightOcclusion())) {
+-            this.lightEngine.checkBlock(pos);
++        net.minecraft.world.level.chunk.LevelChunkSection $$7 = this.getSection($$6);
++        net.minecraft.world.level.block.state.BlockState $$8 = $$7.setBlockState($$3 & 0xF, $$4 & 0xF, $$5 & 0xF, $$1);
++        if (this.status.isOrAfter(net.minecraft.world.level.chunk.ChunkStatus.FEATURES) && $$1 != $$8 && ($$1.getLightBlock((net.minecraft.world.level.BlockGetter)this, $$0) != $$8.getLightBlock((net.minecraft.world.level.BlockGetter)this, $$0) || $$1.getLightEmission() != $$8.getLightEmission() || $$1.useShapeForLightOcclusion() || $$8.useShapeForLightOcclusion())) {
++            this.lightEngine.checkBlock($$0);
+         }
+-        java.util.EnumSet enumSet = this.getStatus().heightmapsAfter();
+-        java.util.EnumSet enumSet2 = null;
+-        for (net.minecraft.world.level.levelgen.Heightmap$Types types : enumSet) {
+-            net.minecraft.world.level.levelgen.Heightmap heightmap = (net.minecraft.world.level.levelgen.Heightmap)this.heightmaps.get((java.lang.Object)types);
+-            if (heightmap != null) continue;
+-            if (enumSet2 == null) {
+-                enumSet2 = java.util.EnumSet.noneOf(net.minecraft.world.level.levelgen.Heightmap$Types.class);
++        java.util.EnumSet $$9 = this.getStatus().heightmapsAfter();
++        java.util.EnumSet $$10 = null;
++        for (net.minecraft.world.level.levelgen.Heightmap$Types $$11 : $$9) {
++            net.minecraft.world.level.levelgen.Heightmap $$12 = (net.minecraft.world.level.levelgen.Heightmap)this.heightmaps.get((java.lang.Object)$$11);
++            if ($$12 != null) continue;
++            if ($$10 == null) {
++                $$10 = java.util.EnumSet.noneOf(net.minecraft.world.level.levelgen.Heightmap$Types.class);
+             }
+-            enumSet2.add((java.lang.Object)types);
++            $$10.add((java.lang.Object)$$11);
+         }
+-        if (enumSet2 != null) {
+-            net.minecraft.world.level.levelgen.Heightmap.primeHeightmaps((net.minecraft.world.level.chunk.ChunkAccess)this, enumSet2);
++        if ($$10 != null) {
++            net.minecraft.world.level.levelgen.Heightmap.primeHeightmaps((net.minecraft.world.level.chunk.ChunkAccess)this, $$10);
+         }
+-        for (net.minecraft.world.level.levelgen.Heightmap$Types types : enumSet) {
+-            ((net.minecraft.world.level.levelgen.Heightmap)this.heightmaps.get((java.lang.Object)types)).update(n & 0xF, n2, n3 & 0xF, state);
++        for (net.minecraft.world.level.levelgen.Heightmap$Types $$13 : $$9) {
++            ((net.minecraft.world.level.levelgen.Heightmap)this.heightmaps.get((java.lang.Object)$$13)).update($$3 & 0xF, $$4, $$5 & 0xF, $$1);
+         }
+-        return blockState;
++        return $$8;
+     }
+ 
+     public void setBlockEntity(net.minecraft.world.level.block.entity.BlockEntity $$0) {
+@@ -131,25 +131,25 @@
+     }
+ 
+     @javax.annotation.Nullable
+-    public net.minecraft.world.level.block.entity.BlockEntity getBlockEntity(net.minecraft.core.BlockPos pos) {
+-        return (net.minecraft.world.level.block.entity.BlockEntity)this.blockEntities.get((java.lang.Object)pos);
++    public net.minecraft.world.level.block.entity.BlockEntity getBlockEntity(net.minecraft.core.BlockPos $$0) {
++        return (net.minecraft.world.level.block.entity.BlockEntity)this.blockEntities.get((java.lang.Object)$$0);
+     }
+ 
+     public java.util.Map<net.minecraft.core.BlockPos, net.minecraft.world.level.block.entity.BlockEntity> getBlockEntities() {
+         return this.blockEntities;
+     }
+ 
+-    public void addEntity(net.minecraft.nbt.CompoundTag entityCompound) {
+-        this.entities.add((java.lang.Object)entityCompound);
++    public void addEntity(net.minecraft.nbt.CompoundTag $$0) {
++        this.entities.add((java.lang.Object)$$0);
+     }
+ 
+-    public void addEntity(net.minecraft.world.entity.Entity entity) {
+-        if (entity.isPassenger()) {
++    public void addEntity(net.minecraft.world.entity.Entity $$0) {
++        if ($$0.isPassenger()) {
+             return;
+         }
+-        net.minecraft.nbt.CompoundTag compoundTag = new net.minecraft.nbt.CompoundTag();
+-        entity.save(compoundTag);
+-        this.addEntity(compoundTag);
++        net.minecraft.nbt.CompoundTag $$1 = new net.minecraft.nbt.CompoundTag();
++        $$0.save($$1);
++        this.addEntity($$1);
+     }
+ 
+     public void setStartForStructure(net.minecraft.world.level.levelgen.structure.Structure $$0, net.minecraft.world.level.levelgen.structure.StructureStart $$1) {
+@@ -172,9 +172,9 @@
+         return this.status;
+     }
+ 
+-    public void setStatus(net.minecraft.world.level.chunk.ChunkStatus status) {
+-        this.status = status;
+-        if (this.belowZeroRetrogen != null && status.isOrAfter(this.belowZeroRetrogen.targetStatus())) {
++    public void setStatus(net.minecraft.world.level.chunk.ChunkStatus $$0) {
++        this.status = $$0;
++        if (this.belowZeroRetrogen != null && $$0.isOrAfter(this.belowZeroRetrogen.targetStatus())) {
+             this.setBelowZeroRetrogen(null);
+         }
+         this.setUnsaved(true);
+@@ -187,31 +187,31 @@
+         throw new java.lang.IllegalStateException("Asking for biomes before we have biomes");
+     }
+ 
+-    public static short packOffsetCoordinates(net.minecraft.core.BlockPos pos) {
+-        int n = pos.getX();
+-        int n2 = pos.getY();
+-        int n3 = pos.getZ();
+-        int n4 = n & 0xF;
+-        int n5 = n2 & 0xF;
+-        int n6 = n3 & 0xF;
+-        return (short)(n4 | n5 << 4 | n6 << 8);
++    public static short packOffsetCoordinates(net.minecraft.core.BlockPos $$0) {
++        int $$1 = $$0.getX();
++        int $$2 = $$0.getY();
++        int $$3 = $$0.getZ();
++        int $$4 = $$1 & 0xF;
++        int $$5 = $$2 & 0xF;
++        int $$6 = $$3 & 0xF;
++        return (short)($$4 | $$5 << 4 | $$6 << 8);
+     }
+ 
+-    public static net.minecraft.core.BlockPos unpackOffsetCoordinates(short packedPos, int yOffset, net.minecraft.world.level.ChunkPos chunkPos) {
+-        int n = net.minecraft.core.SectionPos.sectionToBlockCoord((int)chunkPos.x, (int)(packedPos & 0xF));
+-        int n2 = net.minecraft.core.SectionPos.sectionToBlockCoord((int)yOffset, (int)(packedPos >>> 4 & 0xF));
+-        int n3 = net.minecraft.core.SectionPos.sectionToBlockCoord((int)chunkPos.z, (int)(packedPos >>> 8 & 0xF));
+-        return new net.minecraft.core.BlockPos(n, n2, n3);
++    public static net.minecraft.core.BlockPos unpackOffsetCoordinates(short $$0, int $$1, net.minecraft.world.level.ChunkPos $$2) {
++        int $$3 = net.minecraft.core.SectionPos.sectionToBlockCoord((int)$$2.x, (int)($$0 & 0xF));
++        int $$4 = net.minecraft.core.SectionPos.sectionToBlockCoord((int)$$1, (int)($$0 >>> 4 & 0xF));
++        int $$5 = net.minecraft.core.SectionPos.sectionToBlockCoord((int)$$2.z, (int)($$0 >>> 8 & 0xF));
++        return new net.minecraft.core.BlockPos($$3, $$4, $$5);
+     }
+ 
+-    public void markPosForPostprocessing(net.minecraft.core.BlockPos pos) {
+-        if (!this.isOutsideBuildHeight(pos)) {
+-            net.minecraft.world.level.chunk.ChunkAccess.getOrCreateOffsetList((it.unimi.dsi.fastutil.shorts.ShortList[])this.postProcessing, (int)this.getSectionIndex(pos.getY())).add(net.minecraft.world.level.chunk.ProtoChunk.packOffsetCoordinates((net.minecraft.core.BlockPos)pos));
++    public void markPosForPostprocessing(net.minecraft.core.BlockPos $$0) {
++        if (!this.isOutsideBuildHeight($$0)) {
++            net.minecraft.world.level.chunk.ChunkAccess.getOrCreateOffsetList((it.unimi.dsi.fastutil.shorts.ShortList[])this.postProcessing, (int)this.getSectionIndex($$0.getY())).add(net.minecraft.world.level.chunk.ProtoChunk.packOffsetCoordinates((net.minecraft.core.BlockPos)$$0));
+         }
+     }
+ 
+-    public void addPackedPostProcess(short packedPosition, int index) {
+-        net.minecraft.world.level.chunk.ChunkAccess.getOrCreateOffsetList((it.unimi.dsi.fastutil.shorts.ShortList[])this.postProcessing, (int)index).add(packedPosition);
++    public void addPackedPostProcess(short $$0, int $$1) {
++        net.minecraft.world.level.chunk.ChunkAccess.getOrCreateOffsetList((it.unimi.dsi.fastutil.shorts.ShortList[])this.postProcessing, (int)$$1).add($$0);
+     }
+ 
+     public java.util.Map<net.minecraft.core.BlockPos, net.minecraft.nbt.CompoundTag> getBlockEntityNbts() {
+@@ -219,17 +219,17 @@
+     }
+ 
+     @javax.annotation.Nullable
+-    public net.minecraft.nbt.CompoundTag getBlockEntityNbtForSaving(net.minecraft.core.BlockPos pos) {
+-        net.minecraft.world.level.block.entity.BlockEntity blockEntity = this.getBlockEntity(pos);
+-        if (blockEntity != null) {
+-            return blockEntity.saveWithFullMetadata();
++    public net.minecraft.nbt.CompoundTag getBlockEntityNbtForSaving(net.minecraft.core.BlockPos $$0) {
++        net.minecraft.world.level.block.entity.BlockEntity $$1 = this.getBlockEntity($$0);
++        if ($$1 != null) {
++            return $$1.saveWithFullMetadata();
+         }
+-        return (net.minecraft.nbt.CompoundTag)this.pendingBlockEntities.get((java.lang.Object)pos);
++        return (net.minecraft.nbt.CompoundTag)this.pendingBlockEntities.get((java.lang.Object)$$0);
+     }
+ 
+-    public void removeBlockEntity(net.minecraft.core.BlockPos pos) {
+-        this.blockEntities.remove((java.lang.Object)pos);
+-        this.pendingBlockEntities.remove((java.lang.Object)pos);
++    public void removeBlockEntity(net.minecraft.core.BlockPos $$0) {
++        this.blockEntities.remove((java.lang.Object)$$0);
++        this.pendingBlockEntities.remove((java.lang.Object)$$0);
+     }
+ 
+     @javax.annotation.Nullable
+@@ -245,8 +245,8 @@
+         this.carvingMasks.put((java.lang.Object)$$0, (java.lang.Object)$$1);
+     }
+ 
+-    public void setLightEngine(net.minecraft.world.level.lighting.LevelLightEngine lightManager) {
+-        this.lightEngine = lightManager;
++    public void setLightEngine(net.minecraft.world.level.lighting.LevelLightEngine $$0) {
++        this.lightEngine = $$0;
+     }
+ 
+     public void setBelowZeroRetrogen(@javax.annotation.Nullable net.minecraft.world.level.levelgen.BelowZeroRetrogen $$0) {

@@ -1,0 +1,31 @@
+--- net/minecraft/client/renderer/block/model/multipart/MultiPart.java
++++ net/minecraft/client/renderer/block/model/multipart/MultiPart.java
+@@ -45,19 +45,19 @@
+         return (java.util.Collection)this.getSelectors().stream().flatMap($$0 -> $$0.getVariant().getDependencies().stream()).collect(java.util.stream.Collectors.toSet());
+     }
+ 
+-    public java.util.Collection<net.minecraft.client.resources.model.Material> getMaterials(java.util.function.Function<net.minecraft.resources.ResourceLocation, net.minecraft.client.resources.model.UnbakedModel> modelGetter, java.util.Set<com.mojang.datafixers.util.Pair<java.lang.String, java.lang.String>> missingTextureErrors) {
+-        return (java.util.Collection)this.getSelectors().stream().flatMap($$2 -> $$2.getVariant().getMaterials(modelGetter, missingTextureErrors).stream()).collect(java.util.stream.Collectors.toSet());
++    public void resolveParents(java.util.function.Function<net.minecraft.resources.ResourceLocation, net.minecraft.client.resources.model.UnbakedModel> $$0) {
++        this.getSelectors().forEach($$1 -> $$1.getVariant().resolveParents($$0));
+     }
+ 
+     @javax.annotation.Nullable
+-    public net.minecraft.client.resources.model.BakedModel bake(net.minecraft.client.resources.model.ModelBakery modelBakery, java.util.function.Function<net.minecraft.client.resources.model.Material, net.minecraft.client.renderer.texture.TextureAtlasSprite> spriteGetter, net.minecraft.client.resources.model.ModelState transform, net.minecraft.resources.ResourceLocation location) {
+-        net.minecraft.client.resources.model.MultiPartBakedModel$Builder builder = new net.minecraft.client.resources.model.MultiPartBakedModel$Builder();
+-        for (net.minecraft.client.renderer.block.model.multipart.Selector selector : this.getSelectors()) {
+-            net.minecraft.client.resources.model.BakedModel bakedModel = selector.getVariant().bake(modelBakery, spriteGetter, transform, location);
+-            if (bakedModel == null) continue;
+-            builder.add(selector.getPredicate(this.definition), bakedModel);
++    public net.minecraft.client.resources.model.BakedModel bake(net.minecraft.client.resources.model.ModelBaker $$0, java.util.function.Function<net.minecraft.client.resources.model.Material, net.minecraft.client.renderer.texture.TextureAtlasSprite> $$1, net.minecraft.client.resources.model.ModelState $$2, net.minecraft.resources.ResourceLocation $$3) {
++        net.minecraft.client.resources.model.MultiPartBakedModel$Builder $$4 = new net.minecraft.client.resources.model.MultiPartBakedModel$Builder();
++        for (net.minecraft.client.renderer.block.model.multipart.Selector $$5 : this.getSelectors()) {
++            net.minecraft.client.resources.model.BakedModel $$6 = $$5.getVariant().bake($$0, $$1, $$2, $$3);
++            if ($$6 == null) continue;
++            $$4.add($$5.getPredicate(this.definition), $$6);
+         }
+-        return builder.build();
++        return $$4.build();
+     }
+ }
+ 

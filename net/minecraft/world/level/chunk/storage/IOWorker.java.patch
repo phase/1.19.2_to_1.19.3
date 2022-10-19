@@ -1,0 +1,48 @@
+--- net/minecraft/world/level/chunk/storage/IOWorker.java
++++ net/minecraft/world/level/chunk/storage/IOWorker.java
+@@ -98,10 +98,10 @@
+         return $$0.contains("blending_data", 10);
+     }
+ 
+-    public java.util.concurrent.CompletableFuture<java.lang.Void> store(net.minecraft.world.level.ChunkPos chunkPos, @javax.annotation.Nullable net.minecraft.nbt.CompoundTag chunkData) {
++    public java.util.concurrent.CompletableFuture<java.lang.Void> store(net.minecraft.world.level.ChunkPos $$0, @javax.annotation.Nullable net.minecraft.nbt.CompoundTag $$1) {
+         return this.submitTask(() -> {
+-            net.minecraft.world.level.chunk.storage.IOWorker$PendingStore $$2 = (net.minecraft.world.level.chunk.storage.IOWorker$PendingStore)this.pendingWrites.computeIfAbsent((java.lang.Object)chunkPos, $$1 -> new net.minecraft.world.level.chunk.storage.IOWorker$PendingStore(chunkData));
+-            $$2.data = chunkData;
++            net.minecraft.world.level.chunk.storage.IOWorker$PendingStore $$2 = (net.minecraft.world.level.chunk.storage.IOWorker$PendingStore)this.pendingWrites.computeIfAbsent((java.lang.Object)$$0, $$1 -> new net.minecraft.world.level.chunk.storage.IOWorker$PendingStore($$1));
++            $$2.data = $$1;
+             return com.mojang.datafixers.util.Either.left((java.lang.Object)$$2.result);
+         }).thenCompose(java.util.function.Function.identity());
+     }
+@@ -160,8 +160,8 @@
+         });
+     }
+ 
+-    public <T> java.util.concurrent.CompletableFuture<T> submitTask(java.util.function.Supplier<com.mojang.datafixers.util.Either<T, java.lang.Exception>> task) {
+-        return this.mailbox.askEither($$1 -> new net.minecraft.util.thread.StrictQueue$IntRunnable(net.minecraft.world.level.chunk.storage.IOWorker$Priority.FOREGROUND.ordinal(), () -> this.lambda$submitTask$13($$1, (java.util.function.Supplier)task)));
++    public <T> java.util.concurrent.CompletableFuture<T> submitTask(java.util.function.Supplier<com.mojang.datafixers.util.Either<T, java.lang.Exception>> $$0) {
++        return this.mailbox.askEither($$1 -> new net.minecraft.util.thread.StrictQueue$IntRunnable(net.minecraft.world.level.chunk.storage.IOWorker$Priority.FOREGROUND.ordinal(), () -> this.lambda$submitTask$13($$1, (java.util.function.Supplier)$$0)));
+     }
+ 
+     public void storePendingChunk() {
+@@ -179,14 +179,14 @@
+         this.mailbox.tell((java.lang.Object)new net.minecraft.util.thread.StrictQueue$IntRunnable(net.minecraft.world.level.chunk.storage.IOWorker$Priority.BACKGROUND.ordinal(), () -> this.storePendingChunk()));
+     }
+ 
+-    public void runStore(net.minecraft.world.level.ChunkPos chunkPos, net.minecraft.world.level.chunk.storage.IOWorker$PendingStore pendingStore) {
++    public void runStore(net.minecraft.world.level.ChunkPos $$0, net.minecraft.world.level.chunk.storage.IOWorker$PendingStore $$1) {
+         try {
+-            this.storage.write(chunkPos, pendingStore.data);
+-            pendingStore.result.complete(null);
++            this.storage.write($$0, $$1.data);
++            $$1.result.complete(null);
+         }
+-        catch (java.lang.Exception exception) {
+-            LOGGER.error("Failed to store chunk {}", (java.lang.Object)chunkPos, (java.lang.Object)((java.lang.Object)exception));
+-            pendingStore.result.completeExceptionally((java.lang.Throwable)exception);
++        catch (java.lang.Exception $$2) {
++            LOGGER.error("Failed to store chunk {}", (java.lang.Object)$$0, (java.lang.Object)((java.lang.Object)$$2));
++            $$1.result.completeExceptionally((java.lang.Throwable)$$2);
+         }
+     }
+ 

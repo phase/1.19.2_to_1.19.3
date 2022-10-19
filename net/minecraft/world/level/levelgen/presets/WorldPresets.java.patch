@@ -1,0 +1,52 @@
+--- net/minecraft/world/level/levelgen/presets/WorldPresets.java
++++ net/minecraft/world/level/levelgen/presets/WorldPresets.java
+@@ -23,35 +23,25 @@
+         return net.minecraft.resources.ResourceKey.create((net.minecraft.resources.ResourceKey)net.minecraft.core.Registry.WORLD_PRESET_REGISTRY, (net.minecraft.resources.ResourceLocation)new net.minecraft.resources.ResourceLocation($$0));
+     }
+ 
+-    public static java.util.Optional<net.minecraft.resources.ResourceKey<net.minecraft.world.level.levelgen.presets.WorldPreset>> fromSettings(net.minecraft.world.level.levelgen.WorldGenSettings $$0) {
+-        net.minecraft.world.level.chunk.ChunkGenerator $$1 = $$0.overworld();
+-        if ($$1 instanceof net.minecraft.world.level.levelgen.FlatLevelSource) {
+-            return java.util.Optional.of((java.lang.Object)FLAT);
+-        }
+-        if ($$1 instanceof net.minecraft.world.level.levelgen.DebugLevelSource) {
+-            return java.util.Optional.of((java.lang.Object)DEBUG);
+-        }
+-        return java.util.Optional.empty();
++    public static java.util.Optional<net.minecraft.resources.ResourceKey<net.minecraft.world.level.levelgen.presets.WorldPreset>> fromSettings(net.minecraft.core.Registry<net.minecraft.world.level.dimension.LevelStem> $$02) {
++        return $$02.getOptional(net.minecraft.world.level.dimension.LevelStem.OVERWORLD).flatMap($$0 -> {
++            net.minecraft.world.level.chunk.ChunkGenerator $$1 = $$0.generator();
++            if ($$1 instanceof net.minecraft.world.level.levelgen.FlatLevelSource) {
++                return java.util.Optional.of((java.lang.Object)FLAT);
++            }
++            if ($$1 instanceof net.minecraft.world.level.levelgen.DebugLevelSource) {
++                return java.util.Optional.of((java.lang.Object)DEBUG);
++            }
++            return java.util.Optional.empty();
++        });
+     }
+ 
+-    public static net.minecraft.world.level.levelgen.WorldGenSettings createNormalWorldFromPreset(net.minecraft.core.RegistryAccess $$0, long $$1, boolean $$2, boolean $$3) {
+-        return ((net.minecraft.world.level.levelgen.presets.WorldPreset)$$0.registryOrThrow(net.minecraft.core.Registry.WORLD_PRESET_REGISTRY).getHolderOrThrow(NORMAL).value()).createWorldGenSettings($$1, $$2, $$3);
++    public static net.minecraft.world.level.levelgen.WorldDimensions createNormalWorldDimensions(net.minecraft.core.RegistryAccess $$0) {
++        return ((net.minecraft.world.level.levelgen.presets.WorldPreset)$$0.registryOrThrow(net.minecraft.core.Registry.WORLD_PRESET_REGISTRY).getHolderOrThrow(NORMAL).value()).createWorldDimensions();
+     }
+ 
+-    public static net.minecraft.world.level.levelgen.WorldGenSettings createNormalWorldFromPreset(net.minecraft.core.RegistryAccess $$0, long $$1) {
+-        return net.minecraft.world.level.levelgen.presets.WorldPresets.createNormalWorldFromPreset((net.minecraft.core.RegistryAccess)$$0, (long)$$1, (boolean)true, (boolean)false);
+-    }
+-
+-    public static net.minecraft.world.level.levelgen.WorldGenSettings createNormalWorldFromPreset(net.minecraft.core.RegistryAccess $$0) {
+-        return net.minecraft.world.level.levelgen.presets.WorldPresets.createNormalWorldFromPreset((net.minecraft.core.RegistryAccess)$$0, (long)net.minecraft.util.RandomSource.create().nextLong());
+-    }
+-
+-    public static net.minecraft.world.level.levelgen.WorldGenSettings demoSettings(net.minecraft.core.RegistryAccess $$0) {
+-        return net.minecraft.world.level.levelgen.presets.WorldPresets.createNormalWorldFromPreset((net.minecraft.core.RegistryAccess)$$0, (long)"North Carolina".hashCode(), (boolean)true, (boolean)true);
+-    }
+-
+     public static net.minecraft.world.level.dimension.LevelStem getNormalOverworld(net.minecraft.core.RegistryAccess $$0) {
+-        return ((net.minecraft.world.level.levelgen.presets.WorldPreset)$$0.registryOrThrow(net.minecraft.core.Registry.WORLD_PRESET_REGISTRY).getHolderOrThrow(NORMAL).value()).overworldOrThrow();
++        return (net.minecraft.world.level.dimension.LevelStem)((net.minecraft.world.level.levelgen.presets.WorldPreset)$$0.registryOrThrow(net.minecraft.core.Registry.WORLD_PRESET_REGISTRY).getHolderOrThrow(NORMAL).value()).overworld().orElseThrow();
+     }
+ 
+     static {

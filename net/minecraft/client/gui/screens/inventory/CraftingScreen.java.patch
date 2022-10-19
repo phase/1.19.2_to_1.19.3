@@ -1,0 +1,101 @@
+--- net/minecraft/client/gui/screens/inventory/CraftingScreen.java
++++ net/minecraft/client/gui/screens/inventory/CraftingScreen.java
+@@ -12,8 +12,8 @@
+     public net.minecraft.client.gui.screens.recipebook.RecipeBookComponent recipeBookComponent;
+     public boolean widthTooNarrow;
+ 
+-    public net.minecraft.client.gui.screens.inventory.CraftingScreen(net.minecraft.world.inventory.CraftingMenu craftingMenu, net.minecraft.world.entity.player.Inventory playerInventory, net.minecraft.network.chat.Component title) {
+-        super((net.minecraft.world.inventory.AbstractContainerMenu)craftingMenu, playerInventory, title);
++    public net.minecraft.client.gui.screens.inventory.CraftingScreen(net.minecraft.world.inventory.CraftingMenu $$0, net.minecraft.world.entity.player.Inventory $$1, net.minecraft.network.chat.Component $$2) {
++        super((net.minecraft.world.inventory.AbstractContainerMenu)$$0, $$1, $$2);
+         this.recipeBookComponent = new net.minecraft.client.gui.screens.recipebook.RecipeBookComponent();
+     }
+ 
+@@ -37,63 +37,58 @@
+         this.recipeBookComponent.tick();
+     }
+ 
+-    public void render(com.mojang.blaze3d.vertex.PoseStack matrixStack, int mouseX, int mouseY, float partialTicks) {
+-        this.renderBackground(matrixStack);
++    public void render(com.mojang.blaze3d.vertex.PoseStack $$0, int $$1, int $$2, float $$3) {
++        this.renderBackground($$0);
+         if (this.recipeBookComponent.isVisible() && this.widthTooNarrow) {
+-            this.renderBg(matrixStack, partialTicks, mouseX, mouseY);
+-            this.recipeBookComponent.render(matrixStack, mouseX, mouseY, partialTicks);
++            this.renderBg($$0, $$3, $$1, $$2);
++            this.recipeBookComponent.render($$0, $$1, $$2, $$3);
+         } else {
+-            this.recipeBookComponent.render(matrixStack, mouseX, mouseY, partialTicks);
+-            super.render(matrixStack, mouseX, mouseY, partialTicks);
+-            this.recipeBookComponent.renderGhostRecipe(matrixStack, this.leftPos, this.topPos, true, partialTicks);
++            this.recipeBookComponent.render($$0, $$1, $$2, $$3);
++            super.render($$0, $$1, $$2, $$3);
++            this.recipeBookComponent.renderGhostRecipe($$0, this.leftPos, this.topPos, true, $$3);
+         }
+-        this.renderTooltip(matrixStack, mouseX, mouseY);
+-        this.recipeBookComponent.renderTooltip(matrixStack, this.leftPos, this.topPos, mouseX, mouseY);
++        this.renderTooltip($$0, $$1, $$2);
++        this.recipeBookComponent.renderTooltip($$0, this.leftPos, this.topPos, $$1, $$2);
+     }
+ 
+-    public void renderBg(com.mojang.blaze3d.vertex.PoseStack matrixStack, float partialTicks, int x, int y) {
++    public void renderBg(com.mojang.blaze3d.vertex.PoseStack $$0, float $$1, int $$2, int $$3) {
+         com.mojang.blaze3d.systems.RenderSystem.setShader(net.minecraft.client.renderer.GameRenderer::getPositionTexShader);
+         com.mojang.blaze3d.systems.RenderSystem.setShaderColor((float)1.0f, (float)1.0f, (float)1.0f, (float)1.0f);
+         com.mojang.blaze3d.systems.RenderSystem.setShaderTexture((int)0, (net.minecraft.resources.ResourceLocation)CRAFTING_TABLE_LOCATION);
+-        int n = this.leftPos;
+-        int n2 = (this.height - this.imageHeight) / 2;
+-        this.blit(matrixStack, n, n2, 0, 0, this.imageWidth, this.imageHeight);
++        int $$4 = this.leftPos;
++        int $$5 = (this.height - this.imageHeight) / 2;
++        this.blit($$0, $$4, $$5, 0, 0, this.imageWidth, this.imageHeight);
+     }
+ 
+-    public boolean isHovering(int x, int y, int width, int height, double mouseX, double mouseY) {
+-        return (!this.widthTooNarrow || !this.recipeBookComponent.isVisible()) && super.isHovering(x, y, width, height, mouseX, mouseY);
++    public boolean isHovering(int $$0, int $$1, int $$2, int $$3, double $$4, double $$5) {
++        return (!this.widthTooNarrow || !this.recipeBookComponent.isVisible()) && super.isHovering($$0, $$1, $$2, $$3, $$4, $$5);
+     }
+ 
+-    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+-        if (this.recipeBookComponent.mouseClicked(mouseX, mouseY, button)) {
++    public boolean mouseClicked(double $$0, double $$1, int $$2) {
++        if (this.recipeBookComponent.mouseClicked($$0, $$1, $$2)) {
+             this.setFocused((net.minecraft.client.gui.components.events.GuiEventListener)this.recipeBookComponent);
+             return true;
+         }
+         if (this.widthTooNarrow && this.recipeBookComponent.isVisible()) {
+             return true;
+         }
+-        return super.mouseClicked(mouseX, mouseY, button);
++        return super.mouseClicked($$0, $$1, $$2);
+     }
+ 
+-    public boolean hasClickedOutside(double mouseX, double mouseY, int guiLeft, int guiTop, int mouseButton) {
+-        boolean bl = mouseX < (double)guiLeft || mouseY < (double)guiTop || mouseX >= (double)(guiLeft + this.imageWidth) || mouseY >= (double)(guiTop + this.imageHeight);
+-        return this.recipeBookComponent.hasClickedOutside(mouseX, mouseY, this.leftPos, this.topPos, this.imageWidth, this.imageHeight, mouseButton) && bl;
++    public boolean hasClickedOutside(double $$0, double $$1, int $$2, int $$3, int $$4) {
++        boolean $$5 = $$0 < (double)$$2 || $$1 < (double)$$3 || $$0 >= (double)($$2 + this.imageWidth) || $$1 >= (double)($$3 + this.imageHeight);
++        return this.recipeBookComponent.hasClickedOutside($$0, $$1, this.leftPos, this.topPos, this.imageWidth, this.imageHeight, $$4) && $$5;
+     }
+ 
+-    public void slotClicked(net.minecraft.world.inventory.Slot slot, int slotId, int mouseButton, net.minecraft.world.inventory.ClickType type) {
+-        super.slotClicked(slot, slotId, mouseButton, type);
+-        this.recipeBookComponent.slotClicked(slot);
++    public void slotClicked(net.minecraft.world.inventory.Slot $$0, int $$1, int $$2, net.minecraft.world.inventory.ClickType $$3) {
++        super.slotClicked($$0, $$1, $$2, $$3);
++        this.recipeBookComponent.slotClicked($$0);
+     }
+ 
+     public void recipesUpdated() {
+         this.recipeBookComponent.recipesUpdated();
+     }
+ 
+-    public void removed() {
+-        this.recipeBookComponent.removed();
+-        super.removed();
+-    }
+-
+     public net.minecraft.client.gui.screens.recipebook.RecipeBookComponent getRecipeBookComponent() {
+         return this.recipeBookComponent;
+     }

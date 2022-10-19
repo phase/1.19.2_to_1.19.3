@@ -1,0 +1,45 @@
+--- net/minecraft/world/entity/ai/sensing/NearestBedSensor.java
++++ net/minecraft/world/entity/ai/sensing/NearestBedSensor.java
+@@ -22,15 +22,15 @@
+         return com.google.common.collect.ImmutableSet.of((java.lang.Object)net.minecraft.world.entity.ai.memory.MemoryModuleType.NEAREST_BED);
+     }
+ 
+-    public void doTick(net.minecraft.server.level.ServerLevel level, net.minecraft.world.entity.Mob entity) {
+-        java.util.function.Predicate predicate;
+-        if (!entity.isBaby()) {
++    public void doTick(net.minecraft.server.level.ServerLevel $$02, net.minecraft.world.entity.Mob $$1) {
++        java.util.function.Predicate $$3;
++        if (!$$1.isBaby()) {
+             return;
+         }
+         this.triedCount = 0;
+-        this.lastUpdate = level.getGameTime() + (long)level.getRandom().nextInt(20);
+-        net.minecraft.world.entity.ai.village.poi.PoiManager poiManager = level.getPoiManager();
+-        java.util.Set set = (java.util.Set)poiManager.findAllWithType($$0 -> $$0.is(net.minecraft.world.entity.ai.village.poi.PoiTypes.HOME), predicate = $$0 -> {
++        this.lastUpdate = $$02.getGameTime() + (long)$$02.getRandom().nextInt(20);
++        net.minecraft.world.entity.ai.village.poi.PoiManager $$2 = $$02.getPoiManager();
++        java.util.Set $$4 = (java.util.Set)$$2.findAllWithType($$0 -> $$0.is(net.minecraft.world.entity.ai.village.poi.PoiTypes.HOME), $$3 = $$0 -> {
+             long $$1 = $$0.asLong();
+             if (this.batchCache.containsKey($$1)) {
+                 return false;
+@@ -40,13 +40,13 @@
+             }
+             this.batchCache.put($$1, this.lastUpdate + 40L);
+             return true;
+-        }, entity.blockPosition(), 48, net.minecraft.world.entity.ai.village.poi.PoiManager$Occupancy.ANY).collect(java.util.stream.Collectors.toSet());
+-        net.minecraft.world.level.pathfinder.Path path = net.minecraft.world.entity.ai.behavior.AcquirePoi.findPathToPois((net.minecraft.world.entity.Mob)entity, (java.util.Set)set);
+-        if (path != null && path.canReach()) {
+-            net.minecraft.core.BlockPos blockPos = path.getTarget();
+-            java.util.Optional optional = poiManager.getType(blockPos);
+-            if (optional.isPresent()) {
+-                entity.getBrain().setMemory(net.minecraft.world.entity.ai.memory.MemoryModuleType.NEAREST_BED, (java.lang.Object)blockPos);
++        }, $$1.blockPosition(), 48, net.minecraft.world.entity.ai.village.poi.PoiManager$Occupancy.ANY).collect(java.util.stream.Collectors.toSet());
++        net.minecraft.world.level.pathfinder.Path $$5 = net.minecraft.world.entity.ai.behavior.AcquirePoi.findPathToPois((net.minecraft.world.entity.Mob)$$1, (java.util.Set)$$4);
++        if ($$5 != null && $$5.canReach()) {
++            net.minecraft.core.BlockPos $$6 = $$5.getTarget();
++            java.util.Optional $$7 = $$2.getType($$6);
++            if ($$7.isPresent()) {
++                $$1.getBrain().setMemory(net.minecraft.world.entity.ai.memory.MemoryModuleType.NEAREST_BED, (java.lang.Object)$$6);
+             }
+         } else if (this.triedCount < 5) {
+             this.batchCache.long2LongEntrySet().removeIf($$0 -> $$0.getLongValue() < this.lastUpdate);

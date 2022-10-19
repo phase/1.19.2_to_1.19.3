@@ -1,0 +1,213 @@
+--- net/minecraft/world/level/border/WorldBorder.java
++++ net/minecraft/world/level/border/WorldBorder.java
+@@ -28,12 +28,12 @@
+         this.extent = new net.minecraft.world.level.border.WorldBorder$StaticBorderExtent(this, 5.9999968E7);
+     }
+ 
+-    public boolean isWithinBounds(net.minecraft.core.BlockPos pos) {
+-        return (double)(pos.getX() + 1) > this.getMinX() && (double)pos.getX() < this.getMaxX() && (double)(pos.getZ() + 1) > this.getMinZ() && (double)pos.getZ() < this.getMaxZ();
++    public boolean isWithinBounds(net.minecraft.core.BlockPos $$0) {
++        return (double)($$0.getX() + 1) > this.getMinX() && (double)$$0.getX() < this.getMaxX() && (double)($$0.getZ() + 1) > this.getMinZ() && (double)$$0.getZ() < this.getMaxZ();
+     }
+ 
+-    public boolean isWithinBounds(net.minecraft.world.level.ChunkPos range) {
+-        return (double)range.getMaxBlockX() > this.getMinX() && (double)range.getMinBlockX() < this.getMaxX() && (double)range.getMaxBlockZ() > this.getMinZ() && (double)range.getMinBlockZ() < this.getMaxZ();
++    public boolean isWithinBounds(net.minecraft.world.level.ChunkPos $$0) {
++        return (double)$$0.getMaxBlockX() > this.getMinX() && (double)$$0.getMinBlockX() < this.getMaxX() && (double)$$0.getMaxBlockZ() > this.getMinZ() && (double)$$0.getMinBlockZ() < this.getMaxZ();
+     }
+ 
+     public boolean isWithinBounds(double $$0, double $$1) {
+@@ -44,30 +44,30 @@
+         return $$0 > this.getMinX() - $$2 && $$0 < this.getMaxX() + $$2 && $$1 > this.getMinZ() - $$2 && $$1 < this.getMaxZ() + $$2;
+     }
+ 
+-    public boolean isWithinBounds(net.minecraft.world.phys.AABB bb) {
+-        return bb.maxX > this.getMinX() && bb.minX < this.getMaxX() && bb.maxZ > this.getMinZ() && bb.minZ < this.getMaxZ();
++    public boolean isWithinBounds(net.minecraft.world.phys.AABB $$0) {
++        return $$0.maxX > this.getMinX() && $$0.minX < this.getMaxX() && $$0.maxZ > this.getMinZ() && $$0.minZ < this.getMaxZ();
+     }
+ 
+     public net.minecraft.core.BlockPos clampToBounds(double $$0, double $$1, double $$2) {
+         return new net.minecraft.core.BlockPos(net.minecraft.util.Mth.clamp((double)$$0, (double)this.getMinX(), (double)this.getMaxX()), $$1, net.minecraft.util.Mth.clamp((double)$$2, (double)this.getMinZ(), (double)this.getMaxZ()));
+     }
+ 
+-    public double getDistanceToBorder(net.minecraft.world.entity.Entity entity) {
+-        return this.getDistanceToBorder(entity.getX(), entity.getZ());
++    public double getDistanceToBorder(net.minecraft.world.entity.Entity $$0) {
++        return this.getDistanceToBorder($$0.getX(), $$0.getZ());
+     }
+ 
+     public net.minecraft.world.phys.shapes.VoxelShape getCollisionShape() {
+         return this.extent.getCollisionShape();
+     }
+ 
+-    public double getDistanceToBorder(double x, double z) {
+-        double d = z - this.getMinZ();
+-        double d2 = this.getMaxZ() - z;
+-        double d3 = x - this.getMinX();
+-        double d4 = this.getMaxX() - x;
+-        double d5 = java.lang.Math.min((double)d3, (double)d4);
+-        d5 = java.lang.Math.min((double)d5, (double)d);
+-        return java.lang.Math.min((double)d5, (double)d2);
++    public double getDistanceToBorder(double $$0, double $$1) {
++        double $$2 = $$1 - this.getMinZ();
++        double $$3 = this.getMaxZ() - $$1;
++        double $$4 = $$0 - this.getMinX();
++        double $$5 = this.getMaxX() - $$0;
++        double $$6 = java.lang.Math.min((double)$$4, (double)$$5);
++        $$6 = java.lang.Math.min((double)$$6, (double)$$2);
++        return java.lang.Math.min((double)$$6, (double)$$3);
+     }
+ 
+     public boolean isInsideCloseToBorder(net.minecraft.world.entity.Entity $$0, net.minecraft.world.phys.AABB $$1) {
+@@ -103,12 +103,12 @@
+         return this.centerZ;
+     }
+ 
+-    public void setCenter(double x, double z) {
+-        this.centerX = x;
+-        this.centerZ = z;
++    public void setCenter(double $$0, double $$1) {
++        this.centerX = $$0;
++        this.centerZ = $$1;
+         this.extent.onCenterChange();
+-        for (net.minecraft.world.level.border.BorderChangeListener borderChangeListener : this.getListeners()) {
+-            borderChangeListener.onBorderCenterSet(this, x, z);
++        for (net.minecraft.world.level.border.BorderChangeListener $$2 : this.getListeners()) {
++            $$2.onBorderCenterSet(this, $$0, $$1);
+         }
+     }
+ 
+@@ -124,17 +124,17 @@
+         return this.extent.getLerpTarget();
+     }
+ 
+-    public void setSize(double newSize) {
+-        this.extent = new net.minecraft.world.level.border.WorldBorder$StaticBorderExtent(this, newSize);
+-        for (net.minecraft.world.level.border.BorderChangeListener borderChangeListener : this.getListeners()) {
+-            borderChangeListener.onBorderSizeSet(this, newSize);
++    public void setSize(double $$0) {
++        this.extent = new net.minecraft.world.level.border.WorldBorder$StaticBorderExtent(this, $$0);
++        for (net.minecraft.world.level.border.BorderChangeListener $$1 : this.getListeners()) {
++            $$1.onBorderSizeSet(this, $$0);
+         }
+     }
+ 
+-    public void lerpSizeBetween(double oldSize, double newSize, long time) {
+-        this.extent = oldSize == newSize ? new net.minecraft.world.level.border.WorldBorder$StaticBorderExtent(this, newSize) : new net.minecraft.world.level.border.WorldBorder$MovingBorderExtent(this, oldSize, newSize, time);
+-        for (net.minecraft.world.level.border.BorderChangeListener borderChangeListener : this.getListeners()) {
+-            borderChangeListener.onBorderSizeLerping(this, oldSize, newSize, time);
++    public void lerpSizeBetween(double $$0, double $$1, long $$2) {
++        this.extent = $$0 == $$1 ? new net.minecraft.world.level.border.WorldBorder$StaticBorderExtent(this, $$1) : new net.minecraft.world.level.border.WorldBorder$MovingBorderExtent(this, $$0, $$1, $$2);
++        for (net.minecraft.world.level.border.BorderChangeListener $$3 : this.getListeners()) {
++            $$3.onBorderSizeLerping(this, $$0, $$1, $$2);
+         }
+     }
+ 
+@@ -142,16 +142,16 @@
+         return com.google.common.collect.Lists.newArrayList((java.lang.Iterable)this.listeners);
+     }
+ 
+-    public void addListener(net.minecraft.world.level.border.BorderChangeListener listener) {
+-        this.listeners.add((java.lang.Object)listener);
++    public void addListener(net.minecraft.world.level.border.BorderChangeListener $$0) {
++        this.listeners.add((java.lang.Object)$$0);
+     }
+ 
+     public void removeListener(net.minecraft.world.level.border.BorderChangeListener $$0) {
+         this.listeners.remove((java.lang.Object)$$0);
+     }
+ 
+-    public void setAbsoluteMaxSize(int size) {
+-        this.absoluteMaxSize = size;
++    public void setAbsoluteMaxSize(int $$0) {
++        this.absoluteMaxSize = $$0;
+         this.extent.onAbsoluteMaxSizeChange();
+     }
+ 
+@@ -163,10 +163,10 @@
+         return this.damageSafeZone;
+     }
+ 
+-    public void setDamageSafeZone(double bufferSize) {
+-        this.damageSafeZone = bufferSize;
+-        for (net.minecraft.world.level.border.BorderChangeListener borderChangeListener : this.getListeners()) {
+-            borderChangeListener.onBorderSetDamageSafeZOne(this, bufferSize);
++    public void setDamageSafeZone(double $$0) {
++        this.damageSafeZone = $$0;
++        for (net.minecraft.world.level.border.BorderChangeListener $$1 : this.getListeners()) {
++            $$1.onBorderSetDamageSafeZOne(this, $$0);
+         }
+     }
+ 
+@@ -174,10 +174,10 @@
+         return this.damagePerBlock;
+     }
+ 
+-    public void setDamagePerBlock(double newAmount) {
+-        this.damagePerBlock = newAmount;
+-        for (net.minecraft.world.level.border.BorderChangeListener borderChangeListener : this.getListeners()) {
+-            borderChangeListener.onBorderSetDamagePerBlock(this, newAmount);
++    public void setDamagePerBlock(double $$0) {
++        this.damagePerBlock = $$0;
++        for (net.minecraft.world.level.border.BorderChangeListener $$1 : this.getListeners()) {
++            $$1.onBorderSetDamagePerBlock(this, $$0);
+         }
+     }
+ 
+@@ -189,10 +189,10 @@
+         return this.warningTime;
+     }
+ 
+-    public void setWarningTime(int warningTime) {
+-        this.warningTime = warningTime;
+-        for (net.minecraft.world.level.border.BorderChangeListener borderChangeListener : this.getListeners()) {
+-            borderChangeListener.onBorderSetWarningTime(this, warningTime);
++    public void setWarningTime(int $$0) {
++        this.warningTime = $$0;
++        for (net.minecraft.world.level.border.BorderChangeListener $$1 : this.getListeners()) {
++            $$1.onBorderSetWarningTime(this, $$0);
+         }
+     }
+ 
+@@ -200,10 +200,10 @@
+         return this.warningBlocks;
+     }
+ 
+-    public void setWarningBlocks(int warningDistance) {
+-        this.warningBlocks = warningDistance;
+-        for (net.minecraft.world.level.border.BorderChangeListener borderChangeListener : this.getListeners()) {
+-            borderChangeListener.onBorderSetWarningBlocks(this, warningDistance);
++    public void setWarningBlocks(int $$0) {
++        this.warningBlocks = $$0;
++        for (net.minecraft.world.level.border.BorderChangeListener $$1 : this.getListeners()) {
++            $$1.onBorderSetWarningBlocks(this, $$0);
+         }
+     }
+ 
+@@ -215,16 +215,16 @@
+         return new net.minecraft.world.level.border.WorldBorder$Settings(this);
+     }
+ 
+-    public void applySettings(net.minecraft.world.level.border.WorldBorder$Settings serializer) {
+-        this.setCenter(serializer.getCenterX(), serializer.getCenterZ());
+-        this.setDamagePerBlock(serializer.getDamagePerBlock());
+-        this.setDamageSafeZone(serializer.getSafeZone());
+-        this.setWarningBlocks(serializer.getWarningBlocks());
+-        this.setWarningTime(serializer.getWarningTime());
+-        if (serializer.getSizeLerpTime() > 0L) {
+-            this.lerpSizeBetween(serializer.getSize(), serializer.getSizeLerpTarget(), serializer.getSizeLerpTime());
++    public void applySettings(net.minecraft.world.level.border.WorldBorder$Settings $$0) {
++        this.setCenter($$0.getCenterX(), $$0.getCenterZ());
++        this.setDamagePerBlock($$0.getDamagePerBlock());
++        this.setDamageSafeZone($$0.getSafeZone());
++        this.setWarningBlocks($$0.getWarningBlocks());
++        this.setWarningTime($$0.getWarningTime());
++        if ($$0.getSizeLerpTime() > 0L) {
++            this.lerpSizeBetween($$0.getSize(), $$0.getSizeLerpTarget(), $$0.getSizeLerpTime());
+         } else {
+-            this.setSize(serializer.getSize());
++            this.setSize($$0.getSize());
+         }
+     }
+ 

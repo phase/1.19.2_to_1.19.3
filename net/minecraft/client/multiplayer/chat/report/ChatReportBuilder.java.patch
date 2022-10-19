@@ -1,0 +1,149 @@
+--- net/minecraft/client/multiplayer/chat/report/ChatReportBuilder.java
++++ net/minecraft/client/multiplayer/chat/report/ChatReportBuilder.java
+@@ -94,98 +94,20 @@
+     }
+ 
+     public com.mojang.authlib.minecraft.report.ReportEvidence buildEvidence(net.minecraft.client.multiplayer.chat.ChatLog $$0) {
+-        it.unimi.dsi.fastutil.ints.Int2ObjectRBTreeMap $$1 = new it.unimi.dsi.fastutil.ints.Int2ObjectRBTreeMap();
+-        this.reportedMessages.forEach(arg_0 -> this.lambda$buildEvidence$1($$0, (it.unimi.dsi.fastutil.ints.Int2ObjectSortedMap)$$1, arg_0));
+-        return new com.mojang.authlib.minecraft.report.ReportEvidence((java.util.List)new java.util.ArrayList((java.util.Collection)$$1.values()));
++        java.util.ArrayList $$1 = new java.util.ArrayList();
++        net.minecraft.client.multiplayer.chat.report.ChatReportContextBuilder $$2 = new net.minecraft.client.multiplayer.chat.report.ChatReportContextBuilder(this.limits.leadingContextMessageCount());
++        $$2.collectAllContext($$0, (it.unimi.dsi.fastutil.ints.IntCollection)this.reportedMessages, (arg_0, arg_1) -> this.lambda$buildEvidence$0((java.util.List)$$1, arg_0, arg_1));
++        return new com.mojang.authlib.minecraft.report.ReportEvidence(com.google.common.collect.Lists.reverse((java.util.List)$$1));
+     }
+ 
+-    public java.util.stream.Stream<net.minecraft.client.multiplayer.chat.ChatLog$Entry<net.minecraft.client.multiplayer.chat.LoggedChatMessageLink>> chainForPlayer(net.minecraft.client.multiplayer.chat.ChatLog $$02, it.unimi.dsi.fastutil.ints.Int2ObjectMap<net.minecraft.client.multiplayer.chat.LoggedChatMessage$Player> $$12, java.util.UUID $$2) {
+-        int $$3 = java.lang.Integer.MAX_VALUE;
+-        int $$4 = java.lang.Integer.MIN_VALUE;
+-        for (it.unimi.dsi.fastutil.ints.Int2ObjectMap$Entry $$5 : it.unimi.dsi.fastutil.ints.Int2ObjectMaps.fastIterable($$12)) {
+-            net.minecraft.client.multiplayer.chat.LoggedChatMessage$Player $$6 = (net.minecraft.client.multiplayer.chat.LoggedChatMessage$Player)$$5.getValue();
+-            if (!$$6.profileId().equals((java.lang.Object)$$2)) continue;
+-            int $$7 = $$5.getIntKey();
+-            $$3 = java.lang.Math.min((int)$$3, (int)$$7);
+-            $$4 = java.lang.Math.max((int)$$4, (int)$$7);
+-        }
+-        return $$02.selectBetween($$3, $$4).entries().map($$0 -> $$0.tryCast(net.minecraft.client.multiplayer.chat.LoggedChatMessageLink.class)).filter(java.util.Objects::nonNull).filter($$1 -> ((net.minecraft.client.multiplayer.chat.LoggedChatMessageLink)$$1.event()).header().sender().equals((java.lang.Object)$$2));
++    public com.mojang.authlib.minecraft.report.ReportChatMessage buildReportedChatMessage(net.minecraft.client.multiplayer.chat.LoggedChatMessage$Player $$0, boolean $$1) {
++        net.minecraft.network.chat.SignedMessageLink $$2 = $$0.message().link();
++        net.minecraft.network.chat.SignedMessageBody $$3 = $$0.message().signedBody();
++        java.util.List $$4 = $$3.lastSeen().entries().stream().map(net.minecraft.network.chat.MessageSignature::asByteBuffer).toList();
++        java.nio.ByteBuffer $$5 = (java.nio.ByteBuffer)net.minecraft.Util.mapNullable((java.lang.Object)$$0.message().signature(), net.minecraft.network.chat.MessageSignature::asByteBuffer);
++        return new com.mojang.authlib.minecraft.report.ReportChatMessage($$2.index(), $$2.sender(), $$2.sessionId(), $$3.timeStamp(), $$3.salt(), $$4, $$3.content(), $$5, $$1);
+     }
+ 
+-    public static it.unimi.dsi.fastutil.ints.Int2ObjectMap<net.minecraft.client.multiplayer.chat.LoggedChatMessage$Player> collectReferencedContext(net.minecraft.client.multiplayer.chat.ChatLog $$0, int $$1, com.mojang.authlib.minecraft.report.AbuseReportLimits $$2) {
+-        int $$3 = $$2.leadingContextMessageCount() + 1;
+-        it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap $$4 = new it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap();
+-        net.minecraft.client.multiplayer.chat.report.ChatReportBuilder.walkMessageReferenceGraph((net.minecraft.client.multiplayer.chat.ChatLog)$$0, (int)$$1, (arg_0, arg_1) -> net.minecraft.client.multiplayer.chat.report.ChatReportBuilder.lambda$collectReferencedContext$4((it.unimi.dsi.fastutil.ints.Int2ObjectMap)$$4, $$3, arg_0, arg_1));
+-        net.minecraft.client.multiplayer.chat.report.ChatReportBuilder.trailingContext((net.minecraft.client.multiplayer.chat.ChatLog)$$0, (int)$$1, (int)$$2.trailingContextMessageCount()).forEach(arg_0 -> net.minecraft.client.multiplayer.chat.report.ChatReportBuilder.lambda$collectReferencedContext$5((it.unimi.dsi.fastutil.ints.Int2ObjectMap)$$4, arg_0));
+-        return $$4;
+-    }
+-
+-    public static java.util.stream.Stream<net.minecraft.client.multiplayer.chat.ChatLog$Entry<net.minecraft.client.multiplayer.chat.LoggedChatMessage$Player>> trailingContext(net.minecraft.client.multiplayer.chat.ChatLog $$02, int $$1, int $$2) {
+-        return $$02.selectAfter($$02.after($$1)).entries().map($$0 -> $$0.tryCast(net.minecraft.client.multiplayer.chat.LoggedChatMessage$Player.class)).filter(java.util.Objects::nonNull).limit((long)$$2);
+-    }
+-
+-    public static void walkMessageReferenceGraph(net.minecraft.client.multiplayer.chat.ChatLog $$0, int $$1, net.minecraft.client.multiplayer.chat.report.ChatReportBuilder$ReferencedMessageVisitor $$2) {
+-        it.unimi.dsi.fastutil.ints.IntArrayPriorityQueue $$3 = new it.unimi.dsi.fastutil.ints.IntArrayPriorityQueue(it.unimi.dsi.fastutil.ints.IntComparators.OPPOSITE_COMPARATOR);
+-        $$3.enqueue($$1);
+-        it.unimi.dsi.fastutil.ints.IntOpenHashSet $$4 = new it.unimi.dsi.fastutil.ints.IntOpenHashSet();
+-        $$4.add($$1);
+-        while (!$$3.isEmpty()) {
+-            int $$5 = $$3.dequeueInt();
+-            net.minecraft.client.multiplayer.chat.LoggedChatEvent loggedChatEvent = $$0.lookup($$5);
+-            if (!(loggedChatEvent instanceof net.minecraft.client.multiplayer.chat.LoggedChatMessage$Player)) continue;
+-            net.minecraft.client.multiplayer.chat.LoggedChatMessage$Player $$6 = (net.minecraft.client.multiplayer.chat.LoggedChatMessage$Player)loggedChatEvent;
+-            if (!$$2.accept($$5, $$6)) break;
+-            loggedChatEvent = net.minecraft.client.multiplayer.chat.report.ChatReportBuilder.messageReferences((net.minecraft.client.multiplayer.chat.ChatLog)$$0, (int)$$5, (net.minecraft.network.chat.PlayerChatMessage)$$6.message()).iterator();
+-            while (loggedChatEvent.hasNext()) {
+-                int $$7 = (java.lang.Integer)loggedChatEvent.next();
+-                if (!$$4.add($$7)) continue;
+-                $$3.enqueue($$7);
+-            }
+-        }
+-    }
+-
+-    public static it.unimi.dsi.fastutil.ints.IntCollection messageReferences(net.minecraft.client.multiplayer.chat.ChatLog $$0, int $$1, net.minecraft.network.chat.PlayerChatMessage $$2) {
+-        java.util.Set $$3 = (java.util.Set)$$2.signedBody().lastSeen().entries().stream().map(net.minecraft.network.chat.LastSeenMessages$Entry::lastSignature).collect(java.util.stream.Collectors.toCollection(it.unimi.dsi.fastutil.objects.ObjectOpenHashSet::new));
+-        net.minecraft.network.chat.MessageSignature $$4 = $$2.signedHeader().previousSignature();
+-        if ($$4 != null) {
+-            $$3.add((java.lang.Object)$$4);
+-        }
+-        it.unimi.dsi.fastutil.ints.IntArrayList $$5 = new it.unimi.dsi.fastutil.ints.IntArrayList();
+-        java.util.Iterator $$6 = $$0.selectBefore($$1).entries().iterator();
+-        while ($$6.hasNext() && !$$3.isEmpty()) {
+-            net.minecraft.client.multiplayer.chat.LoggedChatMessage$Player $$8;
+-            net.minecraft.client.multiplayer.chat.ChatLog$Entry $$7 = (net.minecraft.client.multiplayer.chat.ChatLog$Entry)$$6.next();
+-            net.minecraft.client.multiplayer.chat.LoggedChatEvent loggedChatEvent = $$7.event();
+-            if (!(loggedChatEvent instanceof net.minecraft.client.multiplayer.chat.LoggedChatMessage$Player) || !$$3.remove((java.lang.Object)($$8 = (net.minecraft.client.multiplayer.chat.LoggedChatMessage$Player)loggedChatEvent).headerSignature())) continue;
+-            $$5.add($$7.id());
+-        }
+-        return $$5;
+-    }
+-
+-    public com.mojang.authlib.minecraft.report.ReportChatMessage buildReportedChatMessage(int $$02, net.minecraft.client.multiplayer.chat.LoggedChatMessage$Player $$1) {
+-        net.minecraft.network.chat.PlayerChatMessage $$2 = $$1.message();
+-        net.minecraft.network.chat.SignedMessageBody $$3 = $$2.signedBody();
+-        java.time.Instant $$4 = $$2.timeStamp();
+-        long $$5 = $$2.salt();
+-        java.nio.ByteBuffer $$6 = $$2.headerSignature().asByteBuffer();
+-        java.nio.ByteBuffer $$7 = (java.nio.ByteBuffer)net.minecraft.Util.mapNullable((java.lang.Object)$$2.signedHeader().previousSignature(), net.minecraft.network.chat.MessageSignature::asByteBuffer);
+-        java.nio.ByteBuffer $$8 = java.nio.ByteBuffer.wrap((byte[])$$3.hash().asBytes());
+-        com.mojang.authlib.minecraft.report.ReportChatMessageContent $$9 = new com.mojang.authlib.minecraft.report.ReportChatMessageContent($$2.signedContent().plain(), $$2.signedContent().isDecorated() ? net.minecraft.client.multiplayer.chat.report.ChatReportBuilder.encodeComponent((net.minecraft.network.chat.Component)$$2.signedContent().decorated()) : null);
+-        java.lang.String $$10 = (java.lang.String)$$2.unsignedContent().map(net.minecraft.client.multiplayer.chat.report.ChatReportBuilder::encodeComponent).orElse(null);
+-        java.util.List $$11 = $$3.lastSeen().entries().stream().map($$0 -> new com.mojang.authlib.minecraft.report.ReportChatMessageBody$LastSeenSignature($$0.profileId(), $$0.lastSignature().asByteBuffer())).toList();
+-        return new com.mojang.authlib.minecraft.report.ReportChatMessage(new com.mojang.authlib.minecraft.report.ReportChatMessageHeader($$7, $$1.profileId(), $$8, $$6), new com.mojang.authlib.minecraft.report.ReportChatMessageBody($$4, $$5, $$11, $$9), $$10, this.isReported($$02));
+-    }
+-
+-    public com.mojang.authlib.minecraft.report.ReportChatMessage buildReportedChatHeader(net.minecraft.client.multiplayer.chat.LoggedChatMessageLink $$0) {
+-        java.nio.ByteBuffer $$1 = $$0.headerSignature().asByteBuffer();
+-        java.nio.ByteBuffer $$2 = (java.nio.ByteBuffer)net.minecraft.Util.mapNullable((java.lang.Object)$$0.header().previousSignature(), net.minecraft.network.chat.MessageSignature::asByteBuffer);
+-        return new com.mojang.authlib.minecraft.report.ReportChatMessage(new com.mojang.authlib.minecraft.report.ReportChatMessageHeader($$2, $$0.header().sender(), java.nio.ByteBuffer.wrap((byte[])$$0.bodyDigest()), $$1), null, null, false);
+-    }
+-
+-    public static java.lang.String encodeComponent(net.minecraft.network.chat.Component $$0) {
+-        return net.minecraft.network.chat.Component$Serializer.toStableJson((net.minecraft.network.chat.Component)$$0);
+-    }
+-
+     public net.minecraft.client.multiplayer.chat.report.ChatReportBuilder copy() {
+         net.minecraft.client.multiplayer.chat.report.ChatReportBuilder $$0 = new net.minecraft.client.multiplayer.chat.report.ChatReportBuilder(this.reportId, this.createdAt, this.reportedProfileId, this.limits);
+         $$0.reportedMessages.addAll((it.unimi.dsi.fastutil.ints.IntCollection)this.reportedMessages);
+@@ -194,35 +116,8 @@
+         return $$0;
+     }
+ 
+-    public static /* synthetic */ void lambda$collectReferencedContext$5(it.unimi.dsi.fastutil.ints.Int2ObjectMap $$0, net.minecraft.client.multiplayer.chat.ChatLog$Entry $$1) {
+-        $$0.put($$1.id(), (java.lang.Object)((net.minecraft.client.multiplayer.chat.LoggedChatMessage$Player)$$1.event()));
++    public /* synthetic */ void lambda$buildEvidence$0(java.util.List $$0, int $$1, net.minecraft.client.multiplayer.chat.LoggedChatMessage$Player $$2) {
++        $$0.add((java.lang.Object)this.buildReportedChatMessage($$2, this.isReported($$1)));
+     }
+-
+-    public static /* synthetic */ boolean lambda$collectReferencedContext$4(it.unimi.dsi.fastutil.ints.Int2ObjectMap $$0, int $$1, int $$2, net.minecraft.client.multiplayer.chat.LoggedChatMessage$Player $$3) {
+-        $$0.put($$2, (java.lang.Object)$$3);
+-        return $$0.size() < $$1;
+-    }
+-
+-    public /* synthetic */ void lambda$buildEvidence$1(net.minecraft.client.multiplayer.chat.ChatLog $$0, it.unimi.dsi.fastutil.ints.Int2ObjectSortedMap $$12, int $$2) {
+-        it.unimi.dsi.fastutil.ints.Int2ObjectMap $$3 = net.minecraft.client.multiplayer.chat.report.ChatReportBuilder.collectReferencedContext((net.minecraft.client.multiplayer.chat.ChatLog)$$0, (int)$$2, (com.mojang.authlib.minecraft.report.AbuseReportLimits)this.limits);
+-        it.unimi.dsi.fastutil.objects.ObjectOpenHashSet $$4 = new it.unimi.dsi.fastutil.objects.ObjectOpenHashSet();
+-        for (it.unimi.dsi.fastutil.ints.Int2ObjectMap$Entry $$5 : it.unimi.dsi.fastutil.ints.Int2ObjectMaps.fastIterable((it.unimi.dsi.fastutil.ints.Int2ObjectMap)$$3)) {
+-            int $$6 = $$5.getIntKey();
+-            net.minecraft.client.multiplayer.chat.LoggedChatMessage$Player $$7 = (net.minecraft.client.multiplayer.chat.LoggedChatMessage$Player)$$5.getValue();
+-            $$12.put($$6, (java.lang.Object)this.buildReportedChatMessage($$6, $$7));
+-            $$4.add((java.lang.Object)$$7.profileId());
+-        }
+-        for (java.util.UUID $$8 : $$4) {
+-            this.chainForPlayer($$0, $$3, $$8).forEach($$1 -> {
+-                net.minecraft.client.multiplayer.chat.LoggedChatMessageLink $$2 = (net.minecraft.client.multiplayer.chat.LoggedChatMessageLink)$$1.event();
+-                if ($$2 instanceof net.minecraft.client.multiplayer.chat.LoggedChatMessage$Player) {
+-                    net.minecraft.client.multiplayer.chat.LoggedChatMessage$Player $$3 = (net.minecraft.client.multiplayer.chat.LoggedChatMessage$Player)$$2;
+-                    $$12.putIfAbsent($$1.id(), (java.lang.Object)this.buildReportedChatMessage($$1.id(), $$3));
+-                } else {
+-                    $$12.putIfAbsent($$1.id(), (java.lang.Object)this.buildReportedChatHeader($$2));
+-                }
+-            });
+-        }
+-    }
+ }
+ 

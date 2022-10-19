@@ -1,0 +1,132 @@
+--- net/minecraft/world/item/crafting/RecipeManager.java
++++ net/minecraft/world/item/crafting/RecipeManager.java
+@@ -18,32 +18,32 @@
+         this.byName = com.google.common.collect.ImmutableMap.of();
+     }
+ 
+-    public void apply(java.util.Map<net.minecraft.resources.ResourceLocation, com.google.gson.JsonElement> object, net.minecraft.server.packs.resources.ResourceManager resourceManager, net.minecraft.util.profiling.ProfilerFiller profiler) {
++    public void apply(java.util.Map<net.minecraft.resources.ResourceLocation, com.google.gson.JsonElement> $$02, net.minecraft.server.packs.resources.ResourceManager $$1, net.minecraft.util.profiling.ProfilerFiller $$2) {
+         this.hasErrors = false;
+-        java.util.HashMap hashMap = com.google.common.collect.Maps.newHashMap();
+-        com.google.common.collect.ImmutableMap$Builder builder = com.google.common.collect.ImmutableMap.builder();
+-        for (java.util.Map$Entry entry2 : object.entrySet()) {
+-            net.minecraft.resources.ResourceLocation resourceLocation = (net.minecraft.resources.ResourceLocation)entry2.getKey();
++        java.util.HashMap $$3 = com.google.common.collect.Maps.newHashMap();
++        com.google.common.collect.ImmutableMap$Builder $$4 = com.google.common.collect.ImmutableMap.builder();
++        for (java.util.Map$Entry $$5 : $$02.entrySet()) {
++            net.minecraft.resources.ResourceLocation $$6 = (net.minecraft.resources.ResourceLocation)$$5.getKey();
+             try {
+-                net.minecraft.world.item.crafting.Recipe recipe = net.minecraft.world.item.crafting.RecipeManager.fromJson((net.minecraft.resources.ResourceLocation)resourceLocation, (com.google.gson.JsonObject)net.minecraft.util.GsonHelper.convertToJsonObject((com.google.gson.JsonElement)((com.google.gson.JsonElement)entry2.getValue()), (java.lang.String)"top element"));
+-                ((com.google.common.collect.ImmutableMap$Builder)hashMap.computeIfAbsent((java.lang.Object)recipe.getType(), type -> com.google.common.collect.ImmutableMap.builder())).put((java.lang.Object)resourceLocation, (java.lang.Object)recipe);
+-                builder.put((java.lang.Object)resourceLocation, (java.lang.Object)recipe);
++                net.minecraft.world.item.crafting.Recipe $$7 = net.minecraft.world.item.crafting.RecipeManager.fromJson((net.minecraft.resources.ResourceLocation)$$6, (com.google.gson.JsonObject)net.minecraft.util.GsonHelper.convertToJsonObject((com.google.gson.JsonElement)((com.google.gson.JsonElement)$$5.getValue()), (java.lang.String)"top element"));
++                ((com.google.common.collect.ImmutableMap$Builder)$$3.computeIfAbsent((java.lang.Object)$$7.getType(), $$0 -> com.google.common.collect.ImmutableMap.builder())).put((java.lang.Object)$$6, (java.lang.Object)$$7);
++                $$4.put((java.lang.Object)$$6, (java.lang.Object)$$7);
+             }
+-            catch (com.google.gson.JsonParseException | java.lang.IllegalArgumentException throwable) {
+-                LOGGER.error("Parsing error loading recipe {}", (java.lang.Object)resourceLocation, (java.lang.Object)throwable);
++            catch (com.google.gson.JsonParseException | java.lang.IllegalArgumentException $$8) {
++                LOGGER.error("Parsing error loading recipe {}", (java.lang.Object)$$6, (java.lang.Object)$$8);
+             }
+         }
+-        this.recipes = (java.util.Map)hashMap.entrySet().stream().collect(com.google.common.collect.ImmutableMap.toImmutableMap(java.util.Map$Entry::getKey, entry -> ((com.google.common.collect.ImmutableMap$Builder)entry.getValue()).build()));
+-        this.byName = builder.build();
+-        LOGGER.info("Loaded {} recipes", (java.lang.Object)hashMap.size());
++        this.recipes = (java.util.Map)$$3.entrySet().stream().collect(com.google.common.collect.ImmutableMap.toImmutableMap(java.util.Map$Entry::getKey, $$0 -> ((com.google.common.collect.ImmutableMap$Builder)$$0.getValue()).build()));
++        this.byName = $$4.build();
++        LOGGER.info("Loaded {} recipes", (java.lang.Object)$$3.size());
+     }
+ 
+     public boolean hadErrorsLoading() {
+         return this.hasErrors;
+     }
+ 
+-    public <C extends net.minecraft.world.Container, T extends net.minecraft.world.item.crafting.Recipe<C>> java.util.Optional<T> getRecipeFor(net.minecraft.world.item.crafting.RecipeType<T> recipeType, C inventory, net.minecraft.world.level.Level level) {
+-        return this.byType(recipeType).values().stream().filter($$2 -> $$2.matches(inventory, level)).findFirst();
++    public <C extends net.minecraft.world.Container, T extends net.minecraft.world.item.crafting.Recipe<C>> java.util.Optional<T> getRecipeFor(net.minecraft.world.item.crafting.RecipeType<T> $$0, C $$1, net.minecraft.world.level.Level $$22) {
++        return this.byType($$0).values().stream().filter($$2 -> $$2.matches($$1, $$22)).findFirst();
+     }
+ 
+     public <C extends net.minecraft.world.Container, T extends net.minecraft.world.item.crafting.Recipe<C>> java.util.Optional<com.mojang.datafixers.util.Pair<net.minecraft.resources.ResourceLocation, T>> getRecipeFor(net.minecraft.world.item.crafting.RecipeType<T> $$02, C $$1, net.minecraft.world.level.Level $$22, @javax.annotation.Nullable net.minecraft.resources.ResourceLocation $$3) {
+@@ -55,54 +55,54 @@
+         return $$4.entrySet().stream().filter($$2 -> ((net.minecraft.world.item.crafting.Recipe)$$2.getValue()).matches($$1, $$22)).findFirst().map($$0 -> com.mojang.datafixers.util.Pair.of((java.lang.Object)((net.minecraft.resources.ResourceLocation)$$0.getKey()), (java.lang.Object)((net.minecraft.world.item.crafting.Recipe)$$0.getValue())));
+     }
+ 
+-    public <C extends net.minecraft.world.Container, T extends net.minecraft.world.item.crafting.Recipe<C>> java.util.List<T> getAllRecipesFor(net.minecraft.world.item.crafting.RecipeType<T> recipeType) {
+-        return java.util.List.copyOf((java.util.Collection)this.byType(recipeType).values());
++    public <C extends net.minecraft.world.Container, T extends net.minecraft.world.item.crafting.Recipe<C>> java.util.List<T> getAllRecipesFor(net.minecraft.world.item.crafting.RecipeType<T> $$0) {
++        return java.util.List.copyOf((java.util.Collection)this.byType($$0).values());
+     }
+ 
+-    public <C extends net.minecraft.world.Container, T extends net.minecraft.world.item.crafting.Recipe<C>> java.util.List<T> getRecipesFor(net.minecraft.world.item.crafting.RecipeType<T> recipeType, C inventory, net.minecraft.world.level.Level level) {
+-        return (java.util.List)this.byType(recipeType).values().stream().filter($$2 -> $$2.matches(inventory, level)).sorted(java.util.Comparator.comparing($$0 -> $$0.getResultItem().getDescriptionId())).collect(java.util.stream.Collectors.toList());
++    public <C extends net.minecraft.world.Container, T extends net.minecraft.world.item.crafting.Recipe<C>> java.util.List<T> getRecipesFor(net.minecraft.world.item.crafting.RecipeType<T> $$02, C $$1, net.minecraft.world.level.Level $$22) {
++        return (java.util.List)this.byType($$02).values().stream().filter($$2 -> $$2.matches($$1, $$22)).sorted(java.util.Comparator.comparing($$0 -> $$0.getResultItem().getDescriptionId())).collect(java.util.stream.Collectors.toList());
+     }
+ 
+-    public <C extends net.minecraft.world.Container, T extends net.minecraft.world.item.crafting.Recipe<C>> java.util.Map<net.minecraft.resources.ResourceLocation, T> byType(net.minecraft.world.item.crafting.RecipeType<T> recipeType) {
+-        return (java.util.Map)this.recipes.getOrDefault(recipeType, (java.lang.Object)java.util.Collections.emptyMap());
++    public <C extends net.minecraft.world.Container, T extends net.minecraft.world.item.crafting.Recipe<C>> java.util.Map<net.minecraft.resources.ResourceLocation, T> byType(net.minecraft.world.item.crafting.RecipeType<T> $$0) {
++        return (java.util.Map)this.recipes.getOrDefault($$0, (java.lang.Object)java.util.Collections.emptyMap());
+     }
+ 
+-    public <C extends net.minecraft.world.Container, T extends net.minecraft.world.item.crafting.Recipe<C>> net.minecraft.core.NonNullList<net.minecraft.world.item.ItemStack> getRemainingItemsFor(net.minecraft.world.item.crafting.RecipeType<T> recipeType, C inventory, net.minecraft.world.level.Level level) {
+-        java.util.Optional optional = this.getRecipeFor(recipeType, inventory, level);
+-        if (optional.isPresent()) {
+-            return ((net.minecraft.world.item.crafting.Recipe)optional.get()).getRemainingItems(inventory);
++    public <C extends net.minecraft.world.Container, T extends net.minecraft.world.item.crafting.Recipe<C>> net.minecraft.core.NonNullList<net.minecraft.world.item.ItemStack> getRemainingItemsFor(net.minecraft.world.item.crafting.RecipeType<T> $$0, C $$1, net.minecraft.world.level.Level $$2) {
++        java.util.Optional $$3 = this.getRecipeFor($$0, $$1, $$2);
++        if ($$3.isPresent()) {
++            return ((net.minecraft.world.item.crafting.Recipe)$$3.get()).getRemainingItems($$1);
+         }
+-        net.minecraft.core.NonNullList nonNullList = net.minecraft.core.NonNullList.withSize((int)inventory.getContainerSize(), (java.lang.Object)net.minecraft.world.item.ItemStack.EMPTY);
+-        for (int i = 0; i < nonNullList.size(); ++i) {
+-            nonNullList.set(i, (java.lang.Object)inventory.getItem(i));
++        net.minecraft.core.NonNullList $$4 = net.minecraft.core.NonNullList.withSize((int)$$1.getContainerSize(), (java.lang.Object)net.minecraft.world.item.ItemStack.EMPTY);
++        for (int $$5 = 0; $$5 < $$4.size(); ++$$5) {
++            $$4.set($$5, (java.lang.Object)$$1.getItem($$5));
+         }
+-        return nonNullList;
++        return $$4;
+     }
+ 
+-    public java.util.Optional<? extends net.minecraft.world.item.crafting.Recipe<?>> byKey(net.minecraft.resources.ResourceLocation recipeId) {
+-        return java.util.Optional.ofNullable((java.lang.Object)((net.minecraft.world.item.crafting.Recipe)this.byName.get((java.lang.Object)recipeId)));
++    public java.util.Optional<? extends net.minecraft.world.item.crafting.Recipe<?>> byKey(net.minecraft.resources.ResourceLocation $$0) {
++        return java.util.Optional.ofNullable((java.lang.Object)((net.minecraft.world.item.crafting.Recipe)this.byName.get((java.lang.Object)$$0)));
+     }
+ 
+     public java.util.Collection<net.minecraft.world.item.crafting.Recipe<?>> getRecipes() {
+-        return (java.util.Collection)this.recipes.values().stream().flatMap(recipe -> recipe.values().stream()).collect(java.util.stream.Collectors.toSet());
++        return (java.util.Collection)this.recipes.values().stream().flatMap($$0 -> $$0.values().stream()).collect(java.util.stream.Collectors.toSet());
+     }
+ 
+     public java.util.stream.Stream<net.minecraft.resources.ResourceLocation> getRecipeIds() {
+-        return this.recipes.values().stream().flatMap(recipe -> recipe.keySet().stream());
++        return this.recipes.values().stream().flatMap($$0 -> $$0.keySet().stream());
+     }
+ 
+-    public static net.minecraft.world.item.crafting.Recipe<?> fromJson(net.minecraft.resources.ResourceLocation recipeId, com.google.gson.JsonObject json) {
+-        java.lang.String string = net.minecraft.util.GsonHelper.getAsString((com.google.gson.JsonObject)json, (java.lang.String)"type");
+-        return ((net.minecraft.world.item.crafting.RecipeSerializer)net.minecraft.core.Registry.RECIPE_SERIALIZER.getOptional(new net.minecraft.resources.ResourceLocation(string)).orElseThrow(() -> new com.google.gson.JsonSyntaxException("Invalid or unsupported recipe type '" + string + "'"))).fromJson(recipeId, json);
++    public static net.minecraft.world.item.crafting.Recipe<?> fromJson(net.minecraft.resources.ResourceLocation $$0, com.google.gson.JsonObject $$1) {
++        java.lang.String $$2 = net.minecraft.util.GsonHelper.getAsString((com.google.gson.JsonObject)$$1, (java.lang.String)"type");
++        return ((net.minecraft.world.item.crafting.RecipeSerializer)net.minecraft.core.Registry.RECIPE_SERIALIZER.getOptional(new net.minecraft.resources.ResourceLocation($$2)).orElseThrow(() -> new com.google.gson.JsonSyntaxException("Invalid or unsupported recipe type '" + $$2 + "'"))).fromJson($$0, $$1);
+     }
+ 
+-    public void replaceRecipes(java.lang.Iterable<net.minecraft.world.item.crafting.Recipe<?>> recipes) {
++    public void replaceRecipes(java.lang.Iterable<net.minecraft.world.item.crafting.Recipe<?>> $$0) {
+         this.hasErrors = false;
+-        java.util.HashMap hashMap = com.google.common.collect.Maps.newHashMap();
+-        com.google.common.collect.ImmutableMap$Builder builder = com.google.common.collect.ImmutableMap.builder();
+-        recipes.forEach(arg_0 -> net.minecraft.world.item.crafting.RecipeManager.lambda$replaceRecipes$11((java.util.Map)hashMap, builder, arg_0));
+-        this.recipes = com.google.common.collect.ImmutableMap.copyOf((java.util.Map)hashMap);
+-        this.byName = builder.build();
++        java.util.HashMap $$1 = com.google.common.collect.Maps.newHashMap();
++        com.google.common.collect.ImmutableMap$Builder $$2 = com.google.common.collect.ImmutableMap.builder();
++        $$0.forEach(arg_0 -> net.minecraft.world.item.crafting.RecipeManager.lambda$replaceRecipes$11((java.util.Map)$$1, $$2, arg_0));
++        this.recipes = com.google.common.collect.ImmutableMap.copyOf((java.util.Map)$$1);
++        this.byName = $$2.build();
+     }
+ 
+     public static <C extends net.minecraft.world.Container, T extends net.minecraft.world.item.crafting.Recipe<C>> net.minecraft.world.item.crafting.RecipeManager$CachedCheck<C, T> createCheck(net.minecraft.world.item.crafting.RecipeType<T> $$0) {

@@ -1,0 +1,112 @@
+--- net/minecraft/client/renderer/entity/MobRenderer.java
++++ net/minecraft/client/renderer/entity/MobRenderer.java
+@@ -12,66 +12,63 @@
+         super($$0, $$1, $$2);
+     }
+ 
+-    public boolean shouldShowName(T entity) {
+-        return super.shouldShowName(entity) && (entity.shouldShowName() || entity.hasCustomName() && entity == this.entityRenderDispatcher.crosshairPickEntity);
++    public boolean shouldShowName(T $$0) {
++        return super.shouldShowName($$0) && ($$0.shouldShowName() || $$0.hasCustomName() && $$0 == this.entityRenderDispatcher.crosshairPickEntity);
+     }
+ 
+-    public boolean shouldRender(T livingEntity, net.minecraft.client.renderer.culling.Frustum camera, double camX, double camY, double camZ) {
+-        if (super.shouldRender(livingEntity, camera, camX, camY, camZ)) {
++    public boolean shouldRender(T $$0, net.minecraft.client.renderer.culling.Frustum $$1, double $$2, double $$3, double $$4) {
++        if (super.shouldRender($$0, $$1, $$2, $$3, $$4)) {
+             return true;
+         }
+-        net.minecraft.world.entity.Entity entity = livingEntity.getLeashHolder();
+-        if (entity != null) {
+-            return camera.isVisible(entity.getBoundingBoxForCulling());
++        net.minecraft.world.entity.Entity $$5 = $$0.getLeashHolder();
++        if ($$5 != null) {
++            return $$1.isVisible($$5.getBoundingBoxForCulling());
+         }
+         return false;
+     }
+ 
+-    public void render(T entity, float entityYaw, float partialTicks, com.mojang.blaze3d.vertex.PoseStack matrixStack, net.minecraft.client.renderer.MultiBufferSource buffer, int packedLight) {
+-        super.render(entity, entityYaw, partialTicks, matrixStack, buffer, packedLight);
+-        net.minecraft.world.entity.Entity entity2 = entity.getLeashHolder();
+-        if (entity2 == null) {
++    public void render(T $$0, float $$1, float $$2, com.mojang.blaze3d.vertex.PoseStack $$3, net.minecraft.client.renderer.MultiBufferSource $$4, int $$5) {
++        super.render($$0, $$1, $$2, $$3, $$4, $$5);
++        net.minecraft.world.entity.Entity $$6 = $$0.getLeashHolder();
++        if ($$6 == null) {
+             return;
+         }
+-        this.renderLeash(entity, partialTicks, matrixStack, buffer, entity2);
++        this.renderLeash($$0, $$2, $$3, $$4, $$6);
+     }
+ 
+-    public <E extends net.minecraft.world.entity.Entity> void renderLeash(T entityLiving, float partialTicks, com.mojang.blaze3d.vertex.PoseStack matrixStack, net.minecraft.client.renderer.MultiBufferSource buffer, E leashHolder) {
+-        int n;
+-        matrixStack.pushPose();
+-        net.minecraft.world.phys.Vec3 vec3 = leashHolder.getRopeHoldPosition(partialTicks);
+-        double d = (double)(net.minecraft.util.Mth.lerp((float)partialTicks, (float)((net.minecraft.world.entity.Mob)entityLiving).yBodyRotO, (float)((net.minecraft.world.entity.Mob)entityLiving).yBodyRot) * ((float)java.lang.Math.PI / 180)) + 1.5707963267948966;
+-        net.minecraft.world.phys.Vec3 vec32 = entityLiving.getLeashOffset();
+-        double d2 = java.lang.Math.cos((double)d) * vec32.z + java.lang.Math.sin((double)d) * vec32.x;
+-        double d3 = java.lang.Math.sin((double)d) * vec32.z - java.lang.Math.cos((double)d) * vec32.x;
+-        double d4 = net.minecraft.util.Mth.lerp((double)partialTicks, (double)((net.minecraft.world.entity.Mob)entityLiving).xo, (double)entityLiving.getX()) + d2;
+-        double d5 = net.minecraft.util.Mth.lerp((double)partialTicks, (double)((net.minecraft.world.entity.Mob)entityLiving).yo, (double)entityLiving.getY()) + vec32.y;
+-        double d6 = net.minecraft.util.Mth.lerp((double)partialTicks, (double)((net.minecraft.world.entity.Mob)entityLiving).zo, (double)entityLiving.getZ()) + d3;
+-        matrixStack.translate(d2, vec32.y, d3);
+-        float f = (float)(vec3.x - d4);
+-        float f2 = (float)(vec3.y - d5);
+-        float f3 = (float)(vec3.z - d6);
+-        float f4 = 0.025f;
+-        com.mojang.blaze3d.vertex.VertexConsumer vertexConsumer = buffer.getBuffer(net.minecraft.client.renderer.RenderType.leash());
+-        com.mojang.math.Matrix4f matrix4f = matrixStack.last().pose();
+-        float f5 = net.minecraft.util.Mth.fastInvSqrt((float)(f * f + f3 * f3)) * 0.025f / 2.0f;
+-        float f6 = f3 * f5;
+-        float f7 = f * f5;
+-        net.minecraft.core.BlockPos blockPos = new net.minecraft.core.BlockPos(entityLiving.getEyePosition(partialTicks));
+-        net.minecraft.core.BlockPos blockPos2 = new net.minecraft.core.BlockPos(leashHolder.getEyePosition(partialTicks));
+-        int n2 = this.getBlockLightLevel(entityLiving, blockPos);
+-        int n3 = this.entityRenderDispatcher.getRenderer(leashHolder).getBlockLightLevel(leashHolder, blockPos2);
+-        int n4 = ((net.minecraft.world.entity.Mob)entityLiving).level.getBrightness(net.minecraft.world.level.LightLayer.SKY, blockPos);
+-        int n5 = ((net.minecraft.world.entity.Mob)entityLiving).level.getBrightness(net.minecraft.world.level.LightLayer.SKY, blockPos2);
+-        for (n = 0;
+- n <= 24; ++n) {
+-            net.minecraft.client.renderer.entity.MobRenderer.addVertexPair((com.mojang.blaze3d.vertex.VertexConsumer)vertexConsumer, (com.mojang.math.Matrix4f)matrix4f, (float)f, (float)f2, (float)f3, (int)n2, (int)n3, (int)n4, (int)n5, (float)0.025f, (float)0.025f, (float)f6, (float)f7, (int)n, (boolean)false);
++    public <E extends net.minecraft.world.entity.Entity> void renderLeash(T $$0, float $$1, com.mojang.blaze3d.vertex.PoseStack $$2, net.minecraft.client.renderer.MultiBufferSource $$3, E $$4) {
++        $$2.pushPose();
++        net.minecraft.world.phys.Vec3 $$5 = $$4.getRopeHoldPosition($$1);
++        double $$6 = (double)(net.minecraft.util.Mth.lerp((float)$$1, (float)((net.minecraft.world.entity.Mob)$$0).yBodyRotO, (float)((net.minecraft.world.entity.Mob)$$0).yBodyRot) * ((float)java.lang.Math.PI / 180)) + 1.5707963267948966;
++        net.minecraft.world.phys.Vec3 $$7 = $$0.getLeashOffset($$1);
++        double $$8 = java.lang.Math.cos((double)$$6) * $$7.z + java.lang.Math.sin((double)$$6) * $$7.x;
++        double $$9 = java.lang.Math.sin((double)$$6) * $$7.z - java.lang.Math.cos((double)$$6) * $$7.x;
++        double $$10 = net.minecraft.util.Mth.lerp((double)$$1, (double)((net.minecraft.world.entity.Mob)$$0).xo, (double)$$0.getX()) + $$8;
++        double $$11 = net.minecraft.util.Mth.lerp((double)$$1, (double)((net.minecraft.world.entity.Mob)$$0).yo, (double)$$0.getY()) + $$7.y;
++        double $$12 = net.minecraft.util.Mth.lerp((double)$$1, (double)((net.minecraft.world.entity.Mob)$$0).zo, (double)$$0.getZ()) + $$9;
++        $$2.translate($$8, $$7.y, $$9);
++        float $$13 = (float)($$5.x - $$10);
++        float $$14 = (float)($$5.y - $$11);
++        float $$15 = (float)($$5.z - $$12);
++        float $$16 = 0.025f;
++        com.mojang.blaze3d.vertex.VertexConsumer $$17 = $$3.getBuffer(net.minecraft.client.renderer.RenderType.leash());
++        com.mojang.math.Matrix4f $$18 = $$2.last().pose();
++        float $$19 = net.minecraft.util.Mth.fastInvSqrt((float)($$13 * $$13 + $$15 * $$15)) * 0.025f / 2.0f;
++        float $$20 = $$15 * $$19;
++        float $$21 = $$13 * $$19;
++        net.minecraft.core.BlockPos $$22 = new net.minecraft.core.BlockPos($$0.getEyePosition($$1));
++        net.minecraft.core.BlockPos $$23 = new net.minecraft.core.BlockPos($$4.getEyePosition($$1));
++        int $$24 = this.getBlockLightLevel($$0, $$22);
++        int $$25 = this.entityRenderDispatcher.getRenderer($$4).getBlockLightLevel($$4, $$23);
++        int $$26 = ((net.minecraft.world.entity.Mob)$$0).level.getBrightness(net.minecraft.world.level.LightLayer.SKY, $$22);
++        int $$27 = ((net.minecraft.world.entity.Mob)$$0).level.getBrightness(net.minecraft.world.level.LightLayer.SKY, $$23);
++        for (int $$28 = 0; $$28 <= 24; ++$$28) {
++            net.minecraft.client.renderer.entity.MobRenderer.addVertexPair((com.mojang.blaze3d.vertex.VertexConsumer)$$17, (com.mojang.math.Matrix4f)$$18, (float)$$13, (float)$$14, (float)$$15, (int)$$24, (int)$$25, (int)$$26, (int)$$27, (float)0.025f, (float)0.025f, (float)$$20, (float)$$21, (int)$$28, (boolean)false);
+         }
+-        for (n = 24;
+- n >= 0; --n) {
+-            net.minecraft.client.renderer.entity.MobRenderer.addVertexPair((com.mojang.blaze3d.vertex.VertexConsumer)vertexConsumer, (com.mojang.math.Matrix4f)matrix4f, (float)f, (float)f2, (float)f3, (int)n2, (int)n3, (int)n4, (int)n5, (float)0.025f, (float)0.0f, (float)f6, (float)f7, (int)n, (boolean)true);
++        for (int $$29 = 24; $$29 >= 0; --$$29) {
++            net.minecraft.client.renderer.entity.MobRenderer.addVertexPair((com.mojang.blaze3d.vertex.VertexConsumer)$$17, (com.mojang.math.Matrix4f)$$18, (float)$$13, (float)$$14, (float)$$15, (int)$$24, (int)$$25, (int)$$26, (int)$$27, (float)0.025f, (float)0.0f, (float)$$20, (float)$$21, (int)$$29, (boolean)true);
+         }
+-        matrixStack.popPose();
++        $$2.popPose();
+     }
+ 
+     public static void addVertexPair(com.mojang.blaze3d.vertex.VertexConsumer $$0, com.mojang.math.Matrix4f $$1, float $$2, float $$3, float $$4, int $$5, int $$6, int $$7, int $$8, float $$9, float $$10, float $$11, float $$12, int $$13, boolean $$14) {

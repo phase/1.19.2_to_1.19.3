@@ -1,0 +1,80 @@
+--- net/minecraft/client/resources/AssetIndex.java
++++ net/minecraft/client/resources/AssetIndex.java
+@@ -1,77 +1,0 @@
+-/*
+- * Decompiled with CFR 0.151.
+- */
+-package net.minecraft.client.resources;
+-
+-public class net.minecraft.client.resources.AssetIndex
+- {
+-    public static org.slf4j.Logger LOGGER;
+-    public java.util.Map<java.lang.String, java.io.File> rootFiles;
+-    public java.util.Map<net.minecraft.resources.ResourceLocation, java.io.File> namespacedFiles;
+-
+-    public net.minecraft.client.resources.AssetIndex() {
+-        this.rootFiles = com.google.common.collect.Maps.newHashMap();
+-        this.namespacedFiles = com.google.common.collect.Maps.newHashMap();
+-    }
+-
+-    /*
+-     * WARNING - Removed try catching itself - possible behaviour change.
+-     */
+-    public net.minecraft.client.resources.AssetIndex(java.io.File file, java.lang.String string) {
+-        this.rootFiles = com.google.common.collect.Maps.newHashMap();
+-        this.namespacedFiles = com.google.common.collect.Maps.newHashMap();
+-        java.io.File file2 = new java.io.File(file, "objects");
+-        java.io.File file3 = new java.io.File(file, "indexes/" + string + ".json");
+-        java.io.BufferedReader bufferedReader = null;
+-        try {
+-            bufferedReader = com.google.common.io.Files.newReader((java.io.File)file3, (java.nio.charset.Charset)java.nio.charset.StandardCharsets.UTF_8);
+-            com.google.gson.JsonObject jsonObject = net.minecraft.util.GsonHelper.parse((java.io.Reader)bufferedReader);
+-            com.google.gson.JsonObject jsonObject2 = net.minecraft.util.GsonHelper.getAsJsonObject((com.google.gson.JsonObject)jsonObject, (java.lang.String)"objects", null);
+-            if (jsonObject2 != null) {
+-                for (java.util.Map$Entry entry : jsonObject2.entrySet()) {
+-                    com.google.gson.JsonObject jsonObject3 = (com.google.gson.JsonObject)entry.getValue();
+-                    java.lang.String string2 = (java.lang.String)entry.getKey();
+-                    java.lang.String[] stringArray = string2.split("/", 2);
+-                    java.lang.String string3 = net.minecraft.util.GsonHelper.getAsString((com.google.gson.JsonObject)jsonObject3, (java.lang.String)"hash");
+-                    java.io.File file4 = new java.io.File(file2, string3.substring(0, 2) + "/" + string3);
+-                    if (stringArray.length == 1) {
+-                        this.rootFiles.put((java.lang.Object)stringArray[0], (java.lang.Object)file4);
+-                        continue;
+-                    }
+-                    this.namespacedFiles.put((java.lang.Object)new net.minecraft.resources.ResourceLocation(stringArray[0], stringArray[1]), (java.lang.Object)file4);
+-                }
+-            }
+-        }
+-        catch (com.google.gson.JsonParseException jsonParseException) {
+-            LOGGER.error("Unable to parse resource index file: {}", (java.lang.Object)file3);
+-        }
+-        catch (java.io.FileNotFoundException fileNotFoundException) {
+-            LOGGER.error("Can't find the resource index file: {}", (java.lang.Object)file3);
+-        }
+-        finally {
+-            org.apache.commons.io.IOUtils.closeQuietly((java.io.Reader)bufferedReader);
+-        }
+-    }
+-
+-    @javax.annotation.Nullable
+-    public java.io.File getFile(net.minecraft.resources.ResourceLocation location) {
+-        return (java.io.File)this.namespacedFiles.get((java.lang.Object)location);
+-    }
+-
+-    @javax.annotation.Nullable
+-    public java.io.File getRootFile(java.lang.String child) {
+-        return (java.io.File)this.rootFiles.get((java.lang.Object)child);
+-    }
+-
+-    public java.util.Collection<net.minecraft.resources.ResourceLocation> getFiles(java.lang.String $$0, java.lang.String $$1, java.util.function.Predicate<net.minecraft.resources.ResourceLocation> $$2) {
+-        return (java.util.Collection)this.namespacedFiles.keySet().stream().filter($$3 -> {
+-            java.lang.String $$4 = $$3.getPath();
+-            return $$3.getNamespace().equals((java.lang.Object)$$1) && !$$4.endsWith(".mcmeta") && $$4.startsWith($$0 + "/") && $$2.test($$3);
+-        }).collect(java.util.stream.Collectors.toList());
+-    }
+-
+-    static {
+-        LOGGER = com.mojang.logging.LogUtils.getLogger();
+-    }
+-}
+-

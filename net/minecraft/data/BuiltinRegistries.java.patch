@@ -1,0 +1,69 @@
+--- net/minecraft/data/BuiltinRegistries.java
++++ net/minecraft/data/BuiltinRegistries.java
+@@ -24,7 +24,6 @@
+     public static net.minecraft.core.Registry<net.minecraft.world.level.levelgen.presets.WorldPreset> WORLD_PRESET;
+     public static net.minecraft.core.Registry<net.minecraft.world.level.levelgen.flat.FlatLevelGeneratorPreset> FLAT_LEVEL_GENERATOR_PRESET;
+     public static net.minecraft.core.Registry<net.minecraft.network.chat.ChatType> CHAT_TYPE;
+-    public static net.minecraft.core.RegistryAccess ACCESS;
+ 
+     public net.minecraft.data.BuiltinRegistries() {
+     }
+@@ -34,7 +33,7 @@
+     }
+ 
+     public static <T> net.minecraft.core.Registry<T> registerSimple(net.minecraft.resources.ResourceKey<? extends net.minecraft.core.Registry<T>> $$0, com.mojang.serialization.Lifecycle $$1, net.minecraft.data.BuiltinRegistries$RegistryBootstrap<T> $$2) {
+-        return net.minecraft.data.BuiltinRegistries.internalRegister($$0, (net.minecraft.core.WritableRegistry)new net.minecraft.core.MappedRegistry($$0, $$1, null), $$2, (com.mojang.serialization.Lifecycle)$$1);
++        return net.minecraft.data.BuiltinRegistries.internalRegister($$0, (net.minecraft.core.WritableRegistry)new net.minecraft.core.MappedRegistry($$0, $$1), $$2, (com.mojang.serialization.Lifecycle)$$1);
+     }
+ 
+     public static <T, R extends net.minecraft.core.WritableRegistry<T>> R internalRegister(net.minecraft.resources.ResourceKey<? extends net.minecraft.core.Registry<T>> $$0, R $$1, net.minecraft.data.BuiltinRegistries$RegistryBootstrap<T> $$2, com.mojang.serialization.Lifecycle $$3) {
+@@ -44,6 +43,12 @@
+         return $$1;
+     }
+ 
++    public static net.minecraft.core.RegistryAccess$Frozen createAccess() {
++        net.minecraft.core.RegistryAccess$Frozen $$0 = net.minecraft.core.RegistryAccess.fromRegistryOfRegistries((net.minecraft.core.Registry)net.minecraft.core.Registry.REGISTRY);
++        net.minecraft.core.RegistryAccess$Frozen $$1 = net.minecraft.core.RegistryAccess.fromRegistryOfRegistries((net.minecraft.core.Registry)REGISTRY);
++        return new net.minecraft.core.RegistryAccess$ImmutableRegistryAccess(java.util.stream.Stream.concat((java.util.stream.Stream)$$0.registries(), (java.util.stream.Stream)$$1.registries())).freeze();
++    }
++
+     public static <V extends T, T> net.minecraft.core.Holder<V> registerExact(net.minecraft.core.Registry<T> $$0, java.lang.String $$1, V $$2) {
+         net.minecraft.core.Holder $$3 = net.minecraft.data.BuiltinRegistries.register($$0, (net.minecraft.resources.ResourceLocation)new net.minecraft.resources.ResourceLocation($$1), $$2);
+         return $$3;
+@@ -65,7 +70,7 @@
+     }
+ 
+     public static /* synthetic */ void lambda$static$3(net.minecraft.resources.ResourceLocation $$0, java.util.function.Supplier $$1) {
+-        if (!((net.minecraft.core.Holder)$$1.get()).isBound()) {
++        if ($$1.get() == null) {
+             LOGGER.error("Unable to bootstrap registry '{}'", (java.lang.Object)$$0);
+         }
+     }
+@@ -81,7 +86,7 @@
+     static {
+         LOGGER = com.mojang.logging.LogUtils.getLogger();
+         LOADERS = com.google.common.collect.Maps.newLinkedHashMap();
+-        WRITABLE_REGISTRY = new net.minecraft.core.MappedRegistry(net.minecraft.resources.ResourceKey.createRegistryKey((net.minecraft.resources.ResourceLocation)new net.minecraft.resources.ResourceLocation("root")), com.mojang.serialization.Lifecycle.experimental(), null);
++        WRITABLE_REGISTRY = new net.minecraft.core.MappedRegistry(net.minecraft.resources.ResourceKey.createRegistryKey((net.minecraft.resources.ResourceLocation)new net.minecraft.resources.ResourceLocation("root")), com.mojang.serialization.Lifecycle.experimental());
+         REGISTRY = WRITABLE_REGISTRY;
+         DIMENSION_TYPE = net.minecraft.data.BuiltinRegistries.registerSimple((net.minecraft.resources.ResourceKey)net.minecraft.core.Registry.DIMENSION_TYPE_REGISTRY, net.minecraft.data.worldgen.DimensionTypes::bootstrap);
+         CONFIGURED_CARVER = net.minecraft.data.BuiltinRegistries.registerSimple((net.minecraft.resources.ResourceKey)net.minecraft.core.Registry.CONFIGURED_CARVER_REGISTRY, $$0 -> net.minecraft.data.worldgen.Carvers.CAVE);
+@@ -99,12 +104,15 @@
+         FLAT_LEVEL_GENERATOR_PRESET = net.minecraft.data.BuiltinRegistries.registerSimple((net.minecraft.resources.ResourceKey)net.minecraft.core.Registry.FLAT_LEVEL_GENERATOR_PRESET_REGISTRY, net.minecraft.world.level.levelgen.flat.FlatLevelGeneratorPresets::bootstrap);
+         CHAT_TYPE = net.minecraft.data.BuiltinRegistries.registerSimple((net.minecraft.resources.ResourceKey)net.minecraft.core.Registry.CHAT_TYPE_REGISTRY, net.minecraft.network.chat.ChatType::bootstrap);
+         LOADERS.forEach(($$0, $$1) -> {
+-            if (!((net.minecraft.core.Holder)$$1.get()).isBound()) {
++            if ($$1.get() == null) {
+                 LOGGER.error("Unable to bootstrap registry '{}'", $$0);
+             }
+         });
+-        net.minecraft.core.Registry.checkRegistry((net.minecraft.core.Registry)WRITABLE_REGISTRY);
+-        ACCESS = net.minecraft.core.RegistryAccess.fromRegistryOfRegistries((net.minecraft.core.Registry)REGISTRY);
++        REGISTRY.freeze();
++        for (net.minecraft.core.Registry $$02 : REGISTRY) {
++            $$02.freeze();
++        }
++        net.minecraft.core.Registry.checkRegistry((net.minecraft.core.Registry)REGISTRY);
+     }
+ }
+ 

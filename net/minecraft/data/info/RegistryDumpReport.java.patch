@@ -1,0 +1,57 @@
+--- net/minecraft/data/info/RegistryDumpReport.java
++++ net/minecraft/data/info/RegistryDumpReport.java
+@@ -6,37 +6,37 @@
+ public class net.minecraft.data.info.RegistryDumpReport
+ implements net.minecraft.data.DataProvider
+  {
+-    public net.minecraft.data.DataGenerator generator;
++    public net.minecraft.data.PackOutput output;
+ 
+-    public net.minecraft.data.info.RegistryDumpReport(net.minecraft.data.DataGenerator generator) {
+-        this.generator = generator;
++    public net.minecraft.data.info.RegistryDumpReport(net.minecraft.data.PackOutput $$0) {
++        this.output = $$0;
+     }
+ 
+     public void run(net.minecraft.data.CachedOutput $$0) throws java.io.IOException {
+         com.google.gson.JsonObject $$12 = new com.google.gson.JsonObject();
+         net.minecraft.core.Registry.REGISTRY.holders().forEach($$1 -> $$12.add($$1.key().location().toString(), net.minecraft.data.info.RegistryDumpReport.dumpRegistry((net.minecraft.core.Registry)((net.minecraft.core.Registry)$$1.value()))));
+-        java.nio.file.Path $$2 = this.generator.getOutputFolder(net.minecraft.data.DataGenerator$Target.REPORTS).resolve("registries.json");
++        java.nio.file.Path $$2 = this.output.getOutputFolder(net.minecraft.data.PackOutput$Target.REPORTS).resolve("registries.json");
+         net.minecraft.data.DataProvider.saveStable((net.minecraft.data.CachedOutput)$$0, (com.google.gson.JsonElement)$$12, (java.nio.file.Path)$$2);
+     }
+ 
+-    public static <T> com.google.gson.JsonElement dumpRegistry(net.minecraft.core.Registry<T> registry) {
+-        com.google.gson.JsonObject jsonObject = new com.google.gson.JsonObject();
+-        if (registry instanceof net.minecraft.core.DefaultedRegistry) {
+-            net.minecraft.resources.ResourceLocation resourceLocation = ((net.minecraft.core.DefaultedRegistry)registry).getDefaultKey();
+-            jsonObject.addProperty("default", resourceLocation.toString());
++    public static <T> com.google.gson.JsonElement dumpRegistry(net.minecraft.core.Registry<T> $$0) {
++        com.google.gson.JsonObject $$1 = new com.google.gson.JsonObject();
++        if ($$0 instanceof net.minecraft.core.DefaultedRegistry) {
++            net.minecraft.resources.ResourceLocation $$22 = ((net.minecraft.core.DefaultedRegistry)$$0).getDefaultKey();
++            $$1.addProperty("default", $$22.toString());
+         }
+-        int n = net.minecraft.core.Registry.REGISTRY.getId(registry);
+-        jsonObject.addProperty("protocol_id", (java.lang.Number)java.lang.Integer.valueOf((int)n));
+-        com.google.gson.JsonObject jsonObject2 = new com.google.gson.JsonObject();
+-        registry.holders().forEach($$2 -> {
++        int $$3 = net.minecraft.core.Registry.REGISTRY.getId($$0);
++        $$1.addProperty("protocol_id", (java.lang.Number)java.lang.Integer.valueOf((int)$$3));
++        com.google.gson.JsonObject $$4 = new com.google.gson.JsonObject();
++        $$0.holders().forEach($$2 -> {
+             java.lang.Object $$3 = $$2.value();
+-            int $$4 = registry.getId($$3);
++            int $$4 = $$0.getId($$3);
+             com.google.gson.JsonObject $$5 = new com.google.gson.JsonObject();
+             $$5.addProperty("protocol_id", (java.lang.Number)java.lang.Integer.valueOf((int)$$4));
+-            jsonObject2.add($$2.key().location().toString(), (com.google.gson.JsonElement)$$5);
++            $$4.add($$2.key().location().toString(), (com.google.gson.JsonElement)$$5);
+         });
+-        jsonObject.add("entries", (com.google.gson.JsonElement)jsonObject2);
+-        return jsonObject;
++        $$1.add("entries", (com.google.gson.JsonElement)$$4);
++        return $$1;
+     }
+ 
+     public java.lang.String getName() {

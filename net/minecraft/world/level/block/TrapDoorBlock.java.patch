@@ -1,0 +1,161 @@
+--- net/minecraft/world/level/block/TrapDoorBlock.java
++++ net/minecraft/world/level/block/TrapDoorBlock.java
+@@ -18,17 +18,21 @@
+     public static net.minecraft.world.phys.shapes.VoxelShape NORTH_OPEN_AABB;
+     public static net.minecraft.world.phys.shapes.VoxelShape BOTTOM_AABB;
+     public static net.minecraft.world.phys.shapes.VoxelShape TOP_AABB;
++    public net.minecraft.sounds.SoundEvent closeSound;
++    public net.minecraft.sounds.SoundEvent openSound;
+ 
+-    public net.minecraft.world.level.block.TrapDoorBlock(net.minecraft.world.level.block.state.BlockBehaviour$Properties $$0) {
++    public net.minecraft.world.level.block.TrapDoorBlock(net.minecraft.world.level.block.state.BlockBehaviour$Properties $$0, net.minecraft.sounds.SoundEvent $$1, net.minecraft.sounds.SoundEvent $$2) {
+         super($$0);
+         this.registerDefaultState((net.minecraft.world.level.block.state.BlockState)((net.minecraft.world.level.block.state.BlockState)((net.minecraft.world.level.block.state.BlockState)((net.minecraft.world.level.block.state.BlockState)((net.minecraft.world.level.block.state.BlockState)((net.minecraft.world.level.block.state.BlockState)this.stateDefinition.any()).setValue((net.minecraft.world.level.block.state.properties.Property)FACING, (java.lang.Comparable)net.minecraft.core.Direction.NORTH)).setValue((net.minecraft.world.level.block.state.properties.Property)OPEN, (java.lang.Comparable)java.lang.Boolean.valueOf((boolean)false))).setValue((net.minecraft.world.level.block.state.properties.Property)HALF, (java.lang.Comparable)net.minecraft.world.level.block.state.properties.Half.BOTTOM)).setValue((net.minecraft.world.level.block.state.properties.Property)POWERED, (java.lang.Comparable)java.lang.Boolean.valueOf((boolean)false))).setValue((net.minecraft.world.level.block.state.properties.Property)WATERLOGGED, (java.lang.Comparable)java.lang.Boolean.valueOf((boolean)false)));
++        this.closeSound = $$1;
++        this.openSound = $$2;
+     }
+ 
+-    public net.minecraft.world.phys.shapes.VoxelShape getShape(net.minecraft.world.level.block.state.BlockState state, net.minecraft.world.level.BlockGetter level, net.minecraft.core.BlockPos pos, net.minecraft.world.phys.shapes.CollisionContext context) {
+-        if (!((java.lang.Boolean)state.getValue((net.minecraft.world.level.block.state.properties.Property)OPEN)).booleanValue()) {
+-            return state.getValue((net.minecraft.world.level.block.state.properties.Property)HALF) == net.minecraft.world.level.block.state.properties.Half.TOP ? TOP_AABB : BOTTOM_AABB;
++    public net.minecraft.world.phys.shapes.VoxelShape getShape(net.minecraft.world.level.block.state.BlockState $$0, net.minecraft.world.level.BlockGetter $$1, net.minecraft.core.BlockPos $$2, net.minecraft.world.phys.shapes.CollisionContext $$3) {
++        if (!((java.lang.Boolean)$$0.getValue((net.minecraft.world.level.block.state.properties.Property)OPEN)).booleanValue()) {
++            return $$0.getValue((net.minecraft.world.level.block.state.properties.Property)HALF) == net.minecraft.world.level.block.state.properties.Half.TOP ? TOP_AABB : BOTTOM_AABB;
+         }
+-        switch (net.minecraft.world.level.block.TrapDoorBlock$1.$SwitchMap$net$minecraft$core$Direction[((net.minecraft.core.Direction)state.getValue((net.minecraft.world.level.block.state.properties.Property)FACING)).ordinal()]) {
++        switch (net.minecraft.world.level.block.TrapDoorBlock$1.$SwitchMap$net$minecraft$core$Direction[((net.minecraft.core.Direction)$$0.getValue((net.minecraft.world.level.block.state.properties.Property)FACING)).ordinal()]) {
+             default: {
+                 return NORTH_OPEN_AABB;
+             }
+@@ -43,89 +47,83 @@
+         return EAST_OPEN_AABB;
+     }
+ 
+-    public boolean isPathfindable(net.minecraft.world.level.block.state.BlockState state, net.minecraft.world.level.BlockGetter level, net.minecraft.core.BlockPos pos, net.minecraft.world.level.pathfinder.PathComputationType type) {
+-        switch (net.minecraft.world.level.block.TrapDoorBlock$1.$SwitchMap$net$minecraft$world$level$pathfinder$PathComputationType[type.ordinal()]) {
++    public boolean isPathfindable(net.minecraft.world.level.block.state.BlockState $$0, net.minecraft.world.level.BlockGetter $$1, net.minecraft.core.BlockPos $$2, net.minecraft.world.level.pathfinder.PathComputationType $$3) {
++        switch (net.minecraft.world.level.block.TrapDoorBlock$1.$SwitchMap$net$minecraft$world$level$pathfinder$PathComputationType[$$3.ordinal()]) {
+             case 1: {
+-                return (java.lang.Boolean)state.getValue((net.minecraft.world.level.block.state.properties.Property)OPEN);
++                return (java.lang.Boolean)$$0.getValue((net.minecraft.world.level.block.state.properties.Property)OPEN);
+             }
+             case 2: {
+-                return (java.lang.Boolean)state.getValue((net.minecraft.world.level.block.state.properties.Property)WATERLOGGED);
++                return (java.lang.Boolean)$$0.getValue((net.minecraft.world.level.block.state.properties.Property)WATERLOGGED);
+             }
+             case 3: {
+-                return (java.lang.Boolean)state.getValue((net.minecraft.world.level.block.state.properties.Property)OPEN);
++                return (java.lang.Boolean)$$0.getValue((net.minecraft.world.level.block.state.properties.Property)OPEN);
+             }
+         }
+         return false;
+     }
+ 
+-    public net.minecraft.world.InteractionResult use(net.minecraft.world.level.block.state.BlockState state, net.minecraft.world.level.Level level, net.minecraft.core.BlockPos pos, net.minecraft.world.entity.player.Player player, net.minecraft.world.InteractionHand hand, net.minecraft.world.phys.BlockHitResult hit) {
++    public net.minecraft.world.InteractionResult use(net.minecraft.world.level.block.state.BlockState $$0, net.minecraft.world.level.Level $$1, net.minecraft.core.BlockPos $$2, net.minecraft.world.entity.player.Player $$3, net.minecraft.world.InteractionHand $$4, net.minecraft.world.phys.BlockHitResult $$5) {
+         if (this.material == net.minecraft.world.level.material.Material.METAL) {
+             return net.minecraft.world.InteractionResult.PASS;
+         }
+-        state = (net.minecraft.world.level.block.state.BlockState)state.cycle((net.minecraft.world.level.block.state.properties.Property)OPEN);
+-        level.setBlock(pos, state, 2);
+-        if (((java.lang.Boolean)state.getValue((net.minecraft.world.level.block.state.properties.Property)WATERLOGGED)).booleanValue()) {
+-            level.scheduleTick(pos, (net.minecraft.world.level.material.Fluid)net.minecraft.world.level.material.Fluids.WATER, net.minecraft.world.level.material.Fluids.WATER.getTickDelay((net.minecraft.world.level.LevelReader)level));
++        $$0 = (net.minecraft.world.level.block.state.BlockState)$$0.cycle((net.minecraft.world.level.block.state.properties.Property)OPEN);
++        $$1.setBlock($$2, $$0, 2);
++        if (((java.lang.Boolean)$$0.getValue((net.minecraft.world.level.block.state.properties.Property)WATERLOGGED)).booleanValue()) {
++            $$1.scheduleTick($$2, (net.minecraft.world.level.material.Fluid)net.minecraft.world.level.material.Fluids.WATER, net.minecraft.world.level.material.Fluids.WATER.getTickDelay((net.minecraft.world.level.LevelReader)$$1));
+         }
+-        this.playSound(player, level, pos, ((java.lang.Boolean)state.getValue((net.minecraft.world.level.block.state.properties.Property)OPEN)).booleanValue());
+-        return net.minecraft.world.InteractionResult.sidedSuccess((boolean)level.isClientSide);
++        this.playSound($$3, $$1, $$2, ((java.lang.Boolean)$$0.getValue((net.minecraft.world.level.block.state.properties.Property)OPEN)).booleanValue());
++        return net.minecraft.world.InteractionResult.sidedSuccess((boolean)$$1.isClientSide);
+     }
+ 
+-    public void playSound(@javax.annotation.Nullable net.minecraft.world.entity.player.Player player, net.minecraft.world.level.Level level, net.minecraft.core.BlockPos pos, boolean isOpened) {
+-        if (isOpened) {
+-            int n = this.material == net.minecraft.world.level.material.Material.METAL ? 1037 : 1007;
+-            level.levelEvent(player, n, pos, 0);
+-        } else {
+-            int n = this.material == net.minecraft.world.level.material.Material.METAL ? 1036 : 1013;
+-            level.levelEvent(player, n, pos, 0);
+-        }
+-        level.gameEvent((net.minecraft.world.entity.Entity)player, isOpened ? net.minecraft.world.level.gameevent.GameEvent.BLOCK_OPEN : net.minecraft.world.level.gameevent.GameEvent.BLOCK_CLOSE, pos);
++    public void playSound(@javax.annotation.Nullable net.minecraft.world.entity.player.Player $$0, net.minecraft.world.level.Level $$1, net.minecraft.core.BlockPos $$2, boolean $$3) {
++        $$1.playSound($$0, $$2, $$3 ? this.openSound : this.closeSound, net.minecraft.sounds.SoundSource.BLOCKS, 1.0f, $$1.getRandom().nextFloat() * 0.1f + 0.9f);
++        $$1.gameEvent((net.minecraft.world.entity.Entity)$$0, $$3 ? net.minecraft.world.level.gameevent.GameEvent.BLOCK_OPEN : net.minecraft.world.level.gameevent.GameEvent.BLOCK_CLOSE, $$2);
+     }
+ 
+-    public void neighborChanged(net.minecraft.world.level.block.state.BlockState state, net.minecraft.world.level.Level level, net.minecraft.core.BlockPos pos, net.minecraft.world.level.block.Block block, net.minecraft.core.BlockPos fromPos, boolean isMoving) {
+-        if (level.isClientSide) {
++    public void neighborChanged(net.minecraft.world.level.block.state.BlockState $$0, net.minecraft.world.level.Level $$1, net.minecraft.core.BlockPos $$2, net.minecraft.world.level.block.Block $$3, net.minecraft.core.BlockPos $$4, boolean $$5) {
++        if ($$1.isClientSide) {
+             return;
+         }
+-        boolean bl = level.hasNeighborSignal(pos);
+-        if (bl != (java.lang.Boolean)state.getValue((net.minecraft.world.level.block.state.properties.Property)POWERED)) {
+-            if ((java.lang.Boolean)state.getValue((net.minecraft.world.level.block.state.properties.Property)OPEN) != bl) {
+-                state = (net.minecraft.world.level.block.state.BlockState)state.setValue((net.minecraft.world.level.block.state.properties.Property)OPEN, (java.lang.Comparable)java.lang.Boolean.valueOf((boolean)bl));
+-                this.playSound(null, level, pos, bl);
++        boolean $$6 = $$1.hasNeighborSignal($$2);
++        if ($$6 != (java.lang.Boolean)$$0.getValue((net.minecraft.world.level.block.state.properties.Property)POWERED)) {
++            if ((java.lang.Boolean)$$0.getValue((net.minecraft.world.level.block.state.properties.Property)OPEN) != $$6) {
++                $$0 = (net.minecraft.world.level.block.state.BlockState)$$0.setValue((net.minecraft.world.level.block.state.properties.Property)OPEN, (java.lang.Comparable)java.lang.Boolean.valueOf((boolean)$$6));
++                this.playSound(null, $$1, $$2, $$6);
+             }
+-            level.setBlock(pos, (net.minecraft.world.level.block.state.BlockState)state.setValue((net.minecraft.world.level.block.state.properties.Property)POWERED, (java.lang.Comparable)java.lang.Boolean.valueOf((boolean)bl)), 2);
+-            if (((java.lang.Boolean)state.getValue((net.minecraft.world.level.block.state.properties.Property)WATERLOGGED)).booleanValue()) {
+-                level.scheduleTick(pos, (net.minecraft.world.level.material.Fluid)net.minecraft.world.level.material.Fluids.WATER, net.minecraft.world.level.material.Fluids.WATER.getTickDelay((net.minecraft.world.level.LevelReader)level));
++            $$1.setBlock($$2, (net.minecraft.world.level.block.state.BlockState)$$0.setValue((net.minecraft.world.level.block.state.properties.Property)POWERED, (java.lang.Comparable)java.lang.Boolean.valueOf((boolean)$$6)), 2);
++            if (((java.lang.Boolean)$$0.getValue((net.minecraft.world.level.block.state.properties.Property)WATERLOGGED)).booleanValue()) {
++                $$1.scheduleTick($$2, (net.minecraft.world.level.material.Fluid)net.minecraft.world.level.material.Fluids.WATER, net.minecraft.world.level.material.Fluids.WATER.getTickDelay((net.minecraft.world.level.LevelReader)$$1));
+             }
+         }
+     }
+ 
+-    public net.minecraft.world.level.block.state.BlockState getStateForPlacement(net.minecraft.world.item.context.BlockPlaceContext context) {
+-        net.minecraft.world.level.block.state.BlockState blockState = this.defaultBlockState();
+-        net.minecraft.world.level.material.FluidState fluidState = context.getLevel().getFluidState(context.getClickedPos());
+-        net.minecraft.core.Direction direction = context.getClickedFace();
+-        blockState = context.replacingClickedOnBlock() || !direction.getAxis().isHorizontal() ? (net.minecraft.world.level.block.state.BlockState)((net.minecraft.world.level.block.state.BlockState)blockState.setValue((net.minecraft.world.level.block.state.properties.Property)FACING, (java.lang.Comparable)context.getHorizontalDirection().getOpposite())).setValue((net.minecraft.world.level.block.state.properties.Property)HALF, (java.lang.Comparable)(direction == net.minecraft.core.Direction.UP ? net.minecraft.world.level.block.state.properties.Half.BOTTOM : net.minecraft.world.level.block.state.properties.Half.TOP)) : (net.minecraft.world.level.block.state.BlockState)((net.minecraft.world.level.block.state.BlockState)blockState.setValue((net.minecraft.world.level.block.state.properties.Property)FACING, (java.lang.Comparable)direction)).setValue((net.minecraft.world.level.block.state.properties.Property)HALF, (java.lang.Comparable)(context.getClickLocation().y - (double)context.getClickedPos().getY() > 0.5 ? net.minecraft.world.level.block.state.properties.Half.TOP : net.minecraft.world.level.block.state.properties.Half.BOTTOM));
+-        if (context.getLevel().hasNeighborSignal(context.getClickedPos())) {
+-            blockState = (net.minecraft.world.level.block.state.BlockState)((net.minecraft.world.level.block.state.BlockState)blockState.setValue((net.minecraft.world.level.block.state.properties.Property)OPEN, (java.lang.Comparable)java.lang.Boolean.valueOf((boolean)true))).setValue((net.minecraft.world.level.block.state.properties.Property)POWERED, (java.lang.Comparable)java.lang.Boolean.valueOf((boolean)true));
++    public net.minecraft.world.level.block.state.BlockState getStateForPlacement(net.minecraft.world.item.context.BlockPlaceContext $$0) {
++        net.minecraft.world.level.block.state.BlockState $$1 = this.defaultBlockState();
++        net.minecraft.world.level.material.FluidState $$2 = $$0.getLevel().getFluidState($$0.getClickedPos());
++        net.minecraft.core.Direction $$3 = $$0.getClickedFace();
++        $$1 = $$0.replacingClickedOnBlock() || !$$3.getAxis().isHorizontal() ? (net.minecraft.world.level.block.state.BlockState)((net.minecraft.world.level.block.state.BlockState)$$1.setValue((net.minecraft.world.level.block.state.properties.Property)FACING, (java.lang.Comparable)$$0.getHorizontalDirection().getOpposite())).setValue((net.minecraft.world.level.block.state.properties.Property)HALF, (java.lang.Comparable)($$3 == net.minecraft.core.Direction.UP ? net.minecraft.world.level.block.state.properties.Half.BOTTOM : net.minecraft.world.level.block.state.properties.Half.TOP)) : (net.minecraft.world.level.block.state.BlockState)((net.minecraft.world.level.block.state.BlockState)$$1.setValue((net.minecraft.world.level.block.state.properties.Property)FACING, (java.lang.Comparable)$$3)).setValue((net.minecraft.world.level.block.state.properties.Property)HALF, (java.lang.Comparable)($$0.getClickLocation().y - (double)$$0.getClickedPos().getY() > 0.5 ? net.minecraft.world.level.block.state.properties.Half.TOP : net.minecraft.world.level.block.state.properties.Half.BOTTOM));
++        if ($$0.getLevel().hasNeighborSignal($$0.getClickedPos())) {
++            $$1 = (net.minecraft.world.level.block.state.BlockState)((net.minecraft.world.level.block.state.BlockState)$$1.setValue((net.minecraft.world.level.block.state.properties.Property)OPEN, (java.lang.Comparable)java.lang.Boolean.valueOf((boolean)true))).setValue((net.minecraft.world.level.block.state.properties.Property)POWERED, (java.lang.Comparable)java.lang.Boolean.valueOf((boolean)true));
+         }
+-        return (net.minecraft.world.level.block.state.BlockState)blockState.setValue((net.minecraft.world.level.block.state.properties.Property)WATERLOGGED, (java.lang.Comparable)java.lang.Boolean.valueOf((fluidState.getType() == net.minecraft.world.level.material.Fluids.WATER ? 1 : 0) != 0));
++        return (net.minecraft.world.level.block.state.BlockState)$$1.setValue((net.minecraft.world.level.block.state.properties.Property)WATERLOGGED, (java.lang.Comparable)java.lang.Boolean.valueOf(($$2.getType() == net.minecraft.world.level.material.Fluids.WATER ? 1 : 0) != 0));
+     }
+ 
+-    public void createBlockStateDefinition(net.minecraft.world.level.block.state.StateDefinition$Builder<net.minecraft.world.level.block.Block, net.minecraft.world.level.block.state.BlockState> builder) {
+-        builder.add(new net.minecraft.world.level.block.state.properties.Property[]{FACING, OPEN, HALF, POWERED, WATERLOGGED});
++    public void createBlockStateDefinition(net.minecraft.world.level.block.state.StateDefinition$Builder<net.minecraft.world.level.block.Block, net.minecraft.world.level.block.state.BlockState> $$0) {
++        $$0.add(new net.minecraft.world.level.block.state.properties.Property[]{FACING, OPEN, HALF, POWERED, WATERLOGGED});
+     }
+ 
+-    public net.minecraft.world.level.material.FluidState getFluidState(net.minecraft.world.level.block.state.BlockState state) {
+-        if (((java.lang.Boolean)state.getValue((net.minecraft.world.level.block.state.properties.Property)WATERLOGGED)).booleanValue()) {
++    public net.minecraft.world.level.material.FluidState getFluidState(net.minecraft.world.level.block.state.BlockState $$0) {
++        if (((java.lang.Boolean)$$0.getValue((net.minecraft.world.level.block.state.properties.Property)WATERLOGGED)).booleanValue()) {
+             return net.minecraft.world.level.material.Fluids.WATER.getSource(false);
+         }
+-        return super.getFluidState(state);
++        return super.getFluidState($$0);
+     }
+ 
+-    public net.minecraft.world.level.block.state.BlockState updateShape(net.minecraft.world.level.block.state.BlockState state, net.minecraft.core.Direction facing, net.minecraft.world.level.block.state.BlockState facingState, net.minecraft.world.level.LevelAccessor level, net.minecraft.core.BlockPos currentPos, net.minecraft.core.BlockPos facingPos) {
+-        if (((java.lang.Boolean)state.getValue((net.minecraft.world.level.block.state.properties.Property)WATERLOGGED)).booleanValue()) {
+-            level.scheduleTick(currentPos, (net.minecraft.world.level.material.Fluid)net.minecraft.world.level.material.Fluids.WATER, net.minecraft.world.level.material.Fluids.WATER.getTickDelay((net.minecraft.world.level.LevelReader)level));
++    public net.minecraft.world.level.block.state.BlockState updateShape(net.minecraft.world.level.block.state.BlockState $$0, net.minecraft.core.Direction $$1, net.minecraft.world.level.block.state.BlockState $$2, net.minecraft.world.level.LevelAccessor $$3, net.minecraft.core.BlockPos $$4, net.minecraft.core.BlockPos $$5) {
++        if (((java.lang.Boolean)$$0.getValue((net.minecraft.world.level.block.state.properties.Property)WATERLOGGED)).booleanValue()) {
++            $$3.scheduleTick($$4, (net.minecraft.world.level.material.Fluid)net.minecraft.world.level.material.Fluids.WATER, net.minecraft.world.level.material.Fluids.WATER.getTickDelay((net.minecraft.world.level.LevelReader)$$3));
+         }
+-        return super.updateShape(state, facing, facingState, level, currentPos, facingPos);
++        return super.updateShape($$0, $$1, $$2, $$3, $$4, $$5);
+     }
+ 
+     static {

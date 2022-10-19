@@ -1,0 +1,187 @@
+--- net/minecraft/world/effect/MobEffect.java
++++ net/minecraft/world/effect/MobEffect.java
+@@ -13,88 +13,88 @@
+     public java.util.function.Supplier<net.minecraft.world.effect.MobEffectInstance$FactorData> factorDataFactory;
+ 
+     @javax.annotation.Nullable
+-    public static net.minecraft.world.effect.MobEffect byId(int potionID) {
+-        return (net.minecraft.world.effect.MobEffect)net.minecraft.core.Registry.MOB_EFFECT.byId(potionID);
++    public static net.minecraft.world.effect.MobEffect byId(int $$0) {
++        return (net.minecraft.world.effect.MobEffect)net.minecraft.core.Registry.MOB_EFFECT.byId($$0);
+     }
+ 
+-    public static int getId(net.minecraft.world.effect.MobEffect potion) {
+-        return net.minecraft.core.Registry.MOB_EFFECT.getId((java.lang.Object)potion);
++    public static int getId(net.minecraft.world.effect.MobEffect $$0) {
++        return net.minecraft.core.Registry.MOB_EFFECT.getId((java.lang.Object)$$0);
+     }
+ 
+     public static int getIdFromNullable(@javax.annotation.Nullable net.minecraft.world.effect.MobEffect $$0) {
+         return net.minecraft.core.Registry.MOB_EFFECT.getId((java.lang.Object)$$0);
+     }
+ 
+-    public net.minecraft.world.effect.MobEffect(net.minecraft.world.effect.MobEffectCategory category, int color) {
++    public net.minecraft.world.effect.MobEffect(net.minecraft.world.effect.MobEffectCategory $$0, int $$1) {
+         this.attributeModifiers = com.google.common.collect.Maps.newHashMap();
+         this.factorDataFactory = () -> null;
+-        this.category = category;
+-        this.color = color;
++        this.category = $$0;
++        this.color = $$1;
+     }
+ 
+     public java.util.Optional<net.minecraft.world.effect.MobEffectInstance$FactorData> createFactorData() {
+         return java.util.Optional.ofNullable((java.lang.Object)((net.minecraft.world.effect.MobEffectInstance$FactorData)this.factorDataFactory.get()));
+     }
+ 
+-    public void applyEffectTick(net.minecraft.world.entity.LivingEntity livingEntity, int amplifier) {
++    public void applyEffectTick(net.minecraft.world.entity.LivingEntity $$0, int $$1) {
+         if (this == net.minecraft.world.effect.MobEffects.REGENERATION) {
+-            if (livingEntity.getHealth() < livingEntity.getMaxHealth()) {
+-                livingEntity.heal(1.0f);
++            if ($$0.getHealth() < $$0.getMaxHealth()) {
++                $$0.heal(1.0f);
+             }
+         } else if (this == net.minecraft.world.effect.MobEffects.POISON) {
+-            if (livingEntity.getHealth() > 1.0f) {
+-                livingEntity.hurt(net.minecraft.world.damagesource.DamageSource.MAGIC, 1.0f);
++            if ($$0.getHealth() > 1.0f) {
++                $$0.hurt(net.minecraft.world.damagesource.DamageSource.MAGIC, 1.0f);
+             }
+         } else if (this == net.minecraft.world.effect.MobEffects.WITHER) {
+-            livingEntity.hurt(net.minecraft.world.damagesource.DamageSource.WITHER, 1.0f);
+-        } else if (this == net.minecraft.world.effect.MobEffects.HUNGER && livingEntity instanceof net.minecraft.world.entity.player.Player) {
+-            ((net.minecraft.world.entity.player.Player)livingEntity).causeFoodExhaustion(0.005f * (float)(amplifier + 1));
+-        } else if (this == net.minecraft.world.effect.MobEffects.SATURATION && livingEntity instanceof net.minecraft.world.entity.player.Player) {
+-            if (!livingEntity.level.isClientSide) {
+-                ((net.minecraft.world.entity.player.Player)livingEntity).getFoodData().eat(amplifier + 1, 1.0f);
++            $$0.hurt(net.minecraft.world.damagesource.DamageSource.WITHER, 1.0f);
++        } else if (this == net.minecraft.world.effect.MobEffects.HUNGER && $$0 instanceof net.minecraft.world.entity.player.Player) {
++            ((net.minecraft.world.entity.player.Player)$$0).causeFoodExhaustion(0.005f * (float)($$1 + 1));
++        } else if (this == net.minecraft.world.effect.MobEffects.SATURATION && $$0 instanceof net.minecraft.world.entity.player.Player) {
++            if (!$$0.level.isClientSide) {
++                ((net.minecraft.world.entity.player.Player)$$0).getFoodData().eat($$1 + 1, 1.0f);
+             }
+-        } else if (this == net.minecraft.world.effect.MobEffects.HEAL && !livingEntity.isInvertedHealAndHarm() || this == net.minecraft.world.effect.MobEffects.HARM && livingEntity.isInvertedHealAndHarm()) {
+-            livingEntity.heal((float)java.lang.Math.max((int)(4 << amplifier), (int)0));
+-        } else if (this == net.minecraft.world.effect.MobEffects.HARM && !livingEntity.isInvertedHealAndHarm() || this == net.minecraft.world.effect.MobEffects.HEAL && livingEntity.isInvertedHealAndHarm()) {
+-            livingEntity.hurt(net.minecraft.world.damagesource.DamageSource.MAGIC, (float)(6 << amplifier));
++        } else if (this == net.minecraft.world.effect.MobEffects.HEAL && !$$0.isInvertedHealAndHarm() || this == net.minecraft.world.effect.MobEffects.HARM && $$0.isInvertedHealAndHarm()) {
++            $$0.heal((float)java.lang.Math.max((int)(4 << $$1), (int)0));
++        } else if (this == net.minecraft.world.effect.MobEffects.HARM && !$$0.isInvertedHealAndHarm() || this == net.minecraft.world.effect.MobEffects.HEAL && $$0.isInvertedHealAndHarm()) {
++            $$0.hurt(net.minecraft.world.damagesource.DamageSource.MAGIC, (float)(6 << $$1));
+         }
+     }
+ 
+-    public void applyInstantenousEffect(@javax.annotation.Nullable net.minecraft.world.entity.Entity source, @javax.annotation.Nullable net.minecraft.world.entity.Entity indirectSource, net.minecraft.world.entity.LivingEntity livingEntity, int amplifier, double health) {
+-        if (this == net.minecraft.world.effect.MobEffects.HEAL && !livingEntity.isInvertedHealAndHarm() || this == net.minecraft.world.effect.MobEffects.HARM && livingEntity.isInvertedHealAndHarm()) {
+-            int n = (int)(health * (double)(4 << amplifier) + 0.5);
+-            livingEntity.heal((float)n);
+-        } else if (this == net.minecraft.world.effect.MobEffects.HARM && !livingEntity.isInvertedHealAndHarm() || this == net.minecraft.world.effect.MobEffects.HEAL && livingEntity.isInvertedHealAndHarm()) {
+-            int n = (int)(health * (double)(6 << amplifier) + 0.5);
+-            if (source == null) {
+-                livingEntity.hurt(net.minecraft.world.damagesource.DamageSource.MAGIC, (float)n);
++    public void applyInstantenousEffect(@javax.annotation.Nullable net.minecraft.world.entity.Entity $$0, @javax.annotation.Nullable net.minecraft.world.entity.Entity $$1, net.minecraft.world.entity.LivingEntity $$2, int $$3, double $$4) {
++        if (this == net.minecraft.world.effect.MobEffects.HEAL && !$$2.isInvertedHealAndHarm() || this == net.minecraft.world.effect.MobEffects.HARM && $$2.isInvertedHealAndHarm()) {
++            int $$5 = (int)($$4 * (double)(4 << $$3) + 0.5);
++            $$2.heal((float)$$5);
++        } else if (this == net.minecraft.world.effect.MobEffects.HARM && !$$2.isInvertedHealAndHarm() || this == net.minecraft.world.effect.MobEffects.HEAL && $$2.isInvertedHealAndHarm()) {
++            int $$6 = (int)($$4 * (double)(6 << $$3) + 0.5);
++            if ($$0 == null) {
++                $$2.hurt(net.minecraft.world.damagesource.DamageSource.MAGIC, (float)$$6);
+             } else {
+-                livingEntity.hurt(net.minecraft.world.damagesource.DamageSource.indirectMagic((net.minecraft.world.entity.Entity)source, (net.minecraft.world.entity.Entity)indirectSource), (float)n);
++                $$2.hurt(net.minecraft.world.damagesource.DamageSource.indirectMagic((net.minecraft.world.entity.Entity)$$0, (net.minecraft.world.entity.Entity)$$1), (float)$$6);
+             }
+         } else {
+-            this.applyEffectTick(livingEntity, amplifier);
++            this.applyEffectTick($$2, $$3);
+         }
+     }
+ 
+-    public boolean isDurationEffectTick(int duration, int amplifier) {
++    public boolean isDurationEffectTick(int $$0, int $$1) {
+         if (this == net.minecraft.world.effect.MobEffects.REGENERATION) {
+-            int n = 50 >> amplifier;
+-            if (n > 0) {
+-                return duration % n == 0;
++            int $$2 = 50 >> $$1;
++            if ($$2 > 0) {
++                return $$0 % $$2 == 0;
+             }
+             return true;
+         }
+         if (this == net.minecraft.world.effect.MobEffects.POISON) {
+-            int n = 25 >> amplifier;
+-            if (n > 0) {
+-                return duration % n == 0;
++            int $$3 = 25 >> $$1;
++            if ($$3 > 0) {
++                return $$0 % $$3 == 0;
+             }
+             return true;
+         }
+         if (this == net.minecraft.world.effect.MobEffects.WITHER) {
+-            int n = 40 >> amplifier;
+-            if (n > 0) {
+-                return duration % n == 0;
++            int $$4 = 40 >> $$1;
++            if ($$4 > 0) {
++                return $$0 % $$4 == 0;
+             }
+             return true;
+         }
+@@ -128,9 +128,9 @@
+         return this.color;
+     }
+ 
+-    public net.minecraft.world.effect.MobEffect addAttributeModifier(net.minecraft.world.entity.ai.attributes.Attribute attribute, java.lang.String uuid, double amount, net.minecraft.world.entity.ai.attributes.AttributeModifier$Operation operation) {
+-        net.minecraft.world.entity.ai.attributes.AttributeModifier attributeModifier = new net.minecraft.world.entity.ai.attributes.AttributeModifier(java.util.UUID.fromString((java.lang.String)uuid), () -> this.getDescriptionId(), amount, operation);
+-        this.attributeModifiers.put((java.lang.Object)attribute, (java.lang.Object)attributeModifier);
++    public net.minecraft.world.effect.MobEffect addAttributeModifier(net.minecraft.world.entity.ai.attributes.Attribute $$0, java.lang.String $$1, double $$2, net.minecraft.world.entity.ai.attributes.AttributeModifier$Operation $$3) {
++        net.minecraft.world.entity.ai.attributes.AttributeModifier $$4 = new net.minecraft.world.entity.ai.attributes.AttributeModifier(java.util.UUID.fromString((java.lang.String)$$1), () -> this.getDescriptionId(), $$2, $$3);
++        this.attributeModifiers.put((java.lang.Object)$$0, (java.lang.Object)$$4);
+         return this;
+     }
+ 
+@@ -143,26 +143,26 @@
+         return this.attributeModifiers;
+     }
+ 
+-    public void removeAttributeModifiers(net.minecraft.world.entity.LivingEntity livingEntity, net.minecraft.world.entity.ai.attributes.AttributeMap attributeMap, int amplifier) {
+-        for (java.util.Map$Entry entry : this.attributeModifiers.entrySet()) {
+-            net.minecraft.world.entity.ai.attributes.AttributeInstance attributeInstance = attributeMap.getInstance((net.minecraft.world.entity.ai.attributes.Attribute)entry.getKey());
+-            if (attributeInstance == null) continue;
+-            attributeInstance.removeModifier((net.minecraft.world.entity.ai.attributes.AttributeModifier)entry.getValue());
++    public void removeAttributeModifiers(net.minecraft.world.entity.LivingEntity $$0, net.minecraft.world.entity.ai.attributes.AttributeMap $$1, int $$2) {
++        for (java.util.Map$Entry $$3 : this.attributeModifiers.entrySet()) {
++            net.minecraft.world.entity.ai.attributes.AttributeInstance $$4 = $$1.getInstance((net.minecraft.world.entity.ai.attributes.Attribute)$$3.getKey());
++            if ($$4 == null) continue;
++            $$4.removeModifier((net.minecraft.world.entity.ai.attributes.AttributeModifier)$$3.getValue());
+         }
+     }
+ 
+-    public void addAttributeModifiers(net.minecraft.world.entity.LivingEntity livingEntity, net.minecraft.world.entity.ai.attributes.AttributeMap attributeMap, int amplifier) {
+-        for (java.util.Map$Entry entry : this.attributeModifiers.entrySet()) {
+-            net.minecraft.world.entity.ai.attributes.AttributeInstance attributeInstance = attributeMap.getInstance((net.minecraft.world.entity.ai.attributes.Attribute)entry.getKey());
+-            if (attributeInstance == null) continue;
+-            net.minecraft.world.entity.ai.attributes.AttributeModifier attributeModifier = (net.minecraft.world.entity.ai.attributes.AttributeModifier)entry.getValue();
+-            attributeInstance.removeModifier(attributeModifier);
+-            attributeInstance.addPermanentModifier(new net.minecraft.world.entity.ai.attributes.AttributeModifier(attributeModifier.getId(), this.getDescriptionId() + " " + amplifier, this.getAttributeModifierValue(amplifier, attributeModifier), attributeModifier.getOperation()));
++    public void addAttributeModifiers(net.minecraft.world.entity.LivingEntity $$0, net.minecraft.world.entity.ai.attributes.AttributeMap $$1, int $$2) {
++        for (java.util.Map$Entry $$3 : this.attributeModifiers.entrySet()) {
++            net.minecraft.world.entity.ai.attributes.AttributeInstance $$4 = $$1.getInstance((net.minecraft.world.entity.ai.attributes.Attribute)$$3.getKey());
++            if ($$4 == null) continue;
++            net.minecraft.world.entity.ai.attributes.AttributeModifier $$5 = (net.minecraft.world.entity.ai.attributes.AttributeModifier)$$3.getValue();
++            $$4.removeModifier($$5);
++            $$4.addPermanentModifier(new net.minecraft.world.entity.ai.attributes.AttributeModifier($$5.getId(), this.getDescriptionId() + " " + $$2, this.getAttributeModifierValue($$2, $$5), $$5.getOperation()));
+         }
+     }
+ 
+-    public double getAttributeModifierValue(int amplifier, net.minecraft.world.entity.ai.attributes.AttributeModifier modifier) {
+-        return modifier.getAmount() * (double)(amplifier + 1);
++    public double getAttributeModifierValue(int $$0, net.minecraft.world.entity.ai.attributes.AttributeModifier $$1) {
++        return $$1.getAmount() * (double)($$0 + 1);
+     }
+ 
+     public boolean isBeneficial() {

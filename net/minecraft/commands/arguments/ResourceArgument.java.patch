@@ -1,0 +1,106 @@
+--- net/minecraft/commands/arguments/ResourceArgument.java
++++ net/minecraft/commands/arguments/ResourceArgument.java
+@@ -1,0 +1,103 @@
++/*
++ * Decompiled with CFR 0.151.
++ */
++package net.minecraft.commands.arguments;
++
++public class net.minecraft.commands.arguments.ResourceArgument<T>
++implements com.mojang.brigadier.arguments.ArgumentType<net.minecraft.core.Holder$Reference<T>>
++ {
++    public static java.util.Collection<java.lang.String> EXAMPLES;
++    public static com.mojang.brigadier.exceptions.DynamicCommandExceptionType ERROR_NOT_SUMMONABLE_ENTITY;
++    public static com.mojang.brigadier.exceptions.Dynamic2CommandExceptionType ERROR_UNKNOWN_RESOURCE;
++    public static com.mojang.brigadier.exceptions.Dynamic3CommandExceptionType ERROR_INVALID_RESOURCE_TYPE;
++    public net.minecraft.resources.ResourceKey<? extends net.minecraft.core.Registry<T>> registryKey;
++    public net.minecraft.core.HolderLookup<T> registryLookup;
++
++    public net.minecraft.commands.arguments.ResourceArgument(net.minecraft.commands.CommandBuildContext $$0, net.minecraft.resources.ResourceKey<? extends net.minecraft.core.Registry<T>> $$1) {
++        this.registryKey = $$1;
++        this.registryLookup = $$0.holderLookup($$1);
++    }
++
++    public static <T> net.minecraft.commands.arguments.ResourceArgument<T> resource(net.minecraft.commands.CommandBuildContext $$0, net.minecraft.resources.ResourceKey<? extends net.minecraft.core.Registry<T>> $$1) {
++        return new net.minecraft.commands.arguments.ResourceArgument($$0, $$1);
++    }
++
++    public static <T> net.minecraft.core.Holder$Reference<T> getResource(com.mojang.brigadier.context.CommandContext<net.minecraft.commands.CommandSourceStack> $$0, java.lang.String $$1, net.minecraft.resources.ResourceKey<net.minecraft.core.Registry<T>> $$2) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
++        net.minecraft.core.Holder$Reference $$3 = (net.minecraft.core.Holder$Reference)$$0.getArgument($$1, net.minecraft.core.Holder$Reference.class);
++        net.minecraft.resources.ResourceKey $$4 = $$3.key();
++        if ($$4.isFor($$2)) {
++            return $$3;
++        }
++        throw ERROR_INVALID_RESOURCE_TYPE.create((java.lang.Object)$$4.location(), (java.lang.Object)$$4.registry(), (java.lang.Object)$$2.location());
++    }
++
++    public static net.minecraft.core.Holder$Reference<net.minecraft.world.entity.ai.attributes.Attribute> getAttribute(com.mojang.brigadier.context.CommandContext<net.minecraft.commands.CommandSourceStack> $$0, java.lang.String $$1) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
++        return net.minecraft.commands.arguments.ResourceArgument.getResource($$0, (java.lang.String)$$1, (net.minecraft.resources.ResourceKey)net.minecraft.core.Registry.ATTRIBUTE_REGISTRY);
++    }
++
++    public static net.minecraft.core.Holder$Reference<net.minecraft.world.level.levelgen.feature.ConfiguredFeature<?, ?>> getConfiguredFeature(com.mojang.brigadier.context.CommandContext<net.minecraft.commands.CommandSourceStack> $$0, java.lang.String $$1) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
++        return net.minecraft.commands.arguments.ResourceArgument.getResource($$0, (java.lang.String)$$1, (net.minecraft.resources.ResourceKey)net.minecraft.core.Registry.CONFIGURED_FEATURE_REGISTRY);
++    }
++
++    public static net.minecraft.core.Holder$Reference<net.minecraft.world.level.levelgen.structure.Structure> getStructure(com.mojang.brigadier.context.CommandContext<net.minecraft.commands.CommandSourceStack> $$0, java.lang.String $$1) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
++        return net.minecraft.commands.arguments.ResourceArgument.getResource($$0, (java.lang.String)$$1, (net.minecraft.resources.ResourceKey)net.minecraft.core.Registry.STRUCTURE_REGISTRY);
++    }
++
++    public static net.minecraft.core.Holder$Reference<net.minecraft.world.entity.EntityType<?>> getEntityType(com.mojang.brigadier.context.CommandContext<net.minecraft.commands.CommandSourceStack> $$0, java.lang.String $$1) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
++        return net.minecraft.commands.arguments.ResourceArgument.getResource($$0, (java.lang.String)$$1, (net.minecraft.resources.ResourceKey)net.minecraft.core.Registry.ENTITY_TYPE_REGISTRY);
++    }
++
++    public static net.minecraft.core.Holder$Reference<net.minecraft.world.entity.EntityType<?>> getSummonableEntityType(com.mojang.brigadier.context.CommandContext<net.minecraft.commands.CommandSourceStack> $$0, java.lang.String $$1) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
++        net.minecraft.core.Holder$Reference $$2 = net.minecraft.commands.arguments.ResourceArgument.getResource($$0, (java.lang.String)$$1, (net.minecraft.resources.ResourceKey)net.minecraft.core.Registry.ENTITY_TYPE_REGISTRY);
++        if (!((net.minecraft.world.entity.EntityType)$$2.value()).canSummon()) {
++            throw ERROR_NOT_SUMMONABLE_ENTITY.create((java.lang.Object)$$2.key().location().toString());
++        }
++        return $$2;
++    }
++
++    public static net.minecraft.core.Holder$Reference<net.minecraft.world.effect.MobEffect> getMobEffect(com.mojang.brigadier.context.CommandContext<net.minecraft.commands.CommandSourceStack> $$0, java.lang.String $$1) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
++        return net.minecraft.commands.arguments.ResourceArgument.getResource($$0, (java.lang.String)$$1, (net.minecraft.resources.ResourceKey)net.minecraft.core.Registry.MOB_EFFECT_REGISTRY);
++    }
++
++    public static net.minecraft.core.Holder$Reference<net.minecraft.world.item.enchantment.Enchantment> getEnchantment(com.mojang.brigadier.context.CommandContext<net.minecraft.commands.CommandSourceStack> $$0, java.lang.String $$1) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
++        return net.minecraft.commands.arguments.ResourceArgument.getResource($$0, (java.lang.String)$$1, (net.minecraft.resources.ResourceKey)net.minecraft.core.Registry.ENCHANTMENT_REGISTRY);
++    }
++
++    public net.minecraft.core.Holder$Reference<T> parse(com.mojang.brigadier.StringReader $$0) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
++        net.minecraft.resources.ResourceLocation $$1 = net.minecraft.resources.ResourceLocation.read((com.mojang.brigadier.StringReader)$$0);
++        net.minecraft.resources.ResourceKey $$2 = net.minecraft.resources.ResourceKey.create((net.minecraft.resources.ResourceKey)this.registryKey, (net.minecraft.resources.ResourceLocation)$$1);
++        return (net.minecraft.core.Holder$Reference)this.registryLookup.get($$2).orElseThrow(() -> ERROR_UNKNOWN_RESOURCE.create((java.lang.Object)$$1, (java.lang.Object)this.registryKey.location()));
++    }
++
++    public <S> java.util.concurrent.CompletableFuture<com.mojang.brigadier.suggestion.Suggestions> listSuggestions(com.mojang.brigadier.context.CommandContext<S> $$0, com.mojang.brigadier.suggestion.SuggestionsBuilder $$1) {
++        return net.minecraft.commands.SharedSuggestionProvider.suggestResource((java.util.stream.Stream)this.registryLookup.listElements().map(net.minecraft.resources.ResourceKey::location), (com.mojang.brigadier.suggestion.SuggestionsBuilder)$$1);
++    }
++
++    public java.util.Collection<java.lang.String> getExamples() {
++        return EXAMPLES;
++    }
++
++    public /* synthetic */ java.lang.Object parse(com.mojang.brigadier.StringReader stringReader) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
++        return this.parse(stringReader);
++    }
++
++    public static /* synthetic */ com.mojang.brigadier.Message lambda$static$2(java.lang.Object $$0, java.lang.Object $$1, java.lang.Object $$2) {
++        return net.minecraft.network.chat.Component.translatable((java.lang.String)"argument.resource.invalid_type", (java.lang.Object[])new java.lang.Object[]{$$0, $$1, $$2});
++    }
++
++    public static /* synthetic */ com.mojang.brigadier.Message lambda$static$1(java.lang.Object $$0, java.lang.Object $$1) {
++        return net.minecraft.network.chat.Component.translatable((java.lang.String)"argument.resource.not_found", (java.lang.Object[])new java.lang.Object[]{$$0, $$1});
++    }
++
++    public static /* synthetic */ com.mojang.brigadier.Message lambda$static$0(java.lang.Object $$0) {
++        return net.minecraft.network.chat.Component.translatable((java.lang.String)"entity.not_summonable", (java.lang.Object[])new java.lang.Object[]{$$0});
++    }
++
++    static {
++        EXAMPLES = java.util.Arrays.asList((java.lang.Object[])new java.lang.String[]{"foo", "foo:bar", "012"});
++        ERROR_NOT_SUMMONABLE_ENTITY = new com.mojang.brigadier.exceptions.DynamicCommandExceptionType($$0 -> net.minecraft.network.chat.Component.translatable((java.lang.String)"entity.not_summonable", (java.lang.Object[])new java.lang.Object[]{$$0}));
++        ERROR_UNKNOWN_RESOURCE = new com.mojang.brigadier.exceptions.Dynamic2CommandExceptionType(($$0, $$1) -> net.minecraft.network.chat.Component.translatable((java.lang.String)"argument.resource.not_found", (java.lang.Object[])new java.lang.Object[]{$$0, $$1}));
++        ERROR_INVALID_RESOURCE_TYPE = new com.mojang.brigadier.exceptions.Dynamic3CommandExceptionType(($$0, $$1, $$2) -> net.minecraft.network.chat.Component.translatable((java.lang.String)"argument.resource.invalid_type", (java.lang.Object[])new java.lang.Object[]{$$0, $$1, $$2}));
++    }
++}
++

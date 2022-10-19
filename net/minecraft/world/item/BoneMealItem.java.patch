@@ -1,0 +1,200 @@
+--- net/minecraft/world/item/BoneMealItem.java
++++ net/minecraft/world/item/BoneMealItem.java
+@@ -14,119 +14,119 @@
+         super($$0);
+     }
+ 
+-    public net.minecraft.world.InteractionResult useOn(net.minecraft.world.item.context.UseOnContext context) {
+-        net.minecraft.world.level.Level level = context.getLevel();
+-        net.minecraft.core.BlockPos blockPos = context.getClickedPos();
+-        net.minecraft.core.BlockPos blockPos2 = blockPos.relative(context.getClickedFace());
+-        if (net.minecraft.world.item.BoneMealItem.growCrop((net.minecraft.world.item.ItemStack)context.getItemInHand(), (net.minecraft.world.level.Level)level, (net.minecraft.core.BlockPos)blockPos)) {
+-            if (!level.isClientSide) {
+-                level.levelEvent(1505, blockPos, 0);
++    public net.minecraft.world.InteractionResult useOn(net.minecraft.world.item.context.UseOnContext $$0) {
++        net.minecraft.world.level.Level $$1 = $$0.getLevel();
++        net.minecraft.core.BlockPos $$2 = $$0.getClickedPos();
++        net.minecraft.core.BlockPos $$3 = $$2.relative($$0.getClickedFace());
++        if (net.minecraft.world.item.BoneMealItem.growCrop((net.minecraft.world.item.ItemStack)$$0.getItemInHand(), (net.minecraft.world.level.Level)$$1, (net.minecraft.core.BlockPos)$$2)) {
++            if (!$$1.isClientSide) {
++                $$1.levelEvent(1505, $$2, 0);
+             }
+-            return net.minecraft.world.InteractionResult.sidedSuccess((boolean)level.isClientSide);
++            return net.minecraft.world.InteractionResult.sidedSuccess((boolean)$$1.isClientSide);
+         }
+-        net.minecraft.world.level.block.state.BlockState blockState = level.getBlockState(blockPos);
+-        boolean bl = blockState.isFaceSturdy((net.minecraft.world.level.BlockGetter)level, blockPos, context.getClickedFace());
+-        if (bl && net.minecraft.world.item.BoneMealItem.growWaterPlant((net.minecraft.world.item.ItemStack)context.getItemInHand(), (net.minecraft.world.level.Level)level, (net.minecraft.core.BlockPos)blockPos2, (net.minecraft.core.Direction)context.getClickedFace())) {
+-            if (!level.isClientSide) {
+-                level.levelEvent(1505, blockPos2, 0);
++        net.minecraft.world.level.block.state.BlockState $$4 = $$1.getBlockState($$2);
++        boolean $$5 = $$4.isFaceSturdy((net.minecraft.world.level.BlockGetter)$$1, $$2, $$0.getClickedFace());
++        if ($$5 && net.minecraft.world.item.BoneMealItem.growWaterPlant((net.minecraft.world.item.ItemStack)$$0.getItemInHand(), (net.minecraft.world.level.Level)$$1, (net.minecraft.core.BlockPos)$$3, (net.minecraft.core.Direction)$$0.getClickedFace())) {
++            if (!$$1.isClientSide) {
++                $$1.levelEvent(1505, $$3, 0);
+             }
+-            return net.minecraft.world.InteractionResult.sidedSuccess((boolean)level.isClientSide);
++            return net.minecraft.world.InteractionResult.sidedSuccess((boolean)$$1.isClientSide);
+         }
+         return net.minecraft.world.InteractionResult.PASS;
+     }
+ 
+-    public static boolean growCrop(net.minecraft.world.item.ItemStack stack, net.minecraft.world.level.Level level, net.minecraft.core.BlockPos pos) {
+-        net.minecraft.world.level.block.BonemealableBlock bonemealableBlock;
+-        net.minecraft.world.level.block.state.BlockState blockState = level.getBlockState(pos);
+-        if (blockState.getBlock() instanceof net.minecraft.world.level.block.BonemealableBlock && (bonemealableBlock = (net.minecraft.world.level.block.BonemealableBlock)blockState.getBlock()).isValidBonemealTarget((net.minecraft.world.level.BlockGetter)level, pos, blockState, level.isClientSide)) {
+-            if (level instanceof net.minecraft.server.level.ServerLevel) {
+-                if (bonemealableBlock.isBonemealSuccess(level, level.random, pos, blockState)) {
+-                    bonemealableBlock.performBonemeal((net.minecraft.server.level.ServerLevel)level, level.random, pos, blockState);
++    public static boolean growCrop(net.minecraft.world.item.ItemStack $$0, net.minecraft.world.level.Level $$1, net.minecraft.core.BlockPos $$2) {
++        net.minecraft.world.level.block.BonemealableBlock $$4;
++        net.minecraft.world.level.block.state.BlockState $$3 = $$1.getBlockState($$2);
++        if ($$3.getBlock() instanceof net.minecraft.world.level.block.BonemealableBlock && ($$4 = (net.minecraft.world.level.block.BonemealableBlock)$$3.getBlock()).isValidBonemealTarget((net.minecraft.world.level.BlockGetter)$$1, $$2, $$3, $$1.isClientSide)) {
++            if ($$1 instanceof net.minecraft.server.level.ServerLevel) {
++                if ($$4.isBonemealSuccess($$1, $$1.random, $$2, $$3)) {
++                    $$4.performBonemeal((net.minecraft.server.level.ServerLevel)$$1, $$1.random, $$2, $$3);
+                 }
+-                stack.shrink(1);
++                $$0.shrink(1);
+             }
+             return true;
+         }
+         return false;
+     }
+ 
+-    public static boolean growWaterPlant(net.minecraft.world.item.ItemStack stack, net.minecraft.world.level.Level level, net.minecraft.core.BlockPos pos, @javax.annotation.Nullable net.minecraft.core.Direction clickedSide) {
+-        if (!level.getBlockState(pos).is(net.minecraft.world.level.block.Blocks.WATER) || level.getFluidState(pos).getAmount() != 8) {
++    public static boolean growWaterPlant(net.minecraft.world.item.ItemStack $$02, net.minecraft.world.level.Level $$12, net.minecraft.core.BlockPos $$2, @javax.annotation.Nullable net.minecraft.core.Direction $$3) {
++        if (!$$12.getBlockState($$2).is(net.minecraft.world.level.block.Blocks.WATER) || $$12.getFluidState($$2).getAmount() != 8) {
+             return false;
+         }
+-        if (!(level instanceof net.minecraft.server.level.ServerLevel)) {
++        if (!($$12 instanceof net.minecraft.server.level.ServerLevel)) {
+             return true;
+         }
+-        net.minecraft.util.RandomSource randomSource = level.getRandom();
+-block0:        for (int i = 0; i < 128; ++i) {
+-            net.minecraft.core.BlockPos blockPos = pos;
+-            net.minecraft.world.level.block.state.BlockState blockState = net.minecraft.world.level.block.Blocks.SEAGRASS.defaultBlockState();
+-            for (int j = 0; j < i / 16; ++j) {
+-                if (level.getBlockState(blockPos = blockPos.offset(randomSource.nextInt(3) - 1, (randomSource.nextInt(3) - 1) * randomSource.nextInt(3) / 2, randomSource.nextInt(3) - 1)).isCollisionShapeFullBlock((net.minecraft.world.level.BlockGetter)level, blockPos)) continue block0;
++        net.minecraft.util.RandomSource $$4 = $$12.getRandom();
++block0:        for (int $$5 = 0; $$5 < 128; ++$$5) {
++            net.minecraft.core.BlockPos $$6 = $$2;
++            net.minecraft.world.level.block.state.BlockState $$7 = net.minecraft.world.level.block.Blocks.SEAGRASS.defaultBlockState();
++            for (int $$8 = 0; $$8 < $$5 / 16; ++$$8) {
++                if ($$12.getBlockState($$6 = $$6.offset($$4.nextInt(3) - 1, ($$4.nextInt(3) - 1) * $$4.nextInt(3) / 2, $$4.nextInt(3) - 1)).isCollisionShapeFullBlock((net.minecraft.world.level.BlockGetter)$$12, $$6)) continue block0;
+             }
+-            net.minecraft.core.Holder holder = level.getBiome(blockPos);
+-            if (holder.is(net.minecraft.tags.BiomeTags.PRODUCES_CORALS_FROM_BONEMEAL)) {
+-                if (i == 0 && clickedSide != null && clickedSide.getAxis().isHorizontal()) {
+-                    blockState = (net.minecraft.world.level.block.state.BlockState)net.minecraft.core.Registry.BLOCK.getTag(net.minecraft.tags.BlockTags.WALL_CORALS).flatMap($$1 -> $$1.getRandomElement($$0.random)).map($$0 -> ((net.minecraft.world.level.block.Block)$$0.value()).defaultBlockState()).orElse((java.lang.Object)blockState);
+-                    if (blockState.hasProperty((net.minecraft.world.level.block.state.properties.Property)net.minecraft.world.level.block.BaseCoralWallFanBlock.FACING)) {
+-                        blockState = (net.minecraft.world.level.block.state.BlockState)blockState.setValue((net.minecraft.world.level.block.state.properties.Property)net.minecraft.world.level.block.BaseCoralWallFanBlock.FACING, (java.lang.Comparable)clickedSide);
++            net.minecraft.core.Holder $$9 = $$12.getBiome($$6);
++            if ($$9.is(net.minecraft.tags.BiomeTags.PRODUCES_CORALS_FROM_BONEMEAL)) {
++                if ($$5 == 0 && $$3 != null && $$3.getAxis().isHorizontal()) {
++                    $$7 = (net.minecraft.world.level.block.state.BlockState)net.minecraft.core.Registry.BLOCK.getTag(net.minecraft.tags.BlockTags.WALL_CORALS).flatMap($$1 -> $$1.getRandomElement($$0.random)).map($$0 -> ((net.minecraft.world.level.block.Block)$$0.value()).defaultBlockState()).orElse((java.lang.Object)$$7);
++                    if ($$7.hasProperty((net.minecraft.world.level.block.state.properties.Property)net.minecraft.world.level.block.BaseCoralWallFanBlock.FACING)) {
++                        $$7 = (net.minecraft.world.level.block.state.BlockState)$$7.setValue((net.minecraft.world.level.block.state.properties.Property)net.minecraft.world.level.block.BaseCoralWallFanBlock.FACING, (java.lang.Comparable)$$3);
+                     }
+-                } else if (randomSource.nextInt(4) == 0) {
+-                    blockState = (net.minecraft.world.level.block.state.BlockState)net.minecraft.core.Registry.BLOCK.getTag(net.minecraft.tags.BlockTags.UNDERWATER_BONEMEALS).flatMap($$1 -> $$1.getRandomElement($$0.random)).map($$0 -> ((net.minecraft.world.level.block.Block)$$0.value()).defaultBlockState()).orElse((java.lang.Object)blockState);
++                } else if ($$4.nextInt(4) == 0) {
++                    $$7 = (net.minecraft.world.level.block.state.BlockState)net.minecraft.core.Registry.BLOCK.getTag(net.minecraft.tags.BlockTags.UNDERWATER_BONEMEALS).flatMap($$1 -> $$1.getRandomElement($$0.random)).map($$0 -> ((net.minecraft.world.level.block.Block)$$0.value()).defaultBlockState()).orElse((java.lang.Object)$$7);
+                 }
+             }
+-            if (blockState.is(net.minecraft.tags.BlockTags.WALL_CORALS, $$0 -> $$0.hasProperty((net.minecraft.world.level.block.state.properties.Property)net.minecraft.world.level.block.BaseCoralWallFanBlock.FACING))) {
+-                for (int j = 0; !blockState.canSurvive((net.minecraft.world.level.LevelReader)level, blockPos) && j < 4; ++j) {
+-                    blockState = (net.minecraft.world.level.block.state.BlockState)blockState.setValue((net.minecraft.world.level.block.state.properties.Property)net.minecraft.world.level.block.BaseCoralWallFanBlock.FACING, (java.lang.Comparable)net.minecraft.core.Direction$Plane.HORIZONTAL.getRandomDirection(randomSource));
++            if ($$7.is(net.minecraft.tags.BlockTags.WALL_CORALS, $$0 -> $$0.hasProperty((net.minecraft.world.level.block.state.properties.Property)net.minecraft.world.level.block.BaseCoralWallFanBlock.FACING))) {
++                for (int $$10 = 0; !$$7.canSurvive((net.minecraft.world.level.LevelReader)$$12, $$6) && $$10 < 4; ++$$10) {
++                    $$7 = (net.minecraft.world.level.block.state.BlockState)$$7.setValue((net.minecraft.world.level.block.state.properties.Property)net.minecraft.world.level.block.BaseCoralWallFanBlock.FACING, (java.lang.Comparable)net.minecraft.core.Direction$Plane.HORIZONTAL.getRandomDirection($$4));
+                 }
+             }
+-            if (!blockState.canSurvive((net.minecraft.world.level.LevelReader)level, blockPos)) continue;
+-            net.minecraft.world.level.block.state.BlockState blockState2 = level.getBlockState(blockPos);
+-            if (blockState2.is(net.minecraft.world.level.block.Blocks.WATER) && level.getFluidState(blockPos).getAmount() == 8) {
+-                level.setBlock(blockPos, blockState, 3);
++            if (!$$7.canSurvive((net.minecraft.world.level.LevelReader)$$12, $$6)) continue;
++            net.minecraft.world.level.block.state.BlockState $$11 = $$12.getBlockState($$6);
++            if ($$11.is(net.minecraft.world.level.block.Blocks.WATER) && $$12.getFluidState($$6).getAmount() == 8) {
++                $$12.setBlock($$6, $$7, 3);
+                 continue;
+             }
+-            if (!blockState2.is(net.minecraft.world.level.block.Blocks.SEAGRASS) || randomSource.nextInt(10) != 0) continue;
+-            ((net.minecraft.world.level.block.BonemealableBlock)net.minecraft.world.level.block.Blocks.SEAGRASS).performBonemeal((net.minecraft.server.level.ServerLevel)level, randomSource, blockPos, blockState2);
++            if (!$$11.is(net.minecraft.world.level.block.Blocks.SEAGRASS) || $$4.nextInt(10) != 0) continue;
++            ((net.minecraft.world.level.block.BonemealableBlock)net.minecraft.world.level.block.Blocks.SEAGRASS).performBonemeal((net.minecraft.server.level.ServerLevel)$$12, $$4, $$6, $$11);
+         }
+-        stack.shrink(1);
++        $$02.shrink(1);
+         return true;
+     }
+ 
+-    public static void addGrowthParticles(net.minecraft.world.level.LevelAccessor level, net.minecraft.core.BlockPos pos, int data) {
+-        double d;
+-        net.minecraft.world.level.block.state.BlockState blockState;
+-        if (data == 0) {
+-            data = 15;
++    public static void addGrowthParticles(net.minecraft.world.level.LevelAccessor $$0, net.minecraft.core.BlockPos $$1, int $$2) {
++        double $$7;
++        net.minecraft.world.level.block.state.BlockState $$3;
++        if ($$2 == 0) {
++            $$2 = 15;
+         }
+-        if ((blockState = level.getBlockState(pos)).isAir()) {
++        if (($$3 = $$0.getBlockState($$1)).isAir()) {
+             return;
+         }
+-        double d2 = 0.5;
+-        if (blockState.is(net.minecraft.world.level.block.Blocks.WATER)) {
+-            data *= 3;
+-            d = 1.0;
+-            d2 = 3.0;
+-        } else if (blockState.isSolidRender((net.minecraft.world.level.BlockGetter)level, pos)) {
+-            pos = pos.above();
+-            data *= 3;
+-            d2 = 3.0;
+-            d = 1.0;
++        double $$4 = 0.5;
++        if ($$3.is(net.minecraft.world.level.block.Blocks.WATER)) {
++            $$2 *= 3;
++            double $$5 = 1.0;
++            $$4 = 3.0;
++        } else if ($$3.isSolidRender((net.minecraft.world.level.BlockGetter)$$0, $$1)) {
++            $$1 = $$1.above();
++            $$2 *= 3;
++            $$4 = 3.0;
++            double $$6 = 1.0;
+         } else {
+-            d = blockState.getShape((net.minecraft.world.level.BlockGetter)level, pos).max(net.minecraft.core.Direction$Axis.Y);
++            $$7 = $$3.getShape((net.minecraft.world.level.BlockGetter)$$0, $$1).max(net.minecraft.core.Direction$Axis.Y);
+         }
+-        level.addParticle((net.minecraft.core.particles.ParticleOptions)net.minecraft.core.particles.ParticleTypes.HAPPY_VILLAGER, (double)pos.getX() + 0.5, (double)pos.getY() + 0.5, (double)pos.getZ() + 0.5, 0.0, 0.0, 0.0);
+-        net.minecraft.util.RandomSource randomSource = level.getRandom();
+-        for (int i = 0; i < data; ++i) {
+-            double d3;
+-            double d4;
+-            double d5 = randomSource.nextGaussian() * 0.02;
+-            double d6 = randomSource.nextGaussian() * 0.02;
+-            double d7 = randomSource.nextGaussian() * 0.02;
+-            double d8 = 0.5 - d2;
+-            double d9 = (double)pos.getX() + d8 + randomSource.nextDouble() * d2 * 2.0;
+-            if (level.getBlockState(new net.minecraft.core.BlockPos(d9, d4 = (double)pos.getY() + randomSource.nextDouble() * d, d3 = (double)pos.getZ() + d8 + randomSource.nextDouble() * d2 * 2.0).below()).isAir()) continue;
+-            level.addParticle((net.minecraft.core.particles.ParticleOptions)net.minecraft.core.particles.ParticleTypes.HAPPY_VILLAGER, d9, d4, d3, d5, d6, d7);
++        $$0.addParticle((net.minecraft.core.particles.ParticleOptions)net.minecraft.core.particles.ParticleTypes.HAPPY_VILLAGER, (double)$$1.getX() + 0.5, (double)$$1.getY() + 0.5, (double)$$1.getZ() + 0.5, 0.0, 0.0, 0.0);
++        net.minecraft.util.RandomSource $$8 = $$0.getRandom();
++        for (int $$9 = 0; $$9 < $$2; ++$$9) {
++            double $$16;
++            double $$15;
++            double $$10 = $$8.nextGaussian() * 0.02;
++            double $$11 = $$8.nextGaussian() * 0.02;
++            double $$12 = $$8.nextGaussian() * 0.02;
++            double $$13 = 0.5 - $$4;
++            double $$14 = (double)$$1.getX() + $$13 + $$8.nextDouble() * $$4 * 2.0;
++            if ($$0.getBlockState(new net.minecraft.core.BlockPos($$14, $$15 = (double)$$1.getY() + $$8.nextDouble() * $$7, $$16 = (double)$$1.getZ() + $$13 + $$8.nextDouble() * $$4 * 2.0).below()).isAir()) continue;
++            $$0.addParticle((net.minecraft.core.particles.ParticleOptions)net.minecraft.core.particles.ParticleTypes.HAPPY_VILLAGER, $$14, $$15, $$16, $$10, $$11, $$12);
+         }
+     }
+ }

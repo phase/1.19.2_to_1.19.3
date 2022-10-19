@@ -1,0 +1,39 @@
+--- net/minecraft/network/chat/OutgoingPlayerChatMessage$Tracked.java
++++ net/minecraft/network/chat/OutgoingPlayerChatMessage$Tracked.java
+@@ -1,36 +1,0 @@
+-/*
+- * Decompiled with CFR 0.151.
+- */
+-package net.minecraft.network.chat;
+-
+-public class net.minecraft.network.chat.OutgoingPlayerChatMessage$Tracked
+-implements net.minecraft.network.chat.OutgoingPlayerChatMessage
+- {
+-    public net.minecraft.network.chat.PlayerChatMessage message;
+-    public java.util.Set<net.minecraft.server.level.ServerPlayer> playersWithFullMessage;
+-
+-    public net.minecraft.network.chat.OutgoingPlayerChatMessage$Tracked(net.minecraft.network.chat.PlayerChatMessage $$0) {
+-        this.playersWithFullMessage = com.google.common.collect.Sets.newIdentityHashSet();
+-        this.message = $$0;
+-    }
+-
+-    public net.minecraft.network.chat.Component serverContent() {
+-        return this.message.serverContent();
+-    }
+-
+-    public void sendToPlayer(net.minecraft.server.level.ServerPlayer $$0, boolean $$1, net.minecraft.network.chat.ChatType$Bound $$2) {
+-        net.minecraft.network.chat.PlayerChatMessage $$3 = this.message.filter($$1);
+-        if (!$$3.isFullyFiltered()) {
+-            this.playersWithFullMessage.add((java.lang.Object)$$0);
+-            net.minecraft.core.RegistryAccess $$4 = $$0.level.registryAccess();
+-            net.minecraft.network.chat.ChatType$BoundNetwork $$5 = $$2.toNetwork($$4);
+-            $$0.connection.send((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ClientboundPlayerChatPacket($$3, $$5), net.minecraft.network.PacketSendListener.exceptionallySend(() -> new net.minecraft.network.protocol.game.ClientboundPlayerChatHeaderPacket(this.message)));
+-            $$0.connection.addPendingMessage($$3);
+-        }
+-    }
+-
+-    public void sendHeadersToRemainingPlayers(net.minecraft.server.players.PlayerList $$0) {
+-        $$0.broadcastMessageHeader(this.message, this.playersWithFullMessage);
+-    }
+-}
+-

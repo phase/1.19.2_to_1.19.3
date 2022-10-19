@@ -1,0 +1,45 @@
+--- net/minecraft/client/multiplayer/ServerStatusPinger.java
++++ net/minecraft/client/multiplayer/ServerStatusPinger.java
+@@ -14,26 +14,26 @@
+         this.connections = java.util.Collections.synchronizedList((java.util.List)com.google.common.collect.Lists.newArrayList());
+     }
+ 
+-    public void pingServer(net.minecraft.client.multiplayer.ServerData server, java.lang.Runnable runnable) throws java.net.UnknownHostException {
+-        net.minecraft.client.multiplayer.resolver.ServerAddress serverAddress = net.minecraft.client.multiplayer.resolver.ServerAddress.parseString((java.lang.String)server.ip);
+-        java.util.Optional optional = net.minecraft.client.multiplayer.resolver.ServerNameResolver.DEFAULT.resolveAddress(serverAddress).map(net.minecraft.client.multiplayer.resolver.ResolvedServerAddress::asInetSocketAddress);
+-        if (!optional.isPresent()) {
+-            this.onPingFailed(net.minecraft.client.gui.screens.ConnectScreen.UNKNOWN_HOST_MESSAGE, server);
++    public void pingServer(net.minecraft.client.multiplayer.ServerData $$0, java.lang.Runnable $$1) throws java.net.UnknownHostException {
++        net.minecraft.client.multiplayer.resolver.ServerAddress $$2 = net.minecraft.client.multiplayer.resolver.ServerAddress.parseString((java.lang.String)$$0.ip);
++        java.util.Optional $$3 = net.minecraft.client.multiplayer.resolver.ServerNameResolver.DEFAULT.resolveAddress($$2).map(net.minecraft.client.multiplayer.resolver.ResolvedServerAddress::asInetSocketAddress);
++        if (!$$3.isPresent()) {
++            this.onPingFailed(net.minecraft.client.gui.screens.ConnectScreen.UNKNOWN_HOST_MESSAGE, $$0);
+             return;
+         }
+-        java.net.InetSocketAddress inetSocketAddress = (java.net.InetSocketAddress)optional.get();
+-        net.minecraft.network.Connection connection = net.minecraft.network.Connection.connectToServer((java.net.InetSocketAddress)inetSocketAddress, (boolean)false);
+-        this.connections.add((java.lang.Object)connection);
+-        server.motd = net.minecraft.network.chat.Component.translatable((java.lang.String)"multiplayer.status.pinging");
+-        server.ping = -1L;
+-        server.playerList = null;
+-        connection.setListener((net.minecraft.network.PacketListener)new /* Unavailable Anonymous Inner Class!! */);
++        java.net.InetSocketAddress $$4 = (java.net.InetSocketAddress)$$3.get();
++        net.minecraft.network.Connection $$5 = net.minecraft.network.Connection.connectToServer((java.net.InetSocketAddress)$$4, (boolean)false);
++        this.connections.add((java.lang.Object)$$5);
++        $$0.motd = net.minecraft.network.chat.Component.translatable((java.lang.String)"multiplayer.status.pinging");
++        $$0.ping = -1L;
++        $$0.playerList = null;
++        $$5.setListener((net.minecraft.network.PacketListener)new /* Unavailable Anonymous Inner Class!! */);
+         try {
+-            connection.send((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.handshake.ClientIntentionPacket(serverAddress.getHost(), serverAddress.getPort(), net.minecraft.network.ConnectionProtocol.STATUS));
+-            connection.send((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.status.ServerboundStatusRequestPacket());
++            $$5.send((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.handshake.ClientIntentionPacket($$2.getHost(), $$2.getPort(), net.minecraft.network.ConnectionProtocol.STATUS));
++            $$5.send((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.status.ServerboundStatusRequestPacket());
+         }
+-        catch (java.lang.Throwable throwable) {
+-            LOGGER.error("Failed to ping server {}", (java.lang.Object)serverAddress, (java.lang.Object)((java.lang.Object)throwable));
++        catch (java.lang.Throwable $$6) {
++            LOGGER.error("Failed to ping server {}", (java.lang.Object)$$2, (java.lang.Object)((java.lang.Object)$$6));
+         }
+     }
+ 

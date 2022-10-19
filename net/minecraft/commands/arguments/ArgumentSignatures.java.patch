@@ -1,0 +1,59 @@
+--- net/minecraft/commands/arguments/ArgumentSignatures.java
++++ net/minecraft/commands/arguments/ArgumentSignatures.java
+@@ -19,46 +19,30 @@
+         this.entries = $$0;
+     }
+ 
++    @javax.annotation.Nullable
+     public net.minecraft.network.chat.MessageSignature get(java.lang.String $$0) {
+         for (net.minecraft.commands.arguments.ArgumentSignatures$Entry $$1 : this.entries) {
+             if (!$$1.name.equals((java.lang.Object)$$0)) continue;
+             return $$1.signature;
+         }
+-        return net.minecraft.network.chat.MessageSignature.EMPTY;
++        return null;
+     }
+ 
+     public void write(net.minecraft.network.FriendlyByteBuf $$02) {
+         $$02.writeCollection((java.util.Collection)this.entries, ($$0, $$1) -> $$1.write($$0));
+     }
+ 
+-    public static boolean hasSignableArguments(net.minecraft.network.chat.PreviewableCommand<?> $$02) {
+-        return $$02.arguments().stream().anyMatch($$0 -> $$0.previewType() instanceof net.minecraft.commands.arguments.SignedArgument);
+-    }
+-
+-    public static net.minecraft.commands.arguments.ArgumentSignatures signCommand(net.minecraft.network.chat.PreviewableCommand<?> $$0, net.minecraft.commands.arguments.ArgumentSignatures$Signer $$12) {
+-        java.util.List $$2 = net.minecraft.commands.arguments.ArgumentSignatures.collectPlainSignableArguments($$0).stream().map($$1 -> {
+-            net.minecraft.network.chat.MessageSignature $$2 = $$12.sign((java.lang.String)$$1.getFirst(), (java.lang.String)$$1.getSecond());
+-            return new net.minecraft.commands.arguments.ArgumentSignatures$Entry((java.lang.String)$$1.getFirst(), $$2);
+-        }).toList();
++    public static net.minecraft.commands.arguments.ArgumentSignatures signCommand(net.minecraft.network.chat.SignableCommand<?> $$0, net.minecraft.commands.arguments.ArgumentSignatures$Signer $$12) {
++        java.util.List $$2 = $$0.arguments().stream().map($$1 -> {
++            net.minecraft.network.chat.MessageSignature $$2 = $$12.sign($$1.value());
++            if ($$2 != null) {
++                return new net.minecraft.commands.arguments.ArgumentSignatures$Entry($$1.name(), $$2);
++            }
++            return null;
++        }).filter(java.util.Objects::nonNull).toList();
+         return new net.minecraft.commands.arguments.ArgumentSignatures($$2);
+     }
+ 
+-    public static java.util.List<com.mojang.datafixers.util.Pair<java.lang.String, java.lang.String>> collectPlainSignableArguments(net.minecraft.network.chat.PreviewableCommand<?> $$0) {
+-        java.util.ArrayList $$1 = new java.util.ArrayList();
+-        for (net.minecraft.network.chat.PreviewableCommand$Argument $$2 : $$0.arguments()) {
+-            net.minecraft.commands.arguments.PreviewedArgument previewedArgument = $$2.previewType();
+-            if (!(previewedArgument instanceof net.minecraft.commands.arguments.SignedArgument)) continue;
+-            net.minecraft.commands.arguments.SignedArgument $$3 = (net.minecraft.commands.arguments.SignedArgument)previewedArgument;
+-            java.lang.String $$4 = net.minecraft.commands.arguments.ArgumentSignatures.getSignableText((net.minecraft.commands.arguments.SignedArgument)$$3, (com.mojang.brigadier.context.ParsedArgument)$$2.parsedValue());
+-            $$1.add((java.lang.Object)com.mojang.datafixers.util.Pair.of((java.lang.Object)$$2.name(), (java.lang.Object)$$4));
+-        }
+-        return $$1;
+-    }
+-
+-    public static <T> java.lang.String getSignableText(net.minecraft.commands.arguments.SignedArgument<T> $$0, com.mojang.brigadier.context.ParsedArgument<?, ?> $$1) {
+-        return $$0.getSignableText($$1.getResult());
+-    }
+-
+     public java.lang.String toString() {
+         return java.lang.runtime.ObjectMethods.bootstrap("toString", new java.lang.invoke.MethodHandle[]{net.minecraft.commands.arguments.ArgumentSignatures.class, "entries", "entries"}, this);
+     }

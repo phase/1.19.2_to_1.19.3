@@ -1,0 +1,86 @@
+--- net/minecraft/world/entity/ai/behavior/JumpOnBed.java
++++ net/minecraft/world/entity/ai/behavior/JumpOnBed.java
+@@ -22,39 +22,39 @@
+         this.speedModifier = $$0;
+     }
+ 
+-    public boolean checkExtraStartConditions(net.minecraft.server.level.ServerLevel level, net.minecraft.world.entity.Mob owner) {
+-        return owner.isBaby() && this.nearBed(level, owner);
++    public boolean checkExtraStartConditions(net.minecraft.server.level.ServerLevel $$0, net.minecraft.world.entity.Mob $$1) {
++        return $$1.isBaby() && this.nearBed($$0, $$1);
+     }
+ 
+-    public void start(net.minecraft.server.level.ServerLevel level, net.minecraft.world.entity.Mob entity, long gameTime) {
+-        super.start(level, (net.minecraft.world.entity.LivingEntity)entity, gameTime);
+-        this.getNearestBed(entity).ifPresent($$2 -> {
++    public void start(net.minecraft.server.level.ServerLevel $$0, net.minecraft.world.entity.Mob $$1, long $$22) {
++        super.start($$0, (net.minecraft.world.entity.LivingEntity)$$1, $$22);
++        this.getNearestBed($$1).ifPresent($$2 -> {
+             this.targetBed = $$2;
+             this.remainingTimeToReachBed = 100;
+             this.remainingJumps = 3 + $$0.random.nextInt(4);
+             this.remainingCooldownUntilNextJump = 0;
+-            this.startWalkingTowardsBed(entity, $$2);
++            this.startWalkingTowardsBed($$1, $$2);
+         });
+     }
+ 
+-    public void stop(net.minecraft.server.level.ServerLevel level, net.minecraft.world.entity.Mob entity, long gameTime) {
+-        super.stop(level, (net.minecraft.world.entity.LivingEntity)entity, gameTime);
++    public void stop(net.minecraft.server.level.ServerLevel $$0, net.minecraft.world.entity.Mob $$1, long $$2) {
++        super.stop($$0, (net.minecraft.world.entity.LivingEntity)$$1, $$2);
+         this.targetBed = null;
+         this.remainingTimeToReachBed = 0;
+         this.remainingJumps = 0;
+         this.remainingCooldownUntilNextJump = 0;
+     }
+ 
+-    public boolean canStillUse(net.minecraft.server.level.ServerLevel level, net.minecraft.world.entity.Mob entity, long gameTime) {
+-        return entity.isBaby() && this.targetBed != null && this.isBed(level, this.targetBed) && !this.tiredOfWalking(level, entity) && !this.tiredOfJumping(level, entity);
++    public boolean canStillUse(net.minecraft.server.level.ServerLevel $$0, net.minecraft.world.entity.Mob $$1, long $$2) {
++        return $$1.isBaby() && this.targetBed != null && this.isBed($$0, this.targetBed) && !this.tiredOfWalking($$0, $$1) && !this.tiredOfJumping($$0, $$1);
+     }
+ 
+-    public boolean timedOut(long gameTime) {
++    public boolean timedOut(long $$0) {
+         return false;
+     }
+ 
+-    public void tick(net.minecraft.server.level.ServerLevel level, net.minecraft.world.entity.Mob owner, long gameTime) {
+-        if (!this.onOrOverBed(level, owner)) {
++    public void tick(net.minecraft.server.level.ServerLevel $$0, net.minecraft.world.entity.Mob $$1, long $$2) {
++        if (!this.onOrOverBed($$0, $$1)) {
+             --this.remainingTimeToReachBed;
+             return;
+         }
+@@ -62,15 +62,15 @@
+             --this.remainingCooldownUntilNextJump;
+             return;
+         }
+-        if (this.onBedSurface(level, owner)) {
+-            owner.getJumpControl().jump();
++        if (this.onBedSurface($$0, $$1)) {
++            $$1.getJumpControl().jump();
+             --this.remainingJumps;
+             this.remainingCooldownUntilNextJump = 5;
+         }
+     }
+ 
+-    public void startWalkingTowardsBed(net.minecraft.world.entity.Mob mob, net.minecraft.core.BlockPos pos) {
+-        mob.getBrain().setMemory(net.minecraft.world.entity.ai.memory.MemoryModuleType.WALK_TARGET, (java.lang.Object)new net.minecraft.world.entity.ai.memory.WalkTarget(pos, this.speedModifier, 0));
++    public void startWalkingTowardsBed(net.minecraft.world.entity.Mob $$0, net.minecraft.core.BlockPos $$1) {
++        $$0.getBrain().setMemory(net.minecraft.world.entity.ai.memory.MemoryModuleType.WALK_TARGET, (java.lang.Object)new net.minecraft.world.entity.ai.memory.WalkTarget($$1, this.speedModifier, 0));
+     }
+ 
+     public boolean nearBed(net.minecraft.server.level.ServerLevel $$0, net.minecraft.world.entity.Mob $$1) {
+@@ -87,8 +87,8 @@
+         return this.isBed($$0, $$1.blockPosition());
+     }
+ 
+-    public boolean isBed(net.minecraft.server.level.ServerLevel level, net.minecraft.core.BlockPos pos) {
+-        return level.getBlockState(pos).is(net.minecraft.tags.BlockTags.BEDS);
++    public boolean isBed(net.minecraft.server.level.ServerLevel $$0, net.minecraft.core.BlockPos $$1) {
++        return $$0.getBlockState($$1).is(net.minecraft.tags.BlockTags.BEDS);
+     }
+ 
+     public java.util.Optional<net.minecraft.core.BlockPos> getNearestBed(net.minecraft.world.entity.Mob $$0) {

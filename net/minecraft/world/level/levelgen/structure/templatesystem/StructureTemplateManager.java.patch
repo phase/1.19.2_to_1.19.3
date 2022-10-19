@@ -1,0 +1,63 @@
+--- net/minecraft/world/level/levelgen/structure/templatesystem/StructureTemplateManager.java
++++ net/minecraft/world/level/levelgen/structure/templatesystem/StructureTemplateManager.java
+@@ -15,19 +15,22 @@
+     public net.minecraft.server.packs.resources.ResourceManager resourceManager;
+     public java.nio.file.Path generatedDir;
+     public java.util.List<net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplateManager$Source> sources;
++    public net.minecraft.core.HolderLookup<net.minecraft.world.level.block.Block> blockLookup;
++    public static net.minecraft.resources.FileToIdConverter LISTER;
+ 
+-    public net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplateManager(net.minecraft.server.packs.resources.ResourceManager $$0, net.minecraft.world.level.storage.LevelStorageSource$LevelStorageAccess $$1, com.mojang.datafixers.DataFixer $$2) {
++    public net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplateManager(net.minecraft.server.packs.resources.ResourceManager $$0, net.minecraft.world.level.storage.LevelStorageSource$LevelStorageAccess $$1, com.mojang.datafixers.DataFixer $$2, net.minecraft.core.HolderLookup<net.minecraft.world.level.block.Block> $$3) {
+         this.structureRepository = com.google.common.collect.Maps.newConcurrentMap();
+         this.resourceManager = $$0;
+         this.fixerUpper = $$2;
+         this.generatedDir = $$1.getLevelPath(net.minecraft.world.level.storage.LevelResource.GENERATED_DIR).normalize();
+-        com.google.common.collect.ImmutableList$Builder $$3 = com.google.common.collect.ImmutableList.builder();
+-        $$3.add((java.lang.Object)new net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplateManager$Source(arg_0 -> this.loadFromGenerated(arg_0), () -> this.listGenerated()));
++        this.blockLookup = $$3;
++        com.google.common.collect.ImmutableList$Builder $$4 = com.google.common.collect.ImmutableList.builder();
++        $$4.add((java.lang.Object)new net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplateManager$Source(arg_0 -> this.loadFromGenerated(arg_0), () -> this.listGenerated()));
+         if (net.minecraft.SharedConstants.IS_RUNNING_IN_IDE) {
+-            $$3.add((java.lang.Object)new net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplateManager$Source(arg_0 -> this.loadFromTestStructures(arg_0), () -> this.listTestStructures()));
++            $$4.add((java.lang.Object)new net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplateManager$Source(arg_0 -> this.loadFromTestStructures(arg_0), () -> this.listTestStructures()));
+         }
+-        $$3.add((java.lang.Object)new net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplateManager$Source(arg_0 -> this.loadFromResource(arg_0), () -> this.listResources()));
+-        this.sources = $$3.build();
++        $$4.add((java.lang.Object)new net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplateManager$Source(arg_0 -> this.loadFromResource(arg_0), () -> this.listResources()));
++        this.sources = $$4.build();
+     }
+ 
+     public net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate getOrCreate(net.minecraft.resources.ResourceLocation $$0) {
+@@ -67,12 +70,12 @@
+     }
+ 
+     public java.util.Optional<net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate> loadFromResource(net.minecraft.resources.ResourceLocation $$0) {
+-        net.minecraft.resources.ResourceLocation $$12 = new net.minecraft.resources.ResourceLocation($$0.getNamespace(), "structures/" + $$0.getPath() + ".nbt");
++        net.minecraft.resources.ResourceLocation $$12 = LISTER.idToFile($$0);
+         return this.load(() -> this.resourceManager.open($$12), $$1 -> LOGGER.error("Couldn't load structure {}", (java.lang.Object)$$0, $$1));
+     }
+ 
+     public java.util.stream.Stream<net.minecraft.resources.ResourceLocation> listResources() {
+-        return this.resourceManager.listResources("structures", $$0 -> true).keySet().stream().map($$0 -> new net.minecraft.resources.ResourceLocation($$0.getNamespace(), $$0.getPath().substring("structures".length() + 1, $$0.getPath().length() - ".nbt".length())));
++        return LISTER.listMatchingResources(this.resourceManager).keySet().stream().map(arg_0 -> ((net.minecraft.resources.FileToIdConverter)LISTER).fileToId(arg_0));
+     }
+ 
+     public java.util.Optional<net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate> loadFromTestStructures(net.minecraft.resources.ResourceLocation $$0) {
+@@ -215,7 +218,7 @@
+             $$0.putInt("DataVersion", 500);
+         }
+         net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate $$1 = new net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate();
+-        $$1.load(net.minecraft.nbt.NbtUtils.update((com.mojang.datafixers.DataFixer)this.fixerUpper, (net.minecraft.util.datafix.DataFixTypes)net.minecraft.util.datafix.DataFixTypes.STRUCTURE, (net.minecraft.nbt.CompoundTag)$$0, (int)$$0.getInt("DataVersion")));
++        $$1.load(this.blockLookup, net.minecraft.nbt.NbtUtils.update((com.mojang.datafixers.DataFixer)this.fixerUpper, (net.minecraft.util.datafix.DataFixTypes)net.minecraft.util.datafix.DataFixTypes.STRUCTURE, (net.minecraft.nbt.CompoundTag)$$0, (int)$$0.getInt("DataVersion")));
+         return $$1;
+     }
+ 
+@@ -280,6 +283,7 @@
+ 
+     static {
+         LOGGER = com.mojang.logging.LogUtils.getLogger();
++        LISTER = new net.minecraft.resources.FileToIdConverter("structures", ".nbt");
+     }
+ }
+ 

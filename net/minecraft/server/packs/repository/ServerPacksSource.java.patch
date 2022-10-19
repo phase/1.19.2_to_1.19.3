@@ -1,0 +1,64 @@
+--- net/minecraft/server/packs/repository/ServerPacksSource.java
++++ net/minecraft/server/packs/repository/ServerPacksSource.java
+@@ -4,25 +4,50 @@
+ package net.minecraft.server.packs.repository;
+ 
+ public class net.minecraft.server.packs.repository.ServerPacksSource
+-implements net.minecraft.server.packs.repository.RepositorySource
++extends net.minecraft.server.packs.repository.BuiltInPackSource
+  {
+-    public static net.minecraft.server.packs.metadata.pack.PackMetadataSection BUILT_IN_METADATA;
+-    public static java.lang.String VANILLA_ID = "vanilla";
+-    public net.minecraft.server.packs.VanillaPackResources vanillaPack;
++    public static net.minecraft.server.packs.metadata.pack.PackMetadataSection VERSION_METADATA_SECTION;
++    public static net.minecraft.server.packs.FeatureFlagsMetadataSection FEATURE_FLAGS_METADATA_SECTION;
++    public static net.minecraft.server.packs.BuiltInMetadata BUILT_IN_METADATA;
++    public static net.minecraft.network.chat.Component VANILLA_NAME;
++    public static net.minecraft.resources.ResourceLocation PACKS_DIR;
+ 
+     public net.minecraft.server.packs.repository.ServerPacksSource() {
+-        this.vanillaPack = new net.minecraft.server.packs.VanillaPackResources(BUILT_IN_METADATA, new java.lang.String[]{"minecraft"});
++        super(net.minecraft.server.packs.PackType.SERVER_DATA, net.minecraft.server.packs.repository.ServerPacksSource.createVanillaPackSource(), PACKS_DIR);
+     }
+ 
+-    public void loadPacks(java.util.function.Consumer<net.minecraft.server.packs.repository.Pack> infoConsumer, net.minecraft.server.packs.repository.Pack$PackConstructor infoFactory) {
+-        net.minecraft.server.packs.repository.Pack pack = net.minecraft.server.packs.repository.Pack.create((java.lang.String)"vanilla", (boolean)false, () -> this.vanillaPack, (net.minecraft.server.packs.repository.Pack$PackConstructor)infoFactory, (net.minecraft.server.packs.repository.Pack$Position)net.minecraft.server.packs.repository.Pack$Position.BOTTOM, (net.minecraft.server.packs.repository.PackSource)net.minecraft.server.packs.repository.PackSource.BUILT_IN);
+-        if (pack != null) {
+-            infoConsumer.accept((java.lang.Object)pack);
+-        }
++    public static net.minecraft.server.packs.VanillaPackResources createVanillaPackSource() {
++        return new net.minecraft.server.packs.VanillaPackResourcesBuilder().setMetadata(BUILT_IN_METADATA).exposeNamespace(new java.lang.String[]{"minecraft"}).applyDevelopmentConfig().pushJarResources().build();
+     }
+ 
++    public net.minecraft.network.chat.Component getPackTitle(java.lang.String $$0) {
++        return net.minecraft.network.chat.Component.literal((java.lang.String)$$0);
++    }
++
++    @javax.annotation.Nullable
++    public net.minecraft.server.packs.repository.Pack createVanillaPack(net.minecraft.server.packs.PackResources $$0) {
++        return net.minecraft.server.packs.repository.Pack.readMetaAndCreate((java.lang.String)"vanilla", (net.minecraft.network.chat.Component)VANILLA_NAME, (boolean)false, $$1 -> $$0, (net.minecraft.server.packs.PackType)net.minecraft.server.packs.PackType.SERVER_DATA, (net.minecraft.server.packs.repository.Pack$Position)net.minecraft.server.packs.repository.Pack$Position.BOTTOM, (net.minecraft.server.packs.repository.PackSource)net.minecraft.server.packs.repository.PackSource.BUILT_IN);
++    }
++
++    @javax.annotation.Nullable
++    public net.minecraft.server.packs.repository.Pack createBuiltinPack(java.lang.String $$0, net.minecraft.server.packs.repository.Pack$ResourcesSupplier $$1, net.minecraft.network.chat.Component $$2) {
++        return net.minecraft.server.packs.repository.Pack.readMetaAndCreate((java.lang.String)$$0, (net.minecraft.network.chat.Component)$$2, (boolean)false, (net.minecraft.server.packs.repository.Pack$ResourcesSupplier)$$1, (net.minecraft.server.packs.PackType)net.minecraft.server.packs.PackType.SERVER_DATA, (net.minecraft.server.packs.repository.Pack$Position)net.minecraft.server.packs.repository.Pack$Position.TOP, (net.minecraft.server.packs.repository.PackSource)net.minecraft.server.packs.repository.PackSource.FEATURE);
++    }
++
++    public static net.minecraft.server.packs.repository.PackRepository createPackRepository(java.nio.file.Path $$0) {
++        return new net.minecraft.server.packs.repository.PackRepository(new net.minecraft.server.packs.repository.RepositorySource[]{new net.minecraft.server.packs.repository.ServerPacksSource(), new net.minecraft.server.packs.repository.FolderRepositorySource($$0, net.minecraft.server.packs.PackType.SERVER_DATA, net.minecraft.server.packs.repository.PackSource.WORLD)});
++    }
++
++    public static net.minecraft.server.packs.repository.PackRepository createPackRepository(net.minecraft.world.level.storage.LevelStorageSource$LevelStorageAccess $$0) {
++        return net.minecraft.server.packs.repository.ServerPacksSource.createPackRepository((java.nio.file.Path)$$0.getLevelPath(net.minecraft.world.level.storage.LevelResource.DATAPACK_DIR));
++    }
++
+     static {
+-        BUILT_IN_METADATA = new net.minecraft.server.packs.metadata.pack.PackMetadataSection((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"dataPack.vanilla.description"), net.minecraft.server.packs.PackType.SERVER_DATA.getVersion((com.mojang.bridge.game.GameVersion)net.minecraft.SharedConstants.getCurrentVersion()));
++        VERSION_METADATA_SECTION = new net.minecraft.server.packs.metadata.pack.PackMetadataSection((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"dataPack.vanilla.description"), net.minecraft.server.packs.PackType.SERVER_DATA.getVersion((com.mojang.bridge.game.GameVersion)net.minecraft.SharedConstants.getCurrentVersion()));
++        FEATURE_FLAGS_METADATA_SECTION = new net.minecraft.server.packs.FeatureFlagsMetadataSection(net.minecraft.world.flag.FeatureFlags.DEFAULT_FLAGS);
++        BUILT_IN_METADATA = net.minecraft.server.packs.BuiltInMetadata.of((net.minecraft.server.packs.metadata.MetadataSectionSerializer)net.minecraft.server.packs.metadata.pack.PackMetadataSection.TYPE, (java.lang.Object)VERSION_METADATA_SECTION, (net.minecraft.server.packs.metadata.MetadataSectionSerializer)net.minecraft.server.packs.FeatureFlagsMetadataSection.TYPE, (java.lang.Object)FEATURE_FLAGS_METADATA_SECTION);
++        VANILLA_NAME = net.minecraft.network.chat.Component.translatable((java.lang.String)"dataPack.vanilla.name");
++        PACKS_DIR = new net.minecraft.resources.ResourceLocation("minecraft", "datapacks");
+     }
+ }
+ 

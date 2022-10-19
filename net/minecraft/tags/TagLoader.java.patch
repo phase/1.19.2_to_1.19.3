@@ -1,0 +1,81 @@
+--- net/minecraft/tags/TagLoader.java
++++ net/minecraft/tags/TagLoader.java
+@@ -6,23 +6,21 @@
+ public class net.minecraft.tags.TagLoader<T>
+  {
+     public static org.slf4j.Logger LOGGER;
+-    public static java.lang.String PATH_SUFFIX = ".json";
+-    public static int PATH_SUFFIX_LENGTH;
+-    public java.util.function.Function<net.minecraft.resources.ResourceLocation, java.util.Optional<T>> idToValue;
++    public java.util.function.Function<net.minecraft.resources.ResourceLocation, java.util.Optional<? extends T>> idToValue;
+     public java.lang.String directory;
+ 
+-    public net.minecraft.tags.TagLoader(java.util.function.Function<net.minecraft.resources.ResourceLocation, java.util.Optional<T>> $$0, java.lang.String $$1) {
++    public net.minecraft.tags.TagLoader(java.util.function.Function<net.minecraft.resources.ResourceLocation, java.util.Optional<? extends T>> $$0, java.lang.String $$1) {
+         this.idToValue = $$0;
+         this.directory = $$1;
+     }
+ 
+     public java.util.Map<net.minecraft.resources.ResourceLocation, java.util.List<net.minecraft.tags.TagLoader$EntryWithSource>> load(net.minecraft.server.packs.resources.ResourceManager $$02) {
+         java.util.HashMap $$1 = com.google.common.collect.Maps.newHashMap();
+-        for (java.util.Map$Entry $$22 : $$02.listResourceStacks(this.directory, $$0 -> $$0.getPath().endsWith(".json")).entrySet()) {
+-            net.minecraft.resources.ResourceLocation $$3 = (net.minecraft.resources.ResourceLocation)$$22.getKey();
+-            java.lang.String $$4 = $$3.getPath();
+-            net.minecraft.resources.ResourceLocation $$5 = new net.minecraft.resources.ResourceLocation($$3.getNamespace(), $$4.substring(this.directory.length() + 1, $$4.length() - PATH_SUFFIX_LENGTH));
+-            for (net.minecraft.server.packs.resources.Resource $$6 : (java.util.List)$$22.getValue()) {
++        net.minecraft.resources.FileToIdConverter $$22 = net.minecraft.resources.FileToIdConverter.json((java.lang.String)this.directory);
++        for (java.util.Map$Entry $$3 : $$22.listMatchingResourceStacks($$02).entrySet()) {
++            net.minecraft.resources.ResourceLocation $$4 = (net.minecraft.resources.ResourceLocation)$$3.getKey();
++            net.minecraft.resources.ResourceLocation $$5 = $$22.fileToId($$4);
++            for (net.minecraft.server.packs.resources.Resource $$6 : (java.util.List)$$3.getValue()) {
+                 try {
+                     java.io.BufferedReader $$7 = $$6.openAsReader();
+                     try {
+@@ -41,7 +39,7 @@
+                     }
+                 }
+                 catch (java.lang.Exception $$12) {
+-                    LOGGER.error("Couldn't read tag list {} from {} in data pack {}", new java.lang.Object[]{$$5, $$3, $$6.sourcePackId(), $$12});
++                    LOGGER.error("Couldn't read tag list {} from {} in data pack {}", new java.lang.Object[]{$$5, $$4, $$6.sourcePackId(), $$12});
+                 }
+             }
+         }
+@@ -87,10 +85,10 @@
+         java.util.HashMap $$1 = com.google.common.collect.Maps.newHashMap();
+         net.minecraft.tags.TagLoader$1 $$2 = new /* Unavailable Anonymous Inner Class!! */;
+         com.google.common.collect.HashMultimap $$3 = com.google.common.collect.HashMultimap.create();
+-        $$0.forEach((arg_0, arg_1) -> net.minecraft.tags.TagLoader.lambda$build$7((com.google.common.collect.Multimap)$$3, arg_0, arg_1));
+-        $$0.forEach((arg_0, arg_1) -> net.minecraft.tags.TagLoader.lambda$build$10((com.google.common.collect.Multimap)$$3, arg_0, arg_1));
++        $$0.forEach((arg_0, arg_1) -> net.minecraft.tags.TagLoader.lambda$build$6((com.google.common.collect.Multimap)$$3, arg_0, arg_1));
++        $$0.forEach((arg_0, arg_1) -> net.minecraft.tags.TagLoader.lambda$build$9((com.google.common.collect.Multimap)$$3, arg_0, arg_1));
+         java.util.HashSet $$4 = com.google.common.collect.Sets.newHashSet();
+-        $$0.keySet().forEach(arg_0 -> this.lambda$build$14($$0, (com.google.common.collect.Multimap)$$3, (java.util.Set)$$4, (net.minecraft.tags.TagEntry$Lookup)$$2, (java.util.Map)$$1, arg_0));
++        $$0.keySet().forEach(arg_0 -> this.lambda$build$13($$0, (com.google.common.collect.Multimap)$$3, (java.util.Set)$$4, (net.minecraft.tags.TagEntry$Lookup)$$2, (java.util.Map)$$1, arg_0));
+         return $$1;
+     }
+ 
+@@ -98,21 +96,20 @@
+         return this.build(this.load($$0));
+     }
+ 
+-    public /* synthetic */ void lambda$build$14(java.util.Map $$0, com.google.common.collect.Multimap $$1, java.util.Set $$2, net.minecraft.tags.TagEntry$Lookup $$32, java.util.Map $$4, net.minecraft.resources.ResourceLocation $$5) {
++    public /* synthetic */ void lambda$build$13(java.util.Map $$0, com.google.common.collect.Multimap $$1, java.util.Set $$2, net.minecraft.tags.TagEntry$Lookup $$32, java.util.Map $$4, net.minecraft.resources.ResourceLocation $$5) {
+         net.minecraft.tags.TagLoader.visitDependenciesAndElement((java.util.Map)$$0, (com.google.common.collect.Multimap)$$1, (java.util.Set)$$2, (net.minecraft.resources.ResourceLocation)$$5, ($$22, $$3) -> this.build($$32, $$3).ifLeft($$1 -> LOGGER.error("Couldn't load tag {} as it is missing following references: {}", $$22, $$1.stream().map(java.util.Objects::toString).collect(java.util.stream.Collectors.joining((java.lang.CharSequence)", ")))).ifRight($$2 -> $$4.put($$22, $$2)));
+     }
+ 
+-    public static /* synthetic */ void lambda$build$10(com.google.common.collect.Multimap $$0, net.minecraft.resources.ResourceLocation $$1, java.util.List $$2) {
++    public static /* synthetic */ void lambda$build$9(com.google.common.collect.Multimap $$0, net.minecraft.resources.ResourceLocation $$1, java.util.List $$2) {
+         $$2.forEach($$22 -> $$22.entry.visitOptionalDependencies($$2 -> net.minecraft.tags.TagLoader.addDependencyIfNotCyclic((com.google.common.collect.Multimap)$$0, (net.minecraft.resources.ResourceLocation)$$1, (net.minecraft.resources.ResourceLocation)$$2)));
+     }
+ 
+-    public static /* synthetic */ void lambda$build$7(com.google.common.collect.Multimap $$0, net.minecraft.resources.ResourceLocation $$1, java.util.List $$2) {
++    public static /* synthetic */ void lambda$build$6(com.google.common.collect.Multimap $$0, net.minecraft.resources.ResourceLocation $$1, java.util.List $$2) {
+         $$2.forEach($$22 -> $$22.entry.visitRequiredDependencies($$2 -> net.minecraft.tags.TagLoader.addDependencyIfNotCyclic((com.google.common.collect.Multimap)$$0, (net.minecraft.resources.ResourceLocation)$$1, (net.minecraft.resources.ResourceLocation)$$2)));
+     }
+ 
+     static {
+         LOGGER = com.mojang.logging.LogUtils.getLogger();
+-        PATH_SUFFIX_LENGTH = ".json".length();
+     }
+ }
+ 

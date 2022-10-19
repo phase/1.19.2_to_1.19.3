@@ -1,0 +1,610 @@
+--- net/minecraft/world/level/levelgen/structure/templatesystem/StructureTemplate.java
++++ net/minecraft/world/level/levelgen/structure/templatesystem/StructureTemplate.java
+@@ -33,8 +33,8 @@
+         return this.size;
+     }
+ 
+-    public void setAuthor(java.lang.String author) {
+-        this.author = author;
++    public void setAuthor(java.lang.String $$0) {
++        this.author = $$0;
+     }
+ 
+     public java.lang.String getAuthor() {
+@@ -75,42 +75,47 @@
+         }
+     }
+ 
+-    public static void addToLists(net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate$StructureBlockInfo blockInfo, java.util.List<net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate$StructureBlockInfo> specialBlocks, java.util.List<net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate$StructureBlockInfo> blocksWithTag, java.util.List<net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate$StructureBlockInfo> normalBlocks) {
+-        if (blockInfo.nbt != null) {
+-            blocksWithTag.add((java.lang.Object)blockInfo);
+-        } else if (!blockInfo.state.getBlock().hasDynamicShape() && blockInfo.state.isCollisionShapeFullBlock((net.minecraft.world.level.BlockGetter)net.minecraft.world.level.EmptyBlockGetter.INSTANCE, net.minecraft.core.BlockPos.ZERO)) {
+-            specialBlocks.add((java.lang.Object)blockInfo);
++    public static void addToLists(net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate$StructureBlockInfo $$0, java.util.List<net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate$StructureBlockInfo> $$1, java.util.List<net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate$StructureBlockInfo> $$2, java.util.List<net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate$StructureBlockInfo> $$3) {
++        if ($$0.nbt != null) {
++            $$2.add((java.lang.Object)$$0);
++        } else if (!$$0.state.getBlock().hasDynamicShape() && $$0.state.isCollisionShapeFullBlock((net.minecraft.world.level.BlockGetter)net.minecraft.world.level.EmptyBlockGetter.INSTANCE, net.minecraft.core.BlockPos.ZERO)) {
++            $$1.add((java.lang.Object)$$0);
+         } else {
+-            normalBlocks.add((java.lang.Object)blockInfo);
++            $$3.add((java.lang.Object)$$0);
+         }
+     }
+ 
+-    public static java.util.List<net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate$StructureBlockInfo> buildInfoList(java.util.List<net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate$StructureBlockInfo> specialBlocks, java.util.List<net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate$StructureBlockInfo> blocksWithTag, java.util.List<net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate$StructureBlockInfo> normalBlocks) {
+-        java.util.Comparator comparator = java.util.Comparator.comparingInt($$0 -> $$0.pos.getY()).thenComparingInt($$0 -> $$0.pos.getX()).thenComparingInt($$0 -> $$0.pos.getZ());
+-        specialBlocks.sort(comparator);
+-        normalBlocks.sort(comparator);
+-        blocksWithTag.sort(comparator);
+-        java.util.ArrayList arrayList = com.google.common.collect.Lists.newArrayList();
+-        arrayList.addAll(specialBlocks);
+-        arrayList.addAll(normalBlocks);
+-        arrayList.addAll(blocksWithTag);
+-        return arrayList;
++    public static java.util.List<net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate$StructureBlockInfo> buildInfoList(java.util.List<net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate$StructureBlockInfo> $$02, java.util.List<net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate$StructureBlockInfo> $$1, java.util.List<net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate$StructureBlockInfo> $$2) {
++        java.util.Comparator $$3 = java.util.Comparator.comparingInt($$0 -> $$0.pos.getY()).thenComparingInt($$0 -> $$0.pos.getX()).thenComparingInt($$0 -> $$0.pos.getZ());
++        $$02.sort($$3);
++        $$2.sort($$3);
++        $$1.sort($$3);
++        java.util.ArrayList $$4 = com.google.common.collect.Lists.newArrayList();
++        $$4.addAll($$02);
++        $$4.addAll($$2);
++        $$4.addAll($$1);
++        return $$4;
+     }
+ 
+-    public void fillEntityList(net.minecraft.world.level.Level level, net.minecraft.core.BlockPos startPos, net.minecraft.core.BlockPos endPos) {
+-        java.util.List list = level.getEntitiesOfClass(net.minecraft.world.entity.Entity.class, new net.minecraft.world.phys.AABB(startPos, endPos), $$0 -> !($$0 instanceof net.minecraft.world.entity.player.Player));
++    public void fillEntityList(net.minecraft.world.level.Level $$02, net.minecraft.core.BlockPos $$1, net.minecraft.core.BlockPos $$2) {
++        java.util.List $$3 = $$02.getEntitiesOfClass(net.minecraft.world.entity.Entity.class, new net.minecraft.world.phys.AABB($$1, $$2), $$0 -> !($$0 instanceof net.minecraft.world.entity.player.Player));
+         this.entityInfoList.clear();
+-        for (net.minecraft.world.entity.Entity entity : list) {
+-            net.minecraft.world.phys.Vec3 vec3 = new net.minecraft.world.phys.Vec3(entity.getX() - (double)startPos.getX(), entity.getY() - (double)startPos.getY(), entity.getZ() - (double)startPos.getZ());
+-            net.minecraft.nbt.CompoundTag compoundTag = new net.minecraft.nbt.CompoundTag();
+-            entity.save(compoundTag);
+-            net.minecraft.core.BlockPos blockPos = entity instanceof net.minecraft.world.entity.decoration.Painting ? ((net.minecraft.world.entity.decoration.Painting)entity).getPos().subtract((net.minecraft.core.Vec3i)startPos) : new net.minecraft.core.BlockPos(vec3);
+-            this.entityInfoList.add((java.lang.Object)new net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate$StructureEntityInfo(vec3, blockPos, compoundTag.copy()));
++        for (net.minecraft.world.entity.Entity $$4 : $$3) {
++            net.minecraft.core.BlockPos $$8;
++            net.minecraft.world.phys.Vec3 $$5 = new net.minecraft.world.phys.Vec3($$4.getX() - (double)$$1.getX(), $$4.getY() - (double)$$1.getY(), $$4.getZ() - (double)$$1.getZ());
++            net.minecraft.nbt.CompoundTag $$6 = new net.minecraft.nbt.CompoundTag();
++            $$4.save($$6);
++            if ($$4 instanceof net.minecraft.world.entity.decoration.Painting) {
++                net.minecraft.core.BlockPos $$7 = ((net.minecraft.world.entity.decoration.Painting)$$4).getPos().subtract((net.minecraft.core.Vec3i)$$1);
++            } else {
++                $$8 = new net.minecraft.core.BlockPos($$5);
++            }
++            this.entityInfoList.add((java.lang.Object)new net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate$StructureEntityInfo($$5, $$8, $$6.copy()));
+         }
+     }
+ 
+-    public java.util.List<net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate$StructureBlockInfo> filterBlocks(net.minecraft.core.BlockPos pos, net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlaceSettings settings, net.minecraft.world.level.block.Block block) {
+-        return this.filterBlocks(pos, settings, block, true);
++    public java.util.List<net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate$StructureBlockInfo> filterBlocks(net.minecraft.core.BlockPos $$0, net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlaceSettings $$1, net.minecraft.world.level.block.Block $$2) {
++        return this.filterBlocks($$0, $$1, $$2, true);
+     }
+ 
+     public it.unimi.dsi.fastutil.objects.ObjectArrayList<net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate$StructureBlockInfo> filterBlocks(net.minecraft.core.BlockPos $$0, net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlaceSettings $$1, net.minecraft.world.level.block.Block $$2, boolean $$3) {
+@@ -128,14 +133,14 @@
+         return $$4;
+     }
+ 
+-    public net.minecraft.core.BlockPos calculateConnectedPosition(net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlaceSettings decorator, net.minecraft.core.BlockPos blockPos, net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlaceSettings settings, net.minecraft.core.BlockPos blockPos2) {
+-        net.minecraft.core.BlockPos blockPos3 = net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate.calculateRelativePosition((net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlaceSettings)decorator, (net.minecraft.core.BlockPos)blockPos);
+-        net.minecraft.core.BlockPos blockPos4 = net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate.calculateRelativePosition((net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlaceSettings)settings, (net.minecraft.core.BlockPos)blockPos2);
+-        return blockPos3.subtract((net.minecraft.core.Vec3i)blockPos4);
++    public net.minecraft.core.BlockPos calculateConnectedPosition(net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlaceSettings $$0, net.minecraft.core.BlockPos $$1, net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlaceSettings $$2, net.minecraft.core.BlockPos $$3) {
++        net.minecraft.core.BlockPos $$4 = net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate.calculateRelativePosition((net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlaceSettings)$$0, (net.minecraft.core.BlockPos)$$1);
++        net.minecraft.core.BlockPos $$5 = net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate.calculateRelativePosition((net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlaceSettings)$$2, (net.minecraft.core.BlockPos)$$3);
++        return $$4.subtract((net.minecraft.core.Vec3i)$$5);
+     }
+ 
+-    public static net.minecraft.core.BlockPos calculateRelativePosition(net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlaceSettings decorator, net.minecraft.core.BlockPos pos) {
+-        return net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate.transform((net.minecraft.core.BlockPos)pos, (net.minecraft.world.level.block.Mirror)decorator.getMirror(), (net.minecraft.world.level.block.Rotation)decorator.getRotation(), (net.minecraft.core.BlockPos)decorator.getRotationPivot());
++    public static net.minecraft.core.BlockPos calculateRelativePosition(net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlaceSettings $$0, net.minecraft.core.BlockPos $$1) {
++        return net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate.transform((net.minecraft.core.BlockPos)$$1, (net.minecraft.world.level.block.Mirror)$$0.getMirror(), (net.minecraft.world.level.block.Rotation)$$0.getRotation(), (net.minecraft.core.BlockPos)$$0.getRotationPivot());
+     }
+ 
+     public boolean placeInWorld(net.minecraft.world.level.ServerLevelAccessor $$0, net.minecraft.core.BlockPos $$1, net.minecraft.core.BlockPos $$2, net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlaceSettings $$3, net.minecraft.util.RandomSource $$4, int $$5) {
+@@ -247,67 +252,67 @@
+         return true;
+     }
+ 
+-    public static void updateShapeAtEdge(net.minecraft.world.level.LevelAccessor level, int n, net.minecraft.world.phys.shapes.DiscreteVoxelShape voxelShapePart, int x, int y, int z) {
+-        voxelShapePart.forAllFaces(($$5, $$6, $$7, $$8) -> {
++    public static void updateShapeAtEdge(net.minecraft.world.level.LevelAccessor $$0, int $$1, net.minecraft.world.phys.shapes.DiscreteVoxelShape $$2, int $$3, int $$4, int $$52) {
++        $$2.forAllFaces(($$5, $$6, $$7, $$8) -> {
+             net.minecraft.world.level.block.state.BlockState $$14;
+             net.minecraft.world.level.block.state.BlockState $$12;
+             net.minecraft.world.level.block.state.BlockState $$13;
+-            net.minecraft.core.BlockPos $$9 = new net.minecraft.core.BlockPos(x + $$6, y + $$7, z + $$8);
++            net.minecraft.core.BlockPos $$9 = new net.minecraft.core.BlockPos($$3 + $$6, $$4 + $$7, $$52 + $$8);
+             net.minecraft.core.BlockPos $$10 = $$9.relative($$5);
+-            net.minecraft.world.level.block.state.BlockState $$11 = level.getBlockState($$9);
+-            if ($$11 != ($$13 = $$11.updateShape($$5, $$12 = level.getBlockState($$10), level, $$9, $$10))) {
+-                level.setBlock($$9, $$13, n & 0xFFFFFFFE);
++            net.minecraft.world.level.block.state.BlockState $$11 = $$0.getBlockState($$9);
++            if ($$11 != ($$13 = $$11.updateShape($$5, $$12 = $$0.getBlockState($$10), $$0, $$9, $$10))) {
++                $$0.setBlock($$9, $$13, $$1 & 0xFFFFFFFE);
+             }
+-            if ($$12 != ($$14 = $$12.updateShape($$5.getOpposite(), $$13, level, $$10, $$9))) {
+-                level.setBlock($$10, $$14, n & 0xFFFFFFFE);
++            if ($$12 != ($$14 = $$12.updateShape($$5.getOpposite(), $$13, $$0, $$10, $$9))) {
++                $$0.setBlock($$10, $$14, $$1 & 0xFFFFFFFE);
+             }
+         });
+     }
+ 
+-    public static java.util.List<net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate$StructureBlockInfo> processBlockInfos(net.minecraft.world.level.LevelAccessor level, net.minecraft.core.BlockPos blockPos, net.minecraft.core.BlockPos blockPos2, net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlaceSettings settings, java.util.List<net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate$StructureBlockInfo> blockInfoList) {
+-        java.util.ArrayList arrayList = com.google.common.collect.Lists.newArrayList();
+-        for (net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate$StructureBlockInfo structureBlockInfo : blockInfoList) {
+-            net.minecraft.core.BlockPos blockPos3 = net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate.calculateRelativePosition((net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlaceSettings)settings, (net.minecraft.core.BlockPos)structureBlockInfo.pos).offset((net.minecraft.core.Vec3i)blockPos);
+-            net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate$StructureBlockInfo structureBlockInfo2 = new net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate$StructureBlockInfo(blockPos3, structureBlockInfo.state, structureBlockInfo.nbt != null ? structureBlockInfo.nbt.copy() : null);
+-            java.util.Iterator iterator = settings.getProcessors().iterator();
+-            while (structureBlockInfo2 != null && iterator.hasNext()) {
+-                structureBlockInfo2 = ((net.minecraft.world.level.levelgen.structure.templatesystem.StructureProcessor)iterator.next()).processBlock((net.minecraft.world.level.LevelReader)level, blockPos, blockPos2, structureBlockInfo, structureBlockInfo2, settings);
++    public static java.util.List<net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate$StructureBlockInfo> processBlockInfos(net.minecraft.world.level.LevelAccessor $$0, net.minecraft.core.BlockPos $$1, net.minecraft.core.BlockPos $$2, net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlaceSettings $$3, java.util.List<net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate$StructureBlockInfo> $$4) {
++        java.util.ArrayList $$5 = com.google.common.collect.Lists.newArrayList();
++        for (net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate$StructureBlockInfo $$6 : $$4) {
++            net.minecraft.core.BlockPos $$7 = net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate.calculateRelativePosition((net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlaceSettings)$$3, (net.minecraft.core.BlockPos)$$6.pos).offset((net.minecraft.core.Vec3i)$$1);
++            net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate$StructureBlockInfo $$8 = new net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate$StructureBlockInfo($$7, $$6.state, $$6.nbt != null ? $$6.nbt.copy() : null);
++            java.util.Iterator $$9 = $$3.getProcessors().iterator();
++            while ($$8 != null && $$9.hasNext()) {
++                $$8 = ((net.minecraft.world.level.levelgen.structure.templatesystem.StructureProcessor)$$9.next()).processBlock((net.minecraft.world.level.LevelReader)$$0, $$1, $$2, $$6, $$8, $$3);
+             }
+-            if (structureBlockInfo2 == null) continue;
+-            arrayList.add((java.lang.Object)structureBlockInfo2);
++            if ($$8 == null) continue;
++            $$5.add((java.lang.Object)$$8);
+         }
+-        return arrayList;
++        return $$5;
+     }
+ 
+-    public void placeEntities(net.minecraft.world.level.ServerLevelAccessor serverLevel, net.minecraft.core.BlockPos blockPos, net.minecraft.world.level.block.Mirror mirror, net.minecraft.world.level.block.Rotation rotation, net.minecraft.core.BlockPos blockPos2, @javax.annotation.Nullable net.minecraft.world.level.levelgen.structure.BoundingBox boundingBox, boolean withEntities) {
+-        for (net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate$StructureEntityInfo structureEntityInfo : this.entityInfoList) {
+-            net.minecraft.core.BlockPos blockPos3 = net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate.transform((net.minecraft.core.BlockPos)structureEntityInfo.blockPos, (net.minecraft.world.level.block.Mirror)mirror, (net.minecraft.world.level.block.Rotation)rotation, (net.minecraft.core.BlockPos)blockPos2).offset((net.minecraft.core.Vec3i)blockPos);
+-            if (boundingBox != null && !boundingBox.isInside((net.minecraft.core.Vec3i)blockPos3)) continue;
+-            net.minecraft.nbt.CompoundTag compoundTag = structureEntityInfo.nbt.copy();
+-            net.minecraft.world.phys.Vec3 vec3 = net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate.transform((net.minecraft.world.phys.Vec3)structureEntityInfo.pos, (net.minecraft.world.level.block.Mirror)mirror, (net.minecraft.world.level.block.Rotation)rotation, (net.minecraft.core.BlockPos)blockPos2);
+-            net.minecraft.world.phys.Vec3 vec32 = vec3.add((double)blockPos.getX(), (double)blockPos.getY(), (double)blockPos.getZ());
+-            net.minecraft.nbt.ListTag listTag = new net.minecraft.nbt.ListTag();
+-            listTag.add((java.lang.Object)net.minecraft.nbt.DoubleTag.valueOf((double)vec32.x));
+-            listTag.add((java.lang.Object)net.minecraft.nbt.DoubleTag.valueOf((double)vec32.y));
+-            listTag.add((java.lang.Object)net.minecraft.nbt.DoubleTag.valueOf((double)vec32.z));
+-            compoundTag.put("Pos", (net.minecraft.nbt.Tag)listTag);
+-            compoundTag.remove("UUID");
+-            net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate.createEntityIgnoreException((net.minecraft.world.level.ServerLevelAccessor)serverLevel, (net.minecraft.nbt.CompoundTag)compoundTag).ifPresent($$6 -> {
+-                float $$7 = $$6.rotate(rotation);
+-                $$6.moveTo($$2.x, $$2.y, $$2.z, $$7 += $$6.mirror(mirror) - $$6.getYRot(), $$6.getXRot());
+-                if (withEntities && $$6 instanceof net.minecraft.world.entity.Mob) {
+-                    ((net.minecraft.world.entity.Mob)$$6).finalizeSpawn(serverLevel, serverLevel.getCurrentDifficultyAt(new net.minecraft.core.BlockPos(vec32)), net.minecraft.world.entity.MobSpawnType.STRUCTURE, null, compoundTag);
++    public void placeEntities(net.minecraft.world.level.ServerLevelAccessor $$0, net.minecraft.core.BlockPos $$1, net.minecraft.world.level.block.Mirror $$2, net.minecraft.world.level.block.Rotation $$3, net.minecraft.core.BlockPos $$4, @javax.annotation.Nullable net.minecraft.world.level.levelgen.structure.BoundingBox $$5, boolean $$62) {
++        for (net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate$StructureEntityInfo $$7 : this.entityInfoList) {
++            net.minecraft.core.BlockPos $$8 = net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate.transform((net.minecraft.core.BlockPos)$$7.blockPos, (net.minecraft.world.level.block.Mirror)$$2, (net.minecraft.world.level.block.Rotation)$$3, (net.minecraft.core.BlockPos)$$4).offset((net.minecraft.core.Vec3i)$$1);
++            if ($$5 != null && !$$5.isInside((net.minecraft.core.Vec3i)$$8)) continue;
++            net.minecraft.nbt.CompoundTag $$9 = $$7.nbt.copy();
++            net.minecraft.world.phys.Vec3 $$10 = net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate.transform((net.minecraft.world.phys.Vec3)$$7.pos, (net.minecraft.world.level.block.Mirror)$$2, (net.minecraft.world.level.block.Rotation)$$3, (net.minecraft.core.BlockPos)$$4);
++            net.minecraft.world.phys.Vec3 $$11 = $$10.add((double)$$1.getX(), (double)$$1.getY(), (double)$$1.getZ());
++            net.minecraft.nbt.ListTag $$12 = new net.minecraft.nbt.ListTag();
++            $$12.add((java.lang.Object)net.minecraft.nbt.DoubleTag.valueOf((double)$$11.x));
++            $$12.add((java.lang.Object)net.minecraft.nbt.DoubleTag.valueOf((double)$$11.y));
++            $$12.add((java.lang.Object)net.minecraft.nbt.DoubleTag.valueOf((double)$$11.z));
++            $$9.put("Pos", (net.minecraft.nbt.Tag)$$12);
++            $$9.remove("UUID");
++            net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate.createEntityIgnoreException((net.minecraft.world.level.ServerLevelAccessor)$$0, (net.minecraft.nbt.CompoundTag)$$9).ifPresent($$6 -> {
++                float $$7 = $$6.rotate($$3);
++                $$6.moveTo($$2.x, $$2.y, $$2.z, $$7 += $$6.mirror($$2) - $$6.getYRot(), $$6.getXRot());
++                if ($$62 && $$6 instanceof net.minecraft.world.entity.Mob) {
++                    ((net.minecraft.world.entity.Mob)$$6).finalizeSpawn($$0, $$0.getCurrentDifficultyAt(new net.minecraft.core.BlockPos($$11)), net.minecraft.world.entity.MobSpawnType.STRUCTURE, null, $$9);
+                 }
+-                serverLevel.addFreshEntityWithPassengers($$6);
++                $$0.addFreshEntityWithPassengers($$6);
+             });
+         }
+     }
+ 
+-    public static java.util.Optional<net.minecraft.world.entity.Entity> createEntityIgnoreException(net.minecraft.world.level.ServerLevelAccessor level, net.minecraft.nbt.CompoundTag tag) {
++    public static java.util.Optional<net.minecraft.world.entity.Entity> createEntityIgnoreException(net.minecraft.world.level.ServerLevelAccessor $$0, net.minecraft.nbt.CompoundTag $$1) {
+         try {
+-            return net.minecraft.world.entity.EntityType.create((net.minecraft.nbt.CompoundTag)tag, (net.minecraft.world.level.Level)level.getLevel());
++            return net.minecraft.world.entity.EntityType.create((net.minecraft.nbt.CompoundTag)$$1, (net.minecraft.world.level.Level)$$0.getLevel());
+         }
+-        catch (java.lang.Exception exception) {
++        catch (java.lang.Exception $$2) {
+             return java.util.Optional.empty();
+         }
+     }
+@@ -322,108 +327,108 @@
+         return this.size;
+     }
+ 
+-    public static net.minecraft.core.BlockPos transform(net.minecraft.core.BlockPos targetPos, net.minecraft.world.level.block.Mirror mirror, net.minecraft.world.level.block.Rotation rotation, net.minecraft.core.BlockPos offset) {
+-        int n = targetPos.getX();
+-        int n2 = targetPos.getY();
+-        int n3 = targetPos.getZ();
+-        boolean bl = true;
+-        switch (net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate$1.$SwitchMap$net$minecraft$world$level$block$Mirror[mirror.ordinal()]) {
++    public static net.minecraft.core.BlockPos transform(net.minecraft.core.BlockPos $$0, net.minecraft.world.level.block.Mirror $$1, net.minecraft.world.level.block.Rotation $$2, net.minecraft.core.BlockPos $$3) {
++        int $$4 = $$0.getX();
++        int $$5 = $$0.getY();
++        int $$6 = $$0.getZ();
++        boolean $$7 = true;
++        switch (net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate$1.$SwitchMap$net$minecraft$world$level$block$Mirror[$$1.ordinal()]) {
+             case 1: {
+-                n3 = -n3;
++                $$6 = -$$6;
+                 break;
+             }
+             case 2: {
+-                n = -n;
++                $$4 = -$$4;
+                 break;
+             }
+             default: {
+-                bl = false;
++                $$7 = false;
+             }
+         }
+-        int n4 = offset.getX();
+-        int n5 = offset.getZ();
+-        switch (net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate$1.$SwitchMap$net$minecraft$world$level$block$Rotation[rotation.ordinal()]) {
++        int $$8 = $$3.getX();
++        int $$9 = $$3.getZ();
++        switch (net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate$1.$SwitchMap$net$minecraft$world$level$block$Rotation[$$2.ordinal()]) {
+             case 3: {
+-                return new net.minecraft.core.BlockPos(n4 + n4 - n, n2, n5 + n5 - n3);
++                return new net.minecraft.core.BlockPos($$8 + $$8 - $$4, $$5, $$9 + $$9 - $$6);
+             }
+             case 1: {
+-                return new net.minecraft.core.BlockPos(n4 - n5 + n3, n2, n4 + n5 - n);
++                return new net.minecraft.core.BlockPos($$8 - $$9 + $$6, $$5, $$8 + $$9 - $$4);
+             }
+             case 2: {
+-                return new net.minecraft.core.BlockPos(n4 + n5 - n3, n2, n5 - n4 + n);
++                return new net.minecraft.core.BlockPos($$8 + $$9 - $$6, $$5, $$9 - $$8 + $$4);
+             }
+         }
+-        return bl ? new net.minecraft.core.BlockPos(n, n2, n3) : targetPos;
++        return $$7 ? new net.minecraft.core.BlockPos($$4, $$5, $$6) : $$0;
+     }
+ 
+-    public static net.minecraft.world.phys.Vec3 transform(net.minecraft.world.phys.Vec3 target, net.minecraft.world.level.block.Mirror mirror, net.minecraft.world.level.block.Rotation rotation, net.minecraft.core.BlockPos centerOffset) {
+-        double d = target.x;
+-        double d2 = target.y;
+-        double d3 = target.z;
+-        boolean bl = true;
+-        switch (net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate$1.$SwitchMap$net$minecraft$world$level$block$Mirror[mirror.ordinal()]) {
++    public static net.minecraft.world.phys.Vec3 transform(net.minecraft.world.phys.Vec3 $$0, net.minecraft.world.level.block.Mirror $$1, net.minecraft.world.level.block.Rotation $$2, net.minecraft.core.BlockPos $$3) {
++        double $$4 = $$0.x;
++        double $$5 = $$0.y;
++        double $$6 = $$0.z;
++        boolean $$7 = true;
++        switch (net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate$1.$SwitchMap$net$minecraft$world$level$block$Mirror[$$1.ordinal()]) {
+             case 1: {
+-                d3 = 1.0 - d3;
++                $$6 = 1.0 - $$6;
+                 break;
+             }
+             case 2: {
+-                d = 1.0 - d;
++                $$4 = 1.0 - $$4;
+                 break;
+             }
+             default: {
+-                bl = false;
++                $$7 = false;
+             }
+         }
+-        int n = centerOffset.getX();
+-        int n2 = centerOffset.getZ();
+-        switch (net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate$1.$SwitchMap$net$minecraft$world$level$block$Rotation[rotation.ordinal()]) {
++        int $$8 = $$3.getX();
++        int $$9 = $$3.getZ();
++        switch (net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate$1.$SwitchMap$net$minecraft$world$level$block$Rotation[$$2.ordinal()]) {
+             case 3: {
+-                return new net.minecraft.world.phys.Vec3((double)(n + n + 1) - d, d2, (double)(n2 + n2 + 1) - d3);
++                return new net.minecraft.world.phys.Vec3((double)($$8 + $$8 + 1) - $$4, $$5, (double)($$9 + $$9 + 1) - $$6);
+             }
+             case 1: {
+-                return new net.minecraft.world.phys.Vec3((double)(n - n2) + d3, d2, (double)(n + n2 + 1) - d);
++                return new net.minecraft.world.phys.Vec3((double)($$8 - $$9) + $$6, $$5, (double)($$8 + $$9 + 1) - $$4);
+             }
+             case 2: {
+-                return new net.minecraft.world.phys.Vec3((double)(n + n2 + 1) - d3, d2, (double)(n2 - n) + d);
++                return new net.minecraft.world.phys.Vec3((double)($$8 + $$9 + 1) - $$6, $$5, (double)($$9 - $$8) + $$4);
+             }
+         }
+-        return bl ? new net.minecraft.world.phys.Vec3(d, d2, d3) : target;
++        return $$7 ? new net.minecraft.world.phys.Vec3($$4, $$5, $$6) : $$0;
+     }
+ 
+-    public net.minecraft.core.BlockPos getZeroPositionWithTransform(net.minecraft.core.BlockPos targetPos, net.minecraft.world.level.block.Mirror mirror, net.minecraft.world.level.block.Rotation rotation) {
+-        return net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate.getZeroPositionWithTransform((net.minecraft.core.BlockPos)targetPos, (net.minecraft.world.level.block.Mirror)mirror, (net.minecraft.world.level.block.Rotation)rotation, (int)this.getSize().getX(), (int)this.getSize().getZ());
++    public net.minecraft.core.BlockPos getZeroPositionWithTransform(net.minecraft.core.BlockPos $$0, net.minecraft.world.level.block.Mirror $$1, net.minecraft.world.level.block.Rotation $$2) {
++        return net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate.getZeroPositionWithTransform((net.minecraft.core.BlockPos)$$0, (net.minecraft.world.level.block.Mirror)$$1, (net.minecraft.world.level.block.Rotation)$$2, (int)this.getSize().getX(), (int)this.getSize().getZ());
+     }
+ 
+-    public static net.minecraft.core.BlockPos getZeroPositionWithTransform(net.minecraft.core.BlockPos pos, net.minecraft.world.level.block.Mirror mirror, net.minecraft.world.level.block.Rotation rotation, int sizeX, int sizeZ) {
+-        int n = mirror == net.minecraft.world.level.block.Mirror.FRONT_BACK ? --sizeX : 0;
+-        int n2 = mirror == net.minecraft.world.level.block.Mirror.LEFT_RIGHT ? --sizeZ : 0;
+-        net.minecraft.core.BlockPos blockPos = pos;
+-        switch (net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate$1.$SwitchMap$net$minecraft$world$level$block$Rotation[rotation.ordinal()]) {
++    public static net.minecraft.core.BlockPos getZeroPositionWithTransform(net.minecraft.core.BlockPos $$0, net.minecraft.world.level.block.Mirror $$1, net.minecraft.world.level.block.Rotation $$2, int $$3, int $$4) {
++        int $$5 = $$1 == net.minecraft.world.level.block.Mirror.FRONT_BACK ? --$$3 : 0;
++        int $$6 = $$1 == net.minecraft.world.level.block.Mirror.LEFT_RIGHT ? --$$4 : 0;
++        net.minecraft.core.BlockPos $$7 = $$0;
++        switch (net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate$1.$SwitchMap$net$minecraft$world$level$block$Rotation[$$2.ordinal()]) {
+             case 4: {
+-                blockPos = pos.offset(n, 0, n2);
++                $$7 = $$0.offset($$5, 0, $$6);
+                 break;
+             }
+             case 2: {
+-                blockPos = pos.offset(sizeZ - n2, 0, n);
++                $$7 = $$0.offset($$4 - $$6, 0, $$5);
+                 break;
+             }
+             case 3: {
+-                blockPos = pos.offset(sizeX - n, 0, sizeZ - n2);
++                $$7 = $$0.offset($$3 - $$5, 0, $$4 - $$6);
+                 break;
+             }
+             case 1: {
+-                blockPos = pos.offset(n2, 0, sizeX - n);
++                $$7 = $$0.offset($$6, 0, $$3 - $$5);
+             }
+         }
+-        return blockPos;
++        return $$7;
+     }
+ 
+-    public net.minecraft.world.level.levelgen.structure.BoundingBox getBoundingBox(net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlaceSettings settings, net.minecraft.core.BlockPos startPos) {
+-        return this.getBoundingBox(startPos, settings.getRotation(), settings.getRotationPivot(), settings.getMirror());
++    public net.minecraft.world.level.levelgen.structure.BoundingBox getBoundingBox(net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlaceSettings $$0, net.minecraft.core.BlockPos $$1) {
++        return this.getBoundingBox($$1, $$0.getRotation(), $$0.getRotationPivot(), $$0.getMirror());
+     }
+ 
+-    public net.minecraft.world.level.levelgen.structure.BoundingBox getBoundingBox(net.minecraft.core.BlockPos startPos, net.minecraft.world.level.block.Rotation rotation, net.minecraft.core.BlockPos pivotPos, net.minecraft.world.level.block.Mirror mirror) {
+-        return net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate.getBoundingBox((net.minecraft.core.BlockPos)startPos, (net.minecraft.world.level.block.Rotation)rotation, (net.minecraft.core.BlockPos)pivotPos, (net.minecraft.world.level.block.Mirror)mirror, (net.minecraft.core.Vec3i)this.size);
++    public net.minecraft.world.level.levelgen.structure.BoundingBox getBoundingBox(net.minecraft.core.BlockPos $$0, net.minecraft.world.level.block.Rotation $$1, net.minecraft.core.BlockPos $$2, net.minecraft.world.level.block.Mirror $$3) {
++        return net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate.getBoundingBox((net.minecraft.core.BlockPos)$$0, (net.minecraft.world.level.block.Rotation)$$1, (net.minecraft.core.BlockPos)$$2, (net.minecraft.world.level.block.Mirror)$$3, (net.minecraft.core.Vec3i)this.size);
+     }
+ 
+     @com.google.common.annotations.VisibleForTesting
+@@ -434,137 +439,136 @@
+         return net.minecraft.world.level.levelgen.structure.BoundingBox.fromCorners((net.minecraft.core.Vec3i)$$6, (net.minecraft.core.Vec3i)$$7).move((net.minecraft.core.Vec3i)$$0);
+     }
+ 
+-    public net.minecraft.nbt.CompoundTag save(net.minecraft.nbt.CompoundTag tag) {
+-        java.util.List list;
+-        java.util.ArrayList arrayList;
++    public net.minecraft.nbt.CompoundTag save(net.minecraft.nbt.CompoundTag $$0) {
+         if (this.palettes.isEmpty()) {
+-            tag.put("blocks", (net.minecraft.nbt.Tag)new net.minecraft.nbt.ListTag());
+-            tag.put("palette", (net.minecraft.nbt.Tag)new net.minecraft.nbt.ListTag());
++            $$0.put("blocks", (net.minecraft.nbt.Tag)new net.minecraft.nbt.ListTag());
++            $$0.put("palette", (net.minecraft.nbt.Tag)new net.minecraft.nbt.ListTag());
+         } else {
+-            arrayList = com.google.common.collect.Lists.newArrayList();
+-            net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate$SimplePalette simplePalette = new net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate$SimplePalette();
+-            arrayList.add((java.lang.Object)simplePalette);
+-            for (int i = 1; i < this.palettes.size(); ++i) {
+-                arrayList.add((java.lang.Object)new net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate$SimplePalette());
++            java.util.ArrayList $$1 = com.google.common.collect.Lists.newArrayList();
++            net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate$SimplePalette $$2 = new net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate$SimplePalette();
++            $$1.add((java.lang.Object)$$2);
++            for (int $$3 = 1; $$3 < this.palettes.size(); ++$$3) {
++                $$1.add((java.lang.Object)new net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate$SimplePalette());
+             }
+-            net.minecraft.nbt.ListTag listTag = new net.minecraft.nbt.ListTag();
+-            list = ((net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate$Palette)this.palettes.get(0)).blocks();
+-            for (int i = 0; i < list.size(); ++i) {
+-                net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate$StructureBlockInfo structureBlockInfo = (net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate$StructureBlockInfo)list.get(i);
+-                net.minecraft.nbt.CompoundTag compoundTag = new net.minecraft.nbt.CompoundTag();
+-                compoundTag.put("pos", (net.minecraft.nbt.Tag)this.newIntegerList(new int[]{structureBlockInfo.pos.getX(), structureBlockInfo.pos.getY(), structureBlockInfo.pos.getZ()}));
+-                int n = simplePalette.idFor(structureBlockInfo.state);
+-                compoundTag.putInt("state", n);
+-                if (structureBlockInfo.nbt != null) {
+-                    compoundTag.put("nbt", (net.minecraft.nbt.Tag)structureBlockInfo.nbt);
++            net.minecraft.nbt.ListTag $$4 = new net.minecraft.nbt.ListTag();
++            java.util.List $$5 = ((net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate$Palette)this.palettes.get(0)).blocks();
++            for (int $$6 = 0; $$6 < $$5.size(); ++$$6) {
++                net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate$StructureBlockInfo $$7 = (net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate$StructureBlockInfo)$$5.get($$6);
++                net.minecraft.nbt.CompoundTag $$8 = new net.minecraft.nbt.CompoundTag();
++                $$8.put("pos", (net.minecraft.nbt.Tag)this.newIntegerList(new int[]{$$7.pos.getX(), $$7.pos.getY(), $$7.pos.getZ()}));
++                int $$9 = $$2.idFor($$7.state);
++                $$8.putInt("state", $$9);
++                if ($$7.nbt != null) {
++                    $$8.put("nbt", (net.minecraft.nbt.Tag)$$7.nbt);
+                 }
+-                listTag.add((java.lang.Object)compoundTag);
+-                for (int j = 1; j < this.palettes.size(); ++j) {
+-                    net.minecraft.world.level.block.state.BlockState blockState = (net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate$SimplePalette)arrayList.get(j);
+-                    blockState.addMapping(((net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate$StructureBlockInfo)((net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate$Palette)this.palettes.get((int)j)).blocks().get((int)i)).state, n);
++                $$4.add((java.lang.Object)$$8);
++                for (int $$10 = 1; $$10 < this.palettes.size(); ++$$10) {
++                    net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate$SimplePalette $$11 = (net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate$SimplePalette)$$1.get($$10);
++                    $$11.addMapping(((net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate$StructureBlockInfo)((net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate$Palette)this.palettes.get((int)$$10)).blocks().get((int)$$6)).state, $$9);
+                 }
+             }
+-            tag.put("blocks", (net.minecraft.nbt.Tag)listTag);
+-            if (arrayList.size() == 1) {
+-                var6_8 = new net.minecraft.nbt.ListTag();
+-                for (net.minecraft.nbt.CompoundTag compoundTag : simplePalette) {
+-                    var6_8.add((java.lang.Object)net.minecraft.nbt.NbtUtils.writeBlockState((net.minecraft.world.level.block.state.BlockState)compoundTag));
++            $$0.put("blocks", (net.minecraft.nbt.Tag)$$4);
++            if ($$1.size() == 1) {
++                net.minecraft.nbt.ListTag $$12 = new net.minecraft.nbt.ListTag();
++                for (net.minecraft.world.level.block.state.BlockState $$13 : $$2) {
++                    $$12.add((java.lang.Object)net.minecraft.nbt.NbtUtils.writeBlockState((net.minecraft.world.level.block.state.BlockState)$$13));
+                 }
+-                tag.put("palette", (net.minecraft.nbt.Tag)var6_8);
++                $$0.put("palette", (net.minecraft.nbt.Tag)$$12);
+             } else {
+-                var6_8 = new net.minecraft.nbt.ListTag();
+-                for (net.minecraft.nbt.CompoundTag compoundTag : arrayList) {
+-                    net.minecraft.nbt.ListTag listTag2 = new net.minecraft.nbt.ListTag();
+-                    for (net.minecraft.world.level.block.state.BlockState blockState : compoundTag) {
+-                        listTag2.add((java.lang.Object)net.minecraft.nbt.NbtUtils.writeBlockState((net.minecraft.world.level.block.state.BlockState)blockState));
++                net.minecraft.nbt.ListTag $$14 = new net.minecraft.nbt.ListTag();
++                for (net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate$SimplePalette $$15 : $$1) {
++                    net.minecraft.nbt.ListTag $$16 = new net.minecraft.nbt.ListTag();
++                    for (net.minecraft.world.level.block.state.BlockState $$17 : $$15) {
++                        $$16.add((java.lang.Object)net.minecraft.nbt.NbtUtils.writeBlockState((net.minecraft.world.level.block.state.BlockState)$$17));
+                     }
+-                    var6_8.add((java.lang.Object)listTag2);
++                    $$14.add((java.lang.Object)$$16);
+                 }
+-                tag.put("palettes", (net.minecraft.nbt.Tag)var6_8);
++                $$0.put("palettes", (net.minecraft.nbt.Tag)$$14);
+             }
+         }
+-        arrayList = new net.minecraft.nbt.ListTag();
+-        for (net.minecraft.nbt.ListTag listTag : this.entityInfoList) {
+-            list = new net.minecraft.nbt.CompoundTag();
+-            list.put("pos", (net.minecraft.nbt.Tag)this.newDoubleList(new double[]{listTag.pos.x, listTag.pos.y, listTag.pos.z}));
+-            list.put("blockPos", (net.minecraft.nbt.Tag)this.newIntegerList(new int[]{listTag.blockPos.getX(), listTag.blockPos.getY(), listTag.blockPos.getZ()}));
+-            if (listTag.nbt != null) {
+-                list.put("nbt", (net.minecraft.nbt.Tag)listTag.nbt);
++        net.minecraft.nbt.ListTag $$18 = new net.minecraft.nbt.ListTag();
++        for (net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate$StructureEntityInfo $$19 : this.entityInfoList) {
++            net.minecraft.nbt.CompoundTag $$20 = new net.minecraft.nbt.CompoundTag();
++            $$20.put("pos", (net.minecraft.nbt.Tag)this.newDoubleList(new double[]{$$19.pos.x, $$19.pos.y, $$19.pos.z}));
++            $$20.put("blockPos", (net.minecraft.nbt.Tag)this.newIntegerList(new int[]{$$19.blockPos.getX(), $$19.blockPos.getY(), $$19.blockPos.getZ()}));
++            if ($$19.nbt != null) {
++                $$20.put("nbt", (net.minecraft.nbt.Tag)$$19.nbt);
+             }
+-            arrayList.add((java.lang.Object)list);
++            $$18.add((java.lang.Object)$$20);
+         }
+-        tag.put("entities", (net.minecraft.nbt.Tag)arrayList);
+-        tag.put("size", (net.minecraft.nbt.Tag)this.newIntegerList(new int[]{this.size.getX(), this.size.getY(), this.size.getZ()}));
+-        tag.putInt("DataVersion", net.minecraft.SharedConstants.getCurrentVersion().getWorldVersion());
+-        return tag;
++        $$0.put("entities", (net.minecraft.nbt.Tag)$$18);
++        $$0.put("size", (net.minecraft.nbt.Tag)this.newIntegerList(new int[]{this.size.getX(), this.size.getY(), this.size.getZ()}));
++        $$0.putInt("DataVersion", net.minecraft.SharedConstants.getCurrentVersion().getWorldVersion());
++        return $$0;
+     }
+ 
+-    public void load(net.minecraft.nbt.CompoundTag tag) {
+-        int n;
+-        net.minecraft.nbt.ListTag listTag;
++    public void load(net.minecraft.core.HolderLookup<net.minecraft.world.level.block.Block> $$0, net.minecraft.nbt.CompoundTag $$1) {
+         this.palettes.clear();
+         this.entityInfoList.clear();
+-        net.minecraft.nbt.ListTag listTag2 = tag.getList("size", 3);
+-        this.size = new net.minecraft.core.Vec3i(listTag2.getInt(0), listTag2.getInt(1), listTag2.getInt(2));
+-        net.minecraft.nbt.ListTag listTag3 = tag.getList("blocks", 10);
+-        if (tag.contains("palettes", 9)) {
+-            listTag = tag.getList("palettes", 9);
+-            for (n = 0;
+- n < listTag.size(); ++n) {
+-                this.loadPalette(listTag.getList(n), listTag3);
++        net.minecraft.nbt.ListTag $$2 = $$1.getList("size", 3);
++        this.size = new net.minecraft.core.Vec3i($$2.getInt(0), $$2.getInt(1), $$2.getInt(2));
++        net.minecraft.nbt.ListTag $$3 = $$1.getList("blocks", 10);
++        if ($$1.contains("palettes", 9)) {
++            net.minecraft.nbt.ListTag $$4 = $$1.getList("palettes", 9);
++            for (int $$5 = 0; $$5 < $$4.size(); ++$$5) {
++                this.loadPalette($$0, $$4.getList($$5), $$3);
+             }
+         } else {
+-            this.loadPalette(tag.getList("palette", 10), listTag3);
++            this.loadPalette($$0, $$1.getList("palette", 10), $$3);
+         }
+-        listTag = tag.getList("entities", 10);
+-        for (n = 0;
+- n < listTag.size(); ++n) {
+-            net.minecraft.nbt.CompoundTag compoundTag = listTag.getCompound(n);
+-            net.minecraft.nbt.ListTag listTag4 = compoundTag.getList("pos", 6);
+-            net.minecraft.world.phys.Vec3 vec3 = new net.minecraft.world.phys.Vec3(listTag4.getDouble(0), listTag4.getDouble(1), listTag4.getDouble(2));
+-            net.minecraft.nbt.ListTag listTag5 = compoundTag.getList("blockPos", 3);
+-            net.minecraft.core.BlockPos blockPos = new net.minecraft.core.BlockPos(listTag5.getInt(0), listTag5.getInt(1), listTag5.getInt(2));
+-            if (!compoundTag.contains("nbt")) continue;
+-            net.minecraft.nbt.CompoundTag compoundTag2 = compoundTag.getCompound("nbt");
+-            this.entityInfoList.add((java.lang.Object)new net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate$StructureEntityInfo(vec3, blockPos, compoundTag2));
++        net.minecraft.nbt.ListTag $$6 = $$1.getList("entities", 10);
++        for (int $$7 = 0; $$7 < $$6.size(); ++$$7) {
++            net.minecraft.nbt.CompoundTag $$8 = $$6.getCompound($$7);
++            net.minecraft.nbt.ListTag $$9 = $$8.getList("pos", 6);
++            net.minecraft.world.phys.Vec3 $$10 = new net.minecraft.world.phys.Vec3($$9.getDouble(0), $$9.getDouble(1), $$9.getDouble(2));
++            net.minecraft.nbt.ListTag $$11 = $$8.getList("blockPos", 3);
++            net.minecraft.core.BlockPos $$12 = new net.minecraft.core.BlockPos($$11.getInt(0), $$11.getInt(1), $$11.getInt(2));
++            if (!$$8.contains("nbt")) continue;
++            net.minecraft.nbt.CompoundTag $$13 = $$8.getCompound("nbt");
++            this.entityInfoList.add((java.lang.Object)new net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate$StructureEntityInfo($$10, $$12, $$13));
+         }
+     }
+ 
+-    public void loadPalette(net.minecraft.nbt.ListTag palletesNBT, net.minecraft.nbt.ListTag blocksNBT) {
+-        net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate$SimplePalette simplePalette = new net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate$SimplePalette();
+-        for (int i = 0; i < palletesNBT.size(); ++i) {
+-            simplePalette.addMapping(net.minecraft.nbt.NbtUtils.readBlockState((net.minecraft.nbt.CompoundTag)palletesNBT.getCompound(i)), i);
++    public void loadPalette(net.minecraft.core.HolderLookup<net.minecraft.world.level.block.Block> $$0, net.minecraft.nbt.ListTag $$1, net.minecraft.nbt.ListTag $$2) {
++        net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate$SimplePalette $$3 = new net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate$SimplePalette();
++        for (int $$4 = 0; $$4 < $$1.size(); ++$$4) {
++            $$3.addMapping(net.minecraft.nbt.NbtUtils.readBlockState($$0, (net.minecraft.nbt.CompoundTag)$$1.getCompound($$4)), $$4);
+         }
+-        java.util.ArrayList arrayList = com.google.common.collect.Lists.newArrayList();
+-        java.util.ArrayList arrayList2 = com.google.common.collect.Lists.newArrayList();
+-        java.util.ArrayList arrayList3 = com.google.common.collect.Lists.newArrayList();
+-        for (int i = 0; i < blocksNBT.size(); ++i) {
+-            net.minecraft.nbt.CompoundTag compoundTag = blocksNBT.getCompound(i);
+-            net.minecraft.nbt.ListTag listTag = compoundTag.getList("pos", 3);
+-            net.minecraft.core.BlockPos blockPos = new net.minecraft.core.BlockPos(listTag.getInt(0), listTag.getInt(1), listTag.getInt(2));
+-            net.minecraft.world.level.block.state.BlockState blockState = simplePalette.stateFor(compoundTag.getInt("state"));
+-            net.minecraft.nbt.CompoundTag compoundTag2 = compoundTag.contains("nbt") ? compoundTag.getCompound("nbt") : null;
+-            net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate$StructureBlockInfo structureBlockInfo = new net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate$StructureBlockInfo(blockPos, blockState, compoundTag2);
+-            net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate.addToLists((net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate$StructureBlockInfo)structureBlockInfo, (java.util.List)arrayList, (java.util.List)arrayList2, (java.util.List)arrayList3);
++        java.util.ArrayList $$5 = com.google.common.collect.Lists.newArrayList();
++        java.util.ArrayList $$6 = com.google.common.collect.Lists.newArrayList();
++        java.util.ArrayList $$7 = com.google.common.collect.Lists.newArrayList();
++        for (int $$8 = 0; $$8 < $$2.size(); ++$$8) {
++            net.minecraft.nbt.CompoundTag $$14;
++            net.minecraft.nbt.CompoundTag $$9 = $$2.getCompound($$8);
++            net.minecraft.nbt.ListTag $$10 = $$9.getList("pos", 3);
++            net.minecraft.core.BlockPos $$11 = new net.minecraft.core.BlockPos($$10.getInt(0), $$10.getInt(1), $$10.getInt(2));
++            net.minecraft.world.level.block.state.BlockState $$12 = $$3.stateFor($$9.getInt("state"));
++            if ($$9.contains("nbt")) {
++                net.minecraft.nbt.CompoundTag $$13 = $$9.getCompound("nbt");
++            } else {
++                $$14 = null;
++            }
++            net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate$StructureBlockInfo $$15 = new net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate$StructureBlockInfo($$11, $$12, $$14);
++            net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate.addToLists((net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate$StructureBlockInfo)$$15, (java.util.List)$$5, (java.util.List)$$6, (java.util.List)$$7);
+         }
+-        java.util.List list = net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate.buildInfoList((java.util.List)arrayList, (java.util.List)arrayList2, (java.util.List)arrayList3);
+-        this.palettes.add((java.lang.Object)new net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate$Palette(list));
++        java.util.List $$16 = net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate.buildInfoList((java.util.List)$$5, (java.util.List)$$6, (java.util.List)$$7);
++        this.palettes.add((java.lang.Object)new net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate$Palette($$16));
+     }
+ 
+-    public net.minecraft.nbt.ListTag newIntegerList(int ... values) {
+-        net.minecraft.nbt.ListTag listTag = new net.minecraft.nbt.ListTag();
+-        for (int n : values) {
+-            listTag.add((java.lang.Object)net.minecraft.nbt.IntTag.valueOf((int)n));
++    public net.minecraft.nbt.ListTag newIntegerList(int ... $$0) {
++        net.minecraft.nbt.ListTag $$1 = new net.minecraft.nbt.ListTag();
++        for (int $$2 : $$0) {
++            $$1.add((java.lang.Object)net.minecraft.nbt.IntTag.valueOf((int)$$2));
+         }
+-        return listTag;
++        return $$1;
+     }
+ 
+-    public net.minecraft.nbt.ListTag newDoubleList(double ... values) {
+-        net.minecraft.nbt.ListTag listTag = new net.minecraft.nbt.ListTag();
+-        for (double d : values) {
+-            listTag.add((java.lang.Object)net.minecraft.nbt.DoubleTag.valueOf((double)d));
++    public net.minecraft.nbt.ListTag newDoubleList(double ... $$0) {
++        net.minecraft.nbt.ListTag $$1 = new net.minecraft.nbt.ListTag();
++        for (double $$2 : $$0) {
++            $$1.add((java.lang.Object)net.minecraft.nbt.DoubleTag.valueOf((double)$$2));
+         }
+-        return listTag;
++        return $$1;
+     }
+ }
+ 

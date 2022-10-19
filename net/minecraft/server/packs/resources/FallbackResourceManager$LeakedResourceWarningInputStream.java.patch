@@ -1,0 +1,33 @@
+--- net/minecraft/server/packs/resources/FallbackResourceManager$LeakedResourceWarningInputStream.java
++++ net/minecraft/server/packs/resources/FallbackResourceManager$LeakedResourceWarningInputStream.java
+@@ -6,14 +6,17 @@
+ public class net.minecraft.server.packs.resources.FallbackResourceManager$LeakedResourceWarningInputStream
+ extends java.io.FilterInputStream
+  {
+-    public java.lang.String message;
++    public java.util.function.Supplier<java.lang.String> message;
+     public boolean closed;
+ 
+     public net.minecraft.server.packs.resources.FallbackResourceManager$LeakedResourceWarningInputStream(java.io.InputStream $$0, net.minecraft.resources.ResourceLocation $$1, java.lang.String $$2) {
+         super($$0);
+-        java.io.ByteArrayOutputStream $$3 = new java.io.ByteArrayOutputStream();
+-        new java.lang.Exception().printStackTrace(new java.io.PrintStream((java.io.OutputStream)$$3));
+-        this.message = "Leaked resource: '" + $$1 + "' loaded from pack: '" + $$2 + "'\n" + $$3;
++        java.lang.Exception $$3 = new java.lang.Exception("Stacktrace");
++        this.message = () -> {
++            java.io.StringWriter $$3 = new java.io.StringWriter();
++            $$3.printStackTrace(new java.io.PrintWriter((java.io.Writer)$$3));
++            return "Leaked resource: '" + $$1 + "' loaded from pack: '" + $$2 + "'\n" + $$3;
++        };
+     }
+ 
+     public void close() throws java.io.IOException {
+@@ -23,7 +26,7 @@
+ 
+     public void finalize() throws java.lang.Throwable {
+         if (!this.closed) {
+-            net.minecraft.server.packs.resources.FallbackResourceManager.LOGGER.warn(this.message);
++            net.minecraft.server.packs.resources.FallbackResourceManager.LOGGER.warn("{}", this.message.get());
+         }
+         super.finalize();
+     }

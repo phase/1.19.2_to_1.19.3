@@ -1,0 +1,62 @@
+--- net/minecraft/client/gui/screens/social/SocialInteractionsPlayerList.java
++++ net/minecraft/client/gui/screens/social/SocialInteractionsPlayerList.java
+@@ -19,10 +19,10 @@
+         this.setRenderTopAndBottom(false);
+     }
+ 
+-    public void render(com.mojang.blaze3d.vertex.PoseStack matrixStack, int mouseX, int mouseY, float partialTicks) {
+-        double d = this.minecraft.getWindow().getGuiScale();
+-        com.mojang.blaze3d.systems.RenderSystem.enableScissor((int)((int)((double)this.getRowLeft() * d)), (int)((int)((double)(this.height - this.y1) * d)), (int)((int)((double)(this.getScrollbarPosition() + 6) * d)), (int)((int)((double)(this.height - (this.height - this.y1) - this.y0 - 4) * d)));
+-        super.render(matrixStack, mouseX, mouseY, partialTicks);
++    public void render(com.mojang.blaze3d.vertex.PoseStack $$0, int $$1, int $$2, float $$3) {
++        double $$4 = this.minecraft.getWindow().getGuiScale();
++        com.mojang.blaze3d.systems.RenderSystem.enableScissor((int)((int)((double)this.getRowLeft() * $$4)), (int)((int)((double)(this.height - this.y1) * $$4)), (int)((int)((double)(this.getScrollbarPosition() + 6) * $$4)), (int)((int)((double)(this.height - (this.height - this.y1) - this.y0 - 4) * $$4)));
++        super.render($$0, $$1, $$2, $$3);
+         com.mojang.blaze3d.systems.RenderSystem.disableScissor();
+     }
+ 
+@@ -38,14 +38,13 @@
+         for (java.util.UUID $$3 : $$0) {
+             net.minecraft.client.multiplayer.PlayerInfo $$4 = $$2.getPlayerInfo($$3);
+             if ($$4 == null) continue;
+-            java.util.UUID $$5 = $$4.getProfile().getId();
+-            boolean $$6 = $$4.getProfilePublicKey() != null;
+-            $$1.put((java.lang.Object)$$5, (java.lang.Object)new net.minecraft.client.gui.screens.social.PlayerEntry(this.minecraft, this.socialInteractionsScreen, $$5, $$4.getProfile().getName(), () -> ((net.minecraft.client.multiplayer.PlayerInfo)$$4).getSkinLocation(), $$6));
++            boolean $$5 = $$4.hasVerifiableChat();
++            $$1.put((java.lang.Object)$$3, (java.lang.Object)new net.minecraft.client.gui.screens.social.PlayerEntry(this.minecraft, this.socialInteractionsScreen, $$3, $$4.getProfile().getName(), () -> ((net.minecraft.client.multiplayer.PlayerInfo)$$4).getSkinLocation(), $$5));
+         }
+     }
+ 
+     public void updatePlayersFromChatLog(java.util.Map<java.util.UUID, net.minecraft.client.gui.screens.social.PlayerEntry> $$0, boolean $$12) {
+-        java.util.Collection $$2 = this.minecraft.getReportingContext().chatLog().selectAllDescending().reportableGameProfiles();
++        java.util.Collection $$2 = net.minecraft.client.gui.screens.social.SocialInteractionsPlayerList.collectProfilesFromChatLog((net.minecraft.client.multiplayer.chat.ChatLog)this.minecraft.getReportingContext().chatLog());
+         for (com.mojang.authlib.GameProfile $$3 : $$2) {
+             net.minecraft.client.gui.screens.social.PlayerEntry $$5;
+             if ($$12) {
+@@ -62,6 +61,17 @@
+         }
+     }
+ 
++    public static java.util.Collection<com.mojang.authlib.GameProfile> collectProfilesFromChatLog(net.minecraft.client.multiplayer.chat.ChatLog $$0) {
++        it.unimi.dsi.fastutil.objects.ObjectLinkedOpenHashSet $$1 = new it.unimi.dsi.fastutil.objects.ObjectLinkedOpenHashSet();
++        for (int $$2 = $$0.end(); $$2 >= $$0.start(); --$$2) {
++            net.minecraft.client.multiplayer.chat.LoggedChatMessage$Player $$4;
++            net.minecraft.client.multiplayer.chat.LoggedChatEvent $$3 = $$0.lookup($$2);
++            if (!($$3 instanceof net.minecraft.client.multiplayer.chat.LoggedChatMessage$Player) || !($$4 = (net.minecraft.client.multiplayer.chat.LoggedChatMessage$Player)$$3).message().hasSignature()) continue;
++            $$1.add((java.lang.Object)$$4.profile());
++        }
++        return $$1;
++    }
++
+     public void sortPlayerEntries() {
+         this.players.sort(java.util.Comparator.comparing($$0 -> {
+             if ($$0.getPlayerId().equals((java.lang.Object)this.minecraft.getUser().getProfileId())) {
+@@ -115,7 +125,7 @@
+             return;
+         }
+         if (($$1 == net.minecraft.client.gui.screens.social.SocialInteractionsScreen$Page.ALL || this.minecraft.getPlayerSocialManager().shouldHideMessageFrom($$2)) && (com.google.common.base.Strings.isNullOrEmpty((java.lang.String)this.filter) || $$0.getProfile().getName().toLowerCase(java.util.Locale.ROOT).contains((java.lang.CharSequence)this.filter))) {
+-            boolean $$4 = $$0.getProfilePublicKey() != null;
++            boolean $$4 = $$0.hasVerifiableChat();
+             net.minecraft.client.gui.screens.social.PlayerEntry $$5 = new net.minecraft.client.gui.screens.social.PlayerEntry(this.minecraft, this.socialInteractionsScreen, $$0.getProfile().getId(), $$0.getProfile().getName(), () -> ((net.minecraft.client.multiplayer.PlayerInfo)$$0).getSkinLocation(), $$4);
+             this.addEntry((net.minecraft.client.gui.components.AbstractSelectionList$Entry)$$5);
+             this.players.add((java.lang.Object)$$5);

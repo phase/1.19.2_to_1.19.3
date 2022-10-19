@@ -1,0 +1,57 @@
+--- net/minecraft/data/recipes/SingleItemRecipeBuilder.java
++++ net/minecraft/data/recipes/SingleItemRecipeBuilder.java
+@@ -6,6 +6,7 @@
+ public class net.minecraft.data.recipes.SingleItemRecipeBuilder
+ implements net.minecraft.data.recipes.RecipeBuilder
+  {
++    public net.minecraft.data.recipes.RecipeCategory category;
+     public net.minecraft.world.item.Item result;
+     public net.minecraft.world.item.crafting.Ingredient ingredient;
+     public int count;
+@@ -14,20 +15,21 @@
+     public java.lang.String group;
+     public net.minecraft.world.item.crafting.RecipeSerializer<?> type;
+ 
+-    public net.minecraft.data.recipes.SingleItemRecipeBuilder(net.minecraft.world.item.crafting.RecipeSerializer<?> type, net.minecraft.world.item.crafting.Ingredient ingredient, net.minecraft.world.level.ItemLike result, int count) {
++    public net.minecraft.data.recipes.SingleItemRecipeBuilder(net.minecraft.data.recipes.RecipeCategory $$0, net.minecraft.world.item.crafting.RecipeSerializer<?> $$1, net.minecraft.world.item.crafting.Ingredient $$2, net.minecraft.world.level.ItemLike $$3, int $$4) {
+         this.advancement = net.minecraft.advancements.Advancement$Builder.advancement();
+-        this.type = type;
+-        this.result = result.asItem();
+-        this.ingredient = ingredient;
+-        this.count = count;
++        this.category = $$0;
++        this.type = $$1;
++        this.result = $$3.asItem();
++        this.ingredient = $$2;
++        this.count = $$4;
+     }
+ 
+-    public static net.minecraft.data.recipes.SingleItemRecipeBuilder stonecutting(net.minecraft.world.item.crafting.Ingredient ingredient, net.minecraft.world.level.ItemLike result) {
+-        return new net.minecraft.data.recipes.SingleItemRecipeBuilder(net.minecraft.world.item.crafting.RecipeSerializer.STONECUTTER, ingredient, result, 1);
++    public static net.minecraft.data.recipes.SingleItemRecipeBuilder stonecutting(net.minecraft.world.item.crafting.Ingredient $$0, net.minecraft.data.recipes.RecipeCategory $$1, net.minecraft.world.level.ItemLike $$2) {
++        return new net.minecraft.data.recipes.SingleItemRecipeBuilder($$1, net.minecraft.world.item.crafting.RecipeSerializer.STONECUTTER, $$0, $$2, 1);
+     }
+ 
+-    public static net.minecraft.data.recipes.SingleItemRecipeBuilder stonecutting(net.minecraft.world.item.crafting.Ingredient ingredient, net.minecraft.world.level.ItemLike result, int count) {
+-        return new net.minecraft.data.recipes.SingleItemRecipeBuilder(net.minecraft.world.item.crafting.RecipeSerializer.STONECUTTER, ingredient, result, count);
++    public static net.minecraft.data.recipes.SingleItemRecipeBuilder stonecutting(net.minecraft.world.item.crafting.Ingredient $$0, net.minecraft.data.recipes.RecipeCategory $$1, net.minecraft.world.level.ItemLike $$2, int $$3) {
++        return new net.minecraft.data.recipes.SingleItemRecipeBuilder($$1, net.minecraft.world.item.crafting.RecipeSerializer.STONECUTTER, $$0, $$2, $$3);
+     }
+ 
+     public net.minecraft.data.recipes.SingleItemRecipeBuilder unlockedBy(java.lang.String $$0, net.minecraft.advancements.CriterionTriggerInstance $$1) {
+@@ -47,12 +49,12 @@
+     public void save(java.util.function.Consumer<net.minecraft.data.recipes.FinishedRecipe> $$0, net.minecraft.resources.ResourceLocation $$1) {
+         this.ensureValid($$1);
+         this.advancement.parent(ROOT_RECIPE_ADVANCEMENT).addCriterion("has_the_recipe", (net.minecraft.advancements.CriterionTriggerInstance)net.minecraft.advancements.critereon.RecipeUnlockedTrigger.unlocked((net.minecraft.resources.ResourceLocation)$$1)).rewards(net.minecraft.advancements.AdvancementRewards$Builder.recipe((net.minecraft.resources.ResourceLocation)$$1)).requirements(net.minecraft.advancements.RequirementsStrategy.OR);
+-        $$0.accept((java.lang.Object)new net.minecraft.data.recipes.SingleItemRecipeBuilder$Result($$1, this.type, this.group == null ? "" : this.group, this.ingredient, this.result, this.count, this.advancement, new net.minecraft.resources.ResourceLocation($$1.getNamespace(), "recipes/" + this.result.getItemCategory().getRecipeFolderName() + "/" + $$1.getPath())));
++        $$0.accept((java.lang.Object)new net.minecraft.data.recipes.SingleItemRecipeBuilder$Result($$1, this.type, this.group == null ? "" : this.group, this.ingredient, this.result, this.count, this.advancement, $$1.withPrefix("recipes/" + this.category.getFolderName() + "/")));
+     }
+ 
+-    public void ensureValid(net.minecraft.resources.ResourceLocation id) {
++    public void ensureValid(net.minecraft.resources.ResourceLocation $$0) {
+         if (this.advancement.getCriteria().isEmpty()) {
+-            throw new java.lang.IllegalStateException("No way of obtaining recipe " + id);
++            throw new java.lang.IllegalStateException("No way of obtaining recipe " + $$0);
+         }
+     }
+ 

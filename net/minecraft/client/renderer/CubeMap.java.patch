@@ -1,0 +1,167 @@
+--- net/minecraft/client/renderer/CubeMap.java
++++ net/minecraft/client/renderer/CubeMap.java
+@@ -8,23 +8,23 @@
+     public static int SIDES = 6;
+     public net.minecraft.resources.ResourceLocation[] images;
+ 
+-    public net.minecraft.client.renderer.CubeMap(net.minecraft.resources.ResourceLocation textureLocation) {
++    public net.minecraft.client.renderer.CubeMap(net.minecraft.resources.ResourceLocation $$0) {
+         this.images = new net.minecraft.resources.ResourceLocation[6];
+-        for (int i = 0; i < 6; ++i) {
+-            this.images[i] = new net.minecraft.resources.ResourceLocation(textureLocation.getNamespace(), textureLocation.getPath() + "_" + i + ".png");
++        for (int $$1 = 0; $$1 < 6; ++$$1) {
++            this.images[$$1] = $$0.withPath($$0.getPath() + "_" + $$1 + ".png");
+         }
+     }
+ 
+-    public void render(net.minecraft.client.Minecraft mc, float pitch, float yaw, float alpha) {
+-        com.mojang.blaze3d.vertex.Tesselator tesselator = com.mojang.blaze3d.vertex.Tesselator.getInstance();
+-        com.mojang.blaze3d.vertex.BufferBuilder bufferBuilder = tesselator.getBuilder();
+-        com.mojang.math.Matrix4f matrix4f = com.mojang.math.Matrix4f.perspective((double)85.0, (float)((float)mc.getWindow().getWidth() / (float)mc.getWindow().getHeight()), (float)0.05f, (float)10.0f);
++    public void render(net.minecraft.client.Minecraft $$0, float $$1, float $$2, float $$3) {
++        com.mojang.blaze3d.vertex.Tesselator $$4 = com.mojang.blaze3d.vertex.Tesselator.getInstance();
++        com.mojang.blaze3d.vertex.BufferBuilder $$5 = $$4.getBuilder();
++        com.mojang.math.Matrix4f $$6 = com.mojang.math.Matrix4f.perspective((double)85.0, (float)((float)$$0.getWindow().getWidth() / (float)$$0.getWindow().getHeight()), (float)0.05f, (float)10.0f);
+         com.mojang.blaze3d.systems.RenderSystem.backupProjectionMatrix();
+-        com.mojang.blaze3d.systems.RenderSystem.setProjectionMatrix((com.mojang.math.Matrix4f)matrix4f);
+-        com.mojang.blaze3d.vertex.PoseStack poseStack = com.mojang.blaze3d.systems.RenderSystem.getModelViewStack();
+-        poseStack.pushPose();
+-        poseStack.setIdentity();
+-        poseStack.mulPose(com.mojang.math.Vector3f.XP.rotationDegrees(180.0f));
++        com.mojang.blaze3d.systems.RenderSystem.setProjectionMatrix((com.mojang.math.Matrix4f)$$6);
++        com.mojang.blaze3d.vertex.PoseStack $$7 = com.mojang.blaze3d.systems.RenderSystem.getModelViewStack();
++        $$7.pushPose();
++        $$7.setIdentity();
++        $$7.mulPose(com.mojang.math.Vector3f.XP.rotationDegrees(180.0f));
+         com.mojang.blaze3d.systems.RenderSystem.applyModelViewMatrix();
+         com.mojang.blaze3d.systems.RenderSystem.setShader(net.minecraft.client.renderer.GameRenderer::getPositionTexColorShader);
+         com.mojang.blaze3d.systems.RenderSystem.setShaderColor((float)1.0f, (float)1.0f, (float)1.0f, (float)1.0f);
+@@ -32,77 +32,77 @@
+         com.mojang.blaze3d.systems.RenderSystem.disableCull();
+         com.mojang.blaze3d.systems.RenderSystem.depthMask((boolean)false);
+         com.mojang.blaze3d.systems.RenderSystem.defaultBlendFunc();
+-        int n = 2;
+-        for (int i = 0; i < 4; ++i) {
+-            poseStack.pushPose();
+-            float f = ((float)(i % 2) / 2.0f - 0.5f) / 256.0f;
+-            float f2 = ((float)(i / 2) / 2.0f - 0.5f) / 256.0f;
+-            float f3 = 0.0f;
+-            poseStack.translate((double)f, (double)f2, 0.0);
+-            poseStack.mulPose(com.mojang.math.Vector3f.XP.rotationDegrees(pitch));
+-            poseStack.mulPose(com.mojang.math.Vector3f.YP.rotationDegrees(yaw));
++        int $$8 = 2;
++        for (int $$9 = 0; $$9 < 4; ++$$9) {
++            $$7.pushPose();
++            float $$10 = ((float)($$9 % 2) / 2.0f - 0.5f) / 256.0f;
++            float $$11 = ((float)($$9 / 2) / 2.0f - 0.5f) / 256.0f;
++            float $$12 = 0.0f;
++            $$7.translate((double)$$10, (double)$$11, 0.0);
++            $$7.mulPose(com.mojang.math.Vector3f.XP.rotationDegrees($$1));
++            $$7.mulPose(com.mojang.math.Vector3f.YP.rotationDegrees($$2));
+             com.mojang.blaze3d.systems.RenderSystem.applyModelViewMatrix();
+-            for (int j = 0; j < 6; ++j) {
+-                com.mojang.blaze3d.systems.RenderSystem.setShaderTexture((int)0, (net.minecraft.resources.ResourceLocation)this.images[j]);
+-                bufferBuilder.begin(com.mojang.blaze3d.vertex.VertexFormat$Mode.QUADS, com.mojang.blaze3d.vertex.DefaultVertexFormat.POSITION_TEX_COLOR);
+-                int n2 = java.lang.Math.round((float)(255.0f * alpha)) / (i + 1);
+-                if (j == 0) {
+-                    bufferBuilder.vertex(-1.0, -1.0, 1.0).uv(0.0f, 0.0f).color(255, 255, 255, n2).endVertex();
+-                    bufferBuilder.vertex(-1.0, 1.0, 1.0).uv(0.0f, 1.0f).color(255, 255, 255, n2).endVertex();
+-                    bufferBuilder.vertex(1.0, 1.0, 1.0).uv(1.0f, 1.0f).color(255, 255, 255, n2).endVertex();
+-                    bufferBuilder.vertex(1.0, -1.0, 1.0).uv(1.0f, 0.0f).color(255, 255, 255, n2).endVertex();
++            for (int $$13 = 0; $$13 < 6; ++$$13) {
++                com.mojang.blaze3d.systems.RenderSystem.setShaderTexture((int)0, (net.minecraft.resources.ResourceLocation)this.images[$$13]);
++                $$5.begin(com.mojang.blaze3d.vertex.VertexFormat$Mode.QUADS, com.mojang.blaze3d.vertex.DefaultVertexFormat.POSITION_TEX_COLOR);
++                int $$14 = java.lang.Math.round((float)(255.0f * $$3)) / ($$9 + 1);
++                if ($$13 == 0) {
++                    $$5.vertex(-1.0, -1.0, 1.0).uv(0.0f, 0.0f).color(255, 255, 255, $$14).endVertex();
++                    $$5.vertex(-1.0, 1.0, 1.0).uv(0.0f, 1.0f).color(255, 255, 255, $$14).endVertex();
++                    $$5.vertex(1.0, 1.0, 1.0).uv(1.0f, 1.0f).color(255, 255, 255, $$14).endVertex();
++                    $$5.vertex(1.0, -1.0, 1.0).uv(1.0f, 0.0f).color(255, 255, 255, $$14).endVertex();
+                 }
+-                if (j == 1) {
+-                    bufferBuilder.vertex(1.0, -1.0, 1.0).uv(0.0f, 0.0f).color(255, 255, 255, n2).endVertex();
+-                    bufferBuilder.vertex(1.0, 1.0, 1.0).uv(0.0f, 1.0f).color(255, 255, 255, n2).endVertex();
+-                    bufferBuilder.vertex(1.0, 1.0, -1.0).uv(1.0f, 1.0f).color(255, 255, 255, n2).endVertex();
+-                    bufferBuilder.vertex(1.0, -1.0, -1.0).uv(1.0f, 0.0f).color(255, 255, 255, n2).endVertex();
++                if ($$13 == 1) {
++                    $$5.vertex(1.0, -1.0, 1.0).uv(0.0f, 0.0f).color(255, 255, 255, $$14).endVertex();
++                    $$5.vertex(1.0, 1.0, 1.0).uv(0.0f, 1.0f).color(255, 255, 255, $$14).endVertex();
++                    $$5.vertex(1.0, 1.0, -1.0).uv(1.0f, 1.0f).color(255, 255, 255, $$14).endVertex();
++                    $$5.vertex(1.0, -1.0, -1.0).uv(1.0f, 0.0f).color(255, 255, 255, $$14).endVertex();
+                 }
+-                if (j == 2) {
+-                    bufferBuilder.vertex(1.0, -1.0, -1.0).uv(0.0f, 0.0f).color(255, 255, 255, n2).endVertex();
+-                    bufferBuilder.vertex(1.0, 1.0, -1.0).uv(0.0f, 1.0f).color(255, 255, 255, n2).endVertex();
+-                    bufferBuilder.vertex(-1.0, 1.0, -1.0).uv(1.0f, 1.0f).color(255, 255, 255, n2).endVertex();
+-                    bufferBuilder.vertex(-1.0, -1.0, -1.0).uv(1.0f, 0.0f).color(255, 255, 255, n2).endVertex();
++                if ($$13 == 2) {
++                    $$5.vertex(1.0, -1.0, -1.0).uv(0.0f, 0.0f).color(255, 255, 255, $$14).endVertex();
++                    $$5.vertex(1.0, 1.0, -1.0).uv(0.0f, 1.0f).color(255, 255, 255, $$14).endVertex();
++                    $$5.vertex(-1.0, 1.0, -1.0).uv(1.0f, 1.0f).color(255, 255, 255, $$14).endVertex();
++                    $$5.vertex(-1.0, -1.0, -1.0).uv(1.0f, 0.0f).color(255, 255, 255, $$14).endVertex();
+                 }
+-                if (j == 3) {
+-                    bufferBuilder.vertex(-1.0, -1.0, -1.0).uv(0.0f, 0.0f).color(255, 255, 255, n2).endVertex();
+-                    bufferBuilder.vertex(-1.0, 1.0, -1.0).uv(0.0f, 1.0f).color(255, 255, 255, n2).endVertex();
+-                    bufferBuilder.vertex(-1.0, 1.0, 1.0).uv(1.0f, 1.0f).color(255, 255, 255, n2).endVertex();
+-                    bufferBuilder.vertex(-1.0, -1.0, 1.0).uv(1.0f, 0.0f).color(255, 255, 255, n2).endVertex();
++                if ($$13 == 3) {
++                    $$5.vertex(-1.0, -1.0, -1.0).uv(0.0f, 0.0f).color(255, 255, 255, $$14).endVertex();
++                    $$5.vertex(-1.0, 1.0, -1.0).uv(0.0f, 1.0f).color(255, 255, 255, $$14).endVertex();
++                    $$5.vertex(-1.0, 1.0, 1.0).uv(1.0f, 1.0f).color(255, 255, 255, $$14).endVertex();
++                    $$5.vertex(-1.0, -1.0, 1.0).uv(1.0f, 0.0f).color(255, 255, 255, $$14).endVertex();
+                 }
+-                if (j == 4) {
+-                    bufferBuilder.vertex(-1.0, -1.0, -1.0).uv(0.0f, 0.0f).color(255, 255, 255, n2).endVertex();
+-                    bufferBuilder.vertex(-1.0, -1.0, 1.0).uv(0.0f, 1.0f).color(255, 255, 255, n2).endVertex();
+-                    bufferBuilder.vertex(1.0, -1.0, 1.0).uv(1.0f, 1.0f).color(255, 255, 255, n2).endVertex();
+-                    bufferBuilder.vertex(1.0, -1.0, -1.0).uv(1.0f, 0.0f).color(255, 255, 255, n2).endVertex();
++                if ($$13 == 4) {
++                    $$5.vertex(-1.0, -1.0, -1.0).uv(0.0f, 0.0f).color(255, 255, 255, $$14).endVertex();
++                    $$5.vertex(-1.0, -1.0, 1.0).uv(0.0f, 1.0f).color(255, 255, 255, $$14).endVertex();
++                    $$5.vertex(1.0, -1.0, 1.0).uv(1.0f, 1.0f).color(255, 255, 255, $$14).endVertex();
++                    $$5.vertex(1.0, -1.0, -1.0).uv(1.0f, 0.0f).color(255, 255, 255, $$14).endVertex();
+                 }
+-                if (j == 5) {
+-                    bufferBuilder.vertex(-1.0, 1.0, 1.0).uv(0.0f, 0.0f).color(255, 255, 255, n2).endVertex();
+-                    bufferBuilder.vertex(-1.0, 1.0, -1.0).uv(0.0f, 1.0f).color(255, 255, 255, n2).endVertex();
+-                    bufferBuilder.vertex(1.0, 1.0, -1.0).uv(1.0f, 1.0f).color(255, 255, 255, n2).endVertex();
+-                    bufferBuilder.vertex(1.0, 1.0, 1.0).uv(1.0f, 0.0f).color(255, 255, 255, n2).endVertex();
++                if ($$13 == 5) {
++                    $$5.vertex(-1.0, 1.0, 1.0).uv(0.0f, 0.0f).color(255, 255, 255, $$14).endVertex();
++                    $$5.vertex(-1.0, 1.0, -1.0).uv(0.0f, 1.0f).color(255, 255, 255, $$14).endVertex();
++                    $$5.vertex(1.0, 1.0, -1.0).uv(1.0f, 1.0f).color(255, 255, 255, $$14).endVertex();
++                    $$5.vertex(1.0, 1.0, 1.0).uv(1.0f, 0.0f).color(255, 255, 255, $$14).endVertex();
+                 }
+-                tesselator.end();
++                $$4.end();
+             }
+-            poseStack.popPose();
++            $$7.popPose();
+             com.mojang.blaze3d.systems.RenderSystem.applyModelViewMatrix();
+             com.mojang.blaze3d.systems.RenderSystem.colorMask((boolean)true, (boolean)true, (boolean)true, (boolean)false);
+         }
+         com.mojang.blaze3d.systems.RenderSystem.colorMask((boolean)true, (boolean)true, (boolean)true, (boolean)true);
+         com.mojang.blaze3d.systems.RenderSystem.restoreProjectionMatrix();
+-        poseStack.popPose();
++        $$7.popPose();
+         com.mojang.blaze3d.systems.RenderSystem.applyModelViewMatrix();
+         com.mojang.blaze3d.systems.RenderSystem.depthMask((boolean)true);
+         com.mojang.blaze3d.systems.RenderSystem.enableCull();
+         com.mojang.blaze3d.systems.RenderSystem.enableDepthTest();
+     }
+ 
+-    public java.util.concurrent.CompletableFuture<java.lang.Void> preload(net.minecraft.client.renderer.texture.TextureManager texMngr, java.util.concurrent.Executor backgroundExecutor) {
+-        java.util.concurrent.CompletableFuture[] completableFutureArray = new java.util.concurrent.CompletableFuture[6];
+-        for (int i = 0; i < completableFutureArray.length; ++i) {
+-            completableFutureArray[i] = texMngr.preload(this.images[i], backgroundExecutor);
++    public java.util.concurrent.CompletableFuture<java.lang.Void> preload(net.minecraft.client.renderer.texture.TextureManager $$0, java.util.concurrent.Executor $$1) {
++        java.util.concurrent.CompletableFuture[] $$2 = new java.util.concurrent.CompletableFuture[6];
++        for (int $$3 = 0; $$3 < $$2.length; ++$$3) {
++            $$2[$$3] = $$0.preload(this.images[$$3], $$1);
+         }
+-        return java.util.concurrent.CompletableFuture.allOf((java.util.concurrent.CompletableFuture[])completableFutureArray);
++        return java.util.concurrent.CompletableFuture.allOf((java.util.concurrent.CompletableFuture[])$$2);
+     }
+ }
+ 

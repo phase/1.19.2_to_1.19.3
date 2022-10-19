@@ -1,0 +1,146 @@
+--- net/minecraft/server/packs/repository/Pack.java
++++ net/minecraft/server/packs/repository/Pack.java
+@@ -7,71 +7,89 @@
+  {
+     public static org.slf4j.Logger LOGGER;
+     public java.lang.String id;
+-    public java.util.function.Supplier<net.minecraft.server.packs.PackResources> supplier;
++    public net.minecraft.server.packs.repository.Pack$ResourcesSupplier resources;
+     public net.minecraft.network.chat.Component title;
+     public net.minecraft.network.chat.Component description;
+     public net.minecraft.server.packs.repository.PackCompatibility compatibility;
++    public net.minecraft.world.flag.FeatureFlagSet requestedFeatures;
+     public net.minecraft.server.packs.repository.Pack$Position defaultPosition;
+     public boolean required;
+     public boolean fixedPosition;
+     public net.minecraft.server.packs.repository.PackSource packSource;
+ 
++    @javax.annotation.Nullable
++    public static net.minecraft.server.packs.repository.Pack readMetaAndCreate(java.lang.String $$0, net.minecraft.network.chat.Component $$1, boolean $$2, net.minecraft.server.packs.repository.Pack$ResourcesSupplier $$3, net.minecraft.server.packs.PackType $$4, net.minecraft.server.packs.repository.Pack$Position $$5, net.minecraft.server.packs.repository.PackSource $$6) {
++        net.minecraft.server.packs.repository.Pack$Info $$7 = net.minecraft.server.packs.repository.Pack.readPackInfo((java.lang.String)$$0, (net.minecraft.server.packs.repository.Pack$ResourcesSupplier)$$3);
++        return $$7 != null ? net.minecraft.server.packs.repository.Pack.create((java.lang.String)$$0, (net.minecraft.network.chat.Component)$$1, (boolean)$$2, (net.minecraft.server.packs.repository.Pack$ResourcesSupplier)$$3, (net.minecraft.server.packs.repository.Pack$Info)$$7, (net.minecraft.server.packs.PackType)$$4, (net.minecraft.server.packs.repository.Pack$Position)$$5, (boolean)false, (net.minecraft.server.packs.repository.PackSource)$$6) : null;
++    }
++
++    public static net.minecraft.server.packs.repository.Pack create(java.lang.String $$0, net.minecraft.network.chat.Component $$1, boolean $$2, net.minecraft.server.packs.repository.Pack$ResourcesSupplier $$3, net.minecraft.server.packs.repository.Pack$Info $$4, net.minecraft.server.packs.PackType $$5, net.minecraft.server.packs.repository.Pack$Position $$6, boolean $$7, net.minecraft.server.packs.repository.PackSource $$8) {
++        return new net.minecraft.server.packs.repository.Pack($$0, $$2, $$3, $$1, $$4, $$4.compatibility($$5), $$6, $$7, $$8);
++    }
++
++    public net.minecraft.server.packs.repository.Pack(java.lang.String $$0, boolean $$1, net.minecraft.server.packs.repository.Pack$ResourcesSupplier $$2, net.minecraft.network.chat.Component $$3, net.minecraft.server.packs.repository.Pack$Info $$4, net.minecraft.server.packs.repository.PackCompatibility $$5, net.minecraft.server.packs.repository.Pack$Position $$6, boolean $$7, net.minecraft.server.packs.repository.PackSource $$8) {
++        this.id = $$0;
++        this.resources = $$2;
++        this.title = $$3;
++        this.description = $$4.description();
++        this.compatibility = $$5;
++        this.requestedFeatures = $$4.requestedFeatures();
++        this.required = $$1;
++        this.defaultPosition = $$6;
++        this.fixedPosition = $$7;
++        this.packSource = $$8;
++    }
++
+     /*
+      * Loose catch block
+      */
+     @javax.annotation.Nullable
+-    public static net.minecraft.server.packs.repository.Pack create(java.lang.String name, boolean bl, java.util.function.Supplier<net.minecraft.server.packs.PackResources> supplier, net.minecraft.server.packs.repository.Pack$PackConstructor factory, net.minecraft.server.packs.repository.Pack$Position position, net.minecraft.server.packs.repository.PackSource packSource) {
++    public static net.minecraft.server.packs.repository.Pack$Info readPackInfo(java.lang.String $$0, net.minecraft.server.packs.repository.Pack$ResourcesSupplier $$1) {
++        net.minecraft.server.packs.repository.Pack$Info info;
+ block12:        {
+-            net.minecraft.server.packs.PackResources packResources;
++            net.minecraft.server.packs.metadata.pack.PackMetadataSection $$3;
++            net.minecraft.server.packs.PackResources $$2;
+ block10:            {
+-                net.minecraft.server.packs.repository.Pack pack;
++                net.minecraft.server.packs.repository.Pack$Info info2;
+ block11:                {
+-                    packResources = (net.minecraft.server.packs.PackResources)supplier.get();
+-                    net.minecraft.server.packs.metadata.pack.PackMetadataSection packMetadataSection = (net.minecraft.server.packs.metadata.pack.PackMetadataSection)packResources.getMetadataSection((net.minecraft.server.packs.metadata.MetadataSectionSerializer)net.minecraft.server.packs.metadata.pack.PackMetadataSection.SERIALIZER);
+-                    if (packMetadataSection == null) break block10;
+-                    pack = factory.create(name, (net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.literal((java.lang.String)packResources.getName()), bl, supplier, packMetadataSection, position, packSource);
+-                    if (packResources == null) break block11;
+-                    packResources.close();
++                    $$2 = $$1.open($$0);
++                    $$3 = (net.minecraft.server.packs.metadata.pack.PackMetadataSection)$$2.getMetadataSection((net.minecraft.server.packs.metadata.MetadataSectionSerializer)net.minecraft.server.packs.metadata.pack.PackMetadataSection.TYPE);
++                    if ($$3 != null) break block10;
++                    LOGGER.warn("Missing metadata in pack {}", (java.lang.Object)$$0);
++                    info2 = null;
++                    if ($$2 == null) break block11;
++                    $$2.close();
+                 }
+-                return pack;
++                return info2;
+             }
+-            try {
+-                LOGGER.warn("Couldn't find pack meta for pack {}", (java.lang.Object)name);
+-                break block12;
+-                {
+-                    catch (java.lang.Throwable throwable) {
++            net.minecraft.server.packs.FeatureFlagsMetadataSection $$4 = (net.minecraft.server.packs.FeatureFlagsMetadataSection)$$2.getMetadataSection((net.minecraft.server.packs.metadata.MetadataSectionSerializer)net.minecraft.server.packs.FeatureFlagsMetadataSection.TYPE);
++            net.minecraft.world.flag.FeatureFlagSet $$5 = $$4 != null ? $$4.flags() : net.minecraft.world.flag.FeatureFlagSet.of();
++            info = new net.minecraft.server.packs.repository.Pack$Info($$3.getDescription(), $$3.getPackFormat(), $$5);
++            if ($$2 == null) break block12;
++            {
++                catch (java.lang.Throwable throwable) {
++                    try {
++                        if ($$2 != null) {
++                            try {
++                                $$2.close();
++                            }
++                            catch (java.lang.Throwable throwable2) {
++                                throwable.addSuppressed(throwable2);
++                            }
++                        }
+                         throw throwable;
+                     }
+-                }
+-                finally {
+-                    if (packResources != null) {
+-                        packResources.close();
++                    catch (java.lang.Exception $$6) {
++                        LOGGER.warn("Failed to read pack metadata", (java.lang.Throwable)$$6);
++                        return null;
+                     }
+                 }
+             }
+-            catch (java.io.IOException iOException) {
+-                LOGGER.warn("Couldn't get pack info for: {}", (java.lang.Object)iOException.toString());
+-            }
++            $$2.close();
+         }
+-        return null;
++        return info;
+     }
+ 
+-    public net.minecraft.server.packs.repository.Pack(java.lang.String $$0, boolean $$1, java.util.function.Supplier<net.minecraft.server.packs.PackResources> $$2, net.minecraft.network.chat.Component $$3, net.minecraft.network.chat.Component $$4, net.minecraft.server.packs.repository.PackCompatibility $$5, net.minecraft.server.packs.repository.Pack$Position $$6, boolean $$7, net.minecraft.server.packs.repository.PackSource $$8) {
+-        this.id = $$0;
+-        this.supplier = $$2;
+-        this.title = $$3;
+-        this.description = $$4;
+-        this.compatibility = $$5;
+-        this.required = $$1;
+-        this.defaultPosition = $$6;
+-        this.fixedPosition = $$7;
+-        this.packSource = $$8;
+-    }
+-
+-    public net.minecraft.server.packs.repository.Pack(java.lang.String $$0, net.minecraft.network.chat.Component $$1, boolean $$2, java.util.function.Supplier<net.minecraft.server.packs.PackResources> $$3, net.minecraft.server.packs.metadata.pack.PackMetadataSection $$4, net.minecraft.server.packs.PackType $$5, net.minecraft.server.packs.repository.Pack$Position $$6, net.minecraft.server.packs.repository.PackSource $$7) {
+-        this($$0, $$2, $$3, $$1, $$4.getDescription(), net.minecraft.server.packs.repository.PackCompatibility.forMetadata((net.minecraft.server.packs.metadata.pack.PackMetadataSection)$$4, (net.minecraft.server.packs.PackType)$$5), $$6, false, $$7);
+-    }
+-
+     public net.minecraft.network.chat.Component getTitle() {
+         return this.title;
+     }
+@@ -88,8 +106,12 @@
+         return this.compatibility;
+     }
+ 
++    public net.minecraft.world.flag.FeatureFlagSet getRequestedFeatures() {
++        return this.requestedFeatures;
++    }
++
+     public net.minecraft.server.packs.PackResources open() {
+-        return (net.minecraft.server.packs.PackResources)this.supplier.get();
++        return this.resources.open(this.id);
+     }
+ 
+     public java.lang.String getId() {

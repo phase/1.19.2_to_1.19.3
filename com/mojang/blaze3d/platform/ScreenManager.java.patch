@@ -1,0 +1,141 @@
+--- com/mojang/blaze3d/platform/ScreenManager.java
++++ com/mojang/blaze3d/platform/ScreenManager.java
+@@ -9,84 +9,84 @@
+     public it.unimi.dsi.fastutil.longs.Long2ObjectMap<com.mojang.blaze3d.platform.Monitor> monitors;
+     public com.mojang.blaze3d.platform.MonitorCreator monitorCreator;
+ 
+-    public com.mojang.blaze3d.platform.ScreenManager(com.mojang.blaze3d.platform.MonitorCreator monitorCreator) {
++    public com.mojang.blaze3d.platform.ScreenManager(com.mojang.blaze3d.platform.MonitorCreator $$0) {
+         this.monitors = new it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap();
+         com.mojang.blaze3d.systems.RenderSystem.assertInInitPhase();
+-        this.monitorCreator = monitorCreator;
++        this.monitorCreator = $$0;
+         org.lwjgl.glfw.GLFW.glfwSetMonitorCallback((arg_0, arg_1) -> this.onMonitorChange(arg_0, arg_1));
+-        org.lwjgl.PointerBuffer pointerBuffer = org.lwjgl.glfw.GLFW.glfwGetMonitors();
+-        if (pointerBuffer != null) {
+-            for (int i = 0; i < pointerBuffer.limit(); ++i) {
+-                long l = pointerBuffer.get(i);
+-                this.monitors.put(l, (java.lang.Object)monitorCreator.createMonitor(l));
++        org.lwjgl.PointerBuffer $$1 = org.lwjgl.glfw.GLFW.glfwGetMonitors();
++        if ($$1 != null) {
++            for (int $$2 = 0; $$2 < $$1.limit(); ++$$2) {
++                long $$3 = $$1.get($$2);
++                this.monitors.put($$3, (java.lang.Object)$$0.createMonitor($$3));
+             }
+         }
+     }
+ 
+-    public void onMonitorChange(long monitorID, int opCode) {
++    public void onMonitorChange(long $$0, int $$1) {
+         com.mojang.blaze3d.systems.RenderSystem.assertOnRenderThread();
+-        if (opCode == 262145) {
+-            this.monitors.put(monitorID, (java.lang.Object)this.monitorCreator.createMonitor(monitorID));
+-            LOGGER.debug("Monitor {} connected. Current monitors: {}", (java.lang.Object)monitorID, (java.lang.Object)this.monitors);
+-        } else if (opCode == 262146) {
+-            this.monitors.remove(monitorID);
+-            LOGGER.debug("Monitor {} disconnected. Current monitors: {}", (java.lang.Object)monitorID, (java.lang.Object)this.monitors);
++        if ($$1 == 262145) {
++            this.monitors.put($$0, (java.lang.Object)this.monitorCreator.createMonitor($$0));
++            LOGGER.debug("Monitor {} connected. Current monitors: {}", (java.lang.Object)$$0, (java.lang.Object)this.monitors);
++        } else if ($$1 == 262146) {
++            this.monitors.remove($$0);
++            LOGGER.debug("Monitor {} disconnected. Current monitors: {}", (java.lang.Object)$$0, (java.lang.Object)this.monitors);
+         }
+     }
+ 
+     @javax.annotation.Nullable
+-    public com.mojang.blaze3d.platform.Monitor getMonitor(long monitorID) {
++    public com.mojang.blaze3d.platform.Monitor getMonitor(long $$0) {
+         com.mojang.blaze3d.systems.RenderSystem.assertInInitPhase();
+-        return (com.mojang.blaze3d.platform.Monitor)this.monitors.get(monitorID);
++        return (com.mojang.blaze3d.platform.Monitor)this.monitors.get($$0);
+     }
+ 
+     @javax.annotation.Nullable
+-    public com.mojang.blaze3d.platform.Monitor findBestMonitor(com.mojang.blaze3d.platform.Window window) {
+-        long l = org.lwjgl.glfw.GLFW.glfwGetWindowMonitor((long)window.getWindow());
+-        if (l != 0L) {
+-            return this.getMonitor(l);
++    public com.mojang.blaze3d.platform.Monitor findBestMonitor(com.mojang.blaze3d.platform.Window $$0) {
++        long $$1 = org.lwjgl.glfw.GLFW.glfwGetWindowMonitor((long)$$0.getWindow());
++        if ($$1 != 0L) {
++            return this.getMonitor($$1);
+         }
+-        int n = window.getX();
+-        int n2 = n + window.getScreenWidth();
+-        int n3 = window.getY();
+-        int n4 = n3 + window.getScreenHeight();
+-        int n5 = -1;
+-        com.mojang.blaze3d.platform.Monitor monitor = null;
+-        long l2 = org.lwjgl.glfw.GLFW.glfwGetPrimaryMonitor();
+-        LOGGER.debug("Selecting monitor - primary: {}, current monitors: {}", (java.lang.Object)l2, (java.lang.Object)this.monitors);
+-        for (com.mojang.blaze3d.platform.Monitor monitor2 : this.monitors.values()) {
+-            int n6;
+-            int n7 = monitor2.getX();
+-            int n8 = n7 + monitor2.getCurrentMode().getWidth();
+-            int n9 = monitor2.getY();
+-            int n10 = n9 + monitor2.getCurrentMode().getHeight();
+-            int n11 = com.mojang.blaze3d.platform.ScreenManager.clamp((int)n, (int)n7, (int)n8);
+-            int n12 = com.mojang.blaze3d.platform.ScreenManager.clamp((int)n2, (int)n7, (int)n8);
+-            int n13 = com.mojang.blaze3d.platform.ScreenManager.clamp((int)n3, (int)n9, (int)n10);
+-            int n14 = com.mojang.blaze3d.platform.ScreenManager.clamp((int)n4, (int)n9, (int)n10);
+-            int n15 = java.lang.Math.max((int)0, (int)(n12 - n11));
+-            int n16 = n15 * (n6 = java.lang.Math.max((int)0, (int)(n14 - n13)));
+-            if (n16 > n5) {
+-                monitor = monitor2;
+-                n5 = n16;
++        int $$2 = $$0.getX();
++        int $$3 = $$2 + $$0.getScreenWidth();
++        int $$4 = $$0.getY();
++        int $$5 = $$4 + $$0.getScreenHeight();
++        int $$6 = -1;
++        com.mojang.blaze3d.platform.Monitor $$7 = null;
++        long $$8 = org.lwjgl.glfw.GLFW.glfwGetPrimaryMonitor();
++        LOGGER.debug("Selecting monitor - primary: {}, current monitors: {}", (java.lang.Object)$$8, (java.lang.Object)this.monitors);
++        for (com.mojang.blaze3d.platform.Monitor $$9 : this.monitors.values()) {
++            int $$19;
++            int $$10 = $$9.getX();
++            int $$11 = $$10 + $$9.getCurrentMode().getWidth();
++            int $$12 = $$9.getY();
++            int $$13 = $$12 + $$9.getCurrentMode().getHeight();
++            int $$14 = com.mojang.blaze3d.platform.ScreenManager.clamp((int)$$2, (int)$$10, (int)$$11);
++            int $$15 = com.mojang.blaze3d.platform.ScreenManager.clamp((int)$$3, (int)$$10, (int)$$11);
++            int $$16 = com.mojang.blaze3d.platform.ScreenManager.clamp((int)$$4, (int)$$12, (int)$$13);
++            int $$17 = com.mojang.blaze3d.platform.ScreenManager.clamp((int)$$5, (int)$$12, (int)$$13);
++            int $$18 = java.lang.Math.max((int)0, (int)($$15 - $$14));
++            int $$20 = $$18 * ($$19 = java.lang.Math.max((int)0, (int)($$17 - $$16)));
++            if ($$20 > $$6) {
++                $$7 = $$9;
++                $$6 = $$20;
+                 continue;
+             }
+-            if (n16 != n5 || l2 != monitor2.getMonitor()) continue;
+-            LOGGER.debug("Primary monitor {} is preferred to monitor {}", (java.lang.Object)monitor2, (java.lang.Object)monitor);
+-            monitor = monitor2;
++            if ($$20 != $$6 || $$8 != $$9.getMonitor()) continue;
++            LOGGER.debug("Primary monitor {} is preferred to monitor {}", (java.lang.Object)$$9, (java.lang.Object)$$7);
++            $$7 = $$9;
+         }
+-        LOGGER.debug("Selected monitor: {}", monitor);
+-        return monitor;
++        LOGGER.debug("Selected monitor: {}", $$7);
++        return $$7;
+     }
+ 
+-    public static int clamp(int value, int min, int max) {
+-        if (value < min) {
+-            return min;
++    public static int clamp(int $$0, int $$1, int $$2) {
++        if ($$0 < $$1) {
++            return $$1;
+         }
+-        if (value > max) {
+-            return max;
++        if ($$0 > $$2) {
++            return $$2;
+         }
+-        return value;
++        return $$0;
+     }
+ 
+     public void shutdown() {

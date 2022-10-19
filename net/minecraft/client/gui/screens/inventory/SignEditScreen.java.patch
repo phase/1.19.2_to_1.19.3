@@ -1,0 +1,202 @@
+--- net/minecraft/client/gui/screens/inventory/SignEditScreen.java
++++ net/minecraft/client/gui/screens/inventory/SignEditScreen.java
+@@ -4,173 +4,50 @@
+ package net.minecraft.client.gui.screens.inventory;
+ 
+ public class net.minecraft.client.gui.screens.inventory.SignEditScreen
+-extends net.minecraft.client.gui.screens.Screen
++extends net.minecraft.client.gui.screens.inventory.AbstractSignEditScreen
+  {
+-    public net.minecraft.world.level.block.entity.SignBlockEntity sign;
+-    public int frame;
+-    public int line;
+-    public net.minecraft.client.gui.font.TextFieldHelper signField;
+-    public net.minecraft.world.level.block.state.properties.WoodType woodType;
++    public static float MAGIC_SCALE_NUMBER = 62.500004f;
++    public static float MAGIC_TEXT_SCALE = 0.9765628f;
++    public static com.mojang.math.Vector3f TEXT_SCALE;
++    @javax.annotation.Nullable
+     public net.minecraft.client.renderer.blockentity.SignRenderer$SignModel signModel;
+-    public java.lang.String[] messages;
+ 
+     public net.minecraft.client.gui.screens.inventory.SignEditScreen(net.minecraft.world.level.block.entity.SignBlockEntity $$0, boolean $$1) {
+-        super((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"sign.edit"));
+-        this.messages = (java.lang.String[])java.util.stream.IntStream.range((int)0, (int)4).mapToObj($$2 -> $$0.getMessage($$2, $$1)).map(net.minecraft.network.chat.Component::getString).toArray(java.lang.String[]::new);
+-        this.sign = $$0;
++        super($$0, $$1);
+     }
+ 
+     public void init() {
+-        this.minecraft.keyboardHandler.setSendRepeatsToGui(true);
+-        this.addRenderableWidget((net.minecraft.client.gui.components.events.GuiEventListener)new net.minecraft.client.gui.components.Button(this.width / 2 - 100, this.height / 4 + 120, 200, 20, net.minecraft.network.chat.CommonComponents.GUI_DONE, $$0 -> this.onDone()));
+-        this.sign.setEditable(false);
+-        this.signField = new net.minecraft.client.gui.font.TextFieldHelper(() -> this.messages[this.line], $$0 -> {
+-            this.messages[this.line] = $$0;
+-            this.sign.setMessage(this.line, (net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.literal((java.lang.String)$$0));
+-        }, net.minecraft.client.gui.font.TextFieldHelper.createClipboardGetter((net.minecraft.client.Minecraft)this.minecraft), net.minecraft.client.gui.font.TextFieldHelper.createClipboardSetter((net.minecraft.client.Minecraft)this.minecraft), $$0 -> this.minecraft.font.width($$0) <= 90);
+-        net.minecraft.world.level.block.state.BlockState $$02 = this.sign.getBlockState();
+-        this.woodType = net.minecraft.client.renderer.blockentity.SignRenderer.getWoodType((net.minecraft.world.level.block.Block)$$02.getBlock());
++        super.init();
+         this.signModel = net.minecraft.client.renderer.blockentity.SignRenderer.createSignModel((net.minecraft.client.model.geom.EntityModelSet)this.minecraft.getEntityModels(), (net.minecraft.world.level.block.state.properties.WoodType)this.woodType);
+     }
+ 
+-    public void removed() {
+-        this.minecraft.keyboardHandler.setSendRepeatsToGui(false);
+-        net.minecraft.client.multiplayer.ClientPacketListener $$0 = this.minecraft.getConnection();
+-        if ($$0 != null) {
+-            $$0.send((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ServerboundSignUpdatePacket(this.sign.getBlockPos(), this.messages[0], this.messages[1], this.messages[2], this.messages[3]));
++    public void offsetSign(com.mojang.blaze3d.vertex.PoseStack $$0, net.minecraft.world.level.block.state.BlockState $$1) {
++        super.offsetSign($$0, $$1);
++        boolean $$2 = $$1.getBlock() instanceof net.minecraft.world.level.block.StandingSignBlock;
++        if (!$$2) {
++            $$0.translate(0.0, 35.0, 0.0);
+         }
+-        this.sign.setEditable(true);
+     }
+ 
+-    public void tick() {
+-        ++this.frame;
+-        if (!this.sign.getType().isValid(this.sign.getBlockState())) {
+-            this.onDone();
++    public void renderSignBackground(com.mojang.blaze3d.vertex.PoseStack $$0, net.minecraft.client.renderer.MultiBufferSource$BufferSource $$1, net.minecraft.world.level.block.state.BlockState $$2) {
++        if (this.signModel == null) {
++            return;
+         }
++        boolean $$3 = $$2.getBlock() instanceof net.minecraft.world.level.block.StandingSignBlock;
++        $$0.translate(0.0, 31.0, 0.0);
++        $$0.scale(62.500004f, 62.500004f, -62.500004f);
++        net.minecraft.client.resources.model.Material $$4 = net.minecraft.client.renderer.Sheets.getSignMaterial((net.minecraft.world.level.block.state.properties.WoodType)this.woodType);
++        com.mojang.blaze3d.vertex.VertexConsumer $$5 = $$4.buffer((net.minecraft.client.renderer.MultiBufferSource)$$1, arg_0 -> ((net.minecraft.client.renderer.blockentity.SignRenderer$SignModel)this.signModel).renderType(arg_0));
++        this.signModel.stick.visible = $$3;
++        this.signModel.root.render($$0, $$5, 0xF000F0, net.minecraft.client.renderer.texture.OverlayTexture.NO_OVERLAY);
+     }
+ 
+-    public void onDone() {
+-        this.sign.setChanged();
+-        this.minecraft.setScreen(null);
++    public com.mojang.math.Vector3f getSignTextScale() {
++        return TEXT_SCALE;
+     }
+ 
+-    public boolean charTyped(char codePoint, int modifiers) {
+-        this.signField.charTyped(codePoint);
+-        return true;
++    static {
++        TEXT_SCALE = new com.mojang.math.Vector3f(0.9765628f, 0.9765628f, 0.9765628f);
+     }
+-
+-    public void onClose() {
+-        this.onDone();
+-    }
+-
+-    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+-        if (keyCode == 265) {
+-            this.line = this.line - 1 & 3;
+-            this.signField.setCursorToEnd();
+-            return true;
+-        }
+-        if (keyCode == 264 || keyCode == 257 || keyCode == 335) {
+-            this.line = this.line + 1 & 3;
+-            this.signField.setCursorToEnd();
+-            return true;
+-        }
+-        if (this.signField.keyPressed(keyCode)) {
+-            return true;
+-        }
+-        return super.keyPressed(keyCode, scanCode, modifiers);
+-    }
+-
+-    public void render(com.mojang.blaze3d.vertex.PoseStack matrixStack, int mouseX, int mouseY, float partialTicks) {
+-        int n;
+-        int n2;
+-        java.lang.String string;
+-        int n3;
+-        com.mojang.blaze3d.platform.Lighting.setupForFlatItems();
+-        this.renderBackground(matrixStack);
+-        net.minecraft.client.gui.screens.inventory.SignEditScreen.drawCenteredString((com.mojang.blaze3d.vertex.PoseStack)matrixStack, (net.minecraft.client.gui.Font)this.font, (net.minecraft.network.chat.Component)this.title, (int)(this.width / 2), (int)40, (int)0xFFFFFF);
+-        matrixStack.pushPose();
+-        matrixStack.translate((double)(this.width / 2), 0.0, 50.0);
+-        float f = 93.75f;
+-        matrixStack.scale(93.75f, -93.75f, 93.75f);
+-        matrixStack.translate(0.0, -1.3125, 0.0);
+-        net.minecraft.world.level.block.state.BlockState blockState = this.sign.getBlockState();
+-        boolean bl = blockState.getBlock() instanceof net.minecraft.world.level.block.StandingSignBlock;
+-        if (!bl) {
+-            matrixStack.translate(0.0, -0.3125, 0.0);
+-        }
+-        boolean bl2 = this.frame / 6 % 2 == 0;
+-        float f2 = 0.6666667f;
+-        matrixStack.pushPose();
+-        matrixStack.scale(0.6666667f, -0.6666667f, -0.6666667f);
+-        net.minecraft.client.renderer.MultiBufferSource$BufferSource bufferSource = this.minecraft.renderBuffers().bufferSource();
+-        net.minecraft.client.resources.model.Material material = net.minecraft.client.renderer.Sheets.getSignMaterial((net.minecraft.world.level.block.state.properties.WoodType)this.woodType);
+-        com.mojang.blaze3d.vertex.VertexConsumer vertexConsumer = material.buffer((net.minecraft.client.renderer.MultiBufferSource)bufferSource, arg_0 -> ((net.minecraft.client.renderer.blockentity.SignRenderer$SignModel)this.signModel).renderType(arg_0));
+-        this.signModel.stick.visible = bl;
+-        this.signModel.root.render(matrixStack, vertexConsumer, 0xF000F0, net.minecraft.client.renderer.texture.OverlayTexture.NO_OVERLAY);
+-        matrixStack.popPose();
+-        float f3 = 0.010416667f;
+-        matrixStack.translate(0.0, 0.3333333432674408, 0.046666666865348816);
+-        matrixStack.scale(0.010416667f, -0.010416667f, 0.010416667f);
+-        int n4 = this.sign.getColor().getTextColor();
+-        int n5 = this.signField.getCursorPos();
+-        int n6 = this.signField.getSelectionPos();
+-        int n7 = this.line * 10 - this.messages.length * 5;
+-        com.mojang.math.Matrix4f matrix4f = matrixStack.last().pose();
+-        for (n3 = 0;
+- n3 < this.messages.length; ++n3) {
+-            string = this.messages[n3];
+-            if (string == null) continue;
+-            if (this.font.isBidirectional()) {
+-                string = this.font.bidirectionalShaping(string);
+-            }
+-            float f4 = -this.minecraft.font.width(string) / 2;
+-            this.minecraft.font.drawInBatch(string, f4, (float)(n3 * 10 - this.messages.length * 5), n4, false, matrix4f, (net.minecraft.client.renderer.MultiBufferSource)bufferSource, false, 0, 0xF000F0, false);
+-            if (n3 != this.line || n5 < 0 || !bl2) continue;
+-            n2 = this.minecraft.font.width(string.substring(0, java.lang.Math.max((int)java.lang.Math.min((int)n5, (int)string.length()), (int)0)));
+-            n = n2 - this.minecraft.font.width(string) / 2;
+-            if (n5 < string.length()) continue;
+-            this.minecraft.font.drawInBatch("_", (float)n, (float)n7, n4, false, matrix4f, (net.minecraft.client.renderer.MultiBufferSource)bufferSource, false, 0, 0xF000F0, false);
+-        }
+-        bufferSource.endBatch();
+-        for (n3 = 0;
+- n3 < this.messages.length; ++n3) {
+-            string = this.messages[n3];
+-            if (string == null || n3 != this.line || n5 < 0) continue;
+-            int n8 = this.minecraft.font.width(string.substring(0, java.lang.Math.max((int)java.lang.Math.min((int)n5, (int)string.length()), (int)0)));
+-            n2 = n8 - this.minecraft.font.width(string) / 2;
+-            if (bl2 && n5 < string.length()) {
+-                java.util.Objects.requireNonNull((java.lang.Object)this.minecraft.font);
+-                net.minecraft.client.gui.screens.inventory.SignEditScreen.fill((com.mojang.blaze3d.vertex.PoseStack)matrixStack, (int)n2, (int)(n7 - 1), (int)(n2 + 1), (int)(n7 + 9), (int)(0xFF000000 | n4));
+-            }
+-            if (n6 == n5) continue;
+-            n = java.lang.Math.min((int)n5, (int)n6);
+-            int n9 = java.lang.Math.max((int)n5, (int)n6);
+-            int n10 = this.minecraft.font.width(string.substring(0, n)) - this.minecraft.font.width(string) / 2;
+-            int n11 = this.minecraft.font.width(string.substring(0, n9)) - this.minecraft.font.width(string) / 2;
+-            int n12 = java.lang.Math.min((int)n10, (int)n11);
+-            int n13 = java.lang.Math.max((int)n10, (int)n11);
+-            com.mojang.blaze3d.vertex.Tesselator tesselator = com.mojang.blaze3d.vertex.Tesselator.getInstance();
+-            com.mojang.blaze3d.vertex.BufferBuilder bufferBuilder = tesselator.getBuilder();
+-            com.mojang.blaze3d.systems.RenderSystem.setShader(net.minecraft.client.renderer.GameRenderer::getPositionColorShader);
+-            com.mojang.blaze3d.systems.RenderSystem.disableTexture();
+-            com.mojang.blaze3d.systems.RenderSystem.enableColorLogicOp();
+-            com.mojang.blaze3d.systems.RenderSystem.logicOp((com.mojang.blaze3d.platform.GlStateManager$LogicOp)com.mojang.blaze3d.platform.GlStateManager$LogicOp.OR_REVERSE);
+-            bufferBuilder.begin(com.mojang.blaze3d.vertex.VertexFormat$Mode.QUADS, com.mojang.blaze3d.vertex.DefaultVertexFormat.POSITION_COLOR);
+-            float f5 = n12;
+-            java.util.Objects.requireNonNull((java.lang.Object)this.minecraft.font);
+-            bufferBuilder.vertex(matrix4f, f5, (float)(n7 + 9), 0.0f).color(0, 0, 255, 255).endVertex();
+-            float f6 = n13;
+-            java.util.Objects.requireNonNull((java.lang.Object)this.minecraft.font);
+-            bufferBuilder.vertex(matrix4f, f6, (float)(n7 + 9), 0.0f).color(0, 0, 255, 255).endVertex();
+-            bufferBuilder.vertex(matrix4f, (float)n13, (float)n7, 0.0f).color(0, 0, 255, 255).endVertex();
+-            bufferBuilder.vertex(matrix4f, (float)n12, (float)n7, 0.0f).color(0, 0, 255, 255).endVertex();
+-            com.mojang.blaze3d.vertex.BufferUploader.drawWithShader((com.mojang.blaze3d.vertex.BufferBuilder$RenderedBuffer)bufferBuilder.end());
+-            com.mojang.blaze3d.systems.RenderSystem.disableColorLogicOp();
+-            com.mojang.blaze3d.systems.RenderSystem.enableTexture();
+-        }
+-        matrixStack.popPose();
+-        com.mojang.blaze3d.platform.Lighting.setupFor3DItems();
+-        super.render(matrixStack, mouseX, mouseY, partialTicks);
+-    }
+ }
+ 

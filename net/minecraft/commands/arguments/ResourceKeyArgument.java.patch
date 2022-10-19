@@ -1,0 +1,86 @@
+--- net/minecraft/commands/arguments/ResourceKeyArgument.java
++++ net/minecraft/commands/arguments/ResourceKeyArgument.java
+@@ -7,7 +7,6 @@
+ implements com.mojang.brigadier.arguments.ArgumentType<net.minecraft.resources.ResourceKey<T>>
+  {
+     public static java.util.Collection<java.lang.String> EXAMPLES;
+-    public static com.mojang.brigadier.exceptions.DynamicCommandExceptionType ERROR_UNKNOWN_ATTRIBUTE;
+     public static com.mojang.brigadier.exceptions.DynamicCommandExceptionType ERROR_INVALID_FEATURE;
+     public static com.mojang.brigadier.exceptions.DynamicCommandExceptionType ERROR_INVALID_STRUCTURE;
+     public static com.mojang.brigadier.exceptions.DynamicCommandExceptionType ERROR_INVALID_TEMPLATE_POOL;
+@@ -21,7 +20,7 @@
+         return new net.minecraft.commands.arguments.ResourceKeyArgument($$0);
+     }
+ 
+-    public static <T> net.minecraft.resources.ResourceKey<T> getRegistryType(com.mojang.brigadier.context.CommandContext<net.minecraft.commands.CommandSourceStack> $$0, java.lang.String $$1, net.minecraft.resources.ResourceKey<net.minecraft.core.Registry<T>> $$2, com.mojang.brigadier.exceptions.DynamicCommandExceptionType $$3) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
++    public static <T> net.minecraft.resources.ResourceKey<T> getRegistryKey(com.mojang.brigadier.context.CommandContext<net.minecraft.commands.CommandSourceStack> $$0, java.lang.String $$1, net.minecraft.resources.ResourceKey<net.minecraft.core.Registry<T>> $$2, com.mojang.brigadier.exceptions.DynamicCommandExceptionType $$3) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
+         net.minecraft.resources.ResourceKey $$4 = (net.minecraft.resources.ResourceKey)$$0.getArgument($$1, net.minecraft.resources.ResourceKey.class);
+         java.util.Optional $$5 = $$4.cast($$2);
+         return (net.minecraft.resources.ResourceKey)$$5.orElseThrow(() -> $$3.create((java.lang.Object)$$4));
+@@ -31,28 +30,23 @@
+         return ((net.minecraft.commands.CommandSourceStack)$$0.getSource()).getServer().registryAccess().registryOrThrow($$1);
+     }
+ 
+-    public static <T> net.minecraft.core.Holder<T> getRegistryKeyType(com.mojang.brigadier.context.CommandContext<net.minecraft.commands.CommandSourceStack> $$0, java.lang.String $$1, net.minecraft.resources.ResourceKey<net.minecraft.core.Registry<T>> $$2, com.mojang.brigadier.exceptions.DynamicCommandExceptionType $$3) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
+-        net.minecraft.resources.ResourceKey $$4 = net.minecraft.commands.arguments.ResourceKeyArgument.getRegistryType($$0, (java.lang.String)$$1, $$2, (com.mojang.brigadier.exceptions.DynamicCommandExceptionType)$$3);
+-        return (net.minecraft.core.Holder)net.minecraft.commands.arguments.ResourceKeyArgument.getRegistry($$0, $$2).getHolder($$4).orElseThrow(() -> $$3.create((java.lang.Object)$$4.location()));
++    public static <T> net.minecraft.core.Holder$Reference<T> resolveKey(com.mojang.brigadier.context.CommandContext<net.minecraft.commands.CommandSourceStack> $$0, java.lang.String $$1, net.minecraft.resources.ResourceKey<net.minecraft.core.Registry<T>> $$2, com.mojang.brigadier.exceptions.DynamicCommandExceptionType $$3) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
++        net.minecraft.resources.ResourceKey $$4 = net.minecraft.commands.arguments.ResourceKeyArgument.getRegistryKey($$0, (java.lang.String)$$1, $$2, (com.mojang.brigadier.exceptions.DynamicCommandExceptionType)$$3);
++        return (net.minecraft.core.Holder$Reference)net.minecraft.commands.arguments.ResourceKeyArgument.getRegistry($$0, $$2).getHolder($$4).orElseThrow(() -> $$3.create((java.lang.Object)$$4.location()));
+     }
+ 
+-    public static net.minecraft.world.entity.ai.attributes.Attribute getAttribute(com.mojang.brigadier.context.CommandContext<net.minecraft.commands.CommandSourceStack> $$0, java.lang.String $$1) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
+-        net.minecraft.resources.ResourceKey $$2 = net.minecraft.commands.arguments.ResourceKeyArgument.getRegistryType($$0, (java.lang.String)$$1, (net.minecraft.resources.ResourceKey)net.minecraft.core.Registry.ATTRIBUTE_REGISTRY, (com.mojang.brigadier.exceptions.DynamicCommandExceptionType)ERROR_UNKNOWN_ATTRIBUTE);
+-        return (net.minecraft.world.entity.ai.attributes.Attribute)net.minecraft.commands.arguments.ResourceKeyArgument.getRegistry($$0, (net.minecraft.resources.ResourceKey)net.minecraft.core.Registry.ATTRIBUTE_REGISTRY).getOptional($$2).orElseThrow(() -> ERROR_UNKNOWN_ATTRIBUTE.create((java.lang.Object)$$2.location()));
++    public static net.minecraft.core.Holder$Reference<net.minecraft.world.level.levelgen.feature.ConfiguredFeature<?, ?>> getConfiguredFeature(com.mojang.brigadier.context.CommandContext<net.minecraft.commands.CommandSourceStack> $$0, java.lang.String $$1) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
++        return net.minecraft.commands.arguments.ResourceKeyArgument.resolveKey($$0, (java.lang.String)$$1, (net.minecraft.resources.ResourceKey)net.minecraft.core.Registry.CONFIGURED_FEATURE_REGISTRY, (com.mojang.brigadier.exceptions.DynamicCommandExceptionType)ERROR_INVALID_FEATURE);
+     }
+ 
+-    public static net.minecraft.core.Holder<net.minecraft.world.level.levelgen.feature.ConfiguredFeature<?, ?>> getConfiguredFeature(com.mojang.brigadier.context.CommandContext<net.minecraft.commands.CommandSourceStack> $$0, java.lang.String $$1) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
+-        return net.minecraft.commands.arguments.ResourceKeyArgument.getRegistryKeyType($$0, (java.lang.String)$$1, (net.minecraft.resources.ResourceKey)net.minecraft.core.Registry.CONFIGURED_FEATURE_REGISTRY, (com.mojang.brigadier.exceptions.DynamicCommandExceptionType)ERROR_INVALID_FEATURE);
++    public static net.minecraft.core.Holder$Reference<net.minecraft.world.level.levelgen.structure.Structure> getStructure(com.mojang.brigadier.context.CommandContext<net.minecraft.commands.CommandSourceStack> $$0, java.lang.String $$1) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
++        return net.minecraft.commands.arguments.ResourceKeyArgument.resolveKey($$0, (java.lang.String)$$1, (net.minecraft.resources.ResourceKey)net.minecraft.core.Registry.STRUCTURE_REGISTRY, (com.mojang.brigadier.exceptions.DynamicCommandExceptionType)ERROR_INVALID_STRUCTURE);
+     }
+ 
+-    public static net.minecraft.core.Holder<net.minecraft.world.level.levelgen.structure.Structure> getStructure(com.mojang.brigadier.context.CommandContext<net.minecraft.commands.CommandSourceStack> $$0, java.lang.String $$1) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
+-        return net.minecraft.commands.arguments.ResourceKeyArgument.getRegistryKeyType($$0, (java.lang.String)$$1, (net.minecraft.resources.ResourceKey)net.minecraft.core.Registry.STRUCTURE_REGISTRY, (com.mojang.brigadier.exceptions.DynamicCommandExceptionType)ERROR_INVALID_STRUCTURE);
++    public static net.minecraft.core.Holder$Reference<net.minecraft.world.level.levelgen.structure.pools.StructureTemplatePool> getStructureTemplatePool(com.mojang.brigadier.context.CommandContext<net.minecraft.commands.CommandSourceStack> $$0, java.lang.String $$1) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
++        return net.minecraft.commands.arguments.ResourceKeyArgument.resolveKey($$0, (java.lang.String)$$1, (net.minecraft.resources.ResourceKey)net.minecraft.core.Registry.TEMPLATE_POOL_REGISTRY, (com.mojang.brigadier.exceptions.DynamicCommandExceptionType)ERROR_INVALID_TEMPLATE_POOL);
+     }
+ 
+-    public static net.minecraft.core.Holder<net.minecraft.world.level.levelgen.structure.pools.StructureTemplatePool> getStructureTemplatePool(com.mojang.brigadier.context.CommandContext<net.minecraft.commands.CommandSourceStack> $$0, java.lang.String $$1) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
+-        return net.minecraft.commands.arguments.ResourceKeyArgument.getRegistryKeyType($$0, (java.lang.String)$$1, (net.minecraft.resources.ResourceKey)net.minecraft.core.Registry.TEMPLATE_POOL_REGISTRY, (com.mojang.brigadier.exceptions.DynamicCommandExceptionType)ERROR_INVALID_TEMPLATE_POOL);
+-    }
+-
+     public net.minecraft.resources.ResourceKey<T> parse(com.mojang.brigadier.StringReader $$0) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
+         net.minecraft.resources.ResourceLocation $$1 = net.minecraft.resources.ResourceLocation.read((com.mojang.brigadier.StringReader)$$0);
+         return net.minecraft.resources.ResourceKey.create((net.minecraft.resources.ResourceKey)this.registryKey, (net.minecraft.resources.ResourceLocation)$$1);
+@@ -75,25 +69,20 @@
+         return this.parse(stringReader);
+     }
+ 
+-    public static /* synthetic */ com.mojang.brigadier.Message lambda$static$3(java.lang.Object $$0) {
++    public static /* synthetic */ com.mojang.brigadier.Message lambda$static$2(java.lang.Object $$0) {
+         return net.minecraft.network.chat.Component.translatable((java.lang.String)"commands.place.jigsaw.invalid", (java.lang.Object[])new java.lang.Object[]{$$0});
+     }
+ 
+-    public static /* synthetic */ com.mojang.brigadier.Message lambda$static$2(java.lang.Object $$0) {
++    public static /* synthetic */ com.mojang.brigadier.Message lambda$static$1(java.lang.Object $$0) {
+         return net.minecraft.network.chat.Component.translatable((java.lang.String)"commands.place.structure.invalid", (java.lang.Object[])new java.lang.Object[]{$$0});
+     }
+ 
+-    public static /* synthetic */ com.mojang.brigadier.Message lambda$static$1(java.lang.Object $$0) {
++    public static /* synthetic */ com.mojang.brigadier.Message lambda$static$0(java.lang.Object $$0) {
+         return net.minecraft.network.chat.Component.translatable((java.lang.String)"commands.place.feature.invalid", (java.lang.Object[])new java.lang.Object[]{$$0});
+     }
+ 
+-    public static /* synthetic */ com.mojang.brigadier.Message lambda$static$0(java.lang.Object $$0) {
+-        return net.minecraft.network.chat.Component.translatable((java.lang.String)"attribute.unknown", (java.lang.Object[])new java.lang.Object[]{$$0});
+-    }
+-
+     static {
+         EXAMPLES = java.util.Arrays.asList((java.lang.Object[])new java.lang.String[]{"foo", "foo:bar", "012"});
+-        ERROR_UNKNOWN_ATTRIBUTE = new com.mojang.brigadier.exceptions.DynamicCommandExceptionType($$0 -> net.minecraft.network.chat.Component.translatable((java.lang.String)"attribute.unknown", (java.lang.Object[])new java.lang.Object[]{$$0}));
+         ERROR_INVALID_FEATURE = new com.mojang.brigadier.exceptions.DynamicCommandExceptionType($$0 -> net.minecraft.network.chat.Component.translatable((java.lang.String)"commands.place.feature.invalid", (java.lang.Object[])new java.lang.Object[]{$$0}));
+         ERROR_INVALID_STRUCTURE = new com.mojang.brigadier.exceptions.DynamicCommandExceptionType($$0 -> net.minecraft.network.chat.Component.translatable((java.lang.String)"commands.place.structure.invalid", (java.lang.Object[])new java.lang.Object[]{$$0}));
+         ERROR_INVALID_TEMPLATE_POOL = new com.mojang.brigadier.exceptions.DynamicCommandExceptionType($$0 -> net.minecraft.network.chat.Component.translatable((java.lang.String)"commands.place.jigsaw.invalid", (java.lang.Object[])new java.lang.Object[]{$$0}));

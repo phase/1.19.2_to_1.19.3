@@ -1,0 +1,1133 @@
+--- net/minecraft/server/level/ServerLevel.java
++++ net/minecraft/server/level/ServerLevel.java
+@@ -25,6 +25,7 @@
+     public net.minecraft.world.level.storage.ServerLevelData serverLevelData;
+     public net.minecraft.world.level.entity.EntityTickList entityTickList;
+     public net.minecraft.world.level.entity.PersistentEntitySectionManager<net.minecraft.world.entity.Entity> entityManager;
++    public net.minecraft.world.level.gameevent.GameEventDispatcher gameEventDispatcher;
+     public boolean noSave;
+     public net.minecraft.server.players.SleepStatus sleepStatus;
+     public int emptyTime;
+@@ -36,7 +37,6 @@
+     public net.minecraft.world.entity.raid.Raids raids;
+     public it.unimi.dsi.fastutil.objects.ObjectLinkedOpenHashSet<net.minecraft.world.level.BlockEventData> blockEvents;
+     public java.util.List<net.minecraft.world.level.BlockEventData> blockEventsToReschedule;
+-    public java.util.List<net.minecraft.world.level.gameevent.GameEvent$Message> gameEventMessages;
+     public boolean handlingTick;
+     public java.util.List<net.minecraft.world.level.CustomSpawner> customSpawners;
+     @javax.annotation.Nullable
+@@ -47,7 +47,7 @@
+     public boolean tickTime;
+ 
+     public net.minecraft.server.level.ServerLevel(net.minecraft.server.MinecraftServer $$02, java.util.concurrent.Executor $$1, net.minecraft.world.level.storage.LevelStorageSource$LevelStorageAccess $$2, net.minecraft.world.level.storage.ServerLevelData $$3, net.minecraft.resources.ResourceKey<net.minecraft.world.level.Level> $$4, net.minecraft.world.level.dimension.LevelStem $$5, net.minecraft.server.level.progress.ChunkProgressListener $$6, boolean $$7, long $$8, java.util.List<net.minecraft.world.level.CustomSpawner> $$9, boolean $$10) {
+-        super((net.minecraft.world.level.storage.WritableLevelData)$$3, $$4, $$5.typeHolder(), () -> ((net.minecraft.server.MinecraftServer)$$02).getProfiler(), false, $$7, $$8, $$02.getMaxChainedNeighborUpdates());
++        super((net.minecraft.world.level.storage.WritableLevelData)$$3, $$4, $$5.type(), () -> ((net.minecraft.server.MinecraftServer)$$02).getProfiler(), false, $$7, $$8, $$02.getMaxChainedNeighborUpdates());
+         this.players = com.google.common.collect.Lists.newArrayList();
+         this.entityTickList = new net.minecraft.world.level.entity.EntityTickList();
+         this.blockTicks = new net.minecraft.world.ticks.LevelTicks(arg_0 -> this.isPositionTickingWithEntitiesLoaded(arg_0), this.getProfilerSupplier());
+@@ -55,7 +55,6 @@
+         this.navigatingMobs = new it.unimi.dsi.fastutil.objects.ObjectOpenHashSet();
+         this.blockEvents = new it.unimi.dsi.fastutil.objects.ObjectLinkedOpenHashSet();
+         this.blockEventsToReschedule = new java.util.ArrayList(64);
+-        this.gameEventMessages = new java.util.ArrayList();
+         this.dragonParts = new it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap();
+         this.tickTime = $$10;
+         this.server = $$02;
+@@ -76,19 +75,20 @@
+         if (!$$02.isSingleplayer()) {
+             $$3.setGameType($$02.getDefaultGameType());
+         }
+-        long $$15 = $$02.getWorldData().worldGenSettings().seed();
++        long $$15 = $$02.getWorldData().worldGenOptions().seed();
+         this.structureCheck = new net.minecraft.world.level.levelgen.structure.StructureCheck(this.chunkSource.chunkScanner(), this.registryAccess(), $$02.getStructureManager(), $$4, $$11, this.chunkSource.randomState(), (net.minecraft.world.level.LevelHeightAccessor)this, $$11.getBiomeSource(), $$15, $$13);
+-        this.structureManager = new net.minecraft.world.level.StructureManager((net.minecraft.world.level.LevelAccessor)this, $$02.getWorldData().worldGenSettings(), this.structureCheck);
++        this.structureManager = new net.minecraft.world.level.StructureManager((net.minecraft.world.level.LevelAccessor)this, $$02.getWorldData().worldGenOptions(), this.structureCheck);
+         this.dragonFight = this.dimension() == net.minecraft.world.level.Level.END && this.dimensionTypeRegistration().is(net.minecraft.world.level.dimension.BuiltinDimensionTypes.END) ? new net.minecraft.world.level.dimension.end.EndDragonFight(this, $$15, $$02.getWorldData().endDragonFightData()) : null;
+         this.sleepStatus = new net.minecraft.server.players.SleepStatus();
++        this.gameEventDispatcher = new net.minecraft.world.level.gameevent.GameEventDispatcher(this);
+     }
+ 
+-    public void setWeatherParameters(int clearTime, int weatherTime, boolean isRaining, boolean isThundering) {
+-        this.serverLevelData.setClearWeatherTime(clearTime);
+-        this.serverLevelData.setRainTime(weatherTime);
+-        this.serverLevelData.setThunderTime(weatherTime);
+-        this.serverLevelData.setRaining(isRaining);
+-        this.serverLevelData.setThundering(isThundering);
++    public void setWeatherParameters(int $$0, int $$1, boolean $$2, boolean $$3) {
++        this.serverLevelData.setClearWeatherTime($$0);
++        this.serverLevelData.setRainTime($$1);
++        this.serverLevelData.setThunderTime($$1);
++        this.serverLevelData.setRaining($$2);
++        this.serverLevelData.setThundering($$3);
+     }
+ 
+     public net.minecraft.core.Holder<net.minecraft.world.level.biome.Biome> getUncachedNoiseBiome(int $$0, int $$1, int $$2) {
+@@ -99,20 +99,19 @@
+         return this.structureManager;
+     }
+ 
+-    public void tick(java.util.function.BooleanSupplier hasTimeLeft) {
+-        boolean bl;
+-        long l;
+-        net.minecraft.util.profiling.ProfilerFiller profilerFiller = this.getProfiler();
++    public void tick(java.util.function.BooleanSupplier $$0) {
++        boolean $$5;
++        net.minecraft.util.profiling.ProfilerFiller $$12 = this.getProfiler();
+         this.handlingTick = true;
+-        profilerFiller.push("world border");
++        $$12.push("world border");
+         this.getWorldBorder().tick();
+-        profilerFiller.popPush("weather");
++        $$12.popPush("weather");
+         this.advanceWeatherCycle();
+-        int n = this.getGameRules().getInt(net.minecraft.world.level.GameRules.RULE_PLAYERS_SLEEPING_PERCENTAGE);
+-        if (this.sleepStatus.areEnoughSleeping(n) && this.sleepStatus.areEnoughDeepSleeping(n, this.players)) {
++        int $$2 = this.getGameRules().getInt(net.minecraft.world.level.GameRules.RULE_PLAYERS_SLEEPING_PERCENTAGE);
++        if (this.sleepStatus.areEnoughSleeping($$2) && this.sleepStatus.areEnoughDeepSleeping($$2, this.players)) {
+             if (this.getGameRules().getBoolean(net.minecraft.world.level.GameRules.RULE_DAYLIGHT)) {
+-                l = this.levelData.getDayTime() + 24000L;
+-                this.setDayTime(l - l % 24000L);
++                long $$3 = this.levelData.getDayTime() + 24000L;
++                this.setDayTime($$3 - $$3 % 24000L);
+             }
+             this.wakeUpAllPlayers();
+             if (this.getGameRules().getBoolean(net.minecraft.world.level.GameRules.RULE_WEATHER_CYCLE) && this.isRaining()) {
+@@ -121,33 +120,33 @@
+         }
+         this.updateSkyBrightness();
+         this.tickTime();
+-        profilerFiller.popPush("tickPending");
++        $$12.popPush("tickPending");
+         if (!this.isDebug()) {
+-            l = this.getGameTime();
+-            profilerFiller.push("blockTicks");
+-            this.blockTicks.tick(l, 65536, (arg_0, arg_1) -> this.tickBlock(arg_0, arg_1));
+-            profilerFiller.popPush("fluidTicks");
+-            this.fluidTicks.tick(l, 65536, (arg_0, arg_1) -> this.tickFluid(arg_0, arg_1));
+-            profilerFiller.pop();
++            long $$4 = this.getGameTime();
++            $$12.push("blockTicks");
++            this.blockTicks.tick($$4, 65536, (arg_0, arg_1) -> this.tickBlock(arg_0, arg_1));
++            $$12.popPush("fluidTicks");
++            this.fluidTicks.tick($$4, 65536, (arg_0, arg_1) -> this.tickFluid(arg_0, arg_1));
++            $$12.pop();
+         }
+-        profilerFiller.popPush("raid");
++        $$12.popPush("raid");
+         this.raids.tick();
+-        profilerFiller.popPush("chunkSource");
+-        this.getChunkSource().tick(hasTimeLeft, true);
+-        profilerFiller.popPush("blockEvents");
++        $$12.popPush("chunkSource");
++        this.getChunkSource().tick($$0, true);
++        $$12.popPush("blockEvents");
+         this.runBlockEvents();
+         this.handlingTick = false;
+-        profilerFiller.pop();
+-        boolean bl2 = bl = !this.players.isEmpty() || !this.getForcedChunks().isEmpty();
+-        if (bl) {
++        $$12.pop();
++        boolean bl = $$5 = !this.players.isEmpty() || !this.getForcedChunks().isEmpty();
++        if ($$5) {
+             this.resetEmptyTime();
+         }
+-        if (bl || this.emptyTime++ < 300) {
+-            profilerFiller.push("entities");
++        if ($$5 || this.emptyTime++ < 300) {
++            $$12.push("entities");
+             if (this.dragonFight != null) {
+-                profilerFiller.push("dragonFight");
++                $$12.push("dragonFight");
+                 this.dragonFight.tick();
+-                profilerFiller.pop();
++                $$12.pop();
+             }
+             this.entityTickList.forEach($$1 -> {
+                 if ($$1.isRemoved()) {
+@@ -157,9 +156,9 @@
+                     $$1.discard();
+                     return;
+                 }
+-                profilerFiller.push("checkDespawn");
++                $$12.push("checkDespawn");
+                 $$1.checkDespawn();
+-                profilerFiller.pop();
++                $$12.pop();
+                 if (!this.chunkSource.chunkMap.getDistanceManager().inEntityTickingRange($$1.chunkPosition().toLong())) {
+                     return;
+                 }
+@@ -171,18 +170,16 @@
+                         return;
+                     }
+                 }
+-                profilerFiller.push("tick");
++                $$12.push("tick");
+                 this.guardEntityTick(arg_0 -> this.tickNonPassenger(arg_0), $$1);
+-                profilerFiller.pop();
++                $$12.pop();
+             });
+-            profilerFiller.pop();
++            $$12.pop();
+             this.tickBlockEntities();
+         }
+-        profilerFiller.push("entityManagement");
++        $$12.push("entityManagement");
+         this.entityManager.tick();
+-        profilerFiller.popPush("gameEvents");
+-        this.sendGameEvents();
+-        profilerFiller.pop();
++        $$12.pop();
+     }
+ 
+     public boolean shouldTickBlocksAt(long $$0) {
+@@ -201,13 +198,13 @@
+         }
+     }
+ 
+-    public void setDayTime(long time) {
+-        this.serverLevelData.setDayTime(time);
++    public void setDayTime(long $$0) {
++        this.serverLevelData.setDayTime($$0);
+     }
+ 
+-    public void tickCustomSpawners(boolean spawnHostiles, boolean spawnPassives) {
+-        for (net.minecraft.world.level.CustomSpawner customSpawner : this.customSpawners) {
+-            customSpawner.tick(this, spawnHostiles, spawnPassives);
++    public void tickCustomSpawners(boolean $$0, boolean $$1) {
++        for (net.minecraft.world.level.CustomSpawner $$2 : this.customSpawners) {
++            $$2.tick(this, $$0, $$1);
+         }
+     }
+ 
+@@ -223,73 +220,73 @@
+         ((java.util.List)this.players.stream().filter(net.minecraft.world.entity.LivingEntity::isSleeping).collect(java.util.stream.Collectors.toList())).forEach($$0 -> $$0.stopSleepInBed(false, false));
+     }
+ 
+-    public void tickChunk(net.minecraft.world.level.chunk.LevelChunk chunk, int randomTickSpeed) {
+-        net.minecraft.core.BlockPos blockPos4;
+-        net.minecraft.core.BlockPos blockPos2;
+-        net.minecraft.core.BlockPos blockPos3;
+-        net.minecraft.world.level.ChunkPos chunkPos = chunk.getPos();
+-        boolean bl = this.isRaining();
+-        int n = chunkPos.getMinBlockX();
+-        int n2 = chunkPos.getMinBlockZ();
+-        net.minecraft.util.profiling.ProfilerFiller profilerFiller = this.getProfiler();
+-        profilerFiller.push("thunder");
+-        if (bl && this.isThundering() && this.random.nextInt(100000) == 0 && this.isRainingAt(blockPos3 = this.findLightningTargetAround(this.getBlockRandomPos(n, 0, n2, 15)))) {
+-            int n3;
+-            blockPos2 = this.getCurrentDifficultyAt(blockPos3);
+-            int n4 = n3 = this.getGameRules().getBoolean(net.minecraft.world.level.GameRules.RULE_DOMOBSPAWNING) && this.random.nextDouble() < (double)blockPos2.getEffectiveDifficulty() * 0.01 && !this.getBlockState(blockPos3.below()).is(net.minecraft.world.level.block.Blocks.LIGHTNING_ROD) ? 1 : 0;
+-            if (n3) {
+-                blockPos4 = (net.minecraft.world.entity.animal.horse.SkeletonHorse)net.minecraft.world.entity.EntityType.SKELETON_HORSE.create((net.minecraft.world.level.Level)this);
+-                blockPos4.setTrap(true);
+-                blockPos4.setAge(0);
+-                blockPos4.setPos((double)blockPos3.getX(), (double)blockPos3.getY(), (double)blockPos3.getZ());
+-                this.addFreshEntity((net.minecraft.world.entity.Entity)blockPos4);
++    public void tickChunk(net.minecraft.world.level.chunk.LevelChunk $$0, int $$1) {
++        net.minecraft.core.BlockPos $$7;
++        net.minecraft.world.level.ChunkPos $$2 = $$0.getPos();
++        boolean $$3 = this.isRaining();
++        int $$4 = $$2.getMinBlockX();
++        int $$5 = $$2.getMinBlockZ();
++        net.minecraft.util.profiling.ProfilerFiller $$6 = this.getProfiler();
++        $$6.push("thunder");
++        if ($$3 && this.isThundering() && this.random.nextInt(100000) == 0 && this.isRainingAt($$7 = this.findLightningTargetAround(this.getBlockRandomPos($$4, 0, $$5, 15)))) {
++            net.minecraft.world.entity.LightningBolt $$11;
++            net.minecraft.world.entity.animal.horse.SkeletonHorse $$10;
++            boolean $$9;
++            net.minecraft.world.DifficultyInstance $$8 = this.getCurrentDifficultyAt($$7);
++            boolean bl = $$9 = this.getGameRules().getBoolean(net.minecraft.world.level.GameRules.RULE_DOMOBSPAWNING) && this.random.nextDouble() < (double)$$8.getEffectiveDifficulty() * 0.01 && !this.getBlockState($$7.below()).is(net.minecraft.world.level.block.Blocks.LIGHTNING_ROD);
++            if ($$9 && ($$10 = (net.minecraft.world.entity.animal.horse.SkeletonHorse)net.minecraft.world.entity.EntityType.SKELETON_HORSE.create((net.minecraft.world.level.Level)this)) != null) {
++                $$10.setTrap(true);
++                $$10.setAge(0);
++                $$10.setPos((double)$$7.getX(), (double)$$7.getY(), (double)$$7.getZ());
++                this.addFreshEntity((net.minecraft.world.entity.Entity)$$10);
+             }
+-            blockPos4 = (net.minecraft.world.entity.LightningBolt)net.minecraft.world.entity.EntityType.LIGHTNING_BOLT.create((net.minecraft.world.level.Level)this);
+-            blockPos4.moveTo(net.minecraft.world.phys.Vec3.atBottomCenterOf((net.minecraft.core.Vec3i)blockPos3));
+-            blockPos4.setVisualOnly(n3 != 0);
+-            this.addFreshEntity((net.minecraft.world.entity.Entity)blockPos4);
++            if (($$11 = (net.minecraft.world.entity.LightningBolt)net.minecraft.world.entity.EntityType.LIGHTNING_BOLT.create((net.minecraft.world.level.Level)this)) != null) {
++                $$11.moveTo(net.minecraft.world.phys.Vec3.atBottomCenterOf((net.minecraft.core.Vec3i)$$7));
++                $$11.setVisualOnly($$9);
++                this.addFreshEntity((net.minecraft.world.entity.Entity)$$11);
++            }
+         }
+-        profilerFiller.popPush("iceandsnow");
++        $$6.popPush("iceandsnow");
+         if (this.random.nextInt(16) == 0) {
+-            blockPos3 = this.getHeightmapPos(net.minecraft.world.level.levelgen.Heightmap$Types.MOTION_BLOCKING, this.getBlockRandomPos(n, 0, n2, 15));
+-            blockPos2 = blockPos3.below();
+-            net.minecraft.world.level.biome.Biome biome = (net.minecraft.world.level.biome.Biome)this.getBiome(blockPos3).value();
+-            if (biome.shouldFreeze((net.minecraft.world.level.LevelReader)this, blockPos2)) {
+-                this.setBlockAndUpdate(blockPos2, net.minecraft.world.level.block.Blocks.ICE.defaultBlockState());
++            net.minecraft.core.BlockPos $$12 = this.getHeightmapPos(net.minecraft.world.level.levelgen.Heightmap$Types.MOTION_BLOCKING, this.getBlockRandomPos($$4, 0, $$5, 15));
++            net.minecraft.core.BlockPos $$13 = $$12.below();
++            net.minecraft.world.level.biome.Biome $$14 = (net.minecraft.world.level.biome.Biome)this.getBiome($$12).value();
++            if ($$14.shouldFreeze((net.minecraft.world.level.LevelReader)this, $$13)) {
++                this.setBlockAndUpdate($$13, net.minecraft.world.level.block.Blocks.ICE.defaultBlockState());
+             }
+-            if (bl) {
+-                if (biome.shouldSnow((net.minecraft.world.level.LevelReader)this, blockPos3)) {
+-                    this.setBlockAndUpdate(blockPos3, net.minecraft.world.level.block.Blocks.SNOW.defaultBlockState());
++            if ($$3) {
++                if ($$14.shouldSnow((net.minecraft.world.level.LevelReader)this, $$12)) {
++                    this.setBlockAndUpdate($$12, net.minecraft.world.level.block.Blocks.SNOW.defaultBlockState());
+                 }
+-                blockPos4 = this.getBlockState(blockPos2);
+-                net.minecraft.world.level.biome.Biome$Precipitation precipitation = biome.getPrecipitation();
+-                if (precipitation == net.minecraft.world.level.biome.Biome$Precipitation.RAIN && biome.coldEnoughToSnow(blockPos2)) {
+-                    precipitation = net.minecraft.world.level.biome.Biome$Precipitation.SNOW;
++                net.minecraft.world.level.block.state.BlockState $$15 = this.getBlockState($$13);
++                net.minecraft.world.level.biome.Biome$Precipitation $$16 = $$14.getPrecipitation();
++                if ($$16 == net.minecraft.world.level.biome.Biome$Precipitation.RAIN && $$14.coldEnoughToSnow($$13)) {
++                    $$16 = net.minecraft.world.level.biome.Biome$Precipitation.SNOW;
+                 }
+-                blockPos4.getBlock().handlePrecipitation((net.minecraft.world.level.block.state.BlockState)blockPos4, (net.minecraft.world.level.Level)this, blockPos2, precipitation);
++                $$15.getBlock().handlePrecipitation($$15, (net.minecraft.world.level.Level)this, $$13, $$16);
+             }
+         }
+-        profilerFiller.popPush("tickBlocks");
+-        if (randomTickSpeed > 0) {
+-            for (net.minecraft.core.BlockPos blockPos4 : chunk.getSections()) {
+-                if (!blockPos4.isRandomlyTicking()) continue;
+-                int n5 = blockPos4.bottomBlockY();
+-                for (int i = 0; i < randomTickSpeed; ++i) {
+-                    net.minecraft.world.level.material.FluidState fluidState;
+-                    net.minecraft.core.BlockPos blockPos5 = this.getBlockRandomPos(n, n5, n2, 15);
+-                    profilerFiller.push("randomTick");
+-                    net.minecraft.world.level.block.state.BlockState blockState = blockPos4.getBlockState(blockPos5.getX() - n, blockPos5.getY() - n5, blockPos5.getZ() - n2);
+-                    if (blockState.isRandomlyTicking()) {
+-                        blockState.randomTick(this, blockPos5, this.random);
++        $$6.popPush("tickBlocks");
++        if ($$1 > 0) {
++            for (net.minecraft.world.level.chunk.LevelChunkSection $$17 : $$0.getSections()) {
++                if (!$$17.isRandomlyTicking()) continue;
++                int $$18 = $$17.bottomBlockY();
++                for (int $$19 = 0; $$19 < $$1; ++$$19) {
++                    net.minecraft.world.level.material.FluidState $$22;
++                    net.minecraft.core.BlockPos $$20 = this.getBlockRandomPos($$4, $$18, $$5, 15);
++                    $$6.push("randomTick");
++                    net.minecraft.world.level.block.state.BlockState $$21 = $$17.getBlockState($$20.getX() - $$4, $$20.getY() - $$18, $$20.getZ() - $$5);
++                    if ($$21.isRandomlyTicking()) {
++                        $$21.randomTick(this, $$20, this.random);
+                     }
+-                    if ((fluidState = blockState.getFluidState()).isRandomlyTicking()) {
+-                        fluidState.randomTick((net.minecraft.world.level.Level)this, blockPos5, this.random);
++                    if (($$22 = $$21.getFluidState()).isRandomlyTicking()) {
++                        $$22.randomTick((net.minecraft.world.level.Level)this, $$20, this.random);
+                     }
+-                    profilerFiller.pop();
++                    $$6.pop();
+                 }
+             }
+         }
+-        profilerFiller.pop();
++        $$6.pop();
+     }
+ 
+     public java.util.Optional<net.minecraft.core.BlockPos> findLightningRod(net.minecraft.core.BlockPos $$02) {
+@@ -437,57 +434,57 @@
+         }
+     }
+ 
+-    public void tickNonPassenger(net.minecraft.world.entity.Entity entity) {
+-        entity.setOldPosAndRot();
+-        net.minecraft.util.profiling.ProfilerFiller profilerFiller = this.getProfiler();
+-        ++entity.tickCount;
+-        this.getProfiler().push(() -> net.minecraft.core.Registry.ENTITY_TYPE.getKey((java.lang.Object)entity.getType()).toString());
+-        profilerFiller.incrementCounter("tickNonPassenger");
+-        entity.tick();
++    public void tickNonPassenger(net.minecraft.world.entity.Entity $$0) {
++        $$0.setOldPosAndRot();
++        net.minecraft.util.profiling.ProfilerFiller $$1 = this.getProfiler();
++        ++$$0.tickCount;
++        this.getProfiler().push(() -> net.minecraft.core.Registry.ENTITY_TYPE.getKey((java.lang.Object)$$0.getType()).toString());
++        $$1.incrementCounter("tickNonPassenger");
++        $$0.tick();
+         this.getProfiler().pop();
+-        for (net.minecraft.world.entity.Entity entity2 : entity.getPassengers()) {
+-            this.tickPassenger(entity, entity2);
++        for (net.minecraft.world.entity.Entity $$2 : $$0.getPassengers()) {
++            this.tickPassenger($$0, $$2);
+         }
+     }
+ 
+-    public void tickPassenger(net.minecraft.world.entity.Entity ridingEntity, net.minecraft.world.entity.Entity passengerEntity) {
+-        if (passengerEntity.isRemoved() || passengerEntity.getVehicle() != ridingEntity) {
+-            passengerEntity.stopRiding();
++    public void tickPassenger(net.minecraft.world.entity.Entity $$0, net.minecraft.world.entity.Entity $$1) {
++        if ($$1.isRemoved() || $$1.getVehicle() != $$0) {
++            $$1.stopRiding();
+             return;
+         }
+-        if (!(passengerEntity instanceof net.minecraft.world.entity.player.Player) && !this.entityTickList.contains(passengerEntity)) {
++        if (!($$1 instanceof net.minecraft.world.entity.player.Player) && !this.entityTickList.contains($$1)) {
+             return;
+         }
+-        passengerEntity.setOldPosAndRot();
+-        ++passengerEntity.tickCount;
+-        net.minecraft.util.profiling.ProfilerFiller profilerFiller = this.getProfiler();
+-        profilerFiller.push(() -> net.minecraft.core.Registry.ENTITY_TYPE.getKey((java.lang.Object)passengerEntity.getType()).toString());
+-        profilerFiller.incrementCounter("tickPassenger");
+-        passengerEntity.rideTick();
+-        profilerFiller.pop();
+-        for (net.minecraft.world.entity.Entity entity : passengerEntity.getPassengers()) {
+-            this.tickPassenger(passengerEntity, entity);
++        $$1.setOldPosAndRot();
++        ++$$1.tickCount;
++        net.minecraft.util.profiling.ProfilerFiller $$2 = this.getProfiler();
++        $$2.push(() -> net.minecraft.core.Registry.ENTITY_TYPE.getKey((java.lang.Object)$$1.getType()).toString());
++        $$2.incrementCounter("tickPassenger");
++        $$1.rideTick();
++        $$2.pop();
++        for (net.minecraft.world.entity.Entity $$3 : $$1.getPassengers()) {
++            this.tickPassenger($$1, $$3);
+         }
+     }
+ 
+-    public boolean mayInteract(net.minecraft.world.entity.player.Player player, net.minecraft.core.BlockPos pos) {
+-        return !this.server.isUnderSpawnProtection(this, pos, player) && this.getWorldBorder().isWithinBounds(pos);
++    public boolean mayInteract(net.minecraft.world.entity.player.Player $$0, net.minecraft.core.BlockPos $$1) {
++        return !this.server.isUnderSpawnProtection(this, $$1, $$0) && this.getWorldBorder().isWithinBounds($$1);
+     }
+ 
+-    public void save(@javax.annotation.Nullable net.minecraft.util.ProgressListener progress, boolean flush, boolean skipSave) {
+-        net.minecraft.server.level.ServerChunkCache serverChunkCache = this.getChunkSource();
+-        if (skipSave) {
++    public void save(@javax.annotation.Nullable net.minecraft.util.ProgressListener $$0, boolean $$1, boolean $$2) {
++        net.minecraft.server.level.ServerChunkCache $$3 = this.getChunkSource();
++        if ($$2) {
+             return;
+         }
+-        if (progress != null) {
+-            progress.progressStartNoAbort((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"menu.savingLevel"));
++        if ($$0 != null) {
++            $$0.progressStartNoAbort((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"menu.savingLevel"));
+         }
+         this.saveLevelData();
+-        if (progress != null) {
+-            progress.progressStage((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"menu.savingChunks"));
++        if ($$0 != null) {
++            $$0.progressStage((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"menu.savingChunks"));
+         }
+-        serverChunkCache.save(flush);
+-        if (flush) {
++        $$3.save($$1);
++        if ($$1) {
+             this.entityManager.saveAll();
+         } else {
+             this.entityManager.autoSave();
+@@ -511,13 +508,13 @@
+         return this.getEntities((net.minecraft.world.level.entity.EntityTypeTest)net.minecraft.world.entity.EntityType.ENDER_DRAGON, net.minecraft.world.entity.LivingEntity::isAlive);
+     }
+ 
+-    public java.util.List<net.minecraft.server.level.ServerPlayer> getPlayers(java.util.function.Predicate<? super net.minecraft.server.level.ServerPlayer> predicate) {
+-        java.util.ArrayList arrayList = com.google.common.collect.Lists.newArrayList();
+-        for (net.minecraft.server.level.ServerPlayer serverPlayer : this.players) {
+-            if (!predicate.test((java.lang.Object)serverPlayer)) continue;
+-            arrayList.add((java.lang.Object)serverPlayer);
++    public java.util.List<net.minecraft.server.level.ServerPlayer> getPlayers(java.util.function.Predicate<? super net.minecraft.server.level.ServerPlayer> $$0) {
++        java.util.ArrayList $$1 = com.google.common.collect.Lists.newArrayList();
++        for (net.minecraft.server.level.ServerPlayer $$2 : this.players) {
++            if (!$$0.test((java.lang.Object)$$2)) continue;
++            $$1.add((java.lang.Object)$$2);
+         }
+-        return arrayList;
++        return $$1;
+     }
+ 
+     @javax.annotation.Nullable
+@@ -529,76 +526,76 @@
+         return (net.minecraft.server.level.ServerPlayer)$$0.get(this.random.nextInt($$0.size()));
+     }
+ 
+-    public boolean addFreshEntity(net.minecraft.world.entity.Entity entity) {
+-        return this.addEntity(entity);
++    public boolean addFreshEntity(net.minecraft.world.entity.Entity $$0) {
++        return this.addEntity($$0);
+     }
+ 
+-    public boolean addWithUUID(net.minecraft.world.entity.Entity entity) {
+-        return this.addEntity(entity);
++    public boolean addWithUUID(net.minecraft.world.entity.Entity $$0) {
++        return this.addEntity($$0);
+     }
+ 
+     public void addDuringTeleport(net.minecraft.world.entity.Entity $$0) {
+         this.addEntity($$0);
+     }
+ 
+-    public void addDuringCommandTeleport(net.minecraft.server.level.ServerPlayer player) {
+-        this.addPlayer(player);
++    public void addDuringCommandTeleport(net.minecraft.server.level.ServerPlayer $$0) {
++        this.addPlayer($$0);
+     }
+ 
+-    public void addDuringPortalTeleport(net.minecraft.server.level.ServerPlayer player) {
+-        this.addPlayer(player);
++    public void addDuringPortalTeleport(net.minecraft.server.level.ServerPlayer $$0) {
++        this.addPlayer($$0);
+     }
+ 
+-    public void addNewPlayer(net.minecraft.server.level.ServerPlayer player) {
+-        this.addPlayer(player);
++    public void addNewPlayer(net.minecraft.server.level.ServerPlayer $$0) {
++        this.addPlayer($$0);
+     }
+ 
+-    public void addRespawnedPlayer(net.minecraft.server.level.ServerPlayer player) {
+-        this.addPlayer(player);
++    public void addRespawnedPlayer(net.minecraft.server.level.ServerPlayer $$0) {
++        this.addPlayer($$0);
+     }
+ 
+-    public void addPlayer(net.minecraft.server.level.ServerPlayer player) {
+-        net.minecraft.world.entity.Entity entity = (net.minecraft.world.entity.Entity)this.getEntities().get(player.getUUID());
+-        if (entity != null) {
+-            LOGGER.warn("Force-added player with duplicate UUID {}", (java.lang.Object)player.getUUID().toString());
+-            entity.unRide();
+-            this.removePlayerImmediately((net.minecraft.server.level.ServerPlayer)entity, net.minecraft.world.entity.Entity$RemovalReason.DISCARDED);
++    public void addPlayer(net.minecraft.server.level.ServerPlayer $$0) {
++        net.minecraft.world.entity.Entity $$1 = (net.minecraft.world.entity.Entity)this.getEntities().get($$0.getUUID());
++        if ($$1 != null) {
++            LOGGER.warn("Force-added player with duplicate UUID {}", (java.lang.Object)$$0.getUUID().toString());
++            $$1.unRide();
++            this.removePlayerImmediately((net.minecraft.server.level.ServerPlayer)$$1, net.minecraft.world.entity.Entity$RemovalReason.DISCARDED);
+         }
+-        this.entityManager.addNewEntity((net.minecraft.world.level.entity.EntityAccess)player);
++        this.entityManager.addNewEntity((net.minecraft.world.level.entity.EntityAccess)$$0);
+     }
+ 
+-    public boolean addEntity(net.minecraft.world.entity.Entity entity) {
+-        if (entity.isRemoved()) {
+-            LOGGER.warn("Tried to add entity {} but it was marked as removed already", (java.lang.Object)net.minecraft.world.entity.EntityType.getKey((net.minecraft.world.entity.EntityType)entity.getType()));
++    public boolean addEntity(net.minecraft.world.entity.Entity $$0) {
++        if ($$0.isRemoved()) {
++            LOGGER.warn("Tried to add entity {} but it was marked as removed already", (java.lang.Object)net.minecraft.world.entity.EntityType.getKey((net.minecraft.world.entity.EntityType)$$0.getType()));
+             return false;
+         }
+-        return this.entityManager.addNewEntity((net.minecraft.world.level.entity.EntityAccess)entity);
++        return this.entityManager.addNewEntity((net.minecraft.world.level.entity.EntityAccess)$$0);
+     }
+ 
+-    public boolean tryAddFreshEntityWithPassengers(net.minecraft.world.entity.Entity entity) {
+-        if (entity.getSelfAndPassengers().map(net.minecraft.world.entity.Entity::getUUID).anyMatch(arg_0 -> ((net.minecraft.world.level.entity.PersistentEntitySectionManager)this.entityManager).isLoaded(arg_0))) {
++    public boolean tryAddFreshEntityWithPassengers(net.minecraft.world.entity.Entity $$0) {
++        if ($$0.getSelfAndPassengers().map(net.minecraft.world.entity.Entity::getUUID).anyMatch(arg_0 -> ((net.minecraft.world.level.entity.PersistentEntitySectionManager)this.entityManager).isLoaded(arg_0))) {
+             return false;
+         }
+-        this.addFreshEntityWithPassengers(entity);
++        this.addFreshEntityWithPassengers($$0);
+         return true;
+     }
+ 
+-    public void unload(net.minecraft.world.level.chunk.LevelChunk chunk) {
+-        chunk.clearAllBlockEntities();
+-        chunk.unregisterTickContainerFromLevel(this);
++    public void unload(net.minecraft.world.level.chunk.LevelChunk $$0) {
++        $$0.clearAllBlockEntities();
++        $$0.unregisterTickContainerFromLevel(this);
+     }
+ 
+     public void removePlayerImmediately(net.minecraft.server.level.ServerPlayer $$0, net.minecraft.world.entity.Entity$RemovalReason $$1) {
+         $$0.remove($$1);
+     }
+ 
+-    public void destroyBlockProgress(int breakerId, net.minecraft.core.BlockPos pos, int progress) {
+-        for (net.minecraft.server.level.ServerPlayer serverPlayer : this.server.getPlayerList().getPlayers()) {
+-            double d;
+-            double d2;
+-            double d3;
+-            if (serverPlayer == null || serverPlayer.level != this || serverPlayer.getId() == breakerId || !((d3 = (double)pos.getX() - serverPlayer.getX()) * d3 + (d2 = (double)pos.getY() - serverPlayer.getY()) * d2 + (d = (double)pos.getZ() - serverPlayer.getZ()) * d < 1024.0)) continue;
+-            serverPlayer.connection.send((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ClientboundBlockDestructionPacket(breakerId, pos, progress));
++    public void destroyBlockProgress(int $$0, net.minecraft.core.BlockPos $$1, int $$2) {
++        for (net.minecraft.server.level.ServerPlayer $$3 : this.server.getPlayerList().getPlayers()) {
++            double $$6;
++            double $$5;
++            double $$4;
++            if ($$3 == null || $$3.level != this || $$3.getId() == $$0 || !(($$4 = (double)$$1.getX() - $$3.getX()) * $$4 + ($$5 = (double)$$1.getY() - $$3.getY()) * $$5 + ($$6 = (double)$$1.getZ() - $$3.getZ()) * $$6 < 1024.0)) continue;
++            $$3.connection.send((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ClientboundBlockDestructionPacket($$0, $$1, $$2));
+         }
+     }
+ 
+@@ -610,12 +607,12 @@
+         this.server.getPlayerList().broadcast($$0, $$1.getX(), $$1.getY(), $$1.getZ(), (double)$$2.getRange($$4), this.dimension(), (net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ClientboundSoundEntityPacket($$2, $$3, $$1, $$4, $$5, $$6));
+     }
+ 
+-    public void globalLevelEvent(int id, net.minecraft.core.BlockPos pos, int data) {
+-        this.server.getPlayerList().broadcastAll((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ClientboundLevelEventPacket(id, pos, data, true));
++    public void globalLevelEvent(int $$0, net.minecraft.core.BlockPos $$1, int $$2) {
++        this.server.getPlayerList().broadcastAll((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ClientboundLevelEventPacket($$0, $$1, $$2, true));
+     }
+ 
+-    public void levelEvent(@javax.annotation.Nullable net.minecraft.world.entity.player.Player player, int type, net.minecraft.core.BlockPos pos, int data) {
+-        this.server.getPlayerList().broadcast(player, (double)pos.getX(), (double)pos.getY(), (double)pos.getZ(), 64.0, this.dimension(), (net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ClientboundLevelEventPacket(type, pos, data, false));
++    public void levelEvent(@javax.annotation.Nullable net.minecraft.world.entity.player.Player $$0, int $$1, net.minecraft.core.BlockPos $$2, int $$3) {
++        this.server.getPlayerList().broadcast($$0, (double)$$2.getX(), (double)$$2.getY(), (double)$$2.getZ(), 64.0, this.dimension(), (net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ClientboundLevelEventPacket($$1, $$2, $$3, false));
+     }
+ 
+     public int getLogicalHeight() {
+@@ -623,75 +620,33 @@
+     }
+ 
+     public void gameEvent(net.minecraft.world.level.gameevent.GameEvent $$0, net.minecraft.world.phys.Vec3 $$1, net.minecraft.world.level.gameevent.GameEvent$Context $$2) {
+-        int $$3 = $$0.getNotificationRadius();
+-        net.minecraft.core.BlockPos $$4 = new net.minecraft.core.BlockPos($$1);
+-        int $$5 = net.minecraft.core.SectionPos.blockToSectionCoord((int)($$4.getX() - $$3));
+-        int $$6 = net.minecraft.core.SectionPos.blockToSectionCoord((int)($$4.getY() - $$3));
+-        int $$7 = net.minecraft.core.SectionPos.blockToSectionCoord((int)($$4.getZ() - $$3));
+-        int $$8 = net.minecraft.core.SectionPos.blockToSectionCoord((int)($$4.getX() + $$3));
+-        int $$9 = net.minecraft.core.SectionPos.blockToSectionCoord((int)($$4.getY() + $$3));
+-        int $$10 = net.minecraft.core.SectionPos.blockToSectionCoord((int)($$4.getZ() + $$3));
+-        java.util.ArrayList $$11 = new java.util.ArrayList();
+-        boolean $$12 = false;
+-        for (int $$13 = $$5; $$13 <= $$8; ++$$13) {
+-            for (int $$14 = $$7; $$14 <= $$10; ++$$14) {
+-                net.minecraft.world.level.chunk.LevelChunk $$15 = this.getChunkSource().getChunkNow($$13, $$14);
+-                if ($$15 == null) continue;
+-                for (int $$16 = $$6; $$16 <= $$9; ++$$16) {
+-                    $$12 |= $$15.getEventDispatcher($$16).walkListeners($$0, $$1, $$2, (arg_0, arg_1) -> this.lambda$gameEvent$12((java.util.List)$$11, $$0, $$1, $$2, arg_0, arg_1));
+-                }
+-            }
+-        }
+-        if (!$$11.isEmpty()) {
+-            this.handleGameEventMessagesInQueue((java.util.List)$$11);
+-        }
+-        if ($$12) {
+-            net.minecraft.network.protocol.game.DebugPackets.sendGameEventInfo((net.minecraft.world.level.Level)this, (net.minecraft.world.level.gameevent.GameEvent)$$0, (net.minecraft.world.phys.Vec3)$$1);
+-        }
++        this.gameEventDispatcher.post($$0, $$1, $$2);
+     }
+ 
+-    public void sendGameEvents() {
+-        if (this.gameEventMessages.isEmpty()) {
+-            return;
+-        }
+-        java.util.List $$0 = this.gameEventMessages;
+-        this.gameEventMessages = new java.util.ArrayList();
+-        this.handleGameEventMessagesInQueue($$0);
+-    }
+-
+-    public void handleGameEventMessagesInQueue(java.util.List<net.minecraft.world.level.gameevent.GameEvent$Message> $$0) {
+-        java.util.Collections.sort($$0);
+-        for (net.minecraft.world.level.gameevent.GameEvent$Message $$1 : $$0) {
+-            net.minecraft.world.level.gameevent.GameEventListener $$2 = $$1.recipient();
+-            $$2.handleGameEvent(this, $$1);
+-        }
+-    }
+-
+     /*
+      * WARNING - Removed try catching itself - possible behaviour change.
+      */
+-    public void sendBlockUpdated(net.minecraft.core.BlockPos pos, net.minecraft.world.level.block.state.BlockState oldState, net.minecraft.world.level.block.state.BlockState newState, int flags) {
+-        java.lang.String string;
++    public void sendBlockUpdated(net.minecraft.core.BlockPos $$0, net.minecraft.world.level.block.state.BlockState $$1, net.minecraft.world.level.block.state.BlockState $$2, int $$3) {
+         if (this.isUpdatingNavigations) {
+-            string = "recursive call to sendBlockUpdated";
++            java.lang.String $$4 = "recursive call to sendBlockUpdated";
+             net.minecraft.Util.logAndPauseIfInIde((java.lang.String)"recursive call to sendBlockUpdated", (java.lang.Throwable)new java.lang.IllegalStateException("recursive call to sendBlockUpdated"));
+         }
+-        this.getChunkSource().blockChanged(pos);
+-        string = oldState.getCollisionShape((net.minecraft.world.level.BlockGetter)this, pos);
+-        net.minecraft.world.phys.shapes.VoxelShape voxelShape = newState.getCollisionShape((net.minecraft.world.level.BlockGetter)this, pos);
+-        if (!net.minecraft.world.phys.shapes.Shapes.joinIsNotEmpty((net.minecraft.world.phys.shapes.VoxelShape)string, (net.minecraft.world.phys.shapes.VoxelShape)voxelShape, (net.minecraft.world.phys.shapes.BooleanOp)net.minecraft.world.phys.shapes.BooleanOp.NOT_SAME)) {
++        this.getChunkSource().blockChanged($$0);
++        net.minecraft.world.phys.shapes.VoxelShape $$5 = $$1.getCollisionShape((net.minecraft.world.level.BlockGetter)this, $$0);
++        net.minecraft.world.phys.shapes.VoxelShape $$6 = $$2.getCollisionShape((net.minecraft.world.level.BlockGetter)this, $$0);
++        if (!net.minecraft.world.phys.shapes.Shapes.joinIsNotEmpty((net.minecraft.world.phys.shapes.VoxelShape)$$5, (net.minecraft.world.phys.shapes.VoxelShape)$$6, (net.minecraft.world.phys.shapes.BooleanOp)net.minecraft.world.phys.shapes.BooleanOp.NOT_SAME)) {
+             return;
+         }
+-        it.unimi.dsi.fastutil.objects.ObjectArrayList objectArrayList = new it.unimi.dsi.fastutil.objects.ObjectArrayList();
+-        for (net.minecraft.world.entity.Mob mob : this.navigatingMobs) {
+-            net.minecraft.world.entity.ai.navigation.PathNavigation pathNavigation = mob.getNavigation();
+-            if (!pathNavigation.shouldRecomputePath(pos)) continue;
+-            objectArrayList.add((java.lang.Object)pathNavigation);
++        it.unimi.dsi.fastutil.objects.ObjectArrayList $$7 = new it.unimi.dsi.fastutil.objects.ObjectArrayList();
++        for (net.minecraft.world.entity.Mob $$8 : this.navigatingMobs) {
++            net.minecraft.world.entity.ai.navigation.PathNavigation $$9 = $$8.getNavigation();
++            if (!$$9.shouldRecomputePath($$0)) continue;
++            $$7.add((java.lang.Object)$$9);
+         }
+         try {
+             this.isUpdatingNavigations = true;
+-            for (net.minecraft.world.entity.Mob mob : objectArrayList) {
+-                mob.recomputePath();
++            for (net.minecraft.world.entity.ai.navigation.PathNavigation $$10 : $$7) {
++                $$10.recomputePath();
+             }
+         }
+         finally {
+@@ -715,30 +670,30 @@
+         this.neighborUpdater.neighborChanged($$0, $$1, $$2, $$3, $$4);
+     }
+ 
+-    public void broadcastEntityEvent(net.minecraft.world.entity.Entity entity, byte state) {
+-        this.getChunkSource().broadcastAndSend(entity, (net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ClientboundEntityEventPacket(entity, state));
++    public void broadcastEntityEvent(net.minecraft.world.entity.Entity $$0, byte $$1) {
++        this.getChunkSource().broadcastAndSend($$0, (net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ClientboundEntityEventPacket($$0, $$1));
+     }
+ 
+     public net.minecraft.server.level.ServerChunkCache getChunkSource() {
+         return this.chunkSource;
+     }
+ 
+-    public net.minecraft.world.level.Explosion explode(@javax.annotation.Nullable net.minecraft.world.entity.Entity exploder, @javax.annotation.Nullable net.minecraft.world.damagesource.DamageSource damageSource, @javax.annotation.Nullable net.minecraft.world.level.ExplosionDamageCalculator context, double x, double y, double z, float size, boolean causesFire, net.minecraft.world.level.Explosion$BlockInteraction mode) {
+-        net.minecraft.world.level.Explosion explosion = new net.minecraft.world.level.Explosion((net.minecraft.world.level.Level)this, exploder, damageSource, context, x, y, z, size, causesFire, mode);
+-        explosion.explode();
+-        explosion.finalizeExplosion(false);
+-        if (mode == net.minecraft.world.level.Explosion$BlockInteraction.NONE) {
+-            explosion.clearToBlow();
++    public net.minecraft.world.level.Explosion explode(@javax.annotation.Nullable net.minecraft.world.entity.Entity $$0, @javax.annotation.Nullable net.minecraft.world.damagesource.DamageSource $$1, @javax.annotation.Nullable net.minecraft.world.level.ExplosionDamageCalculator $$2, double $$3, double $$4, double $$5, float $$6, boolean $$7, net.minecraft.world.level.Explosion$BlockInteraction $$8) {
++        net.minecraft.world.level.Explosion $$9 = new net.minecraft.world.level.Explosion((net.minecraft.world.level.Level)this, $$0, $$1, $$2, $$3, $$4, $$5, $$6, $$7, $$8);
++        $$9.explode();
++        $$9.finalizeExplosion(false);
++        if ($$8 == net.minecraft.world.level.Explosion$BlockInteraction.NONE) {
++            $$9.clearToBlow();
+         }
+-        for (net.minecraft.server.level.ServerPlayer serverPlayer : this.players) {
+-            if (!(serverPlayer.distanceToSqr(x, y, z) < 4096.0)) continue;
+-            serverPlayer.connection.send((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ClientboundExplodePacket(x, y, z, size, explosion.getToBlow(), (net.minecraft.world.phys.Vec3)explosion.getHitPlayers().get((java.lang.Object)serverPlayer)));
++        for (net.minecraft.server.level.ServerPlayer $$10 : this.players) {
++            if (!($$10.distanceToSqr($$3, $$4, $$5) < 4096.0)) continue;
++            $$10.connection.send((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ClientboundExplodePacket($$3, $$4, $$5, $$6, $$9.getToBlow(), (net.minecraft.world.phys.Vec3)$$9.getHitPlayers().get((java.lang.Object)$$10)));
+         }
+-        return explosion;
++        return $$9;
+     }
+ 
+-    public void blockEvent(net.minecraft.core.BlockPos pos, net.minecraft.world.level.block.Block block, int eventID, int eventParam) {
+-        this.blockEvents.add((java.lang.Object)new net.minecraft.world.level.BlockEventData(pos, block, eventID, eventParam));
++    public void blockEvent(net.minecraft.core.BlockPos $$0, net.minecraft.world.level.block.Block $$1, int $$2, int $$3) {
++        this.blockEvents.add((java.lang.Object)new net.minecraft.world.level.BlockEventData($$0, $$1, $$2, $$3));
+     }
+ 
+     public void runBlockEvents() {
+@@ -755,10 +710,10 @@
+         this.blockEvents.addAll((java.util.Collection)this.blockEventsToReschedule);
+     }
+ 
+-    public boolean doBlockEvent(net.minecraft.world.level.BlockEventData event) {
+-        net.minecraft.world.level.block.state.BlockState blockState = this.getBlockState(event.pos());
+-        if (blockState.is(event.block())) {
+-            return blockState.triggerEvent((net.minecraft.world.level.Level)this, event.pos(), event.paramA(), event.paramB());
++    public boolean doBlockEvent(net.minecraft.world.level.BlockEventData $$0) {
++        net.minecraft.world.level.block.state.BlockState $$1 = this.getBlockState($$0.pos());
++        if ($$1.is($$0.block())) {
++            return $$1.triggerEvent((net.minecraft.world.level.Level)this, $$0.pos(), $$0.paramA(), $$0.paramB());
+         }
+         return false;
+     }
+@@ -784,37 +739,37 @@
+         return this.server.getStructureManager();
+     }
+ 
+-    public <T extends net.minecraft.core.particles.ParticleOptions> int sendParticles(T type, double posX, double posY, double posZ, int particleCount, double xOffset, double yOffset, double zOffset, double speed) {
+-        net.minecraft.network.protocol.game.ClientboundLevelParticlesPacket clientboundLevelParticlesPacket = new net.minecraft.network.protocol.game.ClientboundLevelParticlesPacket(type, false, posX, posY, posZ, (float)xOffset, (float)yOffset, (float)zOffset, (float)speed, particleCount);
+-        int n = 0;
+-        for (int i = 0; i < this.players.size(); ++i) {
+-            net.minecraft.server.level.ServerPlayer serverPlayer = (net.minecraft.server.level.ServerPlayer)this.players.get(i);
+-            if (!this.sendParticles(serverPlayer, false, posX, posY, posZ, (net.minecraft.network.protocol.Packet)clientboundLevelParticlesPacket)) continue;
+-            ++n;
++    public <T extends net.minecraft.core.particles.ParticleOptions> int sendParticles(T $$0, double $$1, double $$2, double $$3, int $$4, double $$5, double $$6, double $$7, double $$8) {
++        net.minecraft.network.protocol.game.ClientboundLevelParticlesPacket $$9 = new net.minecraft.network.protocol.game.ClientboundLevelParticlesPacket($$0, false, $$1, $$2, $$3, (float)$$5, (float)$$6, (float)$$7, (float)$$8, $$4);
++        int $$10 = 0;
++        for (int $$11 = 0; $$11 < this.players.size(); ++$$11) {
++            net.minecraft.server.level.ServerPlayer $$12 = (net.minecraft.server.level.ServerPlayer)this.players.get($$11);
++            if (!this.sendParticles($$12, false, $$1, $$2, $$3, (net.minecraft.network.protocol.Packet)$$9)) continue;
++            ++$$10;
+         }
+-        return n;
++        return $$10;
+     }
+ 
+-    public <T extends net.minecraft.core.particles.ParticleOptions> boolean sendParticles(net.minecraft.server.level.ServerPlayer player, T type, boolean longDistance, double posX, double posY, double posZ, int particleCount, double xOffset, double yOffset, double zOffset, double speed) {
+-        net.minecraft.network.protocol.game.ClientboundLevelParticlesPacket clientboundLevelParticlesPacket = new net.minecraft.network.protocol.game.ClientboundLevelParticlesPacket(type, longDistance, posX, posY, posZ, (float)xOffset, (float)yOffset, (float)zOffset, (float)speed, particleCount);
+-        return this.sendParticles(player, longDistance, posX, posY, posZ, (net.minecraft.network.protocol.Packet)clientboundLevelParticlesPacket);
++    public <T extends net.minecraft.core.particles.ParticleOptions> boolean sendParticles(net.minecraft.server.level.ServerPlayer $$0, T $$1, boolean $$2, double $$3, double $$4, double $$5, int $$6, double $$7, double $$8, double $$9, double $$10) {
++        net.minecraft.network.protocol.game.ClientboundLevelParticlesPacket $$11 = new net.minecraft.network.protocol.game.ClientboundLevelParticlesPacket($$1, $$2, $$3, $$4, $$5, (float)$$7, (float)$$8, (float)$$9, (float)$$10, $$6);
++        return this.sendParticles($$0, $$2, $$3, $$4, $$5, (net.minecraft.network.protocol.Packet)$$11);
+     }
+ 
+-    public boolean sendParticles(net.minecraft.server.level.ServerPlayer player, boolean longDistance, double posX, double posY, double posZ, net.minecraft.network.protocol.Packet<?> packet) {
+-        if (player.getLevel() != this) {
++    public boolean sendParticles(net.minecraft.server.level.ServerPlayer $$0, boolean $$1, double $$2, double $$3, double $$4, net.minecraft.network.protocol.Packet<?> $$5) {
++        if ($$0.getLevel() != this) {
+             return false;
+         }
+-        net.minecraft.core.BlockPos blockPos = player.blockPosition();
+-        if (blockPos.closerToCenterThan((net.minecraft.core.Position)new net.minecraft.world.phys.Vec3(posX, posY, posZ), longDistance ? 512.0 : 32.0)) {
+-            player.connection.send(packet);
++        net.minecraft.core.BlockPos $$6 = $$0.blockPosition();
++        if ($$6.closerToCenterThan((net.minecraft.core.Position)new net.minecraft.world.phys.Vec3($$2, $$3, $$4), $$1 ? 512.0 : 32.0)) {
++            $$0.connection.send($$5);
+             return true;
+         }
+         return false;
+     }
+ 
+     @javax.annotation.Nullable
+-    public net.minecraft.world.entity.Entity getEntity(int id) {
+-        return (net.minecraft.world.entity.Entity)this.getEntities().get(id);
++    public net.minecraft.world.entity.Entity getEntity(int $$0) {
++        return (net.minecraft.world.entity.Entity)this.getEntities().get($$0);
+     }
+ 
+     @java.lang.Deprecated
+@@ -828,13 +783,13 @@
+     }
+ 
+     @javax.annotation.Nullable
+-    public net.minecraft.world.entity.Entity getEntity(java.util.UUID uniqueId) {
+-        return (net.minecraft.world.entity.Entity)this.getEntities().get(uniqueId);
++    public net.minecraft.world.entity.Entity getEntity(java.util.UUID $$0) {
++        return (net.minecraft.world.entity.Entity)this.getEntities().get($$0);
+     }
+ 
+     @javax.annotation.Nullable
+     public net.minecraft.core.BlockPos findNearestMapStructure(net.minecraft.tags.TagKey<net.minecraft.world.level.levelgen.structure.Structure> $$0, net.minecraft.core.BlockPos $$1, int $$2, boolean $$3) {
+-        if (!this.server.getWorldData().worldGenSettings().generateStructures()) {
++        if (!this.server.getWorldData().worldGenOptions().generateStructures()) {
+             return null;
+         }
+         java.util.Optional $$4 = this.registryAccess().registryOrThrow(net.minecraft.core.Registry.STRUCTURE_REGISTRY).getTag($$0);
+@@ -867,8 +822,8 @@
+     }
+ 
+     @javax.annotation.Nullable
+-    public net.minecraft.world.level.saveddata.maps.MapItemSavedData getMapData(java.lang.String mapName) {
+-        return (net.minecraft.world.level.saveddata.maps.MapItemSavedData)this.getServer().overworld().getDataStorage().get(net.minecraft.world.level.saveddata.maps.MapItemSavedData::load, mapName);
++    public net.minecraft.world.level.saveddata.maps.MapItemSavedData getMapData(java.lang.String $$0) {
++        return (net.minecraft.world.level.saveddata.maps.MapItemSavedData)this.getServer().overworld().getDataStorage().get(net.minecraft.world.level.saveddata.maps.MapItemSavedData::load, $$0);
+     }
+ 
+     public void setMapData(java.lang.String $$0, net.minecraft.world.level.saveddata.maps.MapItemSavedData $$1) {
+@@ -879,12 +834,12 @@
+         return ((net.minecraft.world.level.saveddata.maps.MapIndex)this.getServer().overworld().getDataStorage().computeIfAbsent(net.minecraft.world.level.saveddata.maps.MapIndex::load, net.minecraft.world.level.saveddata.maps.MapIndex::new, "idcounts")).getFreeAuxValueForMap();
+     }
+ 
+-    public void setDefaultSpawnPos(net.minecraft.core.BlockPos pos, float angle) {
+-        net.minecraft.world.level.ChunkPos chunkPos = new net.minecraft.world.level.ChunkPos(new net.minecraft.core.BlockPos(this.levelData.getXSpawn(), 0, this.levelData.getZSpawn()));
+-        this.levelData.setSpawn(pos, angle);
+-        this.getChunkSource().removeRegionTicket(net.minecraft.server.level.TicketType.START, chunkPos, 11, (java.lang.Object)net.minecraft.util.Unit.INSTANCE);
+-        this.getChunkSource().addRegionTicket(net.minecraft.server.level.TicketType.START, new net.minecraft.world.level.ChunkPos(pos), 11, (java.lang.Object)net.minecraft.util.Unit.INSTANCE);
+-        this.getServer().getPlayerList().broadcastAll((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ClientboundSetDefaultSpawnPositionPacket(pos, angle));
++    public void setDefaultSpawnPos(net.minecraft.core.BlockPos $$0, float $$1) {
++        net.minecraft.world.level.ChunkPos $$2 = new net.minecraft.world.level.ChunkPos(new net.minecraft.core.BlockPos(this.levelData.getXSpawn(), 0, this.levelData.getZSpawn()));
++        this.levelData.setSpawn($$0, $$1);
++        this.getChunkSource().removeRegionTicket(net.minecraft.server.level.TicketType.START, $$2, 11, (java.lang.Object)net.minecraft.util.Unit.INSTANCE);
++        this.getChunkSource().addRegionTicket(net.minecraft.server.level.TicketType.START, new net.minecraft.world.level.ChunkPos($$0), 11, (java.lang.Object)net.minecraft.util.Unit.INSTANCE);
++        this.getServer().getPlayerList().broadcastAll((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ClientboundSetDefaultSpawnPositionPacket($$0, $$1));
+     }
+ 
+     public it.unimi.dsi.fastutil.longs.LongSet getForcedChunks() {
+@@ -892,44 +847,44 @@
+         return $$0 != null ? it.unimi.dsi.fastutil.longs.LongSets.unmodifiable((it.unimi.dsi.fastutil.longs.LongSet)$$0.getChunks()) : it.unimi.dsi.fastutil.longs.LongSets.EMPTY_SET;
+     }
+ 
+-    public boolean setChunkForced(int chunkX, int chunkZ, boolean add) {
+-        boolean bl;
+-        net.minecraft.world.level.ForcedChunksSavedData forcedChunksSavedData = (net.minecraft.world.level.ForcedChunksSavedData)this.getDataStorage().computeIfAbsent(net.minecraft.world.level.ForcedChunksSavedData::load, net.minecraft.world.level.ForcedChunksSavedData::new, "chunks");
+-        net.minecraft.world.level.ChunkPos chunkPos = new net.minecraft.world.level.ChunkPos(chunkX, chunkZ);
+-        long l = chunkPos.toLong();
+-        if (add) {
+-            bl = forcedChunksSavedData.getChunks().add(l);
+-            if (bl) {
+-                this.getChunk(chunkX, chunkZ);
++    public boolean setChunkForced(int $$0, int $$1, boolean $$2) {
++        boolean $$7;
++        net.minecraft.world.level.ForcedChunksSavedData $$3 = (net.minecraft.world.level.ForcedChunksSavedData)this.getDataStorage().computeIfAbsent(net.minecraft.world.level.ForcedChunksSavedData::load, net.minecraft.world.level.ForcedChunksSavedData::new, "chunks");
++        net.minecraft.world.level.ChunkPos $$4 = new net.minecraft.world.level.ChunkPos($$0, $$1);
++        long $$5 = $$4.toLong();
++        if ($$2) {
++            boolean $$6 = $$3.getChunks().add($$5);
++            if ($$6) {
++                this.getChunk($$0, $$1);
+             }
+         } else {
+-            bl = forcedChunksSavedData.getChunks().remove(l);
++            $$7 = $$3.getChunks().remove($$5);
+         }
+-        forcedChunksSavedData.setDirty(bl);
+-        if (bl) {
+-            this.getChunkSource().updateChunkForced(chunkPos, add);
++        $$3.setDirty($$7);
++        if ($$7) {
++            this.getChunkSource().updateChunkForced($$4, $$2);
+         }
+-        return bl;
++        return $$7;
+     }
+ 
+     public java.util.List<net.minecraft.server.level.ServerPlayer> players() {
+         return this.players;
+     }
+ 
+-    public void onBlockStateChange(net.minecraft.core.BlockPos pos, net.minecraft.world.level.block.state.BlockState blockState, net.minecraft.world.level.block.state.BlockState newState) {
+-        java.util.Optional optional;
+-        java.util.Optional optional2 = net.minecraft.world.entity.ai.village.poi.PoiTypes.forState((net.minecraft.world.level.block.state.BlockState)blockState);
+-        if (java.util.Objects.equals((java.lang.Object)optional2, (java.lang.Object)(optional = net.minecraft.world.entity.ai.village.poi.PoiTypes.forState((net.minecraft.world.level.block.state.BlockState)newState)))) {
++    public void onBlockStateChange(net.minecraft.core.BlockPos $$0, net.minecraft.world.level.block.state.BlockState $$12, net.minecraft.world.level.block.state.BlockState $$2) {
++        java.util.Optional $$4;
++        java.util.Optional $$3 = net.minecraft.world.entity.ai.village.poi.PoiTypes.forState((net.minecraft.world.level.block.state.BlockState)$$12);
++        if (java.util.Objects.equals((java.lang.Object)$$3, (java.lang.Object)($$4 = net.minecraft.world.entity.ai.village.poi.PoiTypes.forState((net.minecraft.world.level.block.state.BlockState)$$2)))) {
+             return;
+         }
+-        net.minecraft.core.BlockPos blockPos = pos.immutable();
+-        optional2.ifPresent($$1 -> this.getServer().execute(() -> {
+-            this.getPoiManager().remove(blockPos);
+-            net.minecraft.network.protocol.game.DebugPackets.sendPoiRemovedPacket((net.minecraft.server.level.ServerLevel)this, (net.minecraft.core.BlockPos)blockPos);
++        net.minecraft.core.BlockPos $$5 = $$0.immutable();
++        $$3.ifPresent($$1 -> this.getServer().execute(() -> {
++            this.getPoiManager().remove($$5);
++            net.minecraft.network.protocol.game.DebugPackets.sendPoiRemovedPacket((net.minecraft.server.level.ServerLevel)this, (net.minecraft.core.BlockPos)$$5);
+         }));
+-        optional.ifPresent($$1 -> this.getServer().execute(() -> {
+-            this.getPoiManager().add(blockPos, $$1);
+-            net.minecraft.network.protocol.game.DebugPackets.sendPoiAddedPacket((net.minecraft.server.level.ServerLevel)this, (net.minecraft.core.BlockPos)blockPos);
++        $$4.ifPresent($$1 -> this.getServer().execute(() -> {
++            this.getPoiManager().add($$5, $$1);
++            net.minecraft.network.protocol.game.DebugPackets.sendPoiAddedPacket((net.minecraft.server.level.ServerLevel)this, (net.minecraft.core.BlockPos)$$5);
+         }));
+     }
+ 
+@@ -937,23 +892,23 @@
+         return this.getChunkSource().getPoiManager();
+     }
+ 
+-    public boolean isVillage(net.minecraft.core.BlockPos pos) {
+-        return this.isCloseToVillage(pos, 1);
++    public boolean isVillage(net.minecraft.core.BlockPos $$0) {
++        return this.isCloseToVillage($$0, 1);
+     }
+ 
+-    public boolean isVillage(net.minecraft.core.SectionPos pos) {
+-        return this.isVillage(pos.center());
++    public boolean isVillage(net.minecraft.core.SectionPos $$0) {
++        return this.isVillage($$0.center());
+     }
+ 
+-    public boolean isCloseToVillage(net.minecraft.core.BlockPos pos, int sections) {
+-        if (sections > 6) {
++    public boolean isCloseToVillage(net.minecraft.core.BlockPos $$0, int $$1) {
++        if ($$1 > 6) {
+             return false;
+         }
+-        return this.sectionsToVillage(net.minecraft.core.SectionPos.of((net.minecraft.core.BlockPos)pos)) <= sections;
++        return this.sectionsToVillage(net.minecraft.core.SectionPos.of((net.minecraft.core.BlockPos)$$0)) <= $$1;
+     }
+ 
+-    public int sectionsToVillage(net.minecraft.core.SectionPos pos) {
+-        return this.getPoiManager().sectionsToVillage(pos);
++    public int sectionsToVillage(net.minecraft.core.SectionPos $$0) {
++        return this.getPoiManager().sectionsToVillage($$0);
+     }
+ 
+     public net.minecraft.world.entity.raid.Raids getRaids() {
+@@ -961,82 +916,70 @@
+     }
+ 
+     @javax.annotation.Nullable
+-    public net.minecraft.world.entity.raid.Raid getRaidAt(net.minecraft.core.BlockPos pos) {
+-        return this.raids.getNearbyRaid(pos, 9216);
++    public net.minecraft.world.entity.raid.Raid getRaidAt(net.minecraft.core.BlockPos $$0) {
++        return this.raids.getNearbyRaid($$0, 9216);
+     }
+ 
+-    public boolean isRaided(net.minecraft.core.BlockPos pos) {
+-        return this.getRaidAt(pos) != null;
++    public boolean isRaided(net.minecraft.core.BlockPos $$0) {
++        return this.getRaidAt($$0) != null;
+     }
+ 
+-    public void onReputationEvent(net.minecraft.world.entity.ai.village.ReputationEventType type, net.minecraft.world.entity.Entity target, net.minecraft.world.entity.ReputationEventHandler host) {
+-        host.onReputationEventFrom(type, target);
++    public void onReputationEvent(net.minecraft.world.entity.ai.village.ReputationEventType $$0, net.minecraft.world.entity.Entity $$1, net.minecraft.world.entity.ReputationEventHandler $$2) {
++        $$2.onReputationEventFrom($$0, $$1);
+     }
+ 
+-    public void saveDebugReport(java.nio.file.Path path) throws java.io.IOException {
+-        it.unimi.dsi.fastutil.objects.Object2IntMap$Entry entry2;
+-        net.minecraft.world.level.NaturalSpawner$SpawnState spawnState;
+-        net.minecraft.server.level.ChunkMap chunkMap = this.getChunkSource().chunkMap;
+-        try (java.io.BufferedWriter bufferedWriter = java.nio.file.Files.newBufferedWriter((java.nio.file.Path)path.resolve("stats.txt"), (java.nio.file.OpenOption[])new java.nio.file.OpenOption[0]);
++    public void saveDebugReport(java.nio.file.Path $$0) throws java.io.IOException {
++        net.minecraft.server.level.ChunkMap $$1 = this.getChunkSource().chunkMap;
++        try (java.io.BufferedWriter $$2 = java.nio.file.Files.newBufferedWriter((java.nio.file.Path)$$0.resolve("stats.txt"), (java.nio.file.OpenOption[])new java.nio.file.OpenOption[0]);
+ ){
+-            bufferedWriter.write(java.lang.String.format((java.util.Locale)java.util.Locale.ROOT, (java.lang.String)"spawning_chunks: %d\n", (java.lang.Object[])new java.lang.Object[]{chunkMap.getDistanceManager().getNaturalSpawnChunkCount()}));
+-            spawnState = this.getChunkSource().getLastSpawnState();
+-            if (spawnState != null) {
+-                for (it.unimi.dsi.fastutil.objects.Object2IntMap$Entry entry2 : spawnState.getMobCategoryCounts().object2IntEntrySet()) {
+-                    bufferedWriter.write(java.lang.String.format((java.util.Locale)java.util.Locale.ROOT, (java.lang.String)"spawn_count.%s: %d\n", (java.lang.Object[])new java.lang.Object[]{((net.minecraft.world.entity.MobCategory)entry2.getKey()).getName(), entry2.getIntValue()}));
++            $$2.write(java.lang.String.format((java.util.Locale)java.util.Locale.ROOT, (java.lang.String)"spawning_chunks: %d\n", (java.lang.Object[])new java.lang.Object[]{$$1.getDistanceManager().getNaturalSpawnChunkCount()}));
++            net.minecraft.world.level.NaturalSpawner$SpawnState $$3 = this.getChunkSource().getLastSpawnState();
++            if ($$3 != null) {
++                for (it.unimi.dsi.fastutil.objects.Object2IntMap$Entry $$4 : $$3.getMobCategoryCounts().object2IntEntrySet()) {
++                    $$2.write(java.lang.String.format((java.util.Locale)java.util.Locale.ROOT, (java.lang.String)"spawn_count.%s: %d\n", (java.lang.Object[])new java.lang.Object[]{((net.minecraft.world.entity.MobCategory)$$4.getKey()).getName(), $$4.getIntValue()}));
+                 }
+             }
+-            bufferedWriter.write(java.lang.String.format((java.util.Locale)java.util.Locale.ROOT, (java.lang.String)"entities: %s\n", (java.lang.Object[])new java.lang.Object[]{this.entityManager.gatherStats()}));
+-            bufferedWriter.write(java.lang.String.format((java.util.Locale)java.util.Locale.ROOT, (java.lang.String)"block_entity_tickers: %d\n", (java.lang.Object[])new java.lang.Object[]{this.blockEntityTickers.size()}));
+-            bufferedWriter.write(java.lang.String.format((java.util.Locale)java.util.Locale.ROOT, (java.lang.String)"block_ticks: %d\n", (java.lang.Object[])new java.lang.Object[]{this.getBlockTicks().count()}));
+-            bufferedWriter.write(java.lang.String.format((java.util.Locale)java.util.Locale.ROOT, (java.lang.String)"fluid_ticks: %d\n", (java.lang.Object[])new java.lang.Object[]{this.getFluidTicks().count()}));
+-            bufferedWriter.write("distance_manager: " + chunkMap.getDistanceManager().getDebugStatus() + "\n");
+-            bufferedWriter.write(java.lang.String.format((java.util.Locale)java.util.Locale.ROOT, (java.lang.String)"pending_tasks: %d\n", (java.lang.Object[])new java.lang.Object[]{this.getChunkSource().getPendingTasksCount()}));
++            $$2.write(java.lang.String.format((java.util.Locale)java.util.Locale.ROOT, (java.lang.String)"entities: %s\n", (java.lang.Object[])new java.lang.Object[]{this.entityManager.gatherStats()}));
++            $$2.write(java.lang.String.format((java.util.Locale)java.util.Locale.ROOT, (java.lang.String)"block_entity_tickers: %d\n", (java.lang.Object[])new java.lang.Object[]{this.blockEntityTickers.size()}));
++            $$2.write(java.lang.String.format((java.util.Locale)java.util.Locale.ROOT, (java.lang.String)"block_ticks: %d\n", (java.lang.Object[])new java.lang.Object[]{this.getBlockTicks().count()}));
++            $$2.write(java.lang.String.format((java.util.Locale)java.util.Locale.ROOT, (java.lang.String)"fluid_ticks: %d\n", (java.lang.Object[])new java.lang.Object[]{this.getFluidTicks().count()}));
++            $$2.write("distance_manager: " + $$1.getDistanceManager().getDebugStatus() + "\n");
++            $$2.write(java.lang.String.format((java.util.Locale)java.util.Locale.ROOT, (java.lang.String)"pending_tasks: %d\n", (java.lang.Object[])new java.lang.Object[]{this.getChunkSource().getPendingTasksCount()}));
+         }
+-        bufferedWriter = new net.minecraft.CrashReport("Level dump", (java.lang.Throwable)new java.lang.Exception("dummy"));
+-        this.fillReportDetails((net.minecraft.CrashReport)bufferedWriter);
+-        spawnState = java.nio.file.Files.newBufferedWriter((java.nio.file.Path)path.resolve("example_crash.txt"), (java.nio.file.OpenOption[])new java.nio.file.OpenOption[0]);
+-        try {
+-            spawnState.write(bufferedWriter.getFriendlyReport());
++        net.minecraft.CrashReport $$5 = new net.minecraft.CrashReport("Level dump", (java.lang.Throwable)new java.lang.Exception("dummy"));
++        this.fillReportDetails($$5);
++        try (java.io.BufferedWriter $$6 = java.nio.file.Files.newBufferedWriter((java.nio.file.Path)$$0.resolve("example_crash.txt"), (java.nio.file.OpenOption[])new java.nio.file.OpenOption[0]);
++){
++            $$6.write($$5.getFriendlyReport());
+         }
+-        finally {
+-            if (spawnState != null) {
+-                spawnState.close();
+-            }
++        java.nio.file.Path $$7 = $$0.resolve("chunks.csv");
++        try (java.io.BufferedWriter $$8 = java.nio.file.Files.newBufferedWriter((java.nio.file.Path)$$7, (java.nio.file.OpenOption[])new java.nio.file.OpenOption[0]);
++){
++            $$1.dumpChunks((java.io.Writer)$$8);
+         }
+-        spawnState = path.resolve("chunks.csv");
+-        try (it.unimi.dsi.fastutil.objects.ObjectIterator objectIterator = java.nio.file.Files.newBufferedWriter((java.nio.file.Path)spawnState, (java.nio.file.OpenOption[])new java.nio.file.OpenOption[0]);
++        java.nio.file.Path $$9 = $$0.resolve("entity_chunks.csv");
++        try (java.io.BufferedWriter $$10 = java.nio.file.Files.newBufferedWriter((java.nio.file.Path)$$9, (java.nio.file.OpenOption[])new java.nio.file.OpenOption[0]);
+ ){
+-            chunkMap.dumpChunks((java.io.Writer)objectIterator);
++            this.entityManager.dumpSections((java.io.Writer)$$10);
+         }
+-        objectIterator = path.resolve("entity_chunks.csv");
+-        entry2 = java.nio.file.Files.newBufferedWriter((java.nio.file.Path)objectIterator, (java.nio.file.OpenOption[])new java.nio.file.OpenOption[0]);
+-        try {
+-            this.entityManager.dumpSections((java.io.Writer)entry2);
+-        }
+-        finally {
+-            if (entry2 != null) {
+-                entry2.close();
+-            }
+-        }
+-        entry2 = path.resolve("entities.csv");
+-        try (java.io.BufferedWriter bufferedWriter = java.nio.file.Files.newBufferedWriter((java.nio.file.Path)entry2, (java.nio.file.OpenOption[])new java.nio.file.OpenOption[0]);
++        java.nio.file.Path $$11 = $$0.resolve("entities.csv");
++        try (java.io.BufferedWriter $$12 = java.nio.file.Files.newBufferedWriter((java.nio.file.Path)$$11, (java.nio.file.OpenOption[])new java.nio.file.OpenOption[0]);
+ ){
+-            net.minecraft.server.level.ServerLevel.dumpEntities((java.io.Writer)bufferedWriter, (java.lang.Iterable)this.getEntities().getAll());
++            net.minecraft.server.level.ServerLevel.dumpEntities((java.io.Writer)$$12, (java.lang.Iterable)this.getEntities().getAll());
+         }
+-        bufferedWriter = path.resolve("block_entities.csv");
+-        try (java.io.BufferedWriter bufferedWriter = java.nio.file.Files.newBufferedWriter((java.nio.file.Path)bufferedWriter, (java.nio.file.OpenOption[])new java.nio.file.OpenOption[0]);
++        java.nio.file.Path $$13 = $$0.resolve("block_entities.csv");
++        try (java.io.BufferedWriter $$14 = java.nio.file.Files.newBufferedWriter((java.nio.file.Path)$$13, (java.nio.file.OpenOption[])new java.nio.file.OpenOption[0]);
+ ){
+-            this.dumpBlockEntityTickers((java.io.Writer)bufferedWriter);
++            this.dumpBlockEntityTickers((java.io.Writer)$$14);
+         }
+     }
+ 
+-    public static void dumpEntities(java.io.Writer writer, java.lang.Iterable<net.minecraft.world.entity.Entity> entities) throws java.io.IOException {
+-        net.minecraft.util.CsvOutput csvOutput = net.minecraft.util.CsvOutput.builder().addColumn("x").addColumn("y").addColumn("z").addColumn("uuid").addColumn("type").addColumn("alive").addColumn("display_name").addColumn("custom_name").build(writer);
+-        for (net.minecraft.world.entity.Entity entity : entities) {
+-            net.minecraft.network.chat.Component component = entity.getCustomName();
+-            net.minecraft.network.chat.Component component2 = entity.getDisplayName();
+-            csvOutput.writeRow(new java.lang.Object[]{entity.getX(), entity.getY(), entity.getZ(), entity.getUUID(), net.minecraft.core.Registry.ENTITY_TYPE.getKey((java.lang.Object)entity.getType()), entity.isAlive(), component2.getString(), component != null ? component.getString() : null});
++    public static void dumpEntities(java.io.Writer $$0, java.lang.Iterable<net.minecraft.world.entity.Entity> $$1) throws java.io.IOException {
++        net.minecraft.util.CsvOutput $$2 = net.minecraft.util.CsvOutput.builder().addColumn("x").addColumn("y").addColumn("z").addColumn("uuid").addColumn("type").addColumn("alive").addColumn("display_name").addColumn("custom_name").build($$0);
++        for (net.minecraft.world.entity.Entity $$3 : $$1) {
++            net.minecraft.network.chat.Component $$4 = $$3.getCustomName();
++            net.minecraft.network.chat.Component $$5 = $$3.getDisplayName();
++            $$2.writeRow(new java.lang.Object[]{$$3.getX(), $$3.getY(), $$3.getZ(), $$3.getUUID(), net.minecraft.core.Registry.ENTITY_TYPE.getKey((java.lang.Object)$$3.getType()), $$3.isAlive(), $$5.getString(), $$4 != null ? $$4.getString() : null});
+         }
+     }
+ 
+@@ -1049,17 +992,17 @@
+     }
+ 
+     @com.google.common.annotations.VisibleForTesting
+-    public void clearBlockEvents(net.minecraft.world.level.levelgen.structure.BoundingBox boundingBox) {
+-        this.blockEvents.removeIf($$1 -> boundingBox.isInside((net.minecraft.core.Vec3i)$$1.pos()));
++    public void clearBlockEvents(net.minecraft.world.level.levelgen.structure.BoundingBox $$0) {
++        this.blockEvents.removeIf($$1 -> $$0.isInside((net.minecraft.core.Vec3i)$$1.pos()));
+     }
+ 
+-    public void blockUpdated(net.minecraft.core.BlockPos pos, net.minecraft.world.level.block.Block block) {
++    public void blockUpdated(net.minecraft.core.BlockPos $$0, net.minecraft.world.level.block.Block $$1) {
+         if (!this.isDebug()) {
+-            this.updateNeighborsAt(pos, block);
++            this.updateNeighborsAt($$0, $$1);
+         }
+     }
+ 
+-    public float getShade(net.minecraft.core.Direction direction, boolean isShade) {
++    public float getShade(net.minecraft.core.Direction $$0, boolean $$1) {
+         return 1.0f;
+     }
+ 
+@@ -1072,11 +1015,11 @@
+     }
+ 
+     public boolean isFlat() {
+-        return this.server.getWorldData().worldGenSettings().isFlatWorld();
++        return this.server.getWorldData().isFlatWorld();
+     }
+ 
+     public long getSeed() {
+-        return this.server.getWorldData().worldGenSettings().seed();
++        return this.server.getWorldData().worldGenOptions().seed();
+     }
+ 
+     @javax.annotation.Nullable
+@@ -1107,13 +1050,13 @@
+         }
+     }
+ 
+-    public static void makeObsidianPlatform(net.minecraft.server.level.ServerLevel serverLevel) {
+-        net.minecraft.core.BlockPos blockPos = END_SPAWN_POINT;
+-        int n = blockPos.getX();
+-        int n2 = blockPos.getY() - 2;
+-        int n3 = blockPos.getZ();
+-        net.minecraft.core.BlockPos.betweenClosed((int)(n - 2), (int)(n2 + 1), (int)(n3 - 2), (int)(n + 2), (int)(n2 + 3), (int)(n3 + 2)).forEach($$1 -> serverLevel.setBlockAndUpdate($$1, net.minecraft.world.level.block.Blocks.AIR.defaultBlockState()));
+-        net.minecraft.core.BlockPos.betweenClosed((int)(n - 2), (int)n2, (int)(n3 - 2), (int)(n + 2), (int)n2, (int)(n3 + 2)).forEach($$1 -> serverLevel.setBlockAndUpdate($$1, net.minecraft.world.level.block.Blocks.OBSIDIAN.defaultBlockState()));
++    public static void makeObsidianPlatform(net.minecraft.server.level.ServerLevel $$0) {
++        net.minecraft.core.BlockPos $$12 = END_SPAWN_POINT;
++        int $$2 = $$12.getX();
++        int $$3 = $$12.getY() - 2;
++        int $$4 = $$12.getZ();
++        net.minecraft.core.BlockPos.betweenClosed((int)($$2 - 2), (int)($$3 + 1), (int)($$4 - 2), (int)($$2 + 2), (int)($$3 + 3), (int)($$4 + 2)).forEach($$1 -> $$0.setBlockAndUpdate($$1, net.minecraft.world.level.block.Blocks.AIR.defaultBlockState()));
++        net.minecraft.core.BlockPos.betweenClosed((int)($$2 - 2), (int)$$3, (int)($$4 - 2), (int)($$2 + 2), (int)$$3, (int)($$4 + 2)).forEach($$1 -> $$0.setBlockAndUpdate($$1, net.minecraft.world.level.block.Blocks.OBSIDIAN.defaultBlockState()));
+     }
+ 
+     public net.minecraft.world.level.entity.LevelEntityGetter<net.minecraft.world.entity.Entity> getEntities() {
+@@ -1165,6 +1108,10 @@
+         return this.entityManager.canPositionTick($$0);
+     }
+ 
++    public net.minecraft.world.flag.FeatureFlagSet enabledFeatures() {
++        return this.server.getWorldData().enabledFeatures();
++    }
++
+     public /* synthetic */ net.minecraft.world.scores.Scoreboard getScoreboard() {
+         return this.getScoreboard();
+     }
+@@ -1181,10 +1128,6 @@
+         return this.getBlockTicks();
+     }
+ 
+-    public /* synthetic */ void lambda$gameEvent$12(java.util.List $$0, net.minecraft.world.level.gameevent.GameEvent $$1, net.minecraft.world.phys.Vec3 $$2, net.minecraft.world.level.gameevent.GameEvent$Context $$3, net.minecraft.world.level.gameevent.GameEventListener $$4, net.minecraft.world.phys.Vec3 $$5) {
+-        ($$4.handleEventsImmediately() ? $$0 : this.gameEventMessages).add((java.lang.Object)new net.minecraft.world.level.gameevent.GameEvent$Message($$1, $$2, $$3, $$4, $$5));
+-    }
+-
+     public static /* synthetic */ void lambda$getEntities$11(java.util.function.Predicate $$0, java.util.List $$1, net.minecraft.world.entity.Entity $$2) {
+         if ($$0.test((java.lang.Object)$$2)) {
+             $$1.add((java.lang.Object)$$2);

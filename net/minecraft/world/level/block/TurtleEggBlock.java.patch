@@ -1,0 +1,131 @@
+--- net/minecraft/world/level/block/TurtleEggBlock.java
++++ net/minecraft/world/level/block/TurtleEggBlock.java
+@@ -42,15 +42,15 @@
+         }
+     }
+ 
+-    public void decreaseEggs(net.minecraft.world.level.Level level, net.minecraft.core.BlockPos pos, net.minecraft.world.level.block.state.BlockState state) {
+-        level.playSound(null, pos, net.minecraft.sounds.SoundEvents.TURTLE_EGG_BREAK, net.minecraft.sounds.SoundSource.BLOCKS, 0.7f, 0.9f + level.random.nextFloat() * 0.2f);
+-        int n = (java.lang.Integer)state.getValue((net.minecraft.world.level.block.state.properties.Property)EGGS);
+-        if (n <= 1) {
+-            level.destroyBlock(pos, false);
++    public void decreaseEggs(net.minecraft.world.level.Level $$0, net.minecraft.core.BlockPos $$1, net.minecraft.world.level.block.state.BlockState $$2) {
++        $$0.playSound(null, $$1, net.minecraft.sounds.SoundEvents.TURTLE_EGG_BREAK, net.minecraft.sounds.SoundSource.BLOCKS, 0.7f, 0.9f + $$0.random.nextFloat() * 0.2f);
++        int $$3 = (java.lang.Integer)$$2.getValue((net.minecraft.world.level.block.state.properties.Property)EGGS);
++        if ($$3 <= 1) {
++            $$0.destroyBlock($$1, false);
+         } else {
+-            level.setBlock(pos, (net.minecraft.world.level.block.state.BlockState)state.setValue((net.minecraft.world.level.block.state.properties.Property)EGGS, (java.lang.Comparable)java.lang.Integer.valueOf((int)(n - 1))), 2);
+-            level.gameEvent(net.minecraft.world.level.gameevent.GameEvent.BLOCK_DESTROY, pos, net.minecraft.world.level.gameevent.GameEvent$Context.of((net.minecraft.world.level.block.state.BlockState)state));
+-            level.levelEvent(2001, pos, net.minecraft.world.level.block.Block.getId((net.minecraft.world.level.block.state.BlockState)state));
++            $$0.setBlock($$1, (net.minecraft.world.level.block.state.BlockState)$$2.setValue((net.minecraft.world.level.block.state.properties.Property)EGGS, (java.lang.Comparable)java.lang.Integer.valueOf((int)($$3 - 1))), 2);
++            $$0.gameEvent(net.minecraft.world.level.gameevent.GameEvent.BLOCK_DESTROY, $$1, net.minecraft.world.level.gameevent.GameEvent$Context.of((net.minecraft.world.level.block.state.BlockState)$$2));
++            $$0.levelEvent(2001, $$1, net.minecraft.world.level.block.Block.getId((net.minecraft.world.level.block.state.BlockState)$$2));
+         }
+     }
+ 
+@@ -66,6 +66,7 @@
+                 for (int $$5 = 0; $$5 < (java.lang.Integer)$$0.getValue((net.minecraft.world.level.block.state.properties.Property)EGGS); ++$$5) {
+                     $$1.levelEvent(2001, $$2, net.minecraft.world.level.block.Block.getId((net.minecraft.world.level.block.state.BlockState)$$0));
+                     net.minecraft.world.entity.animal.Turtle $$6 = (net.minecraft.world.entity.animal.Turtle)net.minecraft.world.entity.EntityType.TURTLE.create((net.minecraft.world.level.Level)$$1);
++                    if ($$6 == null) continue;
+                     $$6.setAge(-24000);
+                     $$6.setHomePos($$2);
+                     $$6.moveTo((double)$$2.getX() + 0.3 + (double)$$5 * 0.2, (double)$$2.getY(), (double)$$2.getZ() + 0.3, 0.0f, 0.0f);
+@@ -75,66 +76,66 @@
+         }
+     }
+ 
+-    public static boolean onSand(net.minecraft.world.level.BlockGetter reader, net.minecraft.core.BlockPos pos) {
+-        return net.minecraft.world.level.block.TurtleEggBlock.isSand((net.minecraft.world.level.BlockGetter)reader, (net.minecraft.core.BlockPos)pos.below());
++    public static boolean onSand(net.minecraft.world.level.BlockGetter $$0, net.minecraft.core.BlockPos $$1) {
++        return net.minecraft.world.level.block.TurtleEggBlock.isSand((net.minecraft.world.level.BlockGetter)$$0, (net.minecraft.core.BlockPos)$$1.below());
+     }
+ 
+-    public static boolean isSand(net.minecraft.world.level.BlockGetter reader, net.minecraft.core.BlockPos pos) {
+-        return reader.getBlockState(pos).is(net.minecraft.tags.BlockTags.SAND);
++    public static boolean isSand(net.minecraft.world.level.BlockGetter $$0, net.minecraft.core.BlockPos $$1) {
++        return $$0.getBlockState($$1).is(net.minecraft.tags.BlockTags.SAND);
+     }
+ 
+-    public void onPlace(net.minecraft.world.level.block.state.BlockState state, net.minecraft.world.level.Level level, net.minecraft.core.BlockPos pos, net.minecraft.world.level.block.state.BlockState oldState, boolean isMoving) {
+-        if (net.minecraft.world.level.block.TurtleEggBlock.onSand((net.minecraft.world.level.BlockGetter)level, (net.minecraft.core.BlockPos)pos) && !level.isClientSide) {
+-            level.levelEvent(2005, pos, 0);
++    public void onPlace(net.minecraft.world.level.block.state.BlockState $$0, net.minecraft.world.level.Level $$1, net.minecraft.core.BlockPos $$2, net.minecraft.world.level.block.state.BlockState $$3, boolean $$4) {
++        if (net.minecraft.world.level.block.TurtleEggBlock.onSand((net.minecraft.world.level.BlockGetter)$$1, (net.minecraft.core.BlockPos)$$2) && !$$1.isClientSide) {
++            $$1.levelEvent(2005, $$2, 0);
+         }
+     }
+ 
+-    public boolean shouldUpdateHatchLevel(net.minecraft.world.level.Level level) {
+-        float f = level.getTimeOfDay(1.0f);
+-        if ((double)f < 0.69 && (double)f > 0.65) {
++    public boolean shouldUpdateHatchLevel(net.minecraft.world.level.Level $$0) {
++        float $$1 = $$0.getTimeOfDay(1.0f);
++        if ((double)$$1 < 0.69 && (double)$$1 > 0.65) {
+             return true;
+         }
+-        return level.random.nextInt(500) == 0;
++        return $$0.random.nextInt(500) == 0;
+     }
+ 
+-    public void playerDestroy(net.minecraft.world.level.Level level, net.minecraft.world.entity.player.Player player, net.minecraft.core.BlockPos pos, net.minecraft.world.level.block.state.BlockState state, @javax.annotation.Nullable net.minecraft.world.level.block.entity.BlockEntity te, net.minecraft.world.item.ItemStack stack) {
+-        super.playerDestroy(level, player, pos, state, te, stack);
+-        this.decreaseEggs(level, pos, state);
++    public void playerDestroy(net.minecraft.world.level.Level $$0, net.minecraft.world.entity.player.Player $$1, net.minecraft.core.BlockPos $$2, net.minecraft.world.level.block.state.BlockState $$3, @javax.annotation.Nullable net.minecraft.world.level.block.entity.BlockEntity $$4, net.minecraft.world.item.ItemStack $$5) {
++        super.playerDestroy($$0, $$1, $$2, $$3, $$4, $$5);
++        this.decreaseEggs($$0, $$2, $$3);
+     }
+ 
+-    public boolean canBeReplaced(net.minecraft.world.level.block.state.BlockState state, net.minecraft.world.item.context.BlockPlaceContext useContext) {
+-        if (!useContext.isSecondaryUseActive() && useContext.getItemInHand().is(this.asItem()) && (java.lang.Integer)state.getValue((net.minecraft.world.level.block.state.properties.Property)EGGS) < 4) {
++    public boolean canBeReplaced(net.minecraft.world.level.block.state.BlockState $$0, net.minecraft.world.item.context.BlockPlaceContext $$1) {
++        if (!$$1.isSecondaryUseActive() && $$1.getItemInHand().is(this.asItem()) && (java.lang.Integer)$$0.getValue((net.minecraft.world.level.block.state.properties.Property)EGGS) < 4) {
+             return true;
+         }
+-        return super.canBeReplaced(state, useContext);
++        return super.canBeReplaced($$0, $$1);
+     }
+ 
+     @javax.annotation.Nullable
+-    public net.minecraft.world.level.block.state.BlockState getStateForPlacement(net.minecraft.world.item.context.BlockPlaceContext context) {
+-        net.minecraft.world.level.block.state.BlockState blockState = context.getLevel().getBlockState(context.getClickedPos());
+-        if (blockState.is((net.minecraft.world.level.block.Block)this)) {
+-            return (net.minecraft.world.level.block.state.BlockState)blockState.setValue((net.minecraft.world.level.block.state.properties.Property)EGGS, (java.lang.Comparable)java.lang.Integer.valueOf((int)java.lang.Math.min((int)4, (int)((java.lang.Integer)blockState.getValue((net.minecraft.world.level.block.state.properties.Property)EGGS) + 1))));
++    public net.minecraft.world.level.block.state.BlockState getStateForPlacement(net.minecraft.world.item.context.BlockPlaceContext $$0) {
++        net.minecraft.world.level.block.state.BlockState $$1 = $$0.getLevel().getBlockState($$0.getClickedPos());
++        if ($$1.is((net.minecraft.world.level.block.Block)this)) {
++            return (net.minecraft.world.level.block.state.BlockState)$$1.setValue((net.minecraft.world.level.block.state.properties.Property)EGGS, (java.lang.Comparable)java.lang.Integer.valueOf((int)java.lang.Math.min((int)4, (int)((java.lang.Integer)$$1.getValue((net.minecraft.world.level.block.state.properties.Property)EGGS) + 1))));
+         }
+-        return super.getStateForPlacement(context);
++        return super.getStateForPlacement($$0);
+     }
+ 
+-    public net.minecraft.world.phys.shapes.VoxelShape getShape(net.minecraft.world.level.block.state.BlockState state, net.minecraft.world.level.BlockGetter level, net.minecraft.core.BlockPos pos, net.minecraft.world.phys.shapes.CollisionContext context) {
+-        if ((java.lang.Integer)state.getValue((net.minecraft.world.level.block.state.properties.Property)EGGS) > 1) {
++    public net.minecraft.world.phys.shapes.VoxelShape getShape(net.minecraft.world.level.block.state.BlockState $$0, net.minecraft.world.level.BlockGetter $$1, net.minecraft.core.BlockPos $$2, net.minecraft.world.phys.shapes.CollisionContext $$3) {
++        if ((java.lang.Integer)$$0.getValue((net.minecraft.world.level.block.state.properties.Property)EGGS) > 1) {
+             return MULTIPLE_EGGS_AABB;
+         }
+         return ONE_EGG_AABB;
+     }
+ 
+-    public void createBlockStateDefinition(net.minecraft.world.level.block.state.StateDefinition$Builder<net.minecraft.world.level.block.Block, net.minecraft.world.level.block.state.BlockState> builder) {
+-        builder.add(new net.minecraft.world.level.block.state.properties.Property[]{HATCH, EGGS});
++    public void createBlockStateDefinition(net.minecraft.world.level.block.state.StateDefinition$Builder<net.minecraft.world.level.block.Block, net.minecraft.world.level.block.state.BlockState> $$0) {
++        $$0.add(new net.minecraft.world.level.block.state.properties.Property[]{HATCH, EGGS});
+     }
+ 
+-    public boolean canDestroyEgg(net.minecraft.world.level.Level level, net.minecraft.world.entity.Entity entity) {
+-        if (entity instanceof net.minecraft.world.entity.animal.Turtle || entity instanceof net.minecraft.world.entity.ambient.Bat) {
++    public boolean canDestroyEgg(net.minecraft.world.level.Level $$0, net.minecraft.world.entity.Entity $$1) {
++        if ($$1 instanceof net.minecraft.world.entity.animal.Turtle || $$1 instanceof net.minecraft.world.entity.ambient.Bat) {
+             return false;
+         }
+-        if (entity instanceof net.minecraft.world.entity.LivingEntity) {
+-            return entity instanceof net.minecraft.world.entity.player.Player || level.getGameRules().getBoolean(net.minecraft.world.level.GameRules.RULE_MOBGRIEFING);
++        if ($$1 instanceof net.minecraft.world.entity.LivingEntity) {
++            return $$1 instanceof net.minecraft.world.entity.player.Player || $$0.getGameRules().getBoolean(net.minecraft.world.level.GameRules.RULE_MOBGRIEFING);
+         }
+         return false;
+     }

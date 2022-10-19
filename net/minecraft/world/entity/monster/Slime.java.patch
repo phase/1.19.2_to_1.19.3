@@ -1,0 +1,178 @@
+--- net/minecraft/world/entity/monster/Slime.java
++++ net/minecraft/world/entity/monster/Slime.java
+@@ -25,7 +25,7 @@
+         this.goalSelector.addGoal(2, (net.minecraft.world.entity.ai.goal.Goal)new net.minecraft.world.entity.monster.Slime$SlimeAttackGoal(this));
+         this.goalSelector.addGoal(3, (net.minecraft.world.entity.ai.goal.Goal)new net.minecraft.world.entity.monster.Slime$SlimeRandomDirectionGoal(this));
+         this.goalSelector.addGoal(5, (net.minecraft.world.entity.ai.goal.Goal)new net.minecraft.world.entity.monster.Slime$SlimeKeepOnJumpingGoal(this));
+-        this.targetSelector.addGoal(1, (net.minecraft.world.entity.ai.goal.Goal)new net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal((net.minecraft.world.entity.Mob)this, net.minecraft.world.entity.player.Player.class, 10, true, false, entity -> java.lang.Math.abs((double)(entity.getY() - this.getY())) <= 4.0));
++        this.targetSelector.addGoal(1, (net.minecraft.world.entity.ai.goal.Goal)new net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal((net.minecraft.world.entity.Mob)this, net.minecraft.world.entity.player.Player.class, 10, true, false, $$0 -> java.lang.Math.abs((double)($$0.getY() - this.getY())) <= 4.0));
+         this.targetSelector.addGoal(3, (net.minecraft.world.entity.ai.goal.Goal)new net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal((net.minecraft.world.entity.Mob)this, net.minecraft.world.entity.animal.IronGolem.class, true));
+     }
+ 
+@@ -35,34 +35,34 @@
+     }
+ 
+     @com.google.common.annotations.VisibleForTesting
+-    public void setSize(int size, boolean resetHealth) {
+-        int n = net.minecraft.util.Mth.clamp((int)size, (int)1, (int)127);
+-        this.entityData.set(ID_SIZE, (java.lang.Object)n);
++    public void setSize(int $$0, boolean $$1) {
++        int $$2 = net.minecraft.util.Mth.clamp((int)$$0, (int)1, (int)127);
++        this.entityData.set(ID_SIZE, (java.lang.Object)$$2);
+         this.reapplyPosition();
+         this.refreshDimensions();
+-        this.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.MAX_HEALTH).setBaseValue((double)(n * n));
+-        this.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.MOVEMENT_SPEED).setBaseValue((double)(0.2f + 0.1f * (float)n));
+-        this.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.ATTACK_DAMAGE).setBaseValue((double)n);
+-        if (resetHealth) {
++        this.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.MAX_HEALTH).setBaseValue((double)($$2 * $$2));
++        this.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.MOVEMENT_SPEED).setBaseValue((double)(0.2f + 0.1f * (float)$$2));
++        this.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.ATTACK_DAMAGE).setBaseValue((double)$$2);
++        if ($$1) {
+             this.setHealth(this.getMaxHealth());
+         }
+-        this.xpReward = n;
++        this.xpReward = $$2;
+     }
+ 
+     public int getSize() {
+         return (java.lang.Integer)this.entityData.get(ID_SIZE);
+     }
+ 
+-    public void addAdditionalSaveData(net.minecraft.nbt.CompoundTag compound) {
+-        super.addAdditionalSaveData(compound);
+-        compound.putInt("Size", this.getSize() - 1);
+-        compound.putBoolean("wasOnGround", this.wasOnGround);
++    public void addAdditionalSaveData(net.minecraft.nbt.CompoundTag $$0) {
++        super.addAdditionalSaveData($$0);
++        $$0.putInt("Size", this.getSize() - 1);
++        $$0.putBoolean("wasOnGround", this.wasOnGround);
+     }
+ 
+-    public void readAdditionalSaveData(net.minecraft.nbt.CompoundTag compound) {
+-        this.setSize(compound.getInt("Size") + 1, false);
+-        super.readAdditionalSaveData(compound);
+-        this.wasOnGround = compound.getBoolean("wasOnGround");
++    public void readAdditionalSaveData(net.minecraft.nbt.CompoundTag $$0) {
++        this.setSize($$0.getInt("Size") + 1, false);
++        super.readAdditionalSaveData($$0);
++        this.wasOnGround = $$0.getBoolean("wasOnGround");
+     }
+ 
+     public boolean isTiny() {
+@@ -115,8 +115,8 @@
+         this.setPos($$0, $$1, $$2);
+     }
+ 
+-    public void onSyncedDataUpdated(net.minecraft.network.syncher.EntityDataAccessor<?> key) {
+-        if (ID_SIZE.equals(key)) {
++    public void onSyncedDataUpdated(net.minecraft.network.syncher.EntityDataAccessor<?> $$0) {
++        if (ID_SIZE.equals($$0)) {
+             this.refreshDimensions();
+             this.setYRot(this.yHeadRot);
+             this.yBodyRot = this.yHeadRot;
+@@ -124,7 +124,7 @@
+                 this.doWaterSplashEffect();
+             }
+         }
+-        super.onSyncedDataUpdated(key);
++        super.onSyncedDataUpdated($$0);
+     }
+ 
+     public net.minecraft.world.entity.EntityType<? extends net.minecraft.world.entity.monster.Slime> getType() {
+@@ -143,6 +143,7 @@
+                 float $$8 = ((float)($$7 % 2) - 0.5f) * $$4;
+                 float $$9 = ((float)($$7 / 2) - 0.5f) * $$4;
+                 net.minecraft.world.entity.monster.Slime $$10 = (net.minecraft.world.entity.monster.Slime)this.getType().create(this.level);
++                if ($$10 == null) continue;
+                 if (this.isPersistenceRequired()) {
+                     $$10.setPersistenceRequired();
+                 }
+@@ -157,31 +158,31 @@
+         super.remove($$0);
+     }
+ 
+-    public void push(net.minecraft.world.entity.Entity entity) {
+-        super.push(entity);
+-        if (entity instanceof net.minecraft.world.entity.animal.IronGolem && this.isDealsDamage()) {
+-            this.dealDamage((net.minecraft.world.entity.LivingEntity)entity);
++    public void push(net.minecraft.world.entity.Entity $$0) {
++        super.push($$0);
++        if ($$0 instanceof net.minecraft.world.entity.animal.IronGolem && this.isDealsDamage()) {
++            this.dealDamage((net.minecraft.world.entity.LivingEntity)$$0);
+         }
+     }
+ 
+-    public void playerTouch(net.minecraft.world.entity.player.Player entity) {
++    public void playerTouch(net.minecraft.world.entity.player.Player $$0) {
+         if (this.isDealsDamage()) {
+-            this.dealDamage((net.minecraft.world.entity.LivingEntity)entity);
++            this.dealDamage((net.minecraft.world.entity.LivingEntity)$$0);
+         }
+     }
+ 
+-    public void dealDamage(net.minecraft.world.entity.LivingEntity livingEntity) {
++    public void dealDamage(net.minecraft.world.entity.LivingEntity $$0) {
+         if (this.isAlive()) {
+-            int n = this.getSize();
+-            if (this.distanceToSqr((net.minecraft.world.entity.Entity)livingEntity) < 0.6 * (double)n * (0.6 * (double)n) && this.hasLineOfSight((net.minecraft.world.entity.Entity)livingEntity) && livingEntity.hurt(net.minecraft.world.damagesource.DamageSource.mobAttack((net.minecraft.world.entity.LivingEntity)this), this.getAttackDamage())) {
++            int $$1 = this.getSize();
++            if (this.distanceToSqr((net.minecraft.world.entity.Entity)$$0) < 0.6 * (double)$$1 * (0.6 * (double)$$1) && this.hasLineOfSight((net.minecraft.world.entity.Entity)$$0) && $$0.hurt(net.minecraft.world.damagesource.DamageSource.mobAttack((net.minecraft.world.entity.LivingEntity)this), this.getAttackDamage())) {
+                 this.playSound(net.minecraft.sounds.SoundEvents.SLIME_ATTACK, 1.0f, (this.random.nextFloat() - this.random.nextFloat()) * 0.2f + 1.0f);
+-                this.doEnchantDamageEffects((net.minecraft.world.entity.LivingEntity)this, (net.minecraft.world.entity.Entity)livingEntity);
++                this.doEnchantDamageEffects((net.minecraft.world.entity.LivingEntity)this, (net.minecraft.world.entity.Entity)$$0);
+             }
+         }
+     }
+ 
+-    public float getStandingEyeHeight(net.minecraft.world.entity.Pose pose, net.minecraft.world.entity.EntityDimensions size) {
+-        return 0.625f * size.height;
++    public float getStandingEyeHeight(net.minecraft.world.entity.Pose $$0, net.minecraft.world.entity.EntityDimensions $$1) {
++        return 0.625f * $$1.height;
+     }
+ 
+     public boolean isDealsDamage() {
+@@ -192,7 +193,7 @@
+         return (float)this.getAttributeValue(net.minecraft.world.entity.ai.attributes.Attributes.ATTACK_DAMAGE);
+     }
+ 
+-    public net.minecraft.sounds.SoundEvent getHurtSound(net.minecraft.world.damagesource.DamageSource damageSource) {
++    public net.minecraft.sounds.SoundEvent getHurtSound(net.minecraft.world.damagesource.DamageSource $$0) {
+         if (this.isTiny()) {
+             return net.minecraft.sounds.SoundEvents.SLIME_HURT_SMALL;
+         }
+@@ -250,15 +251,15 @@
+     }
+ 
+     @javax.annotation.Nullable
+-    public net.minecraft.world.entity.SpawnGroupData finalizeSpawn(net.minecraft.world.level.ServerLevelAccessor level, net.minecraft.world.DifficultyInstance difficulty, net.minecraft.world.entity.MobSpawnType reason, @javax.annotation.Nullable net.minecraft.world.entity.SpawnGroupData spawnData, @javax.annotation.Nullable net.minecraft.nbt.CompoundTag dataTag) {
+-        net.minecraft.util.RandomSource randomSource = level.getRandom();
+-        int n = randomSource.nextInt(3);
+-        if (n < 2 && randomSource.nextFloat() < 0.5f * difficulty.getSpecialMultiplier()) {
+-            ++n;
++    public net.minecraft.world.entity.SpawnGroupData finalizeSpawn(net.minecraft.world.level.ServerLevelAccessor $$0, net.minecraft.world.DifficultyInstance $$1, net.minecraft.world.entity.MobSpawnType $$2, @javax.annotation.Nullable net.minecraft.world.entity.SpawnGroupData $$3, @javax.annotation.Nullable net.minecraft.nbt.CompoundTag $$4) {
++        net.minecraft.util.RandomSource $$5 = $$0.getRandom();
++        int $$6 = $$5.nextInt(3);
++        if ($$6 < 2 && $$5.nextFloat() < 0.5f * $$1.getSpecialMultiplier()) {
++            ++$$6;
+         }
+-        int n2 = 1 << n;
+-        this.setSize(n2, true);
+-        return super.finalizeSpawn(level, difficulty, reason, spawnData, dataTag);
++        int $$7 = 1 << $$6;
++        this.setSize($$7, true);
++        return super.finalizeSpawn($$0, $$1, $$2, $$3, $$4);
+     }
+ 
+     public float getSoundPitch() {
+@@ -270,8 +271,8 @@
+         return this.isTiny() ? net.minecraft.sounds.SoundEvents.SLIME_JUMP_SMALL : net.minecraft.sounds.SoundEvents.SLIME_JUMP;
+     }
+ 
+-    public net.minecraft.world.entity.EntityDimensions getDimensions(net.minecraft.world.entity.Pose pose) {
+-        return super.getDimensions(pose).scale(0.255f * (float)this.getSize());
++    public net.minecraft.world.entity.EntityDimensions getDimensions(net.minecraft.world.entity.Pose $$0) {
++        return super.getDimensions($$0).scale(0.255f * (float)this.getSize());
+     }
+ 
+     public static /* synthetic */ boolean access$000(net.minecraft.world.entity.monster.Slime $$0) {

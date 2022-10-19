@@ -1,0 +1,170 @@
+--- net/minecraft/client/renderer/texture/SpriteContents.java
++++ net/minecraft/client/renderer/texture/SpriteContents.java
+@@ -1,0 +1,167 @@
++/*
++ * Decompiled with CFR 0.151.
++ */
++package net.minecraft.client.renderer.texture;
++
++public class net.minecraft.client.renderer.texture.SpriteContents
++implements net.minecraft.client.renderer.texture.Stitcher$Entry,
++java.lang.AutoCloseable
++ {
++    public static org.slf4j.Logger LOGGER;
++    public net.minecraft.resources.ResourceLocation name;
++    public int width;
++    public int height;
++    public com.mojang.blaze3d.platform.NativeImage originalImage;
++    public com.mojang.blaze3d.platform.NativeImage[] byMipLevel;
++    @javax.annotation.Nullable
++    public net.minecraft.client.renderer.texture.SpriteContents$AnimatedTexture animatedTexture;
++
++    public net.minecraft.client.renderer.texture.SpriteContents(net.minecraft.resources.ResourceLocation $$0, net.minecraft.client.resources.metadata.animation.FrameSize $$1, com.mojang.blaze3d.platform.NativeImage $$2, net.minecraft.client.resources.metadata.animation.AnimationMetadataSection $$3) {
++        this.name = $$0;
++        this.width = $$1.width();
++        this.height = $$1.height();
++        this.animatedTexture = this.createAnimatedTexture($$1, $$2.getWidth(), $$2.getHeight(), $$3);
++        this.originalImage = $$2;
++        this.byMipLevel = new com.mojang.blaze3d.platform.NativeImage[]{this.originalImage};
++    }
++
++    public void increaseMipLevel(int $$0) {
++        try {
++            this.byMipLevel = net.minecraft.client.renderer.texture.MipmapGenerator.generateMipLevels((com.mojang.blaze3d.platform.NativeImage[])this.byMipLevel, (int)$$0);
++        }
++        catch (java.lang.Throwable $$1) {
++            net.minecraft.CrashReport $$2 = net.minecraft.CrashReport.forThrowable((java.lang.Throwable)$$1, (java.lang.String)"Generating mipmaps for frame");
++            net.minecraft.CrashReportCategory $$3 = $$2.addCategory("Sprite being mipmapped");
++            $$3.setDetail("First frame", () -> {
++                java.lang.StringBuilder $$0 = new java.lang.StringBuilder();
++                if ($$0.length() > 0) {
++                    $$0.append(", ");
++                }
++                $$0.append(this.originalImage.getWidth()).append("x").append(this.originalImage.getHeight());
++                return $$0.toString();
++            });
++            net.minecraft.CrashReportCategory $$4 = $$2.addCategory("Frame being iterated");
++            $$4.setDetail("Sprite name", (java.lang.Object)this.name);
++            $$4.setDetail("Sprite size", () -> this.width + " x " + this.height);
++            $$4.setDetail("Sprite frames", () -> this.getFrameCount() + " frames");
++            $$4.setDetail("Mipmap levels", (java.lang.Object)$$0);
++            throw new net.minecraft.ReportedException($$2);
++        }
++    }
++
++    public int getFrameCount() {
++        return this.animatedTexture != null ? this.animatedTexture.frames.size() : 1;
++    }
++
++    @javax.annotation.Nullable
++    public net.minecraft.client.renderer.texture.SpriteContents$AnimatedTexture createAnimatedTexture(net.minecraft.client.resources.metadata.animation.FrameSize $$0, int $$1, int $$2, net.minecraft.client.resources.metadata.animation.AnimationMetadataSection $$3) {
++        int $$4 = $$1 / $$0.width();
++        int $$5 = $$2 / $$0.height();
++        int $$6 = $$4 * $$5;
++        java.util.ArrayList $$7 = new java.util.ArrayList();
++        $$3.forEachFrame((arg_0, arg_1) -> net.minecraft.client.renderer.texture.SpriteContents.lambda$createAnimatedTexture$3((java.util.List)$$7, arg_0, arg_1));
++        if ($$7.isEmpty()) {
++            for (int $$8 = 0; $$8 < $$6; ++$$8) {
++                $$7.add((java.lang.Object)new net.minecraft.client.renderer.texture.SpriteContents$FrameInfo($$8, $$3.getDefaultFrameTime()));
++            }
++        } else {
++            int $$9 = 0;
++            it.unimi.dsi.fastutil.ints.IntOpenHashSet $$10 = new it.unimi.dsi.fastutil.ints.IntOpenHashSet();
++            java.util.Iterator $$11 = $$7.iterator();
++            while ($$11.hasNext()) {
++                net.minecraft.client.renderer.texture.SpriteContents$FrameInfo $$12 = (net.minecraft.client.renderer.texture.SpriteContents$FrameInfo)$$11.next();
++                boolean $$13 = true;
++                if ($$12.time <= 0) {
++                    LOGGER.warn("Invalid frame duration on sprite {} frame {}: {}", new java.lang.Object[]{this.name, $$9, $$12.time});
++                    $$13 = false;
++                }
++                if ($$12.index < 0 || $$12.index >= $$6) {
++                    LOGGER.warn("Invalid frame index on sprite {} frame {}: {}", new java.lang.Object[]{this.name, $$9, $$12.index});
++                    $$13 = false;
++                }
++                if ($$13) {
++                    $$10.add($$12.index);
++                } else {
++                    $$11.remove();
++                }
++                ++$$9;
++            }
++            int[] $$14 = java.util.stream.IntStream.range((int)0, (int)$$6).filter(arg_0 -> net.minecraft.client.renderer.texture.SpriteContents.lambda$createAnimatedTexture$4((it.unimi.dsi.fastutil.ints.IntSet)$$10, arg_0)).toArray();
++            if ($$14.length > 0) {
++                LOGGER.warn("Unused frames in sprite {}: {}", (java.lang.Object)this.name, (java.lang.Object)java.util.Arrays.toString((int[])$$14));
++            }
++        }
++        if ($$7.size() <= 1) {
++            return null;
++        }
++        return new net.minecraft.client.renderer.texture.SpriteContents$AnimatedTexture(this, (java.util.List)com.google.common.collect.ImmutableList.copyOf((java.util.Collection)$$7), $$4, $$3.isInterpolatedFrames());
++    }
++
++    public void upload(int $$0, int $$1, int $$2, int $$3, com.mojang.blaze3d.platform.NativeImage[] $$4) {
++        for (int $$5 = 0; $$5 < this.byMipLevel.length; ++$$5) {
++            $$4[$$5].upload($$5, $$0 >> $$5, $$1 >> $$5, $$2 >> $$5, $$3 >> $$5, this.width >> $$5, this.height >> $$5, this.byMipLevel.length > 1, false);
++        }
++    }
++
++    public int width() {
++        return this.width;
++    }
++
++    public int height() {
++        return this.height;
++    }
++
++    public net.minecraft.resources.ResourceLocation name() {
++        return this.name;
++    }
++
++    public java.util.stream.IntStream getUniqueFrames() {
++        return this.animatedTexture != null ? this.animatedTexture.getUniqueFrames() : java.util.stream.IntStream.of((int)1);
++    }
++
++    @javax.annotation.Nullable
++    public net.minecraft.client.renderer.texture.SpriteTicker createTicker() {
++        return this.animatedTexture != null ? this.animatedTexture.createTicker() : null;
++    }
++
++    public void close() {
++        for (com.mojang.blaze3d.platform.NativeImage $$0 : this.byMipLevel) {
++            $$0.close();
++        }
++    }
++
++    public java.lang.String toString() {
++        return "SpriteContents{name=" + this.name + ", frameCount=" + this.getFrameCount() + ", height=" + this.height + ", width=" + this.width + "}";
++    }
++
++    public boolean isTransparent(int $$0, int $$1, int $$2) {
++        int $$3 = $$1;
++        int $$4 = $$2;
++        if (this.animatedTexture != null) {
++            $$3 += this.animatedTexture.getFrameX($$0) * this.width;
++            $$4 += this.animatedTexture.getFrameY($$0) * this.height;
++        }
++        return (this.originalImage.getPixelRGBA($$3, $$4) >> 24 & 0xFF) == 0;
++    }
++
++    public void uploadFirstFrame(int $$0, int $$1) {
++        if (this.animatedTexture != null) {
++            this.animatedTexture.uploadFirstFrame($$0, $$1);
++        } else {
++            this.upload($$0, $$1, 0, 0, this.byMipLevel);
++        }
++    }
++
++    public static /* synthetic */ boolean lambda$createAnimatedTexture$4(it.unimi.dsi.fastutil.ints.IntSet $$0, int $$1) {
++        return !$$0.contains($$1);
++    }
++
++    public static /* synthetic */ void lambda$createAnimatedTexture$3(java.util.List $$0, int $$1, int $$2) {
++        $$0.add((java.lang.Object)new net.minecraft.client.renderer.texture.SpriteContents$FrameInfo($$1, $$2));
++    }
++
++    static {
++        LOGGER = com.mojang.logging.LogUtils.getLogger();
++    }
++}
++

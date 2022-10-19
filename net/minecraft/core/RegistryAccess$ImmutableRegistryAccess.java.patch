@@ -1,0 +1,32 @@
+--- net/minecraft/core/RegistryAccess$ImmutableRegistryAccess.java
++++ net/minecraft/core/RegistryAccess$ImmutableRegistryAccess.java
+@@ -4,10 +4,14 @@
+ package net.minecraft.core;
+ 
+ public class net.minecraft.core.RegistryAccess$ImmutableRegistryAccess
+-implements net.minecraft.core.RegistryAccess$Frozen
++implements net.minecraft.core.RegistryAccess
+  {
+     public java.util.Map<? extends net.minecraft.resources.ResourceKey<? extends net.minecraft.core.Registry<?>>, ? extends net.minecraft.core.Registry<?>> registries;
+ 
++    public net.minecraft.core.RegistryAccess$ImmutableRegistryAccess(java.util.List<? extends net.minecraft.core.Registry<?>> $$02) {
++        this.registries = (java.util.Map)$$02.stream().collect(java.util.stream.Collectors.toUnmodifiableMap(net.minecraft.core.Registry::key, $$0 -> $$0));
++    }
++
+     public net.minecraft.core.RegistryAccess$ImmutableRegistryAccess(java.util.Map<? extends net.minecraft.resources.ResourceKey<? extends net.minecraft.core.Registry<?>>, ? extends net.minecraft.core.Registry<?>> $$0) {
+         this.registries = java.util.Map.copyOf($$0);
+     }
+@@ -16,11 +20,11 @@
+         this.registries = (java.util.Map)$$0.collect(com.google.common.collect.ImmutableMap.toImmutableMap(net.minecraft.core.RegistryAccess$RegistryEntry::key, net.minecraft.core.RegistryAccess$RegistryEntry::value));
+     }
+ 
+-    public <E> java.util.Optional<net.minecraft.core.Registry<E>> ownedRegistry(net.minecraft.resources.ResourceKey<? extends net.minecraft.core.Registry<? extends E>> $$02) {
++    public <E> java.util.Optional<net.minecraft.core.Registry<E>> registry(net.minecraft.resources.ResourceKey<? extends net.minecraft.core.Registry<? extends E>> $$02) {
+         return java.util.Optional.ofNullable((java.lang.Object)((net.minecraft.core.Registry)this.registries.get($$02))).map($$0 -> $$0);
+     }
+ 
+-    public java.util.stream.Stream<net.minecraft.core.RegistryAccess$RegistryEntry<?>> ownedRegistries() {
++    public java.util.stream.Stream<net.minecraft.core.RegistryAccess$RegistryEntry<?>> registries() {
+         return this.registries.entrySet().stream().map(net.minecraft.core.RegistryAccess$RegistryEntry::fromMapEntry);
+     }
+ }

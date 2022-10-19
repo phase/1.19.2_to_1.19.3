@@ -1,0 +1,218 @@
+--- net/minecraft/world/entity/TamableAnimal.java
++++ net/minecraft/world/entity/TamableAnimal.java
+@@ -22,60 +22,60 @@
+         this.entityData.define(DATA_OWNERUUID_ID, (java.lang.Object)java.util.Optional.empty());
+     }
+ 
+-    public void addAdditionalSaveData(net.minecraft.nbt.CompoundTag compound) {
+-        super.addAdditionalSaveData(compound);
++    public void addAdditionalSaveData(net.minecraft.nbt.CompoundTag $$0) {
++        super.addAdditionalSaveData($$0);
+         if (this.getOwnerUUID() != null) {
+-            compound.putUUID("Owner", this.getOwnerUUID());
++            $$0.putUUID("Owner", this.getOwnerUUID());
+         }
+-        compound.putBoolean("Sitting", this.orderedToSit);
++        $$0.putBoolean("Sitting", this.orderedToSit);
+     }
+ 
+-    public void readAdditionalSaveData(net.minecraft.nbt.CompoundTag compound) {
+-        java.util.UUID uUID;
+-        super.readAdditionalSaveData(compound);
+-        if (compound.hasUUID("Owner")) {
+-            uUID = compound.getUUID("Owner");
++    public void readAdditionalSaveData(net.minecraft.nbt.CompoundTag $$0) {
++        java.util.UUID $$3;
++        super.readAdditionalSaveData($$0);
++        if ($$0.hasUUID("Owner")) {
++            java.util.UUID $$1 = $$0.getUUID("Owner");
+         } else {
+-            java.lang.String string = compound.getString("Owner");
+-            uUID = net.minecraft.server.players.OldUsersConverter.convertMobOwnerIfNecessary((net.minecraft.server.MinecraftServer)this.getServer(), (java.lang.String)string);
++            java.lang.String $$2 = $$0.getString("Owner");
++            $$3 = net.minecraft.server.players.OldUsersConverter.convertMobOwnerIfNecessary((net.minecraft.server.MinecraftServer)this.getServer(), (java.lang.String)$$2);
+         }
+-        if (uUID != null) {
++        if ($$3 != null) {
+             try {
+-                this.setOwnerUUID(uUID);
++                this.setOwnerUUID($$3);
+                 this.setTame(true);
+             }
+-            catch (java.lang.Throwable throwable) {
++            catch (java.lang.Throwable $$4) {
+                 this.setTame(false);
+             }
+         }
+-        this.orderedToSit = compound.getBoolean("Sitting");
++        this.orderedToSit = $$0.getBoolean("Sitting");
+         this.setInSittingPose(this.orderedToSit);
+     }
+ 
+-    public boolean canBeLeashed(net.minecraft.world.entity.player.Player player) {
++    public boolean canBeLeashed(net.minecraft.world.entity.player.Player $$0) {
+         return !this.isLeashed();
+     }
+ 
+-    public void spawnTamingParticles(boolean tamed) {
+-        net.minecraft.core.particles.SimpleParticleType simpleParticleType = net.minecraft.core.particles.ParticleTypes.HEART;
+-        if (!tamed) {
+-            simpleParticleType = net.minecraft.core.particles.ParticleTypes.SMOKE;
++    public void spawnTamingParticles(boolean $$0) {
++        net.minecraft.core.particles.SimpleParticleType $$1 = net.minecraft.core.particles.ParticleTypes.HEART;
++        if (!$$0) {
++            $$1 = net.minecraft.core.particles.ParticleTypes.SMOKE;
+         }
+-        for (int i = 0; i < 7; ++i) {
+-            double d = this.random.nextGaussian() * 0.02;
+-            double d2 = this.random.nextGaussian() * 0.02;
+-            double d3 = this.random.nextGaussian() * 0.02;
+-            this.level.addParticle((net.minecraft.core.particles.ParticleOptions)simpleParticleType, this.getRandomX(1.0), this.getRandomY() + 0.5, this.getRandomZ(1.0), d, d2, d3);
++        for (int $$2 = 0; $$2 < 7; ++$$2) {
++            double $$3 = this.random.nextGaussian() * 0.02;
++            double $$4 = this.random.nextGaussian() * 0.02;
++            double $$5 = this.random.nextGaussian() * 0.02;
++            this.level.addParticle((net.minecraft.core.particles.ParticleOptions)$$1, this.getRandomX(1.0), this.getRandomY() + 0.5, this.getRandomZ(1.0), $$3, $$4, $$5);
+         }
+     }
+ 
+-    public void handleEntityEvent(byte id) {
+-        if (id == 7) {
++    public void handleEntityEvent(byte $$0) {
++        if ($$0 == 7) {
+             this.spawnTamingParticles(true);
+-        } else if (id == 6) {
++        } else if ($$0 == 6) {
+             this.spawnTamingParticles(false);
+         } else {
+-            super.handleEntityEvent(id);
++            super.handleEntityEvent($$0);
+         }
+     }
+ 
+@@ -83,12 +83,12 @@
+         return ((java.lang.Byte)this.entityData.get(DATA_FLAGS_ID) & 4) != 0;
+     }
+ 
+-    public void setTame(boolean tamed) {
+-        byte by = (java.lang.Byte)this.entityData.get(DATA_FLAGS_ID);
+-        if (tamed) {
+-            this.entityData.set(DATA_FLAGS_ID, (java.lang.Object)((byte)(by | 4)));
++    public void setTame(boolean $$0) {
++        byte $$1 = (java.lang.Byte)this.entityData.get(DATA_FLAGS_ID);
++        if ($$0) {
++            this.entityData.set(DATA_FLAGS_ID, (java.lang.Object)((byte)($$1 | 4)));
+         } else {
+-            this.entityData.set(DATA_FLAGS_ID, (java.lang.Object)((byte)(by & 0xFFFFFFFB)));
++            this.entityData.set(DATA_FLAGS_ID, (java.lang.Object)((byte)($$1 & 0xFFFFFFFB)));
+         }
+         this.reassessTameGoals();
+     }
+@@ -100,12 +100,12 @@
+         return ((java.lang.Byte)this.entityData.get(DATA_FLAGS_ID) & 1) != 0;
+     }
+ 
+-    public void setInSittingPose(boolean sitting) {
+-        byte by = (java.lang.Byte)this.entityData.get(DATA_FLAGS_ID);
+-        if (sitting) {
+-            this.entityData.set(DATA_FLAGS_ID, (java.lang.Object)((byte)(by | 1)));
++    public void setInSittingPose(boolean $$0) {
++        byte $$1 = (java.lang.Byte)this.entityData.get(DATA_FLAGS_ID);
++        if ($$0) {
++            this.entityData.set(DATA_FLAGS_ID, (java.lang.Object)((byte)($$1 | 1)));
+         } else {
+-            this.entityData.set(DATA_FLAGS_ID, (java.lang.Object)((byte)(by & 0xFFFFFFFE)));
++            this.entityData.set(DATA_FLAGS_ID, (java.lang.Object)((byte)($$1 & 0xFFFFFFFE)));
+         }
+     }
+ 
+@@ -114,15 +114,15 @@
+         return (java.util.UUID)((java.util.Optional)this.entityData.get(DATA_OWNERUUID_ID)).orElse(null);
+     }
+ 
+-    public void setOwnerUUID(@javax.annotation.Nullable java.util.UUID uuid) {
+-        this.entityData.set(DATA_OWNERUUID_ID, (java.lang.Object)java.util.Optional.ofNullable((java.lang.Object)uuid));
++    public void setOwnerUUID(@javax.annotation.Nullable java.util.UUID $$0) {
++        this.entityData.set(DATA_OWNERUUID_ID, (java.lang.Object)java.util.Optional.ofNullable((java.lang.Object)$$0));
+     }
+ 
+-    public void tame(net.minecraft.world.entity.player.Player player) {
++    public void tame(net.minecraft.world.entity.player.Player $$0) {
+         this.setTame(true);
+-        this.setOwnerUUID(player.getUUID());
+-        if (player instanceof net.minecraft.server.level.ServerPlayer) {
+-            net.minecraft.advancements.CriteriaTriggers.TAME_ANIMAL.trigger((net.minecraft.server.level.ServerPlayer)player, (net.minecraft.world.entity.animal.Animal)this);
++        this.setOwnerUUID($$0.getUUID());
++        if ($$0 instanceof net.minecraft.server.level.ServerPlayer) {
++            net.minecraft.advancements.CriteriaTriggers.TAME_ANIMAL.trigger((net.minecraft.server.level.ServerPlayer)$$0, (net.minecraft.world.entity.animal.Animal)this);
+         }
+     }
+ 
+@@ -140,18 +140,18 @@
+         }
+     }
+ 
+-    public boolean canAttack(net.minecraft.world.entity.LivingEntity target) {
+-        if (this.isOwnedBy(target)) {
++    public boolean canAttack(net.minecraft.world.entity.LivingEntity $$0) {
++        if (this.isOwnedBy($$0)) {
+             return false;
+         }
+-        return super.canAttack(target);
++        return super.canAttack($$0);
+     }
+ 
+-    public boolean isOwnedBy(net.minecraft.world.entity.LivingEntity entity) {
+-        return entity == this.getOwner();
++    public boolean isOwnedBy(net.minecraft.world.entity.LivingEntity $$0) {
++        return $$0 == this.getOwner();
+     }
+ 
+-    public boolean wantsToAttack(net.minecraft.world.entity.LivingEntity target, net.minecraft.world.entity.LivingEntity owner) {
++    public boolean wantsToAttack(net.minecraft.world.entity.LivingEntity $$0, net.minecraft.world.entity.LivingEntity $$1) {
+         return true;
+     }
+ 
+@@ -163,32 +163,32 @@
+         return super.getTeam();
+     }
+ 
+-    public boolean isAlliedTo(net.minecraft.world.entity.Entity entity) {
++    public boolean isAlliedTo(net.minecraft.world.entity.Entity $$0) {
+         if (this.isTame()) {
+-            net.minecraft.world.entity.LivingEntity livingEntity = this.getOwner();
+-            if (entity == livingEntity) {
++            net.minecraft.world.entity.LivingEntity $$1 = this.getOwner();
++            if ($$0 == $$1) {
+                 return true;
+             }
+-            if (livingEntity != null) {
+-                return livingEntity.isAlliedTo(entity);
++            if ($$1 != null) {
++                return $$1.isAlliedTo($$0);
+             }
+         }
+-        return super.isAlliedTo(entity);
++        return super.isAlliedTo($$0);
+     }
+ 
+-    public void die(net.minecraft.world.damagesource.DamageSource cause) {
++    public void die(net.minecraft.world.damagesource.DamageSource $$0) {
+         if (!this.level.isClientSide && this.level.getGameRules().getBoolean(net.minecraft.world.level.GameRules.RULE_SHOWDEATHMESSAGES) && this.getOwner() instanceof net.minecraft.server.level.ServerPlayer) {
+             this.getOwner().sendSystemMessage(this.getCombatTracker().getDeathMessage());
+         }
+-        super.die(cause);
++        super.die($$0);
+     }
+ 
+     public boolean isOrderedToSit() {
+         return this.orderedToSit;
+     }
+ 
+-    public void setOrderedToSit(boolean orderedToSit) {
+-        this.orderedToSit = orderedToSit;
++    public void setOrderedToSit(boolean $$0) {
++        this.orderedToSit = $$0;
+     }
+ 
+     @javax.annotation.Nullable

@@ -1,0 +1,141 @@
+--- net/minecraft/client/multiplayer/ServerData.java
++++ net/minecraft/client/multiplayer/ServerData.java
+@@ -5,7 +5,6 @@
+ 
+ public class net.minecraft.client.multiplayer.ServerData
+  {
+-    public static org.slf4j.Logger LOGGER;
+     public java.lang.String name;
+     public java.lang.String ip;
+     public net.minecraft.network.chat.Component status;
+@@ -19,9 +18,6 @@
+     @javax.annotation.Nullable
+     public java.lang.String iconB64;
+     public boolean lan;
+-    @javax.annotation.Nullable
+-    public net.minecraft.client.multiplayer.ServerData$ChatPreview chatPreview;
+-    public boolean chatPreviewEnabled;
+     public boolean enforcesSecureChat;
+ 
+     public net.minecraft.client.multiplayer.ServerData(java.lang.String $$0, java.lang.String $$1, boolean $$2) {
+@@ -29,7 +25,6 @@
+         this.version = net.minecraft.network.chat.Component.literal((java.lang.String)net.minecraft.SharedConstants.getCurrentVersion().getName());
+         this.playerList = java.util.Collections.emptyList();
+         this.packStatus = net.minecraft.client.multiplayer.ServerData$ServerPackStatus.PROMPT;
+-        this.chatPreviewEnabled = true;
+         this.name = $$0;
+         this.ip = $$1;
+         this.lan = $$2;
+@@ -47,9 +42,6 @@
+         } else if (this.packStatus == net.minecraft.client.multiplayer.ServerData$ServerPackStatus.DISABLED) {
+             $$0.putBoolean("acceptTextures", false);
+         }
+-        if (this.chatPreview != null) {
+-            net.minecraft.client.multiplayer.ServerData$ChatPreview.CODEC.encodeStart((com.mojang.serialization.DynamicOps)net.minecraft.nbt.NbtOps.INSTANCE, (java.lang.Object)this.chatPreview).result().ifPresent($$1 -> $$0.put("chatPreview", $$1));
+-        }
+         return $$0;
+     }
+ 
+@@ -57,30 +49,25 @@
+         return this.packStatus;
+     }
+ 
+-    public void setResourcePackStatus(net.minecraft.client.multiplayer.ServerData$ServerPackStatus mode) {
+-        this.packStatus = mode;
++    public void setResourcePackStatus(net.minecraft.client.multiplayer.ServerData$ServerPackStatus $$0) {
++        this.packStatus = $$0;
+     }
+ 
+-    public static net.minecraft.client.multiplayer.ServerData read(net.minecraft.nbt.CompoundTag nbtCompound) {
+-        net.minecraft.client.multiplayer.ServerData serverData = new net.minecraft.client.multiplayer.ServerData(nbtCompound.getString("name"), nbtCompound.getString("ip"), false);
+-        if (nbtCompound.contains("icon", 8)) {
+-            serverData.setIconB64(nbtCompound.getString("icon"));
++    public static net.minecraft.client.multiplayer.ServerData read(net.minecraft.nbt.CompoundTag $$0) {
++        net.minecraft.client.multiplayer.ServerData $$1 = new net.minecraft.client.multiplayer.ServerData($$0.getString("name"), $$0.getString("ip"), false);
++        if ($$0.contains("icon", 8)) {
++            $$1.setIconB64($$0.getString("icon"));
+         }
+-        if (nbtCompound.contains("acceptTextures", 1)) {
+-            if (nbtCompound.getBoolean("acceptTextures")) {
+-                serverData.setResourcePackStatus(net.minecraft.client.multiplayer.ServerData$ServerPackStatus.ENABLED);
++        if ($$0.contains("acceptTextures", 1)) {
++            if ($$0.getBoolean("acceptTextures")) {
++                $$1.setResourcePackStatus(net.minecraft.client.multiplayer.ServerData$ServerPackStatus.ENABLED);
+             } else {
+-                serverData.setResourcePackStatus(net.minecraft.client.multiplayer.ServerData$ServerPackStatus.DISABLED);
++                $$1.setResourcePackStatus(net.minecraft.client.multiplayer.ServerData$ServerPackStatus.DISABLED);
+             }
+         } else {
+-            serverData.setResourcePackStatus(net.minecraft.client.multiplayer.ServerData$ServerPackStatus.PROMPT);
++            $$1.setResourcePackStatus(net.minecraft.client.multiplayer.ServerData$ServerPackStatus.PROMPT);
+         }
+-        if (nbtCompound.contains("chatPreview", 10)) {
+-            net.minecraft.client.multiplayer.ServerData$ChatPreview.CODEC.parse((com.mojang.serialization.DynamicOps)net.minecraft.nbt.NbtOps.INSTANCE, (java.lang.Object)nbtCompound.getCompound("chatPreview")).resultOrPartial(arg_0 -> ((org.slf4j.Logger)LOGGER).error(arg_0)).ifPresent($$1 -> {
+-                $$0.chatPreview = $$1;
+-            });
+-        }
+-        return serverData;
++        return $$1;
+     }
+ 
+     @javax.annotation.Nullable
+@@ -95,35 +82,14 @@
+         throw new java.text.ParseException("Unknown format", 0);
+     }
+ 
+-    public void setIconB64(@javax.annotation.Nullable java.lang.String icon) {
+-        this.iconB64 = icon;
++    public void setIconB64(@javax.annotation.Nullable java.lang.String $$0) {
++        this.iconB64 = $$0;
+     }
+ 
+     public boolean isLan() {
+         return this.lan;
+     }
+ 
+-    public void setPreviewsChat(boolean $$0) {
+-        if ($$0 && this.chatPreview == null) {
+-            this.chatPreview = new net.minecraft.client.multiplayer.ServerData$ChatPreview(false, false);
+-        } else if (!$$0 && this.chatPreview != null) {
+-            this.chatPreview = null;
+-        }
+-    }
+-
+-    @javax.annotation.Nullable
+-    public net.minecraft.client.multiplayer.ServerData$ChatPreview getChatPreview() {
+-        return this.chatPreview;
+-    }
+-
+-    public void setChatPreviewEnabled(boolean $$0) {
+-        this.chatPreviewEnabled = $$0;
+-    }
+-
+-    public boolean previewsChat() {
+-        return this.chatPreviewEnabled && this.chatPreview != null;
+-    }
+-
+     public void setEnforcesSecureChat(boolean $$0) {
+         this.enforcesSecureChat = $$0;
+     }
+@@ -138,16 +104,11 @@
+         this.iconB64 = $$0.iconB64;
+     }
+ 
+-    public void copyFrom(net.minecraft.client.multiplayer.ServerData serverData) {
+-        this.copyNameIconFrom(serverData);
+-        this.setResourcePackStatus(serverData.getResourcePackStatus());
+-        this.lan = serverData.lan;
+-        this.chatPreview = (net.minecraft.client.multiplayer.ServerData$ChatPreview)net.minecraft.Util.mapNullable((java.lang.Object)serverData.chatPreview, net.minecraft.client.multiplayer.ServerData$ChatPreview::copy);
+-        this.enforcesSecureChat = serverData.enforcesSecureChat;
++    public void copyFrom(net.minecraft.client.multiplayer.ServerData $$0) {
++        this.copyNameIconFrom($$0);
++        this.setResourcePackStatus($$0.getResourcePackStatus());
++        this.lan = $$0.lan;
++        this.enforcesSecureChat = $$0.enforcesSecureChat;
+     }
+-
+-    static {
+-        LOGGER = com.mojang.logging.LogUtils.getLogger();
+-    }
+ }
+ 

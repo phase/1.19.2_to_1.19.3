@@ -1,0 +1,121 @@
+--- net/minecraft/commands/arguments/MessageArgument$Message.java
++++ net/minecraft/commands/arguments/MessageArgument$Message.java
+@@ -8,9 +8,9 @@
+     public java.lang.String text;
+     public net.minecraft.commands.arguments.MessageArgument$Part[] parts;
+ 
+-    public net.minecraft.commands.arguments.MessageArgument$Message(java.lang.String text, net.minecraft.commands.arguments.MessageArgument$Part[] parts) {
+-        this.text = text;
+-        this.parts = parts;
++    public net.minecraft.commands.arguments.MessageArgument$Message(java.lang.String $$0, net.minecraft.commands.arguments.MessageArgument$Part[] $$1) {
++        this.text = $$0;
++        this.parts = $$1;
+     }
+ 
+     public java.lang.String getText() {
+@@ -21,68 +21,64 @@
+         return this.parts;
+     }
+ 
+-    public java.util.concurrent.CompletableFuture<net.minecraft.network.chat.Component> resolveDecoratedComponent(net.minecraft.commands.CommandSourceStack $$0) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
+-        net.minecraft.network.chat.Component $$1 = this.resolveComponent($$0);
+-        java.util.concurrent.CompletableFuture $$2 = $$0.getServer().getChatDecorator().decorate($$0.getPlayer(), $$1);
+-        net.minecraft.commands.arguments.MessageArgument.logResolutionFailure((net.minecraft.commands.CommandSourceStack)$$0, (java.util.concurrent.CompletableFuture)$$2);
+-        return $$2;
+-    }
+-
+     public net.minecraft.network.chat.Component resolveComponent(net.minecraft.commands.CommandSourceStack $$0) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
+         return this.toComponent($$0, $$0.hasPermission(2));
+     }
+ 
+-    public net.minecraft.network.chat.Component toComponent(net.minecraft.commands.CommandSourceStack source, boolean allowSelectors) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
+-        if (this.parts.length == 0 || !allowSelectors) {
++    public net.minecraft.network.chat.Component toComponent(net.minecraft.commands.CommandSourceStack $$0, boolean $$1) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
++        if (this.parts.length == 0 || !$$1) {
+             return net.minecraft.network.chat.Component.literal((java.lang.String)this.text);
+         }
+-        net.minecraft.network.chat.MutableComponent mutableComponent = net.minecraft.network.chat.Component.literal((java.lang.String)this.text.substring(0, this.parts[0].getStart()));
+-        int n = this.parts[0].getStart();
+-        for (net.minecraft.commands.arguments.MessageArgument$Part part : this.parts) {
+-            net.minecraft.network.chat.Component component = part.toComponent(source);
+-            if (n < part.getStart()) {
+-                mutableComponent.append(this.text.substring(n, part.getStart()));
++        net.minecraft.network.chat.MutableComponent $$2 = net.minecraft.network.chat.Component.literal((java.lang.String)this.text.substring(0, this.parts[0].getStart()));
++        int $$3 = this.parts[0].getStart();
++        for (net.minecraft.commands.arguments.MessageArgument$Part $$4 : this.parts) {
++            net.minecraft.network.chat.Component $$5 = $$4.toComponent($$0);
++            if ($$3 < $$4.getStart()) {
++                $$2.append(this.text.substring($$3, $$4.getStart()));
+             }
+-            if (component != null) {
+-                mutableComponent.append(component);
++            if ($$5 != null) {
++                $$2.append($$5);
+             }
+-            n = part.getEnd();
++            $$3 = $$4.getEnd();
+         }
+-        if (n < this.text.length()) {
+-            mutableComponent.append(this.text.substring(n));
++        if ($$3 < this.text.length()) {
++            $$2.append(this.text.substring($$3));
+         }
+-        return mutableComponent;
++        return $$2;
+     }
+ 
+-    public static net.minecraft.commands.arguments.MessageArgument$Message parseText(com.mojang.brigadier.StringReader reader, boolean allowSelectors) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
+-        java.lang.String string = reader.getString().substring(reader.getCursor(), reader.getTotalLength());
+-        if (!allowSelectors) {
+-            reader.setCursor(reader.getTotalLength());
+-            return new net.minecraft.commands.arguments.MessageArgument$Message(string, new net.minecraft.commands.arguments.MessageArgument$Part[0]);
++    /*
++     * WARNING - void declaration
++     */
++    public static net.minecraft.commands.arguments.MessageArgument$Message parseText(com.mojang.brigadier.StringReader $$0, boolean $$1) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
++        java.lang.String $$2 = $$0.getString().substring($$0.getCursor(), $$0.getTotalLength());
++        if (!$$1) {
++            $$0.setCursor($$0.getTotalLength());
++            return new net.minecraft.commands.arguments.MessageArgument$Message($$2, new net.minecraft.commands.arguments.MessageArgument$Part[0]);
+         }
+-        java.util.ArrayList arrayList = com.google.common.collect.Lists.newArrayList();
+-        int n = reader.getCursor();
+-        while (reader.canRead()) {
+-            if (reader.peek() == '@') {
+-                net.minecraft.commands.arguments.selector.EntitySelector entitySelector;
+-                int n2 = reader.getCursor();
++        java.util.ArrayList $$3 = com.google.common.collect.Lists.newArrayList();
++        int $$4 = $$0.getCursor();
++        while ($$0.canRead()) {
++            if ($$0.peek() == '@') {
++                void $$9;
++                int $$5 = $$0.getCursor();
+                 try {
+-                    net.minecraft.commands.arguments.selector.EntitySelectorParser entitySelectorParser = new net.minecraft.commands.arguments.selector.EntitySelectorParser(reader);
+-                    entitySelector = entitySelectorParser.parse();
++                    net.minecraft.commands.arguments.selector.EntitySelectorParser $$6 = new net.minecraft.commands.arguments.selector.EntitySelectorParser($$0);
++                    net.minecraft.commands.arguments.selector.EntitySelector $$7 = $$6.parse();
+                 }
+-                catch (com.mojang.brigadier.exceptions.CommandSyntaxException commandSyntaxException) {
+-                    if (commandSyntaxException.getType() == net.minecraft.commands.arguments.selector.EntitySelectorParser.ERROR_MISSING_SELECTOR_TYPE || commandSyntaxException.getType() == net.minecraft.commands.arguments.selector.EntitySelectorParser.ERROR_UNKNOWN_SELECTOR_TYPE) {
+-                        reader.setCursor(n2 + 1);
++                catch (com.mojang.brigadier.exceptions.CommandSyntaxException $$8) {
++                    if ($$8.getType() == net.minecraft.commands.arguments.selector.EntitySelectorParser.ERROR_MISSING_SELECTOR_TYPE || $$8.getType() == net.minecraft.commands.arguments.selector.EntitySelectorParser.ERROR_UNKNOWN_SELECTOR_TYPE) {
++                        $$0.setCursor($$5 + 1);
+                         continue;
+                     }
+-                    throw commandSyntaxException;
++                    throw $$8;
+                 }
+-                arrayList.add((java.lang.Object)new net.minecraft.commands.arguments.MessageArgument$Part(n2 - n, reader.getCursor() - n, entitySelector));
++                $$3.add((java.lang.Object)new net.minecraft.commands.arguments.MessageArgument$Part($$5 - $$4, $$0.getCursor() - $$4, (net.minecraft.commands.arguments.selector.EntitySelector)$$9));
+                 continue;
+             }
+-            reader.skip();
++            $$0.skip();
+         }
+-        return new net.minecraft.commands.arguments.MessageArgument$Message(string, (net.minecraft.commands.arguments.MessageArgument$Part[])arrayList.toArray((java.lang.Object[])new net.minecraft.commands.arguments.MessageArgument$Part[0]));
++        return new net.minecraft.commands.arguments.MessageArgument$Message($$2, (net.minecraft.commands.arguments.MessageArgument$Part[])$$3.toArray((java.lang.Object[])new net.minecraft.commands.arguments.MessageArgument$Part[0]));
+     }
+ }
+ 

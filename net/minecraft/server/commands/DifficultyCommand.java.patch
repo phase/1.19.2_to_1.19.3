@@ -1,0 +1,39 @@
+--- net/minecraft/server/commands/DifficultyCommand.java
++++ net/minecraft/server/commands/DifficultyCommand.java
+@@ -10,25 +10,25 @@
+     public net.minecraft.server.commands.DifficultyCommand() {
+     }
+ 
+-    public static void register(com.mojang.brigadier.CommandDispatcher<net.minecraft.commands.CommandSourceStack> dispatcher) {
+-        com.mojang.brigadier.builder.LiteralArgumentBuilder literalArgumentBuilder = net.minecraft.commands.Commands.literal((java.lang.String)"difficulty");
+-        for (net.minecraft.world.Difficulty difficulty : net.minecraft.world.Difficulty.values()) {
+-            literalArgumentBuilder.then(net.minecraft.commands.Commands.literal((java.lang.String)difficulty.getKey()).executes($$1 -> net.minecraft.server.commands.DifficultyCommand.setDifficulty((net.minecraft.commands.CommandSourceStack)((net.minecraft.commands.CommandSourceStack)$$1.getSource()), (net.minecraft.world.Difficulty)difficulty)));
++    public static void register(com.mojang.brigadier.CommandDispatcher<net.minecraft.commands.CommandSourceStack> $$02) {
++        com.mojang.brigadier.builder.LiteralArgumentBuilder $$12 = net.minecraft.commands.Commands.literal((java.lang.String)"difficulty");
++        for (net.minecraft.world.Difficulty $$2 : net.minecraft.world.Difficulty.values()) {
++            $$12.then(net.minecraft.commands.Commands.literal((java.lang.String)$$2.getKey()).executes($$1 -> net.minecraft.server.commands.DifficultyCommand.setDifficulty((net.minecraft.commands.CommandSourceStack)((net.minecraft.commands.CommandSourceStack)$$1.getSource()), (net.minecraft.world.Difficulty)$$2)));
+         }
+-        dispatcher.register((com.mojang.brigadier.builder.LiteralArgumentBuilder)((com.mojang.brigadier.builder.LiteralArgumentBuilder)literalArgumentBuilder.requires($$0 -> $$0.hasPermission(2))).executes($$0 -> {
++        $$02.register((com.mojang.brigadier.builder.LiteralArgumentBuilder)((com.mojang.brigadier.builder.LiteralArgumentBuilder)$$12.requires($$0 -> $$0.hasPermission(2))).executes($$0 -> {
+             net.minecraft.world.Difficulty $$1 = ((net.minecraft.commands.CommandSourceStack)$$0.getSource()).getLevel().getDifficulty();
+             ((net.minecraft.commands.CommandSourceStack)$$0.getSource()).sendSuccess((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"commands.difficulty.query", (java.lang.Object[])new java.lang.Object[]{$$1.getDisplayName()}), false);
+             return $$1.getId();
+         }));
+     }
+ 
+-    public static int setDifficulty(net.minecraft.commands.CommandSourceStack source, net.minecraft.world.Difficulty difficulty) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
+-        net.minecraft.server.MinecraftServer minecraftServer = source.getServer();
+-        if (minecraftServer.getWorldData().getDifficulty() == difficulty) {
+-            throw ERROR_ALREADY_DIFFICULT.create((java.lang.Object)difficulty.getKey());
++    public static int setDifficulty(net.minecraft.commands.CommandSourceStack $$0, net.minecraft.world.Difficulty $$1) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
++        net.minecraft.server.MinecraftServer $$2 = $$0.getServer();
++        if ($$2.getWorldData().getDifficulty() == $$1) {
++            throw ERROR_ALREADY_DIFFICULT.create((java.lang.Object)$$1.getKey());
+         }
+-        minecraftServer.setDifficulty(difficulty, true);
+-        source.sendSuccess((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"commands.difficulty.success", (java.lang.Object[])new java.lang.Object[]{difficulty.getDisplayName()}), true);
++        $$2.setDifficulty($$1, true);
++        $$0.sendSuccess((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"commands.difficulty.success", (java.lang.Object[])new java.lang.Object[]{$$1.getDisplayName()}), true);
+         return 0;
+     }
+ 

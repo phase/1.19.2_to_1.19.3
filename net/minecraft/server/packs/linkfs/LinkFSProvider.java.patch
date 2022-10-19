@@ -1,0 +1,134 @@
+--- net/minecraft/server/packs/linkfs/LinkFSProvider.java
++++ net/minecraft/server/packs/linkfs/LinkFSProvider.java
+@@ -1,0 +1,131 @@
++/*
++ * Decompiled with CFR 0.151.
++ */
++package net.minecraft.server.packs.linkfs;
++
++public class net.minecraft.server.packs.linkfs.LinkFSProvider
++extends java.nio.file.spi.FileSystemProvider
++ {
++    public static java.lang.String SCHEME = "x-mc-link";
++
++    public net.minecraft.server.packs.linkfs.LinkFSProvider() {
++    }
++
++    public java.lang.String getScheme() {
++        return "x-mc-link";
++    }
++
++    public java.nio.file.FileSystem newFileSystem(java.net.URI $$0, java.util.Map<java.lang.String, ?> $$1) {
++        throw new java.lang.UnsupportedOperationException();
++    }
++
++    public java.nio.file.FileSystem getFileSystem(java.net.URI $$0) {
++        throw new java.lang.UnsupportedOperationException();
++    }
++
++    public java.nio.file.Path getPath(java.net.URI $$0) {
++        throw new java.lang.UnsupportedOperationException();
++    }
++
++    public java.nio.channels.SeekableByteChannel newByteChannel(java.nio.file.Path $$0, java.util.Set<? extends java.nio.file.OpenOption> $$1, java.nio.file.attribute.FileAttribute<?> ... $$2) throws java.io.IOException {
++        if ($$1.contains((java.lang.Object)java.nio.file.StandardOpenOption.CREATE_NEW) || $$1.contains((java.lang.Object)java.nio.file.StandardOpenOption.CREATE) || $$1.contains((java.lang.Object)java.nio.file.StandardOpenOption.APPEND) || $$1.contains((java.lang.Object)java.nio.file.StandardOpenOption.WRITE)) {
++            throw new java.lang.UnsupportedOperationException();
++        }
++        java.nio.file.Path $$3 = net.minecraft.server.packs.linkfs.LinkFSProvider.toLinkPath((java.nio.file.Path)$$0).toAbsolutePath().getTargetPath();
++        if ($$3 == null) {
++            throw new java.nio.file.NoSuchFileException($$0.toString());
++        }
++        return java.nio.file.Files.newByteChannel((java.nio.file.Path)$$3, $$1, $$2);
++    }
++
++    public java.nio.file.DirectoryStream<java.nio.file.Path> newDirectoryStream(java.nio.file.Path $$0, java.nio.file.DirectoryStream$Filter<? super java.nio.file.Path> $$1) throws java.io.IOException {
++        net.minecraft.server.packs.linkfs.PathContents$DirectoryContents $$2 = net.minecraft.server.packs.linkfs.LinkFSProvider.toLinkPath((java.nio.file.Path)$$0).toAbsolutePath().getDirectoryContents();
++        if ($$2 == null) {
++            throw new java.nio.file.NotDirectoryException($$0.toString());
++        }
++        return new /* Unavailable Anonymous Inner Class!! */;
++    }
++
++    public void createDirectory(java.nio.file.Path $$0, java.nio.file.attribute.FileAttribute<?> ... $$1) {
++        throw new java.nio.file.ReadOnlyFileSystemException();
++    }
++
++    public void delete(java.nio.file.Path $$0) {
++        throw new java.nio.file.ReadOnlyFileSystemException();
++    }
++
++    public void copy(java.nio.file.Path $$0, java.nio.file.Path $$1, java.nio.file.CopyOption ... $$2) {
++        throw new java.nio.file.ReadOnlyFileSystemException();
++    }
++
++    public void move(java.nio.file.Path $$0, java.nio.file.Path $$1, java.nio.file.CopyOption ... $$2) {
++        throw new java.nio.file.ReadOnlyFileSystemException();
++    }
++
++    public boolean isSameFile(java.nio.file.Path $$0, java.nio.file.Path $$1) {
++        return $$0 instanceof net.minecraft.server.packs.linkfs.LinkFSPath && $$1 instanceof net.minecraft.server.packs.linkfs.LinkFSPath && $$0.equals((java.lang.Object)$$1);
++    }
++
++    public boolean isHidden(java.nio.file.Path $$0) {
++        return false;
++    }
++
++    public java.nio.file.FileStore getFileStore(java.nio.file.Path $$0) {
++        return net.minecraft.server.packs.linkfs.LinkFSProvider.toLinkPath((java.nio.file.Path)$$0).getFileSystem().store();
++    }
++
++    public void checkAccess(java.nio.file.Path $$0, java.nio.file.AccessMode ... $$1) throws java.io.IOException {
++        if ($$1.length == 0 && !net.minecraft.server.packs.linkfs.LinkFSProvider.toLinkPath((java.nio.file.Path)$$0).exists()) {
++            throw new java.nio.file.NoSuchFileException($$0.toString());
++        }
++block4:        for (java.nio.file.AccessMode $$2 : $$1) {
++            switch (net.minecraft.server.packs.linkfs.LinkFSProvider$2.$SwitchMap$java$nio$file$AccessMode[$$2.ordinal()]) {
++                case 1: {
++                    if (net.minecraft.server.packs.linkfs.LinkFSProvider.toLinkPath((java.nio.file.Path)$$0).exists()) continue block4;
++                    throw new java.nio.file.NoSuchFileException($$0.toString());
++                }
++                case 2: 
++                case 3: {
++                    throw new java.nio.file.AccessDeniedException($$2.toString());
++                }
++            }
++        }
++    }
++
++    @javax.annotation.Nullable
++    public <V extends java.nio.file.attribute.FileAttributeView> V getFileAttributeView(java.nio.file.Path $$0, java.lang.Class<V> $$1, java.nio.file.LinkOption ... $$2) {
++        net.minecraft.server.packs.linkfs.LinkFSPath $$3 = net.minecraft.server.packs.linkfs.LinkFSProvider.toLinkPath((java.nio.file.Path)$$0);
++        if ($$1 == java.nio.file.attribute.BasicFileAttributeView.class) {
++            return (V)$$3.getBasicAttributeView();
++        }
++        return null;
++    }
++
++    public <A extends java.nio.file.attribute.BasicFileAttributes> A readAttributes(java.nio.file.Path $$0, java.lang.Class<A> $$1, java.nio.file.LinkOption ... $$2) throws java.io.IOException {
++        net.minecraft.server.packs.linkfs.LinkFSPath $$3 = net.minecraft.server.packs.linkfs.LinkFSProvider.toLinkPath((java.nio.file.Path)$$0).toAbsolutePath();
++        if ($$1 == java.nio.file.attribute.BasicFileAttributes.class) {
++            return (A)$$3.getBasicAttributes();
++        }
++        throw new java.lang.UnsupportedOperationException("Attributes of type " + $$1.getName() + " not supported");
++    }
++
++    public java.util.Map<java.lang.String, java.lang.Object> readAttributes(java.nio.file.Path $$0, java.lang.String $$1, java.nio.file.LinkOption ... $$2) {
++        throw new java.lang.UnsupportedOperationException();
++    }
++
++    public void setAttribute(java.nio.file.Path $$0, java.lang.String $$1, java.lang.Object $$2, java.nio.file.LinkOption ... $$3) {
++        throw new java.nio.file.ReadOnlyFileSystemException();
++    }
++
++    public static net.minecraft.server.packs.linkfs.LinkFSPath toLinkPath(@javax.annotation.Nullable java.nio.file.Path $$0) {
++        if ($$0 == null) {
++            throw new java.lang.NullPointerException();
++        }
++        if ($$0 instanceof net.minecraft.server.packs.linkfs.LinkFSPath) {
++            net.minecraft.server.packs.linkfs.LinkFSPath $$1 = (net.minecraft.server.packs.linkfs.LinkFSPath)$$0;
++            return $$1;
++        }
++        throw new java.nio.file.ProviderMismatchException();
++    }
++}
++

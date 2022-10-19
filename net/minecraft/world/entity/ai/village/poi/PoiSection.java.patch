@@ -1,0 +1,81 @@
+--- net/minecraft/world/entity/ai/village/poi/PoiSection.java
++++ net/minecraft/world/entity/ai/village/poi/PoiSection.java
+@@ -27,8 +27,8 @@
+         $$2.forEach(arg_0 -> this.add(arg_0));
+     }
+ 
+-    public java.util.stream.Stream<net.minecraft.world.entity.ai.village.poi.PoiRecord> getRecords(java.util.function.Predicate<net.minecraft.core.Holder<net.minecraft.world.entity.ai.village.poi.PoiType>> typePredicate, net.minecraft.world.entity.ai.village.poi.PoiManager$Occupancy status) {
+-        return this.byType.entrySet().stream().filter($$1 -> typePredicate.test((java.lang.Object)((net.minecraft.core.Holder)$$1.getKey()))).flatMap($$0 -> ((java.util.Set)$$0.getValue()).stream()).filter(status.getTest());
++    public java.util.stream.Stream<net.minecraft.world.entity.ai.village.poi.PoiRecord> getRecords(java.util.function.Predicate<net.minecraft.core.Holder<net.minecraft.world.entity.ai.village.poi.PoiType>> $$02, net.minecraft.world.entity.ai.village.poi.PoiManager$Occupancy $$12) {
++        return this.byType.entrySet().stream().filter($$1 -> $$02.test((java.lang.Object)((net.minecraft.core.Holder)$$1.getKey()))).flatMap($$0 -> ((java.util.Set)$$0.getValue()).stream()).filter($$12.getTest());
+     }
+ 
+     public void add(net.minecraft.core.BlockPos $$02, net.minecraft.core.Holder<net.minecraft.world.entity.ai.village.poi.PoiType> $$1) {
+@@ -54,14 +54,14 @@
+         return true;
+     }
+ 
+-    public void remove(net.minecraft.core.BlockPos pos) {
+-        net.minecraft.world.entity.ai.village.poi.PoiRecord poiRecord = (net.minecraft.world.entity.ai.village.poi.PoiRecord)this.records.remove(net.minecraft.core.SectionPos.sectionRelativePos((net.minecraft.core.BlockPos)pos));
+-        if (poiRecord == null) {
+-            LOGGER.error("POI data mismatch: never registered at {}", (java.lang.Object)pos);
++    public void remove(net.minecraft.core.BlockPos $$0) {
++        net.minecraft.world.entity.ai.village.poi.PoiRecord $$1 = (net.minecraft.world.entity.ai.village.poi.PoiRecord)this.records.remove(net.minecraft.core.SectionPos.sectionRelativePos((net.minecraft.core.BlockPos)$$0));
++        if ($$1 == null) {
++            LOGGER.error("POI data mismatch: never registered at {}", (java.lang.Object)$$0);
+             return;
+         }
+-        ((java.util.Set)this.byType.get((java.lang.Object)poiRecord.getPoiType())).remove((java.lang.Object)poiRecord);
+-        LOGGER.debug("Removed POI of type {} @ {}", com.mojang.logging.LogUtils.defer(() -> ((net.minecraft.world.entity.ai.village.poi.PoiRecord)poiRecord).getPoiType()), com.mojang.logging.LogUtils.defer(() -> ((net.minecraft.world.entity.ai.village.poi.PoiRecord)poiRecord).getPos()));
++        ((java.util.Set)this.byType.get((java.lang.Object)$$1.getPoiType())).remove((java.lang.Object)$$1);
++        LOGGER.debug("Removed POI of type {} @ {}", com.mojang.logging.LogUtils.defer(() -> ((net.minecraft.world.entity.ai.village.poi.PoiRecord)$$1).getPoiType()), com.mojang.logging.LogUtils.defer(() -> ((net.minecraft.world.entity.ai.village.poi.PoiRecord)$$1).getPos()));
+         this.setDirty.run();
+     }
+ 
+@@ -71,33 +71,33 @@
+         return (java.lang.Integer)this.getPoiRecord($$0).map(net.minecraft.world.entity.ai.village.poi.PoiRecord::getFreeTickets).orElse((java.lang.Object)0);
+     }
+ 
+-    public boolean release(net.minecraft.core.BlockPos pos) {
+-        net.minecraft.world.entity.ai.village.poi.PoiRecord poiRecord = (net.minecraft.world.entity.ai.village.poi.PoiRecord)this.records.get(net.minecraft.core.SectionPos.sectionRelativePos((net.minecraft.core.BlockPos)pos));
+-        if (poiRecord == null) {
+-            throw (java.lang.IllegalStateException)net.minecraft.Util.pauseInIde((java.lang.Throwable)new java.lang.IllegalStateException("POI never registered at " + pos));
++    public boolean release(net.minecraft.core.BlockPos $$0) {
++        net.minecraft.world.entity.ai.village.poi.PoiRecord $$1 = (net.minecraft.world.entity.ai.village.poi.PoiRecord)this.records.get(net.minecraft.core.SectionPos.sectionRelativePos((net.minecraft.core.BlockPos)$$0));
++        if ($$1 == null) {
++            throw (java.lang.IllegalStateException)net.minecraft.Util.pauseInIde((java.lang.Throwable)new java.lang.IllegalStateException("POI never registered at " + $$0));
+         }
+-        boolean bl = poiRecord.releaseTicket();
++        boolean $$2 = $$1.releaseTicket();
+         this.setDirty.run();
+-        return bl;
++        return $$2;
+     }
+ 
+-    public boolean exists(net.minecraft.core.BlockPos pos, java.util.function.Predicate<net.minecraft.core.Holder<net.minecraft.world.entity.ai.village.poi.PoiType>> typePredicate) {
+-        return this.getType(pos).filter(typePredicate).isPresent();
++    public boolean exists(net.minecraft.core.BlockPos $$0, java.util.function.Predicate<net.minecraft.core.Holder<net.minecraft.world.entity.ai.village.poi.PoiType>> $$1) {
++        return this.getType($$0).filter($$1).isPresent();
+     }
+ 
+-    public java.util.Optional<net.minecraft.core.Holder<net.minecraft.world.entity.ai.village.poi.PoiType>> getType(net.minecraft.core.BlockPos pos) {
+-        return this.getPoiRecord(pos).map(net.minecraft.world.entity.ai.village.poi.PoiRecord::getPoiType);
++    public java.util.Optional<net.minecraft.core.Holder<net.minecraft.world.entity.ai.village.poi.PoiType>> getType(net.minecraft.core.BlockPos $$0) {
++        return this.getPoiRecord($$0).map(net.minecraft.world.entity.ai.village.poi.PoiRecord::getPoiType);
+     }
+ 
+     public java.util.Optional<net.minecraft.world.entity.ai.village.poi.PoiRecord> getPoiRecord(net.minecraft.core.BlockPos $$0) {
+         return java.util.Optional.ofNullable((java.lang.Object)((net.minecraft.world.entity.ai.village.poi.PoiRecord)this.records.get(net.minecraft.core.SectionPos.sectionRelativePos((net.minecraft.core.BlockPos)$$0))));
+     }
+ 
+-    public void refresh(java.util.function.Consumer<java.util.function.BiConsumer<net.minecraft.core.BlockPos, net.minecraft.core.Holder<net.minecraft.world.entity.ai.village.poi.PoiType>>> posToTypeConsumer) {
++    public void refresh(java.util.function.Consumer<java.util.function.BiConsumer<net.minecraft.core.BlockPos, net.minecraft.core.Holder<net.minecraft.world.entity.ai.village.poi.PoiType>>> $$0) {
+         if (!this.isValid) {
+-            it.unimi.dsi.fastutil.shorts.Short2ObjectOpenHashMap short2ObjectOpenHashMap = new it.unimi.dsi.fastutil.shorts.Short2ObjectOpenHashMap(this.records);
++            it.unimi.dsi.fastutil.shorts.Short2ObjectOpenHashMap $$1 = new it.unimi.dsi.fastutil.shorts.Short2ObjectOpenHashMap(this.records);
+             this.clear();
+-            posToTypeConsumer.accept((arg_0, arg_1) -> this.lambda$refresh$9((it.unimi.dsi.fastutil.shorts.Short2ObjectMap)short2ObjectOpenHashMap, arg_0, arg_1));
++            $$0.accept((arg_0, arg_1) -> this.lambda$refresh$9((it.unimi.dsi.fastutil.shorts.Short2ObjectMap)$$1, arg_0, arg_1));
+             this.isValid = true;
+             this.setDirty.run();
+         }

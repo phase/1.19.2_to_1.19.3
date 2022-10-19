@@ -1,0 +1,372 @@
+--- net/minecraft/client/multiplayer/MultiPlayerGameMode.java
++++ net/minecraft/client/multiplayer/MultiPlayerGameMode.java
+@@ -27,8 +27,8 @@
+         this.connection = $$1;
+     }
+ 
+-    public void adjustPlayer(net.minecraft.world.entity.player.Player player) {
+-        this.localPlayerMode.updatePlayerAbilities(player.getAbilities());
++    public void adjustPlayer(net.minecraft.world.entity.player.Player $$0) {
++        this.localPlayerMode.updatePlayerAbilities($$0.getAbilities());
+     }
+ 
+     public void setLocalMode(net.minecraft.world.level.GameType $$0, @javax.annotation.Nullable net.minecraft.world.level.GameType $$1) {
+@@ -37,11 +37,11 @@
+         this.localPlayerMode.updatePlayerAbilities(this.minecraft.player.getAbilities());
+     }
+ 
+-    public void setLocalMode(net.minecraft.world.level.GameType type) {
+-        if (type != this.localPlayerMode) {
++    public void setLocalMode(net.minecraft.world.level.GameType $$0) {
++        if ($$0 != this.localPlayerMode) {
+             this.previousLocalPlayerMode = this.localPlayerMode;
+         }
+-        this.localPlayerMode = type;
++        this.localPlayerMode = $$0;
+         this.localPlayerMode.updatePlayerAbilities(this.minecraft.player.getAbilities());
+     }
+ 
+@@ -49,69 +49,69 @@
+         return this.localPlayerMode.isSurvival();
+     }
+ 
+-    public boolean destroyBlock(net.minecraft.core.BlockPos pos) {
+-        if (this.minecraft.player.blockActionRestricted((net.minecraft.world.level.Level)this.minecraft.level, pos, this.localPlayerMode)) {
++    public boolean destroyBlock(net.minecraft.core.BlockPos $$0) {
++        if (this.minecraft.player.blockActionRestricted((net.minecraft.world.level.Level)this.minecraft.level, $$0, this.localPlayerMode)) {
+             return false;
+         }
+-        net.minecraft.client.multiplayer.ClientLevel clientLevel = this.minecraft.level;
+-        net.minecraft.world.level.block.state.BlockState blockState = clientLevel.getBlockState(pos);
+-        if (!this.minecraft.player.getMainHandItem().getItem().canAttackBlock(blockState, (net.minecraft.world.level.Level)clientLevel, pos, (net.minecraft.world.entity.player.Player)this.minecraft.player)) {
++        net.minecraft.client.multiplayer.ClientLevel $$1 = this.minecraft.level;
++        net.minecraft.world.level.block.state.BlockState $$2 = $$1.getBlockState($$0);
++        if (!this.minecraft.player.getMainHandItem().getItem().canAttackBlock($$2, (net.minecraft.world.level.Level)$$1, $$0, (net.minecraft.world.entity.player.Player)this.minecraft.player)) {
+             return false;
+         }
+-        net.minecraft.world.level.block.Block block = blockState.getBlock();
+-        if (block instanceof net.minecraft.world.level.block.GameMasterBlock && !this.minecraft.player.canUseGameMasterBlocks()) {
++        net.minecraft.world.level.block.Block $$3 = $$2.getBlock();
++        if ($$3 instanceof net.minecraft.world.level.block.GameMasterBlock && !this.minecraft.player.canUseGameMasterBlocks()) {
+             return false;
+         }
+-        if (blockState.isAir()) {
++        if ($$2.isAir()) {
+             return false;
+         }
+-        block.playerWillDestroy((net.minecraft.world.level.Level)clientLevel, pos, blockState, (net.minecraft.world.entity.player.Player)this.minecraft.player);
+-        net.minecraft.world.level.material.FluidState fluidState = clientLevel.getFluidState(pos);
+-        boolean bl = clientLevel.setBlock(pos, fluidState.createLegacyBlock(), 11);
+-        if (bl) {
+-            block.destroy((net.minecraft.world.level.LevelAccessor)clientLevel, pos, blockState);
++        $$3.playerWillDestroy((net.minecraft.world.level.Level)$$1, $$0, $$2, (net.minecraft.world.entity.player.Player)this.minecraft.player);
++        net.minecraft.world.level.material.FluidState $$4 = $$1.getFluidState($$0);
++        boolean $$5 = $$1.setBlock($$0, $$4.createLegacyBlock(), 11);
++        if ($$5) {
++            $$3.destroy((net.minecraft.world.level.LevelAccessor)$$1, $$0, $$2);
+         }
+-        return bl;
++        return $$5;
+     }
+ 
+-    public boolean startDestroyBlock(net.minecraft.core.BlockPos loc, net.minecraft.core.Direction face) {
+-        if (this.minecraft.player.blockActionRestricted((net.minecraft.world.level.Level)this.minecraft.level, loc, this.localPlayerMode)) {
++    public boolean startDestroyBlock(net.minecraft.core.BlockPos $$0, net.minecraft.core.Direction $$1) {
++        if (this.minecraft.player.blockActionRestricted((net.minecraft.world.level.Level)this.minecraft.level, $$0, this.localPlayerMode)) {
+             return false;
+         }
+-        if (!this.minecraft.level.getWorldBorder().isWithinBounds(loc)) {
++        if (!this.minecraft.level.getWorldBorder().isWithinBounds($$0)) {
+             return false;
+         }
+         if (this.localPlayerMode.isCreative()) {
+-            net.minecraft.world.level.block.state.BlockState blockState = this.minecraft.level.getBlockState(loc);
+-            this.minecraft.getTutorial().onDestroyBlock(this.minecraft.level, loc, blockState, 1.0f);
++            net.minecraft.world.level.block.state.BlockState $$22 = this.minecraft.level.getBlockState($$0);
++            this.minecraft.getTutorial().onDestroyBlock(this.minecraft.level, $$0, $$22, 1.0f);
+             this.startPrediction(this.minecraft.level, $$2 -> {
+-                this.destroyBlock(loc);
+-                return new net.minecraft.network.protocol.game.ServerboundPlayerActionPacket(net.minecraft.network.protocol.game.ServerboundPlayerActionPacket$Action.START_DESTROY_BLOCK, loc, face, $$2);
++                this.destroyBlock($$0);
++                return new net.minecraft.network.protocol.game.ServerboundPlayerActionPacket(net.minecraft.network.protocol.game.ServerboundPlayerActionPacket$Action.START_DESTROY_BLOCK, $$0, $$1, $$2);
+             });
+             this.destroyDelay = 5;
+-        } else if (!this.isDestroying || !this.sameDestroyTarget(loc)) {
++        } else if (!this.isDestroying || !this.sameDestroyTarget($$0)) {
+             if (this.isDestroying) {
+-                this.connection.send((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ServerboundPlayerActionPacket(net.minecraft.network.protocol.game.ServerboundPlayerActionPacket$Action.ABORT_DESTROY_BLOCK, this.destroyBlockPos, face));
++                this.connection.send((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ServerboundPlayerActionPacket(net.minecraft.network.protocol.game.ServerboundPlayerActionPacket$Action.ABORT_DESTROY_BLOCK, this.destroyBlockPos, $$1));
+             }
+-            net.minecraft.world.level.block.state.BlockState blockState = this.minecraft.level.getBlockState(loc);
+-            this.minecraft.getTutorial().onDestroyBlock(this.minecraft.level, loc, blockState, 0.0f);
++            net.minecraft.world.level.block.state.BlockState $$32 = this.minecraft.level.getBlockState($$0);
++            this.minecraft.getTutorial().onDestroyBlock(this.minecraft.level, $$0, $$32, 0.0f);
+             this.startPrediction(this.minecraft.level, $$3 -> {
+                 boolean $$4;
+-                boolean bl = $$4 = !blockState.isAir();
++                boolean bl = $$4 = !$$32.isAir();
+                 if ($$4 && this.destroyProgress == 0.0f) {
+-                    blockState.attack((net.minecraft.world.level.Level)this.minecraft.level, loc, (net.minecraft.world.entity.player.Player)this.minecraft.player);
++                    $$32.attack((net.minecraft.world.level.Level)this.minecraft.level, $$0, (net.minecraft.world.entity.player.Player)this.minecraft.player);
+                 }
+-                if ($$4 && blockState.getDestroyProgress((net.minecraft.world.entity.player.Player)this.minecraft.player, (net.minecraft.world.level.BlockGetter)this.minecraft.player.level, loc) >= 1.0f) {
+-                    this.destroyBlock(loc);
++                if ($$4 && $$32.getDestroyProgress((net.minecraft.world.entity.player.Player)this.minecraft.player, (net.minecraft.world.level.BlockGetter)this.minecraft.player.level, $$0) >= 1.0f) {
++                    this.destroyBlock($$0);
+                 } else {
+                     this.isDestroying = true;
+-                    this.destroyBlockPos = loc;
++                    this.destroyBlockPos = $$0;
+                     this.destroyingItem = this.minecraft.player.getMainHandItem();
+                     this.destroyProgress = 0.0f;
+                     this.destroyTicks = 0.0f;
+                     this.minecraft.level.destroyBlockProgress(this.minecraft.player.getId(), this.destroyBlockPos, (int)(this.destroyProgress * 10.0f) - 1);
+                 }
+-                return new net.minecraft.network.protocol.game.ServerboundPlayerActionPacket(net.minecraft.network.protocol.game.ServerboundPlayerActionPacket$Action.START_DESTROY_BLOCK, loc, face, $$3);
++                return new net.minecraft.network.protocol.game.ServerboundPlayerActionPacket(net.minecraft.network.protocol.game.ServerboundPlayerActionPacket$Action.START_DESTROY_BLOCK, $$0, $$1, $$3);
+             });
+         }
+         return true;
+@@ -129,47 +129,47 @@
+         }
+     }
+ 
+-    public boolean continueDestroyBlock(net.minecraft.core.BlockPos posBlock, net.minecraft.core.Direction directionFacing) {
++    public boolean continueDestroyBlock(net.minecraft.core.BlockPos $$0, net.minecraft.core.Direction $$1) {
+         this.ensureHasSentCarriedItem();
+         if (this.destroyDelay > 0) {
+             --this.destroyDelay;
+             return true;
+         }
+-        if (this.localPlayerMode.isCreative() && this.minecraft.level.getWorldBorder().isWithinBounds(posBlock)) {
++        if (this.localPlayerMode.isCreative() && this.minecraft.level.getWorldBorder().isWithinBounds($$0)) {
+             this.destroyDelay = 5;
+-            net.minecraft.world.level.block.state.BlockState blockState = this.minecraft.level.getBlockState(posBlock);
+-            this.minecraft.getTutorial().onDestroyBlock(this.minecraft.level, posBlock, blockState, 1.0f);
++            net.minecraft.world.level.block.state.BlockState $$22 = this.minecraft.level.getBlockState($$0);
++            this.minecraft.getTutorial().onDestroyBlock(this.minecraft.level, $$0, $$22, 1.0f);
+             this.startPrediction(this.minecraft.level, $$2 -> {
+-                this.destroyBlock(posBlock);
+-                return new net.minecraft.network.protocol.game.ServerboundPlayerActionPacket(net.minecraft.network.protocol.game.ServerboundPlayerActionPacket$Action.START_DESTROY_BLOCK, posBlock, directionFacing, $$2);
++                this.destroyBlock($$0);
++                return new net.minecraft.network.protocol.game.ServerboundPlayerActionPacket(net.minecraft.network.protocol.game.ServerboundPlayerActionPacket$Action.START_DESTROY_BLOCK, $$0, $$1, $$2);
+             });
+             return true;
+         }
+-        if (this.sameDestroyTarget(posBlock)) {
+-            net.minecraft.world.level.block.state.BlockState blockState = this.minecraft.level.getBlockState(posBlock);
+-            if (blockState.isAir()) {
++        if (this.sameDestroyTarget($$0)) {
++            net.minecraft.world.level.block.state.BlockState $$3 = this.minecraft.level.getBlockState($$0);
++            if ($$3.isAir()) {
+                 this.isDestroying = false;
+                 return false;
+             }
+-            this.destroyProgress += blockState.getDestroyProgress((net.minecraft.world.entity.player.Player)this.minecraft.player, (net.minecraft.world.level.BlockGetter)this.minecraft.player.level, posBlock);
++            this.destroyProgress += $$3.getDestroyProgress((net.minecraft.world.entity.player.Player)this.minecraft.player, (net.minecraft.world.level.BlockGetter)this.minecraft.player.level, $$0);
+             if (this.destroyTicks % 4.0f == 0.0f) {
+-                net.minecraft.world.level.block.SoundType soundType = blockState.getSoundType();
+-                this.minecraft.getSoundManager().play((net.minecraft.client.resources.sounds.SoundInstance)new net.minecraft.client.resources.sounds.SimpleSoundInstance(soundType.getHitSound(), net.minecraft.sounds.SoundSource.BLOCKS, (soundType.getVolume() + 1.0f) / 8.0f, soundType.getPitch() * 0.5f, net.minecraft.client.resources.sounds.SoundInstance.createUnseededRandom(), posBlock));
++                net.minecraft.world.level.block.SoundType $$4 = $$3.getSoundType();
++                this.minecraft.getSoundManager().play((net.minecraft.client.resources.sounds.SoundInstance)new net.minecraft.client.resources.sounds.SimpleSoundInstance($$4.getHitSound(), net.minecraft.sounds.SoundSource.BLOCKS, ($$4.getVolume() + 1.0f) / 8.0f, $$4.getPitch() * 0.5f, net.minecraft.client.resources.sounds.SoundInstance.createUnseededRandom(), $$0));
+             }
+             this.destroyTicks += 1.0f;
+-            this.minecraft.getTutorial().onDestroyBlock(this.minecraft.level, posBlock, blockState, net.minecraft.util.Mth.clamp((float)this.destroyProgress, (float)0.0f, (float)1.0f));
++            this.minecraft.getTutorial().onDestroyBlock(this.minecraft.level, $$0, $$3, net.minecraft.util.Mth.clamp((float)this.destroyProgress, (float)0.0f, (float)1.0f));
+             if (this.destroyProgress >= 1.0f) {
+                 this.isDestroying = false;
+                 this.startPrediction(this.minecraft.level, $$2 -> {
+-                    this.destroyBlock(posBlock);
+-                    return new net.minecraft.network.protocol.game.ServerboundPlayerActionPacket(net.minecraft.network.protocol.game.ServerboundPlayerActionPacket$Action.STOP_DESTROY_BLOCK, posBlock, directionFacing, $$2);
++                    this.destroyBlock($$0);
++                    return new net.minecraft.network.protocol.game.ServerboundPlayerActionPacket(net.minecraft.network.protocol.game.ServerboundPlayerActionPacket$Action.STOP_DESTROY_BLOCK, $$0, $$1, $$2);
+                 });
+                 this.destroyProgress = 0.0f;
+                 this.destroyTicks = 0.0f;
+                 this.destroyDelay = 5;
+             }
+         } else {
+-            return this.startDestroyBlock(posBlock, directionFacing);
++            return this.startDestroyBlock($$0, $$1);
+         }
+         this.minecraft.level.destroyBlockProgress(this.minecraft.player.getId(), this.destroyBlockPos, (int)(this.destroyProgress * 10.0f) - 1);
+         return true;
+@@ -200,14 +200,14 @@
+         }
+     }
+ 
+-    public boolean sameDestroyTarget(net.minecraft.core.BlockPos pos) {
+-        boolean bl;
+-        net.minecraft.world.item.ItemStack itemStack = this.minecraft.player.getMainHandItem();
+-        boolean bl2 = bl = this.destroyingItem.isEmpty() && itemStack.isEmpty();
+-        if (!this.destroyingItem.isEmpty() && !itemStack.isEmpty()) {
+-            bl = itemStack.is(this.destroyingItem.getItem()) && net.minecraft.world.item.ItemStack.tagMatches((net.minecraft.world.item.ItemStack)itemStack, (net.minecraft.world.item.ItemStack)this.destroyingItem) && (itemStack.isDamageableItem() || itemStack.getDamageValue() == this.destroyingItem.getDamageValue());
++    public boolean sameDestroyTarget(net.minecraft.core.BlockPos $$0) {
++        boolean $$2;
++        net.minecraft.world.item.ItemStack $$1 = this.minecraft.player.getMainHandItem();
++        boolean bl = $$2 = this.destroyingItem.isEmpty() && $$1.isEmpty();
++        if (!this.destroyingItem.isEmpty() && !$$1.isEmpty()) {
++            $$2 = $$1.is(this.destroyingItem.getItem()) && net.minecraft.world.item.ItemStack.tagMatches((net.minecraft.world.item.ItemStack)$$1, (net.minecraft.world.item.ItemStack)this.destroyingItem) && ($$1.isDamageableItem() || $$1.getDamageValue() == this.destroyingItem.getDamageValue());
+         }
+-        return pos.equals((java.lang.Object)this.destroyBlockPos) && bl;
++        return $$0.equals((java.lang.Object)this.destroyBlockPos) && $$2;
+     }
+ 
+     public void ensureHasSentCarriedItem() {
+@@ -232,8 +232,7 @@
+     }
+ 
+     public net.minecraft.world.InteractionResult performUseItemOn(net.minecraft.client.player.LocalPlayer $$0, net.minecraft.world.InteractionHand $$1, net.minecraft.world.phys.BlockHitResult $$2) {
+-        net.minecraft.world.InteractionResult $$11;
+-        net.minecraft.world.InteractionResult $$7;
++        net.minecraft.world.InteractionResult $$12;
+         boolean $$6;
+         net.minecraft.core.BlockPos $$3 = $$2.getBlockPos();
+         net.minecraft.world.item.ItemStack $$4 = $$0.getItemInHand($$1);
+@@ -242,21 +241,28 @@
+         }
+         boolean $$5 = !$$0.getMainHandItem().isEmpty() || !$$0.getOffhandItem().isEmpty();
+         boolean bl = $$6 = $$0.isSecondaryUseActive() && $$5;
+-        if (!$$6 && ($$7 = this.minecraft.level.getBlockState($$3).use((net.minecraft.world.level.Level)this.minecraft.level, (net.minecraft.world.entity.player.Player)$$0, $$1, $$2)).consumesAction()) {
+-            return $$7;
++        if (!$$6) {
++            net.minecraft.world.level.block.state.BlockState $$7 = this.minecraft.level.getBlockState($$3);
++            if (!this.connection.isFeatureEnabled($$7.getBlock().requiredFeatures())) {
++                return net.minecraft.world.InteractionResult.FAIL;
++            }
++            net.minecraft.world.InteractionResult $$8 = $$7.use((net.minecraft.world.level.Level)this.minecraft.level, (net.minecraft.world.entity.player.Player)$$0, $$1, $$2);
++            if ($$8.consumesAction()) {
++                return $$8;
++            }
+         }
+         if ($$4.isEmpty() || $$0.getCooldowns().isOnCooldown($$4.getItem())) {
+             return net.minecraft.world.InteractionResult.PASS;
+         }
+-        net.minecraft.world.item.context.UseOnContext $$8 = new net.minecraft.world.item.context.UseOnContext((net.minecraft.world.entity.player.Player)$$0, $$1, $$2);
++        net.minecraft.world.item.context.UseOnContext $$9 = new net.minecraft.world.item.context.UseOnContext((net.minecraft.world.entity.player.Player)$$0, $$1, $$2);
+         if (this.localPlayerMode.isCreative()) {
+-            int $$9 = $$4.getCount();
+-            net.minecraft.world.InteractionResult $$10 = $$4.useOn($$8);
+-            $$4.setCount($$9);
++            int $$10 = $$4.getCount();
++            net.minecraft.world.InteractionResult $$11 = $$4.useOn($$9);
++            $$4.setCount($$10);
+         } else {
+-            $$11 = $$4.useOn($$8);
++            $$12 = $$4.useOn($$9);
+         }
+-        return $$11;
++        return $$12;
+     }
+ 
+     public net.minecraft.world.InteractionResult useItem(net.minecraft.world.entity.player.Player $$0, net.minecraft.world.InteractionHand $$1) {
+@@ -284,40 +290,40 @@
+         return (net.minecraft.world.InteractionResult)$$2.getValue();
+     }
+ 
+-    public net.minecraft.client.player.LocalPlayer createPlayer(net.minecraft.client.multiplayer.ClientLevel level, net.minecraft.stats.StatsCounter statsManager, net.minecraft.client.ClientRecipeBook recipes) {
+-        return this.createPlayer(level, statsManager, recipes, false, false);
++    public net.minecraft.client.player.LocalPlayer createPlayer(net.minecraft.client.multiplayer.ClientLevel $$0, net.minecraft.stats.StatsCounter $$1, net.minecraft.client.ClientRecipeBook $$2) {
++        return this.createPlayer($$0, $$1, $$2, false, false);
+     }
+ 
+-    public net.minecraft.client.player.LocalPlayer createPlayer(net.minecraft.client.multiplayer.ClientLevel level, net.minecraft.stats.StatsCounter statsManager, net.minecraft.client.ClientRecipeBook recipes, boolean bl, boolean bl2) {
+-        return new net.minecraft.client.player.LocalPlayer(this.minecraft, level, this.connection, statsManager, recipes, bl, bl2);
++    public net.minecraft.client.player.LocalPlayer createPlayer(net.minecraft.client.multiplayer.ClientLevel $$0, net.minecraft.stats.StatsCounter $$1, net.minecraft.client.ClientRecipeBook $$2, boolean $$3, boolean $$4) {
++        return new net.minecraft.client.player.LocalPlayer(this.minecraft, $$0, this.connection, $$1, $$2, $$3, $$4);
+     }
+ 
+-    public void attack(net.minecraft.world.entity.player.Player player, net.minecraft.world.entity.Entity targetEntity) {
++    public void attack(net.minecraft.world.entity.player.Player $$0, net.minecraft.world.entity.Entity $$1) {
+         this.ensureHasSentCarriedItem();
+-        this.connection.send((net.minecraft.network.protocol.Packet)net.minecraft.network.protocol.game.ServerboundInteractPacket.createAttackPacket((net.minecraft.world.entity.Entity)targetEntity, (boolean)player.isShiftKeyDown()));
++        this.connection.send((net.minecraft.network.protocol.Packet)net.minecraft.network.protocol.game.ServerboundInteractPacket.createAttackPacket((net.minecraft.world.entity.Entity)$$1, (boolean)$$0.isShiftKeyDown()));
+         if (this.localPlayerMode != net.minecraft.world.level.GameType.SPECTATOR) {
+-            player.attack(targetEntity);
+-            player.resetAttackStrengthTicker();
++            $$0.attack($$1);
++            $$0.resetAttackStrengthTicker();
+         }
+     }
+ 
+-    public net.minecraft.world.InteractionResult interact(net.minecraft.world.entity.player.Player player, net.minecraft.world.entity.Entity target, net.minecraft.world.InteractionHand hand) {
++    public net.minecraft.world.InteractionResult interact(net.minecraft.world.entity.player.Player $$0, net.minecraft.world.entity.Entity $$1, net.minecraft.world.InteractionHand $$2) {
+         this.ensureHasSentCarriedItem();
+-        this.connection.send((net.minecraft.network.protocol.Packet)net.minecraft.network.protocol.game.ServerboundInteractPacket.createInteractionPacket((net.minecraft.world.entity.Entity)target, (boolean)player.isShiftKeyDown(), (net.minecraft.world.InteractionHand)hand));
++        this.connection.send((net.minecraft.network.protocol.Packet)net.minecraft.network.protocol.game.ServerboundInteractPacket.createInteractionPacket((net.minecraft.world.entity.Entity)$$1, (boolean)$$0.isShiftKeyDown(), (net.minecraft.world.InteractionHand)$$2));
+         if (this.localPlayerMode == net.minecraft.world.level.GameType.SPECTATOR) {
+             return net.minecraft.world.InteractionResult.PASS;
+         }
+-        return player.interactOn(target, hand);
++        return $$0.interactOn($$1, $$2);
+     }
+ 
+-    public net.minecraft.world.InteractionResult interactAt(net.minecraft.world.entity.player.Player player, net.minecraft.world.entity.Entity target, net.minecraft.world.phys.EntityHitResult ray, net.minecraft.world.InteractionHand hand) {
++    public net.minecraft.world.InteractionResult interactAt(net.minecraft.world.entity.player.Player $$0, net.minecraft.world.entity.Entity $$1, net.minecraft.world.phys.EntityHitResult $$2, net.minecraft.world.InteractionHand $$3) {
+         this.ensureHasSentCarriedItem();
+-        net.minecraft.world.phys.Vec3 vec3 = ray.getLocation().subtract(target.getX(), target.getY(), target.getZ());
+-        this.connection.send((net.minecraft.network.protocol.Packet)net.minecraft.network.protocol.game.ServerboundInteractPacket.createInteractionPacket((net.minecraft.world.entity.Entity)target, (boolean)player.isShiftKeyDown(), (net.minecraft.world.InteractionHand)hand, (net.minecraft.world.phys.Vec3)vec3));
++        net.minecraft.world.phys.Vec3 $$4 = $$2.getLocation().subtract($$1.getX(), $$1.getY(), $$1.getZ());
++        this.connection.send((net.minecraft.network.protocol.Packet)net.minecraft.network.protocol.game.ServerboundInteractPacket.createInteractionPacket((net.minecraft.world.entity.Entity)$$1, (boolean)$$0.isShiftKeyDown(), (net.minecraft.world.InteractionHand)$$3, (net.minecraft.world.phys.Vec3)$$4));
+         if (this.localPlayerMode == net.minecraft.world.level.GameType.SPECTATOR) {
+             return net.minecraft.world.InteractionResult.PASS;
+         }
+-        return target.interactAt(player, vec3, hand);
++        return $$1.interactAt($$0, $$4, $$3);
+     }
+ 
+     public void handleInventoryMouseClick(int $$0, int $$1, int $$2, net.minecraft.world.inventory.ClickType $$3, net.minecraft.world.entity.player.Player $$4) {
+@@ -343,30 +349,30 @@
+         this.connection.send((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ServerboundContainerClickPacket($$0, $$5.getStateId(), $$1, $$2, $$3, $$5.getCarried().copy(), (it.unimi.dsi.fastutil.ints.Int2ObjectMap)$$10));
+     }
+ 
+-    public void handlePlaceRecipe(int n, net.minecraft.world.item.crafting.Recipe<?> recipe, boolean placeAll) {
+-        this.connection.send((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ServerboundPlaceRecipePacket(n, recipe, placeAll));
++    public void handlePlaceRecipe(int $$0, net.minecraft.world.item.crafting.Recipe<?> $$1, boolean $$2) {
++        this.connection.send((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ServerboundPlaceRecipePacket($$0, $$1, $$2));
+     }
+ 
+-    public void handleInventoryButtonClick(int windowID, int button) {
+-        this.connection.send((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ServerboundContainerButtonClickPacket(windowID, button));
++    public void handleInventoryButtonClick(int $$0, int $$1) {
++        this.connection.send((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ServerboundContainerButtonClickPacket($$0, $$1));
+     }
+ 
+-    public void handleCreativeModeItemAdd(net.minecraft.world.item.ItemStack itemStack, int slotId) {
+-        if (this.localPlayerMode.isCreative()) {
+-            this.connection.send((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ServerboundSetCreativeModeSlotPacket(slotId, itemStack));
++    public void handleCreativeModeItemAdd(net.minecraft.world.item.ItemStack $$0, int $$1) {
++        if (this.localPlayerMode.isCreative() && this.connection.isFeatureEnabled($$0.getItem().requiredFeatures())) {
++            this.connection.send((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ServerboundSetCreativeModeSlotPacket($$1, $$0));
+         }
+     }
+ 
+-    public void handleCreativeModeItemDrop(net.minecraft.world.item.ItemStack itemStack) {
+-        if (this.localPlayerMode.isCreative() && !itemStack.isEmpty()) {
+-            this.connection.send((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ServerboundSetCreativeModeSlotPacket(-1, itemStack));
++    public void handleCreativeModeItemDrop(net.minecraft.world.item.ItemStack $$0) {
++        if (this.localPlayerMode.isCreative() && !$$0.isEmpty() && this.connection.isFeatureEnabled($$0.getItem().requiredFeatures())) {
++            this.connection.send((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ServerboundSetCreativeModeSlotPacket(-1, $$0));
+         }
+     }
+ 
+-    public void releaseUsingItem(net.minecraft.world.entity.player.Player player) {
++    public void releaseUsingItem(net.minecraft.world.entity.player.Player $$0) {
+         this.ensureHasSentCarriedItem();
+         this.connection.send((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ServerboundPlayerActionPacket(net.minecraft.network.protocol.game.ServerboundPlayerActionPacket$Action.RELEASE_USE_ITEM, net.minecraft.core.BlockPos.ZERO, net.minecraft.core.Direction.DOWN));
+-        player.releaseUsingItem();
++        $$0.releaseUsingItem();
+     }
+ 
+     public boolean hasExperience() {
+@@ -406,8 +412,8 @@
+         return this.isDestroying;
+     }
+ 
+-    public void handlePickItem(int index) {
+-        this.connection.send((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ServerboundPickItemPacket(index));
++    public void handlePickItem(int $$0) {
++        this.connection.send((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ServerboundPickItemPacket($$0));
+     }
+ 
+     static {

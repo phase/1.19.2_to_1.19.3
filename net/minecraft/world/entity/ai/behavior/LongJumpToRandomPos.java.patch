@@ -1,0 +1,83 @@
+--- net/minecraft/world/entity/ai/behavior/LongJumpToRandomPos.java
++++ net/minecraft/world/entity/ai/behavior/LongJumpToRandomPos.java
+@@ -22,13 +22,19 @@
+     public int findJumpTries;
+     public long prepareJumpStart;
+     public java.util.function.Function<E, net.minecraft.sounds.SoundEvent> getJumpSound;
+-    public java.util.function.Predicate<net.minecraft.world.level.block.state.BlockState> acceptableLandingSpot;
++    public java.util.function.BiPredicate<E, net.minecraft.core.BlockPos> acceptableLandingSpot;
+ 
+-    public net.minecraft.world.entity.ai.behavior.LongJumpToRandomPos(net.minecraft.util.valueproviders.UniformInt $$02, int $$1, int $$2, float $$3, java.util.function.Function<E, net.minecraft.sounds.SoundEvent> $$4) {
+-        this($$02, $$1, $$2, $$3, $$4, $$0 -> false);
++    public net.minecraft.world.entity.ai.behavior.LongJumpToRandomPos(net.minecraft.util.valueproviders.UniformInt $$0, int $$1, int $$2, float $$3, java.util.function.Function<E, net.minecraft.sounds.SoundEvent> $$4) {
++        this($$0, $$1, $$2, $$3, $$4, net.minecraft.world.entity.ai.behavior.LongJumpToRandomPos::defaultAcceptableLandingSpot);
+     }
+ 
+-    public net.minecraft.world.entity.ai.behavior.LongJumpToRandomPos(net.minecraft.util.valueproviders.UniformInt $$0, int $$1, int $$2, float $$3, java.util.function.Function<E, net.minecraft.sounds.SoundEvent> $$4, java.util.function.Predicate<net.minecraft.world.level.block.state.BlockState> $$5) {
++    public static <E extends net.minecraft.world.entity.Mob> boolean defaultAcceptableLandingSpot(E $$0, net.minecraft.core.BlockPos $$1) {
++        net.minecraft.world.level.Level $$2 = $$0.level;
++        net.minecraft.core.BlockPos $$3 = $$1.below();
++        return $$2.getBlockState($$3).isSolidRender((net.minecraft.world.level.BlockGetter)$$2, $$3) && $$0.getPathfindingMalus(net.minecraft.world.level.pathfinder.WalkNodeEvaluator.getBlockPathTypeStatic((net.minecraft.world.level.BlockGetter)$$2, (net.minecraft.core.BlockPos$MutableBlockPos)$$1.mutable())) == 0.0f;
++    }
++
++    public net.minecraft.world.entity.ai.behavior.LongJumpToRandomPos(net.minecraft.util.valueproviders.UniformInt $$0, int $$1, int $$2, float $$3, java.util.function.Function<E, net.minecraft.sounds.SoundEvent> $$4, java.util.function.BiPredicate<E, net.minecraft.core.BlockPos> $$5) {
+         super((java.util.Map)com.google.common.collect.ImmutableMap.of((java.lang.Object)net.minecraft.world.entity.ai.memory.MemoryModuleType.LOOK_TARGET, (java.lang.Object)net.minecraft.world.entity.ai.memory.MemoryStatus.REGISTERED, (java.lang.Object)net.minecraft.world.entity.ai.memory.MemoryModuleType.LONG_JUMP_COOLDOWN_TICKS, (java.lang.Object)net.minecraft.world.entity.ai.memory.MemoryStatus.VALUE_ABSENT, (java.lang.Object)net.minecraft.world.entity.ai.memory.MemoryModuleType.LONG_JUMP_MID_JUMP, (java.lang.Object)net.minecraft.world.entity.ai.memory.MemoryStatus.VALUE_ABSENT), 200);
+         this.jumpCandidates = com.google.common.collect.Lists.newArrayList();
+         this.initialPosition = java.util.Optional.empty();
+@@ -118,10 +124,7 @@
+         if ($$4 == $$2.getX() && $$5 == $$2.getZ()) {
+             return false;
+         }
+-        if (!$$1.getNavigation().isStableDestination($$2) && !this.acceptableLandingSpot.test((java.lang.Object)$$0.getBlockState($$2.below()))) {
+-            return false;
+-        }
+-        return $$1.getPathfindingMalus(net.minecraft.world.level.pathfinder.WalkNodeEvaluator.getBlockPathTypeStatic((net.minecraft.world.level.BlockGetter)((net.minecraft.world.entity.Mob)$$1).level, (net.minecraft.core.BlockPos$MutableBlockPos)$$2.mutable())) == 0.0f;
++        return this.acceptableLandingSpot.test($$1, (java.lang.Object)$$2);
+     }
+ 
+     @javax.annotation.Nullable
+@@ -169,30 +172,29 @@
+         int $$22 = net.minecraft.util.Mth.ceil((double)($$9 / $$20)) * 2;
+         double $$23 = 0.0;
+         net.minecraft.world.phys.Vec3 $$24 = null;
+-        for (int $$25 = 0; $$25 < $$22 - 1; ++$$25) {
+-            double $$26 = $$14 / $$15 * ($$23 += $$9 / (double)$$22) - java.lang.Math.pow((double)$$23, (double)2.0) * 0.08 / (2.0 * $$18 * java.lang.Math.pow((double)$$15, (double)2.0));
+-            double $$27 = $$23 * $$17;
+-            double $$28 = $$23 * $$16;
+-            net.minecraft.world.phys.Vec3 $$29 = new net.minecraft.world.phys.Vec3($$3.x + $$27, $$3.y + $$26, $$3.z + $$28);
+-            if ($$24 != null && !this.isClearTransition($$0, $$24, $$29)) {
++        net.minecraft.world.entity.EntityDimensions $$25 = $$0.getDimensions(net.minecraft.world.entity.Pose.LONG_JUMPING);
++        for (int $$26 = 0; $$26 < $$22 - 1; ++$$26) {
++            double $$27 = $$14 / $$15 * ($$23 += $$9 / (double)$$22) - java.lang.Math.pow((double)$$23, (double)2.0) * 0.08 / (2.0 * $$18 * java.lang.Math.pow((double)$$15, (double)2.0));
++            double $$28 = $$23 * $$17;
++            double $$29 = $$23 * $$16;
++            net.minecraft.world.phys.Vec3 $$30 = new net.minecraft.world.phys.Vec3($$3.x + $$28, $$3.y + $$27, $$3.z + $$29);
++            if ($$24 != null && !this.isClearTransition($$0, $$25, $$24, $$30)) {
+                 return null;
+             }
+-            $$24 = $$29;
++            $$24 = $$30;
+         }
+         return new net.minecraft.world.phys.Vec3($$20 * $$17, $$21, $$20 * $$16).scale((double)0.95f);
+     }
+ 
+-    public boolean isClearTransition(net.minecraft.world.entity.Mob $$0, net.minecraft.world.phys.Vec3 $$1, net.minecraft.world.phys.Vec3 $$2) {
+-        net.minecraft.world.entity.EntityDimensions $$3 = $$0.getDimensions(net.minecraft.world.entity.Pose.LONG_JUMPING);
+-        net.minecraft.world.phys.Vec3 $$4 = $$2.subtract($$1);
+-        double $$5 = java.lang.Math.min((float)$$3.width, (float)$$3.height);
++    public boolean isClearTransition(net.minecraft.world.entity.Mob $$0, net.minecraft.world.entity.EntityDimensions $$1, net.minecraft.world.phys.Vec3 $$2, net.minecraft.world.phys.Vec3 $$3) {
++        net.minecraft.world.phys.Vec3 $$4 = $$3.subtract($$2);
++        double $$5 = java.lang.Math.min((float)$$1.width, (float)$$1.height);
+         int $$6 = net.minecraft.util.Mth.ceil((double)($$4.length() / $$5));
+         net.minecraft.world.phys.Vec3 $$7 = $$4.normalize();
+-        net.minecraft.world.phys.Vec3 $$8 = $$1;
++        net.minecraft.world.phys.Vec3 $$8 = $$2;
+         for (int $$9 = 0; $$9 < $$6; ++$$9) {
+-            $$8 = $$9 == $$6 - 1 ? $$2 : $$8.add($$7.scale($$5 * (double)0.9f));
+-            net.minecraft.world.phys.AABB $$10 = $$3.makeBoundingBox($$8);
+-            if ($$0.level.noCollision((net.minecraft.world.entity.Entity)$$0, $$10)) continue;
++            net.minecraft.world.phys.Vec3 vec3 = $$8 = $$9 == $$6 - 1 ? $$3 : $$8.add($$7.scale($$5 * (double)0.9f));
++            if ($$0.level.noCollision((net.minecraft.world.entity.Entity)$$0, $$1.makeBoundingBox($$8))) continue;
+             return false;
+         }
+         return true;

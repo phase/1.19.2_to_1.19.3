@@ -1,0 +1,216 @@
+--- net/minecraft/world/level/dimension/end/EndDragonFight.java
++++ net/minecraft/world/level/dimension/end/EndDragonFight.java
+@@ -36,38 +36,38 @@
+     @javax.annotation.Nullable
+     public java.util.List<net.minecraft.world.entity.boss.enderdragon.EndCrystal> respawnCrystals;
+ 
+-    public net.minecraft.world.level.dimension.end.EndDragonFight(net.minecraft.server.level.ServerLevel level, long seed, net.minecraft.nbt.CompoundTag tag) {
++    public net.minecraft.world.level.dimension.end.EndDragonFight(net.minecraft.server.level.ServerLevel $$0, long $$1, net.minecraft.nbt.CompoundTag $$2) {
+         this.dragonEvent = (net.minecraft.server.level.ServerBossEvent)new net.minecraft.server.level.ServerBossEvent((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"entity.minecraft.ender_dragon"), net.minecraft.world.BossEvent$BossBarColor.PINK, net.minecraft.world.BossEvent$BossBarOverlay.PROGRESS).setPlayBossMusic(true).setCreateWorldFog(true);
+         this.gateways = new it.unimi.dsi.fastutil.objects.ObjectArrayList();
+         this.needsStateScanning = true;
+-        this.level = level;
+-        if (tag.contains("NeedsStateScanning")) {
+-            this.needsStateScanning = tag.getBoolean("NeedsStateScanning");
++        this.level = $$0;
++        if ($$2.contains("NeedsStateScanning")) {
++            this.needsStateScanning = $$2.getBoolean("NeedsStateScanning");
+         }
+-        if (tag.contains("DragonKilled", 99)) {
+-            if (tag.hasUUID("Dragon")) {
+-                this.dragonUUID = tag.getUUID("Dragon");
++        if ($$2.contains("DragonKilled", 99)) {
++            if ($$2.hasUUID("Dragon")) {
++                this.dragonUUID = $$2.getUUID("Dragon");
+             }
+-            this.dragonKilled = tag.getBoolean("DragonKilled");
+-            this.previouslyKilled = tag.getBoolean("PreviouslyKilled");
+-            if (tag.getBoolean("IsRespawning")) {
++            this.dragonKilled = $$2.getBoolean("DragonKilled");
++            this.previouslyKilled = $$2.getBoolean("PreviouslyKilled");
++            if ($$2.getBoolean("IsRespawning")) {
+                 this.respawnStage = net.minecraft.world.level.dimension.end.DragonRespawnAnimation.START;
+             }
+-            if (tag.contains("ExitPortalLocation", 10)) {
+-                this.portalLocation = net.minecraft.nbt.NbtUtils.readBlockPos((net.minecraft.nbt.CompoundTag)tag.getCompound("ExitPortalLocation"));
++            if ($$2.contains("ExitPortalLocation", 10)) {
++                this.portalLocation = net.minecraft.nbt.NbtUtils.readBlockPos((net.minecraft.nbt.CompoundTag)$$2.getCompound("ExitPortalLocation"));
+             }
+         } else {
+             this.dragonKilled = true;
+             this.previouslyKilled = true;
+         }
+-        if (tag.contains("Gateways", 9)) {
+-            net.minecraft.nbt.ListTag listTag = tag.getList("Gateways", 3);
+-            for (int i = 0; i < listTag.size(); ++i) {
+-                this.gateways.add((java.lang.Object)listTag.getInt(i));
++        if ($$2.contains("Gateways", 9)) {
++            net.minecraft.nbt.ListTag $$3 = $$2.getList("Gateways", 3);
++            for (int $$4 = 0; $$4 < $$3.size(); ++$$4) {
++                this.gateways.add((java.lang.Object)$$3.getInt($$4));
+             }
+         } else {
+             this.gateways.addAll((java.util.Collection)com.google.common.collect.ContiguousSet.create((com.google.common.collect.Range)com.google.common.collect.Range.closedOpen((java.lang.Comparable)java.lang.Integer.valueOf((int)0), (java.lang.Comparable)java.lang.Integer.valueOf((int)20)), (com.google.common.collect.DiscreteDomain)com.google.common.collect.DiscreteDomain.integers()));
+-            net.minecraft.Util.shuffle((it.unimi.dsi.fastutil.objects.ObjectArrayList)this.gateways, (net.minecraft.util.RandomSource)net.minecraft.util.RandomSource.create((long)seed));
++            net.minecraft.Util.shuffle((it.unimi.dsi.fastutil.objects.ObjectArrayList)this.gateways, (net.minecraft.util.RandomSource)net.minecraft.util.RandomSource.create((long)$$1));
+         }
+         this.exitPortalPattern = net.minecraft.world.level.block.state.pattern.BlockPatternBuilder.start().aisle(new java.lang.String[]{"       ", "       ", "       ", "   #   ", "       ", "       ", "       "}).aisle(new java.lang.String[]{"       ", "       ", "       ", "   #   ", "       ", "       ", "       "}).aisle(new java.lang.String[]{"       ", "       ", "       ", "   #   ", "       ", "       ", "       "}).aisle(new java.lang.String[]{"  ###  ", " #   # ", "#     #", "#  #  #", "#     #", " #   # ", "  ###  "}).aisle(new java.lang.String[]{"       ", "  ###  ", " ##### ", " ##### ", " ##### ", "  ###  ", "       "}).where('#', net.minecraft.world.level.block.state.pattern.BlockInWorld.hasState((java.util.function.Predicate)net.minecraft.world.level.block.state.predicate.BlockPredicate.forBlock((net.minecraft.world.level.block.Block)net.minecraft.world.level.block.Blocks.BEDROCK))).build();
+     }
+@@ -171,20 +171,22 @@
+         }
+     }
+ 
+-    public void setRespawnStage(net.minecraft.world.level.dimension.end.DragonRespawnAnimation state) {
++    public void setRespawnStage(net.minecraft.world.level.dimension.end.DragonRespawnAnimation $$0) {
+         if (this.respawnStage == null) {
+             throw new java.lang.IllegalStateException("Dragon respawn isn't in progress, can't skip ahead in the animation.");
+         }
+         this.respawnTime = 0;
+-        if (state == net.minecraft.world.level.dimension.end.DragonRespawnAnimation.END) {
++        if ($$0 == net.minecraft.world.level.dimension.end.DragonRespawnAnimation.END) {
+             this.respawnStage = null;
+             this.dragonKilled = false;
+-            net.minecraft.world.entity.boss.enderdragon.EnderDragon enderDragon = this.createNewDragon();
+-            for (net.minecraft.server.level.ServerPlayer serverPlayer : this.dragonEvent.getPlayers()) {
+-                net.minecraft.advancements.CriteriaTriggers.SUMMONED_ENTITY.trigger(serverPlayer, (net.minecraft.world.entity.Entity)enderDragon);
++            net.minecraft.world.entity.boss.enderdragon.EnderDragon $$1 = this.createNewDragon();
++            if ($$1 != null) {
++                for (net.minecraft.server.level.ServerPlayer $$2 : this.dragonEvent.getPlayers()) {
++                    net.minecraft.advancements.CriteriaTriggers.SUMMONED_ENTITY.trigger($$2, (net.minecraft.world.entity.Entity)$$1);
++                }
+             }
+         } else {
+-            this.respawnStage = state;
++            this.respawnStage = $$0;
+         }
+     }
+ 
+@@ -266,8 +268,8 @@
+         LOGGER.debug("Found {} end crystals still alive", (java.lang.Object)this.crystalsAlive);
+     }
+ 
+-    public void setDragonKilled(net.minecraft.world.entity.boss.enderdragon.EnderDragon dragon) {
+-        if (dragon.getUUID().equals((java.lang.Object)this.dragonUUID)) {
++    public void setDragonKilled(net.minecraft.world.entity.boss.enderdragon.EnderDragon $$0) {
++        if ($$0.getUUID().equals((java.lang.Object)this.dragonUUID)) {
+             this.dragonEvent.setProgress(0.0f);
+             this.dragonEvent.setVisible(false);
+             this.spawnExitPortal(true);
+@@ -290,38 +292,41 @@
+         this.spawnNewGateway(new net.minecraft.core.BlockPos($$1, 75, $$2));
+     }
+ 
+-    public void spawnNewGateway(net.minecraft.core.BlockPos pos) {
+-        this.level.levelEvent(3000, pos, 0);
+-        ((net.minecraft.world.level.levelgen.feature.ConfiguredFeature)net.minecraft.data.worldgen.features.EndFeatures.END_GATEWAY_DELAYED.value()).place((net.minecraft.world.level.WorldGenLevel)this.level, this.level.getChunkSource().getGenerator(), net.minecraft.util.RandomSource.create(), pos);
++    public void spawnNewGateway(net.minecraft.core.BlockPos $$0) {
++        this.level.levelEvent(3000, $$0, 0);
++        ((net.minecraft.world.level.levelgen.feature.ConfiguredFeature)net.minecraft.data.worldgen.features.EndFeatures.END_GATEWAY_DELAYED.value()).place((net.minecraft.world.level.WorldGenLevel)this.level, this.level.getChunkSource().getGenerator(), net.minecraft.util.RandomSource.create(), $$0);
+     }
+ 
+-    public void spawnExitPortal(boolean active) {
+-        net.minecraft.world.level.levelgen.feature.EndPodiumFeature endPodiumFeature = new net.minecraft.world.level.levelgen.feature.EndPodiumFeature(active);
++    public void spawnExitPortal(boolean $$0) {
++        net.minecraft.world.level.levelgen.feature.EndPodiumFeature $$1 = new net.minecraft.world.level.levelgen.feature.EndPodiumFeature($$0);
+         if (this.portalLocation == null) {
+             this.portalLocation = this.level.getHeightmapPos(net.minecraft.world.level.levelgen.Heightmap$Types.MOTION_BLOCKING_NO_LEAVES, net.minecraft.world.level.levelgen.feature.EndPodiumFeature.END_PODIUM_LOCATION).below();
+             while (this.level.getBlockState(this.portalLocation).is(net.minecraft.world.level.block.Blocks.BEDROCK) && this.portalLocation.getY() > this.level.getSeaLevel()) {
+                 this.portalLocation = this.portalLocation.below();
+             }
+         }
+-        endPodiumFeature.place((net.minecraft.world.level.levelgen.feature.configurations.FeatureConfiguration)net.minecraft.world.level.levelgen.feature.configurations.FeatureConfiguration.NONE, (net.minecraft.world.level.WorldGenLevel)this.level, this.level.getChunkSource().getGenerator(), net.minecraft.util.RandomSource.create(), this.portalLocation);
++        $$1.place((net.minecraft.world.level.levelgen.feature.configurations.FeatureConfiguration)net.minecraft.world.level.levelgen.feature.configurations.FeatureConfiguration.NONE, (net.minecraft.world.level.WorldGenLevel)this.level, this.level.getChunkSource().getGenerator(), net.minecraft.util.RandomSource.create(), this.portalLocation);
+     }
+ 
++    @javax.annotation.Nullable
+     public net.minecraft.world.entity.boss.enderdragon.EnderDragon createNewDragon() {
+         this.level.getChunkAt(new net.minecraft.core.BlockPos(0, 128, 0));
+         net.minecraft.world.entity.boss.enderdragon.EnderDragon $$0 = (net.minecraft.world.entity.boss.enderdragon.EnderDragon)net.minecraft.world.entity.EntityType.ENDER_DRAGON.create((net.minecraft.world.level.Level)this.level);
+-        $$0.getPhaseManager().setPhase(net.minecraft.world.entity.boss.enderdragon.phases.EnderDragonPhase.HOLDING_PATTERN);
+-        $$0.moveTo(0.0, 128.0, 0.0, this.level.random.nextFloat() * 360.0f, 0.0f);
+-        this.level.addFreshEntity((net.minecraft.world.entity.Entity)$$0);
+-        this.dragonUUID = $$0.getUUID();
++        if ($$0 != null) {
++            $$0.getPhaseManager().setPhase(net.minecraft.world.entity.boss.enderdragon.phases.EnderDragonPhase.HOLDING_PATTERN);
++            $$0.moveTo(0.0, 128.0, 0.0, this.level.random.nextFloat() * 360.0f, 0.0f);
++            this.level.addFreshEntity((net.minecraft.world.entity.Entity)$$0);
++            this.dragonUUID = $$0.getUUID();
++        }
+         return $$0;
+     }
+ 
+-    public void updateDragon(net.minecraft.world.entity.boss.enderdragon.EnderDragon dragon) {
+-        if (dragon.getUUID().equals((java.lang.Object)this.dragonUUID)) {
+-            this.dragonEvent.setProgress(dragon.getHealth() / dragon.getMaxHealth());
++    public void updateDragon(net.minecraft.world.entity.boss.enderdragon.EnderDragon $$0) {
++        if ($$0.getUUID().equals((java.lang.Object)this.dragonUUID)) {
++            this.dragonEvent.setProgress($$0.getHealth() / $$0.getMaxHealth());
+             this.ticksSinceDragonSeen = 0;
+-            if (dragon.hasCustomName()) {
+-                this.dragonEvent.setName(dragon.getDisplayName());
++            if ($$0.hasCustomName()) {
++                this.dragonEvent.setName($$0.getDisplayName());
+             }
+         }
+     }
+@@ -330,8 +335,8 @@
+         return this.crystalsAlive;
+     }
+ 
+-    public void onCrystalDestroyed(net.minecraft.world.entity.boss.enderdragon.EndCrystal crystal, net.minecraft.world.damagesource.DamageSource dmgSrc) {
+-        if (this.respawnStage != null && this.respawnCrystals.contains((java.lang.Object)crystal)) {
++    public void onCrystalDestroyed(net.minecraft.world.entity.boss.enderdragon.EndCrystal $$0, net.minecraft.world.damagesource.DamageSource $$1) {
++        if (this.respawnStage != null && this.respawnCrystals.contains((java.lang.Object)$$0)) {
+             LOGGER.debug("Aborting respawn sequence");
+             this.respawnStage = null;
+             this.respawnTime = 0;
+@@ -339,9 +344,9 @@
+             this.spawnExitPortal(true);
+         } else {
+             this.updateCrystalCount();
+-            net.minecraft.world.entity.Entity entity = this.level.getEntity(this.dragonUUID);
+-            if (entity instanceof net.minecraft.world.entity.boss.enderdragon.EnderDragon) {
+-                ((net.minecraft.world.entity.boss.enderdragon.EnderDragon)entity).onCrystalDestroyed(crystal, crystal.blockPosition(), dmgSrc);
++            net.minecraft.world.entity.Entity $$2 = this.level.getEntity(this.dragonUUID);
++            if ($$2 instanceof net.minecraft.world.entity.boss.enderdragon.EnderDragon) {
++                ((net.minecraft.world.entity.boss.enderdragon.EnderDragon)$$2).onCrystalDestroyed($$0, $$0.blockPosition(), $$1);
+             }
+         }
+     }
+@@ -378,25 +383,25 @@
+         }
+     }
+ 
+-    public void respawnDragon(java.util.List<net.minecraft.world.entity.boss.enderdragon.EndCrystal> crystals) {
++    public void respawnDragon(java.util.List<net.minecraft.world.entity.boss.enderdragon.EndCrystal> $$0) {
+         if (this.dragonKilled && this.respawnStage == null) {
+-            net.minecraft.world.level.block.state.pattern.BlockPattern$BlockPatternMatch blockPatternMatch = this.findExitPortal();
+-            while (blockPatternMatch != null) {
+-                for (int i = 0; i < this.exitPortalPattern.getWidth(); ++i) {
+-                    for (int j = 0; j < this.exitPortalPattern.getHeight(); ++j) {
+-                        for (int k = 0; k < this.exitPortalPattern.getDepth(); ++k) {
+-                            net.minecraft.world.level.block.state.pattern.BlockInWorld blockInWorld = blockPatternMatch.getBlock(i, j, k);
+-                            if (!blockInWorld.getState().is(net.minecraft.world.level.block.Blocks.BEDROCK) && !blockInWorld.getState().is(net.minecraft.world.level.block.Blocks.END_PORTAL)) continue;
+-                            this.level.setBlockAndUpdate(blockInWorld.getPos(), net.minecraft.world.level.block.Blocks.END_STONE.defaultBlockState());
++            net.minecraft.world.level.block.state.pattern.BlockPattern$BlockPatternMatch $$1 = this.findExitPortal();
++            while ($$1 != null) {
++                for (int $$2 = 0; $$2 < this.exitPortalPattern.getWidth(); ++$$2) {
++                    for (int $$3 = 0; $$3 < this.exitPortalPattern.getHeight(); ++$$3) {
++                        for (int $$4 = 0; $$4 < this.exitPortalPattern.getDepth(); ++$$4) {
++                            net.minecraft.world.level.block.state.pattern.BlockInWorld $$5 = $$1.getBlock($$2, $$3, $$4);
++                            if (!$$5.getState().is(net.minecraft.world.level.block.Blocks.BEDROCK) && !$$5.getState().is(net.minecraft.world.level.block.Blocks.END_PORTAL)) continue;
++                            this.level.setBlockAndUpdate($$5.getPos(), net.minecraft.world.level.block.Blocks.END_STONE.defaultBlockState());
+                         }
+                     }
+                 }
+-                blockPatternMatch = this.findExitPortal();
++                $$1 = this.findExitPortal();
+             }
+             this.respawnStage = net.minecraft.world.level.dimension.end.DragonRespawnAnimation.START;
+             this.respawnTime = 0;
+             this.spawnExitPortal(false);
+-            this.respawnCrystals = crystals;
++            this.respawnCrystals = $$0;
+         }
+     }
+ 

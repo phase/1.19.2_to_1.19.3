@@ -1,0 +1,168 @@
+--- net/minecraft/client/renderer/texture/Stitcher.java
++++ net/minecraft/client/renderer/texture/Stitcher.java
+@@ -3,23 +3,23 @@
+  */
+ package net.minecraft.client.renderer.texture;
+ 
+-public class net.minecraft.client.renderer.texture.Stitcher
++public class net.minecraft.client.renderer.texture.Stitcher<T extends net.minecraft.client.renderer.texture.Stitcher$Entry>
+  {
+-    public static java.util.Comparator<net.minecraft.client.renderer.texture.Stitcher$Holder> HOLDER_COMPARATOR;
++    public static java.util.Comparator<net.minecraft.client.renderer.texture.Stitcher$Holder<?>> HOLDER_COMPARATOR;
+     public int mipLevel;
+-    public java.util.Set<net.minecraft.client.renderer.texture.Stitcher$Holder> texturesToBeStitched;
+-    public java.util.List<net.minecraft.client.renderer.texture.Stitcher$Region> storage;
++    public java.util.List<net.minecraft.client.renderer.texture.Stitcher$Holder<T>> texturesToBeStitched;
++    public java.util.List<net.minecraft.client.renderer.texture.Stitcher$Region<T>> storage;
+     public int storageX;
+     public int storageY;
+     public int maxWidth;
+     public int maxHeight;
+ 
+-    public net.minecraft.client.renderer.texture.Stitcher(int maxWidth, int maxHeight, int mipLevel) {
+-        this.texturesToBeStitched = com.google.common.collect.Sets.newHashSetWithExpectedSize((int)256);
+-        this.storage = com.google.common.collect.Lists.newArrayListWithCapacity((int)256);
+-        this.mipLevel = mipLevel;
+-        this.maxWidth = maxWidth;
+-        this.maxHeight = maxHeight;
++    public net.minecraft.client.renderer.texture.Stitcher(int $$0, int $$1, int $$2) {
++        this.texturesToBeStitched = new java.util.ArrayList();
++        this.storage = new java.util.ArrayList();
++        this.mipLevel = $$2;
++        this.maxWidth = $$0;
++        this.maxHeight = $$1;
+     }
+ 
+     public int getWidth() {
+@@ -30,82 +30,78 @@
+         return this.storageY;
+     }
+ 
+-    public void registerSprite(net.minecraft.client.renderer.texture.TextureAtlasSprite$Info spriteInfo) {
+-        net.minecraft.client.renderer.texture.Stitcher$Holder holder = new net.minecraft.client.renderer.texture.Stitcher$Holder(spriteInfo, this.mipLevel);
+-        this.texturesToBeStitched.add((java.lang.Object)holder);
++    public void registerSprite(T $$0) {
++        net.minecraft.client.renderer.texture.Stitcher$Holder $$1 = new net.minecraft.client.renderer.texture.Stitcher$Holder($$0, this.mipLevel);
++        this.texturesToBeStitched.add((java.lang.Object)$$1);
+     }
+ 
+     public void stitch() {
+-        java.util.ArrayList $$02 = com.google.common.collect.Lists.newArrayList((java.lang.Iterable)this.texturesToBeStitched);
++        java.util.ArrayList $$02 = new java.util.ArrayList((java.util.Collection)this.texturesToBeStitched);
+         $$02.sort(HOLDER_COMPARATOR);
+         for (net.minecraft.client.renderer.texture.Stitcher$Holder $$1 : $$02) {
+             if (this.addToStorage($$1)) continue;
+-            throw new net.minecraft.client.renderer.texture.StitcherException($$1.spriteInfo, (java.util.Collection)$$02.stream().map($$0 -> $$0.spriteInfo).collect(com.google.common.collect.ImmutableList.toImmutableList()));
++            throw new net.minecraft.client.renderer.texture.StitcherException($$1.entry, (java.util.Collection)$$02.stream().map($$0 -> $$0.entry).collect(com.google.common.collect.ImmutableList.toImmutableList()));
+         }
+         this.storageX = net.minecraft.util.Mth.smallestEncompassingPowerOfTwo((int)this.storageX);
+         this.storageY = net.minecraft.util.Mth.smallestEncompassingPowerOfTwo((int)this.storageY);
+     }
+ 
+-    public void gatherSprites(net.minecraft.client.renderer.texture.Stitcher$SpriteLoader spriteLoader) {
+-        for (net.minecraft.client.renderer.texture.Stitcher$Region region : this.storage) {
+-            region.walk($$1 -> {
+-                net.minecraft.client.renderer.texture.Stitcher$Holder $$2 = $$1.getHolder();
+-                net.minecraft.client.renderer.texture.TextureAtlasSprite$Info $$3 = $$2.spriteInfo;
+-                spriteLoader.load($$3, this.storageX, this.storageY, $$1.getX(), $$1.getY());
+-            });
++    public void gatherSprites(net.minecraft.client.renderer.texture.Stitcher$SpriteLoader<T> $$0) {
++        for (net.minecraft.client.renderer.texture.Stitcher$Region $$1 : this.storage) {
++            $$1.walk($$0);
+         }
+     }
+ 
+-    public static int smallestFittingMinTexel(int dimension, int mipmapLevel) {
+-        return (dimension >> mipmapLevel) + ((dimension & (1 << mipmapLevel) - 1) == 0 ? 0 : 1) << mipmapLevel;
++    public static int smallestFittingMinTexel(int $$0, int $$1) {
++        return ($$0 >> $$1) + (($$0 & (1 << $$1) - 1) == 0 ? 0 : 1) << $$1;
+     }
+ 
+-    public boolean addToStorage(net.minecraft.client.renderer.texture.Stitcher$Holder holder) {
+-        for (net.minecraft.client.renderer.texture.Stitcher$Region region : this.storage) {
+-            if (!region.add(holder)) continue;
++    public boolean addToStorage(net.minecraft.client.renderer.texture.Stitcher$Holder<T> $$0) {
++        for (net.minecraft.client.renderer.texture.Stitcher$Region $$1 : this.storage) {
++            if (!$$1.add($$0)) continue;
+             return true;
+         }
+-        return this.expand(holder);
++        return this.expand($$0);
+     }
+ 
+-    public boolean expand(net.minecraft.client.renderer.texture.Stitcher$Holder holder) {
+-        net.minecraft.client.renderer.texture.Stitcher$Region region;
+-        boolean bl;
+-        boolean bl2;
+-        boolean bl3;
+-        int n = net.minecraft.util.Mth.smallestEncompassingPowerOfTwo((int)this.storageX);
+-        int n2 = net.minecraft.util.Mth.smallestEncompassingPowerOfTwo((int)this.storageY);
+-        int n3 = net.minecraft.util.Mth.smallestEncompassingPowerOfTwo((int)(this.storageX + holder.width));
+-        int n4 = net.minecraft.util.Mth.smallestEncompassingPowerOfTwo((int)(this.storageY + holder.height));
+-        boolean bl4 = n3 <= this.maxWidth;
+-        boolean bl5 = bl3 = n4 <= this.maxHeight;
+-        if (!bl4 && !bl3) {
++    public boolean expand(net.minecraft.client.renderer.texture.Stitcher$Holder<T> $$0) {
++        net.minecraft.client.renderer.texture.Stitcher$Region $$12;
++        boolean $$10;
++        boolean $$8;
++        boolean $$6;
++        int $$1 = net.minecraft.util.Mth.smallestEncompassingPowerOfTwo((int)this.storageX);
++        int $$2 = net.minecraft.util.Mth.smallestEncompassingPowerOfTwo((int)this.storageY);
++        int $$3 = net.minecraft.util.Mth.smallestEncompassingPowerOfTwo((int)(this.storageX + $$0.width));
++        int $$4 = net.minecraft.util.Mth.smallestEncompassingPowerOfTwo((int)(this.storageY + $$0.height));
++        boolean $$5 = $$3 <= this.maxWidth;
++        boolean bl = $$6 = $$4 <= this.maxHeight;
++        if (!$$5 && !$$6) {
+             return false;
+         }
+-        boolean bl6 = bl4 && n != n3;
+-        boolean bl7 = bl2 = bl3 && n2 != n4;
+-        if (bl6 ^ bl2) {
+-            bl = bl6;
++        boolean $$7 = $$5 && $$1 != $$3;
++        boolean bl2 = $$8 = $$6 && $$2 != $$4;
++        if ($$7 ^ $$8) {
++            boolean $$9 = $$7;
+         } else {
+-            boolean bl8 = bl = bl4 && n <= n2;
++            boolean bl3 = $$10 = $$5 && $$1 <= $$2;
+         }
+-        if (bl) {
++        if ($$10) {
+             if (this.storageY == 0) {
+-                this.storageY = holder.height;
++                this.storageY = $$0.height;
+             }
+-            region = new net.minecraft.client.renderer.texture.Stitcher$Region(this.storageX, 0, holder.width, this.storageY);
+-            this.storageX += holder.width;
++            net.minecraft.client.renderer.texture.Stitcher$Region $$11 = new net.minecraft.client.renderer.texture.Stitcher$Region(this.storageX, 0, $$0.width, this.storageY);
++            this.storageX += $$0.width;
+         } else {
+-            region = new net.minecraft.client.renderer.texture.Stitcher$Region(0, this.storageY, this.storageX, holder.height);
+-            this.storageY += holder.height;
++            $$12 = new net.minecraft.client.renderer.texture.Stitcher$Region(0, this.storageY, this.storageX, $$0.height);
++            this.storageY += $$0.height;
+         }
+-        region.add(holder);
+-        this.storage.add((java.lang.Object)region);
++        $$12.add($$0);
++        this.storage.add((java.lang.Object)$$12);
+         return true;
+     }
+ 
+     public static /* synthetic */ net.minecraft.resources.ResourceLocation lambda$static$2(net.minecraft.client.renderer.texture.Stitcher$Holder $$0) {
+-        return $$0.spriteInfo.name();
++        return $$0.entry.name();
+     }
+ 
+     public static /* synthetic */ java.lang.Integer lambda$static$1(net.minecraft.client.renderer.texture.Stitcher$Holder $$0) {
+@@ -117,7 +113,7 @@
+     }
+ 
+     static {
+-        HOLDER_COMPARATOR = java.util.Comparator.comparing($$0 -> -$$0.height).thenComparing($$0 -> -$$0.width).thenComparing($$0 -> $$0.spriteInfo.name());
++        HOLDER_COMPARATOR = java.util.Comparator.comparing($$0 -> -$$0.height).thenComparing($$0 -> -$$0.width).thenComparing($$0 -> $$0.entry.name());
+     }
+ }
+ 

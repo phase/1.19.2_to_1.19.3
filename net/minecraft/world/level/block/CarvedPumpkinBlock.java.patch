@@ -1,0 +1,143 @@
+--- net/minecraft/world/level/block/CarvedPumpkinBlock.java
++++ net/minecraft/world/level/block/CarvedPumpkinBlock.java
+@@ -23,75 +23,69 @@
+         this.registerDefaultState((net.minecraft.world.level.block.state.BlockState)((net.minecraft.world.level.block.state.BlockState)this.stateDefinition.any()).setValue((net.minecraft.world.level.block.state.properties.Property)FACING, (java.lang.Comparable)net.minecraft.core.Direction.NORTH));
+     }
+ 
+-    public void onPlace(net.minecraft.world.level.block.state.BlockState state, net.minecraft.world.level.Level level, net.minecraft.core.BlockPos pos, net.minecraft.world.level.block.state.BlockState oldState, boolean isMoving) {
+-        if (oldState.is(state.getBlock())) {
++    public void onPlace(net.minecraft.world.level.block.state.BlockState $$0, net.minecraft.world.level.Level $$1, net.minecraft.core.BlockPos $$2, net.minecraft.world.level.block.state.BlockState $$3, boolean $$4) {
++        if ($$3.is($$0.getBlock())) {
+             return;
+         }
+-        this.trySpawnGolem(level, pos);
++        this.trySpawnGolem($$1, $$2);
+     }
+ 
+-    public boolean canSpawnGolem(net.minecraft.world.level.LevelReader level, net.minecraft.core.BlockPos pos) {
+-        return this.getOrCreateSnowGolemBase().find(level, pos) != null || this.getOrCreateIronGolemBase().find(level, pos) != null;
++    public boolean canSpawnGolem(net.minecraft.world.level.LevelReader $$0, net.minecraft.core.BlockPos $$1) {
++        return this.getOrCreateSnowGolemBase().find($$0, $$1) != null || this.getOrCreateIronGolemBase().find($$0, $$1) != null;
+     }
+ 
+-    public void trySpawnGolem(net.minecraft.world.level.Level level, net.minecraft.core.BlockPos pos) {
+-block9:        {
+-            net.minecraft.world.level.block.state.pattern.BlockPattern$BlockPatternMatch blockPatternMatch;
+-block8:            {
+-                net.minecraft.world.level.block.state.pattern.BlockInWorld blockInWorld;
+-                blockPatternMatch = this.getOrCreateSnowGolemFull().find((net.minecraft.world.level.LevelReader)level, pos);
+-                if (blockPatternMatch == null) break block8;
+-                for (int i = 0; i < this.getOrCreateSnowGolemFull().getHeight(); ++i) {
+-                    blockInWorld = blockPatternMatch.getBlock(0, i, 0);
+-                    level.setBlock(blockInWorld.getPos(), net.minecraft.world.level.block.Blocks.AIR.defaultBlockState(), 2);
+-                    level.levelEvent(2001, blockInWorld.getPos(), net.minecraft.world.level.block.Block.getId((net.minecraft.world.level.block.state.BlockState)blockInWorld.getState()));
+-                }
+-                net.minecraft.world.entity.animal.SnowGolem snowGolem = (net.minecraft.world.entity.animal.SnowGolem)net.minecraft.world.entity.EntityType.SNOW_GOLEM.create(level);
+-                blockInWorld = blockPatternMatch.getBlock(0, 2, 0).getPos();
+-                snowGolem.moveTo((double)blockInWorld.getX() + 0.5, (double)blockInWorld.getY() + 0.05, (double)blockInWorld.getZ() + 0.5, 0.0f, 0.0f);
+-                level.addFreshEntity((net.minecraft.world.entity.Entity)snowGolem);
+-                for (net.minecraft.server.level.ServerPlayer serverPlayer : level.getEntitiesOfClass(net.minecraft.server.level.ServerPlayer.class, snowGolem.getBoundingBox().inflate(5.0))) {
+-                    net.minecraft.advancements.CriteriaTriggers.SUMMONED_ENTITY.trigger(serverPlayer, (net.minecraft.world.entity.Entity)snowGolem);
+-                }
+-                for (int i = 0; i < this.getOrCreateSnowGolemFull().getHeight(); ++i) {
+-                    net.minecraft.server.level.ServerPlayer serverPlayer;
+-                    serverPlayer = blockPatternMatch.getBlock(0, i, 0);
+-                    level.blockUpdated(serverPlayer.getPos(), net.minecraft.world.level.block.Blocks.AIR);
+-                }
+-                break block9;
++    public void trySpawnGolem(net.minecraft.world.level.Level $$0, net.minecraft.core.BlockPos $$1) {
++        net.minecraft.world.level.block.state.pattern.BlockPattern$BlockPatternMatch $$2 = this.getOrCreateSnowGolemFull().find((net.minecraft.world.level.LevelReader)$$0, $$1);
++        if ($$2 != null) {
++            net.minecraft.world.entity.animal.SnowGolem $$3 = (net.minecraft.world.entity.animal.SnowGolem)net.minecraft.world.entity.EntityType.SNOW_GOLEM.create($$0);
++            if ($$3 != null) {
++                net.minecraft.world.level.block.CarvedPumpkinBlock.spawnGolemInWorld((net.minecraft.world.level.Level)$$0, (net.minecraft.world.level.block.state.pattern.BlockPattern$BlockPatternMatch)$$2, (net.minecraft.world.entity.Entity)$$3, (net.minecraft.core.BlockPos)$$2.getBlock(0, 2, 0).getPos());
+             }
+-            blockPatternMatch = this.getOrCreateIronGolemFull().find((net.minecraft.world.level.LevelReader)level, pos);
+-            if (blockPatternMatch == null) break block9;
+-            for (int i = 0; i < this.getOrCreateIronGolemFull().getWidth(); ++i) {
+-                for (int j = 0; j < this.getOrCreateIronGolemFull().getHeight(); ++j) {
+-                    net.minecraft.world.level.block.state.pattern.BlockInWorld blockInWorld = blockPatternMatch.getBlock(i, j, 0);
+-                    level.setBlock(blockInWorld.getPos(), net.minecraft.world.level.block.Blocks.AIR.defaultBlockState(), 2);
+-                    level.levelEvent(2001, blockInWorld.getPos(), net.minecraft.world.level.block.Block.getId((net.minecraft.world.level.block.state.BlockState)blockInWorld.getState()));
+-                }
++        } else {
++            net.minecraft.world.entity.animal.IronGolem $$5;
++            net.minecraft.world.level.block.state.pattern.BlockPattern$BlockPatternMatch $$4 = this.getOrCreateIronGolemFull().find((net.minecraft.world.level.LevelReader)$$0, $$1);
++            if ($$4 != null && ($$5 = (net.minecraft.world.entity.animal.IronGolem)net.minecraft.world.entity.EntityType.IRON_GOLEM.create($$0)) != null) {
++                $$5.setPlayerCreated(true);
++                net.minecraft.world.level.block.CarvedPumpkinBlock.spawnGolemInWorld((net.minecraft.world.level.Level)$$0, (net.minecraft.world.level.block.state.pattern.BlockPattern$BlockPatternMatch)$$4, (net.minecraft.world.entity.Entity)$$5, (net.minecraft.core.BlockPos)$$4.getBlock(1, 2, 0).getPos());
+             }
+-            net.minecraft.core.BlockPos blockPos = blockPatternMatch.getBlock(1, 2, 0).getPos();
+-            net.minecraft.world.entity.animal.IronGolem ironGolem = (net.minecraft.world.entity.animal.IronGolem)net.minecraft.world.entity.EntityType.IRON_GOLEM.create(level);
+-            ironGolem.setPlayerCreated(true);
+-            ironGolem.moveTo((double)blockPos.getX() + 0.5, (double)blockPos.getY() + 0.05, (double)blockPos.getZ() + 0.5, 0.0f, 0.0f);
+-            level.addFreshEntity((net.minecraft.world.entity.Entity)ironGolem);
+-            for (net.minecraft.server.level.ServerPlayer serverPlayer : level.getEntitiesOfClass(net.minecraft.server.level.ServerPlayer.class, ironGolem.getBoundingBox().inflate(5.0))) {
+-                net.minecraft.advancements.CriteriaTriggers.SUMMONED_ENTITY.trigger(serverPlayer, (net.minecraft.world.entity.Entity)ironGolem);
++        }
++    }
++
++    public static void spawnGolemInWorld(net.minecraft.world.level.Level $$0, net.minecraft.world.level.block.state.pattern.BlockPattern$BlockPatternMatch $$1, net.minecraft.world.entity.Entity $$2, net.minecraft.core.BlockPos $$3) {
++        net.minecraft.world.level.block.CarvedPumpkinBlock.clearPatternBlocks((net.minecraft.world.level.Level)$$0, (net.minecraft.world.level.block.state.pattern.BlockPattern$BlockPatternMatch)$$1);
++        $$2.moveTo((double)$$3.getX() + 0.5, (double)$$3.getY() + 0.05, (double)$$3.getZ() + 0.5, 0.0f, 0.0f);
++        $$0.addFreshEntity($$2);
++        for (net.minecraft.server.level.ServerPlayer $$4 : $$0.getEntitiesOfClass(net.minecraft.server.level.ServerPlayer.class, $$2.getBoundingBox().inflate(5.0))) {
++            net.minecraft.advancements.CriteriaTriggers.SUMMONED_ENTITY.trigger($$4, $$2);
++        }
++        net.minecraft.world.level.block.CarvedPumpkinBlock.updatePatternBlocks((net.minecraft.world.level.Level)$$0, (net.minecraft.world.level.block.state.pattern.BlockPattern$BlockPatternMatch)$$1);
++    }
++
++    public static void clearPatternBlocks(net.minecraft.world.level.Level $$0, net.minecraft.world.level.block.state.pattern.BlockPattern$BlockPatternMatch $$1) {
++        for (int $$2 = 0; $$2 < $$1.getWidth(); ++$$2) {
++            for (int $$3 = 0; $$3 < $$1.getHeight(); ++$$3) {
++                net.minecraft.world.level.block.state.pattern.BlockInWorld $$4 = $$1.getBlock($$2, $$3, 0);
++                $$0.setBlock($$4.getPos(), net.minecraft.world.level.block.Blocks.AIR.defaultBlockState(), 2);
++                $$0.levelEvent(2001, $$4.getPos(), net.minecraft.world.level.block.Block.getId((net.minecraft.world.level.block.state.BlockState)$$4.getState()));
+             }
+-            for (int i = 0; i < this.getOrCreateIronGolemFull().getWidth(); ++i) {
+-                for (int j = 0; j < this.getOrCreateIronGolemFull().getHeight(); ++j) {
+-                    net.minecraft.world.level.block.state.pattern.BlockInWorld blockInWorld = blockPatternMatch.getBlock(i, j, 0);
+-                    level.blockUpdated(blockInWorld.getPos(), net.minecraft.world.level.block.Blocks.AIR);
+-                }
++        }
++    }
++
++    public static void updatePatternBlocks(net.minecraft.world.level.Level $$0, net.minecraft.world.level.block.state.pattern.BlockPattern$BlockPatternMatch $$1) {
++        for (int $$2 = 0; $$2 < $$1.getWidth(); ++$$2) {
++            for (int $$3 = 0; $$3 < $$1.getHeight(); ++$$3) {
++                net.minecraft.world.level.block.state.pattern.BlockInWorld $$4 = $$1.getBlock($$2, $$3, 0);
++                $$0.blockUpdated($$4.getPos(), net.minecraft.world.level.block.Blocks.AIR);
+             }
+         }
+     }
+ 
+-    public net.minecraft.world.level.block.state.BlockState getStateForPlacement(net.minecraft.world.item.context.BlockPlaceContext context) {
+-        return (net.minecraft.world.level.block.state.BlockState)this.defaultBlockState().setValue((net.minecraft.world.level.block.state.properties.Property)FACING, (java.lang.Comparable)context.getHorizontalDirection().getOpposite());
++    public net.minecraft.world.level.block.state.BlockState getStateForPlacement(net.minecraft.world.item.context.BlockPlaceContext $$0) {
++        return (net.minecraft.world.level.block.state.BlockState)this.defaultBlockState().setValue((net.minecraft.world.level.block.state.properties.Property)FACING, (java.lang.Comparable)$$0.getHorizontalDirection().getOpposite());
+     }
+ 
+-    public void createBlockStateDefinition(net.minecraft.world.level.block.state.StateDefinition$Builder<net.minecraft.world.level.block.Block, net.minecraft.world.level.block.state.BlockState> builder) {
+-        builder.add(new net.minecraft.world.level.block.state.properties.Property[]{FACING});
++    public void createBlockStateDefinition(net.minecraft.world.level.block.state.StateDefinition$Builder<net.minecraft.world.level.block.Block, net.minecraft.world.level.block.state.BlockState> $$0) {
++        $$0.add(new net.minecraft.world.level.block.state.properties.Property[]{FACING});
+     }
+ 
+     public net.minecraft.world.level.block.state.pattern.BlockPattern getOrCreateSnowGolemBase() {
+@@ -122,13 +116,13 @@
+         return this.ironGolemFull;
+     }
+ 
+-    public static /* synthetic */ boolean lambda$static$0(net.minecraft.world.level.block.state.BlockState state) {
+-        return state != null && (state.is(net.minecraft.world.level.block.Blocks.CARVED_PUMPKIN) || state.is(net.minecraft.world.level.block.Blocks.JACK_O_LANTERN));
++    public static /* synthetic */ boolean lambda$static$0(net.minecraft.world.level.block.state.BlockState $$0) {
++        return $$0 != null && ($$0.is(net.minecraft.world.level.block.Blocks.CARVED_PUMPKIN) || $$0.is(net.minecraft.world.level.block.Blocks.JACK_O_LANTERN));
+     }
+ 
+     static {
+         FACING = net.minecraft.world.level.block.HorizontalDirectionalBlock.FACING;
+-        PUMPKINS_PREDICATE = state -> state != null && (state.is(net.minecraft.world.level.block.Blocks.CARVED_PUMPKIN) || state.is(net.minecraft.world.level.block.Blocks.JACK_O_LANTERN));
++        PUMPKINS_PREDICATE = $$0 -> $$0 != null && ($$0.is(net.minecraft.world.level.block.Blocks.CARVED_PUMPKIN) || $$0.is(net.minecraft.world.level.block.Blocks.JACK_O_LANTERN));
+     }
+ }
+ 

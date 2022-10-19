@@ -1,0 +1,82 @@
+--- net/minecraft/world/level/block/entity/BeaconBlockEntity.java
++++ net/minecraft/world/level/block/entity/BeaconBlockEntity.java
+@@ -5,7 +5,8 @@
+ 
+ public class net.minecraft.world.level.block.entity.BeaconBlockEntity
+ extends net.minecraft.world.level.block.entity.BlockEntity
+-implements net.minecraft.world.MenuProvider
++implements net.minecraft.world.MenuProvider,
++net.minecraft.world.Nameable
+  {
+     public static int MAX_LEVELS = 4;
+     public static net.minecraft.world.effect.MobEffect[][] BEACON_EFFECTS;
+@@ -15,6 +16,7 @@
+     public static int DATA_SECONDARY = 2;
+     public static int NUM_DATA_VALUES = 3;
+     public static int BLOCKS_CHECK_PER_TICK = 10;
++    public static net.minecraft.network.chat.Component DEFAULT_NAME;
+     public java.util.List<net.minecraft.world.level.block.entity.BeaconBlockEntity$BeaconBeamSection> beamSections;
+     public java.util.List<net.minecraft.world.level.block.entity.BeaconBlockEntity$BeaconBeamSection> checkingBeamSections;
+     public int levels;
+@@ -177,9 +179,9 @@
+     }
+ 
+     @javax.annotation.Nullable
+-    public static net.minecraft.world.effect.MobEffect getValidEffectById(int effectId) {
+-        net.minecraft.world.effect.MobEffect mobEffect = net.minecraft.world.effect.MobEffect.byId((int)effectId);
+-        return VALID_EFFECTS.contains((java.lang.Object)mobEffect) ? mobEffect : null;
++    public static net.minecraft.world.effect.MobEffect getValidEffectById(int $$0) {
++        net.minecraft.world.effect.MobEffect $$1 = net.minecraft.world.effect.MobEffect.byId((int)$$0);
++        return VALID_EFFECTS.contains((java.lang.Object)$$1) ? $$1 : null;
+     }
+ 
+     public void load(net.minecraft.nbt.CompoundTag $$0) {
+@@ -203,22 +205,34 @@
+         this.lockKey.addToTag($$0);
+     }
+ 
+-    public void setCustomName(@javax.annotation.Nullable net.minecraft.network.chat.Component name) {
+-        this.name = name;
++    public void setCustomName(@javax.annotation.Nullable net.minecraft.network.chat.Component $$0) {
++        this.name = $$0;
+     }
+ 
+     @javax.annotation.Nullable
+-    public net.minecraft.world.inventory.AbstractContainerMenu createMenu(int containerId, net.minecraft.world.entity.player.Inventory inventory, net.minecraft.world.entity.player.Player player) {
+-        if (net.minecraft.world.level.block.entity.BaseContainerBlockEntity.canUnlock((net.minecraft.world.entity.player.Player)player, (net.minecraft.world.LockCode)this.lockKey, (net.minecraft.network.chat.Component)this.getDisplayName())) {
+-            return new net.minecraft.world.inventory.BeaconMenu(containerId, (net.minecraft.world.Container)inventory, this.dataAccess, net.minecraft.world.inventory.ContainerLevelAccess.create((net.minecraft.world.level.Level)this.level, (net.minecraft.core.BlockPos)this.getBlockPos()));
++    public net.minecraft.network.chat.Component getCustomName() {
++        return this.name;
++    }
++
++    @javax.annotation.Nullable
++    public net.minecraft.world.inventory.AbstractContainerMenu createMenu(int $$0, net.minecraft.world.entity.player.Inventory $$1, net.minecraft.world.entity.player.Player $$2) {
++        if (net.minecraft.world.level.block.entity.BaseContainerBlockEntity.canUnlock((net.minecraft.world.entity.player.Player)$$2, (net.minecraft.world.LockCode)this.lockKey, (net.minecraft.network.chat.Component)this.getDisplayName())) {
++            return new net.minecraft.world.inventory.BeaconMenu($$0, (net.minecraft.world.Container)$$1, this.dataAccess, net.minecraft.world.inventory.ContainerLevelAccess.create((net.minecraft.world.level.Level)this.level, (net.minecraft.core.BlockPos)this.getBlockPos()));
+         }
+         return null;
+     }
+ 
+     public net.minecraft.network.chat.Component getDisplayName() {
+-        return this.name != null ? this.name : net.minecraft.network.chat.Component.translatable((java.lang.String)"container.beacon");
++        return this.getName();
+     }
+ 
++    public net.minecraft.network.chat.Component getName() {
++        if (this.name != null) {
++            return this.name;
++        }
++        return DEFAULT_NAME;
++    }
++
+     public void setLevel(net.minecraft.world.level.Level $$0) {
+         super.setLevel($$0);
+         this.lastCheckY = $$0.getMinBuildHeight() - 1;
+@@ -231,6 +245,7 @@
+     static {
+         BEACON_EFFECTS = new net.minecraft.world.effect.MobEffect[][]{{net.minecraft.world.effect.MobEffects.MOVEMENT_SPEED, net.minecraft.world.effect.MobEffects.DIG_SPEED}, {net.minecraft.world.effect.MobEffects.DAMAGE_RESISTANCE, net.minecraft.world.effect.MobEffects.JUMP}, {net.minecraft.world.effect.MobEffects.DAMAGE_BOOST}, {net.minecraft.world.effect.MobEffects.REGENERATION}};
+         VALID_EFFECTS = (java.util.Set)java.util.Arrays.stream((java.lang.Object[])BEACON_EFFECTS).flatMap(java.util.Arrays::stream).collect(java.util.stream.Collectors.toSet());
++        DEFAULT_NAME = net.minecraft.network.chat.Component.translatable((java.lang.String)"container.beacon");
+     }
+ }
+ 

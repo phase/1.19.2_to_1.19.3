@@ -1,0 +1,63 @@
+--- net/minecraft/client/gui/font/FontSet.java
++++ net/minecraft/client/gui/font/FontSet.java
+@@ -28,7 +28,7 @@
+         this.name = $$1;
+     }
+ 
+-    public void reload(java.util.List<com.mojang.blaze3d.font.GlyphProvider> glyphProviders) {
++    public void reload(java.util.List<com.mojang.blaze3d.font.GlyphProvider> $$0) {
+         this.closeProviders();
+         this.closeTextures();
+         this.glyphs.clear();
+@@ -36,13 +36,13 @@
+         this.glyphsByWidth.clear();
+         this.missingGlyph = net.minecraft.client.gui.font.glyphs.SpecialGlyphs.MISSING.bake(arg_0 -> this.stitch(arg_0));
+         this.whiteGlyph = net.minecraft.client.gui.font.glyphs.SpecialGlyphs.WHITE.bake(arg_0 -> this.stitch(arg_0));
+-        it.unimi.dsi.fastutil.ints.IntOpenHashSet intOpenHashSet = new it.unimi.dsi.fastutil.ints.IntOpenHashSet();
+-        for (com.mojang.blaze3d.font.GlyphProvider glyphProvider : glyphProviders) {
+-            intOpenHashSet.addAll((it.unimi.dsi.fastutil.ints.IntCollection)glyphProvider.getSupportedGlyphs());
++        it.unimi.dsi.fastutil.ints.IntOpenHashSet $$1 = new it.unimi.dsi.fastutil.ints.IntOpenHashSet();
++        for (com.mojang.blaze3d.font.GlyphProvider $$2 : $$0) {
++            $$1.addAll((it.unimi.dsi.fastutil.ints.IntCollection)$$2.getSupportedGlyphs());
+         }
+-        java.util.Iterator iterator = com.google.common.collect.Sets.newHashSet();
+-        intOpenHashSet.forEach(arg_0 -> this.lambda$reload$1(glyphProviders, (java.util.Set)iterator, arg_0));
+-        glyphProviders.stream().filter(arg_0 -> ((java.util.Set)iterator).contains(arg_0)).forEach(arg_0 -> ((java.util.List)this.providers).add(arg_0));
++        java.util.HashSet $$3 = com.google.common.collect.Sets.newHashSet();
++        $$1.forEach(arg_0 -> this.lambda$reload$1($$0, (java.util.Set)$$3, arg_0));
++        $$0.stream().filter(arg_0 -> ((java.util.Set)$$3).contains(arg_0)).forEach(arg_0 -> ((java.util.List)this.providers).add(arg_0));
+     }
+ 
+     public void close() {
+@@ -107,23 +107,23 @@
+         return (net.minecraft.client.gui.font.glyphs.BakedGlyph)this.glyphs.computeIfAbsent($$0, arg_0 -> this.computeBakedGlyph(arg_0));
+     }
+ 
+-    public net.minecraft.client.gui.font.glyphs.BakedGlyph stitch(com.mojang.blaze3d.font.SheetGlyphInfo $$0) {
++    public net.minecraft.client.gui.font.glyphs.BakedGlyph stitch(com.mojang.blaze3d.font.SheetGlyphInfo $$02) {
+         for (net.minecraft.client.gui.font.FontTexture $$1 : this.textures) {
+-            net.minecraft.client.gui.font.glyphs.BakedGlyph $$2 = $$1.add($$0);
++            net.minecraft.client.gui.font.glyphs.BakedGlyph $$2 = $$1.add($$02);
+             if ($$2 == null) continue;
+             return $$2;
+         }
+-        net.minecraft.client.gui.font.FontTexture $$3 = new net.minecraft.client.gui.font.FontTexture(new net.minecraft.resources.ResourceLocation(this.name.getNamespace(), this.name.getPath() + "/" + this.textures.size()), $$0.isColored());
++        net.minecraft.client.gui.font.FontTexture $$3 = new net.minecraft.client.gui.font.FontTexture(this.name.withPath($$0 -> $$0 + "/" + this.textures.size()), $$02.isColored());
+         this.textures.add((java.lang.Object)$$3);
+         this.textureManager.register($$3.getName(), (net.minecraft.client.renderer.texture.AbstractTexture)$$3);
+-        net.minecraft.client.gui.font.glyphs.BakedGlyph $$4 = $$3.add($$0);
++        net.minecraft.client.gui.font.glyphs.BakedGlyph $$4 = $$3.add($$02);
+         return $$4 == null ? this.missingGlyph : $$4;
+     }
+ 
+-    public net.minecraft.client.gui.font.glyphs.BakedGlyph getRandomGlyph(com.mojang.blaze3d.font.GlyphInfo glyph) {
+-        it.unimi.dsi.fastutil.ints.IntList intList = (it.unimi.dsi.fastutil.ints.IntList)this.glyphsByWidth.get(net.minecraft.util.Mth.ceil((float)glyph.getAdvance(false)));
+-        if (intList != null && !intList.isEmpty()) {
+-            return this.getGlyph(intList.getInt(RANDOM.nextInt(intList.size())));
++    public net.minecraft.client.gui.font.glyphs.BakedGlyph getRandomGlyph(com.mojang.blaze3d.font.GlyphInfo $$0) {
++        it.unimi.dsi.fastutil.ints.IntList $$1 = (it.unimi.dsi.fastutil.ints.IntList)this.glyphsByWidth.get(net.minecraft.util.Mth.ceil((float)$$0.getAdvance(false)));
++        if ($$1 != null && !$$1.isEmpty()) {
++            return this.getGlyph($$1.getInt(RANDOM.nextInt($$1.size())));
+         }
+         return this.missingGlyph;
+     }

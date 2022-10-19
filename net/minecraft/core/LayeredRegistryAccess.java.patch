@@ -1,0 +1,94 @@
+--- net/minecraft/core/LayeredRegistryAccess.java
++++ net/minecraft/core/LayeredRegistryAccess.java
+@@ -1,0 +1,91 @@
++/*
++ * Decompiled with CFR 0.151.
++ */
++package net.minecraft.core;
++
++public class net.minecraft.core.LayeredRegistryAccess<T>
++ {
++    public java.util.List<T> keys;
++    public java.util.List<net.minecraft.core.RegistryAccess$Frozen> values;
++    public net.minecraft.core.RegistryAccess$Frozen composite;
++
++    public net.minecraft.core.LayeredRegistryAccess(java.util.List<T> $$0) {
++        this($$0, (java.util.List)net.minecraft.Util.make(() -> {
++            java.lang.Object[] $$1 = new net.minecraft.core.RegistryAccess$Frozen[$$0.size()];
++            java.util.Arrays.fill((java.lang.Object[])$$1, (java.lang.Object)net.minecraft.core.RegistryAccess.EMPTY);
++            return java.util.Arrays.asList((java.lang.Object[])$$1);
++        }));
++    }
++
++    public net.minecraft.core.LayeredRegistryAccess(java.util.List<T> $$0, java.util.List<net.minecraft.core.RegistryAccess$Frozen> $$1) {
++        this.keys = java.util.List.copyOf($$0);
++        this.values = java.util.List.copyOf($$1);
++        this.composite = new net.minecraft.core.RegistryAccess$ImmutableRegistryAccess(net.minecraft.core.LayeredRegistryAccess.collectRegistries((java.util.stream.Stream)$$1.stream())).freeze();
++    }
++
++    public int getLayerIndexOrThrow(T $$0) {
++        int $$1 = this.keys.indexOf($$0);
++        if ($$1 == -1) {
++            throw new java.lang.IllegalStateException("Can't find " + $$0 + " inside " + this.keys);
++        }
++        return $$1;
++    }
++
++    public net.minecraft.core.RegistryAccess$Frozen getLayer(T $$0) {
++        int $$1 = this.getLayerIndexOrThrow($$0);
++        return (net.minecraft.core.RegistryAccess$Frozen)this.values.get($$1);
++    }
++
++    public net.minecraft.core.RegistryAccess$Frozen getAccessForLoading(T $$0) {
++        int $$1 = this.getLayerIndexOrThrow($$0);
++        return this.getCompositeAccessForLayers(0, $$1);
++    }
++
++    public net.minecraft.core.RegistryAccess$Frozen getAccessFrom(T $$0) {
++        int $$1 = this.getLayerIndexOrThrow($$0);
++        return this.getCompositeAccessForLayers($$1, this.values.size());
++    }
++
++    public net.minecraft.core.RegistryAccess$Frozen getCompositeAccessForLayers(int $$0, int $$1) {
++        return new net.minecraft.core.RegistryAccess$ImmutableRegistryAccess(net.minecraft.core.LayeredRegistryAccess.collectRegistries((java.util.stream.Stream)this.values.subList($$0, $$1).stream())).freeze();
++    }
++
++    public net.minecraft.core.LayeredRegistryAccess<T> replaceFrom(T $$0, net.minecraft.core.RegistryAccess$Frozen ... $$1) {
++        return this.replaceFrom($$0, java.util.Arrays.asList((java.lang.Object[])$$1));
++    }
++
++    public net.minecraft.core.LayeredRegistryAccess<T> replaceFrom(T $$0, java.util.List<net.minecraft.core.RegistryAccess$Frozen> $$1) {
++        int $$2 = this.getLayerIndexOrThrow($$0);
++        if ($$1.size() > this.values.size() - $$2) {
++            throw new java.lang.IllegalStateException("Too many values to replace");
++        }
++        java.util.ArrayList $$3 = new java.util.ArrayList();
++        for (int $$4 = 0; $$4 < $$2; ++$$4) {
++            $$3.add((java.lang.Object)((net.minecraft.core.RegistryAccess$Frozen)this.values.get($$4)));
++        }
++        $$3.addAll($$1);
++        while ($$3.size() < this.values.size()) {
++            $$3.add((java.lang.Object)net.minecraft.core.RegistryAccess.EMPTY);
++        }
++        return new net.minecraft.core.LayeredRegistryAccess(this.keys, (java.util.List)$$3);
++    }
++
++    public net.minecraft.core.RegistryAccess$Frozen compositeAccess() {
++        return this.composite;
++    }
++
++    public static java.util.Map<net.minecraft.resources.ResourceKey<? extends net.minecraft.core.Registry<?>>, net.minecraft.core.Registry<?>> collectRegistries(java.util.stream.Stream<? extends net.minecraft.core.RegistryAccess> $$0) {
++        java.util.HashMap $$1 = new java.util.HashMap();
++        $$0.forEach(arg_0 -> net.minecraft.core.LayeredRegistryAccess.lambda$collectRegistries$2((java.util.Map)$$1, arg_0));
++        return $$1;
++    }
++
++    public static /* synthetic */ void lambda$collectRegistries$2(java.util.Map $$0, net.minecraft.core.RegistryAccess $$12) {
++        $$12.registries().forEach($$1 -> {
++            if ($$0.put((java.lang.Object)$$1.key(), (java.lang.Object)$$1.value()) != null) {
++                throw new java.lang.IllegalStateException("Duplicated registry " + $$1.key());
++            }
++        });
++    }
++}
++

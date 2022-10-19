@@ -1,0 +1,103 @@
+--- net/minecraft/resources/RegistryDataLoader.java
++++ net/minecraft/resources/RegistryDataLoader.java
+@@ -1,0 +1,100 @@
++/*
++ * Decompiled with CFR 0.151.
++ */
++package net.minecraft.resources;
++
++public class net.minecraft.resources.RegistryDataLoader
++ {
++    public static org.slf4j.Logger LOGGER;
++    public static java.util.List<net.minecraft.resources.RegistryDataLoader$RegistryData<?>> WORLDGEN_REGISTRIES;
++    public static java.util.List<net.minecraft.resources.RegistryDataLoader$RegistryData<?>> DIMENSION_REGISTRIES;
++
++    public net.minecraft.resources.RegistryDataLoader() {
++    }
++
++    public static net.minecraft.core.RegistryAccess$Frozen load(net.minecraft.server.packs.resources.ResourceManager $$0, net.minecraft.core.RegistryAccess $$1, java.util.List<net.minecraft.resources.RegistryDataLoader$RegistryData<?>> $$2) {
++        java.util.HashMap $$3 = new java.util.HashMap();
++        java.util.List $$4 = $$2.stream().map(arg_0 -> net.minecraft.resources.RegistryDataLoader.lambda$load$0((java.util.Map)$$3, arg_0)).toList();
++        net.minecraft.core.RegistryAccess$ImmutableRegistryAccess $$5 = new net.minecraft.core.RegistryAccess$ImmutableRegistryAccess($$4.stream().map(com.mojang.datafixers.util.Pair::getFirst).toList());
++        net.minecraft.core.RegistryAccess$ImmutableRegistryAccess $$6 = new net.minecraft.core.RegistryAccess$ImmutableRegistryAccess(java.util.stream.Stream.concat((java.util.stream.Stream)$$1.registries(), (java.util.stream.Stream)$$5.registries()));
++        $$4.forEach(arg_0 -> net.minecraft.resources.RegistryDataLoader.lambda$load$1($$0, (net.minecraft.core.RegistryAccess)$$6, arg_0));
++        $$4.forEach(arg_0 -> net.minecraft.resources.RegistryDataLoader.lambda$load$2((java.util.Map)$$3, arg_0));
++        if (!$$3.isEmpty()) {
++            net.minecraft.resources.RegistryDataLoader.logErrors((java.util.Map)$$3);
++            throw new java.lang.IllegalStateException("Failed to load registries due to above errors");
++        }
++        return $$5.freeze();
++    }
++
++    public static void logErrors(java.util.Map<net.minecraft.resources.ResourceKey<?>, java.lang.Exception> $$02) {
++        java.io.StringWriter $$1 = new java.io.StringWriter();
++        java.io.PrintWriter $$2 = new java.io.PrintWriter((java.io.Writer)$$1);
++        java.util.Map $$3 = (java.util.Map)$$02.entrySet().stream().collect(java.util.stream.Collectors.groupingBy($$0 -> ((net.minecraft.resources.ResourceKey)$$0.getKey()).registry(), (java.util.stream.Collector)java.util.stream.Collectors.toMap($$0 -> ((net.minecraft.resources.ResourceKey)$$0.getKey()).location(), java.util.Map$Entry::getValue)));
++        $$3.entrySet().stream().sorted(java.util.Map$Entry.comparingByKey()).forEach($$12 -> {
++            $$2.printf("> Errors in registry %s:%n", new java.lang.Object[]{$$12.getKey()});
++            ((java.util.Map)$$12.getValue()).entrySet().stream().sorted(java.util.Map$Entry.comparingByKey()).forEach($$1 -> {
++                $$2.printf(">> Errors in element %s:%n", new java.lang.Object[]{$$1.getKey()});
++                ((java.lang.Exception)((java.lang.Object)((java.lang.Object)((java.lang.Object)$$1.getValue())))).printStackTrace($$2);
++            });
++        });
++        $$2.flush();
++        LOGGER.error("Registry loading errors:\n{}", (java.lang.Object)$$1);
++    }
++
++    public static java.lang.String registryDirPath(net.minecraft.resources.ResourceLocation $$0) {
++        return $$0.getPath();
++    }
++
++    public static <E> void loadRegistryContents(net.minecraft.core.RegistryAccess $$02, net.minecraft.server.packs.resources.ResourceManager $$1, net.minecraft.resources.ResourceKey<? extends net.minecraft.core.Registry<E>> $$2, net.minecraft.core.WritableRegistry<E> $$3, com.mojang.serialization.Decoder<E> $$4, java.util.Map<net.minecraft.resources.ResourceKey<?>, java.lang.Exception> $$5) {
++        java.lang.String $$6 = net.minecraft.resources.RegistryDataLoader.registryDirPath((net.minecraft.resources.ResourceLocation)$$2.location());
++        net.minecraft.resources.FileToIdConverter $$7 = net.minecraft.resources.FileToIdConverter.json((java.lang.String)$$6);
++        net.minecraft.resources.RegistryOps $$8 = net.minecraft.resources.RegistryOps.create((com.mojang.serialization.DynamicOps)com.mojang.serialization.JsonOps.INSTANCE, (net.minecraft.core.RegistryAccess)$$02);
++        for (java.util.Map$Entry $$9 : $$7.listMatchingResources($$1).entrySet()) {
++            net.minecraft.resources.ResourceLocation $$10 = (net.minecraft.resources.ResourceLocation)$$9.getKey();
++            net.minecraft.resources.ResourceKey $$11 = net.minecraft.resources.ResourceKey.create($$2, (net.minecraft.resources.ResourceLocation)$$7.fileToId($$10));
++            net.minecraft.server.packs.resources.Resource $$12 = (net.minecraft.server.packs.resources.Resource)$$9.getValue();
++            try {
++                java.io.BufferedReader $$13 = $$12.openAsReader();
++                try {
++                    com.google.gson.JsonElement $$14 = com.google.gson.JsonParser.parseReader((java.io.Reader)$$13);
++                    com.mojang.serialization.DataResult $$15 = $$4.parse((com.mojang.serialization.DynamicOps)$$8, (java.lang.Object)$$14);
++                    java.lang.Object $$16 = $$15.getOrThrow(false, $$0 -> {}
++);
++                    $$3.register($$11, $$16, $$12.isBuiltin() ? com.mojang.serialization.Lifecycle.stable() : $$15.lifecycle());
++                }
++                finally {
++                    if ($$13 == null) continue;
++                    $$13.close();
++                }
++            }
++            catch (java.lang.Exception $$17) {
++                $$5.put((java.lang.Object)$$11, (java.lang.Object)new java.lang.IllegalStateException("Failed to parse %s from pack %s".formatted(new java.lang.Object[]{$$10, $$12.sourcePackId()}), (java.lang.Throwable)$$17));
++            }
++        }
++    }
++
++    public static /* synthetic */ void lambda$load$2(java.util.Map $$0, com.mojang.datafixers.util.Pair $$1) {
++        net.minecraft.core.Registry $$2 = (net.minecraft.core.Registry)$$1.getFirst();
++        try {
++            $$2.freeze();
++        }
++        catch (java.lang.Exception $$3) {
++            $$0.put((java.lang.Object)$$2.key(), (java.lang.Object)((java.lang.Object)$$3));
++        }
++    }
++
++    public static /* synthetic */ void lambda$load$1(net.minecraft.server.packs.resources.ResourceManager $$0, net.minecraft.core.RegistryAccess $$1, com.mojang.datafixers.util.Pair $$2) {
++        ((net.minecraft.resources.RegistryDataLoader$Loader)$$2.getSecond()).load($$0, $$1);
++    }
++
++    public static /* synthetic */ com.mojang.datafixers.util.Pair lambda$load$0(java.util.Map $$0, net.minecraft.resources.RegistryDataLoader$RegistryData $$1) {
++        return $$1.create(com.mojang.serialization.Lifecycle.stable(), $$0);
++    }
++
++    static {
++        LOGGER = com.mojang.logging.LogUtils.getLogger();
++        WORLDGEN_REGISTRIES = java.util.List.of((java.lang.Object[])new net.minecraft.resources.RegistryDataLoader$RegistryData[]{new net.minecraft.resources.RegistryDataLoader$RegistryData(net.minecraft.core.Registry.DIMENSION_TYPE_REGISTRY, net.minecraft.world.level.dimension.DimensionType.DIRECT_CODEC), new net.minecraft.resources.RegistryDataLoader$RegistryData(net.minecraft.core.Registry.BIOME_REGISTRY, net.minecraft.world.level.biome.Biome.DIRECT_CODEC), new net.minecraft.resources.RegistryDataLoader$RegistryData(net.minecraft.core.Registry.CHAT_TYPE_REGISTRY, net.minecraft.network.chat.ChatType.CODEC), new net.minecraft.resources.RegistryDataLoader$RegistryData(net.minecraft.core.Registry.CONFIGURED_CARVER_REGISTRY, net.minecraft.world.level.levelgen.carver.ConfiguredWorldCarver.DIRECT_CODEC), new net.minecraft.resources.RegistryDataLoader$RegistryData(net.minecraft.core.Registry.CONFIGURED_FEATURE_REGISTRY, net.minecraft.world.level.levelgen.feature.ConfiguredFeature.DIRECT_CODEC), new net.minecraft.resources.RegistryDataLoader$RegistryData(net.minecraft.core.Registry.PLACED_FEATURE_REGISTRY, net.minecraft.world.level.levelgen.placement.PlacedFeature.DIRECT_CODEC), new net.minecraft.resources.RegistryDataLoader$RegistryData(net.minecraft.core.Registry.STRUCTURE_REGISTRY, net.minecraft.world.level.levelgen.structure.Structure.DIRECT_CODEC), new net.minecraft.resources.RegistryDataLoader$RegistryData(net.minecraft.core.Registry.STRUCTURE_SET_REGISTRY, net.minecraft.world.level.levelgen.structure.StructureSet.DIRECT_CODEC), new net.minecraft.resources.RegistryDataLoader$RegistryData(net.minecraft.core.Registry.PROCESSOR_LIST_REGISTRY, net.minecraft.world.level.levelgen.structure.templatesystem.StructureProcessorType.DIRECT_CODEC), new net.minecraft.resources.RegistryDataLoader$RegistryData(net.minecraft.core.Registry.TEMPLATE_POOL_REGISTRY, net.minecraft.world.level.levelgen.structure.pools.StructureTemplatePool.DIRECT_CODEC), new net.minecraft.resources.RegistryDataLoader$RegistryData(net.minecraft.core.Registry.NOISE_GENERATOR_SETTINGS_REGISTRY, net.minecraft.world.level.levelgen.NoiseGeneratorSettings.DIRECT_CODEC), new net.minecraft.resources.RegistryDataLoader$RegistryData(net.minecraft.core.Registry.NOISE_REGISTRY, net.minecraft.world.level.levelgen.synth.NormalNoise$NoiseParameters.DIRECT_CODEC), new net.minecraft.resources.RegistryDataLoader$RegistryData(net.minecraft.core.Registry.DENSITY_FUNCTION_REGISTRY, net.minecraft.world.level.levelgen.DensityFunction.DIRECT_CODEC), new net.minecraft.resources.RegistryDataLoader$RegistryData(net.minecraft.core.Registry.WORLD_PRESET_REGISTRY, net.minecraft.world.level.levelgen.presets.WorldPreset.DIRECT_CODEC), new net.minecraft.resources.RegistryDataLoader$RegistryData(net.minecraft.core.Registry.FLAT_LEVEL_GENERATOR_PRESET_REGISTRY, net.minecraft.world.level.levelgen.flat.FlatLevelGeneratorPreset.DIRECT_CODEC)});
++        DIMENSION_REGISTRIES = java.util.List.of((java.lang.Object)new net.minecraft.resources.RegistryDataLoader$RegistryData(net.minecraft.core.Registry.LEVEL_STEM_REGISTRY, net.minecraft.world.level.dimension.LevelStem.CODEC));
++    }
++}
++

@@ -1,0 +1,200 @@
+--- net/minecraft/commands/Commands.java
++++ net/minecraft/commands/Commands.java
+@@ -16,7 +16,7 @@
+     public net.minecraft.commands.Commands(net.minecraft.commands.Commands$CommandSelection $$02, net.minecraft.commands.CommandBuildContext $$12) {
+         this.dispatcher = new com.mojang.brigadier.CommandDispatcher();
+         net.minecraft.server.commands.AdvancementCommands.register((com.mojang.brigadier.CommandDispatcher)this.dispatcher);
+-        net.minecraft.server.commands.AttributeCommand.register((com.mojang.brigadier.CommandDispatcher)this.dispatcher);
++        net.minecraft.server.commands.AttributeCommand.register((com.mojang.brigadier.CommandDispatcher)this.dispatcher, (net.minecraft.commands.CommandBuildContext)$$12);
+         net.minecraft.server.commands.ExecuteCommand.register((com.mojang.brigadier.CommandDispatcher)this.dispatcher, (net.minecraft.commands.CommandBuildContext)$$12);
+         net.minecraft.server.commands.BossBarCommands.register((com.mojang.brigadier.CommandDispatcher)this.dispatcher);
+         net.minecraft.server.commands.ClearInventoryCommands.register((com.mojang.brigadier.CommandDispatcher)this.dispatcher, (net.minecraft.commands.CommandBuildContext)$$12);
+@@ -26,9 +26,9 @@
+         net.minecraft.server.commands.DebugCommand.register((com.mojang.brigadier.CommandDispatcher)this.dispatcher);
+         net.minecraft.server.commands.DefaultGameModeCommands.register((com.mojang.brigadier.CommandDispatcher)this.dispatcher);
+         net.minecraft.server.commands.DifficultyCommand.register((com.mojang.brigadier.CommandDispatcher)this.dispatcher);
+-        net.minecraft.server.commands.EffectCommands.register((com.mojang.brigadier.CommandDispatcher)this.dispatcher);
++        net.minecraft.server.commands.EffectCommands.register((com.mojang.brigadier.CommandDispatcher)this.dispatcher, (net.minecraft.commands.CommandBuildContext)$$12);
+         net.minecraft.server.commands.EmoteCommands.register((com.mojang.brigadier.CommandDispatcher)this.dispatcher);
+-        net.minecraft.server.commands.EnchantCommand.register((com.mojang.brigadier.CommandDispatcher)this.dispatcher);
++        net.minecraft.server.commands.EnchantCommand.register((com.mojang.brigadier.CommandDispatcher)this.dispatcher, (net.minecraft.commands.CommandBuildContext)$$12);
+         net.minecraft.server.commands.ExperienceCommand.register((com.mojang.brigadier.CommandDispatcher)this.dispatcher);
+         net.minecraft.server.commands.FillCommand.register((com.mojang.brigadier.CommandDispatcher)this.dispatcher, (net.minecraft.commands.CommandBuildContext)$$12);
+         net.minecraft.server.commands.ForceLoadCommand.register((com.mojang.brigadier.CommandDispatcher)this.dispatcher);
+@@ -41,10 +41,10 @@
+         net.minecraft.server.commands.KickCommand.register((com.mojang.brigadier.CommandDispatcher)this.dispatcher);
+         net.minecraft.server.commands.KillCommand.register((com.mojang.brigadier.CommandDispatcher)this.dispatcher);
+         net.minecraft.server.commands.ListPlayersCommand.register((com.mojang.brigadier.CommandDispatcher)this.dispatcher);
+-        net.minecraft.server.commands.LocateCommand.register((com.mojang.brigadier.CommandDispatcher)this.dispatcher);
++        net.minecraft.server.commands.LocateCommand.register((com.mojang.brigadier.CommandDispatcher)this.dispatcher, (net.minecraft.commands.CommandBuildContext)$$12);
+         net.minecraft.server.commands.LootCommand.register((com.mojang.brigadier.CommandDispatcher)this.dispatcher, (net.minecraft.commands.CommandBuildContext)$$12);
+         net.minecraft.server.commands.MsgCommand.register((com.mojang.brigadier.CommandDispatcher)this.dispatcher);
+-        net.minecraft.server.commands.ParticleCommand.register((com.mojang.brigadier.CommandDispatcher)this.dispatcher);
++        net.minecraft.server.commands.ParticleCommand.register((com.mojang.brigadier.CommandDispatcher)this.dispatcher, (net.minecraft.commands.CommandBuildContext)$$12);
+         net.minecraft.server.commands.PlaceCommand.register((com.mojang.brigadier.CommandDispatcher)this.dispatcher);
+         net.minecraft.server.commands.PlaySoundCommand.register((com.mojang.brigadier.CommandDispatcher)this.dispatcher);
+         net.minecraft.server.commands.ReloadCommand.register((com.mojang.brigadier.CommandDispatcher)this.dispatcher);
+@@ -59,7 +59,7 @@
+         net.minecraft.server.commands.SpectateCommand.register((com.mojang.brigadier.CommandDispatcher)this.dispatcher);
+         net.minecraft.server.commands.SpreadPlayersCommand.register((com.mojang.brigadier.CommandDispatcher)this.dispatcher);
+         net.minecraft.server.commands.StopSoundCommand.register((com.mojang.brigadier.CommandDispatcher)this.dispatcher);
+-        net.minecraft.server.commands.SummonCommand.register((com.mojang.brigadier.CommandDispatcher)this.dispatcher);
++        net.minecraft.server.commands.SummonCommand.register((com.mojang.brigadier.CommandDispatcher)this.dispatcher, (net.minecraft.commands.CommandBuildContext)$$12);
+         net.minecraft.server.commands.TagCommand.register((com.mojang.brigadier.CommandDispatcher)this.dispatcher);
+         net.minecraft.server.commands.TeamCommand.register((com.mojang.brigadier.CommandDispatcher)this.dispatcher);
+         net.minecraft.server.commands.TeamMsgCommand.register((com.mojang.brigadier.CommandDispatcher)this.dispatcher);
+@@ -112,9 +112,9 @@
+     /*
+      * WARNING - Removed try catching itself - possible behaviour change.
+      */
+-    public int performCommand(com.mojang.brigadier.ParseResults<net.minecraft.commands.CommandSourceStack> $$0, java.lang.String $$1) {
++    public int performCommand(com.mojang.brigadier.ParseResults<net.minecraft.commands.CommandSourceStack> $$0, java.lang.String $$12) {
+         net.minecraft.commands.CommandSourceStack $$2 = (net.minecraft.commands.CommandSourceStack)$$0.getContext().getSource();
+-        $$2.getServer().getProfiler().push(() -> "/" + $$1);
++        $$2.getServer().getProfiler().push(() -> "/" + $$12);
+         try {
+             int n = this.dispatcher.execute($$0);
+             return n;
+@@ -129,7 +129,7 @@
+             $$2.sendFailure(net.minecraft.network.chat.ComponentUtils.fromMessage((com.mojang.brigadier.Message)$$4.getRawMessage()));
+             if ($$4.getInput() != null && $$4.getCursor() >= 0) {
+                 $$5 = java.lang.Math.min((int)$$4.getInput().length(), (int)$$4.getCursor());
+-                net.minecraft.network.chat.MutableComponent $$6 = net.minecraft.network.chat.Component.empty().withStyle(net.minecraft.ChatFormatting.GRAY).withStyle(style -> style.withClickEvent(new net.minecraft.network.chat.ClickEvent(net.minecraft.network.chat.ClickEvent$Action.SUGGEST_COMMAND, "/" + $$1)));
++                net.minecraft.network.chat.MutableComponent $$6 = net.minecraft.network.chat.Component.empty().withStyle(net.minecraft.ChatFormatting.GRAY).withStyle($$1 -> $$1.withClickEvent(new net.minecraft.network.chat.ClickEvent(net.minecraft.network.chat.ClickEvent$Action.SUGGEST_COMMAND, "/" + $$12)));
+                 if ($$5 > 10) {
+                     $$6.append(net.minecraft.network.chat.CommonComponents.ELLIPSIS);
+                 }
+@@ -147,16 +147,16 @@
+         catch (java.lang.Exception $$8) {
+             net.minecraft.network.chat.MutableComponent $$9 = net.minecraft.network.chat.Component.literal((java.lang.String)($$8.getMessage() == null ? $$8.getClass().getName() : $$8.getMessage()));
+             if (LOGGER.isDebugEnabled()) {
+-                LOGGER.error("Command exception: /{}", (java.lang.Object)$$1, (java.lang.Object)((java.lang.Object)$$8));
++                LOGGER.error("Command exception: /{}", (java.lang.Object)$$12, (java.lang.Object)((java.lang.Object)$$8));
+                 java.lang.StackTraceElement[] $$10 = $$8.getStackTrace();
+                 for (int $$11 = 0; $$11 < java.lang.Math.min((int)$$10.length, (int)3); ++$$11) {
+                     $$9.append("\n\n").append($$10[$$11].getMethodName()).append("\n ").append($$10[$$11].getFileName()).append(":").append(java.lang.String.valueOf((int)$$10[$$11].getLineNumber()));
+                 }
+             }
+-            $$2.sendFailure((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"command.failed").withStyle(style -> style.withHoverEvent(new net.minecraft.network.chat.HoverEvent(net.minecraft.network.chat.HoverEvent$Action.SHOW_TEXT, (java.lang.Object)$$9))));
++            $$2.sendFailure((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"command.failed").withStyle($$1 -> $$1.withHoverEvent(new net.minecraft.network.chat.HoverEvent(net.minecraft.network.chat.HoverEvent$Action.SHOW_TEXT, (java.lang.Object)$$9))));
+             if (net.minecraft.SharedConstants.IS_RUNNING_IN_IDE) {
+                 $$2.sendFailure((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.literal((java.lang.String)net.minecraft.Util.describeError((java.lang.Throwable)$$8)));
+-                LOGGER.error("'/{}' threw an exception", (java.lang.Object)$$1, (java.lang.Object)((java.lang.Object)$$8));
++                LOGGER.error("'/{}' threw an exception", (java.lang.Object)$$12, (java.lang.Object)((java.lang.Object)$$8));
+             }
+             int n = 0;
+             return n;
+@@ -166,52 +166,52 @@
+         }
+     }
+ 
+-    public void sendCommands(net.minecraft.server.level.ServerPlayer player) {
+-        java.util.HashMap hashMap = com.google.common.collect.Maps.newHashMap();
+-        com.mojang.brigadier.tree.RootCommandNode rootCommandNode = new com.mojang.brigadier.tree.RootCommandNode();
+-        hashMap.put((java.lang.Object)this.dispatcher.getRoot(), (java.lang.Object)rootCommandNode);
+-        this.fillUsableCommands((com.mojang.brigadier.tree.CommandNode)this.dispatcher.getRoot(), (com.mojang.brigadier.tree.CommandNode)rootCommandNode, player.createCommandSourceStack(), (java.util.Map)hashMap);
+-        player.connection.send((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ClientboundCommandsPacket(rootCommandNode));
++    public void sendCommands(net.minecraft.server.level.ServerPlayer $$0) {
++        java.util.HashMap $$1 = com.google.common.collect.Maps.newHashMap();
++        com.mojang.brigadier.tree.RootCommandNode $$2 = new com.mojang.brigadier.tree.RootCommandNode();
++        $$1.put((java.lang.Object)this.dispatcher.getRoot(), (java.lang.Object)$$2);
++        this.fillUsableCommands((com.mojang.brigadier.tree.CommandNode)this.dispatcher.getRoot(), (com.mojang.brigadier.tree.CommandNode)$$2, $$0.createCommandSourceStack(), (java.util.Map)$$1);
++        $$0.connection.send((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ClientboundCommandsPacket($$2));
+     }
+ 
+-    public void fillUsableCommands(com.mojang.brigadier.tree.CommandNode<net.minecraft.commands.CommandSourceStack> rootCommandSource, com.mojang.brigadier.tree.CommandNode<net.minecraft.commands.SharedSuggestionProvider> rootSuggestion, net.minecraft.commands.CommandSourceStack source, java.util.Map<com.mojang.brigadier.tree.CommandNode<net.minecraft.commands.CommandSourceStack>, com.mojang.brigadier.tree.CommandNode<net.minecraft.commands.SharedSuggestionProvider>> commandNodeToSuggestionNode) {
+-        for (com.mojang.brigadier.tree.CommandNode commandNode : rootCommandSource.getChildren()) {
+-            com.mojang.brigadier.builder.RequiredArgumentBuilder requiredArgumentBuilder;
+-            if (!commandNode.canUse((java.lang.Object)source)) continue;
+-            com.mojang.brigadier.builder.ArgumentBuilder argumentBuilder = commandNode.createBuilder();
+-            argumentBuilder.requires(suggestionProvider -> true);
+-            if (argumentBuilder.getCommand() != null) {
+-                argumentBuilder.executes(context -> 0);
++    public void fillUsableCommands(com.mojang.brigadier.tree.CommandNode<net.minecraft.commands.CommandSourceStack> $$02, com.mojang.brigadier.tree.CommandNode<net.minecraft.commands.SharedSuggestionProvider> $$1, net.minecraft.commands.CommandSourceStack $$2, java.util.Map<com.mojang.brigadier.tree.CommandNode<net.minecraft.commands.CommandSourceStack>, com.mojang.brigadier.tree.CommandNode<net.minecraft.commands.SharedSuggestionProvider>> $$3) {
++        for (com.mojang.brigadier.tree.CommandNode $$4 : $$02.getChildren()) {
++            com.mojang.brigadier.builder.RequiredArgumentBuilder $$6;
++            if (!$$4.canUse((java.lang.Object)$$2)) continue;
++            com.mojang.brigadier.builder.ArgumentBuilder $$5 = $$4.createBuilder();
++            $$5.requires($$0 -> true);
++            if ($$5.getCommand() != null) {
++                $$5.executes($$0 -> 0);
+             }
+-            if (argumentBuilder instanceof com.mojang.brigadier.builder.RequiredArgumentBuilder && (requiredArgumentBuilder = (com.mojang.brigadier.builder.RequiredArgumentBuilder)argumentBuilder).getSuggestionsProvider() != null) {
+-                requiredArgumentBuilder.suggests(net.minecraft.commands.synchronization.SuggestionProviders.safelySwap((com.mojang.brigadier.suggestion.SuggestionProvider)requiredArgumentBuilder.getSuggestionsProvider()));
++            if ($$5 instanceof com.mojang.brigadier.builder.RequiredArgumentBuilder && ($$6 = (com.mojang.brigadier.builder.RequiredArgumentBuilder)$$5).getSuggestionsProvider() != null) {
++                $$6.suggests(net.minecraft.commands.synchronization.SuggestionProviders.safelySwap((com.mojang.brigadier.suggestion.SuggestionProvider)$$6.getSuggestionsProvider()));
+             }
+-            if (argumentBuilder.getRedirect() != null) {
+-                argumentBuilder.redirect((com.mojang.brigadier.tree.CommandNode)commandNodeToSuggestionNode.get((java.lang.Object)argumentBuilder.getRedirect()));
++            if ($$5.getRedirect() != null) {
++                $$5.redirect((com.mojang.brigadier.tree.CommandNode)$$3.get((java.lang.Object)$$5.getRedirect()));
+             }
+-            requiredArgumentBuilder = argumentBuilder.build();
+-            commandNodeToSuggestionNode.put((java.lang.Object)commandNode, (java.lang.Object)requiredArgumentBuilder);
+-            rootSuggestion.addChild((com.mojang.brigadier.tree.CommandNode)requiredArgumentBuilder);
+-            if (commandNode.getChildren().isEmpty()) continue;
+-            this.fillUsableCommands(commandNode, (com.mojang.brigadier.tree.CommandNode)requiredArgumentBuilder, source, commandNodeToSuggestionNode);
++            com.mojang.brigadier.tree.CommandNode $$7 = $$5.build();
++            $$3.put((java.lang.Object)$$4, (java.lang.Object)$$7);
++            $$1.addChild($$7);
++            if ($$4.getChildren().isEmpty()) continue;
++            this.fillUsableCommands($$4, $$7, $$2, $$3);
+         }
+     }
+ 
+-    public static com.mojang.brigadier.builder.LiteralArgumentBuilder<net.minecraft.commands.CommandSourceStack> literal(java.lang.String name) {
+-        return com.mojang.brigadier.builder.LiteralArgumentBuilder.literal((java.lang.String)name);
++    public static com.mojang.brigadier.builder.LiteralArgumentBuilder<net.minecraft.commands.CommandSourceStack> literal(java.lang.String $$0) {
++        return com.mojang.brigadier.builder.LiteralArgumentBuilder.literal((java.lang.String)$$0);
+     }
+ 
+-    public static <T> com.mojang.brigadier.builder.RequiredArgumentBuilder<net.minecraft.commands.CommandSourceStack, T> argument(java.lang.String name, com.mojang.brigadier.arguments.ArgumentType<T> type) {
+-        return com.mojang.brigadier.builder.RequiredArgumentBuilder.argument((java.lang.String)name, type);
++    public static <T> com.mojang.brigadier.builder.RequiredArgumentBuilder<net.minecraft.commands.CommandSourceStack, T> argument(java.lang.String $$0, com.mojang.brigadier.arguments.ArgumentType<T> $$1) {
++        return com.mojang.brigadier.builder.RequiredArgumentBuilder.argument((java.lang.String)$$0, $$1);
+     }
+ 
+-    public static java.util.function.Predicate<java.lang.String> createValidator(net.minecraft.commands.Commands$ParseFunction parser) {
+-        return input -> {
++    public static java.util.function.Predicate<java.lang.String> createValidator(net.minecraft.commands.Commands$ParseFunction $$0) {
++        return $$1 -> {
+             try {
+-                parser.parse(new com.mojang.brigadier.StringReader(input));
++                $$0.parse(new com.mojang.brigadier.StringReader($$1));
+                 return true;
+             }
+-            catch (com.mojang.brigadier.exceptions.CommandSyntaxException commandSyntaxException) {
++            catch (com.mojang.brigadier.exceptions.CommandSyntaxException $$2) {
+                 return false;
+             }
+         };
+@@ -222,21 +222,21 @@
+     }
+ 
+     @javax.annotation.Nullable
+-    public static <S> com.mojang.brigadier.exceptions.CommandSyntaxException getParseException(com.mojang.brigadier.ParseResults<S> result) {
+-        if (!result.getReader().canRead()) {
++    public static <S> com.mojang.brigadier.exceptions.CommandSyntaxException getParseException(com.mojang.brigadier.ParseResults<S> $$0) {
++        if (!$$0.getReader().canRead()) {
+             return null;
+         }
+-        if (result.getExceptions().size() == 1) {
+-            return (com.mojang.brigadier.exceptions.CommandSyntaxException)((java.lang.Object)result.getExceptions().values().iterator().next());
++        if ($$0.getExceptions().size() == 1) {
++            return (com.mojang.brigadier.exceptions.CommandSyntaxException)((java.lang.Object)$$0.getExceptions().values().iterator().next());
+         }
+-        if (result.getContext().getRange().isEmpty()) {
+-            return com.mojang.brigadier.exceptions.CommandSyntaxException.BUILT_IN_EXCEPTIONS.dispatcherUnknownCommand().createWithContext(result.getReader());
++        if ($$0.getContext().getRange().isEmpty()) {
++            return com.mojang.brigadier.exceptions.CommandSyntaxException.BUILT_IN_EXCEPTIONS.dispatcherUnknownCommand().createWithContext($$0.getReader());
+         }
+-        return com.mojang.brigadier.exceptions.CommandSyntaxException.BUILT_IN_EXCEPTIONS.dispatcherUnknownArgument().createWithContext(result.getReader());
++        return com.mojang.brigadier.exceptions.CommandSyntaxException.BUILT_IN_EXCEPTIONS.dispatcherUnknownArgument().createWithContext($$0.getReader());
+     }
+ 
+     public static void validate() {
+-        net.minecraft.commands.CommandBuildContext $$02 = new net.minecraft.commands.CommandBuildContext((net.minecraft.core.RegistryAccess)net.minecraft.core.RegistryAccess.BUILTIN.get());
++        net.minecraft.commands.CommandBuildContext $$02 = new net.minecraft.commands.CommandBuildContext((net.minecraft.core.RegistryAccess)net.minecraft.data.BuiltinRegistries.createAccess(), net.minecraft.world.flag.FeatureFlags.REGISTRY.allFlags());
+         $$02.missingTagAccessPolicy(net.minecraft.commands.CommandBuildContext$MissingTagAccessPolicy.RETURN_EMPTY);
+         com.mojang.brigadier.CommandDispatcher $$12 = new net.minecraft.commands.Commands(net.minecraft.commands.Commands$CommandSelection.ALL, $$02).getDispatcher();
+         com.mojang.brigadier.tree.RootCommandNode $$22 = $$12.getRoot();

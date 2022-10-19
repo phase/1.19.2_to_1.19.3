@@ -1,0 +1,207 @@
+--- net/minecraft/commands/arguments/selector/EntitySelector.java
++++ net/minecraft/commands/arguments/selector/EntitySelector.java
+@@ -60,135 +60,139 @@
+         return this.usesSelector;
+     }
+ 
+-    public void checkPermissions(net.minecraft.commands.CommandSourceStack source) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
+-        if (this.usesSelector && !source.hasPermission(2)) {
++    public void checkPermissions(net.minecraft.commands.CommandSourceStack $$0) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
++        if (this.usesSelector && !$$0.hasPermission(2)) {
+             throw net.minecraft.commands.arguments.EntityArgument.ERROR_SELECTORS_NOT_ALLOWED.create();
+         }
+     }
+ 
+-    public net.minecraft.world.entity.Entity findSingleEntity(net.minecraft.commands.CommandSourceStack source) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
+-        this.checkPermissions(source);
+-        java.util.List list = this.findEntities(source);
+-        if (list.isEmpty()) {
++    public net.minecraft.world.entity.Entity findSingleEntity(net.minecraft.commands.CommandSourceStack $$0) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
++        this.checkPermissions($$0);
++        java.util.List $$1 = this.findEntities($$0);
++        if ($$1.isEmpty()) {
+             throw net.minecraft.commands.arguments.EntityArgument.NO_ENTITIES_FOUND.create();
+         }
+-        if (list.size() > 1) {
++        if ($$1.size() > 1) {
+             throw net.minecraft.commands.arguments.EntityArgument.ERROR_NOT_SINGLE_ENTITY.create();
+         }
+-        return (net.minecraft.world.entity.Entity)list.get(0);
++        return (net.minecraft.world.entity.Entity)$$1.get(0);
+     }
+ 
+-    public java.util.List<? extends net.minecraft.world.entity.Entity> findEntities(net.minecraft.commands.CommandSourceStack source) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
+-        this.checkPermissions(source);
++    public java.util.List<? extends net.minecraft.world.entity.Entity> findEntities(net.minecraft.commands.CommandSourceStack $$0) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
++        return this.findEntitiesRaw($$0).stream().filter($$1 -> $$1.getType().isEnabled($$0.enabledFeatures())).toList();
++    }
++
++    public java.util.List<? extends net.minecraft.world.entity.Entity> findEntitiesRaw(net.minecraft.commands.CommandSourceStack $$0) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
++        this.checkPermissions($$0);
+         if (!this.includesEntities) {
+-            return this.findPlayers(source);
++            return this.findPlayers($$0);
+         }
+         if (this.playerName != null) {
+-            net.minecraft.server.level.ServerPlayer serverPlayer = source.getServer().getPlayerList().getPlayerByName(this.playerName);
+-            if (serverPlayer == null) {
++            net.minecraft.server.level.ServerPlayer $$1 = $$0.getServer().getPlayerList().getPlayerByName(this.playerName);
++            if ($$1 == null) {
+                 return java.util.Collections.emptyList();
+             }
+-            return com.google.common.collect.Lists.newArrayList((java.lang.Object[])new net.minecraft.server.level.ServerPlayer[]{serverPlayer});
++            return com.google.common.collect.Lists.newArrayList((java.lang.Object[])new net.minecraft.server.level.ServerPlayer[]{$$1});
+         }
+         if (this.entityUUID != null) {
+-            for (net.minecraft.server.level.ServerLevel serverLevel : source.getServer().getAllLevels()) {
+-                net.minecraft.world.entity.Entity entity = serverLevel.getEntity(this.entityUUID);
+-                if (entity == null) continue;
+-                return com.google.common.collect.Lists.newArrayList((java.lang.Object[])new net.minecraft.world.entity.Entity[]{entity});
++            for (net.minecraft.server.level.ServerLevel $$2 : $$0.getServer().getAllLevels()) {
++                net.minecraft.world.entity.Entity $$3 = $$2.getEntity(this.entityUUID);
++                if ($$3 == null) continue;
++                return com.google.common.collect.Lists.newArrayList((java.lang.Object[])new net.minecraft.world.entity.Entity[]{$$3});
+             }
+             return java.util.Collections.emptyList();
+         }
+-        net.minecraft.world.phys.Vec3 vec3 = (net.minecraft.world.phys.Vec3)this.position.apply((java.lang.Object)source.getPosition());
+-        java.util.function.Predicate predicate = this.getPredicate(vec3);
++        net.minecraft.world.phys.Vec3 $$4 = (net.minecraft.world.phys.Vec3)this.position.apply((java.lang.Object)$$0.getPosition());
++        java.util.function.Predicate $$5 = this.getPredicate($$4);
+         if (this.currentEntity) {
+-            if (source.getEntity() != null && predicate.test((java.lang.Object)source.getEntity())) {
+-                return com.google.common.collect.Lists.newArrayList((java.lang.Object[])new net.minecraft.world.entity.Entity[]{source.getEntity()});
++            if ($$0.getEntity() != null && $$5.test((java.lang.Object)$$0.getEntity())) {
++                return com.google.common.collect.Lists.newArrayList((java.lang.Object[])new net.minecraft.world.entity.Entity[]{$$0.getEntity()});
+             }
+             return java.util.Collections.emptyList();
+         }
+-        java.util.ArrayList arrayList = com.google.common.collect.Lists.newArrayList();
++        java.util.ArrayList $$6 = com.google.common.collect.Lists.newArrayList();
+         if (this.isWorldLimited()) {
+-            this.addEntities((java.util.List)arrayList, source.getLevel(), vec3, predicate);
++            this.addEntities((java.util.List)$$6, $$0.getLevel(), $$4, $$5);
+         } else {
+-            for (net.minecraft.server.level.ServerLevel serverLevel : source.getServer().getAllLevels()) {
+-                this.addEntities((java.util.List)arrayList, serverLevel, vec3, predicate);
++            for (net.minecraft.server.level.ServerLevel $$7 : $$0.getServer().getAllLevels()) {
++                this.addEntities((java.util.List)$$6, $$7, $$4, $$5);
+             }
+         }
+-        return this.sortAndLimit(vec3, (java.util.List)arrayList);
++        return this.sortAndLimit($$4, (java.util.List)$$6);
+     }
+ 
+-    public void addEntities(java.util.List<net.minecraft.world.entity.Entity> result, net.minecraft.server.level.ServerLevel level, net.minecraft.world.phys.Vec3 pos, java.util.function.Predicate<net.minecraft.world.entity.Entity> predicate) {
++    public void addEntities(java.util.List<net.minecraft.world.entity.Entity> $$0, net.minecraft.server.level.ServerLevel $$1, net.minecraft.world.phys.Vec3 $$2, java.util.function.Predicate<net.minecraft.world.entity.Entity> $$3) {
+         if (this.aabb != null) {
+-            result.addAll((java.util.Collection)level.getEntities(this.type, this.aabb.move(pos), predicate));
++            $$0.addAll((java.util.Collection)$$1.getEntities(this.type, this.aabb.move($$2), $$3));
+         } else {
+-            result.addAll((java.util.Collection)level.getEntities(this.type, predicate));
++            $$0.addAll((java.util.Collection)$$1.getEntities(this.type, $$3));
+         }
+     }
+ 
+-    public net.minecraft.server.level.ServerPlayer findSinglePlayer(net.minecraft.commands.CommandSourceStack source) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
+-        this.checkPermissions(source);
+-        java.util.List list = this.findPlayers(source);
+-        if (list.size() != 1) {
++    public net.minecraft.server.level.ServerPlayer findSinglePlayer(net.minecraft.commands.CommandSourceStack $$0) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
++        this.checkPermissions($$0);
++        java.util.List $$1 = this.findPlayers($$0);
++        if ($$1.size() != 1) {
+             throw net.minecraft.commands.arguments.EntityArgument.NO_PLAYERS_FOUND.create();
+         }
+-        return (net.minecraft.server.level.ServerPlayer)list.get(0);
++        return (net.minecraft.server.level.ServerPlayer)$$1.get(0);
+     }
+ 
+-    public java.util.List<net.minecraft.server.level.ServerPlayer> findPlayers(net.minecraft.commands.CommandSourceStack source) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
+-        java.util.ArrayList arrayList;
+-        this.checkPermissions(source);
++    public java.util.List<net.minecraft.server.level.ServerPlayer> findPlayers(net.minecraft.commands.CommandSourceStack $$0) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
++        java.util.ArrayList $$7;
++        this.checkPermissions($$0);
+         if (this.playerName != null) {
+-            net.minecraft.server.level.ServerPlayer serverPlayer = source.getServer().getPlayerList().getPlayerByName(this.playerName);
+-            if (serverPlayer == null) {
++            net.minecraft.server.level.ServerPlayer $$1 = $$0.getServer().getPlayerList().getPlayerByName(this.playerName);
++            if ($$1 == null) {
+                 return java.util.Collections.emptyList();
+             }
+-            return com.google.common.collect.Lists.newArrayList((java.lang.Object[])new net.minecraft.server.level.ServerPlayer[]{serverPlayer});
++            return com.google.common.collect.Lists.newArrayList((java.lang.Object[])new net.minecraft.server.level.ServerPlayer[]{$$1});
+         }
+         if (this.entityUUID != null) {
+-            net.minecraft.server.level.ServerPlayer serverPlayer = source.getServer().getPlayerList().getPlayer(this.entityUUID);
+-            if (serverPlayer == null) {
++            net.minecraft.server.level.ServerPlayer $$2 = $$0.getServer().getPlayerList().getPlayer(this.entityUUID);
++            if ($$2 == null) {
+                 return java.util.Collections.emptyList();
+             }
+-            return com.google.common.collect.Lists.newArrayList((java.lang.Object[])new net.minecraft.server.level.ServerPlayer[]{serverPlayer});
++            return com.google.common.collect.Lists.newArrayList((java.lang.Object[])new net.minecraft.server.level.ServerPlayer[]{$$2});
+         }
+-        net.minecraft.world.phys.Vec3 vec3 = (net.minecraft.world.phys.Vec3)this.position.apply((java.lang.Object)source.getPosition());
+-        java.util.function.Predicate predicate = this.getPredicate(vec3);
++        net.minecraft.world.phys.Vec3 $$3 = (net.minecraft.world.phys.Vec3)this.position.apply((java.lang.Object)$$0.getPosition());
++        java.util.function.Predicate $$4 = this.getPredicate($$3);
+         if (this.currentEntity) {
+-            net.minecraft.server.level.ServerPlayer serverPlayer;
+-            if (source.getEntity() instanceof net.minecraft.server.level.ServerPlayer && predicate.test((java.lang.Object)(serverPlayer = (net.minecraft.server.level.ServerPlayer)source.getEntity()))) {
+-                return com.google.common.collect.Lists.newArrayList((java.lang.Object[])new net.minecraft.server.level.ServerPlayer[]{serverPlayer});
++            net.minecraft.server.level.ServerPlayer $$5;
++            if ($$0.getEntity() instanceof net.minecraft.server.level.ServerPlayer && $$4.test((java.lang.Object)($$5 = (net.minecraft.server.level.ServerPlayer)$$0.getEntity()))) {
++                return com.google.common.collect.Lists.newArrayList((java.lang.Object[])new net.minecraft.server.level.ServerPlayer[]{$$5});
+             }
+             return java.util.Collections.emptyList();
+         }
+         if (this.isWorldLimited()) {
+-            arrayList = source.getLevel().getPlayers(predicate);
++            java.util.List $$6 = $$0.getLevel().getPlayers($$4);
+         } else {
+-            arrayList = com.google.common.collect.Lists.newArrayList();
+-            for (net.minecraft.server.level.ServerPlayer serverPlayer : source.getServer().getPlayerList().getPlayers()) {
+-                if (!predicate.test((java.lang.Object)serverPlayer)) continue;
+-                arrayList.add((java.lang.Object)serverPlayer);
++            $$7 = com.google.common.collect.Lists.newArrayList();
++            for (net.minecraft.server.level.ServerPlayer $$8 : $$0.getServer().getPlayerList().getPlayers()) {
++                if (!$$4.test((java.lang.Object)$$8)) continue;
++                $$7.add((java.lang.Object)$$8);
+             }
+         }
+-        return this.sortAndLimit(vec3, (java.util.List)arrayList);
++        return this.sortAndLimit($$3, (java.util.List)$$7);
+     }
+ 
+-    public java.util.function.Predicate<net.minecraft.world.entity.Entity> getPredicate(net.minecraft.world.phys.Vec3 pos) {
+-        java.util.function.Predicate predicate = this.predicate;
++    public java.util.function.Predicate<net.minecraft.world.entity.Entity> getPredicate(net.minecraft.world.phys.Vec3 $$0) {
++        java.util.function.Predicate $$12 = this.predicate;
+         if (this.aabb != null) {
+-            net.minecraft.world.phys.AABB aABB = this.aabb.move(pos);
+-            predicate = predicate.and(entity -> aABB.intersects(entity.getBoundingBox()));
++            net.minecraft.world.phys.AABB $$2 = this.aabb.move($$0);
++            $$12 = $$12.and($$1 -> $$2.intersects($$1.getBoundingBox()));
+         }
+         if (!this.range.isAny()) {
+-            predicate = predicate.and(entity -> this.range.matchesSqr(entity.distanceToSqr(pos)));
++            $$12 = $$12.and($$1 -> this.range.matchesSqr($$1.distanceToSqr($$0)));
+         }
+-        return predicate;
++        return $$12;
+     }
+ 
+-    public <T extends net.minecraft.world.entity.Entity> java.util.List<T> sortAndLimit(net.minecraft.world.phys.Vec3 pos, java.util.List<T> entities) {
+-        if (entities.size() > 1) {
+-            this.order.accept((java.lang.Object)pos, entities);
++    public <T extends net.minecraft.world.entity.Entity> java.util.List<T> sortAndLimit(net.minecraft.world.phys.Vec3 $$0, java.util.List<T> $$1) {
++        if ($$1.size() > 1) {
++            this.order.accept((java.lang.Object)$$0, $$1);
+         }
+-        return entities.subList(0, java.lang.Math.min((int)this.maxResults, (int)entities.size()));
++        return $$1.subList(0, java.lang.Math.min((int)this.maxResults, (int)$$1.size()));
+     }
+ 
+     public static net.minecraft.network.chat.Component joinNames(java.util.List<? extends net.minecraft.world.entity.Entity> $$0) {

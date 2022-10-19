@@ -1,0 +1,119 @@
+--- net/minecraft/world/ContainerHelper.java
++++ net/minecraft/world/ContainerHelper.java
+@@ -8,73 +8,73 @@
+     public net.minecraft.world.ContainerHelper() {
+     }
+ 
+-    public static net.minecraft.world.item.ItemStack removeItem(java.util.List<net.minecraft.world.item.ItemStack> stacks, int index, int amount) {
+-        if (index < 0 || index >= stacks.size() || ((net.minecraft.world.item.ItemStack)stacks.get(index)).isEmpty() || amount <= 0) {
++    public static net.minecraft.world.item.ItemStack removeItem(java.util.List<net.minecraft.world.item.ItemStack> $$0, int $$1, int $$2) {
++        if ($$1 < 0 || $$1 >= $$0.size() || ((net.minecraft.world.item.ItemStack)$$0.get($$1)).isEmpty() || $$2 <= 0) {
+             return net.minecraft.world.item.ItemStack.EMPTY;
+         }
+-        return ((net.minecraft.world.item.ItemStack)stacks.get(index)).split(amount);
++        return ((net.minecraft.world.item.ItemStack)$$0.get($$1)).split($$2);
+     }
+ 
+-    public static net.minecraft.world.item.ItemStack takeItem(java.util.List<net.minecraft.world.item.ItemStack> stacks, int index) {
+-        if (index < 0 || index >= stacks.size()) {
++    public static net.minecraft.world.item.ItemStack takeItem(java.util.List<net.minecraft.world.item.ItemStack> $$0, int $$1) {
++        if ($$1 < 0 || $$1 >= $$0.size()) {
+             return net.minecraft.world.item.ItemStack.EMPTY;
+         }
+-        return (net.minecraft.world.item.ItemStack)stacks.set(index, (java.lang.Object)net.minecraft.world.item.ItemStack.EMPTY);
++        return (net.minecraft.world.item.ItemStack)$$0.set($$1, (java.lang.Object)net.minecraft.world.item.ItemStack.EMPTY);
+     }
+ 
+-    public static net.minecraft.nbt.CompoundTag saveAllItems(net.minecraft.nbt.CompoundTag tag, net.minecraft.core.NonNullList<net.minecraft.world.item.ItemStack> list) {
+-        return net.minecraft.world.ContainerHelper.saveAllItems((net.minecraft.nbt.CompoundTag)tag, list, (boolean)true);
++    public static net.minecraft.nbt.CompoundTag saveAllItems(net.minecraft.nbt.CompoundTag $$0, net.minecraft.core.NonNullList<net.minecraft.world.item.ItemStack> $$1) {
++        return net.minecraft.world.ContainerHelper.saveAllItems((net.minecraft.nbt.CompoundTag)$$0, $$1, (boolean)true);
+     }
+ 
+-    public static net.minecraft.nbt.CompoundTag saveAllItems(net.minecraft.nbt.CompoundTag tag, net.minecraft.core.NonNullList<net.minecraft.world.item.ItemStack> list, boolean saveEmpty) {
+-        net.minecraft.nbt.ListTag listTag = new net.minecraft.nbt.ListTag();
+-        for (int i = 0; i < list.size(); ++i) {
+-            net.minecraft.world.item.ItemStack itemStack = (net.minecraft.world.item.ItemStack)list.get(i);
+-            if (itemStack.isEmpty()) continue;
+-            net.minecraft.nbt.CompoundTag compoundTag = new net.minecraft.nbt.CompoundTag();
+-            compoundTag.putByte("Slot", (byte)i);
+-            itemStack.save(compoundTag);
+-            listTag.add((java.lang.Object)compoundTag);
++    public static net.minecraft.nbt.CompoundTag saveAllItems(net.minecraft.nbt.CompoundTag $$0, net.minecraft.core.NonNullList<net.minecraft.world.item.ItemStack> $$1, boolean $$2) {
++        net.minecraft.nbt.ListTag $$3 = new net.minecraft.nbt.ListTag();
++        for (int $$4 = 0; $$4 < $$1.size(); ++$$4) {
++            net.minecraft.world.item.ItemStack $$5 = (net.minecraft.world.item.ItemStack)$$1.get($$4);
++            if ($$5.isEmpty()) continue;
++            net.minecraft.nbt.CompoundTag $$6 = new net.minecraft.nbt.CompoundTag();
++            $$6.putByte("Slot", (byte)$$4);
++            $$5.save($$6);
++            $$3.add((java.lang.Object)$$6);
+         }
+-        if (!listTag.isEmpty() || saveEmpty) {
+-            tag.put("Items", (net.minecraft.nbt.Tag)listTag);
++        if (!$$3.isEmpty() || $$2) {
++            $$0.put("Items", (net.minecraft.nbt.Tag)$$3);
+         }
+-        return tag;
++        return $$0;
+     }
+ 
+-    public static void loadAllItems(net.minecraft.nbt.CompoundTag tag, net.minecraft.core.NonNullList<net.minecraft.world.item.ItemStack> list) {
+-        net.minecraft.nbt.ListTag listTag = tag.getList("Items", 10);
+-        for (int i = 0; i < listTag.size(); ++i) {
+-            net.minecraft.nbt.CompoundTag compoundTag = listTag.getCompound(i);
+-            int n = compoundTag.getByte("Slot") & 0xFF;
+-            if (n < 0 || n >= list.size()) continue;
+-            list.set(n, (java.lang.Object)net.minecraft.world.item.ItemStack.of((net.minecraft.nbt.CompoundTag)compoundTag));
++    public static void loadAllItems(net.minecraft.nbt.CompoundTag $$0, net.minecraft.core.NonNullList<net.minecraft.world.item.ItemStack> $$1) {
++        net.minecraft.nbt.ListTag $$2 = $$0.getList("Items", 10);
++        for (int $$3 = 0; $$3 < $$2.size(); ++$$3) {
++            net.minecraft.nbt.CompoundTag $$4 = $$2.getCompound($$3);
++            int $$5 = $$4.getByte("Slot") & 0xFF;
++            if ($$5 < 0 || $$5 >= $$1.size()) continue;
++            $$1.set($$5, (java.lang.Object)net.minecraft.world.item.ItemStack.of((net.minecraft.nbt.CompoundTag)$$4));
+         }
+     }
+ 
+-    public static int clearOrCountMatchingItems(net.minecraft.world.Container container, java.util.function.Predicate<net.minecraft.world.item.ItemStack> itemPredicate, int maxItems, boolean simulate) {
+-        int n = 0;
+-        for (int i = 0; i < container.getContainerSize(); ++i) {
+-            net.minecraft.world.item.ItemStack itemStack = container.getItem(i);
+-            int n2 = net.minecraft.world.ContainerHelper.clearOrCountMatchingItems((net.minecraft.world.item.ItemStack)itemStack, itemPredicate, (int)(maxItems - n), (boolean)simulate);
+-            if (n2 > 0 && !simulate && itemStack.isEmpty()) {
+-                container.setItem(i, net.minecraft.world.item.ItemStack.EMPTY);
++    public static int clearOrCountMatchingItems(net.minecraft.world.Container $$0, java.util.function.Predicate<net.minecraft.world.item.ItemStack> $$1, int $$2, boolean $$3) {
++        int $$4 = 0;
++        for (int $$5 = 0; $$5 < $$0.getContainerSize(); ++$$5) {
++            net.minecraft.world.item.ItemStack $$6 = $$0.getItem($$5);
++            int $$7 = net.minecraft.world.ContainerHelper.clearOrCountMatchingItems((net.minecraft.world.item.ItemStack)$$6, $$1, (int)($$2 - $$4), (boolean)$$3);
++            if ($$7 > 0 && !$$3 && $$6.isEmpty()) {
++                $$0.setItem($$5, net.minecraft.world.item.ItemStack.EMPTY);
+             }
+-            n += n2;
++            $$4 += $$7;
+         }
+-        return n;
++        return $$4;
+     }
+ 
+-    public static int clearOrCountMatchingItems(net.minecraft.world.item.ItemStack stack, java.util.function.Predicate<net.minecraft.world.item.ItemStack> itemPredicate, int maxItems, boolean simulate) {
+-        if (stack.isEmpty() || !itemPredicate.test((java.lang.Object)stack)) {
++    public static int clearOrCountMatchingItems(net.minecraft.world.item.ItemStack $$0, java.util.function.Predicate<net.minecraft.world.item.ItemStack> $$1, int $$2, boolean $$3) {
++        if ($$0.isEmpty() || !$$1.test((java.lang.Object)$$0)) {
+             return 0;
+         }
+-        if (simulate) {
+-            return stack.getCount();
++        if ($$3) {
++            return $$0.getCount();
+         }
+-        int n = maxItems < 0 ? stack.getCount() : java.lang.Math.min((int)maxItems, (int)stack.getCount());
+-        stack.shrink(n);
+-        return n;
++        int $$4 = $$2 < 0 ? $$0.getCount() : java.lang.Math.min((int)$$2, (int)$$0.getCount());
++        $$0.shrink($$4);
++        return $$4;
+     }
+ }
+ 

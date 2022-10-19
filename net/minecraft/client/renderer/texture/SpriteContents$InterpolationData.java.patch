@@ -1,0 +1,65 @@
+--- net/minecraft/client/renderer/texture/SpriteContents$InterpolationData.java
++++ net/minecraft/client/renderer/texture/SpriteContents$InterpolationData.java
+@@ -1,0 +1,62 @@
++/*
++ * Decompiled with CFR 0.151.
++ */
++package net.minecraft.client.renderer.texture;
++
++public class net.minecraft.client.renderer.texture.SpriteContents$InterpolationData
++implements java.lang.AutoCloseable
++ {
++    public com.mojang.blaze3d.platform.NativeImage[] activeFrame;
++    public /* synthetic */ net.minecraft.client.renderer.texture.SpriteContents this$0;
++
++    public net.minecraft.client.renderer.texture.SpriteContents$InterpolationData(net.minecraft.client.renderer.texture.SpriteContents spriteContents) {
++        this.this$0 = spriteContents;
++        this.activeFrame = new com.mojang.blaze3d.platform.NativeImage[spriteContents.byMipLevel.length];
++        for (int $$0 = 0; $$0 < this.activeFrame.length; ++$$0) {
++            int $$1 = spriteContents.width >> $$0;
++            int $$2 = spriteContents.height >> $$0;
++            this.activeFrame[$$0] = new com.mojang.blaze3d.platform.NativeImage($$1, $$2, false);
++        }
++    }
++
++    public void uploadInterpolatedFrame(int $$0, int $$1, net.minecraft.client.renderer.texture.SpriteContents$Ticker $$2) {
++        net.minecraft.client.renderer.texture.SpriteContents$AnimatedTexture $$3 = $$2.animationInfo;
++        java.util.List $$4 = $$3.frames;
++        net.minecraft.client.renderer.texture.SpriteContents$FrameInfo $$5 = (net.minecraft.client.renderer.texture.SpriteContents$FrameInfo)$$4.get($$2.frame);
++        double $$6 = 1.0 - (double)$$2.subFrame / (double)$$5.time;
++        int $$7 = $$5.index;
++        int $$8 = ((net.minecraft.client.renderer.texture.SpriteContents$FrameInfo)$$4.get((int)(($$2.frame + 1) % $$4.size()))).index;
++        if ($$7 != $$8) {
++            for (int $$9 = 0; $$9 < this.activeFrame.length; ++$$9) {
++                int $$10 = this.this$0.width >> $$9;
++                int $$11 = this.this$0.height >> $$9;
++                for (int $$12 = 0; $$12 < $$11; ++$$12) {
++                    for (int $$13 = 0; $$13 < $$10; ++$$13) {
++                        int $$14 = this.getPixel($$3, $$7, $$9, $$13, $$12);
++                        int $$15 = this.getPixel($$3, $$8, $$9, $$13, $$12);
++                        int $$16 = this.mix($$6, $$14 >> 16 & 0xFF, $$15 >> 16 & 0xFF);
++                        int $$17 = this.mix($$6, $$14 >> 8 & 0xFF, $$15 >> 8 & 0xFF);
++                        int $$18 = this.mix($$6, $$14 & 0xFF, $$15 & 0xFF);
++                        this.activeFrame[$$9].setPixelRGBA($$13, $$12, $$14 & 0xFF000000 | $$16 << 16 | $$17 << 8 | $$18);
++                    }
++                }
++            }
++            this.this$0.upload($$0, $$1, 0, 0, this.activeFrame);
++        }
++    }
++
++    public int getPixel(net.minecraft.client.renderer.texture.SpriteContents$AnimatedTexture $$0, int $$1, int $$2, int $$3, int $$4) {
++        return this.this$0.byMipLevel[$$2].getPixelRGBA($$3 + ($$0.getFrameX($$1) * this.this$0.width >> $$2), $$4 + ($$0.getFrameY($$1) * this.this$0.height >> $$2));
++    }
++
++    public int mix(double $$0, int $$1, int $$2) {
++        return (int)($$0 * (double)$$1 + (1.0 - $$0) * (double)$$2);
++    }
++
++    public void close() {
++        for (com.mojang.blaze3d.platform.NativeImage $$0 : this.activeFrame) {
++            $$0.close();
++        }
++    }
++}
++

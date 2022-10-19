@@ -1,0 +1,94 @@
+--- net/minecraft/network/protocol/game/ClientboundCommandsPacket.java
++++ net/minecraft/network/protocol/game/ClientboundCommandsPacket.java
+@@ -16,10 +16,10 @@
+     public int rootIndex;
+     public java.util.List<net.minecraft.network.protocol.game.ClientboundCommandsPacket$Entry> entries;
+ 
+-    public net.minecraft.network.protocol.game.ClientboundCommandsPacket(com.mojang.brigadier.tree.RootCommandNode<net.minecraft.commands.SharedSuggestionProvider> root) {
+-        it.unimi.dsi.fastutil.objects.Object2IntMap object2IntMap = net.minecraft.network.protocol.game.ClientboundCommandsPacket.enumerateNodes(root);
+-        this.entries = net.minecraft.network.protocol.game.ClientboundCommandsPacket.createEntries((it.unimi.dsi.fastutil.objects.Object2IntMap)object2IntMap);
+-        this.rootIndex = object2IntMap.getInt(root);
++    public net.minecraft.network.protocol.game.ClientboundCommandsPacket(com.mojang.brigadier.tree.RootCommandNode<net.minecraft.commands.SharedSuggestionProvider> $$0) {
++        it.unimi.dsi.fastutil.objects.Object2IntMap $$1 = net.minecraft.network.protocol.game.ClientboundCommandsPacket.enumerateNodes($$0);
++        this.entries = net.minecraft.network.protocol.game.ClientboundCommandsPacket.createEntries((it.unimi.dsi.fastutil.objects.Object2IntMap)$$1);
++        this.rootIndex = $$1.getInt($$0);
+     }
+ 
+     public net.minecraft.network.protocol.game.ClientboundCommandsPacket(net.minecraft.network.FriendlyByteBuf $$0) {
+@@ -28,9 +28,9 @@
+         net.minecraft.network.protocol.game.ClientboundCommandsPacket.validateEntries((java.util.List)this.entries);
+     }
+ 
+-    public void write(net.minecraft.network.FriendlyByteBuf buffer) {
+-        buffer.writeCollection((java.util.Collection)this.entries, ($$0, $$1) -> $$1.write($$0));
+-        buffer.writeVarInt(this.rootIndex);
++    public void write(net.minecraft.network.FriendlyByteBuf $$02) {
++        $$02.writeCollection((java.util.Collection)this.entries, ($$0, $$1) -> $$1.write($$0));
++        $$02.writeVarInt(this.rootIndex);
+     }
+ 
+     public static void validateEntries(java.util.List<net.minecraft.network.protocol.game.ClientboundCommandsPacket$Entry> $$0, java.util.function.BiPredicate<net.minecraft.network.protocol.game.ClientboundCommandsPacket$Entry, it.unimi.dsi.fastutil.ints.IntSet> $$1) {
+@@ -47,20 +47,20 @@
+         net.minecraft.network.protocol.game.ClientboundCommandsPacket.validateEntries($$0, net.minecraft.network.protocol.game.ClientboundCommandsPacket$Entry::canResolve);
+     }
+ 
+-    public static it.unimi.dsi.fastutil.objects.Object2IntMap<com.mojang.brigadier.tree.CommandNode<net.minecraft.commands.SharedSuggestionProvider>> enumerateNodes(com.mojang.brigadier.tree.RootCommandNode<net.minecraft.commands.SharedSuggestionProvider> rootNode) {
+-        com.mojang.brigadier.tree.CommandNode commandNode;
+-        it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap object2IntOpenHashMap = new it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap();
+-        java.util.ArrayDeque arrayDeque = com.google.common.collect.Queues.newArrayDeque();
+-        arrayDeque.add(rootNode);
+-        while ((commandNode = (com.mojang.brigadier.tree.CommandNode)arrayDeque.poll()) != null) {
+-            if (object2IntOpenHashMap.containsKey((java.lang.Object)commandNode)) continue;
+-            int n = object2IntOpenHashMap.size();
+-            object2IntOpenHashMap.put((java.lang.Object)commandNode, n);
+-            arrayDeque.addAll(commandNode.getChildren());
+-            if (commandNode.getRedirect() == null) continue;
+-            arrayDeque.add((java.lang.Object)commandNode.getRedirect());
++    public static it.unimi.dsi.fastutil.objects.Object2IntMap<com.mojang.brigadier.tree.CommandNode<net.minecraft.commands.SharedSuggestionProvider>> enumerateNodes(com.mojang.brigadier.tree.RootCommandNode<net.minecraft.commands.SharedSuggestionProvider> $$0) {
++        com.mojang.brigadier.tree.CommandNode $$3;
++        it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap $$1 = new it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap();
++        java.util.ArrayDeque $$2 = com.google.common.collect.Queues.newArrayDeque();
++        $$2.add($$0);
++        while (($$3 = (com.mojang.brigadier.tree.CommandNode)$$2.poll()) != null) {
++            if ($$1.containsKey((java.lang.Object)$$3)) continue;
++            int $$4 = $$1.size();
++            $$1.put((java.lang.Object)$$3, $$4);
++            $$2.addAll($$3.getChildren());
++            if ($$3.getRedirect() == null) continue;
++            $$2.add((java.lang.Object)$$3.getRedirect());
+         }
+-        return object2IntOpenHashMap;
++        return $$1;
+     }
+ 
+     public static java.util.List<net.minecraft.network.protocol.game.ClientboundCommandsPacket$Entry> createEntries(it.unimi.dsi.fastutil.objects.Object2IntMap<com.mojang.brigadier.tree.CommandNode<net.minecraft.commands.SharedSuggestionProvider>> $$0) {
+@@ -72,12 +72,12 @@
+         return $$1;
+     }
+ 
+-    public static net.minecraft.network.protocol.game.ClientboundCommandsPacket$Entry readNode(net.minecraft.network.FriendlyByteBuf buffer) {
+-        byte by = buffer.readByte();
+-        int[] nArray = buffer.readVarIntArray();
+-        int n = (by & 8) != 0 ? buffer.readVarInt() : 0;
+-        net.minecraft.network.protocol.game.ClientboundCommandsPacket$NodeStub nodeStub = net.minecraft.network.protocol.game.ClientboundCommandsPacket.read((net.minecraft.network.FriendlyByteBuf)buffer, (byte)by);
+-        return new net.minecraft.network.protocol.game.ClientboundCommandsPacket$Entry(nodeStub, (int)by, n, nArray);
++    public static net.minecraft.network.protocol.game.ClientboundCommandsPacket$Entry readNode(net.minecraft.network.FriendlyByteBuf $$0) {
++        byte $$1 = $$0.readByte();
++        int[] $$2 = $$0.readVarIntArray();
++        int $$3 = ($$1 & 8) != 0 ? $$0.readVarInt() : 0;
++        net.minecraft.network.protocol.game.ClientboundCommandsPacket$NodeStub $$4 = net.minecraft.network.protocol.game.ClientboundCommandsPacket.read((net.minecraft.network.FriendlyByteBuf)$$0, (byte)$$1);
++        return new net.minecraft.network.protocol.game.ClientboundCommandsPacket$Entry($$4, (int)$$1, $$3, $$2);
+     }
+ 
+     @javax.annotation.Nullable
+@@ -138,8 +138,8 @@
+         return new net.minecraft.network.protocol.game.ClientboundCommandsPacket$Entry((net.minecraft.network.protocol.game.ClientboundCommandsPacket$NodeStub)$$10, $$2, $$4, $$11);
+     }
+ 
+-    public void handle(net.minecraft.network.protocol.game.ClientGamePacketListener handler) {
+-        handler.handleCommands(this);
++    public void handle(net.minecraft.network.protocol.game.ClientGamePacketListener $$0) {
++        $$0.handleCommands(this);
+     }
+ 
+     public com.mojang.brigadier.tree.RootCommandNode<net.minecraft.commands.SharedSuggestionProvider> getRoot(net.minecraft.commands.CommandBuildContext $$0) {

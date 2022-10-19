@@ -1,0 +1,114 @@
+--- net/minecraft/client/resources/SkinManager.java
++++ net/minecraft/client/resources/SkinManager.java
+@@ -11,34 +11,34 @@
+     public com.mojang.authlib.minecraft.MinecraftSessionService sessionService;
+     public com.google.common.cache.LoadingCache<java.lang.String, java.util.Map<com.mojang.authlib.minecraft.MinecraftProfileTexture$Type, com.mojang.authlib.minecraft.MinecraftProfileTexture>> insecureSkinCache;
+ 
+-    public net.minecraft.client.resources.SkinManager(net.minecraft.client.renderer.texture.TextureManager manager, java.io.File skinsDirectory, com.mojang.authlib.minecraft.MinecraftSessionService sessionService) {
+-        this.textureManager = manager;
+-        this.skinsDirectory = skinsDirectory;
+-        this.sessionService = sessionService;
++    public net.minecraft.client.resources.SkinManager(net.minecraft.client.renderer.texture.TextureManager $$0, java.io.File $$1, com.mojang.authlib.minecraft.MinecraftSessionService $$2) {
++        this.textureManager = $$0;
++        this.skinsDirectory = $$1;
++        this.sessionService = $$2;
+         this.insecureSkinCache = com.google.common.cache.CacheBuilder.newBuilder().expireAfterAccess(15L, java.util.concurrent.TimeUnit.SECONDS).build((com.google.common.cache.CacheLoader)new /* Unavailable Anonymous Inner Class!! */);
+     }
+ 
+-    public net.minecraft.resources.ResourceLocation registerTexture(com.mojang.authlib.minecraft.MinecraftProfileTexture profileTexture, com.mojang.authlib.minecraft.MinecraftProfileTexture$Type textureType) {
+-        return this.registerTexture(profileTexture, textureType, null);
++    public net.minecraft.resources.ResourceLocation registerTexture(com.mojang.authlib.minecraft.MinecraftProfileTexture $$0, com.mojang.authlib.minecraft.MinecraftProfileTexture$Type $$1) {
++        return this.registerTexture($$0, $$1, null);
+     }
+ 
+-    public net.minecraft.resources.ResourceLocation registerTexture(com.mojang.authlib.minecraft.MinecraftProfileTexture profileTexture, com.mojang.authlib.minecraft.MinecraftProfileTexture$Type textureType, @javax.annotation.Nullable net.minecraft.client.resources.SkinManager$SkinTextureCallback skinAvailableCallback) {
+-        java.lang.String string = com.google.common.hash.Hashing.sha1().hashUnencodedChars((java.lang.CharSequence)profileTexture.getHash()).toString();
+-        net.minecraft.resources.ResourceLocation resourceLocation = net.minecraft.client.resources.SkinManager.getTextureLocation((com.mojang.authlib.minecraft.MinecraftProfileTexture$Type)textureType, (java.lang.String)string);
+-        net.minecraft.client.renderer.texture.AbstractTexture abstractTexture = this.textureManager.getTexture(resourceLocation, (net.minecraft.client.renderer.texture.AbstractTexture)net.minecraft.client.renderer.texture.MissingTextureAtlasSprite.getTexture());
+-        if (abstractTexture == net.minecraft.client.renderer.texture.MissingTextureAtlasSprite.getTexture()) {
+-            java.io.File file = new java.io.File(this.skinsDirectory, string.length() > 2 ? string.substring(0, 2) : "xx");
+-            java.io.File file2 = new java.io.File(file, string);
+-            net.minecraft.client.renderer.texture.HttpTexture httpTexture = new net.minecraft.client.renderer.texture.HttpTexture(file2, profileTexture.getUrl(), net.minecraft.client.resources.DefaultPlayerSkin.getDefaultSkin(), textureType == com.mojang.authlib.minecraft.MinecraftProfileTexture$Type.SKIN, () -> {
+-                if (skinAvailableCallback != null) {
+-                    skinAvailableCallback.onSkinTextureAvailable(textureType, resourceLocation, profileTexture);
++    public net.minecraft.resources.ResourceLocation registerTexture(com.mojang.authlib.minecraft.MinecraftProfileTexture $$0, com.mojang.authlib.minecraft.MinecraftProfileTexture$Type $$1, @javax.annotation.Nullable net.minecraft.client.resources.SkinManager$SkinTextureCallback $$2) {
++        java.lang.String $$3 = com.google.common.hash.Hashing.sha1().hashUnencodedChars((java.lang.CharSequence)$$0.getHash()).toString();
++        net.minecraft.resources.ResourceLocation $$4 = net.minecraft.client.resources.SkinManager.getTextureLocation((com.mojang.authlib.minecraft.MinecraftProfileTexture$Type)$$1, (java.lang.String)$$3);
++        net.minecraft.client.renderer.texture.AbstractTexture $$5 = this.textureManager.getTexture($$4, (net.minecraft.client.renderer.texture.AbstractTexture)net.minecraft.client.renderer.texture.MissingTextureAtlasSprite.getTexture());
++        if ($$5 == net.minecraft.client.renderer.texture.MissingTextureAtlasSprite.getTexture()) {
++            java.io.File $$6 = new java.io.File(this.skinsDirectory, $$3.length() > 2 ? $$3.substring(0, 2) : "xx");
++            java.io.File $$7 = new java.io.File($$6, $$3);
++            net.minecraft.client.renderer.texture.HttpTexture $$8 = new net.minecraft.client.renderer.texture.HttpTexture($$7, $$0.getUrl(), net.minecraft.client.resources.DefaultPlayerSkin.getDefaultSkin(), $$1 == com.mojang.authlib.minecraft.MinecraftProfileTexture$Type.SKIN, () -> {
++                if ($$2 != null) {
++                    $$2.onSkinTextureAvailable($$1, $$4, $$0);
+                 }
+             });
+-            this.textureManager.register(resourceLocation, (net.minecraft.client.renderer.texture.AbstractTexture)httpTexture);
+-        } else if (skinAvailableCallback != null) {
+-            skinAvailableCallback.onSkinTextureAvailable(textureType, resourceLocation, profileTexture);
++            this.textureManager.register($$4, (net.minecraft.client.renderer.texture.AbstractTexture)$$8);
++        } else if ($$2 != null) {
++            $$2.onSkinTextureAvailable($$1, $$4, $$0);
+         }
+-        return resourceLocation;
++        return $$4;
+     }
+ 
+     public static net.minecraft.resources.ResourceLocation getTextureLocation(com.mojang.authlib.minecraft.MinecraftProfileTexture$Type $$0, java.lang.String $$1) {
+@@ -51,41 +51,41 @@
+         return new net.minecraft.resources.ResourceLocation($$2 + "/" + $$1);
+     }
+ 
+-    public void registerSkins(com.mojang.authlib.GameProfile profile, net.minecraft.client.resources.SkinManager$SkinTextureCallback skinAvailableCallback, boolean requireSecure) {
+-        java.lang.Runnable runnable = () -> {
++    public void registerSkins(com.mojang.authlib.GameProfile $$0, net.minecraft.client.resources.SkinManager$SkinTextureCallback $$1, boolean $$2) {
++        java.lang.Runnable $$3 = () -> {
+             java.util.HashMap $$3 = com.google.common.collect.Maps.newHashMap();
+             try {
+-                $$3.putAll(this.sessionService.getTextures(profile, requireSecure));
++                $$3.putAll(this.sessionService.getTextures($$0, $$2));
+             }
+             catch (com.mojang.authlib.minecraft.InsecureTextureException insecureTextureException) {
+                 // empty catch block
+             }
+             if ($$3.isEmpty()) {
+-                profile.getProperties().clear();
+-                if (profile.getId().equals((java.lang.Object)net.minecraft.client.Minecraft.getInstance().getUser().getGameProfile().getId())) {
+-                    profile.getProperties().putAll((com.google.common.collect.Multimap)net.minecraft.client.Minecraft.getInstance().getProfileProperties());
+-                    $$3.putAll(this.sessionService.getTextures(profile, false));
++                $$0.getProperties().clear();
++                if ($$0.getId().equals((java.lang.Object)net.minecraft.client.Minecraft.getInstance().getUser().getGameProfile().getId())) {
++                    $$0.getProperties().putAll((com.google.common.collect.Multimap)net.minecraft.client.Minecraft.getInstance().getProfileProperties());
++                    $$3.putAll(this.sessionService.getTextures($$0, false));
+                 } else {
+-                    this.sessionService.fillProfileProperties(profile, requireSecure);
++                    this.sessionService.fillProfileProperties($$0, $$2);
+                     try {
+-                        $$3.putAll(this.sessionService.getTextures(profile, requireSecure));
++                        $$3.putAll(this.sessionService.getTextures($$0, $$2));
+                     }
+                     catch (com.mojang.authlib.minecraft.InsecureTextureException insecureTextureException) {
+                         // empty catch block
+                     }
+                 }
+             }
+-            net.minecraft.client.Minecraft.getInstance().execute(() -> this.lambda$registerSkins$3((java.util.Map)$$3, skinAvailableCallback));
++            net.minecraft.client.Minecraft.getInstance().execute(() -> this.lambda$registerSkins$3((java.util.Map)$$3, $$1));
+         };
+-        net.minecraft.Util.backgroundExecutor().execute(runnable);
++        net.minecraft.Util.backgroundExecutor().execute($$3);
+     }
+ 
+-    public java.util.Map<com.mojang.authlib.minecraft.MinecraftProfileTexture$Type, com.mojang.authlib.minecraft.MinecraftProfileTexture> getInsecureSkinInformation(com.mojang.authlib.GameProfile profile) {
+-        com.mojang.authlib.properties.Property property = (com.mojang.authlib.properties.Property)com.google.common.collect.Iterables.getFirst((java.lang.Iterable)profile.getProperties().get((java.lang.Object)"textures"), null);
+-        if (property == null) {
++    public java.util.Map<com.mojang.authlib.minecraft.MinecraftProfileTexture$Type, com.mojang.authlib.minecraft.MinecraftProfileTexture> getInsecureSkinInformation(com.mojang.authlib.GameProfile $$0) {
++        com.mojang.authlib.properties.Property $$1 = (com.mojang.authlib.properties.Property)com.google.common.collect.Iterables.getFirst((java.lang.Iterable)$$0.getProperties().get((java.lang.Object)"textures"), null);
++        if ($$1 == null) {
+             return com.google.common.collect.ImmutableMap.of();
+         }
+-        return (java.util.Map)this.insecureSkinCache.getUnchecked((java.lang.Object)property.getValue());
++        return (java.util.Map)this.insecureSkinCache.getUnchecked((java.lang.Object)$$1.getValue());
+     }
+ 
+     public net.minecraft.resources.ResourceLocation getInsecureSkinLocation(com.mojang.authlib.GameProfile $$0) {

@@ -1,0 +1,164 @@
+--- net/minecraft/server/level/ChunkHolder.java
++++ net/minecraft/server/level/ChunkHolder.java
+@@ -141,68 +141,65 @@
+         this.changedBlocksPerSection[$$2].add(net.minecraft.core.SectionPos.sectionRelativePos((net.minecraft.core.BlockPos)$$0));
+     }
+ 
+-    public void sectionLightChanged(net.minecraft.world.level.LightLayer type, int sectionY) {
+-        com.mojang.datafixers.util.Either either = (com.mojang.datafixers.util.Either)this.getFutureIfPresent(net.minecraft.world.level.chunk.ChunkStatus.FEATURES).getNow(null);
+-        if (either == null) {
++    public void sectionLightChanged(net.minecraft.world.level.LightLayer $$0, int $$1) {
++        com.mojang.datafixers.util.Either $$2 = (com.mojang.datafixers.util.Either)this.getFutureIfPresent(net.minecraft.world.level.chunk.ChunkStatus.FEATURES).getNow(null);
++        if ($$2 == null) {
+             return;
+         }
+-        net.minecraft.world.level.chunk.ChunkAccess chunkAccess = (net.minecraft.world.level.chunk.ChunkAccess)either.left().orElse(null);
+-        if (chunkAccess == null) {
++        net.minecraft.world.level.chunk.ChunkAccess $$3 = (net.minecraft.world.level.chunk.ChunkAccess)$$2.left().orElse(null);
++        if ($$3 == null) {
+             return;
+         }
+-        chunkAccess.setUnsaved(true);
+-        net.minecraft.world.level.chunk.LevelChunk levelChunk = this.getTickingChunk();
+-        if (levelChunk == null) {
++        $$3.setUnsaved(true);
++        net.minecraft.world.level.chunk.LevelChunk $$4 = this.getTickingChunk();
++        if ($$4 == null) {
+             return;
+         }
+-        int n = this.lightEngine.getMinLightSection();
+-        int n2 = this.lightEngine.getMaxLightSection();
+-        if (sectionY < n || sectionY > n2) {
++        int $$5 = this.lightEngine.getMinLightSection();
++        int $$6 = this.lightEngine.getMaxLightSection();
++        if ($$1 < $$5 || $$1 > $$6) {
+             return;
+         }
+-        int n3 = sectionY - n;
+-        if (type == net.minecraft.world.level.LightLayer.SKY) {
+-            this.skyChangedLightSectionFilter.set(n3);
++        int $$7 = $$1 - $$5;
++        if ($$0 == net.minecraft.world.level.LightLayer.SKY) {
++            this.skyChangedLightSectionFilter.set($$7);
+         } else {
+-            this.blockChangedLightSectionFilter.set(n3);
++            this.blockChangedLightSectionFilter.set($$7);
+         }
+     }
+ 
+-    public void broadcastChanges(net.minecraft.world.level.chunk.LevelChunk chunk) {
+-        int n;
++    public void broadcastChanges(net.minecraft.world.level.chunk.LevelChunk $$0) {
+         if (!this.hasChangedSections && this.skyChangedLightSectionFilter.isEmpty() && this.blockChangedLightSectionFilter.isEmpty()) {
+             return;
+         }
+-        net.minecraft.world.level.Level level = chunk.getLevel();
+-        int n2 = 0;
+-        for (n = 0;
+- n < this.changedBlocksPerSection.length; ++n) {
+-            n2 += this.changedBlocksPerSection[n] != null ? this.changedBlocksPerSection[n].size() : 0;
++        net.minecraft.world.level.Level $$12 = $$0.getLevel();
++        int $$22 = 0;
++        for (int $$3 = 0; $$3 < this.changedBlocksPerSection.length; ++$$3) {
++            $$22 += this.changedBlocksPerSection[$$3] != null ? this.changedBlocksPerSection[$$3].size() : 0;
+         }
+-        this.resendLight |= n2 >= 64;
++        this.resendLight |= $$22 >= 64;
+         if (!this.skyChangedLightSectionFilter.isEmpty() || !this.blockChangedLightSectionFilter.isEmpty()) {
+-            this.broadcast((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ClientboundLightUpdatePacket(chunk.getPos(), this.lightEngine, this.skyChangedLightSectionFilter, this.blockChangedLightSectionFilter, true), !this.resendLight);
++            this.broadcast((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ClientboundLightUpdatePacket($$0.getPos(), this.lightEngine, this.skyChangedLightSectionFilter, this.blockChangedLightSectionFilter, true), !this.resendLight);
+             this.skyChangedLightSectionFilter.clear();
+             this.blockChangedLightSectionFilter.clear();
+         }
+-        for (n = 0;
+- n < this.changedBlocksPerSection.length; ++n) {
+-            it.unimi.dsi.fastutil.shorts.ShortSet shortSet = this.changedBlocksPerSection[n];
+-            if (shortSet == null) continue;
+-            int n3 = this.levelHeightAccessor.getSectionYFromSectionIndex(n);
+-            net.minecraft.core.SectionPos sectionPos = net.minecraft.core.SectionPos.of((net.minecraft.world.level.ChunkPos)chunk.getPos(), (int)n3);
+-            if (shortSet.size() == 1) {
+-                var8_8 = sectionPos.relativeToBlockPos(shortSet.iterator().nextShort());
+-                var9_9 = level.getBlockState((net.minecraft.core.BlockPos)var8_8);
+-                this.broadcast((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ClientboundBlockUpdatePacket((net.minecraft.core.BlockPos)var8_8, var9_9), false);
+-                this.broadcastBlockEntityIfNeeded(level, (net.minecraft.core.BlockPos)var8_8, var9_9);
++        for (int $$4 = 0; $$4 < this.changedBlocksPerSection.length; ++$$4) {
++            it.unimi.dsi.fastutil.shorts.ShortSet $$5 = this.changedBlocksPerSection[$$4];
++            if ($$5 == null) continue;
++            int $$6 = this.levelHeightAccessor.getSectionYFromSectionIndex($$4);
++            net.minecraft.core.SectionPos $$7 = net.minecraft.core.SectionPos.of((net.minecraft.world.level.ChunkPos)$$0.getPos(), (int)$$6);
++            if ($$5.size() == 1) {
++                net.minecraft.core.BlockPos $$8 = $$7.relativeToBlockPos($$5.iterator().nextShort());
++                net.minecraft.world.level.block.state.BlockState $$9 = $$12.getBlockState($$8);
++                this.broadcast((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ClientboundBlockUpdatePacket($$8, $$9), false);
++                this.broadcastBlockEntityIfNeeded($$12, $$8, $$9);
+             } else {
+-                var8_8 = chunk.getSection(n);
+-                var9_9 = new net.minecraft.network.protocol.game.ClientboundSectionBlocksUpdatePacket(sectionPos, shortSet, var8_8, this.resendLight);
+-                this.broadcast((net.minecraft.network.protocol.Packet)var9_9, false);
+-                var9_9.runUpdates(($$1, $$2) -> this.broadcastBlockEntityIfNeeded(level, $$1, $$2));
++                net.minecraft.world.level.chunk.LevelChunkSection $$10 = $$0.getSection($$4);
++                net.minecraft.network.protocol.game.ClientboundSectionBlocksUpdatePacket $$11 = new net.minecraft.network.protocol.game.ClientboundSectionBlocksUpdatePacket($$7, $$5, $$10, this.resendLight);
++                this.broadcast((net.minecraft.network.protocol.Packet)$$11, false);
++                $$11.runUpdates(($$1, $$2) -> this.broadcastBlockEntityIfNeeded($$12, $$1, $$2));
+             }
+-            this.changedBlocksPerSection[n] = null;
++            this.changedBlocksPerSection[$$4] = null;
+         }
+         this.hasChangedSections = false;
+     }
+@@ -213,16 +210,16 @@
+         }
+     }
+ 
+-    public void broadcastBlockEntity(net.minecraft.world.level.Level level, net.minecraft.core.BlockPos pos) {
+-        net.minecraft.network.protocol.Packet packet;
+-        net.minecraft.world.level.block.entity.BlockEntity blockEntity = level.getBlockEntity(pos);
+-        if (blockEntity != null && (packet = blockEntity.getUpdatePacket()) != null) {
+-            this.broadcast(packet, false);
++    public void broadcastBlockEntity(net.minecraft.world.level.Level $$0, net.minecraft.core.BlockPos $$1) {
++        net.minecraft.network.protocol.Packet $$3;
++        net.minecraft.world.level.block.entity.BlockEntity $$2 = $$0.getBlockEntity($$1);
++        if ($$2 != null && ($$3 = $$2.getUpdatePacket()) != null) {
++            this.broadcast($$3, false);
+         }
+     }
+ 
+-    public void broadcast(net.minecraft.network.protocol.Packet<?> packet, boolean boundaryOnly) {
+-        this.playerProvider.getPlayers(this.pos, boundaryOnly).forEach($$1 -> $$1.connection.send(packet));
++    public void broadcast(net.minecraft.network.protocol.Packet<?> $$0, boolean $$12) {
++        this.playerProvider.getPlayers(this.pos, $$12).forEach($$1 -> $$1.connection.send($$0));
+     }
+ 
+     public java.util.concurrent.CompletableFuture<com.mojang.datafixers.util.Either<net.minecraft.world.level.chunk.ChunkAccess, net.minecraft.server.level.ChunkHolder$ChunkLoadingFailure>> getOrScheduleFuture(net.minecraft.world.level.chunk.ChunkStatus $$0, net.minecraft.server.level.ChunkMap $$1) {
+@@ -281,8 +278,8 @@
+         this.queueLevel = $$0;
+     }
+ 
+-    public void setTicketLevel(int level) {
+-        this.ticketLevel = level;
++    public void setTicketLevel(int $$0) {
++        this.ticketLevel = $$0;
+     }
+ 
+     public void scheduleFullChunkPromotion(net.minecraft.server.level.ChunkMap $$0, java.util.concurrent.CompletableFuture<com.mojang.datafixers.util.Either<net.minecraft.world.level.chunk.LevelChunk, net.minecraft.server.level.ChunkHolder$ChunkLoadingFailure>> $$1, java.util.concurrent.Executor $$2, net.minecraft.server.level.ChunkHolder$FullChunkStatus $$3) {
+@@ -361,15 +358,15 @@
+         this.oldTicketLevel = this.ticketLevel;
+     }
+ 
+-    public static net.minecraft.world.level.chunk.ChunkStatus getStatus(int level) {
+-        if (level < 33) {
++    public static net.minecraft.world.level.chunk.ChunkStatus getStatus(int $$0) {
++        if ($$0 < 33) {
+             return net.minecraft.world.level.chunk.ChunkStatus.FULL;
+         }
+-        return net.minecraft.world.level.chunk.ChunkStatus.getStatusAroundFullChunk((int)(level - 33));
++        return net.minecraft.world.level.chunk.ChunkStatus.getStatusAroundFullChunk((int)($$0 - 33));
+     }
+ 
+-    public static net.minecraft.server.level.ChunkHolder$FullChunkStatus getFullChunkStatus(int level) {
+-        return FULL_CHUNK_STATUSES[net.minecraft.util.Mth.clamp((int)(33 - level + 1), (int)0, (int)(FULL_CHUNK_STATUSES.length - 1))];
++    public static net.minecraft.server.level.ChunkHolder$FullChunkStatus getFullChunkStatus(int $$0) {
++        return FULL_CHUNK_STATUSES[net.minecraft.util.Mth.clamp((int)(33 - $$0 + 1), (int)0, (int)(FULL_CHUNK_STATUSES.length - 1))];
+     }
+ 
+     public boolean wasAccessibleSinceLastSave() {

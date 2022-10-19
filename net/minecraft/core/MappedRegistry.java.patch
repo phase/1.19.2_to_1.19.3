@@ -1,0 +1,292 @@
+--- net/minecraft/core/MappedRegistry.java
++++ net/minecraft/core/MappedRegistry.java
+@@ -17,14 +17,16 @@
+     public volatile java.util.Map<net.minecraft.tags.TagKey<T>, net.minecraft.core.HolderSet$Named<T>> tags;
+     public boolean frozen;
+     @javax.annotation.Nullable
+-    public java.util.function.Function<T, net.minecraft.core.Holder$Reference<T>> customHolderProvider;
++    public java.util.Map<T, net.minecraft.core.Holder$Reference<T>> unregisteredIntrusiveHolders;
+     @javax.annotation.Nullable
+-    public java.util.Map<T, net.minecraft.core.Holder$Reference<T>> intrusiveHolderCache;
+-    @javax.annotation.Nullable
+     public java.util.List<net.minecraft.core.Holder$Reference<T>> holdersInOrder;
+     public int nextId;
+ 
+-    public net.minecraft.core.MappedRegistry(net.minecraft.resources.ResourceKey<? extends net.minecraft.core.Registry<T>> $$02, com.mojang.serialization.Lifecycle $$1, @javax.annotation.Nullable java.util.function.Function<T, net.minecraft.core.Holder$Reference<T>> $$2) {
++    public net.minecraft.core.MappedRegistry(net.minecraft.resources.ResourceKey<? extends net.minecraft.core.Registry<T>> $$0, com.mojang.serialization.Lifecycle $$1) {
++        this($$0, $$1, false);
++    }
++
++    public net.minecraft.core.MappedRegistry(net.minecraft.resources.ResourceKey<? extends net.minecraft.core.Registry<T>> $$02, com.mojang.serialization.Lifecycle $$1, boolean $$2) {
+         super($$02, $$1);
+         this.byId = new it.unimi.dsi.fastutil.objects.ObjectArrayList(256);
+         this.toId = (it.unimi.dsi.fastutil.objects.Object2IntMap)net.minecraft.Util.make((java.lang.Object)new it.unimi.dsi.fastutil.objects.Object2IntOpenCustomHashMap(net.minecraft.Util.identityStrategy()), $$0 -> $$0.defaultReturnValue(-1));
+@@ -34,9 +36,8 @@
+         this.lifecycles = new java.util.IdentityHashMap();
+         this.tags = new java.util.IdentityHashMap();
+         this.elementsLifecycle = $$1;
+-        this.customHolderProvider = $$2;
+-        if ($$2 != null) {
+-            this.intrusiveHolderCache = new java.util.IdentityHashMap();
++        if ($$2) {
++            this.unregisteredIntrusiveHolders = new java.util.IdentityHashMap();
+         }
+     }
+ 
+@@ -47,118 +48,98 @@
+         return this.holdersInOrder;
+     }
+ 
++    public void validateWrite() {
++        if (this.frozen) {
++            throw new java.lang.IllegalStateException("Registry is already frozen");
++        }
++    }
++
+     public void validateWrite(net.minecraft.resources.ResourceKey<T> $$0) {
+         if (this.frozen) {
+             throw new java.lang.IllegalStateException("Registry is already frozen (trying to add key " + $$0 + ")");
+         }
+     }
+ 
+-    public net.minecraft.core.Holder<T> registerMapping(int $$0, net.minecraft.resources.ResourceKey<T> $$1, T $$2, com.mojang.serialization.Lifecycle $$3) {
+-        return this.registerMapping($$0, $$1, $$2, $$3, true);
+-    }
+-
+-    public net.minecraft.core.Holder<T> registerMapping(int $$02, net.minecraft.resources.ResourceKey<T> $$1, T $$2, com.mojang.serialization.Lifecycle $$3, boolean $$4) {
+-        net.minecraft.core.Holder$Reference $$7;
++    public net.minecraft.core.Holder<T> registerMapping(int $$02, net.minecraft.resources.ResourceKey<T> $$1, T $$2, com.mojang.serialization.Lifecycle $$3) {
++        net.minecraft.core.Holder$Reference $$5;
+         this.validateWrite($$1);
+         org.apache.commons.lang3.Validate.notNull($$1);
+         org.apache.commons.lang3.Validate.notNull($$2);
+-        this.byId.size(java.lang.Math.max((int)this.byId.size(), (int)($$02 + 1)));
+-        this.toId.put($$2, $$02);
+-        this.holdersInOrder = null;
+-        if ($$4 && this.byKey.containsKey($$1)) {
+-            net.minecraft.Util.logAndPauseIfInIde((java.lang.String)("Adding duplicate key '" + $$1 + "' to registry"));
++        if (this.byLocation.containsKey((java.lang.Object)$$1.location())) {
++            net.minecraft.Util.pauseInIde((java.lang.Throwable)new java.lang.IllegalStateException("Adding duplicate key '" + $$1 + "' to registry"));
+         }
+         if (this.byValue.containsKey($$2)) {
+-            net.minecraft.Util.logAndPauseIfInIde((java.lang.String)("Adding duplicate value '" + $$2 + "' to registry"));
++            net.minecraft.Util.pauseInIde((java.lang.Throwable)new java.lang.IllegalStateException("Adding duplicate value '" + $$2 + "' to registry"));
+         }
+-        this.lifecycles.put($$2, (java.lang.Object)$$3);
+-        this.elementsLifecycle = this.elementsLifecycle.add($$3);
+-        if (this.nextId <= $$02) {
+-            this.nextId = $$02 + 1;
+-        }
+-        if (this.customHolderProvider != null) {
+-            net.minecraft.core.Holder$Reference $$5 = (net.minecraft.core.Holder$Reference)this.customHolderProvider.apply($$2);
+-            net.minecraft.core.Holder$Reference $$6 = (net.minecraft.core.Holder$Reference)this.byKey.put($$1, (java.lang.Object)$$5);
+-            if ($$6 != null && $$6 != $$5) {
+-                throw new java.lang.IllegalStateException("Invalid holder present for key " + $$1);
++        if (this.unregisteredIntrusiveHolders != null) {
++            net.minecraft.core.Holder$Reference $$4 = (net.minecraft.core.Holder$Reference)this.unregisteredIntrusiveHolders.remove($$2);
++            if ($$4 == null) {
++                throw new java.lang.AssertionError((java.lang.Object)("Missing intrusive holder for " + $$1 + ":" + $$2));
+             }
++            $$4.bindKey($$1);
+         } else {
+-            $$7 = (net.minecraft.core.Holder$Reference)this.byKey.computeIfAbsent($$1, $$0 -> net.minecraft.core.Holder$Reference.createStandAlone((net.minecraft.core.Registry)this, (net.minecraft.resources.ResourceKey)$$0));
++            $$5 = (net.minecraft.core.Holder$Reference)this.byKey.computeIfAbsent($$1, $$0 -> net.minecraft.core.Holder$Reference.createStandAlone((net.minecraft.core.Registry)this, (net.minecraft.resources.ResourceKey)$$0));
+         }
+-        this.byLocation.put((java.lang.Object)$$1.location(), (java.lang.Object)$$7);
+-        this.byValue.put($$2, (java.lang.Object)$$7);
+-        $$7.bind($$1, $$2);
+-        this.byId.set($$02, (java.lang.Object)$$7);
+-        return $$7;
++        this.byKey.put($$1, (java.lang.Object)$$5);
++        this.byLocation.put((java.lang.Object)$$1.location(), (java.lang.Object)$$5);
++        this.byValue.put($$2, (java.lang.Object)$$5);
++        this.byId.size(java.lang.Math.max((int)this.byId.size(), (int)($$02 + 1)));
++        this.byId.set($$02, (java.lang.Object)$$5);
++        this.toId.put($$2, $$02);
++        if (this.nextId <= $$02) {
++            this.nextId = $$02 + 1;
++        }
++        this.lifecycles.put($$2, (java.lang.Object)$$3);
++        this.elementsLifecycle = this.elementsLifecycle.add($$3);
++        this.holdersInOrder = null;
++        return $$5;
+     }
+ 
+     public net.minecraft.core.Holder<T> register(net.minecraft.resources.ResourceKey<T> $$0, T $$1, com.mojang.serialization.Lifecycle $$2) {
+         return this.registerMapping(this.nextId, $$0, $$1, $$2);
+     }
+ 
+-    public net.minecraft.core.Holder<T> registerOrOverride(java.util.OptionalInt $$0, net.minecraft.resources.ResourceKey<T> $$1, T $$2, com.mojang.serialization.Lifecycle $$3) {
+-        int $$7;
+-        java.lang.Object $$5;
+-        this.validateWrite($$1);
+-        org.apache.commons.lang3.Validate.notNull($$1);
+-        org.apache.commons.lang3.Validate.notNull($$2);
+-        net.minecraft.core.Holder $$4 = (net.minecraft.core.Holder)this.byKey.get($$1);
+-        java.lang.Object object = $$5 = $$4 != null && $$4.isBound() ? $$4.value() : null;
+-        if ($$5 == null) {
+-            int $$6 = $$0.orElse(this.nextId);
+-        } else {
+-            $$7 = this.toId.getInt($$5);
+-            if ($$0.isPresent() && $$0.getAsInt() != $$7) {
+-                throw new java.lang.IllegalStateException("ID mismatch");
+-            }
+-            this.lifecycles.remove($$5);
+-            this.toId.removeInt($$5);
+-            this.byValue.remove($$5);
+-        }
+-        return this.registerMapping($$7, $$1, $$2, $$3, false);
+-    }
+-
+     @javax.annotation.Nullable
+-    public net.minecraft.resources.ResourceLocation getKey(T value) {
+-        net.minecraft.core.Holder$Reference reference = (net.minecraft.core.Holder$Reference)this.byValue.get(value);
+-        return reference != null ? reference.key().location() : null;
++    public net.minecraft.resources.ResourceLocation getKey(T $$0) {
++        net.minecraft.core.Holder$Reference $$1 = (net.minecraft.core.Holder$Reference)this.byValue.get($$0);
++        return $$1 != null ? $$1.key().location() : null;
+     }
+ 
+-    public java.util.Optional<net.minecraft.resources.ResourceKey<T>> getResourceKey(T value) {
+-        return java.util.Optional.ofNullable((java.lang.Object)((net.minecraft.core.Holder$Reference)this.byValue.get(value))).map(net.minecraft.core.Holder$Reference::key);
++    public java.util.Optional<net.minecraft.resources.ResourceKey<T>> getResourceKey(T $$0) {
++        return java.util.Optional.ofNullable((java.lang.Object)((net.minecraft.core.Holder$Reference)this.byValue.get($$0))).map(net.minecraft.core.Holder$Reference::key);
+     }
+ 
+-    public int getId(@javax.annotation.Nullable T value) {
+-        return this.toId.getInt(value);
++    public int getId(@javax.annotation.Nullable T $$0) {
++        return this.toId.getInt($$0);
+     }
+ 
+     @javax.annotation.Nullable
+-    public T get(@javax.annotation.Nullable net.minecraft.resources.ResourceKey<T> key) {
+-        return (T)net.minecraft.core.MappedRegistry.getValueFromNullable((net.minecraft.core.Holder$Reference)((net.minecraft.core.Holder$Reference)this.byKey.get(key)));
++    public T get(@javax.annotation.Nullable net.minecraft.resources.ResourceKey<T> $$0) {
++        return (T)net.minecraft.core.MappedRegistry.getValueFromNullable((net.minecraft.core.Holder$Reference)((net.minecraft.core.Holder$Reference)this.byKey.get($$0)));
+     }
+ 
+     @javax.annotation.Nullable
+-    public T byId(int value) {
+-        if (value < 0 || value >= this.byId.size()) {
++    public T byId(int $$0) {
++        if ($$0 < 0 || $$0 >= this.byId.size()) {
+             return null;
+         }
+-        return (T)net.minecraft.core.MappedRegistry.getValueFromNullable((net.minecraft.core.Holder$Reference)((net.minecraft.core.Holder$Reference)this.byId.get(value)));
++        return (T)net.minecraft.core.MappedRegistry.getValueFromNullable((net.minecraft.core.Holder$Reference)((net.minecraft.core.Holder$Reference)this.byId.get($$0)));
+     }
+ 
+-    public java.util.Optional<net.minecraft.core.Holder<T>> getHolder(int $$0) {
++    public java.util.Optional<net.minecraft.core.Holder$Reference<T>> getHolder(int $$0) {
+         if ($$0 < 0 || $$0 >= this.byId.size()) {
+             return java.util.Optional.empty();
+         }
+-        return java.util.Optional.ofNullable((java.lang.Object)((net.minecraft.core.Holder)this.byId.get($$0)));
++        return java.util.Optional.ofNullable((java.lang.Object)((net.minecraft.core.Holder$Reference)this.byId.get($$0)));
+     }
+ 
+-    public java.util.Optional<net.minecraft.core.Holder<T>> getHolder(net.minecraft.resources.ResourceKey<T> $$0) {
+-        return java.util.Optional.ofNullable((java.lang.Object)((net.minecraft.core.Holder)this.byKey.get($$0)));
++    public java.util.Optional<net.minecraft.core.Holder$Reference<T>> getHolder(net.minecraft.resources.ResourceKey<T> $$0) {
++        return java.util.Optional.ofNullable((java.lang.Object)((net.minecraft.core.Holder$Reference)this.byKey.get($$0)));
+     }
+ 
+-    public net.minecraft.core.Holder<T> getOrCreateHolderOrThrow(net.minecraft.resources.ResourceKey<T> $$02) {
+-        return (net.minecraft.core.Holder)this.byKey.computeIfAbsent($$02, $$0 -> {
+-            if (this.customHolderProvider != null) {
++    public net.minecraft.core.Holder$Reference<T> getOrCreateHolderOrThrow(net.minecraft.resources.ResourceKey<T> $$02) {
++        return (net.minecraft.core.Holder$Reference)this.byKey.computeIfAbsent($$02, $$0 -> {
++            if (this.unregisteredIntrusiveHolders != null) {
+                 throw new java.lang.IllegalStateException("This registry can't create new holders without value");
+             }
+             this.validateWrite($$0);
+@@ -166,10 +147,10 @@
+         });
+     }
+ 
+-    public com.mojang.serialization.DataResult<net.minecraft.core.Holder<T>> getOrCreateHolder(net.minecraft.resources.ResourceKey<T> $$0) {
++    public com.mojang.serialization.DataResult<net.minecraft.core.Holder$Reference<T>> getOrCreateHolder(net.minecraft.resources.ResourceKey<T> $$0) {
+         net.minecraft.core.Holder$Reference $$1 = (net.minecraft.core.Holder$Reference)this.byKey.get($$0);
+         if ($$1 == null) {
+-            if (this.customHolderProvider != null) {
++            if (this.unregisteredIntrusiveHolders != null) {
+                 return com.mojang.serialization.DataResult.error((java.lang.String)("This registry can't create new holders without value (requested key: " + $$0 + ")"));
+             }
+             if (this.frozen) {
+@@ -185,8 +166,8 @@
+         return this.byKey.size();
+     }
+ 
+-    public com.mojang.serialization.Lifecycle lifecycle(T object) {
+-        return (com.mojang.serialization.Lifecycle)this.lifecycles.get(object);
++    public com.mojang.serialization.Lifecycle lifecycle(T $$0) {
++        return (com.mojang.serialization.Lifecycle)this.lifecycles.get($$0);
+     }
+ 
+     public com.mojang.serialization.Lifecycle elementsLifecycle() {
+@@ -198,9 +179,9 @@
+     }
+ 
+     @javax.annotation.Nullable
+-    public T get(@javax.annotation.Nullable net.minecraft.resources.ResourceLocation name) {
+-        net.minecraft.core.Holder$Reference reference = (net.minecraft.core.Holder$Reference)this.byLocation.get((java.lang.Object)name);
+-        return (T)net.minecraft.core.MappedRegistry.getValueFromNullable((net.minecraft.core.Holder$Reference)reference);
++    public T get(@javax.annotation.Nullable net.minecraft.resources.ResourceLocation $$0) {
++        net.minecraft.core.Holder$Reference $$1 = (net.minecraft.core.Holder$Reference)this.byLocation.get((java.lang.Object)$$0);
++        return (T)net.minecraft.core.MappedRegistry.getValueFromNullable((net.minecraft.core.Holder$Reference)$$1);
+     }
+ 
+     @javax.annotation.Nullable
+@@ -259,8 +240,8 @@
+         return net.minecraft.Util.getRandomSafe((java.util.List)this.holdersInOrder(), (net.minecraft.util.RandomSource)$$0).map(net.minecraft.core.Holder::hackyErase);
+     }
+ 
+-    public boolean containsKey(net.minecraft.resources.ResourceLocation name) {
+-        return this.byLocation.containsKey((java.lang.Object)name);
++    public boolean containsKey(net.minecraft.resources.ResourceLocation $$0) {
++        return this.byLocation.containsKey((java.lang.Object)$$0);
+     }
+ 
+     public boolean containsKey(net.minecraft.resources.ResourceKey<T> $$0) {
+@@ -268,29 +249,30 @@
+     }
+ 
+     public net.minecraft.core.Registry<T> freeze() {
++        if (this.frozen) {
++            return this;
++        }
+         this.frozen = true;
++        this.byValue.forEach(($$0, $$1) -> $$1.bindValue($$0));
+         java.util.List $$02 = this.byKey.entrySet().stream().filter($$0 -> !((net.minecraft.core.Holder$Reference)$$0.getValue()).isBound()).map($$0 -> ((net.minecraft.resources.ResourceKey)$$0.getKey()).location()).sorted().toList();
+         if (!$$02.isEmpty()) {
+             throw new java.lang.IllegalStateException("Unbound values in registry " + this.key() + ": " + $$02);
+         }
+-        if (this.intrusiveHolderCache != null) {
+-            java.util.List $$1 = this.intrusiveHolderCache.values().stream().filter($$0 -> !$$0.isBound()).toList();
+-            if (!$$1.isEmpty()) {
+-                throw new java.lang.IllegalStateException("Some intrusive holders were not added to registry: " + $$1);
++        if (this.unregisteredIntrusiveHolders != null) {
++            if (!this.unregisteredIntrusiveHolders.isEmpty()) {
++                throw new java.lang.IllegalStateException("Some intrusive holders were not registered: " + this.unregisteredIntrusiveHolders.values());
+             }
+-            this.intrusiveHolderCache = null;
++            this.unregisteredIntrusiveHolders = null;
+         }
+         return this;
+     }
+ 
+     public net.minecraft.core.Holder$Reference<T> createIntrusiveHolder(T $$02) {
+-        if (this.customHolderProvider == null) {
++        if (this.unregisteredIntrusiveHolders == null) {
+             throw new java.lang.IllegalStateException("This registry can't create intrusive holders");
+         }
+-        if (this.frozen || this.intrusiveHolderCache == null) {
+-            throw new java.lang.IllegalStateException("Registry is already frozen");
+-        }
+-        return (net.minecraft.core.Holder$Reference)this.intrusiveHolderCache.computeIfAbsent($$02, $$0 -> net.minecraft.core.Holder$Reference.createIntrusive((net.minecraft.core.Registry)this, (java.lang.Object)$$0));
++        this.validateWrite();
++        return (net.minecraft.core.Holder$Reference)this.unregisteredIntrusiveHolders.computeIfAbsent($$02, $$0 -> net.minecraft.core.Holder$Reference.createIntrusive((net.minecraft.core.Registry)this, (java.lang.Object)$$0));
+     }
+ 
+     public java.util.Optional<net.minecraft.core.HolderSet$Named<T>> getTag(net.minecraft.tags.TagKey<T> $$0) {

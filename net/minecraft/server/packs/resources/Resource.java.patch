@@ -1,0 +1,49 @@
+--- net/minecraft/server/packs/resources/Resource.java
++++ net/minecraft/server/packs/resources/Resource.java
+@@ -5,29 +5,37 @@
+ 
+ public class net.minecraft.server.packs.resources.Resource
+  {
+-    public java.lang.String packId;
+-    public net.minecraft.server.packs.resources.Resource$IoSupplier<java.io.InputStream> streamSupplier;
+-    public net.minecraft.server.packs.resources.Resource$IoSupplier<net.minecraft.server.packs.resources.ResourceMetadata> metadataSupplier;
++    public net.minecraft.server.packs.PackResources source;
++    public net.minecraft.server.packs.resources.IoSupplier<java.io.InputStream> streamSupplier;
++    public net.minecraft.server.packs.resources.IoSupplier<net.minecraft.server.packs.resources.ResourceMetadata> metadataSupplier;
+     @javax.annotation.Nullable
+     public net.minecraft.server.packs.resources.ResourceMetadata cachedMetadata;
+ 
+-    public net.minecraft.server.packs.resources.Resource(java.lang.String $$0, net.minecraft.server.packs.resources.Resource$IoSupplier<java.io.InputStream> $$1, net.minecraft.server.packs.resources.Resource$IoSupplier<net.minecraft.server.packs.resources.ResourceMetadata> $$2) {
+-        this.packId = $$0;
++    public net.minecraft.server.packs.resources.Resource(net.minecraft.server.packs.PackResources $$0, net.minecraft.server.packs.resources.IoSupplier<java.io.InputStream> $$1, net.minecraft.server.packs.resources.IoSupplier<net.minecraft.server.packs.resources.ResourceMetadata> $$2) {
++        this.source = $$0;
+         this.streamSupplier = $$1;
+         this.metadataSupplier = $$2;
+     }
+ 
+-    public net.minecraft.server.packs.resources.Resource(java.lang.String $$0, net.minecraft.server.packs.resources.Resource$IoSupplier<java.io.InputStream> $$1) {
+-        this.packId = $$0;
++    public net.minecraft.server.packs.resources.Resource(net.minecraft.server.packs.PackResources $$0, net.minecraft.server.packs.resources.IoSupplier<java.io.InputStream> $$1) {
++        this.source = $$0;
+         this.streamSupplier = $$1;
+-        this.metadataSupplier = () -> net.minecraft.server.packs.resources.ResourceMetadata.EMPTY;
++        this.metadataSupplier = net.minecraft.server.packs.resources.ResourceMetadata.EMPTY_SUPPLIER;
+         this.cachedMetadata = net.minecraft.server.packs.resources.ResourceMetadata.EMPTY;
+     }
+ 
++    public net.minecraft.server.packs.PackResources source() {
++        return this.source;
++    }
++
+     public java.lang.String sourcePackId() {
+-        return this.packId;
++        return this.source.packId();
+     }
+ 
++    public boolean isBuiltin() {
++        return this.source.isBuiltin();
++    }
++
+     public java.io.InputStream open() throws java.io.IOException {
+         return (java.io.InputStream)this.streamSupplier.get();
+     }

@@ -1,0 +1,173 @@
+--- net/minecraft/server/rcon/thread/QueryThreadGs4.java
++++ net/minecraft/server/rcon/thread/QueryThreadGs4.java
+@@ -68,69 +68,69 @@
+         return $$2;
+     }
+ 
+-    public void sendTo(byte[] data, java.net.DatagramPacket requestPacket) throws java.io.IOException {
+-        this.socket.send(new java.net.DatagramPacket(data, data.length, requestPacket.getSocketAddress()));
++    public void sendTo(byte[] $$0, java.net.DatagramPacket $$1) throws java.io.IOException {
++        this.socket.send(new java.net.DatagramPacket($$0, $$0.length, $$1.getSocketAddress()));
+     }
+ 
+-    public boolean processPacket(java.net.DatagramPacket requestPacket) throws java.io.IOException {
+-        byte[] byArray = requestPacket.getData();
+-        int n = requestPacket.getLength();
+-        java.net.SocketAddress socketAddress = requestPacket.getSocketAddress();
+-        LOGGER.debug("Packet len {} [{}]", (java.lang.Object)n, (java.lang.Object)socketAddress);
+-        if (3 > n || -2 != byArray[0] || -3 != byArray[1]) {
+-            LOGGER.debug("Invalid packet [{}]", (java.lang.Object)socketAddress);
++    public boolean processPacket(java.net.DatagramPacket $$0) throws java.io.IOException {
++        byte[] $$1 = $$0.getData();
++        int $$2 = $$0.getLength();
++        java.net.SocketAddress $$3 = $$0.getSocketAddress();
++        LOGGER.debug("Packet len {} [{}]", (java.lang.Object)$$2, (java.lang.Object)$$3);
++        if (3 > $$2 || -2 != $$1[0] || -3 != $$1[1]) {
++            LOGGER.debug("Invalid packet [{}]", (java.lang.Object)$$3);
+             return false;
+         }
+-        LOGGER.debug("Packet '{}' [{}]", (java.lang.Object)net.minecraft.server.rcon.PktUtils.toHexString((byte)byArray[2]), (java.lang.Object)socketAddress);
+-        switch (byArray[2]) {
++        LOGGER.debug("Packet '{}' [{}]", (java.lang.Object)net.minecraft.server.rcon.PktUtils.toHexString((byte)$$1[2]), (java.lang.Object)$$3);
++        switch ($$1[2]) {
+             case 9: {
+-                this.sendChallenge(requestPacket);
+-                LOGGER.debug("Challenge [{}]", (java.lang.Object)socketAddress);
++                this.sendChallenge($$0);
++                LOGGER.debug("Challenge [{}]", (java.lang.Object)$$3);
+                 return true;
+             }
+             case 0: {
+-                if (!this.validChallenge(requestPacket).booleanValue()) {
+-                    LOGGER.debug("Invalid challenge [{}]", (java.lang.Object)socketAddress);
++                if (!this.validChallenge($$0).booleanValue()) {
++                    LOGGER.debug("Invalid challenge [{}]", (java.lang.Object)$$3);
+                     return false;
+                 }
+-                if (15 == n) {
+-                    this.sendTo(this.buildRuleResponse(requestPacket), requestPacket);
+-                    LOGGER.debug("Rules [{}]", (java.lang.Object)socketAddress);
++                if (15 == $$2) {
++                    this.sendTo(this.buildRuleResponse($$0), $$0);
++                    LOGGER.debug("Rules [{}]", (java.lang.Object)$$3);
+                     break;
+                 }
+-                net.minecraft.server.rcon.NetworkDataOutputStream networkDataOutputStream = new net.minecraft.server.rcon.NetworkDataOutputStream(1460);
+-                networkDataOutputStream.write(0);
+-                networkDataOutputStream.writeBytes(this.getIdentBytes(requestPacket.getSocketAddress()));
+-                networkDataOutputStream.writeString(this.serverName);
+-                networkDataOutputStream.writeString("SMP");
+-                networkDataOutputStream.writeString(this.worldName);
+-                networkDataOutputStream.writeString(java.lang.Integer.toString((int)this.serverInterface.getPlayerCount()));
+-                networkDataOutputStream.writeString(java.lang.Integer.toString((int)this.maxPlayers));
+-                networkDataOutputStream.writeShort((short)this.serverPort);
+-                networkDataOutputStream.writeString(this.hostIp);
+-                this.sendTo(networkDataOutputStream.toByteArray(), requestPacket);
+-                LOGGER.debug("Status [{}]", (java.lang.Object)socketAddress);
++                net.minecraft.server.rcon.NetworkDataOutputStream $$4 = new net.minecraft.server.rcon.NetworkDataOutputStream(1460);
++                $$4.write(0);
++                $$4.writeBytes(this.getIdentBytes($$0.getSocketAddress()));
++                $$4.writeString(this.serverName);
++                $$4.writeString("SMP");
++                $$4.writeString(this.worldName);
++                $$4.writeString(java.lang.Integer.toString((int)this.serverInterface.getPlayerCount()));
++                $$4.writeString(java.lang.Integer.toString((int)this.maxPlayers));
++                $$4.writeShort((short)this.serverPort);
++                $$4.writeString(this.hostIp);
++                this.sendTo($$4.toByteArray(), $$0);
++                LOGGER.debug("Status [{}]", (java.lang.Object)$$3);
+             }
+         }
+         return true;
+     }
+ 
+-    public byte[] buildRuleResponse(java.net.DatagramPacket requestPacket) throws java.io.IOException {
+-        java.lang.String[] stringArray;
+-        long l = net.minecraft.Util.getMillis();
+-        if (l < this.lastRulesResponse + 5000L) {
+-            byte[] byArray = this.rulesResponse.toByteArray();
+-            byte[] byArray2 = this.getIdentBytes(requestPacket.getSocketAddress());
+-            byArray[1] = byArray2[0];
+-            byArray[2] = byArray2[1];
+-            byArray[3] = byArray2[2];
+-            byArray[4] = byArray2[3];
+-            return byArray;
++    public byte[] buildRuleResponse(java.net.DatagramPacket $$0) throws java.io.IOException {
++        java.lang.String[] $$4;
++        long $$1 = net.minecraft.Util.getMillis();
++        if ($$1 < this.lastRulesResponse + 5000L) {
++            byte[] $$2 = this.rulesResponse.toByteArray();
++            byte[] $$3 = this.getIdentBytes($$0.getSocketAddress());
++            $$2[1] = $$3[0];
++            $$2[2] = $$3[1];
++            $$2[3] = $$3[2];
++            $$2[4] = $$3[3];
++            return $$2;
+         }
+-        this.lastRulesResponse = l;
++        this.lastRulesResponse = $$1;
+         this.rulesResponse.reset();
+         this.rulesResponse.write(0);
+-        this.rulesResponse.writeBytes(this.getIdentBytes(requestPacket.getSocketAddress()));
++        this.rulesResponse.writeBytes(this.getIdentBytes($$0.getSocketAddress()));
+         this.rulesResponse.writeString("splitnum");
+         this.rulesResponse.write(128);
+         this.rulesResponse.write(0);
+@@ -158,30 +158,30 @@
+         this.rulesResponse.write(1);
+         this.rulesResponse.writeString("player_");
+         this.rulesResponse.write(0);
+-        for (java.lang.String string : stringArray = this.serverInterface.getPlayerNames()) {
+-            this.rulesResponse.writeString(string);
++        for (java.lang.String $$5 : $$4 = this.serverInterface.getPlayerNames()) {
++            this.rulesResponse.writeString($$5);
+         }
+         this.rulesResponse.write(0);
+         return this.rulesResponse.toByteArray();
+     }
+ 
+-    public byte[] getIdentBytes(java.net.SocketAddress address) {
+-        return ((net.minecraft.server.rcon.thread.QueryThreadGs4$RequestChallenge)this.validChallenges.get((java.lang.Object)address)).getIdentBytes();
++    public byte[] getIdentBytes(java.net.SocketAddress $$0) {
++        return ((net.minecraft.server.rcon.thread.QueryThreadGs4$RequestChallenge)this.validChallenges.get((java.lang.Object)$$0)).getIdentBytes();
+     }
+ 
+-    public java.lang.Boolean validChallenge(java.net.DatagramPacket requestPacket) {
+-        java.net.SocketAddress socketAddress = requestPacket.getSocketAddress();
+-        if (!this.validChallenges.containsKey((java.lang.Object)socketAddress)) {
++    public java.lang.Boolean validChallenge(java.net.DatagramPacket $$0) {
++        java.net.SocketAddress $$1 = $$0.getSocketAddress();
++        if (!this.validChallenges.containsKey((java.lang.Object)$$1)) {
+             return false;
+         }
+-        byte[] byArray = requestPacket.getData();
+-        return ((net.minecraft.server.rcon.thread.QueryThreadGs4$RequestChallenge)this.validChallenges.get((java.lang.Object)socketAddress)).getChallenge() == net.minecraft.server.rcon.PktUtils.intFromNetworkByteArray((byte[])byArray, (int)7, (int)requestPacket.getLength());
++        byte[] $$2 = $$0.getData();
++        return ((net.minecraft.server.rcon.thread.QueryThreadGs4$RequestChallenge)this.validChallenges.get((java.lang.Object)$$1)).getChallenge() == net.minecraft.server.rcon.PktUtils.intFromNetworkByteArray((byte[])$$2, (int)7, (int)$$0.getLength());
+     }
+ 
+-    public void sendChallenge(java.net.DatagramPacket requestPacket) throws java.io.IOException {
+-        net.minecraft.server.rcon.thread.QueryThreadGs4$RequestChallenge requestChallenge = new net.minecraft.server.rcon.thread.QueryThreadGs4$RequestChallenge(requestPacket);
+-        this.validChallenges.put((java.lang.Object)requestPacket.getSocketAddress(), (java.lang.Object)requestChallenge);
+-        this.sendTo(requestChallenge.getChallengeBytes(), requestPacket);
++    public void sendChallenge(java.net.DatagramPacket $$0) throws java.io.IOException {
++        net.minecraft.server.rcon.thread.QueryThreadGs4$RequestChallenge $$1 = new net.minecraft.server.rcon.thread.QueryThreadGs4$RequestChallenge($$0);
++        this.validChallenges.put((java.lang.Object)$$0.getSocketAddress(), (java.lang.Object)$$1);
++        this.sendTo($$1.getChallengeBytes(), $$0);
+     }
+ 
+     public void pruneChallenges() {
+@@ -233,11 +233,11 @@
+         return super.start();
+     }
+ 
+-    public void recoverSocketError(java.lang.Exception exception) {
++    public void recoverSocketError(java.lang.Exception $$0) {
+         if (!this.running) {
+             return;
+         }
+-        LOGGER.warn("Unexpected exception", (java.lang.Throwable)exception);
++        LOGGER.warn("Unexpected exception", (java.lang.Throwable)$$0);
+         if (!this.initSocket()) {
+             LOGGER.error("Failed to recover from exception, shutting down!");
+             this.running = false;

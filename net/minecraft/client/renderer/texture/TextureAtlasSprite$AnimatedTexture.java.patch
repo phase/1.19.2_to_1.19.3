@@ -1,0 +1,76 @@
+--- net/minecraft/client/renderer/texture/TextureAtlasSprite$AnimatedTexture.java
++++ net/minecraft/client/renderer/texture/TextureAtlasSprite$AnimatedTexture.java
+@@ -1,73 +1,0 @@
+-/*
+- * Decompiled with CFR 0.151.
+- */
+-package net.minecraft.client.renderer.texture;
+-
+-public class net.minecraft.client.renderer.texture.TextureAtlasSprite$AnimatedTexture
+-implements net.minecraft.client.renderer.texture.Tickable,
+-java.lang.AutoCloseable
+- {
+-    public int frame;
+-    public int subFrame;
+-    public java.util.List<net.minecraft.client.renderer.texture.TextureAtlasSprite$FrameInfo> frames;
+-    public int frameRowSize;
+-    @javax.annotation.Nullable
+-    public net.minecraft.client.renderer.texture.TextureAtlasSprite$InterpolationData interpolationData;
+-    public /* synthetic */ net.minecraft.client.renderer.texture.TextureAtlasSprite this$0;
+-
+-    public net.minecraft.client.renderer.texture.TextureAtlasSprite$AnimatedTexture(net.minecraft.client.renderer.texture.TextureAtlasSprite textureAtlasSprite, @javax.annotation.Nullable java.util.List<net.minecraft.client.renderer.texture.TextureAtlasSprite$FrameInfo> $$0, int $$1, net.minecraft.client.renderer.texture.TextureAtlasSprite$InterpolationData $$2) {
+-        this.this$0 = textureAtlasSprite;
+-        this.frames = $$0;
+-        this.frameRowSize = $$1;
+-        this.interpolationData = $$2;
+-    }
+-
+-    public int getFrameX(int $$0) {
+-        return $$0 % this.frameRowSize;
+-    }
+-
+-    public int getFrameY(int $$0) {
+-        return $$0 / this.frameRowSize;
+-    }
+-
+-    public void uploadFrame(int $$0) {
+-        int $$1 = this.getFrameX($$0) * this.this$0.width;
+-        int $$2 = this.getFrameY($$0) * this.this$0.height;
+-        this.this$0.upload($$1, $$2, this.this$0.mainImage);
+-    }
+-
+-    public void close() {
+-        if (this.interpolationData != null) {
+-            this.interpolationData.close();
+-        }
+-    }
+-
+-    public void tick() {
+-        ++this.subFrame;
+-        net.minecraft.client.renderer.texture.TextureAtlasSprite$FrameInfo $$0 = (net.minecraft.client.renderer.texture.TextureAtlasSprite$FrameInfo)this.frames.get(this.frame);
+-        if (this.subFrame >= $$0.time) {
+-            int $$1 = $$0.index;
+-            this.frame = (this.frame + 1) % this.frames.size();
+-            this.subFrame = 0;
+-            int $$2 = ((net.minecraft.client.renderer.texture.TextureAtlasSprite$FrameInfo)this.frames.get((int)this.frame)).index;
+-            if ($$1 != $$2) {
+-                this.uploadFrame($$2);
+-            }
+-        } else if (this.interpolationData != null) {
+-            if (!com.mojang.blaze3d.systems.RenderSystem.isOnRenderThread()) {
+-                com.mojang.blaze3d.systems.RenderSystem.recordRenderCall(() -> this.interpolationData.uploadInterpolatedFrame(this));
+-            } else {
+-                this.interpolationData.uploadInterpolatedFrame(this);
+-            }
+-        }
+-    }
+-
+-    public void uploadFirstFrame() {
+-        this.uploadFrame(((net.minecraft.client.renderer.texture.TextureAtlasSprite$FrameInfo)this.frames.get((int)0)).index);
+-    }
+-
+-    public java.util.stream.IntStream getUniqueFrames() {
+-        return this.frames.stream().mapToInt($$0 -> $$0.index).distinct();
+-    }
+-}
+-

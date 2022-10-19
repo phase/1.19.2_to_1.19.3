@@ -1,0 +1,151 @@
+--- net/minecraft/world/entity/ai/behavior/VillagerMakeLove.java
++++ net/minecraft/world/entity/ai/behavior/VillagerMakeLove.java
+@@ -14,70 +14,70 @@
+         super((java.util.Map)com.google.common.collect.ImmutableMap.of((java.lang.Object)net.minecraft.world.entity.ai.memory.MemoryModuleType.BREED_TARGET, (java.lang.Object)net.minecraft.world.entity.ai.memory.MemoryStatus.VALUE_PRESENT, (java.lang.Object)net.minecraft.world.entity.ai.memory.MemoryModuleType.NEAREST_VISIBLE_LIVING_ENTITIES, (java.lang.Object)net.minecraft.world.entity.ai.memory.MemoryStatus.VALUE_PRESENT), 350, 350);
+     }
+ 
+-    public boolean checkExtraStartConditions(net.minecraft.server.level.ServerLevel level, net.minecraft.world.entity.npc.Villager owner) {
+-        return this.isBreedingPossible(owner);
++    public boolean checkExtraStartConditions(net.minecraft.server.level.ServerLevel $$0, net.minecraft.world.entity.npc.Villager $$1) {
++        return this.isBreedingPossible($$1);
+     }
+ 
+-    public boolean canStillUse(net.minecraft.server.level.ServerLevel level, net.minecraft.world.entity.npc.Villager entity, long gameTime) {
+-        return gameTime <= this.birthTimestamp && this.isBreedingPossible(entity);
++    public boolean canStillUse(net.minecraft.server.level.ServerLevel $$0, net.minecraft.world.entity.npc.Villager $$1, long $$2) {
++        return $$2 <= this.birthTimestamp && this.isBreedingPossible($$1);
+     }
+ 
+-    public void start(net.minecraft.server.level.ServerLevel level, net.minecraft.world.entity.npc.Villager entity, long gameTime) {
+-        net.minecraft.world.entity.AgeableMob ageableMob = (net.minecraft.world.entity.AgeableMob)entity.getBrain().getMemory(net.minecraft.world.entity.ai.memory.MemoryModuleType.BREED_TARGET).get();
+-        net.minecraft.world.entity.ai.behavior.BehaviorUtils.lockGazeAndWalkToEachOther((net.minecraft.world.entity.LivingEntity)entity, (net.minecraft.world.entity.LivingEntity)ageableMob, (float)0.5f);
+-        level.broadcastEntityEvent((net.minecraft.world.entity.Entity)ageableMob, (byte)18);
+-        level.broadcastEntityEvent((net.minecraft.world.entity.Entity)entity, (byte)18);
+-        int n = 275 + entity.getRandom().nextInt(50);
+-        this.birthTimestamp = gameTime + (long)n;
++    public void start(net.minecraft.server.level.ServerLevel $$0, net.minecraft.world.entity.npc.Villager $$1, long $$2) {
++        net.minecraft.world.entity.AgeableMob $$3 = (net.minecraft.world.entity.AgeableMob)$$1.getBrain().getMemory(net.minecraft.world.entity.ai.memory.MemoryModuleType.BREED_TARGET).get();
++        net.minecraft.world.entity.ai.behavior.BehaviorUtils.lockGazeAndWalkToEachOther((net.minecraft.world.entity.LivingEntity)$$1, (net.minecraft.world.entity.LivingEntity)$$3, (float)0.5f);
++        $$0.broadcastEntityEvent((net.minecraft.world.entity.Entity)$$3, (byte)18);
++        $$0.broadcastEntityEvent((net.minecraft.world.entity.Entity)$$1, (byte)18);
++        int $$4 = 275 + $$1.getRandom().nextInt(50);
++        this.birthTimestamp = $$2 + (long)$$4;
+     }
+ 
+-    public void tick(net.minecraft.server.level.ServerLevel level, net.minecraft.world.entity.npc.Villager owner, long gameTime) {
+-        net.minecraft.world.entity.npc.Villager villager = (net.minecraft.world.entity.npc.Villager)owner.getBrain().getMemory(net.minecraft.world.entity.ai.memory.MemoryModuleType.BREED_TARGET).get();
+-        if (owner.distanceToSqr((net.minecraft.world.entity.Entity)villager) > 5.0) {
++    public void tick(net.minecraft.server.level.ServerLevel $$0, net.minecraft.world.entity.npc.Villager $$1, long $$2) {
++        net.minecraft.world.entity.npc.Villager $$3 = (net.minecraft.world.entity.npc.Villager)$$1.getBrain().getMemory(net.minecraft.world.entity.ai.memory.MemoryModuleType.BREED_TARGET).get();
++        if ($$1.distanceToSqr((net.minecraft.world.entity.Entity)$$3) > 5.0) {
+             return;
+         }
+-        net.minecraft.world.entity.ai.behavior.BehaviorUtils.lockGazeAndWalkToEachOther((net.minecraft.world.entity.LivingEntity)owner, (net.minecraft.world.entity.LivingEntity)villager, (float)0.5f);
+-        if (gameTime >= this.birthTimestamp) {
+-            owner.eatAndDigestFood();
+-            villager.eatAndDigestFood();
+-            this.tryToGiveBirth(level, owner, villager);
+-        } else if (owner.getRandom().nextInt(35) == 0) {
+-            level.broadcastEntityEvent((net.minecraft.world.entity.Entity)villager, (byte)12);
+-            level.broadcastEntityEvent((net.minecraft.world.entity.Entity)owner, (byte)12);
++        net.minecraft.world.entity.ai.behavior.BehaviorUtils.lockGazeAndWalkToEachOther((net.minecraft.world.entity.LivingEntity)$$1, (net.minecraft.world.entity.LivingEntity)$$3, (float)0.5f);
++        if ($$2 >= this.birthTimestamp) {
++            $$1.eatAndDigestFood();
++            $$3.eatAndDigestFood();
++            this.tryToGiveBirth($$0, $$1, $$3);
++        } else if ($$1.getRandom().nextInt(35) == 0) {
++            $$0.broadcastEntityEvent((net.minecraft.world.entity.Entity)$$3, (byte)12);
++            $$0.broadcastEntityEvent((net.minecraft.world.entity.Entity)$$1, (byte)12);
+         }
+     }
+ 
+-    public void tryToGiveBirth(net.minecraft.server.level.ServerLevel level, net.minecraft.world.entity.npc.Villager parent, net.minecraft.world.entity.npc.Villager partner) {
+-        java.util.Optional optional = this.takeVacantBed(level, parent);
+-        if (!optional.isPresent()) {
+-            level.broadcastEntityEvent((net.minecraft.world.entity.Entity)partner, (byte)13);
+-            level.broadcastEntityEvent((net.minecraft.world.entity.Entity)parent, (byte)13);
++    public void tryToGiveBirth(net.minecraft.server.level.ServerLevel $$0, net.minecraft.world.entity.npc.Villager $$1, net.minecraft.world.entity.npc.Villager $$2) {
++        java.util.Optional $$3 = this.takeVacantBed($$0, $$1);
++        if (!$$3.isPresent()) {
++            $$0.broadcastEntityEvent((net.minecraft.world.entity.Entity)$$2, (byte)13);
++            $$0.broadcastEntityEvent((net.minecraft.world.entity.Entity)$$1, (byte)13);
+         } else {
+-            java.util.Optional optional2 = this.breed(level, parent, partner);
+-            if (optional2.isPresent()) {
+-                this.giveBedToChild(level, (net.minecraft.world.entity.npc.Villager)optional2.get(), (net.minecraft.core.BlockPos)optional.get());
++            java.util.Optional $$4 = this.breed($$0, $$1, $$2);
++            if ($$4.isPresent()) {
++                this.giveBedToChild($$0, (net.minecraft.world.entity.npc.Villager)$$4.get(), (net.minecraft.core.BlockPos)$$3.get());
+             } else {
+-                level.getPoiManager().release((net.minecraft.core.BlockPos)optional.get());
+-                net.minecraft.network.protocol.game.DebugPackets.sendPoiTicketCountPacket((net.minecraft.server.level.ServerLevel)level, (net.minecraft.core.BlockPos)((net.minecraft.core.BlockPos)optional.get()));
++                $$0.getPoiManager().release((net.minecraft.core.BlockPos)$$3.get());
++                net.minecraft.network.protocol.game.DebugPackets.sendPoiTicketCountPacket((net.minecraft.server.level.ServerLevel)$$0, (net.minecraft.core.BlockPos)((net.minecraft.core.BlockPos)$$3.get()));
+             }
+         }
+     }
+ 
+-    public void stop(net.minecraft.server.level.ServerLevel level, net.minecraft.world.entity.npc.Villager entity, long gameTime) {
+-        entity.getBrain().eraseMemory(net.minecraft.world.entity.ai.memory.MemoryModuleType.BREED_TARGET);
++    public void stop(net.minecraft.server.level.ServerLevel $$0, net.minecraft.world.entity.npc.Villager $$1, long $$2) {
++        $$1.getBrain().eraseMemory(net.minecraft.world.entity.ai.memory.MemoryModuleType.BREED_TARGET);
+     }
+ 
+-    public boolean isBreedingPossible(net.minecraft.world.entity.npc.Villager villager) {
+-        net.minecraft.world.entity.ai.Brain brain = villager.getBrain();
+-        java.util.Optional optional = brain.getMemory(net.minecraft.world.entity.ai.memory.MemoryModuleType.BREED_TARGET).filter($$0 -> $$0.getType() == net.minecraft.world.entity.EntityType.VILLAGER);
+-        if (!optional.isPresent()) {
++    public boolean isBreedingPossible(net.minecraft.world.entity.npc.Villager $$02) {
++        net.minecraft.world.entity.ai.Brain $$1 = $$02.getBrain();
++        java.util.Optional $$2 = $$1.getMemory(net.minecraft.world.entity.ai.memory.MemoryModuleType.BREED_TARGET).filter($$0 -> $$0.getType() == net.minecraft.world.entity.EntityType.VILLAGER);
++        if (!$$2.isPresent()) {
+             return false;
+         }
+-        return net.minecraft.world.entity.ai.behavior.BehaviorUtils.targetIsValid((net.minecraft.world.entity.ai.Brain)brain, (net.minecraft.world.entity.ai.memory.MemoryModuleType)net.minecraft.world.entity.ai.memory.MemoryModuleType.BREED_TARGET, (net.minecraft.world.entity.EntityType)net.minecraft.world.entity.EntityType.VILLAGER) && villager.canBreed() && ((net.minecraft.world.entity.AgeableMob)optional.get()).canBreed();
++        return net.minecraft.world.entity.ai.behavior.BehaviorUtils.targetIsValid((net.minecraft.world.entity.ai.Brain)$$1, (net.minecraft.world.entity.ai.memory.MemoryModuleType)net.minecraft.world.entity.ai.memory.MemoryModuleType.BREED_TARGET, (net.minecraft.world.entity.EntityType)net.minecraft.world.entity.EntityType.VILLAGER) && $$02.canBreed() && ((net.minecraft.world.entity.AgeableMob)$$2.get()).canBreed();
+     }
+ 
+-    public java.util.Optional<net.minecraft.core.BlockPos> takeVacantBed(net.minecraft.server.level.ServerLevel level, net.minecraft.world.entity.npc.Villager villager) {
+-        return level.getPoiManager().take($$0 -> $$0.is(net.minecraft.world.entity.ai.village.poi.PoiTypes.HOME), ($$1, $$2) -> this.canReach(villager, $$2, $$1), villager.blockPosition(), 48);
++    public java.util.Optional<net.minecraft.core.BlockPos> takeVacantBed(net.minecraft.server.level.ServerLevel $$02, net.minecraft.world.entity.npc.Villager $$12) {
++        return $$02.getPoiManager().take($$0 -> $$0.is(net.minecraft.world.entity.ai.village.poi.PoiTypes.HOME), ($$1, $$2) -> this.canReach($$12, $$2, $$1), $$12.blockPosition(), 48);
+     }
+ 
+     public boolean canReach(net.minecraft.world.entity.npc.Villager $$0, net.minecraft.core.BlockPos $$1, net.minecraft.core.Holder<net.minecraft.world.entity.ai.village.poi.PoiType> $$2) {
+@@ -85,23 +85,23 @@
+         return $$3 != null && $$3.canReach();
+     }
+ 
+-    public java.util.Optional<net.minecraft.world.entity.npc.Villager> breed(net.minecraft.server.level.ServerLevel level, net.minecraft.world.entity.npc.Villager parent, net.minecraft.world.entity.npc.Villager partner) {
+-        net.minecraft.world.entity.npc.Villager villager = parent.getBreedOffspring(level, (net.minecraft.world.entity.AgeableMob)partner);
+-        if (villager == null) {
++    public java.util.Optional<net.minecraft.world.entity.npc.Villager> breed(net.minecraft.server.level.ServerLevel $$0, net.minecraft.world.entity.npc.Villager $$1, net.minecraft.world.entity.npc.Villager $$2) {
++        net.minecraft.world.entity.npc.Villager $$3 = $$1.getBreedOffspring($$0, (net.minecraft.world.entity.AgeableMob)$$2);
++        if ($$3 == null) {
+             return java.util.Optional.empty();
+         }
+-        parent.setAge(6000);
+-        partner.setAge(6000);
+-        villager.setAge(-24000);
+-        villager.moveTo(parent.getX(), parent.getY(), parent.getZ(), 0.0f, 0.0f);
+-        level.addFreshEntityWithPassengers((net.minecraft.world.entity.Entity)villager);
+-        level.broadcastEntityEvent((net.minecraft.world.entity.Entity)villager, (byte)12);
+-        return java.util.Optional.of((java.lang.Object)villager);
++        $$1.setAge(6000);
++        $$2.setAge(6000);
++        $$3.setAge(-24000);
++        $$3.moveTo($$1.getX(), $$1.getY(), $$1.getZ(), 0.0f, 0.0f);
++        $$0.addFreshEntityWithPassengers((net.minecraft.world.entity.Entity)$$3);
++        $$0.broadcastEntityEvent((net.minecraft.world.entity.Entity)$$3, (byte)12);
++        return java.util.Optional.of((java.lang.Object)$$3);
+     }
+ 
+-    public void giveBedToChild(net.minecraft.server.level.ServerLevel level, net.minecraft.world.entity.npc.Villager villager, net.minecraft.core.BlockPos pos) {
+-        net.minecraft.core.GlobalPos globalPos = net.minecraft.core.GlobalPos.of((net.minecraft.resources.ResourceKey)level.dimension(), (net.minecraft.core.BlockPos)pos);
+-        villager.getBrain().setMemory(net.minecraft.world.entity.ai.memory.MemoryModuleType.HOME, (java.lang.Object)globalPos);
++    public void giveBedToChild(net.minecraft.server.level.ServerLevel $$0, net.minecraft.world.entity.npc.Villager $$1, net.minecraft.core.BlockPos $$2) {
++        net.minecraft.core.GlobalPos $$3 = net.minecraft.core.GlobalPos.of((net.minecraft.resources.ResourceKey)$$0.dimension(), (net.minecraft.core.BlockPos)$$2);
++        $$1.getBrain().setMemory(net.minecraft.world.entity.ai.memory.MemoryModuleType.HOME, (java.lang.Object)$$3);
+     }
+ 
+     public /* synthetic */ boolean canStillUse(net.minecraft.server.level.ServerLevel serverLevel, net.minecraft.world.entity.LivingEntity livingEntity, long l) {

@@ -1,0 +1,163 @@
+--- net/minecraft/commands/arguments/NbtPathArgument.java
++++ net/minecraft/commands/arguments/NbtPathArgument.java
+@@ -22,104 +22,104 @@
+         return new net.minecraft.commands.arguments.NbtPathArgument();
+     }
+ 
+-    public static net.minecraft.commands.arguments.NbtPathArgument$NbtPath getPath(com.mojang.brigadier.context.CommandContext<net.minecraft.commands.CommandSourceStack> context, java.lang.String name) {
+-        return (net.minecraft.commands.arguments.NbtPathArgument$NbtPath)context.getArgument(name, net.minecraft.commands.arguments.NbtPathArgument$NbtPath.class);
++    public static net.minecraft.commands.arguments.NbtPathArgument$NbtPath getPath(com.mojang.brigadier.context.CommandContext<net.minecraft.commands.CommandSourceStack> $$0, java.lang.String $$1) {
++        return (net.minecraft.commands.arguments.NbtPathArgument$NbtPath)$$0.getArgument($$1, net.minecraft.commands.arguments.NbtPathArgument$NbtPath.class);
+     }
+ 
+-    public net.minecraft.commands.arguments.NbtPathArgument$NbtPath parse(com.mojang.brigadier.StringReader reader) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
+-        java.util.ArrayList arrayList = com.google.common.collect.Lists.newArrayList();
+-        int n = reader.getCursor();
+-        it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap object2IntOpenHashMap = new it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap();
+-        boolean bl = true;
+-        while (reader.canRead() && reader.peek() != ' ') {
+-            char c;
+-            net.minecraft.commands.arguments.NbtPathArgument$Node node = net.minecraft.commands.arguments.NbtPathArgument.parseNode((com.mojang.brigadier.StringReader)reader, (boolean)bl);
+-            arrayList.add((java.lang.Object)node);
+-            object2IntOpenHashMap.put((java.lang.Object)node, reader.getCursor() - n);
+-            bl = false;
+-            if (!reader.canRead() || (c = reader.peek()) == ' ' || c == '[' || c == '{') continue;
+-            reader.expect('.');
++    public net.minecraft.commands.arguments.NbtPathArgument$NbtPath parse(com.mojang.brigadier.StringReader $$0) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
++        java.util.ArrayList $$1 = com.google.common.collect.Lists.newArrayList();
++        int $$2 = $$0.getCursor();
++        it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap $$3 = new it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap();
++        boolean $$4 = true;
++        while ($$0.canRead() && $$0.peek() != ' ') {
++            char $$6;
++            net.minecraft.commands.arguments.NbtPathArgument$Node $$5 = net.minecraft.commands.arguments.NbtPathArgument.parseNode((com.mojang.brigadier.StringReader)$$0, (boolean)$$4);
++            $$1.add((java.lang.Object)$$5);
++            $$3.put((java.lang.Object)$$5, $$0.getCursor() - $$2);
++            $$4 = false;
++            if (!$$0.canRead() || ($$6 = $$0.peek()) == ' ' || $$6 == '[' || $$6 == '{') continue;
++            $$0.expect('.');
+         }
+-        return new net.minecraft.commands.arguments.NbtPathArgument$NbtPath(reader.getString().substring(n, reader.getCursor()), (net.minecraft.commands.arguments.NbtPathArgument$Node[])arrayList.toArray((java.lang.Object[])new net.minecraft.commands.arguments.NbtPathArgument$Node[0]), (it.unimi.dsi.fastutil.objects.Object2IntMap)object2IntOpenHashMap);
++        return new net.minecraft.commands.arguments.NbtPathArgument$NbtPath($$0.getString().substring($$2, $$0.getCursor()), (net.minecraft.commands.arguments.NbtPathArgument$Node[])$$1.toArray((java.lang.Object[])new net.minecraft.commands.arguments.NbtPathArgument$Node[0]), (it.unimi.dsi.fastutil.objects.Object2IntMap)$$3);
+     }
+ 
+-    public static net.minecraft.commands.arguments.NbtPathArgument$Node parseNode(com.mojang.brigadier.StringReader reader, boolean first) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
+-        switch (reader.peek()) {
++    public static net.minecraft.commands.arguments.NbtPathArgument$Node parseNode(com.mojang.brigadier.StringReader $$0, boolean $$1) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
++        switch ($$0.peek()) {
+             case '{': {
+-                if (!first) {
+-                    throw ERROR_INVALID_NODE.createWithContext((com.mojang.brigadier.ImmutableStringReader)reader);
++                if (!$$1) {
++                    throw ERROR_INVALID_NODE.createWithContext((com.mojang.brigadier.ImmutableStringReader)$$0);
+                 }
+-                net.minecraft.nbt.CompoundTag compoundTag = new net.minecraft.nbt.TagParser(reader).readStruct();
+-                return new net.minecraft.commands.arguments.NbtPathArgument$MatchRootObjectNode(compoundTag);
++                net.minecraft.nbt.CompoundTag $$2 = new net.minecraft.nbt.TagParser($$0).readStruct();
++                return new net.minecraft.commands.arguments.NbtPathArgument$MatchRootObjectNode($$2);
+             }
+             case '[': {
+-                reader.skip();
+-                char c = reader.peek();
+-                if (c == '{') {
+-                    net.minecraft.nbt.CompoundTag compoundTag = new net.minecraft.nbt.TagParser(reader).readStruct();
+-                    reader.expect(']');
+-                    return new net.minecraft.commands.arguments.NbtPathArgument$MatchElementNode(compoundTag);
++                $$0.skip();
++                char $$3 = $$0.peek();
++                if ($$3 == '{') {
++                    net.minecraft.nbt.CompoundTag $$4 = new net.minecraft.nbt.TagParser($$0).readStruct();
++                    $$0.expect(']');
++                    return new net.minecraft.commands.arguments.NbtPathArgument$MatchElementNode($$4);
+                 }
+-                if (c == ']') {
+-                    reader.skip();
++                if ($$3 == ']') {
++                    $$0.skip();
+                     return net.minecraft.commands.arguments.NbtPathArgument$AllElementsNode.INSTANCE;
+                 }
+-                int n = reader.readInt();
+-                reader.expect(']');
+-                return new net.minecraft.commands.arguments.NbtPathArgument$IndexedElementNode(n);
++                int $$5 = $$0.readInt();
++                $$0.expect(']');
++                return new net.minecraft.commands.arguments.NbtPathArgument$IndexedElementNode($$5);
+             }
+             case '\"': {
+-                java.lang.String string = reader.readString();
+-                return net.minecraft.commands.arguments.NbtPathArgument.readObjectNode((com.mojang.brigadier.StringReader)reader, (java.lang.String)string);
++                java.lang.String $$6 = $$0.readString();
++                return net.minecraft.commands.arguments.NbtPathArgument.readObjectNode((com.mojang.brigadier.StringReader)$$0, (java.lang.String)$$6);
+             }
+         }
+-        java.lang.String string = net.minecraft.commands.arguments.NbtPathArgument.readUnquotedName((com.mojang.brigadier.StringReader)reader);
+-        return net.minecraft.commands.arguments.NbtPathArgument.readObjectNode((com.mojang.brigadier.StringReader)reader, (java.lang.String)string);
++        java.lang.String $$7 = net.minecraft.commands.arguments.NbtPathArgument.readUnquotedName((com.mojang.brigadier.StringReader)$$0);
++        return net.minecraft.commands.arguments.NbtPathArgument.readObjectNode((com.mojang.brigadier.StringReader)$$0, (java.lang.String)$$7);
+     }
+ 
+-    public static net.minecraft.commands.arguments.NbtPathArgument$Node readObjectNode(com.mojang.brigadier.StringReader reader, java.lang.String name) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
+-        if (reader.canRead() && reader.peek() == '{') {
+-            net.minecraft.nbt.CompoundTag compoundTag = new net.minecraft.nbt.TagParser(reader).readStruct();
+-            return new net.minecraft.commands.arguments.NbtPathArgument$MatchObjectNode(name, compoundTag);
++    public static net.minecraft.commands.arguments.NbtPathArgument$Node readObjectNode(com.mojang.brigadier.StringReader $$0, java.lang.String $$1) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
++        if ($$0.canRead() && $$0.peek() == '{') {
++            net.minecraft.nbt.CompoundTag $$2 = new net.minecraft.nbt.TagParser($$0).readStruct();
++            return new net.minecraft.commands.arguments.NbtPathArgument$MatchObjectNode($$1, $$2);
+         }
+-        return new net.minecraft.commands.arguments.NbtPathArgument$CompoundChildNode(name);
++        return new net.minecraft.commands.arguments.NbtPathArgument$CompoundChildNode($$1);
+     }
+ 
+-    public static java.lang.String readUnquotedName(com.mojang.brigadier.StringReader reader) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
+-        int n = reader.getCursor();
+-        while (reader.canRead() && net.minecraft.commands.arguments.NbtPathArgument.isAllowedInUnquotedName((char)reader.peek())) {
+-            reader.skip();
++    public static java.lang.String readUnquotedName(com.mojang.brigadier.StringReader $$0) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
++        int $$1 = $$0.getCursor();
++        while ($$0.canRead() && net.minecraft.commands.arguments.NbtPathArgument.isAllowedInUnquotedName((char)$$0.peek())) {
++            $$0.skip();
+         }
+-        if (reader.getCursor() == n) {
+-            throw ERROR_INVALID_NODE.createWithContext((com.mojang.brigadier.ImmutableStringReader)reader);
++        if ($$0.getCursor() == $$1) {
++            throw ERROR_INVALID_NODE.createWithContext((com.mojang.brigadier.ImmutableStringReader)$$0);
+         }
+-        return reader.getString().substring(n, reader.getCursor());
++        return $$0.getString().substring($$1, $$0.getCursor());
+     }
+ 
+     public java.util.Collection<java.lang.String> getExamples() {
+         return EXAMPLES;
+     }
+ 
+-    public static boolean isAllowedInUnquotedName(char ch) {
+-        return ch != ' ' && ch != '\"' && ch != '[' && ch != ']' && ch != '.' && ch != '{' && ch != '}';
++    public static boolean isAllowedInUnquotedName(char $$0) {
++        return $$0 != ' ' && $$0 != '\"' && $$0 != '[' && $$0 != ']' && $$0 != '.' && $$0 != '{' && $$0 != '}';
+     }
+ 
+-    public static java.util.function.Predicate<net.minecraft.nbt.Tag> createTagPredicate(net.minecraft.nbt.CompoundTag tag) {
+-        return other -> net.minecraft.nbt.NbtUtils.compareNbt((net.minecraft.nbt.Tag)tag, (net.minecraft.nbt.Tag)other, (boolean)true);
++    public static java.util.function.Predicate<net.minecraft.nbt.Tag> createTagPredicate(net.minecraft.nbt.CompoundTag $$0) {
++        return $$1 -> net.minecraft.nbt.NbtUtils.compareNbt((net.minecraft.nbt.Tag)$$0, (net.minecraft.nbt.Tag)$$1, (boolean)true);
+     }
+ 
+     public /* synthetic */ java.lang.Object parse(com.mojang.brigadier.StringReader stringReader) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
+         return this.parse(stringReader);
+     }
+ 
+-    public static /* synthetic */ com.mojang.brigadier.Message lambda$static$0(java.lang.Object path) {
+-        return net.minecraft.network.chat.Component.translatable((java.lang.String)"arguments.nbtpath.nothing_found", (java.lang.Object[])new java.lang.Object[]{path});
++    public static /* synthetic */ com.mojang.brigadier.Message lambda$static$0(java.lang.Object $$0) {
++        return net.minecraft.network.chat.Component.translatable((java.lang.String)"arguments.nbtpath.nothing_found", (java.lang.Object[])new java.lang.Object[]{$$0});
+     }
+ 
+     static {
+         EXAMPLES = java.util.Arrays.asList((java.lang.Object[])new java.lang.String[]{"foo", "foo.bar", "foo[0]", "[0]", "[]", "{foo=bar}"});
+         ERROR_INVALID_NODE = new com.mojang.brigadier.exceptions.SimpleCommandExceptionType((com.mojang.brigadier.Message)net.minecraft.network.chat.Component.translatable((java.lang.String)"arguments.nbtpath.node.invalid"));
+-        ERROR_NOTHING_FOUND = new com.mojang.brigadier.exceptions.DynamicCommandExceptionType(path -> net.minecraft.network.chat.Component.translatable((java.lang.String)"arguments.nbtpath.nothing_found", (java.lang.Object[])new java.lang.Object[]{path}));
++        ERROR_NOTHING_FOUND = new com.mojang.brigadier.exceptions.DynamicCommandExceptionType($$0 -> net.minecraft.network.chat.Component.translatable((java.lang.String)"arguments.nbtpath.nothing_found", (java.lang.Object[])new java.lang.Object[]{$$0}));
+     }
+ }
+ 

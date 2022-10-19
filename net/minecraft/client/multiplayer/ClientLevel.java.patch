@@ -1,0 +1,574 @@
+--- net/minecraft/client/multiplayer/ClientLevel.java
++++ net/minecraft/client/multiplayer/ClientLevel.java
+@@ -113,11 +113,11 @@
+         return this.effects;
+     }
+ 
+-    public void tick(java.util.function.BooleanSupplier hasTimeLeft) {
++    public void tick(java.util.function.BooleanSupplier $$0) {
+         this.getWorldBorder().tick();
+         this.tickTime();
+         this.getProfiler().push("blocks");
+-        this.chunkSource.tick(hasTimeLeft, true);
++        this.chunkSource.tick($$0, true);
+         this.getProfiler().pop();
+     }
+ 
+@@ -128,18 +128,18 @@
+         }
+     }
+ 
+-    public void setGameTime(long time) {
+-        this.clientLevelData.setGameTime(time);
++    public void setGameTime(long $$0) {
++        this.clientLevelData.setGameTime($$0);
+     }
+ 
+-    public void setDayTime(long time) {
+-        if (time < 0L) {
+-            time = -time;
++    public void setDayTime(long $$0) {
++        if ($$0 < 0L) {
++            $$0 = -$$0;
+             ((net.minecraft.world.level.GameRules$BooleanValue)this.getGameRules().getRule(net.minecraft.world.level.GameRules.RULE_DAYLIGHT)).set(false, null);
+         } else {
+             ((net.minecraft.world.level.GameRules$BooleanValue)this.getGameRules().getRule(net.minecraft.world.level.GameRules.RULE_DAYLIGHT)).set(true, null);
+         }
+-        this.clientLevelData.setDayTime(time);
++        this.clientLevelData.setDayTime($$0);
+     }
+ 
+     public java.lang.Iterable<net.minecraft.world.entity.Entity> entitiesForRendering() {
+@@ -163,37 +163,37 @@
+         return $$0.chunkPosition().getChessboardDistance(this.minecraft.player.chunkPosition()) <= this.serverSimulationDistance;
+     }
+ 
+-    public void tickNonPassenger(net.minecraft.world.entity.Entity entity) {
+-        entity.setOldPosAndRot();
+-        ++entity.tickCount;
+-        this.getProfiler().push(() -> net.minecraft.core.Registry.ENTITY_TYPE.getKey((java.lang.Object)entity.getType()).toString());
+-        entity.tick();
++    public void tickNonPassenger(net.minecraft.world.entity.Entity $$0) {
++        $$0.setOldPosAndRot();
++        ++$$0.tickCount;
++        this.getProfiler().push(() -> net.minecraft.core.Registry.ENTITY_TYPE.getKey((java.lang.Object)$$0.getType()).toString());
++        $$0.tick();
+         this.getProfiler().pop();
+-        for (net.minecraft.world.entity.Entity entity2 : entity.getPassengers()) {
+-            this.tickPassenger(entity, entity2);
++        for (net.minecraft.world.entity.Entity $$1 : $$0.getPassengers()) {
++            this.tickPassenger($$0, $$1);
+         }
+     }
+ 
+-    public void tickPassenger(net.minecraft.world.entity.Entity mount, net.minecraft.world.entity.Entity rider) {
+-        if (rider.isRemoved() || rider.getVehicle() != mount) {
+-            rider.stopRiding();
++    public void tickPassenger(net.minecraft.world.entity.Entity $$0, net.minecraft.world.entity.Entity $$1) {
++        if ($$1.isRemoved() || $$1.getVehicle() != $$0) {
++            $$1.stopRiding();
+             return;
+         }
+-        if (!(rider instanceof net.minecraft.world.entity.player.Player) && !this.tickingEntities.contains(rider)) {
++        if (!($$1 instanceof net.minecraft.world.entity.player.Player) && !this.tickingEntities.contains($$1)) {
+             return;
+         }
+-        rider.setOldPosAndRot();
+-        ++rider.tickCount;
+-        rider.rideTick();
+-        for (net.minecraft.world.entity.Entity entity : rider.getPassengers()) {
+-            this.tickPassenger(rider, entity);
++        $$1.setOldPosAndRot();
++        ++$$1.tickCount;
++        $$1.rideTick();
++        for (net.minecraft.world.entity.Entity $$2 : $$1.getPassengers()) {
++            this.tickPassenger($$1, $$2);
+         }
+     }
+ 
+-    public void unload(net.minecraft.world.level.chunk.LevelChunk chunk) {
+-        chunk.clearAllBlockEntities();
+-        this.chunkSource.getLightEngine().enableLightSources(chunk.getPos(), false);
+-        this.entityStorage.stopTicking(chunk.getPos());
++    public void unload(net.minecraft.world.level.chunk.LevelChunk $$0) {
++        $$0.clearAllBlockEntities();
++        this.chunkSource.getLightEngine().enableLightSources($$0.getPos(), false);
++        this.entityStorage.stopTicking($$0.getPos());
+     }
+ 
+     public void onChunkLoaded(net.minecraft.world.level.ChunkPos $$0) {
+@@ -205,7 +205,7 @@
+         this.tintCaches.forEach(($$0, $$1) -> $$1.invalidateAll());
+     }
+ 
+-    public boolean hasChunk(int chunkX, int chunkZ) {
++    public boolean hasChunk(int $$0, int $$1) {
+         return true;
+     }
+ 
+@@ -213,17 +213,17 @@
+         return this.entityStorage.count();
+     }
+ 
+-    public void addPlayer(int playerId, net.minecraft.client.player.AbstractClientPlayer playerEntity) {
+-        this.addEntity(playerId, (net.minecraft.world.entity.Entity)playerEntity);
++    public void addPlayer(int $$0, net.minecraft.client.player.AbstractClientPlayer $$1) {
++        this.addEntity($$0, (net.minecraft.world.entity.Entity)$$1);
+     }
+ 
+-    public void putNonPlayerEntity(int entityId, net.minecraft.world.entity.Entity entityToSpawn) {
+-        this.addEntity(entityId, entityToSpawn);
++    public void putNonPlayerEntity(int $$0, net.minecraft.world.entity.Entity $$1) {
++        this.addEntity($$0, $$1);
+     }
+ 
+-    public void addEntity(int entityId, net.minecraft.world.entity.Entity entityToSpawn) {
+-        this.removeEntity(entityId, net.minecraft.world.entity.Entity$RemovalReason.DISCARDED);
+-        this.entityStorage.addEntity((net.minecraft.world.level.entity.EntityAccess)entityToSpawn);
++    public void addEntity(int $$0, net.minecraft.world.entity.Entity $$1) {
++        this.removeEntity($$0, net.minecraft.world.entity.Entity$RemovalReason.DISCARDED);
++        this.entityStorage.addEntity((net.minecraft.world.level.entity.EntityAccess)$$1);
+     }
+ 
+     public void removeEntity(int $$0, net.minecraft.world.entity.Entity$RemovalReason $$1) {
+@@ -235,22 +235,22 @@
+     }
+ 
+     @javax.annotation.Nullable
+-    public net.minecraft.world.entity.Entity getEntity(int id) {
+-        return (net.minecraft.world.entity.Entity)this.getEntities().get(id);
++    public net.minecraft.world.entity.Entity getEntity(int $$0) {
++        return (net.minecraft.world.entity.Entity)this.getEntities().get($$0);
+     }
+ 
+     public void disconnect() {
+         this.connection.getConnection().disconnect((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"multiplayer.status.quitting"));
+     }
+ 
+-    public void animateTick(int posX, int posY, int posZ) {
+-        int n = 32;
+-        net.minecraft.util.RandomSource randomSource = net.minecraft.util.RandomSource.create();
+-        net.minecraft.world.level.block.Block block = this.getMarkerParticleTarget();
+-        net.minecraft.core.BlockPos$MutableBlockPos mutableBlockPos = new net.minecraft.core.BlockPos$MutableBlockPos();
+-        for (int i = 0; i < 667; ++i) {
+-            this.doAnimateTick(posX, posY, posZ, 16, randomSource, block, mutableBlockPos);
+-            this.doAnimateTick(posX, posY, posZ, 32, randomSource, block, mutableBlockPos);
++    public void animateTick(int $$0, int $$1, int $$2) {
++        int $$3 = 32;
++        net.minecraft.util.RandomSource $$4 = net.minecraft.util.RandomSource.create();
++        net.minecraft.world.level.block.Block $$5 = this.getMarkerParticleTarget();
++        net.minecraft.core.BlockPos$MutableBlockPos $$6 = new net.minecraft.core.BlockPos$MutableBlockPos();
++        for (int $$7 = 0; $$7 < 667; ++$$7) {
++            this.doAnimateTick($$0, $$1, $$2, 16, $$4, $$5, $$6);
++            this.doAnimateTick($$0, $$1, $$2, 32, $$4, $$5, $$6);
+         }
+     }
+ 
+@@ -294,45 +294,45 @@
+         }
+     }
+ 
+-    public void trySpawnDripParticles(net.minecraft.core.BlockPos blockPos, net.minecraft.world.level.block.state.BlockState blockState, net.minecraft.core.particles.ParticleOptions particleData, boolean shapeDownSolid) {
+-        if (!blockState.getFluidState().isEmpty()) {
++    public void trySpawnDripParticles(net.minecraft.core.BlockPos $$0, net.minecraft.world.level.block.state.BlockState $$1, net.minecraft.core.particles.ParticleOptions $$2, boolean $$3) {
++        if (!$$1.getFluidState().isEmpty()) {
+             return;
+         }
+-        net.minecraft.world.phys.shapes.VoxelShape voxelShape = blockState.getCollisionShape((net.minecraft.world.level.BlockGetter)this, blockPos);
+-        double d = voxelShape.max(net.minecraft.core.Direction$Axis.Y);
+-        if (d < 1.0) {
+-            if (shapeDownSolid) {
+-                this.spawnFluidParticle((double)blockPos.getX(), (double)(blockPos.getX() + 1), (double)blockPos.getZ(), (double)(blockPos.getZ() + 1), (double)(blockPos.getY() + 1) - 0.05, particleData);
++        net.minecraft.world.phys.shapes.VoxelShape $$4 = $$1.getCollisionShape((net.minecraft.world.level.BlockGetter)this, $$0);
++        double $$5 = $$4.max(net.minecraft.core.Direction$Axis.Y);
++        if ($$5 < 1.0) {
++            if ($$3) {
++                this.spawnFluidParticle((double)$$0.getX(), (double)($$0.getX() + 1), (double)$$0.getZ(), (double)($$0.getZ() + 1), (double)($$0.getY() + 1) - 0.05, $$2);
+             }
+-        } else if (!blockState.is(net.minecraft.tags.BlockTags.IMPERMEABLE)) {
+-            double d2 = voxelShape.min(net.minecraft.core.Direction$Axis.Y);
+-            if (d2 > 0.0) {
+-                this.spawnParticle(blockPos, particleData, voxelShape, (double)blockPos.getY() + d2 - 0.05);
++        } else if (!$$1.is(net.minecraft.tags.BlockTags.IMPERMEABLE)) {
++            double $$6 = $$4.min(net.minecraft.core.Direction$Axis.Y);
++            if ($$6 > 0.0) {
++                this.spawnParticle($$0, $$2, $$4, (double)$$0.getY() + $$6 - 0.05);
+             } else {
+-                net.minecraft.core.BlockPos blockPos2 = blockPos.below();
+-                net.minecraft.world.level.block.state.BlockState blockState2 = this.getBlockState(blockPos2);
+-                net.minecraft.world.phys.shapes.VoxelShape voxelShape2 = blockState2.getCollisionShape((net.minecraft.world.level.BlockGetter)this, blockPos2);
+-                double d3 = voxelShape2.max(net.minecraft.core.Direction$Axis.Y);
+-                if (d3 < 1.0 && blockState2.getFluidState().isEmpty()) {
+-                    this.spawnParticle(blockPos, particleData, voxelShape, (double)blockPos.getY() - 0.05);
++                net.minecraft.core.BlockPos $$7 = $$0.below();
++                net.minecraft.world.level.block.state.BlockState $$8 = this.getBlockState($$7);
++                net.minecraft.world.phys.shapes.VoxelShape $$9 = $$8.getCollisionShape((net.minecraft.world.level.BlockGetter)this, $$7);
++                double $$10 = $$9.max(net.minecraft.core.Direction$Axis.Y);
++                if ($$10 < 1.0 && $$8.getFluidState().isEmpty()) {
++                    this.spawnParticle($$0, $$2, $$4, (double)$$0.getY() - 0.05);
+                 }
+             }
+         }
+     }
+ 
+-    public void spawnParticle(net.minecraft.core.BlockPos pos, net.minecraft.core.particles.ParticleOptions particleData, net.minecraft.world.phys.shapes.VoxelShape voxelShape, double y) {
+-        this.spawnFluidParticle((double)pos.getX() + voxelShape.min(net.minecraft.core.Direction$Axis.X), (double)pos.getX() + voxelShape.max(net.minecraft.core.Direction$Axis.X), (double)pos.getZ() + voxelShape.min(net.minecraft.core.Direction$Axis.Z), (double)pos.getZ() + voxelShape.max(net.minecraft.core.Direction$Axis.Z), y, particleData);
++    public void spawnParticle(net.minecraft.core.BlockPos $$0, net.minecraft.core.particles.ParticleOptions $$1, net.minecraft.world.phys.shapes.VoxelShape $$2, double $$3) {
++        this.spawnFluidParticle((double)$$0.getX() + $$2.min(net.minecraft.core.Direction$Axis.X), (double)$$0.getX() + $$2.max(net.minecraft.core.Direction$Axis.X), (double)$$0.getZ() + $$2.min(net.minecraft.core.Direction$Axis.Z), (double)$$0.getZ() + $$2.max(net.minecraft.core.Direction$Axis.Z), $$3, $$1);
+     }
+ 
+-    public void spawnFluidParticle(double xStart, double xEnd, double zStart, double zEnd, double y, net.minecraft.core.particles.ParticleOptions particleData) {
+-        this.addParticle(particleData, net.minecraft.util.Mth.lerp((double)this.random.nextDouble(), (double)xStart, (double)xEnd), y, net.minecraft.util.Mth.lerp((double)this.random.nextDouble(), (double)zStart, (double)zEnd), 0.0, 0.0, 0.0);
++    public void spawnFluidParticle(double $$0, double $$1, double $$2, double $$3, double $$4, net.minecraft.core.particles.ParticleOptions $$5) {
++        this.addParticle($$5, net.minecraft.util.Mth.lerp((double)this.random.nextDouble(), (double)$$0, (double)$$1), $$4, net.minecraft.util.Mth.lerp((double)this.random.nextDouble(), (double)$$2, (double)$$3), 0.0, 0.0, 0.0);
+     }
+ 
+-    public net.minecraft.CrashReportCategory fillReportDetails(net.minecraft.CrashReport report) {
+-        net.minecraft.CrashReportCategory crashReportCategory = super.fillReportDetails(report);
+-        crashReportCategory.setDetail("Server brand", () -> this.minecraft.player.getServerBrand());
+-        crashReportCategory.setDetail("Server type", () -> this.minecraft.getSingleplayerServer() == null ? "Non-integrated multiplayer server" : "Integrated singleplayer server");
+-        return crashReportCategory;
++    public net.minecraft.CrashReportCategory fillReportDetails(net.minecraft.CrashReport $$0) {
++        net.minecraft.CrashReportCategory $$1 = super.fillReportDetails($$0);
++        $$1.setDetail("Server brand", () -> this.minecraft.player.getServerBrand());
++        $$1.setDetail("Server type", () -> this.minecraft.getSingleplayerServer() == null ? "Non-integrated multiplayer server" : "Integrated singleplayer server");
++        return $$1;
+     }
+ 
+     public void playSeededSound(@javax.annotation.Nullable net.minecraft.world.entity.player.Player $$0, double $$1, double $$2, double $$3, net.minecraft.sounds.SoundEvent $$4, net.minecraft.sounds.SoundSource $$5, float $$6, float $$7, long $$8) {
+@@ -347,14 +347,10 @@
+         }
+     }
+ 
+-    public void playLocalSound(net.minecraft.core.BlockPos pos, net.minecraft.sounds.SoundEvent sound, net.minecraft.sounds.SoundSource category, float volume, float pitch, boolean distanceDelay) {
+-        this.playLocalSound((double)pos.getX() + 0.5, (double)pos.getY() + 0.5, (double)pos.getZ() + 0.5, sound, category, volume, pitch, distanceDelay);
++    public void playLocalSound(double $$0, double $$1, double $$2, net.minecraft.sounds.SoundEvent $$3, net.minecraft.sounds.SoundSource $$4, float $$5, float $$6, boolean $$7) {
++        this.playSound($$0, $$1, $$2, $$3, $$4, $$5, $$6, $$7, this.random.nextLong());
+     }
+ 
+-    public void playLocalSound(double x, double y, double z, net.minecraft.sounds.SoundEvent sound, net.minecraft.sounds.SoundSource category, float volume, float pitch, boolean distanceDelay) {
+-        this.playSound(x, y, z, sound, category, volume, pitch, distanceDelay, this.random.nextLong());
+-    }
+-
+     public void playSound(double $$0, double $$1, double $$2, net.minecraft.sounds.SoundEvent $$3, net.minecraft.sounds.SoundSource $$4, float $$5, float $$6, boolean $$7, long $$8) {
+         double $$9 = this.minecraft.gameRenderer.getMainCamera().getPosition().distanceToSqr($$0, $$1, $$2);
+         net.minecraft.client.resources.sounds.SimpleSoundInstance $$10 = new net.minecraft.client.resources.sounds.SimpleSoundInstance($$3, $$4, $$5, $$6, net.minecraft.util.RandomSource.create((long)$$8), $$0, $$1, $$2);
+@@ -366,20 +362,20 @@
+         }
+     }
+ 
+-    public void createFireworks(double x, double y, double z, double motionX, double motionY, double motionZ, @javax.annotation.Nullable net.minecraft.nbt.CompoundTag compound) {
+-        this.minecraft.particleEngine.add((net.minecraft.client.particle.Particle)new net.minecraft.client.particle.FireworkParticles$Starter(this, x, y, z, motionX, motionY, motionZ, this.minecraft.particleEngine, compound));
++    public void createFireworks(double $$0, double $$1, double $$2, double $$3, double $$4, double $$5, @javax.annotation.Nullable net.minecraft.nbt.CompoundTag $$6) {
++        this.minecraft.particleEngine.add((net.minecraft.client.particle.Particle)new net.minecraft.client.particle.FireworkParticles$Starter(this, $$0, $$1, $$2, $$3, $$4, $$5, this.minecraft.particleEngine, $$6));
+     }
+ 
+-    public void sendPacketToServer(net.minecraft.network.protocol.Packet<?> packet) {
+-        this.connection.send(packet);
++    public void sendPacketToServer(net.minecraft.network.protocol.Packet<?> $$0) {
++        this.connection.send($$0);
+     }
+ 
+     public net.minecraft.world.item.crafting.RecipeManager getRecipeManager() {
+         return this.connection.getRecipeManager();
+     }
+ 
+-    public void setScoreboard(net.minecraft.world.scores.Scoreboard scoreboard) {
+-        this.scoreboard = scoreboard;
++    public void setScoreboard(net.minecraft.world.scores.Scoreboard $$0) {
++        this.scoreboard = $$0;
+     }
+ 
+     public net.minecraft.world.ticks.LevelTickAccess<net.minecraft.world.level.block.Block> getBlockTicks() {
+@@ -395,8 +391,8 @@
+     }
+ 
+     @javax.annotation.Nullable
+-    public net.minecraft.world.level.saveddata.maps.MapItemSavedData getMapData(java.lang.String mapName) {
+-        return (net.minecraft.world.level.saveddata.maps.MapItemSavedData)this.mapData.get((java.lang.Object)mapName);
++    public net.minecraft.world.level.saveddata.maps.MapItemSavedData getMapData(java.lang.String $$0) {
++        return (net.minecraft.world.level.saveddata.maps.MapItemSavedData)this.mapData.get((java.lang.Object)$$0);
+     }
+ 
+     public void setMapData(java.lang.String $$0, net.minecraft.world.level.saveddata.maps.MapItemSavedData $$1) {
+@@ -415,16 +411,16 @@
+         return this.connection.registryAccess();
+     }
+ 
+-    public void sendBlockUpdated(net.minecraft.core.BlockPos pos, net.minecraft.world.level.block.state.BlockState oldState, net.minecraft.world.level.block.state.BlockState newState, int flags) {
+-        this.levelRenderer.blockChanged((net.minecraft.world.level.BlockGetter)this, pos, oldState, newState, flags);
++    public void sendBlockUpdated(net.minecraft.core.BlockPos $$0, net.minecraft.world.level.block.state.BlockState $$1, net.minecraft.world.level.block.state.BlockState $$2, int $$3) {
++        this.levelRenderer.blockChanged((net.minecraft.world.level.BlockGetter)this, $$0, $$1, $$2, $$3);
+     }
+ 
+-    public void setBlocksDirty(net.minecraft.core.BlockPos blockPos, net.minecraft.world.level.block.state.BlockState oldState, net.minecraft.world.level.block.state.BlockState newState) {
+-        this.levelRenderer.setBlockDirty(blockPos, oldState, newState);
++    public void setBlocksDirty(net.minecraft.core.BlockPos $$0, net.minecraft.world.level.block.state.BlockState $$1, net.minecraft.world.level.block.state.BlockState $$2) {
++        this.levelRenderer.setBlockDirty($$0, $$1, $$2);
+     }
+ 
+-    public void setSectionDirtyWithNeighbors(int sectionX, int sectionY, int sectionZ) {
+-        this.levelRenderer.setSectionDirtyWithNeighbors(sectionX, sectionY, sectionZ);
++    public void setSectionDirtyWithNeighbors(int $$0, int $$1, int $$2) {
++        this.levelRenderer.setSectionDirtyWithNeighbors($$0, $$1, $$2);
+     }
+ 
+     public void setLightReady(int $$0, int $$1) {
+@@ -434,43 +430,43 @@
+         }
+     }
+ 
+-    public void destroyBlockProgress(int breakerId, net.minecraft.core.BlockPos pos, int progress) {
+-        this.levelRenderer.destroyBlockProgress(breakerId, pos, progress);
++    public void destroyBlockProgress(int $$0, net.minecraft.core.BlockPos $$1, int $$2) {
++        this.levelRenderer.destroyBlockProgress($$0, $$1, $$2);
+     }
+ 
+-    public void globalLevelEvent(int id, net.minecraft.core.BlockPos pos, int data) {
+-        this.levelRenderer.globalLevelEvent(id, pos, data);
++    public void globalLevelEvent(int $$0, net.minecraft.core.BlockPos $$1, int $$2) {
++        this.levelRenderer.globalLevelEvent($$0, $$1, $$2);
+     }
+ 
+-    public void levelEvent(@javax.annotation.Nullable net.minecraft.world.entity.player.Player player, int type, net.minecraft.core.BlockPos pos, int data) {
++    public void levelEvent(@javax.annotation.Nullable net.minecraft.world.entity.player.Player $$0, int $$1, net.minecraft.core.BlockPos $$2, int $$3) {
+         try {
+-            this.levelRenderer.levelEvent(type, pos, data);
++            this.levelRenderer.levelEvent($$1, $$2, $$3);
+         }
+-        catch (java.lang.Throwable throwable) {
+-            net.minecraft.CrashReport crashReport = net.minecraft.CrashReport.forThrowable((java.lang.Throwable)throwable, (java.lang.String)"Playing level event");
+-            net.minecraft.CrashReportCategory crashReportCategory = crashReport.addCategory("Level event being played");
+-            crashReportCategory.setDetail("Block coordinates", (java.lang.Object)net.minecraft.CrashReportCategory.formatLocation((net.minecraft.world.level.LevelHeightAccessor)this, (net.minecraft.core.BlockPos)pos));
+-            crashReportCategory.setDetail("Event source", (java.lang.Object)player);
+-            crashReportCategory.setDetail("Event type", (java.lang.Object)type);
+-            crashReportCategory.setDetail("Event data", (java.lang.Object)data);
+-            throw new net.minecraft.ReportedException(crashReport);
++        catch (java.lang.Throwable $$4) {
++            net.minecraft.CrashReport $$5 = net.minecraft.CrashReport.forThrowable((java.lang.Throwable)$$4, (java.lang.String)"Playing level event");
++            net.minecraft.CrashReportCategory $$6 = $$5.addCategory("Level event being played");
++            $$6.setDetail("Block coordinates", (java.lang.Object)net.minecraft.CrashReportCategory.formatLocation((net.minecraft.world.level.LevelHeightAccessor)this, (net.minecraft.core.BlockPos)$$2));
++            $$6.setDetail("Event source", (java.lang.Object)$$0);
++            $$6.setDetail("Event type", (java.lang.Object)$$1);
++            $$6.setDetail("Event data", (java.lang.Object)$$3);
++            throw new net.minecraft.ReportedException($$5);
+         }
+     }
+ 
+-    public void addParticle(net.minecraft.core.particles.ParticleOptions particleData, double x, double y, double z, double xSpeed, double ySpeed, double zSpeed) {
+-        this.levelRenderer.addParticle(particleData, particleData.getType().getOverrideLimiter(), x, y, z, xSpeed, ySpeed, zSpeed);
++    public void addParticle(net.minecraft.core.particles.ParticleOptions $$0, double $$1, double $$2, double $$3, double $$4, double $$5, double $$6) {
++        this.levelRenderer.addParticle($$0, $$0.getType().getOverrideLimiter(), $$1, $$2, $$3, $$4, $$5, $$6);
+     }
+ 
+-    public void addParticle(net.minecraft.core.particles.ParticleOptions particleData, boolean forceAlwaysRender, double x, double y, double z, double xSpeed, double ySpeed, double zSpeed) {
+-        this.levelRenderer.addParticle(particleData, particleData.getType().getOverrideLimiter() || forceAlwaysRender, x, y, z, xSpeed, ySpeed, zSpeed);
++    public void addParticle(net.minecraft.core.particles.ParticleOptions $$0, boolean $$1, double $$2, double $$3, double $$4, double $$5, double $$6, double $$7) {
++        this.levelRenderer.addParticle($$0, $$0.getType().getOverrideLimiter() || $$1, $$2, $$3, $$4, $$5, $$6, $$7);
+     }
+ 
+-    public void addAlwaysVisibleParticle(net.minecraft.core.particles.ParticleOptions particleData, double x, double y, double z, double xSpeed, double ySpeed, double zSpeed) {
+-        this.levelRenderer.addParticle(particleData, false, true, x, y, z, xSpeed, ySpeed, zSpeed);
++    public void addAlwaysVisibleParticle(net.minecraft.core.particles.ParticleOptions $$0, double $$1, double $$2, double $$3, double $$4, double $$5, double $$6) {
++        this.levelRenderer.addParticle($$0, false, true, $$1, $$2, $$3, $$4, $$5, $$6);
+     }
+ 
+-    public void addAlwaysVisibleParticle(net.minecraft.core.particles.ParticleOptions particleData, boolean ignoreRange, double x, double y, double z, double xSpeed, double ySpeed, double zSpeed) {
+-        this.levelRenderer.addParticle(particleData, particleData.getType().getOverrideLimiter() || ignoreRange, true, x, y, z, xSpeed, ySpeed, zSpeed);
++    public void addAlwaysVisibleParticle(net.minecraft.core.particles.ParticleOptions $$0, boolean $$1, double $$2, double $$3, double $$4, double $$5, double $$6, double $$7) {
++        this.levelRenderer.addParticle($$0, $$0.getType().getOverrideLimiter() || $$1, true, $$2, $$3, $$4, $$5, $$6, $$7);
+     }
+ 
+     public java.util.List<net.minecraft.client.player.AbstractClientPlayer> players() {
+@@ -481,13 +477,13 @@
+         return this.registryAccess().registryOrThrow(net.minecraft.core.Registry.BIOME_REGISTRY).getHolderOrThrow(net.minecraft.world.level.biome.Biomes.PLAINS);
+     }
+ 
+-    public float getSkyDarken(float partialTicks) {
+-        float f = this.getTimeOfDay(partialTicks);
+-        float f2 = 1.0f - (net.minecraft.util.Mth.cos((float)(f * ((float)java.lang.Math.PI * 2))) * 2.0f + 0.2f);
+-        f2 = net.minecraft.util.Mth.clamp((float)f2, (float)0.0f, (float)1.0f);
+-        f2 = 1.0f - f2;
+-        f2 *= 1.0f - this.getRainLevel(partialTicks) * 5.0f / 16.0f;
+-        return (f2 *= 1.0f - this.getThunderLevel(partialTicks) * 5.0f / 16.0f) * 0.8f + 0.2f;
++    public float getSkyDarken(float $$0) {
++        float $$1 = this.getTimeOfDay($$0);
++        float $$2 = 1.0f - (net.minecraft.util.Mth.cos((float)($$1 * ((float)java.lang.Math.PI * 2))) * 2.0f + 0.2f);
++        $$2 = net.minecraft.util.Mth.clamp((float)$$2, (float)0.0f, (float)1.0f);
++        $$2 = 1.0f - $$2;
++        $$2 *= 1.0f - this.getRainLevel($$0) * 5.0f / 16.0f;
++        return ($$2 *= 1.0f - this.getThunderLevel($$0) * 5.0f / 16.0f) * 0.8f + 0.2f;
+     }
+ 
+     public net.minecraft.world.phys.Vec3 getSkyColor(net.minecraft.world.phys.Vec3 $$0, float $$12) {
+@@ -528,63 +524,61 @@
+         return new net.minecraft.world.phys.Vec3((double)$$7, (double)$$8, (double)$$9);
+     }
+ 
+-    public net.minecraft.world.phys.Vec3 getCloudColor(float partialTicks) {
+-        float f;
+-        float f2;
+-        float f3 = this.getTimeOfDay(partialTicks);
+-        float f4 = net.minecraft.util.Mth.cos((float)(f3 * ((float)java.lang.Math.PI * 2))) * 2.0f + 0.5f;
+-        f4 = net.minecraft.util.Mth.clamp((float)f4, (float)0.0f, (float)1.0f);
+-        float f5 = 1.0f;
+-        float f6 = 1.0f;
+-        float f7 = 1.0f;
+-        float f8 = this.getRainLevel(partialTicks);
+-        if (f8 > 0.0f) {
+-            f2 = (f5 * 0.3f + f6 * 0.59f + f7 * 0.11f) * 0.6f;
+-            f = 1.0f - f8 * 0.95f;
+-            f5 = f5 * f + f2 * (1.0f - f);
+-            f6 = f6 * f + f2 * (1.0f - f);
+-            f7 = f7 * f + f2 * (1.0f - f);
++    public net.minecraft.world.phys.Vec3 getCloudColor(float $$0) {
++        float $$1 = this.getTimeOfDay($$0);
++        float $$2 = net.minecraft.util.Mth.cos((float)($$1 * ((float)java.lang.Math.PI * 2))) * 2.0f + 0.5f;
++        $$2 = net.minecraft.util.Mth.clamp((float)$$2, (float)0.0f, (float)1.0f);
++        float $$3 = 1.0f;
++        float $$4 = 1.0f;
++        float $$5 = 1.0f;
++        float $$6 = this.getRainLevel($$0);
++        if ($$6 > 0.0f) {
++            float $$7 = ($$3 * 0.3f + $$4 * 0.59f + $$5 * 0.11f) * 0.6f;
++            float $$8 = 1.0f - $$6 * 0.95f;
++            $$3 = $$3 * $$8 + $$7 * (1.0f - $$8);
++            $$4 = $$4 * $$8 + $$7 * (1.0f - $$8);
++            $$5 = $$5 * $$8 + $$7 * (1.0f - $$8);
+         }
+-        f5 *= f4 * 0.9f + 0.1f;
+-        f6 *= f4 * 0.9f + 0.1f;
+-        f7 *= f4 * 0.85f + 0.15f;
+-        f2 = this.getThunderLevel(partialTicks);
+-        if (f2 > 0.0f) {
+-            f = (f5 * 0.3f + f6 * 0.59f + f7 * 0.11f) * 0.2f;
+-            float f9 = 1.0f - f2 * 0.95f;
+-            f5 = f5 * f9 + f * (1.0f - f9);
+-            f6 = f6 * f9 + f * (1.0f - f9);
+-            f7 = f7 * f9 + f * (1.0f - f9);
++        $$3 *= $$2 * 0.9f + 0.1f;
++        $$4 *= $$2 * 0.9f + 0.1f;
++        $$5 *= $$2 * 0.85f + 0.15f;
++        float $$9 = this.getThunderLevel($$0);
++        if ($$9 > 0.0f) {
++            float $$10 = ($$3 * 0.3f + $$4 * 0.59f + $$5 * 0.11f) * 0.2f;
++            float $$11 = 1.0f - $$9 * 0.95f;
++            $$3 = $$3 * $$11 + $$10 * (1.0f - $$11);
++            $$4 = $$4 * $$11 + $$10 * (1.0f - $$11);
++            $$5 = $$5 * $$11 + $$10 * (1.0f - $$11);
+         }
+-        return new net.minecraft.world.phys.Vec3((double)f5, (double)f6, (double)f7);
++        return new net.minecraft.world.phys.Vec3((double)$$3, (double)$$4, (double)$$5);
+     }
+ 
+-    public float getStarBrightness(float partialTicks) {
+-        float f = this.getTimeOfDay(partialTicks);
+-        float f2 = 1.0f - (net.minecraft.util.Mth.cos((float)(f * ((float)java.lang.Math.PI * 2))) * 2.0f + 0.25f);
+-        f2 = net.minecraft.util.Mth.clamp((float)f2, (float)0.0f, (float)1.0f);
+-        return f2 * f2 * 0.5f;
++    public float getStarBrightness(float $$0) {
++        float $$1 = this.getTimeOfDay($$0);
++        float $$2 = 1.0f - (net.minecraft.util.Mth.cos((float)($$1 * ((float)java.lang.Math.PI * 2))) * 2.0f + 0.25f);
++        $$2 = net.minecraft.util.Mth.clamp((float)$$2, (float)0.0f, (float)1.0f);
++        return $$2 * $$2 * 0.5f;
+     }
+ 
+     public int getSkyFlashTime() {
+         return this.skyFlashTime;
+     }
+ 
+-    public void setSkyFlashTime(int timeFlash) {
+-        this.skyFlashTime = timeFlash;
++    public void setSkyFlashTime(int $$0) {
++        this.skyFlashTime = $$0;
+     }
+ 
+-    public float getShade(net.minecraft.core.Direction direction, boolean isShade) {
+-        boolean bl = this.effects().constantAmbientLight();
+-        if (!isShade) {
+-            return bl ? 0.9f : 1.0f;
++    public float getShade(net.minecraft.core.Direction $$0, boolean $$1) {
++        boolean $$2 = this.effects().constantAmbientLight();
++        if (!$$1) {
++            return $$2 ? 0.9f : 1.0f;
+         }
+-        switch (net.minecraft.client.multiplayer.ClientLevel$1.$SwitchMap$net$minecraft$core$Direction[direction.ordinal()]) {
++        switch (net.minecraft.client.multiplayer.ClientLevel$1.$SwitchMap$net$minecraft$core$Direction[$$0.ordinal()]) {
+             case 1: {
+-                return bl ? 0.9f : 0.5f;
++                return $$2 ? 0.9f : 0.5f;
+             }
+             case 2: {
+-                return bl ? 0.9f : 1.0f;
++                return $$2 ? 0.9f : 1.0f;
+             }
+             case 3: 
+             case 4: {
+@@ -598,34 +592,34 @@
+         return 1.0f;
+     }
+ 
+-    public int getBlockTint(net.minecraft.core.BlockPos blockPos, net.minecraft.world.level.ColorResolver colorResolver) {
+-        net.minecraft.client.color.block.BlockTintCache blockTintCache = (net.minecraft.client.color.block.BlockTintCache)this.tintCaches.get((java.lang.Object)colorResolver);
+-        return blockTintCache.getColor(blockPos);
++    public int getBlockTint(net.minecraft.core.BlockPos $$0, net.minecraft.world.level.ColorResolver $$1) {
++        net.minecraft.client.color.block.BlockTintCache $$2 = (net.minecraft.client.color.block.BlockTintCache)this.tintCaches.get((java.lang.Object)$$1);
++        return $$2.getColor($$0);
+     }
+ 
+-    public int calculateBlockTint(net.minecraft.core.BlockPos blockPos, net.minecraft.world.level.ColorResolver colorResolver) {
+-        int n = (java.lang.Integer)net.minecraft.client.Minecraft.getInstance().options.biomeBlendRadius().get();
+-        if (n == 0) {
+-            return colorResolver.getColor((net.minecraft.world.level.biome.Biome)this.getBiome(blockPos).value(), (double)blockPos.getX(), (double)blockPos.getZ());
++    public int calculateBlockTint(net.minecraft.core.BlockPos $$0, net.minecraft.world.level.ColorResolver $$1) {
++        int $$2 = (java.lang.Integer)net.minecraft.client.Minecraft.getInstance().options.biomeBlendRadius().get();
++        if ($$2 == 0) {
++            return $$1.getColor((net.minecraft.world.level.biome.Biome)this.getBiome($$0).value(), (double)$$0.getX(), (double)$$0.getZ());
+         }
+-        int n2 = (n * 2 + 1) * (n * 2 + 1);
+-        int n3 = 0;
+-        int n4 = 0;
+-        int n5 = 0;
+-        net.minecraft.core.Cursor3D cursor3D = new net.minecraft.core.Cursor3D(blockPos.getX() - n, blockPos.getY(), blockPos.getZ() - n, blockPos.getX() + n, blockPos.getY(), blockPos.getZ() + n);
+-        net.minecraft.core.BlockPos$MutableBlockPos mutableBlockPos = new net.minecraft.core.BlockPos$MutableBlockPos();
+-        while (cursor3D.advance()) {
+-            mutableBlockPos.set(cursor3D.nextX(), cursor3D.nextY(), cursor3D.nextZ());
+-            int n6 = colorResolver.getColor((net.minecraft.world.level.biome.Biome)this.getBiome((net.minecraft.core.BlockPos)mutableBlockPos).value(), (double)mutableBlockPos.getX(), (double)mutableBlockPos.getZ());
+-            n3 += (n6 & 0xFF0000) >> 16;
+-            n4 += (n6 & 0xFF00) >> 8;
+-            n5 += n6 & 0xFF;
++        int $$3 = ($$2 * 2 + 1) * ($$2 * 2 + 1);
++        int $$4 = 0;
++        int $$5 = 0;
++        int $$6 = 0;
++        net.minecraft.core.Cursor3D $$7 = new net.minecraft.core.Cursor3D($$0.getX() - $$2, $$0.getY(), $$0.getZ() - $$2, $$0.getX() + $$2, $$0.getY(), $$0.getZ() + $$2);
++        net.minecraft.core.BlockPos$MutableBlockPos $$8 = new net.minecraft.core.BlockPos$MutableBlockPos();
++        while ($$7.advance()) {
++            $$8.set($$7.nextX(), $$7.nextY(), $$7.nextZ());
++            int $$9 = $$1.getColor((net.minecraft.world.level.biome.Biome)this.getBiome((net.minecraft.core.BlockPos)$$8).value(), (double)$$8.getX(), (double)$$8.getZ());
++            $$4 += ($$9 & 0xFF0000) >> 16;
++            $$5 += ($$9 & 0xFF00) >> 8;
++            $$6 += $$9 & 0xFF;
+         }
+-        return (n3 / n2 & 0xFF) << 16 | (n4 / n2 & 0xFF) << 8 | n5 / n2 & 0xFF;
++        return ($$4 / $$3 & 0xFF) << 16 | ($$5 / $$3 & 0xFF) << 8 | $$6 / $$3 & 0xFF;
+     }
+ 
+-    public void setDefaultSpawnPos(net.minecraft.core.BlockPos spawnPos, float f) {
+-        this.levelData.setSpawn(spawnPos, f);
++    public void setDefaultSpawnPos(net.minecraft.core.BlockPos $$0, float $$1) {
++        this.levelData.setSpawn($$0, $$1);
+     }
+ 
+     public java.lang.String toString() {
+@@ -667,6 +661,10 @@
+         return this.serverSimulationDistance;
+     }
+ 
++    public net.minecraft.world.flag.FeatureFlagSet enabledFeatures() {
++        return this.connection.enabledFeatures();
++    }
++
+     public /* synthetic */ net.minecraft.world.level.storage.LevelData getLevelData() {
+         return this.getLevelData();
+     }

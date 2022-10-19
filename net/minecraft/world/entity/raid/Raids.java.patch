@@ -1,0 +1,186 @@
+--- net/minecraft/world/entity/raid/Raids.java
++++ net/minecraft/world/entity/raid/Raids.java
+@@ -12,15 +12,15 @@
+     public int nextAvailableID;
+     public int tick;
+ 
+-    public net.minecraft.world.entity.raid.Raids(net.minecraft.server.level.ServerLevel level) {
++    public net.minecraft.world.entity.raid.Raids(net.minecraft.server.level.ServerLevel $$0) {
+         this.raidMap = com.google.common.collect.Maps.newHashMap();
+-        this.level = level;
++        this.level = $$0;
+         this.nextAvailableID = 1;
+         this.setDirty();
+     }
+ 
+-    public net.minecraft.world.entity.raid.Raid get(int id) {
+-        return (net.minecraft.world.entity.raid.Raid)this.raidMap.get((java.lang.Object)id);
++    public net.minecraft.world.entity.raid.Raid get(int $$0) {
++        return (net.minecraft.world.entity.raid.Raid)this.raidMap.get((java.lang.Object)$$0);
+     }
+ 
+     public void tick() {
+@@ -44,69 +44,69 @@
+         net.minecraft.network.protocol.game.DebugPackets.sendRaids((net.minecraft.server.level.ServerLevel)this.level, (java.util.Collection)this.raidMap.values());
+     }
+ 
+-    public static boolean canJoinRaid(net.minecraft.world.entity.raid.Raider raider, net.minecraft.world.entity.raid.Raid raid) {
+-        if (raider != null && raid != null && raid.getLevel() != null) {
+-            return raider.isAlive() && raider.canJoinRaid() && raider.getNoActionTime() <= 2400 && raider.level.dimensionType() == raid.getLevel().dimensionType();
++    public static boolean canJoinRaid(net.minecraft.world.entity.raid.Raider $$0, net.minecraft.world.entity.raid.Raid $$1) {
++        if ($$0 != null && $$1 != null && $$1.getLevel() != null) {
++            return $$0.isAlive() && $$0.canJoinRaid() && $$0.getNoActionTime() <= 2400 && $$0.level.dimensionType() == $$1.getLevel().dimensionType();
+         }
+         return false;
+     }
+ 
+     @javax.annotation.Nullable
+-    public net.minecraft.world.entity.raid.Raid createOrExtendRaid(net.minecraft.server.level.ServerPlayer serverPlayer) {
+-        net.minecraft.core.BlockPos blockPos;
+-        if (serverPlayer.isSpectator()) {
++    public net.minecraft.world.entity.raid.Raid createOrExtendRaid(net.minecraft.server.level.ServerPlayer $$02) {
++        net.minecraft.core.BlockPos $$9;
++        if ($$02.isSpectator()) {
+             return null;
+         }
+         if (this.level.getGameRules().getBoolean(net.minecraft.world.level.GameRules.RULE_DISABLE_RAIDS)) {
+             return null;
+         }
+-        net.minecraft.world.level.dimension.DimensionType dimensionType = serverPlayer.level.dimensionType();
+-        if (!dimensionType.hasRaids()) {
++        net.minecraft.world.level.dimension.DimensionType $$1 = $$02.level.dimensionType();
++        if (!$$1.hasRaids()) {
+             return null;
+         }
+-        net.minecraft.core.BlockPos blockPos2 = serverPlayer.blockPosition();
+-        java.util.List list = this.level.getPoiManager().getInRange($$0 -> $$0.is(net.minecraft.tags.PoiTypeTags.VILLAGE), blockPos2, 64, net.minecraft.world.entity.ai.village.poi.PoiManager$Occupancy.IS_OCCUPIED).toList();
+-        int n = 0;
+-        net.minecraft.world.phys.Vec3 vec3 = net.minecraft.world.phys.Vec3.ZERO;
+-        for (net.minecraft.world.entity.ai.village.poi.PoiRecord poiRecord : list) {
+-            net.minecraft.core.BlockPos blockPos3 = poiRecord.getPos();
+-            vec3 = vec3.add((double)blockPos3.getX(), (double)blockPos3.getY(), (double)blockPos3.getZ());
+-            ++n;
++        net.minecraft.core.BlockPos $$2 = $$02.blockPosition();
++        java.util.List $$3 = this.level.getPoiManager().getInRange($$0 -> $$0.is(net.minecraft.tags.PoiTypeTags.VILLAGE), $$2, 64, net.minecraft.world.entity.ai.village.poi.PoiManager$Occupancy.IS_OCCUPIED).toList();
++        int $$4 = 0;
++        net.minecraft.world.phys.Vec3 $$5 = net.minecraft.world.phys.Vec3.ZERO;
++        for (net.minecraft.world.entity.ai.village.poi.PoiRecord $$6 : $$3) {
++            net.minecraft.core.BlockPos $$7 = $$6.getPos();
++            $$5 = $$5.add((double)$$7.getX(), (double)$$7.getY(), (double)$$7.getZ());
++            ++$$4;
+         }
+-        if (n > 0) {
+-            vec3 = vec3.scale(1.0 / (double)n);
+-            blockPos = new net.minecraft.core.BlockPos(vec3);
++        if ($$4 > 0) {
++            $$5 = $$5.scale(1.0 / (double)$$4);
++            net.minecraft.core.BlockPos $$8 = new net.minecraft.core.BlockPos($$5);
+         } else {
+-            blockPos = blockPos2;
++            $$9 = $$2;
+         }
+-        java.util.Iterator iterator = this.getOrCreateRaid(serverPlayer.getLevel(), blockPos);
+-        boolean bl = false;
+-        if (!iterator.isStarted()) {
+-            if (!this.raidMap.containsKey((java.lang.Object)iterator.getId())) {
+-                this.raidMap.put((java.lang.Object)iterator.getId(), (java.lang.Object)iterator);
++        net.minecraft.world.entity.raid.Raid $$10 = this.getOrCreateRaid($$02.getLevel(), $$9);
++        boolean $$11 = false;
++        if (!$$10.isStarted()) {
++            if (!this.raidMap.containsKey((java.lang.Object)$$10.getId())) {
++                this.raidMap.put((java.lang.Object)$$10.getId(), (java.lang.Object)$$10);
+             }
+-            bl = true;
+-        } else if (iterator.getBadOmenLevel() < iterator.getMaxBadOmenLevel()) {
+-            bl = true;
++            $$11 = true;
++        } else if ($$10.getBadOmenLevel() < $$10.getMaxBadOmenLevel()) {
++            $$11 = true;
+         } else {
+-            serverPlayer.removeEffect(net.minecraft.world.effect.MobEffects.BAD_OMEN);
+-            serverPlayer.connection.send((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ClientboundEntityEventPacket((net.minecraft.world.entity.Entity)serverPlayer, 43));
++            $$02.removeEffect(net.minecraft.world.effect.MobEffects.BAD_OMEN);
++            $$02.connection.send((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ClientboundEntityEventPacket((net.minecraft.world.entity.Entity)$$02, 43));
+         }
+-        if (bl) {
+-            iterator.absorbBadOmen((net.minecraft.world.entity.player.Player)serverPlayer);
+-            serverPlayer.connection.send((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ClientboundEntityEventPacket((net.minecraft.world.entity.Entity)serverPlayer, 43));
+-            if (!iterator.hasFirstWaveSpawned()) {
+-                serverPlayer.awardStat(net.minecraft.stats.Stats.RAID_TRIGGER);
+-                net.minecraft.advancements.CriteriaTriggers.BAD_OMEN.trigger(serverPlayer);
++        if ($$11) {
++            $$10.absorbBadOmen((net.minecraft.world.entity.player.Player)$$02);
++            $$02.connection.send((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ClientboundEntityEventPacket((net.minecraft.world.entity.Entity)$$02, 43));
++            if (!$$10.hasFirstWaveSpawned()) {
++                $$02.awardStat(net.minecraft.stats.Stats.RAID_TRIGGER);
++                net.minecraft.advancements.CriteriaTriggers.BAD_OMEN.trigger($$02);
+             }
+         }
+         this.setDirty();
+-        return iterator;
++        return $$10;
+     }
+ 
+-    public net.minecraft.world.entity.raid.Raid getOrCreateRaid(net.minecraft.server.level.ServerLevel serverLevel, net.minecraft.core.BlockPos pos) {
+-        net.minecraft.world.entity.raid.Raid raid = serverLevel.getRaidAt(pos);
+-        return raid != null ? raid : new net.minecraft.world.entity.raid.Raid(this.getUniqueId(), serverLevel, pos);
++    public net.minecraft.world.entity.raid.Raid getOrCreateRaid(net.minecraft.server.level.ServerLevel $$0, net.minecraft.core.BlockPos $$1) {
++        net.minecraft.world.entity.raid.Raid $$2 = $$0.getRaidAt($$1);
++        return $$2 != null ? $$2 : new net.minecraft.world.entity.raid.Raid(this.getUniqueId(), $$0, $$1);
+     }
+ 
+     public static net.minecraft.world.entity.raid.Raids load(net.minecraft.server.level.ServerLevel $$0, net.minecraft.nbt.CompoundTag $$1) {
+@@ -122,17 +122,17 @@
+         return $$2;
+     }
+ 
+-    public net.minecraft.nbt.CompoundTag save(net.minecraft.nbt.CompoundTag compound) {
+-        compound.putInt("NextAvailableID", this.nextAvailableID);
+-        compound.putInt("Tick", this.tick);
+-        net.minecraft.nbt.ListTag listTag = new net.minecraft.nbt.ListTag();
+-        for (net.minecraft.world.entity.raid.Raid raid : this.raidMap.values()) {
+-            net.minecraft.nbt.CompoundTag compoundTag = new net.minecraft.nbt.CompoundTag();
+-            raid.save(compoundTag);
+-            listTag.add((java.lang.Object)compoundTag);
++    public net.minecraft.nbt.CompoundTag save(net.minecraft.nbt.CompoundTag $$0) {
++        $$0.putInt("NextAvailableID", this.nextAvailableID);
++        $$0.putInt("Tick", this.tick);
++        net.minecraft.nbt.ListTag $$1 = new net.minecraft.nbt.ListTag();
++        for (net.minecraft.world.entity.raid.Raid $$2 : this.raidMap.values()) {
++            net.minecraft.nbt.CompoundTag $$3 = new net.minecraft.nbt.CompoundTag();
++            $$2.save($$3);
++            $$1.add((java.lang.Object)$$3);
+         }
+-        compound.put("Raids", (net.minecraft.nbt.Tag)listTag);
+-        return compound;
++        $$0.put("Raids", (net.minecraft.nbt.Tag)$$1);
++        return $$0;
+     }
+ 
+     public static java.lang.String getFileId(net.minecraft.core.Holder<net.minecraft.world.level.dimension.DimensionType> $$0) {
+@@ -147,16 +147,16 @@
+     }
+ 
+     @javax.annotation.Nullable
+-    public net.minecraft.world.entity.raid.Raid getNearbyRaid(net.minecraft.core.BlockPos pos, int distance) {
+-        net.minecraft.world.entity.raid.Raid raid = null;
+-        double d = distance;
+-        for (net.minecraft.world.entity.raid.Raid raid2 : this.raidMap.values()) {
+-            double d2 = raid2.getCenter().distSqr((net.minecraft.core.Vec3i)pos);
+-            if (!raid2.isActive() || !(d2 < d)) continue;
+-            raid = raid2;
+-            d = d2;
++    public net.minecraft.world.entity.raid.Raid getNearbyRaid(net.minecraft.core.BlockPos $$0, int $$1) {
++        net.minecraft.world.entity.raid.Raid $$2 = null;
++        double $$3 = $$1;
++        for (net.minecraft.world.entity.raid.Raid $$4 : this.raidMap.values()) {
++            double $$5 = $$4.getCenter().distSqr((net.minecraft.core.Vec3i)$$0);
++            if (!$$4.isActive() || !($$5 < $$3)) continue;
++            $$2 = $$4;
++            $$3 = $$5;
+         }
+-        return raid;
++        return $$2;
+     }
+ }
+ 

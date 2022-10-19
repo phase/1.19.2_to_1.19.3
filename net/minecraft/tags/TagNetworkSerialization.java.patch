@@ -1,0 +1,22 @@
+--- net/minecraft/tags/TagNetworkSerialization.java
++++ net/minecraft/tags/TagNetworkSerialization.java
+@@ -8,8 +8,8 @@
+     public net.minecraft.tags.TagNetworkSerialization() {
+     }
+ 
+-    public static java.util.Map<net.minecraft.resources.ResourceKey<? extends net.minecraft.core.Registry<?>>, net.minecraft.tags.TagNetworkSerialization$NetworkPayload> serializeTagsToNetwork(net.minecraft.core.RegistryAccess $$02) {
+-        return (java.util.Map)$$02.networkSafeRegistries().map($$0 -> com.mojang.datafixers.util.Pair.of((java.lang.Object)$$0.key(), (java.lang.Object)net.minecraft.tags.TagNetworkSerialization.serializeToNetwork((net.minecraft.core.Registry)$$0.value()))).filter($$0 -> !((net.minecraft.tags.TagNetworkSerialization$NetworkPayload)$$0.getSecond()).isEmpty()).collect(java.util.stream.Collectors.toMap(com.mojang.datafixers.util.Pair::getFirst, com.mojang.datafixers.util.Pair::getSecond));
++    public static java.util.Map<net.minecraft.resources.ResourceKey<? extends net.minecraft.core.Registry<?>>, net.minecraft.tags.TagNetworkSerialization$NetworkPayload> serializeTagsToNetwork(net.minecraft.core.LayeredRegistryAccess<net.minecraft.server.RegistryLayer> $$02) {
++        return (java.util.Map)net.minecraft.core.RegistrySynchronization.networkSafeRegistries($$02).map($$0 -> com.mojang.datafixers.util.Pair.of((java.lang.Object)$$0.key(), (java.lang.Object)net.minecraft.tags.TagNetworkSerialization.serializeToNetwork((net.minecraft.core.Registry)$$0.value()))).filter($$0 -> !((net.minecraft.tags.TagNetworkSerialization$NetworkPayload)$$0.getSecond()).isEmpty()).collect(java.util.stream.Collectors.toMap(com.mojang.datafixers.util.Pair::getFirst, com.mojang.datafixers.util.Pair::getSecond));
+     }
+ 
+     public static <T> net.minecraft.tags.TagNetworkSerialization$NetworkPayload serializeToNetwork(net.minecraft.core.Registry<T> $$0) {
+@@ -21,7 +21,7 @@
+     public static <T> void deserializeTagsFromNetwork(net.minecraft.resources.ResourceKey<? extends net.minecraft.core.Registry<T>> $$0, net.minecraft.core.Registry<T> $$1, net.minecraft.tags.TagNetworkSerialization$NetworkPayload $$2, net.minecraft.tags.TagNetworkSerialization$TagOutput<T> $$32) {
+         $$2.tags.forEach(($$3, $$4) -> {
+             net.minecraft.tags.TagKey $$5 = net.minecraft.tags.TagKey.create((net.minecraft.resources.ResourceKey)$$0, (net.minecraft.resources.ResourceLocation)$$3);
+-            java.util.List $$6 = $$4.intStream().mapToObj(arg_0 -> ((net.minecraft.core.Registry)$$1).getHolder(arg_0)).flatMap(java.util.Optional::stream).toList();
++            java.util.List $$6 = (java.util.List)$$4.intStream().mapToObj(arg_0 -> ((net.minecraft.core.Registry)$$1).getHolder(arg_0)).flatMap(java.util.Optional::stream).collect(java.util.stream.Collectors.toUnmodifiableList());
+             $$32.accept($$5, $$6);
+         });
+     }

@@ -1,0 +1,38 @@
+--- net/minecraft/data/structures/NbtToSnbt.java
++++ net/minecraft/data/structures/NbtToSnbt.java
+@@ -7,15 +7,17 @@
+ implements net.minecraft.data.DataProvider
+  {
+     public static org.slf4j.Logger LOGGER;
+-    public net.minecraft.data.DataGenerator generator;
++    public java.lang.Iterable<java.nio.file.Path> inputFolders;
++    public net.minecraft.data.PackOutput output;
+ 
+-    public net.minecraft.data.structures.NbtToSnbt(net.minecraft.data.DataGenerator generator) {
+-        this.generator = generator;
++    public net.minecraft.data.structures.NbtToSnbt(net.minecraft.data.PackOutput $$0, java.util.Collection<java.nio.file.Path> $$1) {
++        this.inputFolders = $$1;
++        this.output = $$0;
+     }
+ 
+     public void run(net.minecraft.data.CachedOutput $$02) throws java.io.IOException {
+-        java.nio.file.Path $$1 = this.generator.getOutputFolder();
+-        for (java.nio.file.Path $$2 : this.generator.getInputFolders()) {
++        java.nio.file.Path $$1 = this.output.getOutputFolder();
++        for (java.nio.file.Path $$2 : this.inputFolders) {
+             java.nio.file.Files.walk((java.nio.file.Path)$$2, (java.nio.file.FileVisitOption[])new java.nio.file.FileVisitOption[0]).filter($$0 -> $$0.toString().endsWith(".nbt")).forEach($$3 -> net.minecraft.data.structures.NbtToSnbt.convertStructure((net.minecraft.data.CachedOutput)$$02, (java.nio.file.Path)$$3, (java.lang.String)this.getName($$2, $$3), (java.nio.file.Path)$$1));
+         }
+     }
+@@ -24,9 +26,9 @@
+         return "NBT to SNBT";
+     }
+ 
+-    public java.lang.String getName(java.nio.file.Path inputFolder, java.nio.file.Path file) {
+-        java.lang.String string = inputFolder.relativize(file).toString().replaceAll("\\\\", "/");
+-        return string.substring(0, string.length() - ".nbt".length());
++    public java.lang.String getName(java.nio.file.Path $$0, java.nio.file.Path $$1) {
++        java.lang.String $$2 = $$0.relativize($$1).toString().replaceAll("\\\\", "/");
++        return $$2.substring(0, $$2.length() - ".nbt".length());
+     }
+ 
+     @javax.annotation.Nullable

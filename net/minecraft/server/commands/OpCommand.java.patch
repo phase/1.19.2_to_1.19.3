@@ -1,0 +1,41 @@
+--- net/minecraft/server/commands/OpCommand.java
++++ net/minecraft/server/commands/OpCommand.java
+@@ -10,26 +10,26 @@
+     public net.minecraft.server.commands.OpCommand() {
+     }
+ 
+-    public static void register(com.mojang.brigadier.CommandDispatcher<net.minecraft.commands.CommandSourceStack> dispatcher) {
+-        dispatcher.register((com.mojang.brigadier.builder.LiteralArgumentBuilder)((com.mojang.brigadier.builder.LiteralArgumentBuilder)net.minecraft.commands.Commands.literal((java.lang.String)"op").requires($$0 -> $$0.hasPermission(3))).then(net.minecraft.commands.Commands.argument((java.lang.String)"targets", (com.mojang.brigadier.arguments.ArgumentType)net.minecraft.commands.arguments.GameProfileArgument.gameProfile()).suggests(($$02, $$12) -> {
++    public static void register(com.mojang.brigadier.CommandDispatcher<net.minecraft.commands.CommandSourceStack> $$03) {
++        $$03.register((com.mojang.brigadier.builder.LiteralArgumentBuilder)((com.mojang.brigadier.builder.LiteralArgumentBuilder)net.minecraft.commands.Commands.literal((java.lang.String)"op").requires($$0 -> $$0.hasPermission(3))).then(net.minecraft.commands.Commands.argument((java.lang.String)"targets", (com.mojang.brigadier.arguments.ArgumentType)net.minecraft.commands.arguments.GameProfileArgument.gameProfile()).suggests(($$02, $$12) -> {
+             net.minecraft.server.players.PlayerList $$2 = ((net.minecraft.commands.CommandSourceStack)$$02.getSource()).getServer().getPlayerList();
+             return net.minecraft.commands.SharedSuggestionProvider.suggest((java.util.stream.Stream)$$2.getPlayers().stream().filter($$1 -> !$$2.isOp($$1.getGameProfile())).map($$0 -> $$0.getGameProfile().getName()), (com.mojang.brigadier.suggestion.SuggestionsBuilder)$$12);
+         }).executes($$0 -> net.minecraft.server.commands.OpCommand.opPlayers((net.minecraft.commands.CommandSourceStack)((net.minecraft.commands.CommandSourceStack)$$0.getSource()), (java.util.Collection)net.minecraft.commands.arguments.GameProfileArgument.getGameProfiles((com.mojang.brigadier.context.CommandContext)$$0, (java.lang.String)"targets")))));
+     }
+ 
+-    public static int opPlayers(net.minecraft.commands.CommandSourceStack source, java.util.Collection<com.mojang.authlib.GameProfile> gameProfiles) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
+-        net.minecraft.server.players.PlayerList playerList = source.getServer().getPlayerList();
+-        int n = 0;
+-        for (com.mojang.authlib.GameProfile gameProfile : gameProfiles) {
+-            if (playerList.isOp(gameProfile)) continue;
+-            playerList.op(gameProfile);
+-            ++n;
+-            source.sendSuccess((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"commands.op.success", (java.lang.Object[])new java.lang.Object[]{((com.mojang.authlib.GameProfile)gameProfiles.iterator().next()).getName()}), true);
++    public static int opPlayers(net.minecraft.commands.CommandSourceStack $$0, java.util.Collection<com.mojang.authlib.GameProfile> $$1) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
++        net.minecraft.server.players.PlayerList $$2 = $$0.getServer().getPlayerList();
++        int $$3 = 0;
++        for (com.mojang.authlib.GameProfile $$4 : $$1) {
++            if ($$2.isOp($$4)) continue;
++            $$2.op($$4);
++            ++$$3;
++            $$0.sendSuccess((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"commands.op.success", (java.lang.Object[])new java.lang.Object[]{((com.mojang.authlib.GameProfile)$$1.iterator().next()).getName()}), true);
+         }
+-        if (n == 0) {
++        if ($$3 == 0) {
+             throw ERROR_ALREADY_OP.create();
+         }
+-        return n;
++        return $$3;
+     }
+ 
+     static {

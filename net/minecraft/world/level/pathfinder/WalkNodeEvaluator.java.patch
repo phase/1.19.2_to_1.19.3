@@ -1,0 +1,242 @@
+--- net/minecraft/world/level/pathfinder/WalkNodeEvaluator.java
++++ net/minecraft/world/level/pathfinder/WalkNodeEvaluator.java
+@@ -168,10 +168,10 @@
+         return net.minecraft.world.level.pathfinder.WalkNodeEvaluator.getFloorLevel((net.minecraft.world.level.BlockGetter)this.level, (net.minecraft.core.BlockPos)$$0);
+     }
+ 
+-    public static double getFloorLevel(net.minecraft.world.level.BlockGetter level, net.minecraft.core.BlockPos pos) {
+-        net.minecraft.core.BlockPos blockPos = pos.below();
+-        net.minecraft.world.phys.shapes.VoxelShape voxelShape = level.getBlockState(blockPos).getCollisionShape(level, blockPos);
+-        return (double)blockPos.getY() + (voxelShape.isEmpty() ? 0.0 : voxelShape.max(net.minecraft.core.Direction$Axis.Y));
++    public static double getFloorLevel(net.minecraft.world.level.BlockGetter $$0, net.minecraft.core.BlockPos $$1) {
++        net.minecraft.core.BlockPos $$2 = $$1.below();
++        net.minecraft.world.phys.shapes.VoxelShape $$3 = $$0.getBlockState($$2).getCollisionShape($$0, $$2);
++        return (double)$$2.getY() + ($$3.isEmpty() ? 0.0 : $$3.max(net.minecraft.core.Direction$Axis.Y));
+     }
+ 
+     public boolean isAmphibious() {
+@@ -268,133 +268,133 @@
+         return this.collisionCache.computeIfAbsent((java.lang.Object)$$0, $$1 -> !this.level.noCollision((net.minecraft.world.entity.Entity)this.mob, $$0));
+     }
+ 
+-    public net.minecraft.world.level.pathfinder.BlockPathTypes getBlockPathType(net.minecraft.world.level.BlockGetter blockaccess, int x, int y, int z, net.minecraft.world.entity.Mob entityliving, int xSize, int ySize, int zSize, boolean canBreakDoors, boolean canEnterDoors) {
+-        java.util.EnumSet enumSet = java.util.EnumSet.noneOf(net.minecraft.world.level.pathfinder.BlockPathTypes.class);
+-        net.minecraft.world.level.pathfinder.BlockPathTypes blockPathTypes = net.minecraft.world.level.pathfinder.BlockPathTypes.BLOCKED;
+-        net.minecraft.core.BlockPos blockPos = entityliving.blockPosition();
+-        blockPathTypes = this.getBlockPathTypes(blockaccess, x, y, z, xSize, ySize, zSize, canBreakDoors, canEnterDoors, enumSet, blockPathTypes, blockPos);
+-        if (enumSet.contains((java.lang.Object)net.minecraft.world.level.pathfinder.BlockPathTypes.FENCE)) {
++    public net.minecraft.world.level.pathfinder.BlockPathTypes getBlockPathType(net.minecraft.world.level.BlockGetter $$0, int $$1, int $$2, int $$3, net.minecraft.world.entity.Mob $$4, int $$5, int $$6, int $$7, boolean $$8, boolean $$9) {
++        java.util.EnumSet $$10 = java.util.EnumSet.noneOf(net.minecraft.world.level.pathfinder.BlockPathTypes.class);
++        net.minecraft.world.level.pathfinder.BlockPathTypes $$11 = net.minecraft.world.level.pathfinder.BlockPathTypes.BLOCKED;
++        net.minecraft.core.BlockPos $$12 = $$4.blockPosition();
++        $$11 = this.getBlockPathTypes($$0, $$1, $$2, $$3, $$5, $$6, $$7, $$8, $$9, $$10, $$11, $$12);
++        if ($$10.contains((java.lang.Object)net.minecraft.world.level.pathfinder.BlockPathTypes.FENCE)) {
+             return net.minecraft.world.level.pathfinder.BlockPathTypes.FENCE;
+         }
+-        if (enumSet.contains((java.lang.Object)net.minecraft.world.level.pathfinder.BlockPathTypes.UNPASSABLE_RAIL)) {
++        if ($$10.contains((java.lang.Object)net.minecraft.world.level.pathfinder.BlockPathTypes.UNPASSABLE_RAIL)) {
+             return net.minecraft.world.level.pathfinder.BlockPathTypes.UNPASSABLE_RAIL;
+         }
+-        net.minecraft.world.level.pathfinder.BlockPathTypes blockPathTypes2 = net.minecraft.world.level.pathfinder.BlockPathTypes.BLOCKED;
+-        for (net.minecraft.world.level.pathfinder.BlockPathTypes blockPathTypes3 : enumSet) {
+-            if (entityliving.getPathfindingMalus(blockPathTypes3) < 0.0f) {
+-                return blockPathTypes3;
++        net.minecraft.world.level.pathfinder.BlockPathTypes $$13 = net.minecraft.world.level.pathfinder.BlockPathTypes.BLOCKED;
++        for (net.minecraft.world.level.pathfinder.BlockPathTypes $$14 : $$10) {
++            if ($$4.getPathfindingMalus($$14) < 0.0f) {
++                return $$14;
+             }
+-            if (!(entityliving.getPathfindingMalus(blockPathTypes3) >= entityliving.getPathfindingMalus(blockPathTypes2))) continue;
+-            blockPathTypes2 = blockPathTypes3;
++            if (!($$4.getPathfindingMalus($$14) >= $$4.getPathfindingMalus($$13))) continue;
++            $$13 = $$14;
+         }
+-        if (blockPathTypes == net.minecraft.world.level.pathfinder.BlockPathTypes.OPEN && entityliving.getPathfindingMalus(blockPathTypes2) == 0.0f && xSize <= 1) {
++        if ($$11 == net.minecraft.world.level.pathfinder.BlockPathTypes.OPEN && $$4.getPathfindingMalus($$13) == 0.0f && $$5 <= 1) {
+             return net.minecraft.world.level.pathfinder.BlockPathTypes.OPEN;
+         }
+-        return blockPathTypes2;
++        return $$13;
+     }
+ 
+-    public net.minecraft.world.level.pathfinder.BlockPathTypes getBlockPathTypes(net.minecraft.world.level.BlockGetter level, int x, int y, int z, int xSize, int ySize, int zSize, boolean canOpenDoors, boolean canEnterDoors, java.util.EnumSet<net.minecraft.world.level.pathfinder.BlockPathTypes> nodeTypeEnum, net.minecraft.world.level.pathfinder.BlockPathTypes nodeType, net.minecraft.core.BlockPos pos) {
+-        for (int i = 0; i < xSize; ++i) {
+-            for (int j = 0; j < ySize; ++j) {
+-                for (int k = 0; k < zSize; ++k) {
+-                    int n = i + x;
+-                    int n2 = j + y;
+-                    int n3 = k + z;
+-                    net.minecraft.world.level.pathfinder.BlockPathTypes blockPathTypes = this.getBlockPathType(level, n, n2, n3);
+-                    blockPathTypes = this.evaluateBlockPathType(level, canOpenDoors, canEnterDoors, pos, blockPathTypes);
+-                    if (i == 0 && j == 0 && k == 0) {
+-                        nodeType = blockPathTypes;
++    public net.minecraft.world.level.pathfinder.BlockPathTypes getBlockPathTypes(net.minecraft.world.level.BlockGetter $$0, int $$1, int $$2, int $$3, int $$4, int $$5, int $$6, boolean $$7, boolean $$8, java.util.EnumSet<net.minecraft.world.level.pathfinder.BlockPathTypes> $$9, net.minecraft.world.level.pathfinder.BlockPathTypes $$10, net.minecraft.core.BlockPos $$11) {
++        for (int $$12 = 0; $$12 < $$4; ++$$12) {
++            for (int $$13 = 0; $$13 < $$5; ++$$13) {
++                for (int $$14 = 0; $$14 < $$6; ++$$14) {
++                    int $$15 = $$12 + $$1;
++                    int $$16 = $$13 + $$2;
++                    int $$17 = $$14 + $$3;
++                    net.minecraft.world.level.pathfinder.BlockPathTypes $$18 = this.getBlockPathType($$0, $$15, $$16, $$17);
++                    $$18 = this.evaluateBlockPathType($$0, $$7, $$8, $$11, $$18);
++                    if ($$12 == 0 && $$13 == 0 && $$14 == 0) {
++                        $$10 = $$18;
+                     }
+-                    nodeTypeEnum.add((java.lang.Object)blockPathTypes);
++                    $$9.add((java.lang.Object)$$18);
+                 }
+             }
+         }
+-        return nodeType;
++        return $$10;
+     }
+ 
+-    public net.minecraft.world.level.pathfinder.BlockPathTypes evaluateBlockPathType(net.minecraft.world.level.BlockGetter level, boolean canOpenDoors, boolean canEnterDoors, net.minecraft.core.BlockPos pos, net.minecraft.world.level.pathfinder.BlockPathTypes nodeType) {
+-        if (nodeType == net.minecraft.world.level.pathfinder.BlockPathTypes.DOOR_WOOD_CLOSED && canOpenDoors && canEnterDoors) {
+-            nodeType = net.minecraft.world.level.pathfinder.BlockPathTypes.WALKABLE_DOOR;
++    public net.minecraft.world.level.pathfinder.BlockPathTypes evaluateBlockPathType(net.minecraft.world.level.BlockGetter $$0, boolean $$1, boolean $$2, net.minecraft.core.BlockPos $$3, net.minecraft.world.level.pathfinder.BlockPathTypes $$4) {
++        if ($$4 == net.minecraft.world.level.pathfinder.BlockPathTypes.DOOR_WOOD_CLOSED && $$1 && $$2) {
++            $$4 = net.minecraft.world.level.pathfinder.BlockPathTypes.WALKABLE_DOOR;
+         }
+-        if (nodeType == net.minecraft.world.level.pathfinder.BlockPathTypes.DOOR_OPEN && !canEnterDoors) {
+-            nodeType = net.minecraft.world.level.pathfinder.BlockPathTypes.BLOCKED;
++        if ($$4 == net.minecraft.world.level.pathfinder.BlockPathTypes.DOOR_OPEN && !$$2) {
++            $$4 = net.minecraft.world.level.pathfinder.BlockPathTypes.BLOCKED;
+         }
+-        if (nodeType == net.minecraft.world.level.pathfinder.BlockPathTypes.RAIL && !(level.getBlockState(pos).getBlock() instanceof net.minecraft.world.level.block.BaseRailBlock) && !(level.getBlockState(pos.below()).getBlock() instanceof net.minecraft.world.level.block.BaseRailBlock)) {
+-            nodeType = net.minecraft.world.level.pathfinder.BlockPathTypes.UNPASSABLE_RAIL;
++        if ($$4 == net.minecraft.world.level.pathfinder.BlockPathTypes.RAIL && !($$0.getBlockState($$3).getBlock() instanceof net.minecraft.world.level.block.BaseRailBlock) && !($$0.getBlockState($$3.below()).getBlock() instanceof net.minecraft.world.level.block.BaseRailBlock)) {
++            $$4 = net.minecraft.world.level.pathfinder.BlockPathTypes.UNPASSABLE_RAIL;
+         }
+-        if (nodeType == net.minecraft.world.level.pathfinder.BlockPathTypes.LEAVES) {
+-            nodeType = net.minecraft.world.level.pathfinder.BlockPathTypes.BLOCKED;
++        if ($$4 == net.minecraft.world.level.pathfinder.BlockPathTypes.LEAVES) {
++            $$4 = net.minecraft.world.level.pathfinder.BlockPathTypes.BLOCKED;
+         }
+-        return nodeType;
++        return $$4;
+     }
+ 
+-    public net.minecraft.world.level.pathfinder.BlockPathTypes getBlockPathType(net.minecraft.world.entity.Mob entityliving, net.minecraft.core.BlockPos pos) {
+-        return this.getCachedBlockType(entityliving, pos.getX(), pos.getY(), pos.getZ());
++    public net.minecraft.world.level.pathfinder.BlockPathTypes getBlockPathType(net.minecraft.world.entity.Mob $$0, net.minecraft.core.BlockPos $$1) {
++        return this.getCachedBlockType($$0, $$1.getX(), $$1.getY(), $$1.getZ());
+     }
+ 
+-    public net.minecraft.world.level.pathfinder.BlockPathTypes getCachedBlockType(net.minecraft.world.entity.Mob entity, int x, int y, int z) {
+-        return (net.minecraft.world.level.pathfinder.BlockPathTypes)this.pathTypesByPosCache.computeIfAbsent(net.minecraft.core.BlockPos.asLong((int)x, (int)y, (int)z), $$4 -> this.getBlockPathType((net.minecraft.world.level.BlockGetter)this.level, x, y, z, entity, this.entityWidth, this.entityHeight, this.entityDepth, this.canOpenDoors(), this.canPassDoors()));
++    public net.minecraft.world.level.pathfinder.BlockPathTypes getCachedBlockType(net.minecraft.world.entity.Mob $$0, int $$1, int $$2, int $$3) {
++        return (net.minecraft.world.level.pathfinder.BlockPathTypes)this.pathTypesByPosCache.computeIfAbsent(net.minecraft.core.BlockPos.asLong((int)$$1, (int)$$2, (int)$$3), $$4 -> this.getBlockPathType((net.minecraft.world.level.BlockGetter)this.level, $$1, $$2, $$3, $$0, this.entityWidth, this.entityHeight, this.entityDepth, this.canOpenDoors(), this.canPassDoors()));
+     }
+ 
+-    public net.minecraft.world.level.pathfinder.BlockPathTypes getBlockPathType(net.minecraft.world.level.BlockGetter level, int x, int y, int z) {
+-        return net.minecraft.world.level.pathfinder.WalkNodeEvaluator.getBlockPathTypeStatic((net.minecraft.world.level.BlockGetter)level, (net.minecraft.core.BlockPos$MutableBlockPos)new net.minecraft.core.BlockPos$MutableBlockPos(x, y, z));
++    public net.minecraft.world.level.pathfinder.BlockPathTypes getBlockPathType(net.minecraft.world.level.BlockGetter $$0, int $$1, int $$2, int $$3) {
++        return net.minecraft.world.level.pathfinder.WalkNodeEvaluator.getBlockPathTypeStatic((net.minecraft.world.level.BlockGetter)$$0, (net.minecraft.core.BlockPos$MutableBlockPos)new net.minecraft.core.BlockPos$MutableBlockPos($$1, $$2, $$3));
+     }
+ 
+-    public static net.minecraft.world.level.pathfinder.BlockPathTypes getBlockPathTypeStatic(net.minecraft.world.level.BlockGetter level, net.minecraft.core.BlockPos$MutableBlockPos pos) {
+-        int n = pos.getX();
+-        int n2 = pos.getY();
+-        int n3 = pos.getZ();
+-        net.minecraft.world.level.pathfinder.BlockPathTypes blockPathTypes = net.minecraft.world.level.pathfinder.WalkNodeEvaluator.getBlockPathTypeRaw((net.minecraft.world.level.BlockGetter)level, (net.minecraft.core.BlockPos)pos);
+-        if (blockPathTypes == net.minecraft.world.level.pathfinder.BlockPathTypes.OPEN && n2 >= level.getMinBuildHeight() + 1) {
+-            net.minecraft.world.level.pathfinder.BlockPathTypes blockPathTypes2 = net.minecraft.world.level.pathfinder.WalkNodeEvaluator.getBlockPathTypeRaw((net.minecraft.world.level.BlockGetter)level, (net.minecraft.core.BlockPos)pos.set(n, n2 - 1, n3));
+-            net.minecraft.world.level.pathfinder.BlockPathTypes blockPathTypes3 = blockPathTypes = blockPathTypes2 == net.minecraft.world.level.pathfinder.BlockPathTypes.WALKABLE || blockPathTypes2 == net.minecraft.world.level.pathfinder.BlockPathTypes.OPEN || blockPathTypes2 == net.minecraft.world.level.pathfinder.BlockPathTypes.WATER || blockPathTypes2 == net.minecraft.world.level.pathfinder.BlockPathTypes.LAVA ? net.minecraft.world.level.pathfinder.BlockPathTypes.OPEN : net.minecraft.world.level.pathfinder.BlockPathTypes.WALKABLE;
+-            if (blockPathTypes2 == net.minecraft.world.level.pathfinder.BlockPathTypes.DAMAGE_FIRE) {
+-                blockPathTypes = net.minecraft.world.level.pathfinder.BlockPathTypes.DAMAGE_FIRE;
++    public static net.minecraft.world.level.pathfinder.BlockPathTypes getBlockPathTypeStatic(net.minecraft.world.level.BlockGetter $$0, net.minecraft.core.BlockPos$MutableBlockPos $$1) {
++        int $$2 = $$1.getX();
++        int $$3 = $$1.getY();
++        int $$4 = $$1.getZ();
++        net.minecraft.world.level.pathfinder.BlockPathTypes $$5 = net.minecraft.world.level.pathfinder.WalkNodeEvaluator.getBlockPathTypeRaw((net.minecraft.world.level.BlockGetter)$$0, (net.minecraft.core.BlockPos)$$1);
++        if ($$5 == net.minecraft.world.level.pathfinder.BlockPathTypes.OPEN && $$3 >= $$0.getMinBuildHeight() + 1) {
++            net.minecraft.world.level.pathfinder.BlockPathTypes $$6 = net.minecraft.world.level.pathfinder.WalkNodeEvaluator.getBlockPathTypeRaw((net.minecraft.world.level.BlockGetter)$$0, (net.minecraft.core.BlockPos)$$1.set($$2, $$3 - 1, $$4));
++            net.minecraft.world.level.pathfinder.BlockPathTypes blockPathTypes = $$5 = $$6 == net.minecraft.world.level.pathfinder.BlockPathTypes.WALKABLE || $$6 == net.minecraft.world.level.pathfinder.BlockPathTypes.OPEN || $$6 == net.minecraft.world.level.pathfinder.BlockPathTypes.WATER || $$6 == net.minecraft.world.level.pathfinder.BlockPathTypes.LAVA ? net.minecraft.world.level.pathfinder.BlockPathTypes.OPEN : net.minecraft.world.level.pathfinder.BlockPathTypes.WALKABLE;
++            if ($$6 == net.minecraft.world.level.pathfinder.BlockPathTypes.DAMAGE_FIRE) {
++                $$5 = net.minecraft.world.level.pathfinder.BlockPathTypes.DAMAGE_FIRE;
+             }
+-            if (blockPathTypes2 == net.minecraft.world.level.pathfinder.BlockPathTypes.DAMAGE_CACTUS) {
+-                blockPathTypes = net.minecraft.world.level.pathfinder.BlockPathTypes.DAMAGE_CACTUS;
++            if ($$6 == net.minecraft.world.level.pathfinder.BlockPathTypes.DAMAGE_CACTUS) {
++                $$5 = net.minecraft.world.level.pathfinder.BlockPathTypes.DAMAGE_CACTUS;
+             }
+-            if (blockPathTypes2 == net.minecraft.world.level.pathfinder.BlockPathTypes.DAMAGE_OTHER) {
+-                blockPathTypes = net.minecraft.world.level.pathfinder.BlockPathTypes.DAMAGE_OTHER;
++            if ($$6 == net.minecraft.world.level.pathfinder.BlockPathTypes.DAMAGE_OTHER) {
++                $$5 = net.minecraft.world.level.pathfinder.BlockPathTypes.DAMAGE_OTHER;
+             }
+-            if (blockPathTypes2 == net.minecraft.world.level.pathfinder.BlockPathTypes.STICKY_HONEY) {
+-                blockPathTypes = net.minecraft.world.level.pathfinder.BlockPathTypes.STICKY_HONEY;
++            if ($$6 == net.minecraft.world.level.pathfinder.BlockPathTypes.STICKY_HONEY) {
++                $$5 = net.minecraft.world.level.pathfinder.BlockPathTypes.STICKY_HONEY;
+             }
+-            if (blockPathTypes2 == net.minecraft.world.level.pathfinder.BlockPathTypes.POWDER_SNOW) {
+-                blockPathTypes = net.minecraft.world.level.pathfinder.BlockPathTypes.DANGER_POWDER_SNOW;
++            if ($$6 == net.minecraft.world.level.pathfinder.BlockPathTypes.POWDER_SNOW) {
++                $$5 = net.minecraft.world.level.pathfinder.BlockPathTypes.DANGER_POWDER_SNOW;
+             }
+         }
+-        if (blockPathTypes == net.minecraft.world.level.pathfinder.BlockPathTypes.WALKABLE) {
+-            blockPathTypes = net.minecraft.world.level.pathfinder.WalkNodeEvaluator.checkNeighbourBlocks((net.minecraft.world.level.BlockGetter)level, (net.minecraft.core.BlockPos$MutableBlockPos)pos.set(n, n2, n3), (net.minecraft.world.level.pathfinder.BlockPathTypes)blockPathTypes);
++        if ($$5 == net.minecraft.world.level.pathfinder.BlockPathTypes.WALKABLE) {
++            $$5 = net.minecraft.world.level.pathfinder.WalkNodeEvaluator.checkNeighbourBlocks((net.minecraft.world.level.BlockGetter)$$0, (net.minecraft.core.BlockPos$MutableBlockPos)$$1.set($$2, $$3, $$4), (net.minecraft.world.level.pathfinder.BlockPathTypes)$$5);
+         }
+-        return blockPathTypes;
++        return $$5;
+     }
+ 
+-    public static net.minecraft.world.level.pathfinder.BlockPathTypes checkNeighbourBlocks(net.minecraft.world.level.BlockGetter level, net.minecraft.core.BlockPos$MutableBlockPos centerPos, net.minecraft.world.level.pathfinder.BlockPathTypes nodeType) {
+-        int n = centerPos.getX();
+-        int n2 = centerPos.getY();
+-        int n3 = centerPos.getZ();
+-        for (int i = -1; i <= 1; ++i) {
+-            for (int j = -1; j <= 1; ++j) {
+-                for (int k = -1; k <= 1; ++k) {
+-                    if (i == 0 && k == 0) continue;
+-                    centerPos.set(n + i, n2 + j, n3 + k);
+-                    net.minecraft.world.level.block.state.BlockState blockState = level.getBlockState((net.minecraft.core.BlockPos)centerPos);
+-                    if (blockState.is(net.minecraft.world.level.block.Blocks.CACTUS)) {
++    public static net.minecraft.world.level.pathfinder.BlockPathTypes checkNeighbourBlocks(net.minecraft.world.level.BlockGetter $$0, net.minecraft.core.BlockPos$MutableBlockPos $$1, net.minecraft.world.level.pathfinder.BlockPathTypes $$2) {
++        int $$3 = $$1.getX();
++        int $$4 = $$1.getY();
++        int $$5 = $$1.getZ();
++        for (int $$6 = -1; $$6 <= 1; ++$$6) {
++            for (int $$7 = -1; $$7 <= 1; ++$$7) {
++                for (int $$8 = -1; $$8 <= 1; ++$$8) {
++                    if ($$6 == 0 && $$8 == 0) continue;
++                    $$1.set($$3 + $$6, $$4 + $$7, $$5 + $$8);
++                    net.minecraft.world.level.block.state.BlockState $$9 = $$0.getBlockState((net.minecraft.core.BlockPos)$$1);
++                    if ($$9.is(net.minecraft.world.level.block.Blocks.CACTUS)) {
+                         return net.minecraft.world.level.pathfinder.BlockPathTypes.DANGER_CACTUS;
+                     }
+-                    if (blockState.is(net.minecraft.world.level.block.Blocks.SWEET_BERRY_BUSH)) {
++                    if ($$9.is(net.minecraft.world.level.block.Blocks.SWEET_BERRY_BUSH)) {
+                         return net.minecraft.world.level.pathfinder.BlockPathTypes.DANGER_OTHER;
+                     }
+-                    if (net.minecraft.world.level.pathfinder.WalkNodeEvaluator.isBurningBlock((net.minecraft.world.level.block.state.BlockState)blockState)) {
++                    if (net.minecraft.world.level.pathfinder.WalkNodeEvaluator.isBurningBlock((net.minecraft.world.level.block.state.BlockState)$$9)) {
+                         return net.minecraft.world.level.pathfinder.BlockPathTypes.DANGER_FIRE;
+                     }
+-                    if (!level.getFluidState((net.minecraft.core.BlockPos)centerPos).is(net.minecraft.tags.FluidTags.WATER)) continue;
++                    if (!$$0.getFluidState((net.minecraft.core.BlockPos)$$1).is(net.minecraft.tags.FluidTags.WATER)) continue;
+                     return net.minecraft.world.level.pathfinder.BlockPathTypes.WATER_BORDER;
+                 }
+             }
+         }
+-        return nodeType;
++        return $$2;
+     }
+ 
+     public static net.minecraft.world.level.pathfinder.BlockPathTypes getBlockPathTypeRaw(net.minecraft.world.level.BlockGetter $$0, net.minecraft.core.BlockPos $$1) {
+@@ -456,8 +456,8 @@
+         return net.minecraft.world.level.pathfinder.BlockPathTypes.OPEN;
+     }
+ 
+-    public static boolean isBurningBlock(net.minecraft.world.level.block.state.BlockState state) {
+-        return state.is(net.minecraft.tags.BlockTags.FIRE) || state.is(net.minecraft.world.level.block.Blocks.LAVA) || state.is(net.minecraft.world.level.block.Blocks.MAGMA_BLOCK) || net.minecraft.world.level.block.CampfireBlock.isLitCampfire((net.minecraft.world.level.block.state.BlockState)state) || state.is(net.minecraft.world.level.block.Blocks.LAVA_CAULDRON);
++    public static boolean isBurningBlock(net.minecraft.world.level.block.state.BlockState $$0) {
++        return $$0.is(net.minecraft.tags.BlockTags.FIRE) || $$0.is(net.minecraft.world.level.block.Blocks.LAVA) || $$0.is(net.minecraft.world.level.block.Blocks.MAGMA_BLOCK) || net.minecraft.world.level.block.CampfireBlock.isLitCampfire((net.minecraft.world.level.block.state.BlockState)$$0) || $$0.is(net.minecraft.world.level.block.Blocks.LAVA_CAULDRON);
+     }
+ }
+ 

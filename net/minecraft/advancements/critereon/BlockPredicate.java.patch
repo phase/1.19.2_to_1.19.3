@@ -1,0 +1,81 @@
+--- net/minecraft/advancements/critereon/BlockPredicate.java
++++ net/minecraft/advancements/critereon/BlockPredicate.java
+@@ -20,52 +20,50 @@
+         this.nbt = $$3;
+     }
+ 
+-    public boolean matches(net.minecraft.server.level.ServerLevel level, net.minecraft.core.BlockPos pos) {
+-        net.minecraft.world.level.block.entity.BlockEntity blockEntity;
++    public boolean matches(net.minecraft.server.level.ServerLevel $$0, net.minecraft.core.BlockPos $$1) {
++        net.minecraft.world.level.block.entity.BlockEntity $$3;
+         if (this == ANY) {
+             return true;
+         }
+-        if (!level.isLoaded(pos)) {
++        if (!$$0.isLoaded($$1)) {
+             return false;
+         }
+-        net.minecraft.world.level.block.state.BlockState blockState = level.getBlockState(pos);
+-        if (this.tag != null && !blockState.is(this.tag)) {
++        net.minecraft.world.level.block.state.BlockState $$2 = $$0.getBlockState($$1);
++        if (this.tag != null && !$$2.is(this.tag)) {
+             return false;
+         }
+-        if (this.blocks != null && !this.blocks.contains((java.lang.Object)blockState.getBlock())) {
++        if (this.blocks != null && !this.blocks.contains((java.lang.Object)$$2.getBlock())) {
+             return false;
+         }
+-        if (!this.properties.matches(blockState)) {
++        if (!this.properties.matches($$2)) {
+             return false;
+         }
+-        return this.nbt == net.minecraft.advancements.critereon.NbtPredicate.ANY || (blockEntity = level.getBlockEntity(pos)) != null && this.nbt.matches((net.minecraft.nbt.Tag)blockEntity.saveWithFullMetadata());
++        return this.nbt == net.minecraft.advancements.critereon.NbtPredicate.ANY || ($$3 = $$0.getBlockEntity($$1)) != null && this.nbt.matches((net.minecraft.nbt.Tag)$$3.saveWithFullMetadata());
+     }
+ 
+-    public static net.minecraft.advancements.critereon.BlockPredicate fromJson(@javax.annotation.Nullable com.google.gson.JsonElement json) {
+-        java.util.Iterator iterator;
+-        com.google.common.collect.ImmutableSet$Builder builder;
+-        if (json == null || json.isJsonNull()) {
++    public static net.minecraft.advancements.critereon.BlockPredicate fromJson(@javax.annotation.Nullable com.google.gson.JsonElement $$0) {
++        if ($$0 == null || $$0.isJsonNull()) {
+             return ANY;
+         }
+-        com.google.gson.JsonObject jsonObject = net.minecraft.util.GsonHelper.convertToJsonObject((com.google.gson.JsonElement)json, (java.lang.String)"block");
+-        net.minecraft.advancements.critereon.NbtPredicate nbtPredicate = net.minecraft.advancements.critereon.NbtPredicate.fromJson((com.google.gson.JsonElement)jsonObject.get("nbt"));
+-        com.google.common.collect.ImmutableSet immutableSet = null;
+-        com.google.gson.JsonArray jsonArray = net.minecraft.util.GsonHelper.getAsJsonArray((com.google.gson.JsonObject)jsonObject, (java.lang.String)"blocks", null);
+-        if (jsonArray != null) {
+-            builder = com.google.common.collect.ImmutableSet.builder();
+-            for (com.google.gson.JsonElement jsonElement : jsonArray) {
+-                net.minecraft.resources.ResourceLocation resourceLocation = new net.minecraft.resources.ResourceLocation(net.minecraft.util.GsonHelper.convertToString((com.google.gson.JsonElement)jsonElement, (java.lang.String)"block"));
+-                builder.add((java.lang.Object)((net.minecraft.world.level.block.Block)net.minecraft.core.Registry.BLOCK.getOptional(resourceLocation).orElseThrow(() -> new com.google.gson.JsonSyntaxException("Unknown block id '" + resourceLocation + "'"))));
++        com.google.gson.JsonObject $$1 = net.minecraft.util.GsonHelper.convertToJsonObject((com.google.gson.JsonElement)$$0, (java.lang.String)"block");
++        net.minecraft.advancements.critereon.NbtPredicate $$2 = net.minecraft.advancements.critereon.NbtPredicate.fromJson((com.google.gson.JsonElement)$$1.get("nbt"));
++        com.google.common.collect.ImmutableSet $$3 = null;
++        com.google.gson.JsonArray $$4 = net.minecraft.util.GsonHelper.getAsJsonArray((com.google.gson.JsonObject)$$1, (java.lang.String)"blocks", null);
++        if ($$4 != null) {
++            com.google.common.collect.ImmutableSet$Builder $$5 = com.google.common.collect.ImmutableSet.builder();
++            for (com.google.gson.JsonElement $$6 : $$4) {
++                net.minecraft.resources.ResourceLocation $$7 = new net.minecraft.resources.ResourceLocation(net.minecraft.util.GsonHelper.convertToString((com.google.gson.JsonElement)$$6, (java.lang.String)"block"));
++                $$5.add((java.lang.Object)((net.minecraft.world.level.block.Block)net.minecraft.core.Registry.BLOCK.getOptional($$7).orElseThrow(() -> new com.google.gson.JsonSyntaxException("Unknown block id '" + $$7 + "'"))));
+             }
+-            immutableSet = builder.build();
++            $$3 = $$5.build();
+         }
+-        builder = null;
+-        if (jsonObject.has("tag")) {
+-            iterator = new net.minecraft.resources.ResourceLocation(net.minecraft.util.GsonHelper.getAsString((com.google.gson.JsonObject)jsonObject, (java.lang.String)"tag"));
+-            builder = net.minecraft.tags.TagKey.create((net.minecraft.resources.ResourceKey)net.minecraft.core.Registry.BLOCK_REGISTRY, (net.minecraft.resources.ResourceLocation)iterator);
++        net.minecraft.tags.TagKey $$8 = null;
++        if ($$1.has("tag")) {
++            net.minecraft.resources.ResourceLocation $$9 = new net.minecraft.resources.ResourceLocation(net.minecraft.util.GsonHelper.getAsString((com.google.gson.JsonObject)$$1, (java.lang.String)"tag"));
++            $$8 = net.minecraft.tags.TagKey.create((net.minecraft.resources.ResourceKey)net.minecraft.core.Registry.BLOCK_REGISTRY, (net.minecraft.resources.ResourceLocation)$$9);
+         }
+-        iterator = net.minecraft.advancements.critereon.StatePropertiesPredicate.fromJson((com.google.gson.JsonElement)jsonObject.get("state"));
+-        return new net.minecraft.advancements.critereon.BlockPredicate((net.minecraft.tags.TagKey)builder, (java.util.Set)immutableSet, (net.minecraft.advancements.critereon.StatePropertiesPredicate)iterator, nbtPredicate);
++        net.minecraft.advancements.critereon.StatePropertiesPredicate $$10 = net.minecraft.advancements.critereon.StatePropertiesPredicate.fromJson((com.google.gson.JsonElement)$$1.get("state"));
++        return new net.minecraft.advancements.critereon.BlockPredicate($$8, (java.util.Set)$$3, $$10, $$2);
+     }
+ 
+     public com.google.gson.JsonElement serializeToJson() {

@@ -1,0 +1,141 @@
+--- net/minecraft/client/renderer/EffectInstance.java
++++ net/minecraft/client/renderer/EffectInstance.java
+@@ -28,88 +28,88 @@
+     public com.mojang.blaze3d.shaders.EffectProgram vertexProgram;
+     public com.mojang.blaze3d.shaders.EffectProgram fragmentProgram;
+ 
+-    public net.minecraft.client.renderer.EffectInstance(net.minecraft.server.packs.resources.ResourceManager resourceManager, java.lang.String name) throws java.io.IOException {
++    public net.minecraft.client.renderer.EffectInstance(net.minecraft.server.packs.resources.ResourceManager $$0, java.lang.String $$1) throws java.io.IOException {
+         this.samplerMap = com.google.common.collect.Maps.newHashMap();
+         this.samplerNames = com.google.common.collect.Lists.newArrayList();
+         this.samplerLocations = com.google.common.collect.Lists.newArrayList();
+         this.uniforms = com.google.common.collect.Lists.newArrayList();
+         this.uniformLocations = com.google.common.collect.Lists.newArrayList();
+         this.uniformMap = com.google.common.collect.Maps.newHashMap();
+-        net.minecraft.resources.ResourceLocation resourceLocation = new net.minecraft.resources.ResourceLocation("shaders/program/" + name + ".json");
+-        this.name = name;
+-        net.minecraft.server.packs.resources.Resource resource = resourceManager.getResourceOrThrow(resourceLocation);
+-        try (java.io.BufferedReader bufferedReader = resource.openAsReader();
++        net.minecraft.resources.ResourceLocation $$2 = new net.minecraft.resources.ResourceLocation("shaders/program/" + $$1 + ".json");
++        this.name = $$1;
++        net.minecraft.server.packs.resources.Resource $$3 = $$0.getResourceOrThrow($$2);
++        try (java.io.BufferedReader $$4 = $$3.openAsReader();
+ ){
+-            com.google.gson.JsonArray jsonArray;
+-            com.google.gson.JsonArray jsonArray2;
+-            com.google.gson.JsonObject jsonObject = net.minecraft.util.GsonHelper.parse((java.io.Reader)bufferedReader);
+-            java.lang.String string = net.minecraft.util.GsonHelper.getAsString((com.google.gson.JsonObject)jsonObject, (java.lang.String)"vertex");
+-            java.lang.String string2 = net.minecraft.util.GsonHelper.getAsString((com.google.gson.JsonObject)jsonObject, (java.lang.String)"fragment");
+-            com.google.gson.JsonArray jsonArray3 = net.minecraft.util.GsonHelper.getAsJsonArray((com.google.gson.JsonObject)jsonObject, (java.lang.String)"samplers", null);
+-            if (jsonArray3 != null) {
+-                int n = 0;
+-                for (com.google.gson.JsonElement jsonElement : jsonArray3) {
++            com.google.gson.JsonArray $$18;
++            com.google.gson.JsonArray $$13;
++            com.google.gson.JsonObject $$5 = net.minecraft.util.GsonHelper.parse((java.io.Reader)$$4);
++            java.lang.String $$6 = net.minecraft.util.GsonHelper.getAsString((com.google.gson.JsonObject)$$5, (java.lang.String)"vertex");
++            java.lang.String $$7 = net.minecraft.util.GsonHelper.getAsString((com.google.gson.JsonObject)$$5, (java.lang.String)"fragment");
++            com.google.gson.JsonArray $$8 = net.minecraft.util.GsonHelper.getAsJsonArray((com.google.gson.JsonObject)$$5, (java.lang.String)"samplers", null);
++            if ($$8 != null) {
++                int $$9 = 0;
++                for (com.google.gson.JsonElement $$10 : $$8) {
+                     try {
+-                        this.parseSamplerNode(jsonElement);
++                        this.parseSamplerNode($$10);
+                     }
+-                    catch (java.lang.Exception exception) {
+-                        net.minecraft.server.ChainedJsonException chainedJsonException = net.minecraft.server.ChainedJsonException.forException((java.lang.Exception)exception);
+-                        chainedJsonException.prependJsonKey("samplers[" + n + "]");
+-                        throw chainedJsonException;
++                    catch (java.lang.Exception $$11) {
++                        net.minecraft.server.ChainedJsonException $$12 = net.minecraft.server.ChainedJsonException.forException((java.lang.Exception)$$11);
++                        $$12.prependJsonKey("samplers[" + $$9 + "]");
++                        throw $$12;
+                     }
+-                    ++n;
++                    ++$$9;
+                 }
+             }
+-            if ((jsonArray2 = net.minecraft.util.GsonHelper.getAsJsonArray((com.google.gson.JsonObject)jsonObject, (java.lang.String)"attributes", null)) != null) {
+-                int n = 0;
+-                this.attributes = com.google.common.collect.Lists.newArrayListWithCapacity((int)jsonArray2.size());
+-                this.attributeNames = com.google.common.collect.Lists.newArrayListWithCapacity((int)jsonArray2.size());
+-                for (java.lang.Object object : jsonArray2) {
++            if (($$13 = net.minecraft.util.GsonHelper.getAsJsonArray((com.google.gson.JsonObject)$$5, (java.lang.String)"attributes", null)) != null) {
++                int $$14 = 0;
++                this.attributes = com.google.common.collect.Lists.newArrayListWithCapacity((int)$$13.size());
++                this.attributeNames = com.google.common.collect.Lists.newArrayListWithCapacity((int)$$13.size());
++                for (java.util.Iterator $$15 : $$13) {
+                     try {
+-                        this.attributeNames.add((java.lang.Object)net.minecraft.util.GsonHelper.convertToString((com.google.gson.JsonElement)object, (java.lang.String)"attribute"));
++                        this.attributeNames.add((java.lang.Object)net.minecraft.util.GsonHelper.convertToString((com.google.gson.JsonElement)$$15, (java.lang.String)"attribute"));
+                     }
+-                    catch (java.lang.Exception exception) {
+-                        net.minecraft.server.ChainedJsonException chainedJsonException = net.minecraft.server.ChainedJsonException.forException((java.lang.Exception)exception);
+-                        chainedJsonException.prependJsonKey("attributes[" + n + "]");
+-                        throw chainedJsonException;
++                    catch (java.lang.Exception $$16) {
++                        net.minecraft.server.ChainedJsonException $$17 = net.minecraft.server.ChainedJsonException.forException((java.lang.Exception)$$16);
++                        $$17.prependJsonKey("attributes[" + $$14 + "]");
++                        throw $$17;
+                     }
+-                    ++n;
++                    ++$$14;
+                 }
+             } else {
+                 this.attributes = null;
+                 this.attributeNames = null;
+             }
+-            if ((jsonArray = net.minecraft.util.GsonHelper.getAsJsonArray((com.google.gson.JsonObject)jsonObject, (java.lang.String)"uniforms", null)) != null) {
+-                int n = 0;
+-                for (com.google.gson.JsonElement jsonElement : jsonArray) {
++            if (($$18 = net.minecraft.util.GsonHelper.getAsJsonArray((com.google.gson.JsonObject)$$5, (java.lang.String)"uniforms", null)) != null) {
++                int $$19 = 0;
++                for (com.google.gson.JsonElement $$20 : $$18) {
+                     try {
+-                        this.parseUniformNode(jsonElement);
++                        this.parseUniformNode($$20);
+                     }
+-                    catch (java.lang.Exception exception) {
+-                        net.minecraft.server.ChainedJsonException chainedJsonException = net.minecraft.server.ChainedJsonException.forException((java.lang.Exception)exception);
+-                        chainedJsonException.prependJsonKey("uniforms[" + n + "]");
+-                        throw chainedJsonException;
++                    catch (java.lang.Exception $$21) {
++                        net.minecraft.server.ChainedJsonException $$22 = net.minecraft.server.ChainedJsonException.forException((java.lang.Exception)$$21);
++                        $$22.prependJsonKey("uniforms[" + $$19 + "]");
++                        throw $$22;
+                     }
+-                    ++n;
++                    ++$$19;
+                 }
+             }
+-            this.blend = net.minecraft.client.renderer.EffectInstance.parseBlendNode((com.google.gson.JsonObject)net.minecraft.util.GsonHelper.getAsJsonObject((com.google.gson.JsonObject)jsonObject, (java.lang.String)"blend", null));
+-            this.vertexProgram = net.minecraft.client.renderer.EffectInstance.getOrCreate((net.minecraft.server.packs.resources.ResourceManager)resourceManager, (com.mojang.blaze3d.shaders.Program$Type)com.mojang.blaze3d.shaders.Program$Type.VERTEX, (java.lang.String)string);
+-            this.fragmentProgram = net.minecraft.client.renderer.EffectInstance.getOrCreate((net.minecraft.server.packs.resources.ResourceManager)resourceManager, (com.mojang.blaze3d.shaders.Program$Type)com.mojang.blaze3d.shaders.Program$Type.FRAGMENT, (java.lang.String)string2);
++            this.blend = net.minecraft.client.renderer.EffectInstance.parseBlendNode((com.google.gson.JsonObject)net.minecraft.util.GsonHelper.getAsJsonObject((com.google.gson.JsonObject)$$5, (java.lang.String)"blend", null));
++            this.vertexProgram = net.minecraft.client.renderer.EffectInstance.getOrCreate((net.minecraft.server.packs.resources.ResourceManager)$$0, (com.mojang.blaze3d.shaders.Program$Type)com.mojang.blaze3d.shaders.Program$Type.VERTEX, (java.lang.String)$$6);
++            this.fragmentProgram = net.minecraft.client.renderer.EffectInstance.getOrCreate((net.minecraft.server.packs.resources.ResourceManager)$$0, (com.mojang.blaze3d.shaders.Program$Type)com.mojang.blaze3d.shaders.Program$Type.FRAGMENT, (java.lang.String)$$7);
+             this.programId = com.mojang.blaze3d.shaders.ProgramManager.createProgram();
+             com.mojang.blaze3d.shaders.ProgramManager.linkShader((com.mojang.blaze3d.shaders.Shader)this);
+             this.updateLocations();
+             if (this.attributeNames != null) {
+-                for (java.lang.Object object : this.attributeNames) {
+-                    int n = com.mojang.blaze3d.shaders.Uniform.glGetAttribLocation((int)this.programId, (java.lang.CharSequence)object);
+-                    this.attributes.add((java.lang.Object)n);
++                for (java.lang.String $$23 : this.attributeNames) {
++                    int $$24 = com.mojang.blaze3d.shaders.Uniform.glGetAttribLocation((int)this.programId, (java.lang.CharSequence)$$23);
++                    this.attributes.add((java.lang.Object)$$24);
+                 }
+             }
+         }
+-        catch (java.lang.Exception exception) {
+-            net.minecraft.server.ChainedJsonException chainedJsonException = net.minecraft.server.ChainedJsonException.forException((java.lang.Exception)exception);
+-            chainedJsonException.setFilenameAndFlush(resourceLocation.getPath() + " (" + resource.sourcePackId() + ")");
+-            throw chainedJsonException;
++        catch (java.lang.Exception $$25) {
++            net.minecraft.server.ChainedJsonException $$26 = net.minecraft.server.ChainedJsonException.forException((java.lang.Exception)$$25);
++            $$26.setFilenameAndFlush($$2.getPath() + " (" + $$3.sourcePackId() + ")");
++            throw $$26;
+         }
+         this.markDirty();
+     }

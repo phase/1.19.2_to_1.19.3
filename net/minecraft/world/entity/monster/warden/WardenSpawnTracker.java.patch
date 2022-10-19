@@ -1,0 +1,37 @@
+--- net/minecraft/world/entity/monster/warden/WardenSpawnTracker.java
++++ net/minecraft/world/entity/monster/warden/WardenSpawnTracker.java
+@@ -39,22 +39,25 @@
+         this.cooldownTicks = 0;
+     }
+ 
+-    public static java.util.OptionalInt tryWarn(net.minecraft.server.level.ServerLevel $$02, net.minecraft.core.BlockPos $$12, net.minecraft.server.level.ServerPlayer $$2) {
+-        if (net.minecraft.world.entity.monster.warden.WardenSpawnTracker.hasNearbyWarden((net.minecraft.server.level.ServerLevel)$$02, (net.minecraft.core.BlockPos)$$12)) {
++    public static java.util.OptionalInt tryWarn(net.minecraft.server.level.ServerLevel $$02, net.minecraft.core.BlockPos $$1, net.minecraft.server.level.ServerPlayer $$2) {
++        if (net.minecraft.world.entity.monster.warden.WardenSpawnTracker.hasNearbyWarden((net.minecraft.server.level.ServerLevel)$$02, (net.minecraft.core.BlockPos)$$1)) {
+             return java.util.OptionalInt.empty();
+         }
+-        java.util.List $$3 = net.minecraft.world.entity.monster.warden.WardenSpawnTracker.getNearbyPlayers((net.minecraft.server.level.ServerLevel)$$02, (net.minecraft.core.BlockPos)$$12);
++        java.util.List $$3 = net.minecraft.world.entity.monster.warden.WardenSpawnTracker.getNearbyPlayers((net.minecraft.server.level.ServerLevel)$$02, (net.minecraft.core.BlockPos)$$1);
+         if (!$$3.contains((java.lang.Object)$$2)) {
+             $$3.add((java.lang.Object)$$2);
+         }
+-        if ($$3.stream().anyMatch($$0 -> $$0.getWardenSpawnTracker().onCooldown())) {
++        if ($$3.stream().anyMatch($$0 -> (java.lang.Boolean)$$0.getWardenSpawnTracker().map(net.minecraft.world.entity.monster.warden.WardenSpawnTracker::onCooldown).orElse((java.lang.Object)false))) {
+             return java.util.OptionalInt.empty();
+         }
+-        java.util.Optional $$4 = $$3.stream().map(net.minecraft.world.entity.player.Player::getWardenSpawnTracker).max(java.util.Comparator.comparingInt($$0 -> $$0.warningLevel));
+-        net.minecraft.world.entity.monster.warden.WardenSpawnTracker $$5 = (net.minecraft.world.entity.monster.warden.WardenSpawnTracker)$$4.get();
+-        $$5.increaseWarningLevel();
+-        $$3.forEach($$1 -> $$1.getWardenSpawnTracker().copyData($$5));
+-        return java.util.OptionalInt.of((int)$$5.warningLevel);
++        java.util.Optional $$4 = $$3.stream().flatMap($$0 -> $$0.getWardenSpawnTracker().stream()).max(java.util.Comparator.comparingInt(net.minecraft.world.entity.monster.warden.WardenSpawnTracker::getWarningLevel));
++        if ($$4.isPresent()) {
++            net.minecraft.world.entity.monster.warden.WardenSpawnTracker $$5 = (net.minecraft.world.entity.monster.warden.WardenSpawnTracker)$$4.get();
++            $$5.increaseWarningLevel();
++            $$3.forEach($$12 -> $$12.getWardenSpawnTracker().ifPresent($$1 -> $$1.copyData($$5)));
++            return java.util.OptionalInt.of((int)$$5.warningLevel);
++        }
++        return java.util.OptionalInt.empty();
+     }
+ 
+     public boolean onCooldown() {

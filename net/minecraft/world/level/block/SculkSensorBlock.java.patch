@@ -1,0 +1,127 @@
+--- net/minecraft/world/level/block/SculkSensorBlock.java
++++ net/minecraft/world/level/block/SculkSensorBlock.java
+@@ -9,7 +9,6 @@
+  {
+     public static int ACTIVE_TICKS = 40;
+     public static int COOLDOWN_TICKS = 1;
+-    public static it.unimi.dsi.fastutil.objects.Object2IntMap<net.minecraft.world.level.gameevent.GameEvent> VIBRATION_FREQUENCY_FOR_EVENT;
+     public static net.minecraft.world.level.block.state.properties.EnumProperty<net.minecraft.world.level.block.state.properties.SculkSensorPhase> PHASE;
+     public static net.minecraft.world.level.block.state.properties.IntegerProperty POWER;
+     public static net.minecraft.world.level.block.state.properties.BooleanProperty WATERLOGGED;
+@@ -51,13 +50,13 @@
+     }
+ 
+     public void stepOn(net.minecraft.world.level.Level $$0, net.minecraft.core.BlockPos $$1, net.minecraft.world.level.block.state.BlockState $$2, net.minecraft.world.entity.Entity $$3) {
+-        if (!$$0.isClientSide() && net.minecraft.world.level.block.SculkSensorBlock.canActivate((net.minecraft.world.level.block.state.BlockState)$$2) && $$3.getType() != net.minecraft.world.entity.EntityType.WARDEN) {
+-            net.minecraft.world.level.block.entity.BlockEntity $$4 = $$0.getBlockEntity($$1);
+-            if ($$4 instanceof net.minecraft.world.level.block.entity.SculkSensorBlockEntity) {
+-                net.minecraft.world.level.block.entity.SculkSensorBlockEntity $$5 = (net.minecraft.world.level.block.entity.SculkSensorBlockEntity)$$4;
+-                $$5.setLastVibrationFrequency(VIBRATION_FREQUENCY_FOR_EVENT.get((java.lang.Object)net.minecraft.world.level.gameevent.GameEvent.STEP).intValue());
++        net.minecraft.world.level.block.entity.BlockEntity $$4;
++        if (!$$0.isClientSide() && net.minecraft.world.level.block.SculkSensorBlock.canActivate((net.minecraft.world.level.block.state.BlockState)$$2) && $$3.getType() != net.minecraft.world.entity.EntityType.WARDEN && ($$4 = $$0.getBlockEntity($$1)) instanceof net.minecraft.world.level.block.entity.SculkSensorBlockEntity) {
++            net.minecraft.world.level.block.entity.SculkSensorBlockEntity $$5 = (net.minecraft.world.level.block.entity.SculkSensorBlockEntity)$$4;
++            if ($$0 instanceof net.minecraft.server.level.ServerLevel) {
++                net.minecraft.server.level.ServerLevel $$6 = (net.minecraft.server.level.ServerLevel)$$0;
++                $$5.getListener().forceGameEvent($$6, net.minecraft.world.level.gameevent.GameEvent.STEP, net.minecraft.world.level.gameevent.GameEvent$Context.of((net.minecraft.world.entity.Entity)$$3), $$3.position());
+             }
+-            net.minecraft.world.level.block.SculkSensorBlock.activate((net.minecraft.world.entity.Entity)$$3, (net.minecraft.world.level.Level)$$0, (net.minecraft.core.BlockPos)$$1, (net.minecraft.world.level.block.state.BlockState)$$2, (int)15);
+         }
+         super.stepOn($$0, $$1, $$2, $$3);
+     }
+@@ -205,96 +204,7 @@
+         }
+     }
+ 
+-    public static /* synthetic */ void lambda$static$0(it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap $$0) {
+-        $$0.put((java.lang.Object)net.minecraft.world.level.gameevent.GameEvent.STEP, 1);
+-        $$0.put((java.lang.Object)net.minecraft.world.level.gameevent.GameEvent.FLAP, 2);
+-        $$0.put((java.lang.Object)net.minecraft.world.level.gameevent.GameEvent.SWIM, 3);
+-        $$0.put((java.lang.Object)net.minecraft.world.level.gameevent.GameEvent.ELYTRA_GLIDE, 4);
+-        $$0.put((java.lang.Object)net.minecraft.world.level.gameevent.GameEvent.HIT_GROUND, 5);
+-        $$0.put((java.lang.Object)net.minecraft.world.level.gameevent.GameEvent.TELEPORT, 5);
+-        $$0.put((java.lang.Object)net.minecraft.world.level.gameevent.GameEvent.SPLASH, 6);
+-        $$0.put((java.lang.Object)net.minecraft.world.level.gameevent.GameEvent.ENTITY_SHAKE, 6);
+-        $$0.put((java.lang.Object)net.minecraft.world.level.gameevent.GameEvent.BLOCK_CHANGE, 6);
+-        $$0.put((java.lang.Object)net.minecraft.world.level.gameevent.GameEvent.NOTE_BLOCK_PLAY, 6);
+-        $$0.put((java.lang.Object)net.minecraft.world.level.gameevent.GameEvent.PROJECTILE_SHOOT, 7);
+-        $$0.put((java.lang.Object)net.minecraft.world.level.gameevent.GameEvent.DRINK, 7);
+-        $$0.put((java.lang.Object)net.minecraft.world.level.gameevent.GameEvent.PRIME_FUSE, 7);
+-        $$0.put((java.lang.Object)net.minecraft.world.level.gameevent.GameEvent.PROJECTILE_LAND, 8);
+-        $$0.put((java.lang.Object)net.minecraft.world.level.gameevent.GameEvent.EAT, 8);
+-        $$0.put((java.lang.Object)net.minecraft.world.level.gameevent.GameEvent.ENTITY_INTERACT, 8);
+-        $$0.put((java.lang.Object)net.minecraft.world.level.gameevent.GameEvent.ENTITY_DAMAGE, 8);
+-        $$0.put((java.lang.Object)net.minecraft.world.level.gameevent.GameEvent.EQUIP, 9);
+-        $$0.put((java.lang.Object)net.minecraft.world.level.gameevent.GameEvent.SHEAR, 9);
+-        $$0.put((java.lang.Object)net.minecraft.world.level.gameevent.GameEvent.ENTITY_ROAR, 9);
+-        $$0.put((java.lang.Object)net.minecraft.world.level.gameevent.GameEvent.BLOCK_CLOSE, 10);
+-        $$0.put((java.lang.Object)net.minecraft.world.level.gameevent.GameEvent.BLOCK_DEACTIVATE, 10);
+-        $$0.put((java.lang.Object)net.minecraft.world.level.gameevent.GameEvent.BLOCK_DETACH, 10);
+-        $$0.put((java.lang.Object)net.minecraft.world.level.gameevent.GameEvent.DISPENSE_FAIL, 10);
+-        $$0.put((java.lang.Object)net.minecraft.world.level.gameevent.GameEvent.BLOCK_OPEN, 11);
+-        $$0.put((java.lang.Object)net.minecraft.world.level.gameevent.GameEvent.BLOCK_ACTIVATE, 11);
+-        $$0.put((java.lang.Object)net.minecraft.world.level.gameevent.GameEvent.BLOCK_ATTACH, 11);
+-        $$0.put((java.lang.Object)net.minecraft.world.level.gameevent.GameEvent.ENTITY_PLACE, 12);
+-        $$0.put((java.lang.Object)net.minecraft.world.level.gameevent.GameEvent.BLOCK_PLACE, 12);
+-        $$0.put((java.lang.Object)net.minecraft.world.level.gameevent.GameEvent.FLUID_PLACE, 12);
+-        $$0.put((java.lang.Object)net.minecraft.world.level.gameevent.GameEvent.ENTITY_DIE, 13);
+-        $$0.put((java.lang.Object)net.minecraft.world.level.gameevent.GameEvent.BLOCK_DESTROY, 13);
+-        $$0.put((java.lang.Object)net.minecraft.world.level.gameevent.GameEvent.FLUID_PICKUP, 13);
+-        $$0.put((java.lang.Object)net.minecraft.world.level.gameevent.GameEvent.ITEM_INTERACT_FINISH, 14);
+-        $$0.put((java.lang.Object)net.minecraft.world.level.gameevent.GameEvent.CONTAINER_CLOSE, 14);
+-        $$0.put((java.lang.Object)net.minecraft.world.level.gameevent.GameEvent.PISTON_CONTRACT, 14);
+-        $$0.put((java.lang.Object)net.minecraft.world.level.gameevent.GameEvent.PISTON_EXTEND, 15);
+-        $$0.put((java.lang.Object)net.minecraft.world.level.gameevent.GameEvent.CONTAINER_OPEN, 15);
+-        $$0.put((java.lang.Object)net.minecraft.world.level.gameevent.GameEvent.ITEM_INTERACT_START, 15);
+-        $$0.put((java.lang.Object)net.minecraft.world.level.gameevent.GameEvent.EXPLODE, 15);
+-        $$0.put((java.lang.Object)net.minecraft.world.level.gameevent.GameEvent.LIGHTNING_STRIKE, 15);
+-        $$0.put((java.lang.Object)net.minecraft.world.level.gameevent.GameEvent.INSTRUMENT_PLAY, 15);
+-    }
+-
+     static {
+-        VIBRATION_FREQUENCY_FOR_EVENT = it.unimi.dsi.fastutil.objects.Object2IntMaps.unmodifiable((it.unimi.dsi.fastutil.objects.Object2IntMap)((it.unimi.dsi.fastutil.objects.Object2IntMap)net.minecraft.Util.make((java.lang.Object)new it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap(), $$0 -> {
+-            $$0.put((java.lang.Object)net.minecraft.world.level.gameevent.GameEvent.STEP, 1);
+-            $$0.put((java.lang.Object)net.minecraft.world.level.gameevent.GameEvent.FLAP, 2);
+-            $$0.put((java.lang.Object)net.minecraft.world.level.gameevent.GameEvent.SWIM, 3);
+-            $$0.put((java.lang.Object)net.minecraft.world.level.gameevent.GameEvent.ELYTRA_GLIDE, 4);
+-            $$0.put((java.lang.Object)net.minecraft.world.level.gameevent.GameEvent.HIT_GROUND, 5);
+-            $$0.put((java.lang.Object)net.minecraft.world.level.gameevent.GameEvent.TELEPORT, 5);
+-            $$0.put((java.lang.Object)net.minecraft.world.level.gameevent.GameEvent.SPLASH, 6);
+-            $$0.put((java.lang.Object)net.minecraft.world.level.gameevent.GameEvent.ENTITY_SHAKE, 6);
+-            $$0.put((java.lang.Object)net.minecraft.world.level.gameevent.GameEvent.BLOCK_CHANGE, 6);
+-            $$0.put((java.lang.Object)net.minecraft.world.level.gameevent.GameEvent.NOTE_BLOCK_PLAY, 6);
+-            $$0.put((java.lang.Object)net.minecraft.world.level.gameevent.GameEvent.PROJECTILE_SHOOT, 7);
+-            $$0.put((java.lang.Object)net.minecraft.world.level.gameevent.GameEvent.DRINK, 7);
+-            $$0.put((java.lang.Object)net.minecraft.world.level.gameevent.GameEvent.PRIME_FUSE, 7);
+-            $$0.put((java.lang.Object)net.minecraft.world.level.gameevent.GameEvent.PROJECTILE_LAND, 8);
+-            $$0.put((java.lang.Object)net.minecraft.world.level.gameevent.GameEvent.EAT, 8);
+-            $$0.put((java.lang.Object)net.minecraft.world.level.gameevent.GameEvent.ENTITY_INTERACT, 8);
+-            $$0.put((java.lang.Object)net.minecraft.world.level.gameevent.GameEvent.ENTITY_DAMAGE, 8);
+-            $$0.put((java.lang.Object)net.minecraft.world.level.gameevent.GameEvent.EQUIP, 9);
+-            $$0.put((java.lang.Object)net.minecraft.world.level.gameevent.GameEvent.SHEAR, 9);
+-            $$0.put((java.lang.Object)net.minecraft.world.level.gameevent.GameEvent.ENTITY_ROAR, 9);
+-            $$0.put((java.lang.Object)net.minecraft.world.level.gameevent.GameEvent.BLOCK_CLOSE, 10);
+-            $$0.put((java.lang.Object)net.minecraft.world.level.gameevent.GameEvent.BLOCK_DEACTIVATE, 10);
+-            $$0.put((java.lang.Object)net.minecraft.world.level.gameevent.GameEvent.BLOCK_DETACH, 10);
+-            $$0.put((java.lang.Object)net.minecraft.world.level.gameevent.GameEvent.DISPENSE_FAIL, 10);
+-            $$0.put((java.lang.Object)net.minecraft.world.level.gameevent.GameEvent.BLOCK_OPEN, 11);
+-            $$0.put((java.lang.Object)net.minecraft.world.level.gameevent.GameEvent.BLOCK_ACTIVATE, 11);
+-            $$0.put((java.lang.Object)net.minecraft.world.level.gameevent.GameEvent.BLOCK_ATTACH, 11);
+-            $$0.put((java.lang.Object)net.minecraft.world.level.gameevent.GameEvent.ENTITY_PLACE, 12);
+-            $$0.put((java.lang.Object)net.minecraft.world.level.gameevent.GameEvent.BLOCK_PLACE, 12);
+-            $$0.put((java.lang.Object)net.minecraft.world.level.gameevent.GameEvent.FLUID_PLACE, 12);
+-            $$0.put((java.lang.Object)net.minecraft.world.level.gameevent.GameEvent.ENTITY_DIE, 13);
+-            $$0.put((java.lang.Object)net.minecraft.world.level.gameevent.GameEvent.BLOCK_DESTROY, 13);
+-            $$0.put((java.lang.Object)net.minecraft.world.level.gameevent.GameEvent.FLUID_PICKUP, 13);
+-            $$0.put((java.lang.Object)net.minecraft.world.level.gameevent.GameEvent.ITEM_INTERACT_FINISH, 14);
+-            $$0.put((java.lang.Object)net.minecraft.world.level.gameevent.GameEvent.CONTAINER_CLOSE, 14);
+-            $$0.put((java.lang.Object)net.minecraft.world.level.gameevent.GameEvent.PISTON_CONTRACT, 14);
+-            $$0.put((java.lang.Object)net.minecraft.world.level.gameevent.GameEvent.PISTON_EXTEND, 15);
+-            $$0.put((java.lang.Object)net.minecraft.world.level.gameevent.GameEvent.CONTAINER_OPEN, 15);
+-            $$0.put((java.lang.Object)net.minecraft.world.level.gameevent.GameEvent.ITEM_INTERACT_START, 15);
+-            $$0.put((java.lang.Object)net.minecraft.world.level.gameevent.GameEvent.EXPLODE, 15);
+-            $$0.put((java.lang.Object)net.minecraft.world.level.gameevent.GameEvent.LIGHTNING_STRIKE, 15);
+-            $$0.put((java.lang.Object)net.minecraft.world.level.gameevent.GameEvent.INSTRUMENT_PLAY, 15);
+-        })));
+         PHASE = net.minecraft.world.level.block.state.properties.BlockStateProperties.SCULK_SENSOR_PHASE;
+         POWER = net.minecraft.world.level.block.state.properties.BlockStateProperties.POWER;
+         WATERLOGGED = net.minecraft.world.level.block.state.properties.BlockStateProperties.WATERLOGGED;

@@ -1,0 +1,59 @@
+--- net/minecraft/world/item/StandingAndWallBlockItem.java
++++ net/minecraft/world/item/StandingAndWallBlockItem.java
+@@ -7,32 +7,38 @@
+ extends net.minecraft.world.item.BlockItem
+  {
+     public net.minecraft.world.level.block.Block wallBlock;
++    public net.minecraft.core.Direction attachmentDirection;
+ 
+-    public net.minecraft.world.item.StandingAndWallBlockItem(net.minecraft.world.level.block.Block standingBlock, net.minecraft.world.level.block.Block wallBlock, net.minecraft.world.item.Item$Properties properties) {
+-        super(standingBlock, properties);
+-        this.wallBlock = wallBlock;
++    public net.minecraft.world.item.StandingAndWallBlockItem(net.minecraft.world.level.block.Block $$0, net.minecraft.world.level.block.Block $$1, net.minecraft.world.item.Item$Properties $$2, net.minecraft.core.Direction $$3) {
++        super($$0, $$2);
++        this.wallBlock = $$1;
++        this.attachmentDirection = $$3;
+     }
+ 
++    public boolean canPlace(net.minecraft.world.level.LevelReader $$0, net.minecraft.world.level.block.state.BlockState $$1, net.minecraft.core.BlockPos $$2) {
++        return $$1.canSurvive($$0, $$2);
++    }
++
+     @javax.annotation.Nullable
+-    public net.minecraft.world.level.block.state.BlockState getPlacementState(net.minecraft.world.item.context.BlockPlaceContext context) {
+-        net.minecraft.world.level.block.state.BlockState blockState = this.wallBlock.getStateForPlacement(context);
+-        net.minecraft.world.level.block.state.BlockState blockState2 = null;
+-        net.minecraft.world.level.Level level = context.getLevel();
+-        net.minecraft.core.BlockPos blockPos = context.getClickedPos();
+-        for (net.minecraft.core.Direction direction : context.getNearestLookingDirections()) {
+-            net.minecraft.world.level.block.state.BlockState blockState3;
+-            if (direction == net.minecraft.core.Direction.UP) continue;
+-            net.minecraft.world.level.block.state.BlockState blockState4 = blockState3 = direction == net.minecraft.core.Direction.DOWN ? this.getBlock().getStateForPlacement(context) : blockState;
+-            if (blockState3 == null || !blockState3.canSurvive((net.minecraft.world.level.LevelReader)level, blockPos)) continue;
+-            blockState2 = blockState3;
++    public net.minecraft.world.level.block.state.BlockState getPlacementState(net.minecraft.world.item.context.BlockPlaceContext $$0) {
++        net.minecraft.world.level.block.state.BlockState $$1 = this.wallBlock.getStateForPlacement($$0);
++        net.minecraft.world.level.block.state.BlockState $$2 = null;
++        net.minecraft.world.level.Level $$3 = $$0.getLevel();
++        net.minecraft.core.BlockPos $$4 = $$0.getClickedPos();
++        for (net.minecraft.core.Direction $$5 : $$0.getNearestLookingDirections()) {
++            net.minecraft.world.level.block.state.BlockState $$6;
++            if ($$5 == this.attachmentDirection.getOpposite()) continue;
++            net.minecraft.world.level.block.state.BlockState blockState = $$6 = $$5 == this.attachmentDirection ? this.getBlock().getStateForPlacement($$0) : $$1;
++            if ($$6 == null || !this.canPlace((net.minecraft.world.level.LevelReader)$$3, $$6, $$4)) continue;
++            $$2 = $$6;
+             break;
+         }
+-        return blockState2 != null && level.isUnobstructed(blockState2, blockPos, net.minecraft.world.phys.shapes.CollisionContext.empty()) ? blockState2 : null;
++        return $$2 != null && $$3.isUnobstructed($$2, $$4, net.minecraft.world.phys.shapes.CollisionContext.empty()) ? $$2 : null;
+     }
+ 
+-    public void registerBlocks(java.util.Map<net.minecraft.world.level.block.Block, net.minecraft.world.item.Item> blockToItemMap, net.minecraft.world.item.Item item) {
+-        super.registerBlocks(blockToItemMap, item);
+-        blockToItemMap.put((java.lang.Object)this.wallBlock, (java.lang.Object)item);
++    public void registerBlocks(java.util.Map<net.minecraft.world.level.block.Block, net.minecraft.world.item.Item> $$0, net.minecraft.world.item.Item $$1) {
++        super.registerBlocks($$0, $$1);
++        $$0.put((java.lang.Object)this.wallBlock, (java.lang.Object)$$1);
+     }
+ }
+ 

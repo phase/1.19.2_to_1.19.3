@@ -1,0 +1,202 @@
+--- net/minecraft/resources/ResourceLocation.java
++++ net/minecraft/resources/ResourceLocation.java
+@@ -14,35 +14,33 @@
+     public java.lang.String namespace;
+     public java.lang.String path;
+ 
++    public net.minecraft.resources.ResourceLocation(java.lang.String $$0, java.lang.String $$1, @javax.annotation.Nullable net.minecraft.resources.ResourceLocation$Dummy $$2) {
++        this.namespace = $$0;
++        this.path = $$1;
++    }
++
++    public net.minecraft.resources.ResourceLocation(java.lang.String $$0, java.lang.String $$1) {
++        this(net.minecraft.resources.ResourceLocation.assertValidNamespace((java.lang.String)$$0, (java.lang.String)$$1), net.minecraft.resources.ResourceLocation.assertValidPath((java.lang.String)$$0, (java.lang.String)$$1), null);
++    }
++
+     public net.minecraft.resources.ResourceLocation(java.lang.String[] $$0) {
+-        this.namespace = org.apache.commons.lang3.StringUtils.isEmpty((java.lang.CharSequence)$$0[0]) ? "minecraft" : $$0[0];
+-        this.path = $$0[1];
+-        if (!net.minecraft.resources.ResourceLocation.isValidNamespace((java.lang.String)this.namespace)) {
+-            throw new net.minecraft.ResourceLocationException("Non [a-z0-9_.-] character in namespace of location: " + this.namespace + ":" + this.path);
+-        }
+-        if (!net.minecraft.resources.ResourceLocation.isValidPath((java.lang.String)this.path)) {
+-            throw new net.minecraft.ResourceLocationException("Non [a-z0-9/._-] character in path of location: " + this.namespace + ":" + this.path);
+-        }
++        this($$0[0], $$0[1]);
+     }
+ 
+     public net.minecraft.resources.ResourceLocation(java.lang.String $$0) {
+         this(net.minecraft.resources.ResourceLocation.decompose((java.lang.String)$$0, (char)':'));
+     }
+ 
+-    public net.minecraft.resources.ResourceLocation(java.lang.String $$0, java.lang.String $$1) {
+-        this(new java.lang.String[]{$$0, $$1});
++    public static net.minecraft.resources.ResourceLocation of(java.lang.String $$0, char $$1) {
++        return new net.minecraft.resources.ResourceLocation(net.minecraft.resources.ResourceLocation.decompose((java.lang.String)$$0, (char)$$1));
+     }
+ 
+-    public static net.minecraft.resources.ResourceLocation of(java.lang.String resourceName, char splitOn) {
+-        return new net.minecraft.resources.ResourceLocation(net.minecraft.resources.ResourceLocation.decompose((java.lang.String)resourceName, (char)splitOn));
+-    }
+-
+     @javax.annotation.Nullable
+-    public static net.minecraft.resources.ResourceLocation tryParse(java.lang.String string) {
++    public static net.minecraft.resources.ResourceLocation tryParse(java.lang.String $$0) {
+         try {
+-            return new net.minecraft.resources.ResourceLocation(string);
++            return new net.minecraft.resources.ResourceLocation($$0);
+         }
+-        catch (net.minecraft.ResourceLocationException resourceLocationException) {
++        catch (net.minecraft.ResourceLocationException $$1) {
+             return null;
+         }
+     }
+@@ -57,24 +55,24 @@
+         }
+     }
+ 
+-    public static java.lang.String[] decompose(java.lang.String resourceName, char splitOn) {
+-        java.lang.String[] stringArray = new java.lang.String[]{"minecraft", resourceName};
+-        int n = resourceName.indexOf((int)splitOn);
+-        if (n >= 0) {
+-            stringArray[1] = resourceName.substring(n + 1, resourceName.length());
+-            if (n >= 1) {
+-                stringArray[0] = resourceName.substring(0, n);
++    public static java.lang.String[] decompose(java.lang.String $$0, char $$1) {
++        java.lang.String[] $$2 = new java.lang.String[]{"minecraft", $$0};
++        int $$3 = $$0.indexOf((int)$$1);
++        if ($$3 >= 0) {
++            $$2[1] = $$0.substring($$3 + 1);
++            if ($$3 >= 1) {
++                $$2[0] = $$0.substring(0, $$3);
+             }
+         }
+-        return stringArray;
++        return $$2;
+     }
+ 
+-    public static com.mojang.serialization.DataResult<net.minecraft.resources.ResourceLocation> read(java.lang.String encoded) {
++    public static com.mojang.serialization.DataResult<net.minecraft.resources.ResourceLocation> read(java.lang.String $$0) {
+         try {
+-            return com.mojang.serialization.DataResult.success((java.lang.Object)new net.minecraft.resources.ResourceLocation(encoded));
++            return com.mojang.serialization.DataResult.success((java.lang.Object)new net.minecraft.resources.ResourceLocation($$0));
+         }
+-        catch (net.minecraft.ResourceLocationException resourceLocationException) {
+-            return com.mojang.serialization.DataResult.error((java.lang.String)("Not a valid resource location: " + encoded + " " + resourceLocationException.getMessage()));
++        catch (net.minecraft.ResourceLocationException $$1) {
++            return com.mojang.serialization.DataResult.error((java.lang.String)("Not a valid resource location: " + $$0 + " " + $$1.getMessage()));
+         }
+     }
+ 
+@@ -86,6 +84,18 @@
+         return this.namespace;
+     }
+ 
++    public net.minecraft.resources.ResourceLocation withPath(java.lang.String $$0) {
++        return new net.minecraft.resources.ResourceLocation(this.namespace, net.minecraft.resources.ResourceLocation.assertValidPath((java.lang.String)this.namespace, (java.lang.String)$$0), null);
++    }
++
++    public net.minecraft.resources.ResourceLocation withPath(java.util.function.UnaryOperator<java.lang.String> $$0) {
++        return this.withPath((java.lang.String)$$0.apply((java.lang.Object)this.path));
++    }
++
++    public net.minecraft.resources.ResourceLocation withPrefix(java.lang.String $$0) {
++        return this.withPath($$0 + this.path);
++    }
++
+     public java.lang.String toString() {
+         return this.namespace + ":" + this.path;
+     }
+@@ -129,54 +139,68 @@
+         return $$0 + "." + this.toLanguageKey();
+     }
+ 
+-    public static net.minecraft.resources.ResourceLocation read(com.mojang.brigadier.StringReader reader) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
+-        int n = reader.getCursor();
+-        while (reader.canRead() && net.minecraft.resources.ResourceLocation.isAllowedInResourceLocation((char)reader.peek())) {
+-            reader.skip();
++    public static net.minecraft.resources.ResourceLocation read(com.mojang.brigadier.StringReader $$0) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
++        int $$1 = $$0.getCursor();
++        while ($$0.canRead() && net.minecraft.resources.ResourceLocation.isAllowedInResourceLocation((char)$$0.peek())) {
++            $$0.skip();
+         }
+-        java.lang.String string = reader.getString().substring(n, reader.getCursor());
++        java.lang.String $$2 = $$0.getString().substring($$1, $$0.getCursor());
+         try {
+-            return new net.minecraft.resources.ResourceLocation(string);
++            return new net.minecraft.resources.ResourceLocation($$2);
+         }
+-        catch (net.minecraft.ResourceLocationException resourceLocationException) {
+-            reader.setCursor(n);
+-            throw ERROR_INVALID.createWithContext((com.mojang.brigadier.ImmutableStringReader)reader);
++        catch (net.minecraft.ResourceLocationException $$3) {
++            $$0.setCursor($$1);
++            throw ERROR_INVALID.createWithContext((com.mojang.brigadier.ImmutableStringReader)$$0);
+         }
+     }
+ 
+-    public static boolean isAllowedInResourceLocation(char charValue) {
+-        return charValue >= '0' && charValue <= '9' || charValue >= 'a' && charValue <= 'z' || charValue == '_' || charValue == ':' || charValue == '/' || charValue == '.' || charValue == '-';
++    public static boolean isAllowedInResourceLocation(char $$0) {
++        return $$0 >= '0' && $$0 <= '9' || $$0 >= 'a' && $$0 <= 'z' || $$0 == '_' || $$0 == ':' || $$0 == '/' || $$0 == '.' || $$0 == '-';
+     }
+ 
+-    public static boolean isValidPath(java.lang.String path) {
+-        for (int i = 0; i < path.length(); ++i) {
+-            if (net.minecraft.resources.ResourceLocation.validPathChar((char)path.charAt(i))) continue;
++    public static boolean isValidPath(java.lang.String $$0) {
++        for (int $$1 = 0; $$1 < $$0.length(); ++$$1) {
++            if (net.minecraft.resources.ResourceLocation.validPathChar((char)$$0.charAt($$1))) continue;
+             return false;
+         }
+         return true;
+     }
+ 
+-    public static boolean isValidNamespace(java.lang.String namespace) {
+-        for (int i = 0; i < namespace.length(); ++i) {
+-            if (net.minecraft.resources.ResourceLocation.validNamespaceChar((char)namespace.charAt(i))) continue;
++    public static boolean isValidNamespace(java.lang.String $$0) {
++        for (int $$1 = 0; $$1 < $$0.length(); ++$$1) {
++            if (net.minecraft.resources.ResourceLocation.validNamespaceChar((char)$$0.charAt($$1))) continue;
+             return false;
+         }
+         return true;
+     }
+ 
+-    public static boolean validPathChar(char charValue) {
+-        return charValue == '_' || charValue == '-' || charValue >= 'a' && charValue <= 'z' || charValue >= '0' && charValue <= '9' || charValue == '/' || charValue == '.';
++    public static java.lang.String assertValidNamespace(java.lang.String $$0, java.lang.String $$1) {
++        if (!net.minecraft.resources.ResourceLocation.isValidNamespace((java.lang.String)$$0)) {
++            throw new net.minecraft.ResourceLocationException("Non [a-z0-9_.-] character in namespace of location: " + $$0 + ":" + $$1);
++        }
++        return $$0;
+     }
+ 
+-    public static boolean validNamespaceChar(char charValue) {
+-        return charValue == '_' || charValue == '-' || charValue >= 'a' && charValue <= 'z' || charValue >= '0' && charValue <= '9' || charValue == '.';
++    public static boolean validPathChar(char $$0) {
++        return $$0 == '_' || $$0 == '-' || $$0 >= 'a' && $$0 <= 'z' || $$0 >= '0' && $$0 <= '9' || $$0 == '/' || $$0 == '.';
+     }
+ 
+-    public static boolean isValidResourceLocation(java.lang.String resourceName) {
+-        java.lang.String[] stringArray = net.minecraft.resources.ResourceLocation.decompose((java.lang.String)resourceName, (char)':');
+-        return net.minecraft.resources.ResourceLocation.isValidNamespace((java.lang.String)(org.apache.commons.lang3.StringUtils.isEmpty((java.lang.CharSequence)stringArray[0]) ? "minecraft" : stringArray[0])) && net.minecraft.resources.ResourceLocation.isValidPath((java.lang.String)stringArray[1]);
++    public static boolean validNamespaceChar(char $$0) {
++        return $$0 == '_' || $$0 == '-' || $$0 >= 'a' && $$0 <= 'z' || $$0 >= '0' && $$0 <= '9' || $$0 == '.';
+     }
+ 
++    public static boolean isValidResourceLocation(java.lang.String $$0) {
++        java.lang.String[] $$1 = net.minecraft.resources.ResourceLocation.decompose((java.lang.String)$$0, (char)':');
++        return net.minecraft.resources.ResourceLocation.isValidNamespace((java.lang.String)(org.apache.commons.lang3.StringUtils.isEmpty((java.lang.CharSequence)$$1[0]) ? "minecraft" : $$1[0])) && net.minecraft.resources.ResourceLocation.isValidPath((java.lang.String)$$1[1]);
++    }
++
++    public static java.lang.String assertValidPath(java.lang.String $$0, java.lang.String $$1) {
++        if (!net.minecraft.resources.ResourceLocation.isValidPath((java.lang.String)$$1)) {
++            throw new net.minecraft.ResourceLocationException("Non [a-z0-9/._-] character in path of location: " + $$0 + ":" + $$1);
++        }
++        return $$1;
++    }
++
+     public /* synthetic */ int compareTo(java.lang.Object object) {
+         return this.compareTo((net.minecraft.resources.ResourceLocation)object);
+     }

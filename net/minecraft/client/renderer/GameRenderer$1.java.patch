@@ -1,0 +1,60 @@
+--- net/minecraft/client/renderer/GameRenderer$1.java
++++ net/minecraft/client/renderer/GameRenderer$1.java
+@@ -1,0 +1,57 @@
++/*
++ * Decompiled with CFR 0.151.
++ */
++package net.minecraft.client.renderer;
++
++public class net.minecraft.client.renderer.GameRenderer$1
++extends net.minecraft.server.packs.resources.SimplePreparableReloadListener<net.minecraft.client.renderer.GameRenderer$ResourceCache>
++ {
++    public /* synthetic */ net.minecraft.client.renderer.GameRenderer this$0;
++
++    public net.minecraft.client.renderer.GameRenderer$1(net.minecraft.client.renderer.GameRenderer $$0) {
++        this.this$0 = $$0;
++    }
++
++    public net.minecraft.client.renderer.GameRenderer$ResourceCache prepare(net.minecraft.server.packs.resources.ResourceManager $$02, net.minecraft.util.profiling.ProfilerFiller $$1) {
++        java.util.Map $$2 = $$02.listResources("shaders", $$0 -> {
++            java.lang.String $$1 = $$0.getPath();
++            return $$1.endsWith(".json") || $$1.endsWith(com.mojang.blaze3d.shaders.Program$Type.FRAGMENT.getExtension()) || $$1.endsWith(com.mojang.blaze3d.shaders.Program$Type.VERTEX.getExtension()) || $$1.endsWith(".glsl");
++        });
++        java.util.HashMap $$3 = new java.util.HashMap();
++        $$2.forEach((arg_0, arg_1) -> net.minecraft.client.renderer.GameRenderer$1.lambda$prepare$2((java.util.Map)$$3, arg_0, arg_1));
++        return new net.minecraft.client.renderer.GameRenderer$ResourceCache((net.minecraft.server.packs.resources.ResourceProvider)$$02, (java.util.Map)$$3);
++    }
++
++    public void apply(net.minecraft.client.renderer.GameRenderer$ResourceCache $$0, net.minecraft.server.packs.resources.ResourceManager $$1, net.minecraft.util.profiling.ProfilerFiller $$2) {
++        this.this$0.reloadShaders((net.minecraft.server.packs.resources.ResourceProvider)$$0);
++        if (this.this$0.postEffect != null) {
++            this.this$0.postEffect.close();
++        }
++        this.this$0.postEffect = null;
++        if (this.this$0.effectIndex == net.minecraft.client.renderer.GameRenderer.EFFECT_NONE) {
++            this.this$0.checkEntityPostEffect(this.this$0.minecraft.getCameraEntity());
++        } else {
++            this.this$0.loadEffect(net.minecraft.client.renderer.GameRenderer.EFFECTS[this.this$0.effectIndex]);
++        }
++    }
++
++    public java.lang.String getName() {
++        return "Shader Loader";
++    }
++
++    public /* synthetic */ java.lang.Object prepare(net.minecraft.server.packs.resources.ResourceManager resourceManager, net.minecraft.util.profiling.ProfilerFiller profilerFiller) {
++        return this.prepare(resourceManager, profilerFiller);
++    }
++
++    public static /* synthetic */ void lambda$prepare$2(java.util.Map $$0, net.minecraft.resources.ResourceLocation $$1, net.minecraft.server.packs.resources.Resource $$2) {
++        try (java.io.InputStream $$3 = $$2.open();
++){
++            byte[] $$4 = $$3.readAllBytes();
++            $$0.put((java.lang.Object)$$1, (java.lang.Object)new net.minecraft.server.packs.resources.Resource($$2.source(), () -> new java.io.ByteArrayInputStream($$4)));
++        }
++        catch (java.lang.Exception $$5) {
++            net.minecraft.client.renderer.GameRenderer.LOGGER.warn("Failed to read resource {}", (java.lang.Object)$$1, (java.lang.Object)((java.lang.Object)$$5));
++        }
++    }
++}
++

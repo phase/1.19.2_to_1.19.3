@@ -1,0 +1,322 @@
+--- net/minecraft/world/entity/item/ItemEntity.java
++++ net/minecraft/world/entity/item/ItemEntity.java
+@@ -26,8 +26,8 @@
+         this.setYRot(this.random.nextFloat() * 360.0f);
+     }
+ 
+-    public net.minecraft.world.entity.item.ItemEntity(net.minecraft.world.level.Level level, double x, double y, double z, net.minecraft.world.item.ItemStack stack) {
+-        this(level, x, y, z, stack, level.random.nextDouble() * 0.2 - 0.1, 0.2, level.random.nextDouble() * 0.2 - 0.1);
++    public net.minecraft.world.entity.item.ItemEntity(net.minecraft.world.level.Level $$0, double $$1, double $$2, double $$3, net.minecraft.world.item.ItemStack $$4) {
++        this($$0, $$1, $$2, $$3, $$4, $$0.random.nextDouble() * 0.2 - 0.1, 0.2, $$0.random.nextDouble() * 0.2 - 0.1);
+     }
+ 
+     public net.minecraft.world.entity.item.ItemEntity(net.minecraft.world.level.Level $$0, double $$1, double $$2, double $$3, net.minecraft.world.item.ItemStack $$4, double $$5, double $$6, double $$7) {
+@@ -37,13 +37,13 @@
+         this.setItem($$4);
+     }
+ 
+-    public net.minecraft.world.entity.item.ItemEntity(net.minecraft.world.entity.item.ItemEntity itemEntity) {
+-        super(itemEntity.getType(), itemEntity.level);
++    public net.minecraft.world.entity.item.ItemEntity(net.minecraft.world.entity.item.ItemEntity $$0) {
++        super($$0.getType(), $$0.level);
+         this.health = 5;
+-        this.setItem(itemEntity.getItem().copy());
+-        this.copyPosition((net.minecraft.world.entity.Entity)itemEntity);
+-        this.age = itemEntity.age;
+-        this.bobOffs = itemEntity.bobOffs;
++        this.setItem($$0.getItem().copy());
++        this.copyPosition((net.minecraft.world.entity.Entity)$$0);
++        this.age = $$0.age;
++        this.bobOffs = $$0.bobOffs;
+     }
+ 
+     public boolean dampensVibrations() {
+@@ -138,8 +138,8 @@
+         if (!this.isMergable()) {
+             return;
+         }
+-        java.util.List $$0 = this.level.getEntitiesOfClass(net.minecraft.world.entity.item.ItemEntity.class, this.getBoundingBox().inflate(0.5, 0.0, 0.5), neighbour -> neighbour != this && neighbour.isMergable());
+-        for (net.minecraft.world.entity.item.ItemEntity $$1 : $$0) {
++        java.util.List $$02 = this.level.getEntitiesOfClass(net.minecraft.world.entity.item.ItemEntity.class, this.getBoundingBox().inflate(0.5, 0.0, 0.5), $$0 -> $$0 != this && $$0.isMergable());
++        for (net.minecraft.world.entity.item.ItemEntity $$1 : $$02) {
+             if (!$$1.isMergable()) continue;
+             this.tryToMerge($$1);
+             if (!this.isRemoved()) continue;
+@@ -152,51 +152,51 @@
+         return this.isAlive() && this.pickupDelay != java.lang.Short.MAX_VALUE && this.age != java.lang.Short.MIN_VALUE && this.age < 6000 && $$0.getCount() < $$0.getMaxStackSize();
+     }
+ 
+-    public void tryToMerge(net.minecraft.world.entity.item.ItemEntity itemEntity) {
+-        net.minecraft.world.item.ItemStack itemStack = this.getItem();
+-        net.minecraft.world.item.ItemStack itemStack2 = itemEntity.getItem();
+-        if (!java.util.Objects.equals((java.lang.Object)this.getOwner(), (java.lang.Object)itemEntity.getOwner()) || !net.minecraft.world.entity.item.ItemEntity.areMergable((net.minecraft.world.item.ItemStack)itemStack, (net.minecraft.world.item.ItemStack)itemStack2)) {
++    public void tryToMerge(net.minecraft.world.entity.item.ItemEntity $$0) {
++        net.minecraft.world.item.ItemStack $$1 = this.getItem();
++        net.minecraft.world.item.ItemStack $$2 = $$0.getItem();
++        if (!java.util.Objects.equals((java.lang.Object)this.getOwner(), (java.lang.Object)$$0.getOwner()) || !net.minecraft.world.entity.item.ItemEntity.areMergable((net.minecraft.world.item.ItemStack)$$1, (net.minecraft.world.item.ItemStack)$$2)) {
+             return;
+         }
+-        if (itemStack2.getCount() < itemStack.getCount()) {
+-            net.minecraft.world.entity.item.ItemEntity.merge((net.minecraft.world.entity.item.ItemEntity)this, (net.minecraft.world.item.ItemStack)itemStack, (net.minecraft.world.entity.item.ItemEntity)itemEntity, (net.minecraft.world.item.ItemStack)itemStack2);
++        if ($$2.getCount() < $$1.getCount()) {
++            net.minecraft.world.entity.item.ItemEntity.merge((net.minecraft.world.entity.item.ItemEntity)this, (net.minecraft.world.item.ItemStack)$$1, (net.minecraft.world.entity.item.ItemEntity)$$0, (net.minecraft.world.item.ItemStack)$$2);
+         } else {
+-            net.minecraft.world.entity.item.ItemEntity.merge((net.minecraft.world.entity.item.ItemEntity)itemEntity, (net.minecraft.world.item.ItemStack)itemStack2, (net.minecraft.world.entity.item.ItemEntity)this, (net.minecraft.world.item.ItemStack)itemStack);
++            net.minecraft.world.entity.item.ItemEntity.merge((net.minecraft.world.entity.item.ItemEntity)$$0, (net.minecraft.world.item.ItemStack)$$2, (net.minecraft.world.entity.item.ItemEntity)this, (net.minecraft.world.item.ItemStack)$$1);
+         }
+     }
+ 
+-    public static boolean areMergable(net.minecraft.world.item.ItemStack destinationStack, net.minecraft.world.item.ItemStack originStack) {
+-        if (!originStack.is(destinationStack.getItem())) {
++    public static boolean areMergable(net.minecraft.world.item.ItemStack $$0, net.minecraft.world.item.ItemStack $$1) {
++        if (!$$1.is($$0.getItem())) {
+             return false;
+         }
+-        if (originStack.getCount() + destinationStack.getCount() > originStack.getMaxStackSize()) {
++        if ($$1.getCount() + $$0.getCount() > $$1.getMaxStackSize()) {
+             return false;
+         }
+-        if (originStack.hasTag() ^ destinationStack.hasTag()) {
++        if ($$1.hasTag() ^ $$0.hasTag()) {
+             return false;
+         }
+-        return !originStack.hasTag() || originStack.getTag().equals((java.lang.Object)destinationStack.getTag());
++        return !$$1.hasTag() || $$1.getTag().equals((java.lang.Object)$$0.getTag());
+     }
+ 
+-    public static net.minecraft.world.item.ItemStack merge(net.minecraft.world.item.ItemStack destinationStack, net.minecraft.world.item.ItemStack originStack, int amount) {
+-        int n = java.lang.Math.min((int)(java.lang.Math.min((int)destinationStack.getMaxStackSize(), (int)amount) - destinationStack.getCount()), (int)originStack.getCount());
+-        net.minecraft.world.item.ItemStack itemStack = destinationStack.copy();
+-        itemStack.grow(n);
+-        originStack.shrink(n);
+-        return itemStack;
++    public static net.minecraft.world.item.ItemStack merge(net.minecraft.world.item.ItemStack $$0, net.minecraft.world.item.ItemStack $$1, int $$2) {
++        int $$3 = java.lang.Math.min((int)(java.lang.Math.min((int)$$0.getMaxStackSize(), (int)$$2) - $$0.getCount()), (int)$$1.getCount());
++        net.minecraft.world.item.ItemStack $$4 = $$0.copy();
++        $$4.grow($$3);
++        $$1.shrink($$3);
++        return $$4;
+     }
+ 
+-    public static void merge(net.minecraft.world.entity.item.ItemEntity destinationEntity, net.minecraft.world.item.ItemStack destinationStack, net.minecraft.world.item.ItemStack originStack) {
+-        net.minecraft.world.item.ItemStack itemStack = net.minecraft.world.entity.item.ItemEntity.merge((net.minecraft.world.item.ItemStack)destinationStack, (net.minecraft.world.item.ItemStack)originStack, (int)64);
+-        destinationEntity.setItem(itemStack);
++    public static void merge(net.minecraft.world.entity.item.ItemEntity $$0, net.minecraft.world.item.ItemStack $$1, net.minecraft.world.item.ItemStack $$2) {
++        net.minecraft.world.item.ItemStack $$3 = net.minecraft.world.entity.item.ItemEntity.merge((net.minecraft.world.item.ItemStack)$$1, (net.minecraft.world.item.ItemStack)$$2, (int)64);
++        $$0.setItem($$3);
+     }
+ 
+-    public static void merge(net.minecraft.world.entity.item.ItemEntity destinationEntity, net.minecraft.world.item.ItemStack destinationStack, net.minecraft.world.entity.item.ItemEntity originEntity, net.minecraft.world.item.ItemStack originStack) {
+-        net.minecraft.world.entity.item.ItemEntity.merge((net.minecraft.world.entity.item.ItemEntity)destinationEntity, (net.minecraft.world.item.ItemStack)destinationStack, (net.minecraft.world.item.ItemStack)originStack);
+-        destinationEntity.pickupDelay = java.lang.Math.max((int)destinationEntity.pickupDelay, (int)originEntity.pickupDelay);
+-        destinationEntity.age = java.lang.Math.min((int)destinationEntity.age, (int)originEntity.age);
+-        if (originStack.isEmpty()) {
+-            originEntity.discard();
++    public static void merge(net.minecraft.world.entity.item.ItemEntity $$0, net.minecraft.world.item.ItemStack $$1, net.minecraft.world.entity.item.ItemEntity $$2, net.minecraft.world.item.ItemStack $$3) {
++        net.minecraft.world.entity.item.ItemEntity.merge((net.minecraft.world.entity.item.ItemEntity)$$0, (net.minecraft.world.item.ItemStack)$$1, (net.minecraft.world.item.ItemStack)$$3);
++        $$0.pickupDelay = java.lang.Math.max((int)$$0.pickupDelay, (int)$$2.pickupDelay);
++        $$0.age = java.lang.Math.min((int)$$0.age, (int)$$2.age);
++        if ($$3.isEmpty()) {
++            $$2.discard();
+         }
+     }
+ 
+@@ -204,22 +204,22 @@
+         return this.getItem().getItem().isFireResistant() || super.fireImmune();
+     }
+ 
+-    public boolean hurt(net.minecraft.world.damagesource.DamageSource source, float amount) {
+-        if (this.isInvulnerableTo(source)) {
++    public boolean hurt(net.minecraft.world.damagesource.DamageSource $$0, float $$1) {
++        if (this.isInvulnerableTo($$0)) {
+             return false;
+         }
+-        if (!this.getItem().isEmpty() && this.getItem().is(net.minecraft.world.item.Items.NETHER_STAR) && source.isExplosion()) {
++        if (!this.getItem().isEmpty() && this.getItem().is(net.minecraft.world.item.Items.NETHER_STAR) && $$0.isExplosion()) {
+             return false;
+         }
+-        if (!this.getItem().getItem().canBeHurtBy(source)) {
++        if (!this.getItem().getItem().canBeHurtBy($$0)) {
+             return false;
+         }
+         if (this.level.isClientSide) {
+             return true;
+         }
+         this.markHurt();
+-        this.health = (int)((float)this.health - amount);
+-        this.gameEvent(net.minecraft.world.level.gameevent.GameEvent.ENTITY_DAMAGE, source.getEntity());
++        this.health = (int)((float)this.health - $$1);
++        this.gameEvent(net.minecraft.world.level.gameevent.GameEvent.ENTITY_DAMAGE, $$0.getEntity());
+         if (this.health <= 0) {
+             this.getItem().onDestroyed(this);
+             this.discard();
+@@ -227,55 +227,55 @@
+         return true;
+     }
+ 
+-    public void addAdditionalSaveData(net.minecraft.nbt.CompoundTag compound) {
+-        compound.putShort("Health", (short)this.health);
+-        compound.putShort("Age", (short)this.age);
+-        compound.putShort("PickupDelay", (short)this.pickupDelay);
++    public void addAdditionalSaveData(net.minecraft.nbt.CompoundTag $$0) {
++        $$0.putShort("Health", (short)this.health);
++        $$0.putShort("Age", (short)this.age);
++        $$0.putShort("PickupDelay", (short)this.pickupDelay);
+         if (this.getThrower() != null) {
+-            compound.putUUID("Thrower", this.getThrower());
++            $$0.putUUID("Thrower", this.getThrower());
+         }
+         if (this.getOwner() != null) {
+-            compound.putUUID("Owner", this.getOwner());
++            $$0.putUUID("Owner", this.getOwner());
+         }
+         if (!this.getItem().isEmpty()) {
+-            compound.put("Item", (net.minecraft.nbt.Tag)this.getItem().save(new net.minecraft.nbt.CompoundTag()));
++            $$0.put("Item", (net.minecraft.nbt.Tag)this.getItem().save(new net.minecraft.nbt.CompoundTag()));
+         }
+     }
+ 
+-    public void readAdditionalSaveData(net.minecraft.nbt.CompoundTag compound) {
+-        this.health = compound.getShort("Health");
+-        this.age = compound.getShort("Age");
+-        if (compound.contains("PickupDelay")) {
+-            this.pickupDelay = compound.getShort("PickupDelay");
++    public void readAdditionalSaveData(net.minecraft.nbt.CompoundTag $$0) {
++        this.health = $$0.getShort("Health");
++        this.age = $$0.getShort("Age");
++        if ($$0.contains("PickupDelay")) {
++            this.pickupDelay = $$0.getShort("PickupDelay");
+         }
+-        if (compound.hasUUID("Owner")) {
+-            this.owner = compound.getUUID("Owner");
++        if ($$0.hasUUID("Owner")) {
++            this.owner = $$0.getUUID("Owner");
+         }
+-        if (compound.hasUUID("Thrower")) {
+-            this.thrower = compound.getUUID("Thrower");
++        if ($$0.hasUUID("Thrower")) {
++            this.thrower = $$0.getUUID("Thrower");
+         }
+-        net.minecraft.nbt.CompoundTag compoundTag = compound.getCompound("Item");
+-        this.setItem(net.minecraft.world.item.ItemStack.of((net.minecraft.nbt.CompoundTag)compoundTag));
++        net.minecraft.nbt.CompoundTag $$1 = $$0.getCompound("Item");
++        this.setItem(net.minecraft.world.item.ItemStack.of((net.minecraft.nbt.CompoundTag)$$1));
+         if (this.getItem().isEmpty()) {
+             this.discard();
+         }
+     }
+ 
+-    public void playerTouch(net.minecraft.world.entity.player.Player entity) {
++    public void playerTouch(net.minecraft.world.entity.player.Player $$0) {
+         if (this.level.isClientSide) {
+             return;
+         }
+-        net.minecraft.world.item.ItemStack itemStack = this.getItem();
+-        net.minecraft.world.item.Item item = itemStack.getItem();
+-        int n = itemStack.getCount();
+-        if (this.pickupDelay == 0 && (this.owner == null || this.owner.equals((java.lang.Object)entity.getUUID())) && entity.getInventory().add(itemStack)) {
+-            entity.take((net.minecraft.world.entity.Entity)this, n);
+-            if (itemStack.isEmpty()) {
++        net.minecraft.world.item.ItemStack $$1 = this.getItem();
++        net.minecraft.world.item.Item $$2 = $$1.getItem();
++        int $$3 = $$1.getCount();
++        if (this.pickupDelay == 0 && (this.owner == null || this.owner.equals((java.lang.Object)$$0.getUUID())) && $$0.getInventory().add($$1)) {
++            $$0.take((net.minecraft.world.entity.Entity)this, $$3);
++            if ($$1.isEmpty()) {
+                 this.discard();
+-                itemStack.setCount(n);
++                $$1.setCount($$3);
+             }
+-            entity.awardStat(net.minecraft.stats.Stats.ITEM_PICKED_UP.get((java.lang.Object)item), n);
+-            entity.onItemPickup(this);
++            $$0.awardStat(net.minecraft.stats.Stats.ITEM_PICKED_UP.get((java.lang.Object)$$2), $$3);
++            $$0.onItemPickup(this);
+         }
+     }
+ 
+@@ -292,25 +292,25 @@
+     }
+ 
+     @javax.annotation.Nullable
+-    public net.minecraft.world.entity.Entity changeDimension(net.minecraft.server.level.ServerLevel server) {
+-        net.minecraft.world.entity.Entity entity = super.changeDimension(server);
+-        if (!this.level.isClientSide && entity instanceof net.minecraft.world.entity.item.ItemEntity) {
+-            ((net.minecraft.world.entity.item.ItemEntity)entity).mergeWithNeighbours();
++    public net.minecraft.world.entity.Entity changeDimension(net.minecraft.server.level.ServerLevel $$0) {
++        net.minecraft.world.entity.Entity $$1 = super.changeDimension($$0);
++        if (!this.level.isClientSide && $$1 instanceof net.minecraft.world.entity.item.ItemEntity) {
++            ((net.minecraft.world.entity.item.ItemEntity)$$1).mergeWithNeighbours();
+         }
+-        return entity;
++        return $$1;
+     }
+ 
+     public net.minecraft.world.item.ItemStack getItem() {
+         return (net.minecraft.world.item.ItemStack)this.getEntityData().get(DATA_ITEM);
+     }
+ 
+-    public void setItem(net.minecraft.world.item.ItemStack stack) {
+-        this.getEntityData().set(DATA_ITEM, (java.lang.Object)stack);
++    public void setItem(net.minecraft.world.item.ItemStack $$0) {
++        this.getEntityData().set(DATA_ITEM, (java.lang.Object)$$0);
+     }
+ 
+-    public void onSyncedDataUpdated(net.minecraft.network.syncher.EntityDataAccessor<?> key) {
+-        super.onSyncedDataUpdated(key);
+-        if (DATA_ITEM.equals(key)) {
++    public void onSyncedDataUpdated(net.minecraft.network.syncher.EntityDataAccessor<?> $$0) {
++        super.onSyncedDataUpdated($$0);
++        if (DATA_ITEM.equals($$0)) {
+             this.getItem().setEntityRepresentation((net.minecraft.world.entity.Entity)this);
+         }
+     }
+@@ -320,8 +320,8 @@
+         return this.owner;
+     }
+ 
+-    public void setOwner(@javax.annotation.Nullable java.util.UUID owner) {
+-        this.owner = owner;
++    public void setOwner(@javax.annotation.Nullable java.util.UUID $$0) {
++        this.owner = $$0;
+     }
+ 
+     @javax.annotation.Nullable
+@@ -329,8 +329,8 @@
+         return this.thrower;
+     }
+ 
+-    public void setThrower(@javax.annotation.Nullable java.util.UUID thrower) {
+-        this.thrower = thrower;
++    public void setThrower(@javax.annotation.Nullable java.util.UUID $$0) {
++        this.thrower = $$0;
+     }
+ 
+     public int getAge() {
+@@ -349,8 +349,8 @@
+         this.pickupDelay = java.lang.Short.MAX_VALUE;
+     }
+ 
+-    public void setPickUpDelay(int pickupDelay) {
+-        this.pickupDelay = pickupDelay;
++    public void setPickUpDelay(int $$0) {
++        this.pickupDelay = $$0;
+     }
+ 
+     public boolean hasPickUpDelay() {
+@@ -370,14 +370,10 @@
+         this.age = 5999;
+     }
+ 
+-    public float getSpin(float partialTicks) {
+-        return ((float)this.getAge() + partialTicks) / 20.0f + this.bobOffs;
++    public float getSpin(float $$0) {
++        return ((float)this.getAge() + $$0) / 20.0f + this.bobOffs;
+     }
+ 
+-    public net.minecraft.network.protocol.Packet<?> getAddEntityPacket() {
+-        return new net.minecraft.network.protocol.game.ClientboundAddEntityPacket((net.minecraft.world.entity.Entity)this);
+-    }
+-
+     public net.minecraft.world.entity.item.ItemEntity copy() {
+         return new net.minecraft.world.entity.item.ItemEntity(this);
+     }

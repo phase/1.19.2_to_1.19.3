@@ -1,0 +1,63 @@
+--- net/minecraft/world/level/block/state/StateDefinition.java
++++ net/minecraft/world/level/block/state/StateDefinition.java
+@@ -10,31 +10,30 @@
+     public com.google.common.collect.ImmutableSortedMap<java.lang.String, net.minecraft.world.level.block.state.properties.Property<?>> propertiesByName;
+     public com.google.common.collect.ImmutableList<S> states;
+ 
+-    public net.minecraft.world.level.block.state.StateDefinition(java.util.function.Function<O, S> function, O owner, net.minecraft.world.level.block.state.StateDefinition$Factory<O, S> factory, java.util.Map<java.lang.String, net.minecraft.world.level.block.state.properties.Property<?>> propertiesByName) {
+-        java.util.Map$Entry entry2;
+-        this.owner = owner;
+-        this.propertiesByName = com.google.common.collect.ImmutableSortedMap.copyOf(propertiesByName);
+-        java.util.function.Supplier supplier = () -> (net.minecraft.world.level.block.state.StateHolder)function.apply(owner);
+-        com.mojang.serialization.MapCodec mapCodec = com.mojang.serialization.MapCodec.of((com.mojang.serialization.MapEncoder)com.mojang.serialization.Encoder.empty(), (com.mojang.serialization.MapDecoder)com.mojang.serialization.Decoder.unit((java.util.function.Supplier)supplier));
+-        for (java.util.Map$Entry entry2 : this.propertiesByName.entrySet()) {
+-            mapCodec = net.minecraft.world.level.block.state.StateDefinition.appendPropertyCodec((com.mojang.serialization.MapCodec)mapCodec, (java.util.function.Supplier)supplier, (java.lang.String)((java.lang.String)entry2.getKey()), (net.minecraft.world.level.block.state.properties.Property)((net.minecraft.world.level.block.state.properties.Property)entry2.getValue()));
++    public net.minecraft.world.level.block.state.StateDefinition(java.util.function.Function<O, S> $$0, O $$12, net.minecraft.world.level.block.state.StateDefinition$Factory<O, S> $$2, java.util.Map<java.lang.String, net.minecraft.world.level.block.state.properties.Property<?>> $$3) {
++        this.owner = $$12;
++        this.propertiesByName = com.google.common.collect.ImmutableSortedMap.copyOf($$3);
++        java.util.function.Supplier $$4 = () -> (net.minecraft.world.level.block.state.StateHolder)$$0.apply($$12);
++        com.mojang.serialization.MapCodec $$5 = com.mojang.serialization.MapCodec.of((com.mojang.serialization.MapEncoder)com.mojang.serialization.Encoder.empty(), (com.mojang.serialization.MapDecoder)com.mojang.serialization.Decoder.unit((java.util.function.Supplier)$$4));
++        for (java.util.Map$Entry $$6 : this.propertiesByName.entrySet()) {
++            $$5 = net.minecraft.world.level.block.state.StateDefinition.appendPropertyCodec((com.mojang.serialization.MapCodec)$$5, (java.util.function.Supplier)$$4, (java.lang.String)((java.lang.String)$$6.getKey()), (net.minecraft.world.level.block.state.properties.Property)((net.minecraft.world.level.block.state.properties.Property)$$6.getValue()));
+         }
+-        com.google.common.collect.UnmodifiableIterator unmodifiableIterator = mapCodec;
+-        entry2 = com.google.common.collect.Maps.newLinkedHashMap();
+-        java.util.ArrayList arrayList = com.google.common.collect.Lists.newArrayList();
+-        java.util.stream.Stream stream = java.util.stream.Stream.of((java.lang.Object)java.util.Collections.emptyList());
+-        for (net.minecraft.world.level.block.state.properties.Property property : this.propertiesByName.values()) {
+-            stream = stream.flatMap($$1 -> property.getPossibleValues().stream().map($$2 -> {
++        com.mojang.serialization.MapCodec $$7 = $$5;
++        java.util.LinkedHashMap $$8 = com.google.common.collect.Maps.newLinkedHashMap();
++        java.util.ArrayList $$9 = com.google.common.collect.Lists.newArrayList();
++        java.util.stream.Stream $$10 = java.util.stream.Stream.of((java.lang.Object)java.util.Collections.emptyList());
++        for (net.minecraft.world.level.block.state.properties.Property $$11 : this.propertiesByName.values()) {
++            $$10 = $$10.flatMap($$1 -> $$11.getPossibleValues().stream().map($$2 -> {
+                 java.util.ArrayList $$3 = com.google.common.collect.Lists.newArrayList((java.lang.Iterable)$$1);
+-                $$3.add((java.lang.Object)com.mojang.datafixers.util.Pair.of((java.lang.Object)property, (java.lang.Object)$$2));
++                $$3.add((java.lang.Object)com.mojang.datafixers.util.Pair.of((java.lang.Object)$$11, (java.lang.Object)$$2));
+                 return $$3;
+             }));
+         }
+-        stream.forEach(arg_0 -> net.minecraft.world.level.block.state.StateDefinition.lambda$new$3(factory, owner, (com.mojang.serialization.MapCodec)unmodifiableIterator, (java.util.Map)entry2, (java.util.List)arrayList, arg_0));
+-        for (net.minecraft.world.level.block.state.properties.Property property : arrayList) {
+-            property.populateNeighbours((java.util.Map)entry2);
++        $$10.forEach(arg_0 -> net.minecraft.world.level.block.state.StateDefinition.lambda$new$3($$2, $$12, $$7, (java.util.Map)$$8, (java.util.List)$$9, arg_0));
++        for (net.minecraft.world.level.block.state.StateHolder $$122 : $$9) {
++            $$122.populateNeighbours((java.util.Map)$$8);
+         }
+-        this.states = com.google.common.collect.ImmutableList.copyOf((java.util.Collection)arrayList);
++        this.states = com.google.common.collect.ImmutableList.copyOf((java.util.Collection)$$9);
+     }
+ 
+     public static <S extends net.minecraft.world.level.block.state.StateHolder<?, S>, T extends java.lang.Comparable<T>> com.mojang.serialization.MapCodec<S> appendPropertyCodec(com.mojang.serialization.MapCodec<S> $$02, java.util.function.Supplier<S> $$12, java.lang.String $$2, net.minecraft.world.level.block.state.properties.Property<T> $$3) {
+@@ -63,8 +62,8 @@
+     }
+ 
+     @javax.annotation.Nullable
+-    public net.minecraft.world.level.block.state.properties.Property<?> getProperty(java.lang.String propertyName) {
+-        return (net.minecraft.world.level.block.state.properties.Property)this.propertiesByName.get((java.lang.Object)propertyName);
++    public net.minecraft.world.level.block.state.properties.Property<?> getProperty(java.lang.String $$0) {
++        return (net.minecraft.world.level.block.state.properties.Property)this.propertiesByName.get((java.lang.Object)$$0);
+     }
+ 
+     public static /* synthetic */ void lambda$new$3(net.minecraft.world.level.block.state.StateDefinition$Factory $$0, java.lang.Object $$1, com.mojang.serialization.MapCodec $$2, java.util.Map $$3, java.util.List $$4, java.util.List $$5) {

@@ -1,0 +1,400 @@
+--- net/minecraft/world/entity/animal/Parrot.java
++++ net/minecraft/world/entity/animal/Parrot.java
+@@ -34,12 +34,12 @@
+     }
+ 
+     @javax.annotation.Nullable
+-    public net.minecraft.world.entity.SpawnGroupData finalizeSpawn(net.minecraft.world.level.ServerLevelAccessor level, net.minecraft.world.DifficultyInstance difficulty, net.minecraft.world.entity.MobSpawnType reason, @javax.annotation.Nullable net.minecraft.world.entity.SpawnGroupData spawnData, @javax.annotation.Nullable net.minecraft.nbt.CompoundTag dataTag) {
+-        this.setVariant(level.getRandom().nextInt(5));
+-        if (spawnData == null) {
+-            spawnData = new net.minecraft.world.entity.AgeableMob$AgeableMobGroupData(false);
++    public net.minecraft.world.entity.SpawnGroupData finalizeSpawn(net.minecraft.world.level.ServerLevelAccessor $$0, net.minecraft.world.DifficultyInstance $$1, net.minecraft.world.entity.MobSpawnType $$2, @javax.annotation.Nullable net.minecraft.world.entity.SpawnGroupData $$3, @javax.annotation.Nullable net.minecraft.nbt.CompoundTag $$4) {
++        this.setVariant($$0.getRandom().nextInt(5));
++        if ($$3 == null) {
++            $$3 = new net.minecraft.world.entity.AgeableMob$AgeableMobGroupData(false);
+         }
+-        return super.finalizeSpawn(level, difficulty, reason, spawnData, dataTag);
++        return super.finalizeSpawn($$0, $$1, $$2, $$3, $$4);
+     }
+ 
+     public boolean isBaby() {
+@@ -61,16 +61,16 @@
+         return net.minecraft.world.entity.Mob.createMobAttributes().add(net.minecraft.world.entity.ai.attributes.Attributes.MAX_HEALTH, 6.0).add(net.minecraft.world.entity.ai.attributes.Attributes.FLYING_SPEED, (double)0.4f).add(net.minecraft.world.entity.ai.attributes.Attributes.MOVEMENT_SPEED, (double)0.2f);
+     }
+ 
+-    public net.minecraft.world.entity.ai.navigation.PathNavigation createNavigation(net.minecraft.world.level.Level level) {
+-        net.minecraft.world.entity.ai.navigation.FlyingPathNavigation flyingPathNavigation = new net.minecraft.world.entity.ai.navigation.FlyingPathNavigation((net.minecraft.world.entity.Mob)this, level);
+-        flyingPathNavigation.setCanOpenDoors(false);
+-        flyingPathNavigation.setCanFloat(true);
+-        flyingPathNavigation.setCanPassDoors(true);
+-        return flyingPathNavigation;
++    public net.minecraft.world.entity.ai.navigation.PathNavigation createNavigation(net.minecraft.world.level.Level $$0) {
++        net.minecraft.world.entity.ai.navigation.FlyingPathNavigation $$1 = new net.minecraft.world.entity.ai.navigation.FlyingPathNavigation((net.minecraft.world.entity.Mob)this, $$0);
++        $$1.setCanOpenDoors(false);
++        $$1.setCanFloat(true);
++        $$1.setCanPassDoors(true);
++        return $$1;
+     }
+ 
+-    public float getStandingEyeHeight(net.minecraft.world.entity.Pose pose, net.minecraft.world.entity.EntityDimensions size) {
+-        return size.height * 0.6f;
++    public float getStandingEyeHeight(net.minecraft.world.entity.Pose $$0, net.minecraft.world.entity.EntityDimensions $$1) {
++        return $$1.height * 0.6f;
+     }
+ 
+     public void aiStep() {
+@@ -85,9 +85,9 @@
+         this.calculateFlapping();
+     }
+ 
+-    public void setRecordPlayingNearby(net.minecraft.core.BlockPos pos, boolean isPartying) {
+-        this.jukebox = pos;
+-        this.partyParrot = isPartying;
++    public void setRecordPlayingNearby(net.minecraft.core.BlockPos $$0, boolean $$1) {
++        this.jukebox = $$0;
++        this.partyParrot = $$1;
+     }
+ 
+     public boolean isPartyParrot() {
+@@ -110,32 +110,32 @@
+         this.flap += this.flapping * 2.0f;
+     }
+ 
+-    public static boolean imitateNearbyMobs(net.minecraft.world.level.Level level, net.minecraft.world.entity.Entity parrot) {
+-        net.minecraft.world.entity.Mob mob;
+-        if (!parrot.isAlive() || parrot.isSilent() || level.random.nextInt(2) != 0) {
++    public static boolean imitateNearbyMobs(net.minecraft.world.level.Level $$0, net.minecraft.world.entity.Entity $$1) {
++        net.minecraft.world.entity.Mob $$3;
++        if (!$$1.isAlive() || $$1.isSilent() || $$0.random.nextInt(2) != 0) {
+             return false;
+         }
+-        java.util.List list = level.getEntitiesOfClass(net.minecraft.world.entity.Mob.class, parrot.getBoundingBox().inflate(20.0), NOT_PARROT_PREDICATE);
+-        if (!list.isEmpty() && !(mob = (net.minecraft.world.entity.Mob)list.get(level.random.nextInt(list.size()))).isSilent()) {
+-            net.minecraft.sounds.SoundEvent soundEvent = net.minecraft.world.entity.animal.Parrot.getImitatedSound((net.minecraft.world.entity.EntityType)mob.getType());
+-            level.playSound(null, parrot.getX(), parrot.getY(), parrot.getZ(), soundEvent, parrot.getSoundSource(), 0.7f, net.minecraft.world.entity.animal.Parrot.getPitch((net.minecraft.util.RandomSource)level.random));
++        java.util.List $$2 = $$0.getEntitiesOfClass(net.minecraft.world.entity.Mob.class, $$1.getBoundingBox().inflate(20.0), NOT_PARROT_PREDICATE);
++        if (!$$2.isEmpty() && !($$3 = (net.minecraft.world.entity.Mob)$$2.get($$0.random.nextInt($$2.size()))).isSilent()) {
++            net.minecraft.sounds.SoundEvent $$4 = net.minecraft.world.entity.animal.Parrot.getImitatedSound((net.minecraft.world.entity.EntityType)$$3.getType());
++            $$0.playSound(null, $$1.getX(), $$1.getY(), $$1.getZ(), $$4, $$1.getSoundSource(), 0.7f, net.minecraft.world.entity.animal.Parrot.getPitch((net.minecraft.util.RandomSource)$$0.random));
+             return true;
+         }
+         return false;
+     }
+ 
+-    public net.minecraft.world.InteractionResult mobInteract(net.minecraft.world.entity.player.Player player, net.minecraft.world.InteractionHand hand) {
+-        net.minecraft.world.item.ItemStack itemStack = player.getItemInHand(hand);
+-        if (!this.isTame() && TAME_FOOD.contains((java.lang.Object)itemStack.getItem())) {
+-            if (!player.getAbilities().instabuild) {
+-                itemStack.shrink(1);
++    public net.minecraft.world.InteractionResult mobInteract(net.minecraft.world.entity.player.Player $$0, net.minecraft.world.InteractionHand $$1) {
++        net.minecraft.world.item.ItemStack $$2 = $$0.getItemInHand($$1);
++        if (!this.isTame() && TAME_FOOD.contains((java.lang.Object)$$2.getItem())) {
++            if (!$$0.getAbilities().instabuild) {
++                $$2.shrink(1);
+             }
+             if (!this.isSilent()) {
+                 this.level.playSound(null, this.getX(), this.getY(), this.getZ(), net.minecraft.sounds.SoundEvents.PARROT_EAT, this.getSoundSource(), 1.0f, 1.0f + (this.random.nextFloat() - this.random.nextFloat()) * 0.2f);
+             }
+             if (!this.level.isClientSide) {
+                 if (this.random.nextInt(10) == 0) {
+-                    this.tame(player);
++                    this.tame($$0);
+                     this.level.broadcastEntityEvent((net.minecraft.world.entity.Entity)this, (byte)7);
+                 } else {
+                     this.level.broadcastEntityEvent((net.minecraft.world.entity.Entity)this, (byte)6);
+@@ -143,26 +143,26 @@
+             }
+             return net.minecraft.world.InteractionResult.sidedSuccess((boolean)this.level.isClientSide);
+         }
+-        if (itemStack.is(POISONOUS_FOOD)) {
+-            if (!player.getAbilities().instabuild) {
+-                itemStack.shrink(1);
++        if ($$2.is(POISONOUS_FOOD)) {
++            if (!$$0.getAbilities().instabuild) {
++                $$2.shrink(1);
+             }
+             this.addEffect(new net.minecraft.world.effect.MobEffectInstance(net.minecraft.world.effect.MobEffects.POISON, 900));
+-            if (player.isCreative() || !this.isInvulnerable()) {
+-                this.hurt(net.minecraft.world.damagesource.DamageSource.playerAttack((net.minecraft.world.entity.player.Player)player), java.lang.Float.MAX_VALUE);
++            if ($$0.isCreative() || !this.isInvulnerable()) {
++                this.hurt(net.minecraft.world.damagesource.DamageSource.playerAttack((net.minecraft.world.entity.player.Player)$$0), java.lang.Float.MAX_VALUE);
+             }
+             return net.minecraft.world.InteractionResult.sidedSuccess((boolean)this.level.isClientSide);
+         }
+-        if (!this.isFlying() && this.isTame() && this.isOwnedBy((net.minecraft.world.entity.LivingEntity)player)) {
++        if (!this.isFlying() && this.isTame() && this.isOwnedBy((net.minecraft.world.entity.LivingEntity)$$0)) {
+             if (!this.level.isClientSide) {
+                 this.setOrderedToSit(!this.isOrderedToSit());
+             }
+             return net.minecraft.world.InteractionResult.sidedSuccess((boolean)this.level.isClientSide);
+         }
+-        return super.mobInteract(player, hand);
++        return super.mobInteract($$0, $$1);
+     }
+ 
+-    public boolean isFood(net.minecraft.world.item.ItemStack stack) {
++    public boolean isFood(net.minecraft.world.item.ItemStack $$0) {
+         return false;
+     }
+ 
+@@ -174,10 +174,10 @@
+         return false;
+     }
+ 
+-    public void checkFallDamage(double y, boolean onGround, net.minecraft.world.level.block.state.BlockState state, net.minecraft.core.BlockPos pos) {
++    public void checkFallDamage(double $$0, boolean $$1, net.minecraft.world.level.block.state.BlockState $$2, net.minecraft.core.BlockPos $$3) {
+     }
+ 
+-    public boolean canMate(net.minecraft.world.entity.animal.Animal otherAnimal) {
++    public boolean canMate(net.minecraft.world.entity.animal.Animal $$0) {
+         return false;
+     }
+ 
+@@ -186,8 +186,8 @@
+         return null;
+     }
+ 
+-    public boolean doHurtTarget(net.minecraft.world.entity.Entity entity) {
+-        return entity.hurt(net.minecraft.world.damagesource.DamageSource.mobAttack((net.minecraft.world.entity.LivingEntity)this), 3.0f);
++    public boolean doHurtTarget(net.minecraft.world.entity.Entity $$0) {
++        return $$0.hurt(net.minecraft.world.damagesource.DamageSource.mobAttack((net.minecraft.world.entity.LivingEntity)this), 3.0f);
+     }
+ 
+     @javax.annotation.Nullable
+@@ -203,11 +203,11 @@
+         return net.minecraft.sounds.SoundEvents.PARROT_AMBIENT;
+     }
+ 
+-    public static net.minecraft.sounds.SoundEvent getImitatedSound(net.minecraft.world.entity.EntityType<?> type) {
+-        return (net.minecraft.sounds.SoundEvent)MOB_SOUND_MAP.getOrDefault(type, (java.lang.Object)net.minecraft.sounds.SoundEvents.PARROT_AMBIENT);
++    public static net.minecraft.sounds.SoundEvent getImitatedSound(net.minecraft.world.entity.EntityType<?> $$0) {
++        return (net.minecraft.sounds.SoundEvent)MOB_SOUND_MAP.getOrDefault($$0, (java.lang.Object)net.minecraft.sounds.SoundEvents.PARROT_AMBIENT);
+     }
+ 
+-    public net.minecraft.sounds.SoundEvent getHurtSound(net.minecraft.world.damagesource.DamageSource damageSource) {
++    public net.minecraft.sounds.SoundEvent getHurtSound(net.minecraft.world.damagesource.DamageSource $$0) {
+         return net.minecraft.sounds.SoundEvents.PARROT_HURT;
+     }
+ 
+@@ -215,7 +215,7 @@
+         return net.minecraft.sounds.SoundEvents.PARROT_DEATH;
+     }
+ 
+-    public void playStepSound(net.minecraft.core.BlockPos pos, net.minecraft.world.level.block.state.BlockState block) {
++    public void playStepSound(net.minecraft.core.BlockPos $$0, net.minecraft.world.level.block.state.BlockState $$1) {
+         this.playSound(net.minecraft.sounds.SoundEvents.PARROT_STEP, 0.15f, 1.0f);
+     }
+ 
+@@ -244,29 +244,29 @@
+         return true;
+     }
+ 
+-    public void doPush(net.minecraft.world.entity.Entity entity) {
+-        if (entity instanceof net.minecraft.world.entity.player.Player) {
++    public void doPush(net.minecraft.world.entity.Entity $$0) {
++        if ($$0 instanceof net.minecraft.world.entity.player.Player) {
+             return;
+         }
+-        super.doPush(entity);
++        super.doPush($$0);
+     }
+ 
+-    public boolean hurt(net.minecraft.world.damagesource.DamageSource source, float amount) {
+-        if (this.isInvulnerableTo(source)) {
++    public boolean hurt(net.minecraft.world.damagesource.DamageSource $$0, float $$1) {
++        if (this.isInvulnerableTo($$0)) {
+             return false;
+         }
+         if (!this.level.isClientSide) {
+             this.setOrderedToSit(false);
+         }
+-        return super.hurt(source, amount);
++        return super.hurt($$0, $$1);
+     }
+ 
+     public int getVariant() {
+         return net.minecraft.util.Mth.clamp((int)((java.lang.Integer)this.entityData.get(DATA_VARIANT_ID)), (int)0, (int)4);
+     }
+ 
+-    public void setVariant(int variant) {
+-        this.entityData.set(DATA_VARIANT_ID, (java.lang.Object)variant);
++    public void setVariant(int $$0) {
++        this.entityData.set(DATA_VARIANT_ID, (java.lang.Object)$$0);
+     }
+ 
+     public void defineSynchedData() {
+@@ -274,14 +274,14 @@
+         this.entityData.define(DATA_VARIANT_ID, (java.lang.Object)0);
+     }
+ 
+-    public void addAdditionalSaveData(net.minecraft.nbt.CompoundTag compound) {
+-        super.addAdditionalSaveData(compound);
+-        compound.putInt("Variant", this.getVariant());
++    public void addAdditionalSaveData(net.minecraft.nbt.CompoundTag $$0) {
++        super.addAdditionalSaveData($$0);
++        $$0.putInt("Variant", this.getVariant());
+     }
+ 
+-    public void readAdditionalSaveData(net.minecraft.nbt.CompoundTag compound) {
+-        super.readAdditionalSaveData(compound);
+-        this.setVariant(compound.getInt("Variant"));
++    public void readAdditionalSaveData(net.minecraft.nbt.CompoundTag $$0) {
++        super.readAdditionalSaveData($$0);
++        this.setVariant($$0.getInt("Variant"));
+     }
+ 
+     public boolean isFlying() {
+@@ -292,41 +292,41 @@
+         return new net.minecraft.world.phys.Vec3(0.0, (double)(0.5f * this.getEyeHeight()), (double)(this.getBbWidth() * 0.4f));
+     }
+ 
+-    public static /* synthetic */ void lambda$static$0(java.util.HashMap map) {
+-        map.put((java.lang.Object)net.minecraft.world.entity.EntityType.BLAZE, (java.lang.Object)net.minecraft.sounds.SoundEvents.PARROT_IMITATE_BLAZE);
+-        map.put((java.lang.Object)net.minecraft.world.entity.EntityType.CAVE_SPIDER, (java.lang.Object)net.minecraft.sounds.SoundEvents.PARROT_IMITATE_SPIDER);
+-        map.put((java.lang.Object)net.minecraft.world.entity.EntityType.CREEPER, (java.lang.Object)net.minecraft.sounds.SoundEvents.PARROT_IMITATE_CREEPER);
+-        map.put((java.lang.Object)net.minecraft.world.entity.EntityType.DROWNED, (java.lang.Object)net.minecraft.sounds.SoundEvents.PARROT_IMITATE_DROWNED);
+-        map.put((java.lang.Object)net.minecraft.world.entity.EntityType.ELDER_GUARDIAN, (java.lang.Object)net.minecraft.sounds.SoundEvents.PARROT_IMITATE_ELDER_GUARDIAN);
+-        map.put((java.lang.Object)net.minecraft.world.entity.EntityType.ENDER_DRAGON, (java.lang.Object)net.minecraft.sounds.SoundEvents.PARROT_IMITATE_ENDER_DRAGON);
+-        map.put((java.lang.Object)net.minecraft.world.entity.EntityType.ENDERMITE, (java.lang.Object)net.minecraft.sounds.SoundEvents.PARROT_IMITATE_ENDERMITE);
+-        map.put((java.lang.Object)net.minecraft.world.entity.EntityType.EVOKER, (java.lang.Object)net.minecraft.sounds.SoundEvents.PARROT_IMITATE_EVOKER);
+-        map.put((java.lang.Object)net.minecraft.world.entity.EntityType.GHAST, (java.lang.Object)net.minecraft.sounds.SoundEvents.PARROT_IMITATE_GHAST);
+-        map.put((java.lang.Object)net.minecraft.world.entity.EntityType.GUARDIAN, (java.lang.Object)net.minecraft.sounds.SoundEvents.PARROT_IMITATE_GUARDIAN);
+-        map.put((java.lang.Object)net.minecraft.world.entity.EntityType.HOGLIN, (java.lang.Object)net.minecraft.sounds.SoundEvents.PARROT_IMITATE_HOGLIN);
+-        map.put((java.lang.Object)net.minecraft.world.entity.EntityType.HUSK, (java.lang.Object)net.minecraft.sounds.SoundEvents.PARROT_IMITATE_HUSK);
+-        map.put((java.lang.Object)net.minecraft.world.entity.EntityType.ILLUSIONER, (java.lang.Object)net.minecraft.sounds.SoundEvents.PARROT_IMITATE_ILLUSIONER);
+-        map.put((java.lang.Object)net.minecraft.world.entity.EntityType.MAGMA_CUBE, (java.lang.Object)net.minecraft.sounds.SoundEvents.PARROT_IMITATE_MAGMA_CUBE);
+-        map.put((java.lang.Object)net.minecraft.world.entity.EntityType.PHANTOM, (java.lang.Object)net.minecraft.sounds.SoundEvents.PARROT_IMITATE_PHANTOM);
+-        map.put((java.lang.Object)net.minecraft.world.entity.EntityType.PIGLIN, (java.lang.Object)net.minecraft.sounds.SoundEvents.PARROT_IMITATE_PIGLIN);
+-        map.put((java.lang.Object)net.minecraft.world.entity.EntityType.PIGLIN_BRUTE, (java.lang.Object)net.minecraft.sounds.SoundEvents.PARROT_IMITATE_PIGLIN_BRUTE);
+-        map.put((java.lang.Object)net.minecraft.world.entity.EntityType.PILLAGER, (java.lang.Object)net.minecraft.sounds.SoundEvents.PARROT_IMITATE_PILLAGER);
+-        map.put((java.lang.Object)net.minecraft.world.entity.EntityType.RAVAGER, (java.lang.Object)net.minecraft.sounds.SoundEvents.PARROT_IMITATE_RAVAGER);
+-        map.put((java.lang.Object)net.minecraft.world.entity.EntityType.SHULKER, (java.lang.Object)net.minecraft.sounds.SoundEvents.PARROT_IMITATE_SHULKER);
+-        map.put((java.lang.Object)net.minecraft.world.entity.EntityType.SILVERFISH, (java.lang.Object)net.minecraft.sounds.SoundEvents.PARROT_IMITATE_SILVERFISH);
+-        map.put((java.lang.Object)net.minecraft.world.entity.EntityType.SKELETON, (java.lang.Object)net.minecraft.sounds.SoundEvents.PARROT_IMITATE_SKELETON);
+-        map.put((java.lang.Object)net.minecraft.world.entity.EntityType.SLIME, (java.lang.Object)net.minecraft.sounds.SoundEvents.PARROT_IMITATE_SLIME);
+-        map.put((java.lang.Object)net.minecraft.world.entity.EntityType.SPIDER, (java.lang.Object)net.minecraft.sounds.SoundEvents.PARROT_IMITATE_SPIDER);
+-        map.put((java.lang.Object)net.minecraft.world.entity.EntityType.STRAY, (java.lang.Object)net.minecraft.sounds.SoundEvents.PARROT_IMITATE_STRAY);
+-        map.put((java.lang.Object)net.minecraft.world.entity.EntityType.VEX, (java.lang.Object)net.minecraft.sounds.SoundEvents.PARROT_IMITATE_VEX);
+-        map.put((java.lang.Object)net.minecraft.world.entity.EntityType.VINDICATOR, (java.lang.Object)net.minecraft.sounds.SoundEvents.PARROT_IMITATE_VINDICATOR);
+-        map.put((java.lang.Object)net.minecraft.world.entity.EntityType.WARDEN, (java.lang.Object)net.minecraft.sounds.SoundEvents.PARROT_IMITATE_WARDEN);
+-        map.put((java.lang.Object)net.minecraft.world.entity.EntityType.WITCH, (java.lang.Object)net.minecraft.sounds.SoundEvents.PARROT_IMITATE_WITCH);
+-        map.put((java.lang.Object)net.minecraft.world.entity.EntityType.WITHER, (java.lang.Object)net.minecraft.sounds.SoundEvents.PARROT_IMITATE_WITHER);
+-        map.put((java.lang.Object)net.minecraft.world.entity.EntityType.WITHER_SKELETON, (java.lang.Object)net.minecraft.sounds.SoundEvents.PARROT_IMITATE_WITHER_SKELETON);
+-        map.put((java.lang.Object)net.minecraft.world.entity.EntityType.ZOGLIN, (java.lang.Object)net.minecraft.sounds.SoundEvents.PARROT_IMITATE_ZOGLIN);
+-        map.put((java.lang.Object)net.minecraft.world.entity.EntityType.ZOMBIE, (java.lang.Object)net.minecraft.sounds.SoundEvents.PARROT_IMITATE_ZOMBIE);
+-        map.put((java.lang.Object)net.minecraft.world.entity.EntityType.ZOMBIE_VILLAGER, (java.lang.Object)net.minecraft.sounds.SoundEvents.PARROT_IMITATE_ZOMBIE_VILLAGER);
++    public static /* synthetic */ void lambda$static$0(java.util.HashMap $$0) {
++        $$0.put((java.lang.Object)net.minecraft.world.entity.EntityType.BLAZE, (java.lang.Object)net.minecraft.sounds.SoundEvents.PARROT_IMITATE_BLAZE);
++        $$0.put((java.lang.Object)net.minecraft.world.entity.EntityType.CAVE_SPIDER, (java.lang.Object)net.minecraft.sounds.SoundEvents.PARROT_IMITATE_SPIDER);
++        $$0.put((java.lang.Object)net.minecraft.world.entity.EntityType.CREEPER, (java.lang.Object)net.minecraft.sounds.SoundEvents.PARROT_IMITATE_CREEPER);
++        $$0.put((java.lang.Object)net.minecraft.world.entity.EntityType.DROWNED, (java.lang.Object)net.minecraft.sounds.SoundEvents.PARROT_IMITATE_DROWNED);
++        $$0.put((java.lang.Object)net.minecraft.world.entity.EntityType.ELDER_GUARDIAN, (java.lang.Object)net.minecraft.sounds.SoundEvents.PARROT_IMITATE_ELDER_GUARDIAN);
++        $$0.put((java.lang.Object)net.minecraft.world.entity.EntityType.ENDER_DRAGON, (java.lang.Object)net.minecraft.sounds.SoundEvents.PARROT_IMITATE_ENDER_DRAGON);
++        $$0.put((java.lang.Object)net.minecraft.world.entity.EntityType.ENDERMITE, (java.lang.Object)net.minecraft.sounds.SoundEvents.PARROT_IMITATE_ENDERMITE);
++        $$0.put((java.lang.Object)net.minecraft.world.entity.EntityType.EVOKER, (java.lang.Object)net.minecraft.sounds.SoundEvents.PARROT_IMITATE_EVOKER);
++        $$0.put((java.lang.Object)net.minecraft.world.entity.EntityType.GHAST, (java.lang.Object)net.minecraft.sounds.SoundEvents.PARROT_IMITATE_GHAST);
++        $$0.put((java.lang.Object)net.minecraft.world.entity.EntityType.GUARDIAN, (java.lang.Object)net.minecraft.sounds.SoundEvents.PARROT_IMITATE_GUARDIAN);
++        $$0.put((java.lang.Object)net.minecraft.world.entity.EntityType.HOGLIN, (java.lang.Object)net.minecraft.sounds.SoundEvents.PARROT_IMITATE_HOGLIN);
++        $$0.put((java.lang.Object)net.minecraft.world.entity.EntityType.HUSK, (java.lang.Object)net.minecraft.sounds.SoundEvents.PARROT_IMITATE_HUSK);
++        $$0.put((java.lang.Object)net.minecraft.world.entity.EntityType.ILLUSIONER, (java.lang.Object)net.minecraft.sounds.SoundEvents.PARROT_IMITATE_ILLUSIONER);
++        $$0.put((java.lang.Object)net.minecraft.world.entity.EntityType.MAGMA_CUBE, (java.lang.Object)net.minecraft.sounds.SoundEvents.PARROT_IMITATE_MAGMA_CUBE);
++        $$0.put((java.lang.Object)net.minecraft.world.entity.EntityType.PHANTOM, (java.lang.Object)net.minecraft.sounds.SoundEvents.PARROT_IMITATE_PHANTOM);
++        $$0.put((java.lang.Object)net.minecraft.world.entity.EntityType.PIGLIN, (java.lang.Object)net.minecraft.sounds.SoundEvents.PARROT_IMITATE_PIGLIN);
++        $$0.put((java.lang.Object)net.minecraft.world.entity.EntityType.PIGLIN_BRUTE, (java.lang.Object)net.minecraft.sounds.SoundEvents.PARROT_IMITATE_PIGLIN_BRUTE);
++        $$0.put((java.lang.Object)net.minecraft.world.entity.EntityType.PILLAGER, (java.lang.Object)net.minecraft.sounds.SoundEvents.PARROT_IMITATE_PILLAGER);
++        $$0.put((java.lang.Object)net.minecraft.world.entity.EntityType.RAVAGER, (java.lang.Object)net.minecraft.sounds.SoundEvents.PARROT_IMITATE_RAVAGER);
++        $$0.put((java.lang.Object)net.minecraft.world.entity.EntityType.SHULKER, (java.lang.Object)net.minecraft.sounds.SoundEvents.PARROT_IMITATE_SHULKER);
++        $$0.put((java.lang.Object)net.minecraft.world.entity.EntityType.SILVERFISH, (java.lang.Object)net.minecraft.sounds.SoundEvents.PARROT_IMITATE_SILVERFISH);
++        $$0.put((java.lang.Object)net.minecraft.world.entity.EntityType.SKELETON, (java.lang.Object)net.minecraft.sounds.SoundEvents.PARROT_IMITATE_SKELETON);
++        $$0.put((java.lang.Object)net.minecraft.world.entity.EntityType.SLIME, (java.lang.Object)net.minecraft.sounds.SoundEvents.PARROT_IMITATE_SLIME);
++        $$0.put((java.lang.Object)net.minecraft.world.entity.EntityType.SPIDER, (java.lang.Object)net.minecraft.sounds.SoundEvents.PARROT_IMITATE_SPIDER);
++        $$0.put((java.lang.Object)net.minecraft.world.entity.EntityType.STRAY, (java.lang.Object)net.minecraft.sounds.SoundEvents.PARROT_IMITATE_STRAY);
++        $$0.put((java.lang.Object)net.minecraft.world.entity.EntityType.VEX, (java.lang.Object)net.minecraft.sounds.SoundEvents.PARROT_IMITATE_VEX);
++        $$0.put((java.lang.Object)net.minecraft.world.entity.EntityType.VINDICATOR, (java.lang.Object)net.minecraft.sounds.SoundEvents.PARROT_IMITATE_VINDICATOR);
++        $$0.put((java.lang.Object)net.minecraft.world.entity.EntityType.WARDEN, (java.lang.Object)net.minecraft.sounds.SoundEvents.PARROT_IMITATE_WARDEN);
++        $$0.put((java.lang.Object)net.minecraft.world.entity.EntityType.WITCH, (java.lang.Object)net.minecraft.sounds.SoundEvents.PARROT_IMITATE_WITCH);
++        $$0.put((java.lang.Object)net.minecraft.world.entity.EntityType.WITHER, (java.lang.Object)net.minecraft.sounds.SoundEvents.PARROT_IMITATE_WITHER);
++        $$0.put((java.lang.Object)net.minecraft.world.entity.EntityType.WITHER_SKELETON, (java.lang.Object)net.minecraft.sounds.SoundEvents.PARROT_IMITATE_WITHER_SKELETON);
++        $$0.put((java.lang.Object)net.minecraft.world.entity.EntityType.ZOGLIN, (java.lang.Object)net.minecraft.sounds.SoundEvents.PARROT_IMITATE_ZOGLIN);
++        $$0.put((java.lang.Object)net.minecraft.world.entity.EntityType.ZOMBIE, (java.lang.Object)net.minecraft.sounds.SoundEvents.PARROT_IMITATE_ZOMBIE);
++        $$0.put((java.lang.Object)net.minecraft.world.entity.EntityType.ZOMBIE_VILLAGER, (java.lang.Object)net.minecraft.sounds.SoundEvents.PARROT_IMITATE_ZOMBIE_VILLAGER);
+     }
+ 
+     static {
+@@ -334,41 +334,41 @@
+         NOT_PARROT_PREDICATE = new /* Unavailable Anonymous Inner Class!! */;
+         POISONOUS_FOOD = net.minecraft.world.item.Items.COOKIE;
+         TAME_FOOD = com.google.common.collect.Sets.newHashSet((java.lang.Object[])new net.minecraft.world.item.Item[]{net.minecraft.world.item.Items.WHEAT_SEEDS, net.minecraft.world.item.Items.MELON_SEEDS, net.minecraft.world.item.Items.PUMPKIN_SEEDS, net.minecraft.world.item.Items.BEETROOT_SEEDS});
+-        MOB_SOUND_MAP = (java.util.Map)net.minecraft.Util.make((java.lang.Object)com.google.common.collect.Maps.newHashMap(), map -> {
+-            map.put((java.lang.Object)net.minecraft.world.entity.EntityType.BLAZE, (java.lang.Object)net.minecraft.sounds.SoundEvents.PARROT_IMITATE_BLAZE);
+-            map.put((java.lang.Object)net.minecraft.world.entity.EntityType.CAVE_SPIDER, (java.lang.Object)net.minecraft.sounds.SoundEvents.PARROT_IMITATE_SPIDER);
+-            map.put((java.lang.Object)net.minecraft.world.entity.EntityType.CREEPER, (java.lang.Object)net.minecraft.sounds.SoundEvents.PARROT_IMITATE_CREEPER);
+-            map.put((java.lang.Object)net.minecraft.world.entity.EntityType.DROWNED, (java.lang.Object)net.minecraft.sounds.SoundEvents.PARROT_IMITATE_DROWNED);
+-            map.put((java.lang.Object)net.minecraft.world.entity.EntityType.ELDER_GUARDIAN, (java.lang.Object)net.minecraft.sounds.SoundEvents.PARROT_IMITATE_ELDER_GUARDIAN);
+-            map.put((java.lang.Object)net.minecraft.world.entity.EntityType.ENDER_DRAGON, (java.lang.Object)net.minecraft.sounds.SoundEvents.PARROT_IMITATE_ENDER_DRAGON);
+-            map.put((java.lang.Object)net.minecraft.world.entity.EntityType.ENDERMITE, (java.lang.Object)net.minecraft.sounds.SoundEvents.PARROT_IMITATE_ENDERMITE);
+-            map.put((java.lang.Object)net.minecraft.world.entity.EntityType.EVOKER, (java.lang.Object)net.minecraft.sounds.SoundEvents.PARROT_IMITATE_EVOKER);
+-            map.put((java.lang.Object)net.minecraft.world.entity.EntityType.GHAST, (java.lang.Object)net.minecraft.sounds.SoundEvents.PARROT_IMITATE_GHAST);
+-            map.put((java.lang.Object)net.minecraft.world.entity.EntityType.GUARDIAN, (java.lang.Object)net.minecraft.sounds.SoundEvents.PARROT_IMITATE_GUARDIAN);
+-            map.put((java.lang.Object)net.minecraft.world.entity.EntityType.HOGLIN, (java.lang.Object)net.minecraft.sounds.SoundEvents.PARROT_IMITATE_HOGLIN);
+-            map.put((java.lang.Object)net.minecraft.world.entity.EntityType.HUSK, (java.lang.Object)net.minecraft.sounds.SoundEvents.PARROT_IMITATE_HUSK);
+-            map.put((java.lang.Object)net.minecraft.world.entity.EntityType.ILLUSIONER, (java.lang.Object)net.minecraft.sounds.SoundEvents.PARROT_IMITATE_ILLUSIONER);
+-            map.put((java.lang.Object)net.minecraft.world.entity.EntityType.MAGMA_CUBE, (java.lang.Object)net.minecraft.sounds.SoundEvents.PARROT_IMITATE_MAGMA_CUBE);
+-            map.put((java.lang.Object)net.minecraft.world.entity.EntityType.PHANTOM, (java.lang.Object)net.minecraft.sounds.SoundEvents.PARROT_IMITATE_PHANTOM);
+-            map.put((java.lang.Object)net.minecraft.world.entity.EntityType.PIGLIN, (java.lang.Object)net.minecraft.sounds.SoundEvents.PARROT_IMITATE_PIGLIN);
+-            map.put((java.lang.Object)net.minecraft.world.entity.EntityType.PIGLIN_BRUTE, (java.lang.Object)net.minecraft.sounds.SoundEvents.PARROT_IMITATE_PIGLIN_BRUTE);
+-            map.put((java.lang.Object)net.minecraft.world.entity.EntityType.PILLAGER, (java.lang.Object)net.minecraft.sounds.SoundEvents.PARROT_IMITATE_PILLAGER);
+-            map.put((java.lang.Object)net.minecraft.world.entity.EntityType.RAVAGER, (java.lang.Object)net.minecraft.sounds.SoundEvents.PARROT_IMITATE_RAVAGER);
+-            map.put((java.lang.Object)net.minecraft.world.entity.EntityType.SHULKER, (java.lang.Object)net.minecraft.sounds.SoundEvents.PARROT_IMITATE_SHULKER);
+-            map.put((java.lang.Object)net.minecraft.world.entity.EntityType.SILVERFISH, (java.lang.Object)net.minecraft.sounds.SoundEvents.PARROT_IMITATE_SILVERFISH);
+-            map.put((java.lang.Object)net.minecraft.world.entity.EntityType.SKELETON, (java.lang.Object)net.minecraft.sounds.SoundEvents.PARROT_IMITATE_SKELETON);
+-            map.put((java.lang.Object)net.minecraft.world.entity.EntityType.SLIME, (java.lang.Object)net.minecraft.sounds.SoundEvents.PARROT_IMITATE_SLIME);
+-            map.put((java.lang.Object)net.minecraft.world.entity.EntityType.SPIDER, (java.lang.Object)net.minecraft.sounds.SoundEvents.PARROT_IMITATE_SPIDER);
+-            map.put((java.lang.Object)net.minecraft.world.entity.EntityType.STRAY, (java.lang.Object)net.minecraft.sounds.SoundEvents.PARROT_IMITATE_STRAY);
+-            map.put((java.lang.Object)net.minecraft.world.entity.EntityType.VEX, (java.lang.Object)net.minecraft.sounds.SoundEvents.PARROT_IMITATE_VEX);
+-            map.put((java.lang.Object)net.minecraft.world.entity.EntityType.VINDICATOR, (java.lang.Object)net.minecraft.sounds.SoundEvents.PARROT_IMITATE_VINDICATOR);
+-            map.put((java.lang.Object)net.minecraft.world.entity.EntityType.WARDEN, (java.lang.Object)net.minecraft.sounds.SoundEvents.PARROT_IMITATE_WARDEN);
+-            map.put((java.lang.Object)net.minecraft.world.entity.EntityType.WITCH, (java.lang.Object)net.minecraft.sounds.SoundEvents.PARROT_IMITATE_WITCH);
+-            map.put((java.lang.Object)net.minecraft.world.entity.EntityType.WITHER, (java.lang.Object)net.minecraft.sounds.SoundEvents.PARROT_IMITATE_WITHER);
+-            map.put((java.lang.Object)net.minecraft.world.entity.EntityType.WITHER_SKELETON, (java.lang.Object)net.minecraft.sounds.SoundEvents.PARROT_IMITATE_WITHER_SKELETON);
+-            map.put((java.lang.Object)net.minecraft.world.entity.EntityType.ZOGLIN, (java.lang.Object)net.minecraft.sounds.SoundEvents.PARROT_IMITATE_ZOGLIN);
+-            map.put((java.lang.Object)net.minecraft.world.entity.EntityType.ZOMBIE, (java.lang.Object)net.minecraft.sounds.SoundEvents.PARROT_IMITATE_ZOMBIE);
+-            map.put((java.lang.Object)net.minecraft.world.entity.EntityType.ZOMBIE_VILLAGER, (java.lang.Object)net.minecraft.sounds.SoundEvents.PARROT_IMITATE_ZOMBIE_VILLAGER);
++        MOB_SOUND_MAP = (java.util.Map)net.minecraft.Util.make((java.lang.Object)com.google.common.collect.Maps.newHashMap(), $$0 -> {
++            $$0.put((java.lang.Object)net.minecraft.world.entity.EntityType.BLAZE, (java.lang.Object)net.minecraft.sounds.SoundEvents.PARROT_IMITATE_BLAZE);
++            $$0.put((java.lang.Object)net.minecraft.world.entity.EntityType.CAVE_SPIDER, (java.lang.Object)net.minecraft.sounds.SoundEvents.PARROT_IMITATE_SPIDER);
++            $$0.put((java.lang.Object)net.minecraft.world.entity.EntityType.CREEPER, (java.lang.Object)net.minecraft.sounds.SoundEvents.PARROT_IMITATE_CREEPER);
++            $$0.put((java.lang.Object)net.minecraft.world.entity.EntityType.DROWNED, (java.lang.Object)net.minecraft.sounds.SoundEvents.PARROT_IMITATE_DROWNED);
++            $$0.put((java.lang.Object)net.minecraft.world.entity.EntityType.ELDER_GUARDIAN, (java.lang.Object)net.minecraft.sounds.SoundEvents.PARROT_IMITATE_ELDER_GUARDIAN);
++            $$0.put((java.lang.Object)net.minecraft.world.entity.EntityType.ENDER_DRAGON, (java.lang.Object)net.minecraft.sounds.SoundEvents.PARROT_IMITATE_ENDER_DRAGON);
++            $$0.put((java.lang.Object)net.minecraft.world.entity.EntityType.ENDERMITE, (java.lang.Object)net.minecraft.sounds.SoundEvents.PARROT_IMITATE_ENDERMITE);
++            $$0.put((java.lang.Object)net.minecraft.world.entity.EntityType.EVOKER, (java.lang.Object)net.minecraft.sounds.SoundEvents.PARROT_IMITATE_EVOKER);
++            $$0.put((java.lang.Object)net.minecraft.world.entity.EntityType.GHAST, (java.lang.Object)net.minecraft.sounds.SoundEvents.PARROT_IMITATE_GHAST);
++            $$0.put((java.lang.Object)net.minecraft.world.entity.EntityType.GUARDIAN, (java.lang.Object)net.minecraft.sounds.SoundEvents.PARROT_IMITATE_GUARDIAN);
++            $$0.put((java.lang.Object)net.minecraft.world.entity.EntityType.HOGLIN, (java.lang.Object)net.minecraft.sounds.SoundEvents.PARROT_IMITATE_HOGLIN);
++            $$0.put((java.lang.Object)net.minecraft.world.entity.EntityType.HUSK, (java.lang.Object)net.minecraft.sounds.SoundEvents.PARROT_IMITATE_HUSK);
++            $$0.put((java.lang.Object)net.minecraft.world.entity.EntityType.ILLUSIONER, (java.lang.Object)net.minecraft.sounds.SoundEvents.PARROT_IMITATE_ILLUSIONER);
++            $$0.put((java.lang.Object)net.minecraft.world.entity.EntityType.MAGMA_CUBE, (java.lang.Object)net.minecraft.sounds.SoundEvents.PARROT_IMITATE_MAGMA_CUBE);
++            $$0.put((java.lang.Object)net.minecraft.world.entity.EntityType.PHANTOM, (java.lang.Object)net.minecraft.sounds.SoundEvents.PARROT_IMITATE_PHANTOM);
++            $$0.put((java.lang.Object)net.minecraft.world.entity.EntityType.PIGLIN, (java.lang.Object)net.minecraft.sounds.SoundEvents.PARROT_IMITATE_PIGLIN);
++            $$0.put((java.lang.Object)net.minecraft.world.entity.EntityType.PIGLIN_BRUTE, (java.lang.Object)net.minecraft.sounds.SoundEvents.PARROT_IMITATE_PIGLIN_BRUTE);
++            $$0.put((java.lang.Object)net.minecraft.world.entity.EntityType.PILLAGER, (java.lang.Object)net.minecraft.sounds.SoundEvents.PARROT_IMITATE_PILLAGER);
++            $$0.put((java.lang.Object)net.minecraft.world.entity.EntityType.RAVAGER, (java.lang.Object)net.minecraft.sounds.SoundEvents.PARROT_IMITATE_RAVAGER);
++            $$0.put((java.lang.Object)net.minecraft.world.entity.EntityType.SHULKER, (java.lang.Object)net.minecraft.sounds.SoundEvents.PARROT_IMITATE_SHULKER);
++            $$0.put((java.lang.Object)net.minecraft.world.entity.EntityType.SILVERFISH, (java.lang.Object)net.minecraft.sounds.SoundEvents.PARROT_IMITATE_SILVERFISH);
++            $$0.put((java.lang.Object)net.minecraft.world.entity.EntityType.SKELETON, (java.lang.Object)net.minecraft.sounds.SoundEvents.PARROT_IMITATE_SKELETON);
++            $$0.put((java.lang.Object)net.minecraft.world.entity.EntityType.SLIME, (java.lang.Object)net.minecraft.sounds.SoundEvents.PARROT_IMITATE_SLIME);
++            $$0.put((java.lang.Object)net.minecraft.world.entity.EntityType.SPIDER, (java.lang.Object)net.minecraft.sounds.SoundEvents.PARROT_IMITATE_SPIDER);
++            $$0.put((java.lang.Object)net.minecraft.world.entity.EntityType.STRAY, (java.lang.Object)net.minecraft.sounds.SoundEvents.PARROT_IMITATE_STRAY);
++            $$0.put((java.lang.Object)net.minecraft.world.entity.EntityType.VEX, (java.lang.Object)net.minecraft.sounds.SoundEvents.PARROT_IMITATE_VEX);
++            $$0.put((java.lang.Object)net.minecraft.world.entity.EntityType.VINDICATOR, (java.lang.Object)net.minecraft.sounds.SoundEvents.PARROT_IMITATE_VINDICATOR);
++            $$0.put((java.lang.Object)net.minecraft.world.entity.EntityType.WARDEN, (java.lang.Object)net.minecraft.sounds.SoundEvents.PARROT_IMITATE_WARDEN);
++            $$0.put((java.lang.Object)net.minecraft.world.entity.EntityType.WITCH, (java.lang.Object)net.minecraft.sounds.SoundEvents.PARROT_IMITATE_WITCH);
++            $$0.put((java.lang.Object)net.minecraft.world.entity.EntityType.WITHER, (java.lang.Object)net.minecraft.sounds.SoundEvents.PARROT_IMITATE_WITHER);
++            $$0.put((java.lang.Object)net.minecraft.world.entity.EntityType.WITHER_SKELETON, (java.lang.Object)net.minecraft.sounds.SoundEvents.PARROT_IMITATE_WITHER_SKELETON);
++            $$0.put((java.lang.Object)net.minecraft.world.entity.EntityType.ZOGLIN, (java.lang.Object)net.minecraft.sounds.SoundEvents.PARROT_IMITATE_ZOGLIN);
++            $$0.put((java.lang.Object)net.minecraft.world.entity.EntityType.ZOMBIE, (java.lang.Object)net.minecraft.sounds.SoundEvents.PARROT_IMITATE_ZOMBIE);
++            $$0.put((java.lang.Object)net.minecraft.world.entity.EntityType.ZOMBIE_VILLAGER, (java.lang.Object)net.minecraft.sounds.SoundEvents.PARROT_IMITATE_ZOMBIE_VILLAGER);
+         });
+     }
+ }

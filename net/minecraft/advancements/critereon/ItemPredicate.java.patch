@@ -1,0 +1,159 @@
+--- net/minecraft/advancements/critereon/ItemPredicate.java
++++ net/minecraft/advancements/critereon/ItemPredicate.java
+@@ -40,85 +40,80 @@
+         this.nbt = $$7;
+     }
+ 
+-    public boolean matches(net.minecraft.world.item.ItemStack item) {
+-        java.util.Map map;
++    public boolean matches(net.minecraft.world.item.ItemStack $$0) {
+         if (this == ANY) {
+             return true;
+         }
+-        if (this.tag != null && !item.is(this.tag)) {
++        if (this.tag != null && !$$0.is(this.tag)) {
+             return false;
+         }
+-        if (this.items != null && !this.items.contains((java.lang.Object)item.getItem())) {
++        if (this.items != null && !this.items.contains((java.lang.Object)$$0.getItem())) {
+             return false;
+         }
+-        if (!this.count.matches(item.getCount())) {
++        if (!this.count.matches($$0.getCount())) {
+             return false;
+         }
+-        if (!this.durability.isAny() && !item.isDamageableItem()) {
++        if (!this.durability.isAny() && !$$0.isDamageableItem()) {
+             return false;
+         }
+-        if (!this.durability.matches(item.getMaxDamage() - item.getDamageValue())) {
++        if (!this.durability.matches($$0.getMaxDamage() - $$0.getDamageValue())) {
+             return false;
+         }
+-        if (!this.nbt.matches(item)) {
++        if (!this.nbt.matches($$0)) {
+             return false;
+         }
+         if (this.enchantments.length > 0) {
+-            map = net.minecraft.world.item.enchantment.EnchantmentHelper.deserializeEnchantments((net.minecraft.nbt.ListTag)item.getEnchantmentTags());
+-            for (net.minecraft.advancements.critereon.EnchantmentPredicate enchantmentPredicate : this.enchantments) {
+-                if (enchantmentPredicate.containedIn(map)) continue;
++            java.util.Map $$1 = net.minecraft.world.item.enchantment.EnchantmentHelper.deserializeEnchantments((net.minecraft.nbt.ListTag)$$0.getEnchantmentTags());
++            for (net.minecraft.advancements.critereon.EnchantmentPredicate $$2 : this.enchantments) {
++                if ($$2.containedIn($$1)) continue;
+                 return false;
+             }
+         }
+         if (this.storedEnchantments.length > 0) {
+-            map = net.minecraft.world.item.enchantment.EnchantmentHelper.deserializeEnchantments((net.minecraft.nbt.ListTag)net.minecraft.world.item.EnchantedBookItem.getEnchantments((net.minecraft.world.item.ItemStack)item));
+-            for (net.minecraft.advancements.critereon.EnchantmentPredicate enchantmentPredicate : this.storedEnchantments) {
+-                if (enchantmentPredicate.containedIn(map)) continue;
++            java.util.Map $$3 = net.minecraft.world.item.enchantment.EnchantmentHelper.deserializeEnchantments((net.minecraft.nbt.ListTag)net.minecraft.world.item.EnchantedBookItem.getEnchantments((net.minecraft.world.item.ItemStack)$$0));
++            for (net.minecraft.advancements.critereon.EnchantmentPredicate $$4 : this.storedEnchantments) {
++                if ($$4.containedIn($$3)) continue;
+                 return false;
+             }
+         }
+-        map = net.minecraft.world.item.alchemy.PotionUtils.getPotion((net.minecraft.world.item.ItemStack)item);
+-        return this.potion == null || this.potion == map;
++        net.minecraft.world.item.alchemy.Potion $$5 = net.minecraft.world.item.alchemy.PotionUtils.getPotion((net.minecraft.world.item.ItemStack)$$0);
++        return this.potion == null || this.potion == $$5;
+     }
+ 
+-    public static net.minecraft.advancements.critereon.ItemPredicate fromJson(@javax.annotation.Nullable com.google.gson.JsonElement element) {
+-        java.util.Iterator iterator;
+-        net.minecraft.advancements.critereon.EnchantmentPredicate[] enchantmentPredicateArray;
+-        net.minecraft.resources.ResourceLocation resourceLocation2;
+-        com.google.common.collect.ImmutableSet$Builder builder;
+-        if (element == null || element.isJsonNull()) {
++    public static net.minecraft.advancements.critereon.ItemPredicate fromJson(@javax.annotation.Nullable com.google.gson.JsonElement $$0) {
++        if ($$0 == null || $$0.isJsonNull()) {
+             return ANY;
+         }
+-        com.google.gson.JsonObject jsonObject = net.minecraft.util.GsonHelper.convertToJsonObject((com.google.gson.JsonElement)element, (java.lang.String)"item");
+-        net.minecraft.advancements.critereon.MinMaxBounds$Ints ints = net.minecraft.advancements.critereon.MinMaxBounds$Ints.fromJson((com.google.gson.JsonElement)jsonObject.get("count"));
+-        net.minecraft.advancements.critereon.MinMaxBounds$Ints ints2 = net.minecraft.advancements.critereon.MinMaxBounds$Ints.fromJson((com.google.gson.JsonElement)jsonObject.get("durability"));
+-        if (jsonObject.has("data")) {
++        com.google.gson.JsonObject $$1 = net.minecraft.util.GsonHelper.convertToJsonObject((com.google.gson.JsonElement)$$0, (java.lang.String)"item");
++        net.minecraft.advancements.critereon.MinMaxBounds$Ints $$2 = net.minecraft.advancements.critereon.MinMaxBounds$Ints.fromJson((com.google.gson.JsonElement)$$1.get("count"));
++        net.minecraft.advancements.critereon.MinMaxBounds$Ints $$3 = net.minecraft.advancements.critereon.MinMaxBounds$Ints.fromJson((com.google.gson.JsonElement)$$1.get("durability"));
++        if ($$1.has("data")) {
+             throw new com.google.gson.JsonParseException("Disallowed data tag found");
+         }
+-        net.minecraft.advancements.critereon.NbtPredicate nbtPredicate = net.minecraft.advancements.critereon.NbtPredicate.fromJson((com.google.gson.JsonElement)jsonObject.get("nbt"));
+-        com.google.common.collect.ImmutableSet immutableSet = null;
+-        com.google.gson.JsonArray jsonArray = net.minecraft.util.GsonHelper.getAsJsonArray((com.google.gson.JsonObject)jsonObject, (java.lang.String)"items", null);
+-        if (jsonArray != null) {
+-            builder = com.google.common.collect.ImmutableSet.builder();
+-            for (net.minecraft.resources.ResourceLocation resourceLocation2 : jsonArray) {
+-                enchantmentPredicateArray = new net.minecraft.resources.ResourceLocation(net.minecraft.util.GsonHelper.convertToString((com.google.gson.JsonElement)resourceLocation2, (java.lang.String)"item"));
+-                builder.add((java.lang.Object)((net.minecraft.world.item.Item)net.minecraft.core.Registry.ITEM.getOptional((net.minecraft.resources.ResourceLocation)enchantmentPredicateArray).orElseThrow(() -> net.minecraft.advancements.critereon.ItemPredicate.lambda$fromJson$0((net.minecraft.resources.ResourceLocation)enchantmentPredicateArray))));
++        net.minecraft.advancements.critereon.NbtPredicate $$4 = net.minecraft.advancements.critereon.NbtPredicate.fromJson((com.google.gson.JsonElement)$$1.get("nbt"));
++        com.google.common.collect.ImmutableSet $$5 = null;
++        com.google.gson.JsonArray $$6 = net.minecraft.util.GsonHelper.getAsJsonArray((com.google.gson.JsonObject)$$1, (java.lang.String)"items", null);
++        if ($$6 != null) {
++            com.google.common.collect.ImmutableSet$Builder $$7 = com.google.common.collect.ImmutableSet.builder();
++            for (com.google.gson.JsonElement $$8 : $$6) {
++                net.minecraft.resources.ResourceLocation $$9 = new net.minecraft.resources.ResourceLocation(net.minecraft.util.GsonHelper.convertToString((com.google.gson.JsonElement)$$8, (java.lang.String)"item"));
++                $$7.add((java.lang.Object)((net.minecraft.world.item.Item)net.minecraft.core.Registry.ITEM.getOptional($$9).orElseThrow(() -> new com.google.gson.JsonSyntaxException("Unknown item id '" + $$9 + "'"))));
+             }
+-            immutableSet = builder.build();
++            $$5 = $$7.build();
+         }
+-        builder = null;
+-        if (jsonObject.has("tag")) {
+-            iterator = new net.minecraft.resources.ResourceLocation(net.minecraft.util.GsonHelper.getAsString((com.google.gson.JsonObject)jsonObject, (java.lang.String)"tag"));
+-            builder = net.minecraft.tags.TagKey.create((net.minecraft.resources.ResourceKey)net.minecraft.core.Registry.ITEM_REGISTRY, (net.minecraft.resources.ResourceLocation)iterator);
++        net.minecraft.tags.TagKey $$10 = null;
++        if ($$1.has("tag")) {
++            net.minecraft.resources.ResourceLocation $$11 = new net.minecraft.resources.ResourceLocation(net.minecraft.util.GsonHelper.getAsString((com.google.gson.JsonObject)$$1, (java.lang.String)"tag"));
++            $$10 = net.minecraft.tags.TagKey.create((net.minecraft.resources.ResourceKey)net.minecraft.core.Registry.ITEM_REGISTRY, (net.minecraft.resources.ResourceLocation)$$11);
+         }
+-        iterator = null;
+-        if (jsonObject.has("potion")) {
+-            resourceLocation2 = new net.minecraft.resources.ResourceLocation(net.minecraft.util.GsonHelper.getAsString((com.google.gson.JsonObject)jsonObject, (java.lang.String)"potion"));
+-            iterator = (net.minecraft.world.item.alchemy.Potion)net.minecraft.core.Registry.POTION.getOptional(resourceLocation2).orElseThrow(() -> new com.google.gson.JsonSyntaxException("Unknown potion '" + resourceLocation2 + "'"));
++        net.minecraft.world.item.alchemy.Potion $$12 = null;
++        if ($$1.has("potion")) {
++            net.minecraft.resources.ResourceLocation $$13 = new net.minecraft.resources.ResourceLocation(net.minecraft.util.GsonHelper.getAsString((com.google.gson.JsonObject)$$1, (java.lang.String)"potion"));
++            $$12 = (net.minecraft.world.item.alchemy.Potion)net.minecraft.core.Registry.POTION.getOptional($$13).orElseThrow(() -> new com.google.gson.JsonSyntaxException("Unknown potion '" + $$13 + "'"));
+         }
+-        resourceLocation2 = net.minecraft.advancements.critereon.EnchantmentPredicate.fromJsonArray((com.google.gson.JsonElement)jsonObject.get("enchantments"));
+-        enchantmentPredicateArray = net.minecraft.advancements.critereon.EnchantmentPredicate.fromJsonArray((com.google.gson.JsonElement)jsonObject.get("stored_enchantments"));
+-        return new net.minecraft.advancements.critereon.ItemPredicate((net.minecraft.tags.TagKey)builder, (java.util.Set)immutableSet, ints, ints2, (net.minecraft.advancements.critereon.EnchantmentPredicate[])resourceLocation2, enchantmentPredicateArray, (net.minecraft.world.item.alchemy.Potion)iterator, nbtPredicate);
++        net.minecraft.advancements.critereon.EnchantmentPredicate[] $$14 = net.minecraft.advancements.critereon.EnchantmentPredicate.fromJsonArray((com.google.gson.JsonElement)$$1.get("enchantments"));
++        net.minecraft.advancements.critereon.EnchantmentPredicate[] $$15 = net.minecraft.advancements.critereon.EnchantmentPredicate.fromJsonArray((com.google.gson.JsonElement)$$1.get("stored_enchantments"));
++        return new net.minecraft.advancements.critereon.ItemPredicate($$10, (java.util.Set)$$5, $$2, $$3, $$14, $$15, $$12, $$4);
+     }
+ 
+     public com.google.gson.JsonElement serializeToJson() {
+@@ -159,22 +154,18 @@
+         return $$0;
+     }
+ 
+-    public static net.minecraft.advancements.critereon.ItemPredicate[] fromJsonArray(@javax.annotation.Nullable com.google.gson.JsonElement element) {
+-        if (element == null || element.isJsonNull()) {
++    public static net.minecraft.advancements.critereon.ItemPredicate[] fromJsonArray(@javax.annotation.Nullable com.google.gson.JsonElement $$0) {
++        if ($$0 == null || $$0.isJsonNull()) {
+             return new net.minecraft.advancements.critereon.ItemPredicate[0];
+         }
+-        com.google.gson.JsonArray jsonArray = net.minecraft.util.GsonHelper.convertToJsonArray((com.google.gson.JsonElement)element, (java.lang.String)"items");
+-        net.minecraft.advancements.critereon.ItemPredicate[] itemPredicateArray = new net.minecraft.advancements.critereon.ItemPredicate[jsonArray.size()];
+-        for (int i = 0; i < itemPredicateArray.length; ++i) {
+-            itemPredicateArray[i] = net.minecraft.advancements.critereon.ItemPredicate.fromJson((com.google.gson.JsonElement)jsonArray.get(i));
++        com.google.gson.JsonArray $$1 = net.minecraft.util.GsonHelper.convertToJsonArray((com.google.gson.JsonElement)$$0, (java.lang.String)"items");
++        net.minecraft.advancements.critereon.ItemPredicate[] $$2 = new net.minecraft.advancements.critereon.ItemPredicate[$$1.size()];
++        for (int $$3 = 0; $$3 < $$2.length; ++$$3) {
++            $$2[$$3] = net.minecraft.advancements.critereon.ItemPredicate.fromJson((com.google.gson.JsonElement)$$1.get($$3));
+         }
+-        return itemPredicateArray;
++        return $$2;
+     }
+ 
+-    public static /* synthetic */ com.google.gson.JsonSyntaxException lambda$fromJson$0(net.minecraft.resources.ResourceLocation $$0) {
+-        return new com.google.gson.JsonSyntaxException("Unknown item id '" + $$0 + "'");
+-    }
+-
+     static {
+         ANY = new net.minecraft.advancements.critereon.ItemPredicate();
+     }

@@ -1,0 +1,72 @@
+--- net/minecraft/server/packs/resources/SimpleJsonResourceReloadListener.java
++++ net/minecraft/server/packs/resources/SimpleJsonResourceReloadListener.java
+@@ -7,8 +7,6 @@
+ extends net.minecraft.server.packs.resources.SimplePreparableReloadListener<java.util.Map<net.minecraft.resources.ResourceLocation, com.google.gson.JsonElement>>
+  {
+     public static org.slf4j.Logger LOGGER;
+-    public static java.lang.String PATH_SUFFIX = ".json";
+-    public static int PATH_SUFFIX_LENGTH;
+     public com.google.gson.Gson gson;
+     public java.lang.String directory;
+ 
+@@ -17,34 +15,33 @@
+         this.directory = $$1;
+     }
+ 
+-    public java.util.Map<net.minecraft.resources.ResourceLocation, com.google.gson.JsonElement> prepare(net.minecraft.server.packs.resources.ResourceManager resourceManager, net.minecraft.util.profiling.ProfilerFiller profiler) {
+-        java.util.HashMap hashMap = com.google.common.collect.Maps.newHashMap();
+-        int n = this.directory.length() + 1;
+-        for (java.util.Map$Entry entry : resourceManager.listResources(this.directory, $$0 -> $$0.getPath().endsWith(".json")).entrySet()) {
+-            net.minecraft.resources.ResourceLocation resourceLocation = (net.minecraft.resources.ResourceLocation)entry.getKey();
+-            java.lang.String string = resourceLocation.getPath();
+-            net.minecraft.resources.ResourceLocation resourceLocation2 = new net.minecraft.resources.ResourceLocation(resourceLocation.getNamespace(), string.substring(n, string.length() - PATH_SUFFIX_LENGTH));
++    public java.util.Map<net.minecraft.resources.ResourceLocation, com.google.gson.JsonElement> prepare(net.minecraft.server.packs.resources.ResourceManager $$0, net.minecraft.util.profiling.ProfilerFiller $$1) {
++        java.util.HashMap $$2 = com.google.common.collect.Maps.newHashMap();
++        net.minecraft.resources.FileToIdConverter $$3 = net.minecraft.resources.FileToIdConverter.json((java.lang.String)this.directory);
++        for (java.util.Map$Entry $$4 : $$3.listMatchingResources($$0).entrySet()) {
++            net.minecraft.resources.ResourceLocation $$5 = (net.minecraft.resources.ResourceLocation)$$4.getKey();
++            net.minecraft.resources.ResourceLocation $$6 = $$3.fileToId($$5);
+             try {
+-                java.io.BufferedReader bufferedReader = ((net.minecraft.server.packs.resources.Resource)entry.getValue()).openAsReader();
++                java.io.BufferedReader $$7 = ((net.minecraft.server.packs.resources.Resource)$$4.getValue()).openAsReader();
+                 try {
+-                    com.google.gson.JsonElement jsonElement = (com.google.gson.JsonElement)net.minecraft.util.GsonHelper.fromJson((com.google.gson.Gson)this.gson, (java.io.Reader)bufferedReader, com.google.gson.JsonElement.class);
+-                    if (jsonElement != null) {
+-                        com.google.gson.JsonElement jsonElement2 = (com.google.gson.JsonElement)hashMap.put((java.lang.Object)resourceLocation2, (java.lang.Object)jsonElement);
+-                        if (jsonElement2 == null) continue;
+-                        throw new java.lang.IllegalStateException("Duplicate data file ignored with ID " + resourceLocation2);
++                    com.google.gson.JsonElement $$8 = (com.google.gson.JsonElement)net.minecraft.util.GsonHelper.fromJson((com.google.gson.Gson)this.gson, (java.io.Reader)$$7, com.google.gson.JsonElement.class);
++                    if ($$8 != null) {
++                        com.google.gson.JsonElement $$9 = (com.google.gson.JsonElement)$$2.put((java.lang.Object)$$6, (java.lang.Object)$$8);
++                        if ($$9 == null) continue;
++                        throw new java.lang.IllegalStateException("Duplicate data file ignored with ID " + $$6);
+                     }
+-                    LOGGER.error("Couldn't load data file {} from {} as it's null or empty", (java.lang.Object)resourceLocation2, (java.lang.Object)resourceLocation);
++                    LOGGER.error("Couldn't load data file {} from {} as it's null or empty", (java.lang.Object)$$6, (java.lang.Object)$$5);
+                 }
+                 finally {
+-                    if (bufferedReader == null) continue;
+-                    bufferedReader.close();
++                    if ($$7 == null) continue;
++                    $$7.close();
+                 }
+             }
+-            catch (com.google.gson.JsonParseException | java.io.IOException | java.lang.IllegalArgumentException throwable) {
+-                LOGGER.error("Couldn't parse data file {} from {}", new java.lang.Object[]{resourceLocation2, resourceLocation, throwable});
++            catch (com.google.gson.JsonParseException | java.io.IOException | java.lang.IllegalArgumentException $$10) {
++                LOGGER.error("Couldn't parse data file {} from {}", new java.lang.Object[]{$$6, $$5, $$10});
+             }
+         }
+-        return hashMap;
++        return $$2;
+     }
+ 
+     public /* synthetic */ java.lang.Object prepare(net.minecraft.server.packs.resources.ResourceManager resourceManager, net.minecraft.util.profiling.ProfilerFiller profilerFiller) {
+@@ -53,7 +50,6 @@
+ 
+     static {
+         LOGGER = com.mojang.logging.LogUtils.getLogger();
+-        PATH_SUFFIX_LENGTH = ".json".length();
+     }
+ }
+ 

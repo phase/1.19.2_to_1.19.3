@@ -1,0 +1,181 @@
+--- net/minecraft/world/entity/projectile/ThrownPotion.java
++++ net/minecraft/world/entity/projectile/ThrownPotion.java
+@@ -15,12 +15,12 @@
+         super($$0, $$1);
+     }
+ 
+-    public net.minecraft.world.entity.projectile.ThrownPotion(net.minecraft.world.level.Level level, net.minecraft.world.entity.LivingEntity shooter) {
+-        super(net.minecraft.world.entity.EntityType.POTION, shooter, level);
++    public net.minecraft.world.entity.projectile.ThrownPotion(net.minecraft.world.level.Level $$0, net.minecraft.world.entity.LivingEntity $$1) {
++        super(net.minecraft.world.entity.EntityType.POTION, $$1, $$0);
+     }
+ 
+-    public net.minecraft.world.entity.projectile.ThrownPotion(net.minecraft.world.level.Level level, double x, double y, double z) {
+-        super(net.minecraft.world.entity.EntityType.POTION, x, y, z, level);
++    public net.minecraft.world.entity.projectile.ThrownPotion(net.minecraft.world.level.Level $$0, double $$1, double $$2, double $$3) {
++        super(net.minecraft.world.entity.EntityType.POTION, $$1, $$2, $$3, $$0);
+     }
+ 
+     public net.minecraft.world.item.Item getDefaultItem() {
+@@ -31,48 +31,48 @@
+         return 0.05f;
+     }
+ 
+-    public void onHitBlock(net.minecraft.world.phys.BlockHitResult result) {
+-        super.onHitBlock(result);
++    public void onHitBlock(net.minecraft.world.phys.BlockHitResult $$0) {
++        super.onHitBlock($$0);
+         if (this.level.isClientSide) {
+             return;
+         }
+-        net.minecraft.world.item.ItemStack itemStack = this.getItem();
+-        net.minecraft.world.item.alchemy.Potion potion = net.minecraft.world.item.alchemy.PotionUtils.getPotion((net.minecraft.world.item.ItemStack)itemStack);
+-        java.util.List list = net.minecraft.world.item.alchemy.PotionUtils.getMobEffects((net.minecraft.world.item.ItemStack)itemStack);
+-        boolean bl = potion == net.minecraft.world.item.alchemy.Potions.WATER && list.isEmpty();
+-        net.minecraft.core.Direction direction = result.getDirection();
+-        net.minecraft.core.BlockPos blockPos = result.getBlockPos();
+-        net.minecraft.core.BlockPos blockPos2 = blockPos.relative(direction);
+-        if (bl) {
+-            this.dowseFire(blockPos2);
+-            this.dowseFire(blockPos2.relative(direction.getOpposite()));
+-            for (net.minecraft.core.Direction direction2 : net.minecraft.core.Direction$Plane.HORIZONTAL) {
+-                this.dowseFire(blockPos2.relative(direction2));
++        net.minecraft.world.item.ItemStack $$1 = this.getItem();
++        net.minecraft.world.item.alchemy.Potion $$2 = net.minecraft.world.item.alchemy.PotionUtils.getPotion((net.minecraft.world.item.ItemStack)$$1);
++        java.util.List $$3 = net.minecraft.world.item.alchemy.PotionUtils.getMobEffects((net.minecraft.world.item.ItemStack)$$1);
++        boolean $$4 = $$2 == net.minecraft.world.item.alchemy.Potions.WATER && $$3.isEmpty();
++        net.minecraft.core.Direction $$5 = $$0.getDirection();
++        net.minecraft.core.BlockPos $$6 = $$0.getBlockPos();
++        net.minecraft.core.BlockPos $$7 = $$6.relative($$5);
++        if ($$4) {
++            this.dowseFire($$7);
++            this.dowseFire($$7.relative($$5.getOpposite()));
++            for (net.minecraft.core.Direction $$8 : net.minecraft.core.Direction$Plane.HORIZONTAL) {
++                this.dowseFire($$7.relative($$8));
+             }
+         }
+     }
+ 
+-    public void onHit(net.minecraft.world.phys.HitResult result) {
+-        boolean bl;
+-        super.onHit(result);
++    public void onHit(net.minecraft.world.phys.HitResult $$0) {
++        boolean $$4;
++        super.onHit($$0);
+         if (this.level.isClientSide) {
+             return;
+         }
+-        net.minecraft.world.item.ItemStack itemStack = this.getItem();
+-        net.minecraft.world.item.alchemy.Potion potion = net.minecraft.world.item.alchemy.PotionUtils.getPotion((net.minecraft.world.item.ItemStack)itemStack);
+-        java.util.List list = net.minecraft.world.item.alchemy.PotionUtils.getMobEffects((net.minecraft.world.item.ItemStack)itemStack);
+-        boolean bl2 = bl = potion == net.minecraft.world.item.alchemy.Potions.WATER && list.isEmpty();
+-        if (bl) {
++        net.minecraft.world.item.ItemStack $$1 = this.getItem();
++        net.minecraft.world.item.alchemy.Potion $$2 = net.minecraft.world.item.alchemy.PotionUtils.getPotion((net.minecraft.world.item.ItemStack)$$1);
++        java.util.List $$3 = net.minecraft.world.item.alchemy.PotionUtils.getMobEffects((net.minecraft.world.item.ItemStack)$$1);
++        boolean bl = $$4 = $$2 == net.minecraft.world.item.alchemy.Potions.WATER && $$3.isEmpty();
++        if ($$4) {
+             this.applyWater();
+-        } else if (!list.isEmpty()) {
++        } else if (!$$3.isEmpty()) {
+             if (this.isLingering()) {
+-                this.makeAreaOfEffectCloud(itemStack, potion);
++                this.makeAreaOfEffectCloud($$1, $$2);
+             } else {
+-                this.applySplash(list, result.getType() == net.minecraft.world.phys.HitResult$Type.ENTITY ? ((net.minecraft.world.phys.EntityHitResult)result).getEntity() : null);
++                this.applySplash($$3, $$0.getType() == net.minecraft.world.phys.HitResult$Type.ENTITY ? ((net.minecraft.world.phys.EntityHitResult)$$0).getEntity() : null);
+             }
+         }
+-        int n = potion.hasInstantEffects() ? 2007 : 2002;
+-        this.level.levelEvent(n, this.blockPosition(), net.minecraft.world.item.alchemy.PotionUtils.getColor((net.minecraft.world.item.ItemStack)itemStack));
++        int $$5 = $$2.hasInstantEffects() ? 2007 : 2002;
++        this.level.levelEvent($$5, this.blockPosition(), net.minecraft.world.item.alchemy.PotionUtils.getColor((net.minecraft.world.item.ItemStack)$$1));
+         this.discard();
+     }
+ 
+@@ -92,51 +92,51 @@
+         }
+     }
+ 
+-    public void applySplash(java.util.List<net.minecraft.world.effect.MobEffectInstance> effectInstances, @javax.annotation.Nullable net.minecraft.world.entity.Entity target) {
+-        net.minecraft.world.phys.AABB aABB = this.getBoundingBox().inflate(4.0, 2.0, 4.0);
+-        java.util.List list = this.level.getEntitiesOfClass(net.minecraft.world.entity.LivingEntity.class, aABB);
+-        if (!list.isEmpty()) {
+-            net.minecraft.world.entity.Entity entity = this.getEffectSource();
+-            for (net.minecraft.world.entity.LivingEntity livingEntity : list) {
+-                double d;
+-                if (!livingEntity.isAffectedByPotions() || !((d = this.distanceToSqr((net.minecraft.world.entity.Entity)livingEntity)) < 16.0)) continue;
+-                double d2 = 1.0 - java.lang.Math.sqrt((double)d) / 4.0;
+-                if (livingEntity == target) {
+-                    d2 = 1.0;
++    public void applySplash(java.util.List<net.minecraft.world.effect.MobEffectInstance> $$0, @javax.annotation.Nullable net.minecraft.world.entity.Entity $$1) {
++        net.minecraft.world.phys.AABB $$2 = this.getBoundingBox().inflate(4.0, 2.0, 4.0);
++        java.util.List $$3 = this.level.getEntitiesOfClass(net.minecraft.world.entity.LivingEntity.class, $$2);
++        if (!$$3.isEmpty()) {
++            net.minecraft.world.entity.Entity $$4 = this.getEffectSource();
++            for (net.minecraft.world.entity.LivingEntity $$5 : $$3) {
++                double $$6;
++                if (!$$5.isAffectedByPotions() || !(($$6 = this.distanceToSqr((net.minecraft.world.entity.Entity)$$5)) < 16.0)) continue;
++                double $$7 = 1.0 - java.lang.Math.sqrt((double)$$6) / 4.0;
++                if ($$5 == $$1) {
++                    $$7 = 1.0;
+                 }
+-                for (net.minecraft.world.effect.MobEffectInstance mobEffectInstance : effectInstances) {
+-                    net.minecraft.world.effect.MobEffect mobEffect = mobEffectInstance.getEffect();
+-                    if (mobEffect.isInstantenous()) {
+-                        mobEffect.applyInstantenousEffect((net.minecraft.world.entity.Entity)this, this.getOwner(), livingEntity, mobEffectInstance.getAmplifier(), d2);
++                for (net.minecraft.world.effect.MobEffectInstance $$8 : $$0) {
++                    net.minecraft.world.effect.MobEffect $$9 = $$8.getEffect();
++                    if ($$9.isInstantenous()) {
++                        $$9.applyInstantenousEffect((net.minecraft.world.entity.Entity)this, this.getOwner(), $$5, $$8.getAmplifier(), $$7);
+                         continue;
+                     }
+-                    int n = (int)(d2 * (double)mobEffectInstance.getDuration() + 0.5);
+-                    if (n <= 20) continue;
+-                    livingEntity.addEffect(new net.minecraft.world.effect.MobEffectInstance(mobEffect, n, mobEffectInstance.getAmplifier(), mobEffectInstance.isAmbient(), mobEffectInstance.isVisible()), entity);
++                    int $$10 = (int)($$7 * (double)$$8.getDuration() + 0.5);
++                    if ($$10 <= 20) continue;
++                    $$5.addEffect(new net.minecraft.world.effect.MobEffectInstance($$9, $$10, $$8.getAmplifier(), $$8.isAmbient(), $$8.isVisible()), $$4);
+                 }
+             }
+         }
+     }
+ 
+-    public void makeAreaOfEffectCloud(net.minecraft.world.item.ItemStack stack, net.minecraft.world.item.alchemy.Potion potion) {
+-        net.minecraft.world.entity.AreaEffectCloud areaEffectCloud = new net.minecraft.world.entity.AreaEffectCloud(this.level, this.getX(), this.getY(), this.getZ());
+-        net.minecraft.world.entity.Entity entity = this.getOwner();
+-        if (entity instanceof net.minecraft.world.entity.LivingEntity) {
+-            areaEffectCloud.setOwner((net.minecraft.world.entity.LivingEntity)entity);
++    public void makeAreaOfEffectCloud(net.minecraft.world.item.ItemStack $$0, net.minecraft.world.item.alchemy.Potion $$1) {
++        net.minecraft.world.entity.AreaEffectCloud $$2 = new net.minecraft.world.entity.AreaEffectCloud(this.level, this.getX(), this.getY(), this.getZ());
++        net.minecraft.world.entity.Entity $$3 = this.getOwner();
++        if ($$3 instanceof net.minecraft.world.entity.LivingEntity) {
++            $$2.setOwner((net.minecraft.world.entity.LivingEntity)$$3);
+         }
+-        areaEffectCloud.setRadius(3.0f);
+-        areaEffectCloud.setRadiusOnUse(-0.5f);
+-        areaEffectCloud.setWaitTime(10);
+-        areaEffectCloud.setRadiusPerTick(-areaEffectCloud.getRadius() / (float)areaEffectCloud.getDuration());
+-        areaEffectCloud.setPotion(potion);
+-        for (net.minecraft.world.effect.MobEffectInstance mobEffectInstance : net.minecraft.world.item.alchemy.PotionUtils.getCustomEffects((net.minecraft.world.item.ItemStack)stack)) {
+-            areaEffectCloud.addEffect(new net.minecraft.world.effect.MobEffectInstance(mobEffectInstance));
++        $$2.setRadius(3.0f);
++        $$2.setRadiusOnUse(-0.5f);
++        $$2.setWaitTime(10);
++        $$2.setRadiusPerTick(-$$2.getRadius() / (float)$$2.getDuration());
++        $$2.setPotion($$1);
++        for (net.minecraft.world.effect.MobEffectInstance $$4 : net.minecraft.world.item.alchemy.PotionUtils.getCustomEffects((net.minecraft.world.item.ItemStack)$$0)) {
++            $$2.addEffect(new net.minecraft.world.effect.MobEffectInstance($$4));
+         }
+-        java.util.Iterator iterator = stack.getTag();
+-        if (iterator != null && iterator.contains("CustomPotionColor", 99)) {
+-            areaEffectCloud.setFixedColor(iterator.getInt("CustomPotionColor"));
++        net.minecraft.nbt.CompoundTag $$5 = $$0.getTag();
++        if ($$5 != null && $$5.contains("CustomPotionColor", 99)) {
++            $$2.setFixedColor($$5.getInt("CustomPotionColor"));
+         }
+-        this.level.addFreshEntity((net.minecraft.world.entity.Entity)areaEffectCloud);
++        this.level.addFreshEntity((net.minecraft.world.entity.Entity)$$2);
+     }
+ 
+     public boolean isLingering() {

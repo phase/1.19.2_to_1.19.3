@@ -1,0 +1,863 @@
+--- net/minecraft/world/item/ItemStack.java
++++ net/minecraft/world/item/ItemStack.java
+@@ -20,6 +20,7 @@
+     public static java.lang.String TAG_CAN_DESTROY_BLOCK_LIST = "CanDestroy";
+     public static java.lang.String TAG_CAN_PLACE_ON_BLOCK_LIST = "CanPlaceOn";
+     public static java.lang.String TAG_HIDE_FLAGS = "HideFlags";
++    public static net.minecraft.network.chat.Component DISABLED_ITEM_TOOLTIP;
+     public static int DONT_HIDE_TOOLTIP = 0;
+     public static net.minecraft.network.chat.Style LORE_STYLE;
+     public int count;
+@@ -40,26 +41,26 @@
+         return this.getItem().getTooltipImage(this);
+     }
+ 
+-    public net.minecraft.world.item.ItemStack(net.minecraft.world.level.ItemLike item) {
+-        this(item, 1);
++    public net.minecraft.world.item.ItemStack(net.minecraft.world.level.ItemLike $$0) {
++        this($$0, 1);
+     }
+ 
+     public net.minecraft.world.item.ItemStack(net.minecraft.core.Holder<net.minecraft.world.item.Item> $$0) {
+         this((net.minecraft.world.level.ItemLike)$$0.value(), 1);
+     }
+ 
+-    public net.minecraft.world.item.ItemStack(net.minecraft.world.level.ItemLike item, int count, java.util.Optional<net.minecraft.nbt.CompoundTag> optionalTag) {
+-        this(item, count);
+-        optionalTag.ifPresent(arg_0 -> this.setTag(arg_0));
++    public net.minecraft.world.item.ItemStack(net.minecraft.world.level.ItemLike $$0, int $$1, java.util.Optional<net.minecraft.nbt.CompoundTag> $$2) {
++        this($$0, $$1);
++        $$2.ifPresent(arg_0 -> this.setTag(arg_0));
+     }
+ 
+     public net.minecraft.world.item.ItemStack(net.minecraft.core.Holder<net.minecraft.world.item.Item> $$0, int $$1) {
+         this((net.minecraft.world.level.ItemLike)$$0.value(), $$1);
+     }
+ 
+-    public net.minecraft.world.item.ItemStack(net.minecraft.world.level.ItemLike item, int count) {
+-        this.item = item == null ? null : item.asItem();
+-        this.count = count;
++    public net.minecraft.world.item.ItemStack(net.minecraft.world.level.ItemLike $$0, int $$1) {
++        this.item = $$0 == null ? null : $$0.asItem();
++        this.count = $$1;
+         if (this.item != null && this.item.canBeDepleted()) {
+             this.setDamageValue(this.getDamageValue());
+         }
+@@ -71,11 +72,11 @@
+         this.emptyCacheFlag = this.isEmpty();
+     }
+ 
+-    public net.minecraft.world.item.ItemStack(net.minecraft.nbt.CompoundTag compoundTag) {
+-        this.item = (net.minecraft.world.item.Item)net.minecraft.core.Registry.ITEM.get(new net.minecraft.resources.ResourceLocation(compoundTag.getString("id")));
+-        this.count = compoundTag.getByte("Count");
+-        if (compoundTag.contains("tag", 10)) {
+-            this.tag = compoundTag.getCompound("tag");
++    public net.minecraft.world.item.ItemStack(net.minecraft.nbt.CompoundTag $$0) {
++        this.item = (net.minecraft.world.item.Item)net.minecraft.core.Registry.ITEM.get(new net.minecraft.resources.ResourceLocation($$0.getString("id")));
++        this.count = $$0.getByte("Count");
++        if ($$0.contains("tag", 10)) {
++            this.tag = $$0.getCompound("tag");
+             this.getItem().verifyTagAfterLoad(this.tag);
+         }
+         if (this.getItem().canBeDepleted()) {
+@@ -84,12 +85,12 @@
+         this.updateEmptyCacheFlag();
+     }
+ 
+-    public static net.minecraft.world.item.ItemStack of(net.minecraft.nbt.CompoundTag compoundTag) {
++    public static net.minecraft.world.item.ItemStack of(net.minecraft.nbt.CompoundTag $$0) {
+         try {
+-            return new net.minecraft.world.item.ItemStack(compoundTag);
++            return new net.minecraft.world.item.ItemStack($$0);
+         }
+-        catch (java.lang.RuntimeException runtimeException) {
+-            LOGGER.debug("Tried to load invalid item: {}", (java.lang.Object)compoundTag, (java.lang.Object)((java.lang.Object)runtimeException));
++        catch (java.lang.RuntimeException $$1) {
++            LOGGER.debug("Tried to load invalid item: {}", (java.lang.Object)$$0, (java.lang.Object)((java.lang.Object)$$1));
+             return EMPTY;
+         }
+     }
+@@ -104,14 +105,18 @@
+         return this.count <= 0;
+     }
+ 
+-    public net.minecraft.world.item.ItemStack split(int amount) {
+-        int n = java.lang.Math.min((int)amount, (int)this.count);
+-        net.minecraft.world.item.ItemStack itemStack = this.copy();
+-        itemStack.setCount(n);
+-        this.shrink(n);
+-        return itemStack;
++    public boolean isItemEnabled(net.minecraft.world.flag.FeatureFlagSet $$0) {
++        return this.isEmpty() || this.getItem().isEnabled($$0);
+     }
+ 
++    public net.minecraft.world.item.ItemStack split(int $$0) {
++        int $$1 = java.lang.Math.min((int)$$0, (int)this.count);
++        net.minecraft.world.item.ItemStack $$2 = this.copy();
++        $$2.setCount($$1);
++        this.shrink($$1);
++        return $$2;
++    }
++
+     public net.minecraft.world.item.Item getItem() {
+         return this.emptyCacheFlag ? net.minecraft.world.item.Items.AIR : this.item;
+     }
+@@ -140,41 +145,41 @@
+         return this.getItem().builtInRegistryHolder().tags();
+     }
+ 
+-    public net.minecraft.world.InteractionResult useOn(net.minecraft.world.item.context.UseOnContext context) {
+-        net.minecraft.world.entity.player.Player player = context.getPlayer();
+-        net.minecraft.core.BlockPos blockPos = context.getClickedPos();
+-        net.minecraft.world.level.block.state.pattern.BlockInWorld blockInWorld = new net.minecraft.world.level.block.state.pattern.BlockInWorld((net.minecraft.world.level.LevelReader)context.getLevel(), blockPos, false);
+-        if (player != null && !player.getAbilities().mayBuild && !this.hasAdventureModePlaceTagForBlock(context.getLevel().registryAccess().registryOrThrow(net.minecraft.core.Registry.BLOCK_REGISTRY), blockInWorld)) {
++    public net.minecraft.world.InteractionResult useOn(net.minecraft.world.item.context.UseOnContext $$0) {
++        net.minecraft.world.entity.player.Player $$1 = $$0.getPlayer();
++        net.minecraft.core.BlockPos $$2 = $$0.getClickedPos();
++        net.minecraft.world.level.block.state.pattern.BlockInWorld $$3 = new net.minecraft.world.level.block.state.pattern.BlockInWorld((net.minecraft.world.level.LevelReader)$$0.getLevel(), $$2, false);
++        if ($$1 != null && !$$1.getAbilities().mayBuild && !this.hasAdventureModePlaceTagForBlock($$0.getLevel().registryAccess().registryOrThrow(net.minecraft.core.Registry.BLOCK_REGISTRY), $$3)) {
+             return net.minecraft.world.InteractionResult.PASS;
+         }
+-        net.minecraft.world.item.Item item = this.getItem();
+-        net.minecraft.world.InteractionResult interactionResult = item.useOn(context);
+-        if (player != null && interactionResult.shouldAwardStats()) {
+-            player.awardStat(net.minecraft.stats.Stats.ITEM_USED.get((java.lang.Object)item));
++        net.minecraft.world.item.Item $$4 = this.getItem();
++        net.minecraft.world.InteractionResult $$5 = $$4.useOn($$0);
++        if ($$1 != null && $$5.shouldAwardStats()) {
++            $$1.awardStat(net.minecraft.stats.Stats.ITEM_USED.get((java.lang.Object)$$4));
+         }
+-        return interactionResult;
++        return $$5;
+     }
+ 
+-    public float getDestroySpeed(net.minecraft.world.level.block.state.BlockState state) {
+-        return this.getItem().getDestroySpeed(this, state);
++    public float getDestroySpeed(net.minecraft.world.level.block.state.BlockState $$0) {
++        return this.getItem().getDestroySpeed(this, $$0);
+     }
+ 
+-    public net.minecraft.world.InteractionResultHolder<net.minecraft.world.item.ItemStack> use(net.minecraft.world.level.Level level, net.minecraft.world.entity.player.Player player, net.minecraft.world.InteractionHand usedHand) {
+-        return this.getItem().use(level, player, usedHand);
++    public net.minecraft.world.InteractionResultHolder<net.minecraft.world.item.ItemStack> use(net.minecraft.world.level.Level $$0, net.minecraft.world.entity.player.Player $$1, net.minecraft.world.InteractionHand $$2) {
++        return this.getItem().use($$0, $$1, $$2);
+     }
+ 
+-    public net.minecraft.world.item.ItemStack finishUsingItem(net.minecraft.world.level.Level level, net.minecraft.world.entity.LivingEntity livingEntity) {
+-        return this.getItem().finishUsingItem(this, level, livingEntity);
++    public net.minecraft.world.item.ItemStack finishUsingItem(net.minecraft.world.level.Level $$0, net.minecraft.world.entity.LivingEntity $$1) {
++        return this.getItem().finishUsingItem(this, $$0, $$1);
+     }
+ 
+-    public net.minecraft.nbt.CompoundTag save(net.minecraft.nbt.CompoundTag compoundTag) {
+-        net.minecraft.resources.ResourceLocation resourceLocation = net.minecraft.core.Registry.ITEM.getKey((java.lang.Object)this.getItem());
+-        compoundTag.putString("id", resourceLocation == null ? "minecraft:air" : resourceLocation.toString());
+-        compoundTag.putByte("Count", (byte)this.count);
++    public net.minecraft.nbt.CompoundTag save(net.minecraft.nbt.CompoundTag $$0) {
++        net.minecraft.resources.ResourceLocation $$1 = net.minecraft.core.Registry.ITEM.getKey((java.lang.Object)this.getItem());
++        $$0.putString("id", $$1 == null ? "minecraft:air" : $$1.toString());
++        $$0.putByte("Count", (byte)this.count);
+         if (this.tag != null) {
+-            compoundTag.put("tag", (net.minecraft.nbt.Tag)this.tag.copy());
++            $$0.put("tag", (net.minecraft.nbt.Tag)this.tag.copy());
+         }
+-        return compoundTag;
++        return $$0;
+     }
+ 
+     public int getMaxStackSize() {
+@@ -201,8 +206,8 @@
+         return this.tag == null ? 0 : this.tag.getInt("Damage");
+     }
+ 
+-    public void setDamageValue(int damage) {
+-        this.getOrCreateTag().putInt("Damage", java.lang.Math.max((int)0, (int)damage));
++    public void setDamageValue(int $$0) {
++        this.getOrCreateTag().putInt("Damage", java.lang.Math.max((int)0, (int)$$0));
+     }
+ 
+     public int getMaxDamage() {
+@@ -232,19 +237,19 @@
+         return $$6 >= this.getMaxDamage();
+     }
+ 
+-    public <T extends net.minecraft.world.entity.LivingEntity> void hurtAndBreak(int amount, T entity, java.util.function.Consumer<T> onBroken) {
+-        if (entity.level.isClientSide || entity instanceof net.minecraft.world.entity.player.Player && ((net.minecraft.world.entity.player.Player)entity).getAbilities().instabuild) {
++    public <T extends net.minecraft.world.entity.LivingEntity> void hurtAndBreak(int $$0, T $$1, java.util.function.Consumer<T> $$2) {
++        if ($$1.level.isClientSide || $$1 instanceof net.minecraft.world.entity.player.Player && ((net.minecraft.world.entity.player.Player)$$1).getAbilities().instabuild) {
+             return;
+         }
+         if (!this.isDamageableItem()) {
+             return;
+         }
+-        if (this.hurt(amount, entity.getRandom(), entity instanceof net.minecraft.server.level.ServerPlayer ? (net.minecraft.server.level.ServerPlayer)entity : null)) {
+-            onBroken.accept(entity);
+-            net.minecraft.world.item.Item item = this.getItem();
++        if (this.hurt($$0, $$1.getRandom(), $$1 instanceof net.minecraft.server.level.ServerPlayer ? (net.minecraft.server.level.ServerPlayer)$$1 : null)) {
++            $$2.accept($$1);
++            net.minecraft.world.item.Item $$3 = this.getItem();
+             this.shrink(1);
+-            if (entity instanceof net.minecraft.world.entity.player.Player) {
+-                ((net.minecraft.world.entity.player.Player)entity).awardStat(net.minecraft.stats.Stats.ITEM_BROKEN.get((java.lang.Object)item));
++            if ($$1 instanceof net.minecraft.world.entity.player.Player) {
++                ((net.minecraft.world.entity.player.Player)$$1).awardStat(net.minecraft.stats.Stats.ITEM_BROKEN.get((java.lang.Object)$$3));
+             }
+             this.setDamageValue(0);
+         }
+@@ -270,26 +275,26 @@
+         return this.getItem().overrideOtherStackedOnMe(this, $$0, $$1, $$2, $$3, $$4);
+     }
+ 
+-    public void hurtEnemy(net.minecraft.world.entity.LivingEntity entity, net.minecraft.world.entity.player.Player player) {
+-        net.minecraft.world.item.Item item = this.getItem();
+-        if (item.hurtEnemy(this, entity, (net.minecraft.world.entity.LivingEntity)player)) {
+-            player.awardStat(net.minecraft.stats.Stats.ITEM_USED.get((java.lang.Object)item));
++    public void hurtEnemy(net.minecraft.world.entity.LivingEntity $$0, net.minecraft.world.entity.player.Player $$1) {
++        net.minecraft.world.item.Item $$2 = this.getItem();
++        if ($$2.hurtEnemy(this, $$0, (net.minecraft.world.entity.LivingEntity)$$1)) {
++            $$1.awardStat(net.minecraft.stats.Stats.ITEM_USED.get((java.lang.Object)$$2));
+         }
+     }
+ 
+-    public void mineBlock(net.minecraft.world.level.Level level, net.minecraft.world.level.block.state.BlockState state, net.minecraft.core.BlockPos pos, net.minecraft.world.entity.player.Player player) {
+-        net.minecraft.world.item.Item item = this.getItem();
+-        if (item.mineBlock(this, level, state, pos, (net.minecraft.world.entity.LivingEntity)player)) {
+-            player.awardStat(net.minecraft.stats.Stats.ITEM_USED.get((java.lang.Object)item));
++    public void mineBlock(net.minecraft.world.level.Level $$0, net.minecraft.world.level.block.state.BlockState $$1, net.minecraft.core.BlockPos $$2, net.minecraft.world.entity.player.Player $$3) {
++        net.minecraft.world.item.Item $$4 = this.getItem();
++        if ($$4.mineBlock(this, $$0, $$1, $$2, (net.minecraft.world.entity.LivingEntity)$$3)) {
++            $$3.awardStat(net.minecraft.stats.Stats.ITEM_USED.get((java.lang.Object)$$4));
+         }
+     }
+ 
+-    public boolean isCorrectToolForDrops(net.minecraft.world.level.block.state.BlockState state) {
+-        return this.getItem().isCorrectToolForDrops(state);
++    public boolean isCorrectToolForDrops(net.minecraft.world.level.block.state.BlockState $$0) {
++        return this.getItem().isCorrectToolForDrops($$0);
+     }
+ 
+-    public net.minecraft.world.InteractionResult interactLivingEntity(net.minecraft.world.entity.player.Player player, net.minecraft.world.entity.LivingEntity entity, net.minecraft.world.InteractionHand usedHand) {
+-        return this.getItem().interactLivingEntity(this, player, entity, usedHand);
++    public net.minecraft.world.InteractionResult interactLivingEntity(net.minecraft.world.entity.player.Player $$0, net.minecraft.world.entity.LivingEntity $$1, net.minecraft.world.InteractionHand $$2) {
++        return this.getItem().interactLivingEntity(this, $$0, $$1, $$2);
+     }
+ 
+     public net.minecraft.world.item.ItemStack copy() {
+@@ -304,71 +309,71 @@
+         return $$0;
+     }
+ 
+-    public static boolean tagMatches(net.minecraft.world.item.ItemStack stack, net.minecraft.world.item.ItemStack other) {
+-        if (stack.isEmpty() && other.isEmpty()) {
++    public static boolean tagMatches(net.minecraft.world.item.ItemStack $$0, net.minecraft.world.item.ItemStack $$1) {
++        if ($$0.isEmpty() && $$1.isEmpty()) {
+             return true;
+         }
+-        if (stack.isEmpty() || other.isEmpty()) {
++        if ($$0.isEmpty() || $$1.isEmpty()) {
+             return false;
+         }
+-        if (stack.tag == null && other.tag != null) {
++        if ($$0.tag == null && $$1.tag != null) {
+             return false;
+         }
+-        return stack.tag == null || stack.tag.equals((java.lang.Object)other.tag);
++        return $$0.tag == null || $$0.tag.equals((java.lang.Object)$$1.tag);
+     }
+ 
+-    public static boolean matches(net.minecraft.world.item.ItemStack stack, net.minecraft.world.item.ItemStack other) {
+-        if (stack.isEmpty() && other.isEmpty()) {
++    public static boolean matches(net.minecraft.world.item.ItemStack $$0, net.minecraft.world.item.ItemStack $$1) {
++        if ($$0.isEmpty() && $$1.isEmpty()) {
+             return true;
+         }
+-        if (stack.isEmpty() || other.isEmpty()) {
++        if ($$0.isEmpty() || $$1.isEmpty()) {
+             return false;
+         }
+-        return stack.matches(other);
++        return $$0.matches($$1);
+     }
+ 
+-    public boolean matches(net.minecraft.world.item.ItemStack other) {
+-        if (this.count != other.count) {
++    public boolean matches(net.minecraft.world.item.ItemStack $$0) {
++        if (this.count != $$0.count) {
+             return false;
+         }
+-        if (!this.is(other.getItem())) {
++        if (!this.is($$0.getItem())) {
+             return false;
+         }
+-        if (this.tag == null && other.tag != null) {
++        if (this.tag == null && $$0.tag != null) {
+             return false;
+         }
+-        return this.tag == null || this.tag.equals((java.lang.Object)other.tag);
++        return this.tag == null || this.tag.equals((java.lang.Object)$$0.tag);
+     }
+ 
+-    public static boolean isSame(net.minecraft.world.item.ItemStack stack, net.minecraft.world.item.ItemStack other) {
+-        if (stack == other) {
++    public static boolean isSame(net.minecraft.world.item.ItemStack $$0, net.minecraft.world.item.ItemStack $$1) {
++        if ($$0 == $$1) {
+             return true;
+         }
+-        if (!stack.isEmpty() && !other.isEmpty()) {
+-            return stack.sameItem(other);
++        if (!$$0.isEmpty() && !$$1.isEmpty()) {
++            return $$0.sameItem($$1);
+         }
+         return false;
+     }
+ 
+-    public static boolean isSameIgnoreDurability(net.minecraft.world.item.ItemStack stack, net.minecraft.world.item.ItemStack other) {
+-        if (stack == other) {
++    public static boolean isSameIgnoreDurability(net.minecraft.world.item.ItemStack $$0, net.minecraft.world.item.ItemStack $$1) {
++        if ($$0 == $$1) {
+             return true;
+         }
+-        if (!stack.isEmpty() && !other.isEmpty()) {
+-            return stack.sameItemStackIgnoreDurability(other);
++        if (!$$0.isEmpty() && !$$1.isEmpty()) {
++            return $$0.sameItemStackIgnoreDurability($$1);
+         }
+         return false;
+     }
+ 
+-    public boolean sameItem(net.minecraft.world.item.ItemStack other) {
+-        return !other.isEmpty() && this.is(other.getItem());
++    public boolean sameItem(net.minecraft.world.item.ItemStack $$0) {
++        return !$$0.isEmpty() && this.is($$0.getItem());
+     }
+ 
+-    public boolean sameItemStackIgnoreDurability(net.minecraft.world.item.ItemStack stack) {
++    public boolean sameItemStackIgnoreDurability(net.minecraft.world.item.ItemStack $$0) {
+         if (this.isDamageableItem()) {
+-            return !stack.isEmpty() && this.is(stack.getItem());
++            return !$$0.isEmpty() && this.is($$0.getItem());
+         }
+-        return this.sameItem(stack);
++        return this.sameItem($$0);
+     }
+ 
+     public static boolean isSameItemSameTags(net.minecraft.world.item.ItemStack $$0, net.minecraft.world.item.ItemStack $$1) {
+@@ -383,18 +388,18 @@
+         return this.count + " " + this.getItem();
+     }
+ 
+-    public void inventoryTick(net.minecraft.world.level.Level level, net.minecraft.world.entity.Entity entity, int inventorySlot, boolean isCurrentItem) {
++    public void inventoryTick(net.minecraft.world.level.Level $$0, net.minecraft.world.entity.Entity $$1, int $$2, boolean $$3) {
+         if (this.popTime > 0) {
+             --this.popTime;
+         }
+         if (this.getItem() != null) {
+-            this.getItem().inventoryTick(this, level, entity, inventorySlot, isCurrentItem);
++            this.getItem().inventoryTick(this, $$0, $$1, $$2, $$3);
+         }
+     }
+ 
+-    public void onCraftedBy(net.minecraft.world.level.Level level, net.minecraft.world.entity.player.Player player, int amount) {
+-        player.awardStat(net.minecraft.stats.Stats.ITEM_CRAFTED.get((java.lang.Object)this.getItem()), amount);
+-        this.getItem().onCraftedBy(this, level, player);
++    public void onCraftedBy(net.minecraft.world.level.Level $$0, net.minecraft.world.entity.player.Player $$1, int $$2) {
++        $$1.awardStat(net.minecraft.stats.Stats.ITEM_CRAFTED.get((java.lang.Object)this.getItem()), $$2);
++        this.getItem().onCraftedBy(this, $$0, $$1);
+     }
+ 
+     public int getUseDuration() {
+@@ -405,8 +410,8 @@
+         return this.getItem().getUseAnimation(this);
+     }
+ 
+-    public void releaseUsing(net.minecraft.world.level.Level level, net.minecraft.world.entity.LivingEntity livingEntity, int timeLeft) {
+-        this.getItem().releaseUsing(this, level, livingEntity, timeLeft);
++    public void releaseUsing(net.minecraft.world.level.Level $$0, net.minecraft.world.entity.LivingEntity $$1, int $$2) {
++        this.getItem().releaseUsing(this, $$0, $$1, $$2);
+     }
+ 
+     public boolean useOnRelease() {
+@@ -429,26 +434,26 @@
+         return this.tag;
+     }
+ 
+-    public net.minecraft.nbt.CompoundTag getOrCreateTagElement(java.lang.String key) {
+-        if (this.tag == null || !this.tag.contains(key, 10)) {
+-            net.minecraft.nbt.CompoundTag compoundTag = new net.minecraft.nbt.CompoundTag();
+-            this.addTagElement(key, (net.minecraft.nbt.Tag)compoundTag);
+-            return compoundTag;
++    public net.minecraft.nbt.CompoundTag getOrCreateTagElement(java.lang.String $$0) {
++        if (this.tag == null || !this.tag.contains($$0, 10)) {
++            net.minecraft.nbt.CompoundTag $$1 = new net.minecraft.nbt.CompoundTag();
++            this.addTagElement($$0, (net.minecraft.nbt.Tag)$$1);
++            return $$1;
+         }
+-        return this.tag.getCompound(key);
++        return this.tag.getCompound($$0);
+     }
+ 
+     @javax.annotation.Nullable
+-    public net.minecraft.nbt.CompoundTag getTagElement(java.lang.String key) {
+-        if (this.tag == null || !this.tag.contains(key, 10)) {
++    public net.minecraft.nbt.CompoundTag getTagElement(java.lang.String $$0) {
++        if (this.tag == null || !this.tag.contains($$0, 10)) {
+             return null;
+         }
+-        return this.tag.getCompound(key);
++        return this.tag.getCompound($$0);
+     }
+ 
+-    public void removeTagKey(java.lang.String key) {
+-        if (this.tag != null && this.tag.contains(key)) {
+-            this.tag.remove(key);
++    public void removeTagKey(java.lang.String $$0) {
++        if (this.tag != null && this.tag.contains($$0)) {
++            this.tag.remove($$0);
+             if (this.tag.isEmpty()) {
+                 this.tag = null;
+             }
+@@ -462,13 +467,13 @@
+         return new net.minecraft.nbt.ListTag();
+     }
+ 
+-    public void setTag(@javax.annotation.Nullable net.minecraft.nbt.CompoundTag compoundTag) {
+-        this.tag = compoundTag;
++    public void setTag(@javax.annotation.Nullable net.minecraft.nbt.CompoundTag $$0) {
++        this.tag = $$0;
+         if (this.getItem().canBeDepleted()) {
+             this.setDamageValue(this.getDamageValue());
+         }
+-        if (compoundTag != null) {
+-            this.getItem().verifyTagAfterLoad(compoundTag);
++        if ($$0 != null) {
++            this.getItem().verifyTagAfterLoad($$0);
+         }
+     }
+ 
+@@ -489,12 +494,12 @@
+         return this.getItem().getName(this);
+     }
+ 
+-    public net.minecraft.world.item.ItemStack setHoverName(@javax.annotation.Nullable net.minecraft.network.chat.Component nameComponent) {
+-        net.minecraft.nbt.CompoundTag compoundTag = this.getOrCreateTagElement("display");
+-        if (nameComponent != null) {
+-            compoundTag.putString("Name", net.minecraft.network.chat.Component$Serializer.toJson((net.minecraft.network.chat.Component)nameComponent));
++    public net.minecraft.world.item.ItemStack setHoverName(@javax.annotation.Nullable net.minecraft.network.chat.Component $$0) {
++        net.minecraft.nbt.CompoundTag $$1 = this.getOrCreateTagElement("display");
++        if ($$0 != null) {
++            $$1.putString("Name", net.minecraft.network.chat.Component$Serializer.toJson((net.minecraft.network.chat.Component)$$0));
+         } else {
+-            compoundTag.remove("Name");
++            $$1.remove("Name");
+         }
+         return this;
+     }
+@@ -517,127 +522,130 @@
+         return $$0 != null && $$0.contains("Name", 8);
+     }
+ 
+-    public java.util.List<net.minecraft.network.chat.Component> getTooltipLines(@javax.annotation.Nullable net.minecraft.world.entity.player.Player player, net.minecraft.world.item.TooltipFlag isAdvanced) {
+-        com.google.common.collect.Multimap multimap;
+-        java.lang.Object object;
+-        int n;
+-        net.minecraft.nbt.CompoundTag compoundTag;
+-        int n2;
+-        java.lang.Integer n3;
+-        java.util.ArrayList arrayList = com.google.common.collect.Lists.newArrayList();
+-        net.minecraft.network.chat.MutableComponent mutableComponent = net.minecraft.network.chat.Component.empty().append(this.getHoverName()).withStyle(this.getRarity().color);
++    public java.util.List<net.minecraft.network.chat.Component> getTooltipLines(@javax.annotation.Nullable net.minecraft.world.entity.player.Player $$0, net.minecraft.world.item.TooltipFlag $$1) {
++        int $$5;
++        java.lang.Integer $$4;
++        java.util.ArrayList $$2 = com.google.common.collect.Lists.newArrayList();
++        net.minecraft.network.chat.MutableComponent $$3 = net.minecraft.network.chat.Component.empty().append(this.getHoverName()).withStyle(this.getRarity().color);
+         if (this.hasCustomHoverName()) {
+-            mutableComponent.withStyle(net.minecraft.ChatFormatting.ITALIC);
++            $$3.withStyle(net.minecraft.ChatFormatting.ITALIC);
+         }
+-        arrayList.add((java.lang.Object)mutableComponent);
+-        if (!isAdvanced.isAdvanced() && !this.hasCustomHoverName() && this.is(net.minecraft.world.item.Items.FILLED_MAP) && (n3 = net.minecraft.world.item.MapItem.getMapId((net.minecraft.world.item.ItemStack)this)) != null) {
+-            arrayList.add((java.lang.Object)net.minecraft.network.chat.Component.literal((java.lang.String)("#" + n3)).withStyle(net.minecraft.ChatFormatting.GRAY));
++        $$2.add((java.lang.Object)$$3);
++        if (!$$1.isAdvanced() && !this.hasCustomHoverName() && this.is(net.minecraft.world.item.Items.FILLED_MAP) && ($$4 = net.minecraft.world.item.MapItem.getMapId((net.minecraft.world.item.ItemStack)this)) != null) {
++            $$2.add((java.lang.Object)net.minecraft.network.chat.Component.literal((java.lang.String)("#" + $$4)).withStyle(net.minecraft.ChatFormatting.GRAY));
+         }
+-        if (net.minecraft.world.item.ItemStack.shouldShowInTooltip((int)(n2 = this.getHideFlags()), (net.minecraft.world.item.ItemStack$TooltipPart)net.minecraft.world.item.ItemStack$TooltipPart.ADDITIONAL)) {
+-            this.getItem().appendHoverText(this, player == null ? null : player.level, (java.util.List)arrayList, isAdvanced);
++        if (net.minecraft.world.item.ItemStack.shouldShowInTooltip((int)($$5 = this.getHideFlags()), (net.minecraft.world.item.ItemStack$TooltipPart)net.minecraft.world.item.ItemStack$TooltipPart.ADDITIONAL)) {
++            this.getItem().appendHoverText(this, $$0 == null ? null : $$0.level, (java.util.List)$$2, $$1);
+         }
+         if (this.hasTag()) {
+-            if (net.minecraft.world.item.ItemStack.shouldShowInTooltip((int)n2, (net.minecraft.world.item.ItemStack$TooltipPart)net.minecraft.world.item.ItemStack$TooltipPart.ENCHANTMENTS)) {
+-                net.minecraft.world.item.ItemStack.appendEnchantmentNames((java.util.List)arrayList, (net.minecraft.nbt.ListTag)this.getEnchantmentTags());
++            if (net.minecraft.world.item.ItemStack.shouldShowInTooltip((int)$$5, (net.minecraft.world.item.ItemStack$TooltipPart)net.minecraft.world.item.ItemStack$TooltipPart.ENCHANTMENTS)) {
++                net.minecraft.world.item.ItemStack.appendEnchantmentNames((java.util.List)$$2, (net.minecraft.nbt.ListTag)this.getEnchantmentTags());
+             }
+             if (this.tag.contains("display", 10)) {
+-                compoundTag = this.tag.getCompound("display");
+-                if (net.minecraft.world.item.ItemStack.shouldShowInTooltip((int)n2, (net.minecraft.world.item.ItemStack$TooltipPart)net.minecraft.world.item.ItemStack$TooltipPart.DYE) && compoundTag.contains("color", 99)) {
+-                    if (isAdvanced.isAdvanced()) {
+-                        arrayList.add((java.lang.Object)net.minecraft.network.chat.Component.translatable((java.lang.String)"item.color", (java.lang.Object[])new java.lang.Object[]{java.lang.String.format((java.util.Locale)java.util.Locale.ROOT, (java.lang.String)"#%06X", (java.lang.Object[])new java.lang.Object[]{compoundTag.getInt("color")})}).withStyle(net.minecraft.ChatFormatting.GRAY));
++                net.minecraft.nbt.CompoundTag $$6 = this.tag.getCompound("display");
++                if (net.minecraft.world.item.ItemStack.shouldShowInTooltip((int)$$5, (net.minecraft.world.item.ItemStack$TooltipPart)net.minecraft.world.item.ItemStack$TooltipPart.DYE) && $$6.contains("color", 99)) {
++                    if ($$1.isAdvanced()) {
++                        $$2.add((java.lang.Object)net.minecraft.network.chat.Component.translatable((java.lang.String)"item.color", (java.lang.Object[])new java.lang.Object[]{java.lang.String.format((java.util.Locale)java.util.Locale.ROOT, (java.lang.String)"#%06X", (java.lang.Object[])new java.lang.Object[]{$$6.getInt("color")})}).withStyle(net.minecraft.ChatFormatting.GRAY));
+                     } else {
+-                        arrayList.add((java.lang.Object)net.minecraft.network.chat.Component.translatable((java.lang.String)"item.dyed").withStyle(new net.minecraft.ChatFormatting[]{net.minecraft.ChatFormatting.GRAY, net.minecraft.ChatFormatting.ITALIC}));
++                        $$2.add((java.lang.Object)net.minecraft.network.chat.Component.translatable((java.lang.String)"item.dyed").withStyle(new net.minecraft.ChatFormatting[]{net.minecraft.ChatFormatting.GRAY, net.minecraft.ChatFormatting.ITALIC}));
+                     }
+                 }
+-                if (compoundTag.getTagType("Lore") == 9) {
+-                    net.minecraft.nbt.ListTag listTag = compoundTag.getList("Lore", 8);
+-                    for (n = 0;
+- n < listTag.size(); ++n) {
+-                        object = listTag.getString(n);
++                if ($$6.getTagType("Lore") == 9) {
++                    net.minecraft.nbt.ListTag $$7 = $$6.getList("Lore", 8);
++                    for (int $$8 = 0; $$8 < $$7.size(); ++$$8) {
++                        java.lang.String $$9 = $$7.getString($$8);
+                         try {
+-                            multimap = net.minecraft.network.chat.Component$Serializer.fromJson((java.lang.String)object);
+-                            if (multimap == null) continue;
+-                            arrayList.add((java.lang.Object)net.minecraft.network.chat.ComponentUtils.mergeStyles((net.minecraft.network.chat.MutableComponent)multimap, (net.minecraft.network.chat.Style)LORE_STYLE));
++                            net.minecraft.network.chat.MutableComponent $$10 = net.minecraft.network.chat.Component$Serializer.fromJson((java.lang.String)$$9);
++                            if ($$10 == null) continue;
++                            $$2.add((java.lang.Object)net.minecraft.network.chat.ComponentUtils.mergeStyles((net.minecraft.network.chat.MutableComponent)$$10, (net.minecraft.network.chat.Style)LORE_STYLE));
+                             continue;
+                         }
+-                        catch (java.lang.Exception exception) {
+-                            compoundTag.remove("Lore");
++                        catch (java.lang.Exception $$11) {
++                            $$6.remove("Lore");
+                         }
+                     }
+                 }
+             }
+         }
+-        if (net.minecraft.world.item.ItemStack.shouldShowInTooltip((int)n2, (net.minecraft.world.item.ItemStack$TooltipPart)net.minecraft.world.item.ItemStack$TooltipPart.MODIFIERS)) {
+-            compoundTag = net.minecraft.world.entity.EquipmentSlot.values();
+-            int n4 = ((net.minecraft.world.entity.EquipmentSlot[])compoundTag).length;
+-            for (n = 0;
+- n < n4; ++n) {
+-                object = compoundTag[n];
+-                multimap = this.getAttributeModifiers((net.minecraft.world.entity.EquipmentSlot)object);
+-                if (multimap.isEmpty()) continue;
+-                arrayList.add((java.lang.Object)net.minecraft.network.chat.CommonComponents.EMPTY);
+-                arrayList.add((java.lang.Object)net.minecraft.network.chat.Component.translatable((java.lang.String)("item.modifiers." + object.getName())).withStyle(net.minecraft.ChatFormatting.GRAY));
+-                for (java.util.Map$Entry entry : multimap.entries()) {
+-                    net.minecraft.world.entity.ai.attributes.AttributeModifier attributeModifier = (net.minecraft.world.entity.ai.attributes.AttributeModifier)entry.getValue();
+-                    double d = attributeModifier.getAmount();
+-                    boolean bl = false;
+-                    if (player != null) {
+-                        if (attributeModifier.getId() == net.minecraft.world.item.Item.BASE_ATTACK_DAMAGE_UUID) {
+-                            d += player.getAttributeBaseValue(net.minecraft.world.entity.ai.attributes.Attributes.ATTACK_DAMAGE);
+-                            d += (double)net.minecraft.world.item.enchantment.EnchantmentHelper.getDamageBonus((net.minecraft.world.item.ItemStack)this, (net.minecraft.world.entity.MobType)net.minecraft.world.entity.MobType.UNDEFINED);
+-                            bl = true;
+-                        } else if (attributeModifier.getId() == net.minecraft.world.item.Item.BASE_ATTACK_SPEED_UUID) {
+-                            d += player.getAttributeBaseValue(net.minecraft.world.entity.ai.attributes.Attributes.ATTACK_SPEED);
+-                            bl = true;
++        if (net.minecraft.world.item.ItemStack.shouldShowInTooltip((int)$$5, (net.minecraft.world.item.ItemStack$TooltipPart)net.minecraft.world.item.ItemStack$TooltipPart.MODIFIERS)) {
++            for (net.minecraft.nbt.CompoundTag $$12 : net.minecraft.world.entity.EquipmentSlot.values()) {
++                com.google.common.collect.Multimap $$13 = this.getAttributeModifiers((net.minecraft.world.entity.EquipmentSlot)$$12);
++                if ($$13.isEmpty()) continue;
++                $$2.add((java.lang.Object)net.minecraft.network.chat.CommonComponents.EMPTY);
++                $$2.add((java.lang.Object)net.minecraft.network.chat.Component.translatable((java.lang.String)("item.modifiers." + $$12.getName())).withStyle(net.minecraft.ChatFormatting.GRAY));
++                for (java.util.Map$Entry $$14 : $$13.entries()) {
++                    double $$20;
++                    net.minecraft.world.entity.ai.attributes.AttributeModifier $$15 = (net.minecraft.world.entity.ai.attributes.AttributeModifier)$$14.getValue();
++                    double $$16 = $$15.getAmount();
++                    boolean $$17 = false;
++                    if ($$0 != null) {
++                        if ($$15.getId() == net.minecraft.world.item.Item.BASE_ATTACK_DAMAGE_UUID) {
++                            $$16 += $$0.getAttributeBaseValue(net.minecraft.world.entity.ai.attributes.Attributes.ATTACK_DAMAGE);
++                            $$16 += (double)net.minecraft.world.item.enchantment.EnchantmentHelper.getDamageBonus((net.minecraft.world.item.ItemStack)this, (net.minecraft.world.entity.MobType)net.minecraft.world.entity.MobType.UNDEFINED);
++                            $$17 = true;
++                        } else if ($$15.getId() == net.minecraft.world.item.Item.BASE_ATTACK_SPEED_UUID) {
++                            $$16 += $$0.getAttributeBaseValue(net.minecraft.world.entity.ai.attributes.Attributes.ATTACK_SPEED);
++                            $$17 = true;
+                         }
+                     }
+-                    double d2 = attributeModifier.getOperation() == net.minecraft.world.entity.ai.attributes.AttributeModifier$Operation.MULTIPLY_BASE || attributeModifier.getOperation() == net.minecraft.world.entity.ai.attributes.AttributeModifier$Operation.MULTIPLY_TOTAL ? d * 100.0 : (((net.minecraft.world.entity.ai.attributes.Attribute)entry.getKey()).equals((java.lang.Object)net.minecraft.world.entity.ai.attributes.Attributes.KNOCKBACK_RESISTANCE) ? d * 10.0 : d);
+-                    if (bl) {
+-                        arrayList.add((java.lang.Object)net.minecraft.network.chat.Component.literal((java.lang.String)" ").append((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)("attribute.modifier.equals." + attributeModifier.getOperation().toValue()), (java.lang.Object[])new java.lang.Object[]{ATTRIBUTE_MODIFIER_FORMAT.format(d2), net.minecraft.network.chat.Component.translatable((java.lang.String)((net.minecraft.world.entity.ai.attributes.Attribute)entry.getKey()).getDescriptionId())})).withStyle(net.minecraft.ChatFormatting.DARK_GREEN));
++                    if ($$15.getOperation() == net.minecraft.world.entity.ai.attributes.AttributeModifier$Operation.MULTIPLY_BASE || $$15.getOperation() == net.minecraft.world.entity.ai.attributes.AttributeModifier$Operation.MULTIPLY_TOTAL) {
++                        double $$18 = $$16 * 100.0;
++                    } else if (((net.minecraft.world.entity.ai.attributes.Attribute)$$14.getKey()).equals((java.lang.Object)net.minecraft.world.entity.ai.attributes.Attributes.KNOCKBACK_RESISTANCE)) {
++                        double $$19 = $$16 * 10.0;
++                    } else {
++                        $$20 = $$16;
++                    }
++                    if ($$17) {
++                        $$2.add((java.lang.Object)net.minecraft.network.chat.Component.literal((java.lang.String)" ").append((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)("attribute.modifier.equals." + $$15.getOperation().toValue()), (java.lang.Object[])new java.lang.Object[]{ATTRIBUTE_MODIFIER_FORMAT.format($$20), net.minecraft.network.chat.Component.translatable((java.lang.String)((net.minecraft.world.entity.ai.attributes.Attribute)$$14.getKey()).getDescriptionId())})).withStyle(net.minecraft.ChatFormatting.DARK_GREEN));
+                         continue;
+                     }
+-                    if (d > 0.0) {
+-                        arrayList.add((java.lang.Object)net.minecraft.network.chat.Component.translatable((java.lang.String)("attribute.modifier.plus." + attributeModifier.getOperation().toValue()), (java.lang.Object[])new java.lang.Object[]{ATTRIBUTE_MODIFIER_FORMAT.format(d2), net.minecraft.network.chat.Component.translatable((java.lang.String)((net.minecraft.world.entity.ai.attributes.Attribute)entry.getKey()).getDescriptionId())}).withStyle(net.minecraft.ChatFormatting.BLUE));
++                    if ($$16 > 0.0) {
++                        $$2.add((java.lang.Object)net.minecraft.network.chat.Component.translatable((java.lang.String)("attribute.modifier.plus." + $$15.getOperation().toValue()), (java.lang.Object[])new java.lang.Object[]{ATTRIBUTE_MODIFIER_FORMAT.format($$20), net.minecraft.network.chat.Component.translatable((java.lang.String)((net.minecraft.world.entity.ai.attributes.Attribute)$$14.getKey()).getDescriptionId())}).withStyle(net.minecraft.ChatFormatting.BLUE));
+                         continue;
+                     }
+-                    if (!(d < 0.0)) continue;
+-                    arrayList.add((java.lang.Object)net.minecraft.network.chat.Component.translatable((java.lang.String)("attribute.modifier.take." + attributeModifier.getOperation().toValue()), (java.lang.Object[])new java.lang.Object[]{ATTRIBUTE_MODIFIER_FORMAT.format(d2 *= -1.0), net.minecraft.network.chat.Component.translatable((java.lang.String)((net.minecraft.world.entity.ai.attributes.Attribute)entry.getKey()).getDescriptionId())}).withStyle(net.minecraft.ChatFormatting.RED));
++                    if (!($$16 < 0.0)) continue;
++                    $$2.add((java.lang.Object)net.minecraft.network.chat.Component.translatable((java.lang.String)("attribute.modifier.take." + $$15.getOperation().toValue()), (java.lang.Object[])new java.lang.Object[]{ATTRIBUTE_MODIFIER_FORMAT.format($$20 *= -1.0), net.minecraft.network.chat.Component.translatable((java.lang.String)((net.minecraft.world.entity.ai.attributes.Attribute)$$14.getKey()).getDescriptionId())}).withStyle(net.minecraft.ChatFormatting.RED));
+                 }
+             }
+         }
+         if (this.hasTag()) {
+-            if (net.minecraft.world.item.ItemStack.shouldShowInTooltip((int)n2, (net.minecraft.world.item.ItemStack$TooltipPart)net.minecraft.world.item.ItemStack$TooltipPart.UNBREAKABLE) && this.tag.getBoolean("Unbreakable")) {
+-                arrayList.add((java.lang.Object)net.minecraft.network.chat.Component.translatable((java.lang.String)"item.unbreakable").withStyle(net.minecraft.ChatFormatting.BLUE));
++            net.minecraft.nbt.ListTag $$23;
++            net.minecraft.nbt.ListTag $$21;
++            if (net.minecraft.world.item.ItemStack.shouldShowInTooltip((int)$$5, (net.minecraft.world.item.ItemStack$TooltipPart)net.minecraft.world.item.ItemStack$TooltipPart.UNBREAKABLE) && this.tag.getBoolean("Unbreakable")) {
++                $$2.add((java.lang.Object)net.minecraft.network.chat.Component.translatable((java.lang.String)"item.unbreakable").withStyle(net.minecraft.ChatFormatting.BLUE));
+             }
+-            if (net.minecraft.world.item.ItemStack.shouldShowInTooltip((int)n2, (net.minecraft.world.item.ItemStack$TooltipPart)net.minecraft.world.item.ItemStack$TooltipPart.CAN_DESTROY) && this.tag.contains("CanDestroy", 9) && !(compoundTag = this.tag.getList("CanDestroy", 8)).isEmpty()) {
+-                arrayList.add((java.lang.Object)net.minecraft.network.chat.CommonComponents.EMPTY);
+-                arrayList.add((java.lang.Object)net.minecraft.network.chat.Component.translatable((java.lang.String)"item.canBreak").withStyle(net.minecraft.ChatFormatting.GRAY));
+-                for (int i = 0; i < compoundTag.size(); ++i) {
+-                    arrayList.addAll(net.minecraft.world.item.ItemStack.expandBlockState((java.lang.String)compoundTag.getString(i)));
++            if (net.minecraft.world.item.ItemStack.shouldShowInTooltip((int)$$5, (net.minecraft.world.item.ItemStack$TooltipPart)net.minecraft.world.item.ItemStack$TooltipPart.CAN_DESTROY) && this.tag.contains("CanDestroy", 9) && !($$21 = this.tag.getList("CanDestroy", 8)).isEmpty()) {
++                $$2.add((java.lang.Object)net.minecraft.network.chat.CommonComponents.EMPTY);
++                $$2.add((java.lang.Object)net.minecraft.network.chat.Component.translatable((java.lang.String)"item.canBreak").withStyle(net.minecraft.ChatFormatting.GRAY));
++                for (int $$22 = 0; $$22 < $$21.size(); ++$$22) {
++                    $$2.addAll(net.minecraft.world.item.ItemStack.expandBlockState((java.lang.String)$$21.getString($$22)));
+                 }
+             }
+-            if (net.minecraft.world.item.ItemStack.shouldShowInTooltip((int)n2, (net.minecraft.world.item.ItemStack$TooltipPart)net.minecraft.world.item.ItemStack$TooltipPart.CAN_PLACE) && this.tag.contains("CanPlaceOn", 9) && !(compoundTag = this.tag.getList("CanPlaceOn", 8)).isEmpty()) {
+-                arrayList.add((java.lang.Object)net.minecraft.network.chat.CommonComponents.EMPTY);
+-                arrayList.add((java.lang.Object)net.minecraft.network.chat.Component.translatable((java.lang.String)"item.canPlace").withStyle(net.minecraft.ChatFormatting.GRAY));
+-                for (int i = 0; i < compoundTag.size(); ++i) {
+-                    arrayList.addAll(net.minecraft.world.item.ItemStack.expandBlockState((java.lang.String)compoundTag.getString(i)));
++            if (net.minecraft.world.item.ItemStack.shouldShowInTooltip((int)$$5, (net.minecraft.world.item.ItemStack$TooltipPart)net.minecraft.world.item.ItemStack$TooltipPart.CAN_PLACE) && this.tag.contains("CanPlaceOn", 9) && !($$23 = this.tag.getList("CanPlaceOn", 8)).isEmpty()) {
++                $$2.add((java.lang.Object)net.minecraft.network.chat.CommonComponents.EMPTY);
++                $$2.add((java.lang.Object)net.minecraft.network.chat.Component.translatable((java.lang.String)"item.canPlace").withStyle(net.minecraft.ChatFormatting.GRAY));
++                for (int $$24 = 0; $$24 < $$23.size(); ++$$24) {
++                    $$2.addAll(net.minecraft.world.item.ItemStack.expandBlockState((java.lang.String)$$23.getString($$24)));
+                 }
+             }
+         }
+-        if (isAdvanced.isAdvanced()) {
++        if ($$1.isAdvanced()) {
+             if (this.isDamaged()) {
+-                arrayList.add((java.lang.Object)net.minecraft.network.chat.Component.translatable((java.lang.String)"item.durability", (java.lang.Object[])new java.lang.Object[]{this.getMaxDamage() - this.getDamageValue(), this.getMaxDamage()}));
++                $$2.add((java.lang.Object)net.minecraft.network.chat.Component.translatable((java.lang.String)"item.durability", (java.lang.Object[])new java.lang.Object[]{this.getMaxDamage() - this.getDamageValue(), this.getMaxDamage()}));
+             }
+-            arrayList.add((java.lang.Object)net.minecraft.network.chat.Component.literal((java.lang.String)net.minecraft.core.Registry.ITEM.getKey((java.lang.Object)this.getItem()).toString()).withStyle(net.minecraft.ChatFormatting.DARK_GRAY));
++            $$2.add((java.lang.Object)net.minecraft.network.chat.Component.literal((java.lang.String)net.minecraft.core.Registry.ITEM.getKey((java.lang.Object)this.getItem()).toString()).withStyle(net.minecraft.ChatFormatting.DARK_GRAY));
+             if (this.hasTag()) {
+-                arrayList.add((java.lang.Object)net.minecraft.network.chat.Component.translatable((java.lang.String)"item.nbt_tags", (java.lang.Object[])new java.lang.Object[]{this.tag.getAllKeys().size()}).withStyle(net.minecraft.ChatFormatting.DARK_GRAY));
++                $$2.add((java.lang.Object)net.minecraft.network.chat.Component.translatable((java.lang.String)"item.nbt_tags", (java.lang.Object[])new java.lang.Object[]{this.tag.getAllKeys().size()}).withStyle(net.minecraft.ChatFormatting.DARK_GRAY));
+             }
+         }
+-        return arrayList;
++        if ($$0 != null && !this.getItem().isEnabled($$0.getLevel().enabledFeatures())) {
++            $$2.add((java.lang.Object)DISABLED_ITEM_TOOLTIP);
++        }
++        return $$2;
+     }
+ 
+-    public static boolean shouldShowInTooltip(int hideFlags, net.minecraft.world.item.ItemStack$TooltipPart part) {
+-        return (hideFlags & part.getMask()) == 0;
++    public static boolean shouldShowInTooltip(int $$0, net.minecraft.world.item.ItemStack$TooltipPart $$1) {
++        return ($$0 & $$1.getMask()) == 0;
+     }
+ 
+     public int getHideFlags() {
+@@ -647,21 +655,21 @@
+         return 0;
+     }
+ 
+-    public void hideTooltipPart(net.minecraft.world.item.ItemStack$TooltipPart part) {
+-        net.minecraft.nbt.CompoundTag compoundTag = this.getOrCreateTag();
+-        compoundTag.putInt("HideFlags", compoundTag.getInt("HideFlags") | part.getMask());
++    public void hideTooltipPart(net.minecraft.world.item.ItemStack$TooltipPart $$0) {
++        net.minecraft.nbt.CompoundTag $$1 = this.getOrCreateTag();
++        $$1.putInt("HideFlags", $$1.getInt("HideFlags") | $$0.getMask());
+     }
+ 
+-    public static void appendEnchantmentNames(java.util.List<net.minecraft.network.chat.Component> tooltipComponents, net.minecraft.nbt.ListTag storedEnchantments) {
+-        for (int i = 0; i < storedEnchantments.size(); ++i) {
+-            net.minecraft.nbt.CompoundTag compoundTag = storedEnchantments.getCompound(i);
+-            net.minecraft.core.Registry.ENCHANTMENT.getOptional(net.minecraft.world.item.enchantment.EnchantmentHelper.getEnchantmentId((net.minecraft.nbt.CompoundTag)compoundTag)).ifPresent(enchantment -> tooltipComponents.add((java.lang.Object)enchantment.getFullname(net.minecraft.world.item.enchantment.EnchantmentHelper.getEnchantmentLevel((net.minecraft.nbt.CompoundTag)compoundTag))));
++    public static void appendEnchantmentNames(java.util.List<net.minecraft.network.chat.Component> $$0, net.minecraft.nbt.ListTag $$1) {
++        for (int $$22 = 0; $$22 < $$1.size(); ++$$22) {
++            net.minecraft.nbt.CompoundTag $$3 = $$1.getCompound($$22);
++            net.minecraft.core.Registry.ENCHANTMENT.getOptional(net.minecraft.world.item.enchantment.EnchantmentHelper.getEnchantmentId((net.minecraft.nbt.CompoundTag)$$3)).ifPresent($$2 -> $$0.add((java.lang.Object)$$2.getFullname(net.minecraft.world.item.enchantment.EnchantmentHelper.getEnchantmentLevel((net.minecraft.nbt.CompoundTag)$$3))));
+         }
+     }
+ 
+-    public static java.util.Collection<net.minecraft.network.chat.Component> expandBlockState(java.lang.String stateString) {
++    public static java.util.Collection<net.minecraft.network.chat.Component> expandBlockState(java.lang.String $$03) {
+         try {
+-            return (java.util.Collection)net.minecraft.commands.arguments.blocks.BlockStateParser.parseForTesting((net.minecraft.core.Registry)net.minecraft.core.Registry.BLOCK, (java.lang.String)stateString, (boolean)true).map($$0 -> com.google.common.collect.Lists.newArrayList((java.lang.Object[])new net.minecraft.network.chat.Component[]{$$0.blockState().getBlock().getName().withStyle(net.minecraft.ChatFormatting.DARK_GRAY)}), $$02 -> (java.util.List)$$02.tag().stream().map($$0 -> ((net.minecraft.world.level.block.Block)$$0.value()).getName().withStyle(net.minecraft.ChatFormatting.DARK_GRAY)).collect(java.util.stream.Collectors.toList()));
++            return (java.util.Collection)net.minecraft.commands.arguments.blocks.BlockStateParser.parseForTesting((net.minecraft.core.HolderLookup)net.minecraft.core.HolderLookup.forRegistry((net.minecraft.core.Registry)net.minecraft.core.Registry.BLOCK), (java.lang.String)$$03, (boolean)true).map($$0 -> com.google.common.collect.Lists.newArrayList((java.lang.Object[])new net.minecraft.network.chat.Component[]{$$0.blockState().getBlock().getName().withStyle(net.minecraft.ChatFormatting.DARK_GRAY)}), $$02 -> (java.util.List)$$02.tag().stream().map($$0 -> ((net.minecraft.world.level.block.Block)$$0.value()).getName().withStyle(net.minecraft.ChatFormatting.DARK_GRAY)).collect(java.util.stream.Collectors.toList()));
+         }
+         catch (com.mojang.brigadier.exceptions.CommandSyntaxException commandSyntaxException) {
+             return com.google.common.collect.Lists.newArrayList((java.lang.Object[])new net.minecraft.network.chat.Component[]{net.minecraft.network.chat.Component.literal((java.lang.String)"missingno").withStyle(net.minecraft.ChatFormatting.DARK_GRAY)});
+@@ -683,13 +691,13 @@
+         return !this.isEnchanted();
+     }
+ 
+-    public void enchant(net.minecraft.world.item.enchantment.Enchantment enchantment, int level) {
++    public void enchant(net.minecraft.world.item.enchantment.Enchantment $$0, int $$1) {
+         this.getOrCreateTag();
+         if (!this.tag.contains("Enchantments", 9)) {
+             this.tag.put("Enchantments", (net.minecraft.nbt.Tag)new net.minecraft.nbt.ListTag());
+         }
+-        net.minecraft.nbt.ListTag listTag = this.tag.getList("Enchantments", 10);
+-        listTag.add((java.lang.Object)net.minecraft.world.item.enchantment.EnchantmentHelper.storeEnchantment((net.minecraft.resources.ResourceLocation)net.minecraft.world.item.enchantment.EnchantmentHelper.getEnchantmentId((net.minecraft.world.item.enchantment.Enchantment)enchantment), (int)((byte)level)));
++        net.minecraft.nbt.ListTag $$2 = this.tag.getList("Enchantments", 10);
++        $$2.add((java.lang.Object)net.minecraft.world.item.enchantment.EnchantmentHelper.storeEnchantment((net.minecraft.resources.ResourceLocation)net.minecraft.world.item.enchantment.EnchantmentHelper.getEnchantmentId((net.minecraft.world.item.enchantment.Enchantment)$$0), (int)((byte)$$1)));
+     }
+ 
+     public boolean isEnchanted() {
+@@ -699,16 +707,16 @@
+         return false;
+     }
+ 
+-    public void addTagElement(java.lang.String key, net.minecraft.nbt.Tag tag) {
+-        this.getOrCreateTag().put(key, tag);
++    public void addTagElement(java.lang.String $$0, net.minecraft.nbt.Tag $$1) {
++        this.getOrCreateTag().put($$0, $$1);
+     }
+ 
+     public boolean isFramed() {
+         return this.entityRepresentation instanceof net.minecraft.world.entity.decoration.ItemFrame;
+     }
+ 
+-    public void setEntityRepresentation(@javax.annotation.Nullable net.minecraft.world.entity.Entity entity) {
+-        this.entityRepresentation = entity;
++    public void setEntityRepresentation(@javax.annotation.Nullable net.minecraft.world.entity.Entity $$0) {
++        this.entityRepresentation = $$0;
+     }
+ 
+     @javax.annotation.Nullable
+@@ -728,40 +736,40 @@
+         return 0;
+     }
+ 
+-    public void setRepairCost(int cost) {
+-        this.getOrCreateTag().putInt("RepairCost", cost);
++    public void setRepairCost(int $$0) {
++        this.getOrCreateTag().putInt("RepairCost", $$0);
+     }
+ 
+-    public com.google.common.collect.Multimap<net.minecraft.world.entity.ai.attributes.Attribute, net.minecraft.world.entity.ai.attributes.AttributeModifier> getAttributeModifiers(net.minecraft.world.entity.EquipmentSlot slot) {
+-        com.google.common.collect.Multimap multimap;
++    public com.google.common.collect.Multimap<net.minecraft.world.entity.ai.attributes.Attribute, net.minecraft.world.entity.ai.attributes.AttributeModifier> getAttributeModifiers(net.minecraft.world.entity.EquipmentSlot $$0) {
++        com.google.common.collect.Multimap $$7;
+         if (this.hasTag() && this.tag.contains("AttributeModifiers", 9)) {
+-            multimap = com.google.common.collect.HashMultimap.create();
+-            net.minecraft.nbt.ListTag listTag = this.tag.getList("AttributeModifiers", 10);
+-            for (int i = 0; i < listTag.size(); ++i) {
+-                net.minecraft.world.entity.ai.attributes.AttributeModifier attributeModifier;
+-                java.util.Optional optional;
+-                net.minecraft.nbt.CompoundTag compoundTag = listTag.getCompound(i);
+-                if (compoundTag.contains("Slot", 8) && !compoundTag.getString("Slot").equals((java.lang.Object)slot.getName()) || !(optional = net.minecraft.core.Registry.ATTRIBUTE.getOptional(net.minecraft.resources.ResourceLocation.tryParse((java.lang.String)compoundTag.getString("AttributeName")))).isPresent() || (attributeModifier = net.minecraft.world.entity.ai.attributes.AttributeModifier.load((net.minecraft.nbt.CompoundTag)compoundTag)) == null || attributeModifier.getId().getLeastSignificantBits() == 0L || attributeModifier.getId().getMostSignificantBits() == 0L) continue;
+-                multimap.put((java.lang.Object)((net.minecraft.world.entity.ai.attributes.Attribute)optional.get()), (java.lang.Object)attributeModifier);
++            com.google.common.collect.HashMultimap $$1 = com.google.common.collect.HashMultimap.create();
++            net.minecraft.nbt.ListTag $$2 = this.tag.getList("AttributeModifiers", 10);
++            for (int $$3 = 0; $$3 < $$2.size(); ++$$3) {
++                net.minecraft.world.entity.ai.attributes.AttributeModifier $$6;
++                java.util.Optional $$5;
++                net.minecraft.nbt.CompoundTag $$4 = $$2.getCompound($$3);
++                if ($$4.contains("Slot", 8) && !$$4.getString("Slot").equals((java.lang.Object)$$0.getName()) || !($$5 = net.minecraft.core.Registry.ATTRIBUTE.getOptional(net.minecraft.resources.ResourceLocation.tryParse((java.lang.String)$$4.getString("AttributeName")))).isPresent() || ($$6 = net.minecraft.world.entity.ai.attributes.AttributeModifier.load((net.minecraft.nbt.CompoundTag)$$4)) == null || $$6.getId().getLeastSignificantBits() == 0L || $$6.getId().getMostSignificantBits() == 0L) continue;
++                $$1.put((java.lang.Object)((net.minecraft.world.entity.ai.attributes.Attribute)$$5.get()), (java.lang.Object)$$6);
+             }
+         } else {
+-            multimap = this.getItem().getDefaultAttributeModifiers(slot);
++            $$7 = this.getItem().getDefaultAttributeModifiers($$0);
+         }
+-        return multimap;
++        return $$7;
+     }
+ 
+-    public void addAttributeModifier(net.minecraft.world.entity.ai.attributes.Attribute attribute, net.minecraft.world.entity.ai.attributes.AttributeModifier modifier, @javax.annotation.Nullable net.minecraft.world.entity.EquipmentSlot slot) {
++    public void addAttributeModifier(net.minecraft.world.entity.ai.attributes.Attribute $$0, net.minecraft.world.entity.ai.attributes.AttributeModifier $$1, @javax.annotation.Nullable net.minecraft.world.entity.EquipmentSlot $$2) {
+         this.getOrCreateTag();
+         if (!this.tag.contains("AttributeModifiers", 9)) {
+             this.tag.put("AttributeModifiers", (net.minecraft.nbt.Tag)new net.minecraft.nbt.ListTag());
+         }
+-        net.minecraft.nbt.ListTag listTag = this.tag.getList("AttributeModifiers", 10);
+-        net.minecraft.nbt.CompoundTag compoundTag = modifier.save();
+-        compoundTag.putString("AttributeName", net.minecraft.core.Registry.ATTRIBUTE.getKey((java.lang.Object)attribute).toString());
+-        if (slot != null) {
+-            compoundTag.putString("Slot", slot.getName());
++        net.minecraft.nbt.ListTag $$3 = this.tag.getList("AttributeModifiers", 10);
++        net.minecraft.nbt.CompoundTag $$4 = $$1.save();
++        $$4.putString("AttributeName", net.minecraft.core.Registry.ATTRIBUTE.getKey((java.lang.Object)$$0).toString());
++        if ($$2 != null) {
++            $$4.putString("Slot", $$2.getName());
+         }
+-        listTag.add((java.lang.Object)compoundTag);
++        $$3.add((java.lang.Object)$$4);
+     }
+ 
+     public net.minecraft.network.chat.Component getDisplayName() {
+@@ -794,29 +802,29 @@
+         return this.popTime;
+     }
+ 
+-    public void setPopTime(int popTime) {
+-        this.popTime = popTime;
++    public void setPopTime(int $$0) {
++        this.popTime = $$0;
+     }
+ 
+     public int getCount() {
+         return this.emptyCacheFlag ? 0 : this.count;
+     }
+ 
+-    public void setCount(int count) {
+-        this.count = count;
++    public void setCount(int $$0) {
++        this.count = $$0;
+         this.updateEmptyCacheFlag();
+     }
+ 
+-    public void grow(int increment) {
+-        this.setCount(this.count + increment);
++    public void grow(int $$0) {
++        this.setCount(this.count + $$0);
+     }
+ 
+-    public void shrink(int decrement) {
+-        this.grow(-decrement);
++    public void shrink(int $$0) {
++        this.grow(-$$0);
+     }
+ 
+-    public void onUseTick(net.minecraft.world.level.Level level, net.minecraft.world.entity.LivingEntity livingEntity, int count) {
+-        this.getItem().onUseTick(level, livingEntity, this, count);
++    public void onUseTick(net.minecraft.world.level.Level $$0, net.minecraft.world.entity.LivingEntity $$1, int $$2) {
++        this.getItem().onUseTick($$0, $$1, this, $$2);
+     }
+ 
+     public void onDestroyed(net.minecraft.world.entity.item.ItemEntity $$0) {
+@@ -840,19 +848,20 @@
+         return this.getItem().getEquipSound();
+     }
+ 
+-    public static /* synthetic */ void lambda$static$4(java.text.DecimalFormat format) {
+-        format.setDecimalFormatSymbols(java.text.DecimalFormatSymbols.getInstance((java.util.Locale)java.util.Locale.ROOT));
++    public static /* synthetic */ void lambda$static$4(java.text.DecimalFormat $$0) {
++        $$0.setDecimalFormatSymbols(java.text.DecimalFormatSymbols.getInstance((java.util.Locale)java.util.Locale.ROOT));
+     }
+ 
+-    public static /* synthetic */ com.mojang.datafixers.kinds.App lambda$static$3(com.mojang.serialization.codecs.RecordCodecBuilder$Instance instance) {
+-        return instance.group((com.mojang.datafixers.kinds.App)net.minecraft.core.Registry.ITEM.byNameCodec().fieldOf("id").forGetter($$0 -> $$0.item), (com.mojang.datafixers.kinds.App)com.mojang.serialization.Codec.INT.fieldOf("Count").forGetter($$0 -> $$0.count), (com.mojang.datafixers.kinds.App)net.minecraft.nbt.CompoundTag.CODEC.optionalFieldOf("tag").forGetter($$0 -> java.util.Optional.ofNullable((java.lang.Object)$$0.tag))).apply((com.mojang.datafixers.kinds.Applicative)instance, net.minecraft.world.item.ItemStack::new);
++    public static /* synthetic */ com.mojang.datafixers.kinds.App lambda$static$3(com.mojang.serialization.codecs.RecordCodecBuilder$Instance $$02) {
++        return $$02.group((com.mojang.datafixers.kinds.App)net.minecraft.core.Registry.ITEM.byNameCodec().fieldOf("id").forGetter($$0 -> $$0.item), (com.mojang.datafixers.kinds.App)com.mojang.serialization.Codec.INT.fieldOf("Count").forGetter($$0 -> $$0.count), (com.mojang.datafixers.kinds.App)net.minecraft.nbt.CompoundTag.CODEC.optionalFieldOf("tag").forGetter($$0 -> java.util.Optional.ofNullable((java.lang.Object)$$0.tag))).apply((com.mojang.datafixers.kinds.Applicative)$$02, net.minecraft.world.item.ItemStack::new);
+     }
+ 
+     static {
+-        CODEC = com.mojang.serialization.codecs.RecordCodecBuilder.create(instance -> instance.group((com.mojang.datafixers.kinds.App)net.minecraft.core.Registry.ITEM.byNameCodec().fieldOf("id").forGetter($$0 -> $$0.item), (com.mojang.datafixers.kinds.App)com.mojang.serialization.Codec.INT.fieldOf("Count").forGetter($$0 -> $$0.count), (com.mojang.datafixers.kinds.App)net.minecraft.nbt.CompoundTag.CODEC.optionalFieldOf("tag").forGetter($$0 -> java.util.Optional.ofNullable((java.lang.Object)$$0.tag))).apply((com.mojang.datafixers.kinds.Applicative)instance, net.minecraft.world.item.ItemStack::new));
++        CODEC = com.mojang.serialization.codecs.RecordCodecBuilder.create($$02 -> $$02.group((com.mojang.datafixers.kinds.App)net.minecraft.core.Registry.ITEM.byNameCodec().fieldOf("id").forGetter($$0 -> $$0.item), (com.mojang.datafixers.kinds.App)com.mojang.serialization.Codec.INT.fieldOf("Count").forGetter($$0 -> $$0.count), (com.mojang.datafixers.kinds.App)net.minecraft.nbt.CompoundTag.CODEC.optionalFieldOf("tag").forGetter($$0 -> java.util.Optional.ofNullable((java.lang.Object)$$0.tag))).apply((com.mojang.datafixers.kinds.Applicative)$$02, net.minecraft.world.item.ItemStack::new));
+         LOGGER = com.mojang.logging.LogUtils.getLogger();
+         EMPTY = new net.minecraft.world.item.ItemStack((net.minecraft.world.level.ItemLike)((net.minecraft.world.item.Item)null));
+-        ATTRIBUTE_MODIFIER_FORMAT = (java.text.DecimalFormat)net.minecraft.Util.make((java.lang.Object)new java.text.DecimalFormat("#.##"), format -> format.setDecimalFormatSymbols(java.text.DecimalFormatSymbols.getInstance((java.util.Locale)java.util.Locale.ROOT)));
++        ATTRIBUTE_MODIFIER_FORMAT = (java.text.DecimalFormat)net.minecraft.Util.make((java.lang.Object)new java.text.DecimalFormat("#.##"), $$0 -> $$0.setDecimalFormatSymbols(java.text.DecimalFormatSymbols.getInstance((java.util.Locale)java.util.Locale.ROOT)));
++        DISABLED_ITEM_TOOLTIP = net.minecraft.network.chat.Component.translatable((java.lang.String)"item.disabled").withStyle(net.minecraft.ChatFormatting.RED);
+         LORE_STYLE = net.minecraft.network.chat.Style.EMPTY.withColor(net.minecraft.ChatFormatting.DARK_PURPLE).withItalic(java.lang.Boolean.valueOf((boolean)true));
+     }
+ }

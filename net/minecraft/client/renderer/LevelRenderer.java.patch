@@ -1,0 +1,1735 @@
+--- net/minecraft/client/renderer/LevelRenderer.java
++++ net/minecraft/client/renderer/LevelRenderer.java
+@@ -159,151 +159,149 @@
+         this.createDarkSky();
+     }
+ 
+-    public void renderSnowAndRain(net.minecraft.client.renderer.LightTexture lightmap, float partialTicks, double x, double y, double z) {
+-        float f = this.minecraft.level.getRainLevel(partialTicks);
+-        if (f <= 0.0f) {
++    public void renderSnowAndRain(net.minecraft.client.renderer.LightTexture $$0, float $$1, double $$2, double $$3, double $$4) {
++        float $$5 = this.minecraft.level.getRainLevel($$1);
++        if ($$5 <= 0.0f) {
+             return;
+         }
+-        lightmap.turnOnLightLayer();
+-        net.minecraft.client.multiplayer.ClientLevel clientLevel = this.minecraft.level;
+-        int n = net.minecraft.util.Mth.floor((double)x);
+-        int n2 = net.minecraft.util.Mth.floor((double)y);
+-        int n3 = net.minecraft.util.Mth.floor((double)z);
+-        com.mojang.blaze3d.vertex.Tesselator tesselator = com.mojang.blaze3d.vertex.Tesselator.getInstance();
+-        com.mojang.blaze3d.vertex.BufferBuilder bufferBuilder = tesselator.getBuilder();
++        $$0.turnOnLightLayer();
++        net.minecraft.client.multiplayer.ClientLevel $$6 = this.minecraft.level;
++        int $$7 = net.minecraft.util.Mth.floor((double)$$2);
++        int $$8 = net.minecraft.util.Mth.floor((double)$$3);
++        int $$9 = net.minecraft.util.Mth.floor((double)$$4);
++        com.mojang.blaze3d.vertex.Tesselator $$10 = com.mojang.blaze3d.vertex.Tesselator.getInstance();
++        com.mojang.blaze3d.vertex.BufferBuilder $$11 = $$10.getBuilder();
+         com.mojang.blaze3d.systems.RenderSystem.disableCull();
+         com.mojang.blaze3d.systems.RenderSystem.enableBlend();
+         com.mojang.blaze3d.systems.RenderSystem.defaultBlendFunc();
+         com.mojang.blaze3d.systems.RenderSystem.enableDepthTest();
+-        int n4 = 5;
++        int $$12 = 5;
+         if (net.minecraft.client.Minecraft.useFancyGraphics()) {
+-            n4 = 10;
++            $$12 = 10;
+         }
+         com.mojang.blaze3d.systems.RenderSystem.depthMask((boolean)net.minecraft.client.Minecraft.useShaderTransparency());
+-        int n5 = -1;
+-        float f2 = (float)this.ticks + partialTicks;
++        int $$13 = -1;
++        float $$14 = (float)this.ticks + $$1;
+         com.mojang.blaze3d.systems.RenderSystem.setShader(net.minecraft.client.renderer.GameRenderer::getParticleShader);
+         com.mojang.blaze3d.systems.RenderSystem.setShaderColor((float)1.0f, (float)1.0f, (float)1.0f, (float)1.0f);
+-        net.minecraft.core.BlockPos$MutableBlockPos mutableBlockPos = new net.minecraft.core.BlockPos$MutableBlockPos();
+-        for (int i = n3 - n4; i <= n3 + n4; ++i) {
+-            for (int j = n - n4; j <= n + n4; ++j) {
+-                float f3;
+-                float f4;
+-                int n6;
+-                int n7 = (i - n3 + 16) * 32 + j - n + 16;
+-                double d = (double)this.rainSizeX[n7] * 0.5;
+-                double d2 = (double)this.rainSizeZ[n7] * 0.5;
+-                mutableBlockPos.set((double)j, y, (double)i);
+-                net.minecraft.world.level.biome.Biome biome = (net.minecraft.world.level.biome.Biome)clientLevel.getBiome((net.minecraft.core.BlockPos)mutableBlockPos).value();
+-                if (biome.getPrecipitation() == net.minecraft.world.level.biome.Biome$Precipitation.NONE) continue;
+-                int n8 = clientLevel.getHeight(net.minecraft.world.level.levelgen.Heightmap$Types.MOTION_BLOCKING, j, i);
+-                int n9 = n2 - n4;
+-                int n10 = n2 + n4;
+-                if (n9 < n8) {
+-                    n9 = n8;
++        net.minecraft.core.BlockPos$MutableBlockPos $$15 = new net.minecraft.core.BlockPos$MutableBlockPos();
++        for (int $$16 = $$9 - $$12; $$16 <= $$9 + $$12; ++$$16) {
++            for (int $$17 = $$7 - $$12; $$17 <= $$7 + $$12; ++$$17) {
++                int $$25;
++                int $$18 = ($$16 - $$9 + 16) * 32 + $$17 - $$7 + 16;
++                double $$19 = (double)this.rainSizeX[$$18] * 0.5;
++                double $$20 = (double)this.rainSizeZ[$$18] * 0.5;
++                $$15.set((double)$$17, $$3, (double)$$16);
++                net.minecraft.world.level.biome.Biome $$21 = (net.minecraft.world.level.biome.Biome)$$6.getBiome((net.minecraft.core.BlockPos)$$15).value();
++                if ($$21.getPrecipitation() == net.minecraft.world.level.biome.Biome$Precipitation.NONE) continue;
++                int $$22 = $$6.getHeight(net.minecraft.world.level.levelgen.Heightmap$Types.MOTION_BLOCKING, $$17, $$16);
++                int $$23 = $$8 - $$12;
++                int $$24 = $$8 + $$12;
++                if ($$23 < $$22) {
++                    $$23 = $$22;
+                 }
+-                if (n10 < n8) {
+-                    n10 = n8;
++                if ($$24 < $$22) {
++                    $$24 = $$22;
+                 }
+-                if ((n6 = n8) < n2) {
+-                    n6 = n2;
++                if (($$25 = $$22) < $$8) {
++                    $$25 = $$8;
+                 }
+-                if (n9 == n10) continue;
+-                net.minecraft.util.RandomSource randomSource = net.minecraft.util.RandomSource.create((long)(j * j * 3121 + j * 45238971 ^ i * i * 418711 + i * 13761));
+-                mutableBlockPos.set(j, n9, i);
+-                if (biome.warmEnoughToRain((net.minecraft.core.BlockPos)mutableBlockPos)) {
+-                    if (n5 != 0) {
+-                        if (n5 >= 0) {
+-                            tesselator.end();
++                if ($$23 == $$24) continue;
++                net.minecraft.util.RandomSource $$26 = net.minecraft.util.RandomSource.create((long)($$17 * $$17 * 3121 + $$17 * 45238971 ^ $$16 * $$16 * 418711 + $$16 * 13761));
++                $$15.set($$17, $$23, $$16);
++                if ($$21.warmEnoughToRain((net.minecraft.core.BlockPos)$$15)) {
++                    if ($$13 != 0) {
++                        if ($$13 >= 0) {
++                            $$10.end();
+                         }
+-                        n5 = 0;
++                        $$13 = 0;
+                         com.mojang.blaze3d.systems.RenderSystem.setShaderTexture((int)0, (net.minecraft.resources.ResourceLocation)RAIN_LOCATION);
+-                        bufferBuilder.begin(com.mojang.blaze3d.vertex.VertexFormat$Mode.QUADS, com.mojang.blaze3d.vertex.DefaultVertexFormat.PARTICLE);
++                        $$11.begin(com.mojang.blaze3d.vertex.VertexFormat$Mode.QUADS, com.mojang.blaze3d.vertex.DefaultVertexFormat.PARTICLE);
+                     }
+-                    int n11 = this.ticks + j * j * 3121 + j * 45238971 + i * i * 418711 + i * 13761 & 0x1F;
+-                    f4 = -((float)n11 + partialTicks) / 32.0f * (3.0f + randomSource.nextFloat());
+-                    double d3 = (double)j + 0.5 - x;
+-                    double d4 = (double)i + 0.5 - z;
+-                    float f5 = (float)java.lang.Math.sqrt((double)(d3 * d3 + d4 * d4)) / (float)n4;
+-                    f3 = ((1.0f - f5 * f5) * 0.5f + 0.5f) * f;
+-                    mutableBlockPos.set(j, n6, i);
+-                    int n12 = net.minecraft.client.renderer.LevelRenderer.getLightColor((net.minecraft.world.level.BlockAndTintGetter)clientLevel, (net.minecraft.core.BlockPos)mutableBlockPos);
+-                    bufferBuilder.vertex((double)j - x - d + 0.5, (double)n10 - y, (double)i - z - d2 + 0.5).uv(0.0f, (float)n9 * 0.25f + f4).color(1.0f, 1.0f, 1.0f, f3).uv2(n12).endVertex();
+-                    bufferBuilder.vertex((double)j - x + d + 0.5, (double)n10 - y, (double)i - z + d2 + 0.5).uv(1.0f, (float)n9 * 0.25f + f4).color(1.0f, 1.0f, 1.0f, f3).uv2(n12).endVertex();
+-                    bufferBuilder.vertex((double)j - x + d + 0.5, (double)n9 - y, (double)i - z + d2 + 0.5).uv(1.0f, (float)n10 * 0.25f + f4).color(1.0f, 1.0f, 1.0f, f3).uv2(n12).endVertex();
+-                    bufferBuilder.vertex((double)j - x - d + 0.5, (double)n9 - y, (double)i - z - d2 + 0.5).uv(0.0f, (float)n10 * 0.25f + f4).color(1.0f, 1.0f, 1.0f, f3).uv2(n12).endVertex();
++                    int $$27 = this.ticks + $$17 * $$17 * 3121 + $$17 * 45238971 + $$16 * $$16 * 418711 + $$16 * 13761 & 0x1F;
++                    float $$28 = -((float)$$27 + $$1) / 32.0f * (3.0f + $$26.nextFloat());
++                    double $$29 = (double)$$17 + 0.5 - $$2;
++                    double $$30 = (double)$$16 + 0.5 - $$4;
++                    float $$31 = (float)java.lang.Math.sqrt((double)($$29 * $$29 + $$30 * $$30)) / (float)$$12;
++                    float $$32 = ((1.0f - $$31 * $$31) * 0.5f + 0.5f) * $$5;
++                    $$15.set($$17, $$25, $$16);
++                    int $$33 = net.minecraft.client.renderer.LevelRenderer.getLightColor((net.minecraft.world.level.BlockAndTintGetter)$$6, (net.minecraft.core.BlockPos)$$15);
++                    $$11.vertex((double)$$17 - $$2 - $$19 + 0.5, (double)$$24 - $$3, (double)$$16 - $$4 - $$20 + 0.5).uv(0.0f, (float)$$23 * 0.25f + $$28).color(1.0f, 1.0f, 1.0f, $$32).uv2($$33).endVertex();
++                    $$11.vertex((double)$$17 - $$2 + $$19 + 0.5, (double)$$24 - $$3, (double)$$16 - $$4 + $$20 + 0.5).uv(1.0f, (float)$$23 * 0.25f + $$28).color(1.0f, 1.0f, 1.0f, $$32).uv2($$33).endVertex();
++                    $$11.vertex((double)$$17 - $$2 + $$19 + 0.5, (double)$$23 - $$3, (double)$$16 - $$4 + $$20 + 0.5).uv(1.0f, (float)$$24 * 0.25f + $$28).color(1.0f, 1.0f, 1.0f, $$32).uv2($$33).endVertex();
++                    $$11.vertex((double)$$17 - $$2 - $$19 + 0.5, (double)$$23 - $$3, (double)$$16 - $$4 - $$20 + 0.5).uv(0.0f, (float)$$24 * 0.25f + $$28).color(1.0f, 1.0f, 1.0f, $$32).uv2($$33).endVertex();
+                     continue;
+                 }
+-                if (n5 != 1) {
+-                    if (n5 >= 0) {
+-                        tesselator.end();
++                if ($$13 != 1) {
++                    if ($$13 >= 0) {
++                        $$10.end();
+                     }
+-                    n5 = 1;
++                    $$13 = 1;
+                     com.mojang.blaze3d.systems.RenderSystem.setShaderTexture((int)0, (net.minecraft.resources.ResourceLocation)SNOW_LOCATION);
+-                    bufferBuilder.begin(com.mojang.blaze3d.vertex.VertexFormat$Mode.QUADS, com.mojang.blaze3d.vertex.DefaultVertexFormat.PARTICLE);
++                    $$11.begin(com.mojang.blaze3d.vertex.VertexFormat$Mode.QUADS, com.mojang.blaze3d.vertex.DefaultVertexFormat.PARTICLE);
+                 }
+-                float f6 = -((float)(this.ticks & 0x1FF) + partialTicks) / 512.0f;
+-                f4 = (float)(randomSource.nextDouble() + (double)f2 * 0.01 * (double)((float)randomSource.nextGaussian()));
+-                float f7 = (float)(randomSource.nextDouble() + (double)(f2 * (float)randomSource.nextGaussian()) * 0.001);
+-                double d5 = (double)j + 0.5 - x;
+-                double d6 = (double)i + 0.5 - z;
+-                f3 = (float)java.lang.Math.sqrt((double)(d5 * d5 + d6 * d6)) / (float)n4;
+-                float f8 = ((1.0f - f3 * f3) * 0.3f + 0.5f) * f;
+-                mutableBlockPos.set(j, n6, i);
+-                int n13 = net.minecraft.client.renderer.LevelRenderer.getLightColor((net.minecraft.world.level.BlockAndTintGetter)clientLevel, (net.minecraft.core.BlockPos)mutableBlockPos);
+-                int n14 = n13 >> 16 & 0xFFFF;
+-                int n15 = n13 & 0xFFFF;
+-                int n16 = (n14 * 3 + 240) / 4;
+-                int n17 = (n15 * 3 + 240) / 4;
+-                bufferBuilder.vertex((double)j - x - d + 0.5, (double)n10 - y, (double)i - z - d2 + 0.5).uv(0.0f + f4, (float)n9 * 0.25f + f6 + f7).color(1.0f, 1.0f, 1.0f, f8).uv2(n17, n16).endVertex();
+-                bufferBuilder.vertex((double)j - x + d + 0.5, (double)n10 - y, (double)i - z + d2 + 0.5).uv(1.0f + f4, (float)n9 * 0.25f + f6 + f7).color(1.0f, 1.0f, 1.0f, f8).uv2(n17, n16).endVertex();
+-                bufferBuilder.vertex((double)j - x + d + 0.5, (double)n9 - y, (double)i - z + d2 + 0.5).uv(1.0f + f4, (float)n10 * 0.25f + f6 + f7).color(1.0f, 1.0f, 1.0f, f8).uv2(n17, n16).endVertex();
+-                bufferBuilder.vertex((double)j - x - d + 0.5, (double)n9 - y, (double)i - z - d2 + 0.5).uv(0.0f + f4, (float)n10 * 0.25f + f6 + f7).color(1.0f, 1.0f, 1.0f, f8).uv2(n17, n16).endVertex();
++                float $$34 = -((float)(this.ticks & 0x1FF) + $$1) / 512.0f;
++                float $$35 = (float)($$26.nextDouble() + (double)$$14 * 0.01 * (double)((float)$$26.nextGaussian()));
++                float $$36 = (float)($$26.nextDouble() + (double)($$14 * (float)$$26.nextGaussian()) * 0.001);
++                double $$37 = (double)$$17 + 0.5 - $$2;
++                double $$38 = (double)$$16 + 0.5 - $$4;
++                float $$39 = (float)java.lang.Math.sqrt((double)($$37 * $$37 + $$38 * $$38)) / (float)$$12;
++                float $$40 = ((1.0f - $$39 * $$39) * 0.3f + 0.5f) * $$5;
++                $$15.set($$17, $$25, $$16);
++                int $$41 = net.minecraft.client.renderer.LevelRenderer.getLightColor((net.minecraft.world.level.BlockAndTintGetter)$$6, (net.minecraft.core.BlockPos)$$15);
++                int $$42 = $$41 >> 16 & 0xFFFF;
++                int $$43 = $$41 & 0xFFFF;
++                int $$44 = ($$42 * 3 + 240) / 4;
++                int $$45 = ($$43 * 3 + 240) / 4;
++                $$11.vertex((double)$$17 - $$2 - $$19 + 0.5, (double)$$24 - $$3, (double)$$16 - $$4 - $$20 + 0.5).uv(0.0f + $$35, (float)$$23 * 0.25f + $$34 + $$36).color(1.0f, 1.0f, 1.0f, $$40).uv2($$45, $$44).endVertex();
++                $$11.vertex((double)$$17 - $$2 + $$19 + 0.5, (double)$$24 - $$3, (double)$$16 - $$4 + $$20 + 0.5).uv(1.0f + $$35, (float)$$23 * 0.25f + $$34 + $$36).color(1.0f, 1.0f, 1.0f, $$40).uv2($$45, $$44).endVertex();
++                $$11.vertex((double)$$17 - $$2 + $$19 + 0.5, (double)$$23 - $$3, (double)$$16 - $$4 + $$20 + 0.5).uv(1.0f + $$35, (float)$$24 * 0.25f + $$34 + $$36).color(1.0f, 1.0f, 1.0f, $$40).uv2($$45, $$44).endVertex();
++                $$11.vertex((double)$$17 - $$2 - $$19 + 0.5, (double)$$23 - $$3, (double)$$16 - $$4 - $$20 + 0.5).uv(0.0f + $$35, (float)$$24 * 0.25f + $$34 + $$36).color(1.0f, 1.0f, 1.0f, $$40).uv2($$45, $$44).endVertex();
+             }
+         }
+-        if (n5 >= 0) {
+-            tesselator.end();
++        if ($$13 >= 0) {
++            $$10.end();
+         }
+         com.mojang.blaze3d.systems.RenderSystem.enableCull();
+         com.mojang.blaze3d.systems.RenderSystem.disableBlend();
+-        lightmap.turnOffLightLayer();
++        $$0.turnOffLightLayer();
+     }
+ 
+-    public void tickRain(net.minecraft.client.Camera activeRenderInfo) {
+-        float f = this.minecraft.level.getRainLevel(1.0f) / (net.minecraft.client.Minecraft.useFancyGraphics() ? 1.0f : 2.0f);
+-        if (f <= 0.0f) {
++    public void tickRain(net.minecraft.client.Camera $$0) {
++        float $$1 = this.minecraft.level.getRainLevel(1.0f) / (net.minecraft.client.Minecraft.useFancyGraphics() ? 1.0f : 2.0f);
++        if ($$1 <= 0.0f) {
+             return;
+         }
+-        net.minecraft.util.RandomSource randomSource = net.minecraft.util.RandomSource.create((long)((long)this.ticks * 312987231L));
+-        net.minecraft.client.multiplayer.ClientLevel clientLevel = this.minecraft.level;
+-        net.minecraft.core.BlockPos blockPos = new net.minecraft.core.BlockPos(activeRenderInfo.getPosition());
+-        net.minecraft.core.BlockPos blockPos2 = null;
+-        int n = (int)(100.0f * f * f) / (this.minecraft.options.particles().get() == net.minecraft.client.ParticleStatus.DECREASED ? 2 : 1);
+-        for (int i = 0; i < n; ++i) {
+-            int n2 = randomSource.nextInt(21) - 10;
+-            int n3 = randomSource.nextInt(21) - 10;
+-            net.minecraft.core.BlockPos blockPos3 = clientLevel.getHeightmapPos(net.minecraft.world.level.levelgen.Heightmap$Types.MOTION_BLOCKING, blockPos.offset(n2, 0, n3));
+-            net.minecraft.world.level.biome.Biome biome = (net.minecraft.world.level.biome.Biome)clientLevel.getBiome(blockPos3).value();
+-            if (blockPos3.getY() <= clientLevel.getMinBuildHeight() || blockPos3.getY() > blockPos.getY() + 10 || blockPos3.getY() < blockPos.getY() - 10 || biome.getPrecipitation() != net.minecraft.world.level.biome.Biome$Precipitation.RAIN || !biome.warmEnoughToRain(blockPos3)) continue;
+-            blockPos2 = blockPos3.below();
++        net.minecraft.util.RandomSource $$2 = net.minecraft.util.RandomSource.create((long)((long)this.ticks * 312987231L));
++        net.minecraft.client.multiplayer.ClientLevel $$3 = this.minecraft.level;
++        net.minecraft.core.BlockPos $$4 = new net.minecraft.core.BlockPos($$0.getPosition());
++        net.minecraft.core.BlockPos $$5 = null;
++        int $$6 = (int)(100.0f * $$1 * $$1) / (this.minecraft.options.particles().get() == net.minecraft.client.ParticleStatus.DECREASED ? 2 : 1);
++        for (int $$7 = 0; $$7 < $$6; ++$$7) {
++            int $$8 = $$2.nextInt(21) - 10;
++            int $$9 = $$2.nextInt(21) - 10;
++            net.minecraft.core.BlockPos $$10 = $$3.getHeightmapPos(net.minecraft.world.level.levelgen.Heightmap$Types.MOTION_BLOCKING, $$4.offset($$8, 0, $$9));
++            net.minecraft.world.level.biome.Biome $$11 = (net.minecraft.world.level.biome.Biome)$$3.getBiome($$10).value();
++            if ($$10.getY() <= $$3.getMinBuildHeight() || $$10.getY() > $$4.getY() + 10 || $$10.getY() < $$4.getY() - 10 || $$11.getPrecipitation() != net.minecraft.world.level.biome.Biome$Precipitation.RAIN || !$$11.warmEnoughToRain($$10)) continue;
++            $$5 = $$10.below();
+             if (this.minecraft.options.particles().get() == net.minecraft.client.ParticleStatus.MINIMAL) break;
+-            double d = randomSource.nextDouble();
+-            double d2 = randomSource.nextDouble();
+-            net.minecraft.world.level.block.state.BlockState blockState = clientLevel.getBlockState(blockPos2);
+-            net.minecraft.world.level.material.FluidState fluidState = clientLevel.getFluidState(blockPos2);
+-            net.minecraft.world.phys.shapes.VoxelShape voxelShape = blockState.getCollisionShape((net.minecraft.world.level.BlockGetter)clientLevel, blockPos2);
+-            double d3 = voxelShape.max(net.minecraft.core.Direction$Axis.Y, d, d2);
+-            double d4 = fluidState.getHeight((net.minecraft.world.level.BlockGetter)clientLevel, blockPos2);
+-            double d5 = java.lang.Math.max((double)d3, (double)d4);
+-            net.minecraft.core.particles.SimpleParticleType simpleParticleType = fluidState.is(net.minecraft.tags.FluidTags.LAVA) || blockState.is(net.minecraft.world.level.block.Blocks.MAGMA_BLOCK) || net.minecraft.world.level.block.CampfireBlock.isLitCampfire((net.minecraft.world.level.block.state.BlockState)blockState) ? net.minecraft.core.particles.ParticleTypes.SMOKE : net.minecraft.core.particles.ParticleTypes.RAIN;
+-            this.minecraft.level.addParticle((net.minecraft.core.particles.ParticleOptions)simpleParticleType, (double)blockPos2.getX() + d, (double)blockPos2.getY() + d5, (double)blockPos2.getZ() + d2, 0.0, 0.0, 0.0);
++            double $$12 = $$2.nextDouble();
++            double $$13 = $$2.nextDouble();
++            net.minecraft.world.level.block.state.BlockState $$14 = $$3.getBlockState($$5);
++            net.minecraft.world.level.material.FluidState $$15 = $$3.getFluidState($$5);
++            net.minecraft.world.phys.shapes.VoxelShape $$16 = $$14.getCollisionShape((net.minecraft.world.level.BlockGetter)$$3, $$5);
++            double $$17 = $$16.max(net.minecraft.core.Direction$Axis.Y, $$12, $$13);
++            double $$18 = $$15.getHeight((net.minecraft.world.level.BlockGetter)$$3, $$5);
++            double $$19 = java.lang.Math.max((double)$$17, (double)$$18);
++            net.minecraft.core.particles.SimpleParticleType $$20 = $$15.is(net.minecraft.tags.FluidTags.LAVA) || $$14.is(net.minecraft.world.level.block.Blocks.MAGMA_BLOCK) || net.minecraft.world.level.block.CampfireBlock.isLitCampfire((net.minecraft.world.level.block.state.BlockState)$$14) ? net.minecraft.core.particles.ParticleTypes.SMOKE : net.minecraft.core.particles.ParticleTypes.RAIN;
++            this.minecraft.level.addParticle((net.minecraft.core.particles.ParticleOptions)$$20, (double)$$5.getX() + $$12, (double)$$5.getY() + $$19, (double)$$5.getZ() + $$13, 0.0, 0.0, 0.0);
+         }
+-        if (blockPos2 != null && randomSource.nextInt(3) < this.rainSoundTime++) {
++        if ($$5 != null && $$2.nextInt(3) < this.rainSoundTime++) {
+             this.rainSoundTime = 0;
+-            if (blockPos2.getY() > blockPos.getY() + 1 && clientLevel.getHeightmapPos(net.minecraft.world.level.levelgen.Heightmap$Types.MOTION_BLOCKING, blockPos).getY() > net.minecraft.util.Mth.floor((float)blockPos.getY())) {
+-                this.minecraft.level.playLocalSound(blockPos2, net.minecraft.sounds.SoundEvents.WEATHER_RAIN_ABOVE, net.minecraft.sounds.SoundSource.WEATHER, 0.1f, 0.5f, false);
++            if ($$5.getY() > $$4.getY() + 1 && $$3.getHeightmapPos(net.minecraft.world.level.levelgen.Heightmap$Types.MOTION_BLOCKING, $$4).getY() > net.minecraft.util.Mth.floor((float)$$4.getY())) {
++                this.minecraft.level.playLocalSound($$5, net.minecraft.sounds.SoundEvents.WEATHER_RAIN_ABOVE, net.minecraft.sounds.SoundSource.WEATHER, 0.1f, 0.5f, false);
+             } else {
+-                this.minecraft.level.playLocalSound(blockPos2, net.minecraft.sounds.SoundEvents.WEATHER_RAIN, net.minecraft.sounds.SoundSource.WEATHER, 0.2f, 1.0f, false);
++                this.minecraft.level.playLocalSound($$5, net.minecraft.sounds.SoundEvents.WEATHER_RAIN, net.minecraft.sounds.SoundSource.WEATHER, 0.2f, 1.0f, false);
+             }
+         }
+     }
+@@ -317,7 +315,7 @@
+         }
+     }
+ 
+-    public void onResourceManagerReload(net.minecraft.server.packs.resources.ResourceManager resourceManager) {
++    public void onResourceManagerReload(net.minecraft.server.packs.resources.ResourceManager $$0) {
+         this.initOutline();
+         if (net.minecraft.client.Minecraft.useShaderTransparency()) {
+             this.initTransparency();
+@@ -369,7 +367,7 @@
+             java.lang.String $$9 = "Failed to " + $$8 + " shader: " + $$02;
+             net.minecraft.client.renderer.LevelRenderer$TransparencyShaderException $$10 = new net.minecraft.client.renderer.LevelRenderer$TransparencyShaderException($$9, (java.lang.Throwable)$$7);
+             if (this.minecraft.getResourcePackRepository().getSelectedIds().size() > 1) {
+-                net.minecraft.network.chat.Component $$11 = (net.minecraft.network.chat.Component)this.minecraft.getResourceManager().listPacks().findFirst().map($$0 -> net.minecraft.network.chat.Component.literal((java.lang.String)$$0.getName())).orElse(null);
++                net.minecraft.network.chat.Component $$11 = (net.minecraft.network.chat.Component)this.minecraft.getResourceManager().listPacks().findFirst().map($$0 -> net.minecraft.network.chat.Component.literal((java.lang.String)$$0.packId())).orElse(null);
+                 this.minecraft.options.graphicsMode().set((java.lang.Object)net.minecraft.client.GraphicsStatus.FANCY);
+                 this.minecraft.clearResourcePacksOnError((java.lang.Throwable)$$10, $$11);
+             }
+@@ -506,16 +504,16 @@
+         return $$0.end();
+     }
+ 
+-    public void setLevel(@javax.annotation.Nullable net.minecraft.client.multiplayer.ClientLevel levelClient) {
++    public void setLevel(@javax.annotation.Nullable net.minecraft.client.multiplayer.ClientLevel $$0) {
+         this.lastCameraX = java.lang.Double.MIN_VALUE;
+         this.lastCameraY = java.lang.Double.MIN_VALUE;
+         this.lastCameraZ = java.lang.Double.MIN_VALUE;
+         this.lastCameraChunkX = java.lang.Integer.MIN_VALUE;
+         this.lastCameraChunkY = java.lang.Integer.MIN_VALUE;
+         this.lastCameraChunkZ = java.lang.Integer.MIN_VALUE;
+-        this.entityRenderDispatcher.setLevel((net.minecraft.world.level.Level)levelClient);
+-        this.level = levelClient;
+-        if (levelClient != null) {
++        this.entityRenderDispatcher.setLevel((net.minecraft.world.level.Level)$$0);
++        this.level = $$0;
++        if ($$0 != null) {
+             this.allChanged();
+         } else {
+             if (this.viewArea != null) {
+@@ -585,13 +583,13 @@
+         }
+     }
+ 
+-    public void resize(int width, int height) {
++    public void resize(int $$0, int $$1) {
+         this.needsUpdate();
+         if (this.entityEffect != null) {
+-            this.entityEffect.resize(width, height);
++            this.entityEffect.resize($$0, $$1);
+         }
+         if (this.transparencyChain != null) {
+-            this.transparencyChain.resize(width, height);
++            this.transparencyChain.resize($$0, $$1);
+         }
+     }
+ 
+@@ -810,18 +808,18 @@
+     }
+ 
+     @javax.annotation.Nullable
+-    public net.minecraft.client.renderer.chunk.ChunkRenderDispatcher$RenderChunk getRelativeFrom(net.minecraft.core.BlockPos playerPos, net.minecraft.client.renderer.chunk.ChunkRenderDispatcher$RenderChunk renderChunkBase, net.minecraft.core.Direction facing) {
+-        net.minecraft.core.BlockPos blockPos = renderChunkBase.getRelativeOrigin(facing);
+-        if (net.minecraft.util.Mth.abs((int)(playerPos.getX() - blockPos.getX())) > this.lastViewDistance * 16) {
++    public net.minecraft.client.renderer.chunk.ChunkRenderDispatcher$RenderChunk getRelativeFrom(net.minecraft.core.BlockPos $$0, net.minecraft.client.renderer.chunk.ChunkRenderDispatcher$RenderChunk $$1, net.minecraft.core.Direction $$2) {
++        net.minecraft.core.BlockPos $$3 = $$1.getRelativeOrigin($$2);
++        if (net.minecraft.util.Mth.abs((int)($$0.getX() - $$3.getX())) > this.lastViewDistance * 16) {
+             return null;
+         }
+-        if (net.minecraft.util.Mth.abs((int)(playerPos.getY() - blockPos.getY())) > this.lastViewDistance * 16 || blockPos.getY() < this.level.getMinBuildHeight() || blockPos.getY() >= this.level.getMaxBuildHeight()) {
++        if (net.minecraft.util.Mth.abs((int)($$0.getY() - $$3.getY())) > this.lastViewDistance * 16 || $$3.getY() < this.level.getMinBuildHeight() || $$3.getY() >= this.level.getMaxBuildHeight()) {
+             return null;
+         }
+-        if (net.minecraft.util.Mth.abs((int)(playerPos.getZ() - blockPos.getZ())) > this.lastViewDistance * 16) {
++        if (net.minecraft.util.Mth.abs((int)($$0.getZ() - $$3.getZ())) > this.lastViewDistance * 16) {
+             return null;
+         }
+-        return this.viewArea.getRenderChunkAt(blockPos);
++        return this.viewArea.getRenderChunkAt($$3);
+     }
+ 
+     public boolean closeToBorder(net.minecraft.core.BlockPos $$0, net.minecraft.client.renderer.chunk.ChunkRenderDispatcher$RenderChunk $$1) {
+@@ -867,65 +865,61 @@
+     /*
+      * WARNING - Removed try catching itself - possible behaviour change.
+      */
+-    public void renderLevel(com.mojang.blaze3d.vertex.PoseStack matrixStack, float partialTicks, long finishTimeNano, boolean drawBlockOutline, net.minecraft.client.Camera activeRenderInfo, net.minecraft.client.renderer.GameRenderer gameRenderer, net.minecraft.client.renderer.LightTexture lightmap, com.mojang.math.Matrix4f projection) {
+-        int n;
+-        net.minecraft.client.renderer.MultiBufferSource$BufferSource bufferSource;
+-        net.minecraft.core.BlockPos blockPos3;
+-        net.minecraft.world.entity.Entity entity2;
+-        net.minecraft.client.renderer.culling.Frustum frustum;
+-        boolean bl;
+-        com.mojang.blaze3d.systems.RenderSystem.setShaderGameTime((long)this.level.getGameTime(), (float)partialTicks);
+-        this.blockEntityRenderDispatcher.prepare((net.minecraft.world.level.Level)this.level, activeRenderInfo, this.minecraft.hitResult);
+-        this.entityRenderDispatcher.prepare((net.minecraft.world.level.Level)this.level, activeRenderInfo, this.minecraft.crosshairPickEntity);
+-        net.minecraft.util.profiling.ProfilerFiller profilerFiller = this.level.getProfiler();
+-        profilerFiller.popPush("light_update_queue");
++    public void renderLevel(com.mojang.blaze3d.vertex.PoseStack $$0, float $$1, long $$2, boolean $$3, net.minecraft.client.Camera $$4, net.minecraft.client.renderer.GameRenderer $$5, net.minecraft.client.renderer.LightTexture $$6, com.mojang.math.Matrix4f $$7) {
++        net.minecraft.client.renderer.culling.Frustum $$17;
++        boolean $$15;
++        com.mojang.blaze3d.systems.RenderSystem.setShaderGameTime((long)this.level.getGameTime(), (float)$$1);
++        this.blockEntityRenderDispatcher.prepare((net.minecraft.world.level.Level)this.level, $$4, this.minecraft.hitResult);
++        this.entityRenderDispatcher.prepare((net.minecraft.world.level.Level)this.level, $$4, this.minecraft.crosshairPickEntity);
++        net.minecraft.util.profiling.ProfilerFiller $$8 = this.level.getProfiler();
++        $$8.popPush("light_update_queue");
+         this.level.pollLightUpdates();
+-        profilerFiller.popPush("light_updates");
+-        boolean bl2 = this.level.isLightUpdateQueueEmpty();
+-        this.level.getChunkSource().getLightEngine().runUpdates(java.lang.Integer.MAX_VALUE, bl2, true);
+-        net.minecraft.world.phys.Vec3 vec3 = activeRenderInfo.getPosition();
+-        double d = vec3.x();
+-        double d2 = vec3.y();
+-        double d3 = vec3.z();
+-        com.mojang.math.Matrix4f matrix4f = matrixStack.last().pose();
+-        profilerFiller.popPush("culling");
+-        boolean bl3 = bl = this.capturedFrustum != null;
+-        if (bl) {
+-            frustum = this.capturedFrustum;
+-            frustum.prepare(this.frustumPos.x, this.frustumPos.y, this.frustumPos.z);
++        $$8.popPush("light_updates");
++        boolean $$9 = this.level.isLightUpdateQueueEmpty();
++        this.level.getChunkSource().getLightEngine().runUpdates(java.lang.Integer.MAX_VALUE, $$9, true);
++        net.minecraft.world.phys.Vec3 $$10 = $$4.getPosition();
++        double $$11 = $$10.x();
++        double $$12 = $$10.y();
++        double $$13 = $$10.z();
++        com.mojang.math.Matrix4f $$14 = $$0.last().pose();
++        $$8.popPush("culling");
++        boolean bl = $$15 = this.capturedFrustum != null;
++        if ($$15) {
++            net.minecraft.client.renderer.culling.Frustum $$16 = this.capturedFrustum;
++            $$16.prepare(this.frustumPos.x, this.frustumPos.y, this.frustumPos.z);
+         } else {
+-            frustum = this.cullingFrustum;
++            $$17 = this.cullingFrustum;
+         }
+         this.minecraft.getProfiler().popPush("captureFrustum");
+         if (this.captureFrustum) {
+-            this.captureFrustum(matrix4f, projection, vec3.x, vec3.y, vec3.z, bl ? new net.minecraft.client.renderer.culling.Frustum(matrix4f, projection) : frustum);
++            this.captureFrustum($$14, $$7, $$10.x, $$10.y, $$10.z, $$15 ? new net.minecraft.client.renderer.culling.Frustum($$14, $$7) : $$17);
+             this.captureFrustum = false;
+         }
+-        profilerFiller.popPush("clear");
+-        net.minecraft.client.renderer.FogRenderer.setupColor((net.minecraft.client.Camera)activeRenderInfo, (float)partialTicks, (net.minecraft.client.multiplayer.ClientLevel)this.minecraft.level, (int)this.minecraft.options.getEffectiveRenderDistance(), (float)gameRenderer.getDarkenWorldAmount(partialTicks));
++        $$8.popPush("clear");
++        net.minecraft.client.renderer.FogRenderer.setupColor((net.minecraft.client.Camera)$$4, (float)$$1, (net.minecraft.client.multiplayer.ClientLevel)this.minecraft.level, (int)this.minecraft.options.getEffectiveRenderDistance(), (float)$$5.getDarkenWorldAmount($$1));
+         net.minecraft.client.renderer.FogRenderer.levelFogColor();
+         com.mojang.blaze3d.systems.RenderSystem.clear((int)16640, (boolean)net.minecraft.client.Minecraft.ON_OSX);
+-        float f = gameRenderer.getRenderDistance();
+-        boolean bl4 = this.minecraft.level.effects().isFoggyAt(net.minecraft.util.Mth.floor((double)d), net.minecraft.util.Mth.floor((double)d2)) || this.minecraft.gui.getBossOverlay().shouldCreateWorldFog();
+-        profilerFiller.popPush("sky");
++        float $$18 = $$5.getRenderDistance();
++        boolean $$19 = this.minecraft.level.effects().isFoggyAt(net.minecraft.util.Mth.floor((double)$$11), net.minecraft.util.Mth.floor((double)$$12)) || this.minecraft.gui.getBossOverlay().shouldCreateWorldFog();
++        $$8.popPush("sky");
+         com.mojang.blaze3d.systems.RenderSystem.setShader(net.minecraft.client.renderer.GameRenderer::getPositionShader);
+-        this.renderSky(matrixStack, projection, partialTicks, activeRenderInfo, bl4, () -> net.minecraft.client.renderer.FogRenderer.setupFog((net.minecraft.client.Camera)activeRenderInfo, (net.minecraft.client.renderer.FogRenderer$FogMode)net.minecraft.client.renderer.FogRenderer$FogMode.FOG_SKY, (float)f, (boolean)bl4, (float)partialTicks));
+-        profilerFiller.popPush("fog");
+-        net.minecraft.client.renderer.FogRenderer.setupFog((net.minecraft.client.Camera)activeRenderInfo, (net.minecraft.client.renderer.FogRenderer$FogMode)net.minecraft.client.renderer.FogRenderer$FogMode.FOG_TERRAIN, (float)java.lang.Math.max((float)f, (float)32.0f), (boolean)bl4, (float)partialTicks);
+-        profilerFiller.popPush("terrain_setup");
+-        this.setupRender(activeRenderInfo, frustum, bl, this.minecraft.player.isSpectator());
+-        profilerFiller.popPush("compilechunks");
+-        this.compileChunks(activeRenderInfo);
+-        profilerFiller.popPush("terrain");
+-        this.renderChunkLayer(net.minecraft.client.renderer.RenderType.solid(), matrixStack, d, d2, d3, projection);
+-        this.renderChunkLayer(net.minecraft.client.renderer.RenderType.cutoutMipped(), matrixStack, d, d2, d3, projection);
+-        this.renderChunkLayer(net.minecraft.client.renderer.RenderType.cutout(), matrixStack, d, d2, d3, projection);
++        this.renderSky($$0, $$7, $$1, $$4, $$19, () -> net.minecraft.client.renderer.FogRenderer.setupFog((net.minecraft.client.Camera)$$4, (net.minecraft.client.renderer.FogRenderer$FogMode)net.minecraft.client.renderer.FogRenderer$FogMode.FOG_SKY, (float)$$18, (boolean)$$19, (float)$$1));
++        $$8.popPush("fog");
++        net.minecraft.client.renderer.FogRenderer.setupFog((net.minecraft.client.Camera)$$4, (net.minecraft.client.renderer.FogRenderer$FogMode)net.minecraft.client.renderer.FogRenderer$FogMode.FOG_TERRAIN, (float)java.lang.Math.max((float)$$18, (float)32.0f), (boolean)$$19, (float)$$1);
++        $$8.popPush("terrain_setup");
++        this.setupRender($$4, $$17, $$15, this.minecraft.player.isSpectator());
++        $$8.popPush("compilechunks");
++        this.compileChunks($$4);
++        $$8.popPush("terrain");
++        this.renderChunkLayer(net.minecraft.client.renderer.RenderType.solid(), $$0, $$11, $$12, $$13, $$7);
++        this.renderChunkLayer(net.minecraft.client.renderer.RenderType.cutoutMipped(), $$0, $$11, $$12, $$13, $$7);
++        this.renderChunkLayer(net.minecraft.client.renderer.RenderType.cutout(), $$0, $$11, $$12, $$13, $$7);
+         if (this.level.effects().constantAmbientLight()) {
+-            com.mojang.blaze3d.platform.Lighting.setupNetherLevel((com.mojang.math.Matrix4f)matrixStack.last().pose());
++            com.mojang.blaze3d.platform.Lighting.setupNetherLevel((com.mojang.math.Matrix4f)$$0.last().pose());
+         } else {
+-            com.mojang.blaze3d.platform.Lighting.setupLevel((com.mojang.math.Matrix4f)matrixStack.last().pose());
++            com.mojang.blaze3d.platform.Lighting.setupLevel((com.mojang.math.Matrix4f)$$0.last().pose());
+         }
+-        profilerFiller.popPush("entities");
++        $$8.popPush("entities");
+         this.renderedEntities = 0;
+         this.culledEntities = 0;
+         if (this.itemEntityTarget != null) {
+@@ -940,206 +934,210 @@
+             this.entityTarget.clear(net.minecraft.client.Minecraft.ON_OSX);
+             this.minecraft.getMainRenderTarget().bindWrite(false);
+         }
+-        boolean bl5 = false;
+-        net.minecraft.client.renderer.MultiBufferSource$BufferSource bufferSource2 = this.renderBuffers.bufferSource();
+-        for (net.minecraft.world.entity.Entity entity2 : this.level.entitiesForRendering()) {
+-            if (!this.entityRenderDispatcher.shouldRender(entity2, frustum, d, d2, d3) && !entity2.hasIndirectPassenger((net.minecraft.world.entity.Entity)this.minecraft.player) || !this.level.isOutsideBuildHeight((blockPos3 = entity2.blockPosition()).getY()) && !this.isChunkCompiled(blockPos3) || entity2 == activeRenderInfo.getEntity() && !activeRenderInfo.isDetached() && (!(activeRenderInfo.getEntity() instanceof net.minecraft.world.entity.LivingEntity) || !((net.minecraft.world.entity.LivingEntity)activeRenderInfo.getEntity()).isSleeping()) || entity2 instanceof net.minecraft.client.player.LocalPlayer && activeRenderInfo.getEntity() != entity2) continue;
++        boolean $$20 = false;
++        net.minecraft.client.renderer.MultiBufferSource$BufferSource $$21 = this.renderBuffers.bufferSource();
++        for (net.minecraft.world.entity.Entity $$22 : this.level.entitiesForRendering()) {
++            net.minecraft.client.renderer.MultiBufferSource$BufferSource $$31;
++            net.minecraft.core.BlockPos $$23;
++            if (!this.entityRenderDispatcher.shouldRender($$22, $$17, $$11, $$12, $$13) && !$$22.hasIndirectPassenger((net.minecraft.world.entity.Entity)this.minecraft.player) || !this.level.isOutsideBuildHeight(($$23 = $$22.blockPosition()).getY()) && !this.isChunkCompiled($$23) || $$22 == $$4.getEntity() && !$$4.isDetached() && (!($$4.getEntity() instanceof net.minecraft.world.entity.LivingEntity) || !((net.minecraft.world.entity.LivingEntity)$$4.getEntity()).isSleeping()) || $$22 instanceof net.minecraft.client.player.LocalPlayer && $$4.getEntity() != $$22) continue;
+             ++this.renderedEntities;
+-            if (entity2.tickCount == 0) {
+-                entity2.xOld = entity2.getX();
+-                entity2.yOld = entity2.getY();
+-                entity2.zOld = entity2.getZ();
++            if ($$22.tickCount == 0) {
++                $$22.xOld = $$22.getX();
++                $$22.yOld = $$22.getY();
++                $$22.zOld = $$22.getZ();
+             }
+-            if (this.shouldShowEntityOutlines() && this.minecraft.shouldEntityAppearGlowing(entity2)) {
+-                bl5 = true;
+-                net.minecraft.client.renderer.OutlineBufferSource outlineBufferSource = this.renderBuffers.outlineBufferSource();
+-                bufferSource = outlineBufferSource;
+-                int n2 = entity2.getTeamColor();
+-                int n3 = 255;
+-                int n4 = n2 >> 16 & 0xFF;
+-                n = n2 >> 8 & 0xFF;
+-                int n5 = n2 & 0xFF;
+-                outlineBufferSource.setColor(n4, n, n5, 255);
++            if (this.shouldShowEntityOutlines() && this.minecraft.shouldEntityAppearGlowing($$22)) {
++                net.minecraft.client.renderer.OutlineBufferSource $$24;
++                $$20 = true;
++                net.minecraft.client.renderer.OutlineBufferSource $$25 = $$24 = this.renderBuffers.outlineBufferSource();
++                int $$26 = $$22.getTeamColor();
++                int $$27 = 255;
++                int $$28 = $$26 >> 16 & 0xFF;
++                int $$29 = $$26 >> 8 & 0xFF;
++                int $$30 = $$26 & 0xFF;
++                $$24.setColor($$28, $$29, $$30, 255);
+             } else {
+-                bufferSource = bufferSource2;
++                $$31 = $$21;
+             }
+-            this.renderEntity(entity2, d, d2, d3, partialTicks, matrixStack, (net.minecraft.client.renderer.MultiBufferSource)bufferSource);
++            this.renderEntity($$22, $$11, $$12, $$13, $$1, $$0, (net.minecraft.client.renderer.MultiBufferSource)$$31);
+         }
+-        bufferSource2.endLastBatch();
+-        this.checkPoseStack(matrixStack);
+-        bufferSource2.endBatch(net.minecraft.client.renderer.RenderType.entitySolid((net.minecraft.resources.ResourceLocation)net.minecraft.client.renderer.texture.TextureAtlas.LOCATION_BLOCKS));
+-        bufferSource2.endBatch(net.minecraft.client.renderer.RenderType.entityCutout((net.minecraft.resources.ResourceLocation)net.minecraft.client.renderer.texture.TextureAtlas.LOCATION_BLOCKS));
+-        bufferSource2.endBatch(net.minecraft.client.renderer.RenderType.entityCutoutNoCull((net.minecraft.resources.ResourceLocation)net.minecraft.client.renderer.texture.TextureAtlas.LOCATION_BLOCKS));
+-        bufferSource2.endBatch(net.minecraft.client.renderer.RenderType.entitySmoothCutout((net.minecraft.resources.ResourceLocation)net.minecraft.client.renderer.texture.TextureAtlas.LOCATION_BLOCKS));
+-        profilerFiller.popPush("blockentities");
+-        for (net.minecraft.world.entity.Entity entity2 : this.renderChunksInFrustum) {
+-            blockPos3 = entity2.chunk.getCompiledChunk().getRenderableBlockEntities();
+-            if (blockPos3.isEmpty()) continue;
+-            for (net.minecraft.client.renderer.OutlineBufferSource outlineBufferSource : blockPos3) {
+-                net.minecraft.core.BlockPos blockPos2 = outlineBufferSource.getBlockPos();
+-                net.minecraft.client.renderer.MultiBufferSource$BufferSource bufferSource3 = bufferSource2;
+-                matrixStack.pushPose();
+-                matrixStack.translate((double)blockPos2.getX() - d, (double)blockPos2.getY() - d2, (double)blockPos2.getZ() - d3);
+-                java.util.SortedSet sortedSet = (java.util.SortedSet)this.destructionProgress.get(blockPos2.asLong());
+-                if (sortedSet != null && !sortedSet.isEmpty() && (n = ((net.minecraft.server.level.BlockDestructionProgress)sortedSet.last()).getProgress()) >= 0) {
+-                    com.mojang.blaze3d.vertex.PoseStack$Pose pose = matrixStack.last();
+-                    com.mojang.blaze3d.vertex.SheetedDecalTextureGenerator sheetedDecalTextureGenerator = new com.mojang.blaze3d.vertex.SheetedDecalTextureGenerator(this.renderBuffers.crumblingBufferSource().getBuffer((net.minecraft.client.renderer.RenderType)net.minecraft.client.resources.model.ModelBakery.DESTROY_TYPES.get(n)), pose.pose(), pose.normal());
+-                    bufferSource3 = arg_0 -> net.minecraft.client.renderer.LevelRenderer.lambda$renderLevel$5(bufferSource2, (com.mojang.blaze3d.vertex.VertexConsumer)sheetedDecalTextureGenerator, arg_0);
++        $$21.endLastBatch();
++        this.checkPoseStack($$0);
++        $$21.endBatch(net.minecraft.client.renderer.RenderType.entitySolid((net.minecraft.resources.ResourceLocation)net.minecraft.client.renderer.texture.TextureAtlas.LOCATION_BLOCKS));
++        $$21.endBatch(net.minecraft.client.renderer.RenderType.entityCutout((net.minecraft.resources.ResourceLocation)net.minecraft.client.renderer.texture.TextureAtlas.LOCATION_BLOCKS));
++        $$21.endBatch(net.minecraft.client.renderer.RenderType.entityCutoutNoCull((net.minecraft.resources.ResourceLocation)net.minecraft.client.renderer.texture.TextureAtlas.LOCATION_BLOCKS));
++        $$21.endBatch(net.minecraft.client.renderer.RenderType.entitySmoothCutout((net.minecraft.resources.ResourceLocation)net.minecraft.client.renderer.texture.TextureAtlas.LOCATION_BLOCKS));
++        $$8.popPush("blockentities");
++        for (net.minecraft.client.renderer.LevelRenderer$RenderChunkInfo $$32 : this.renderChunksInFrustum) {
++            java.util.List $$33 = $$32.chunk.getCompiledChunk().getRenderableBlockEntities();
++            if ($$33.isEmpty()) continue;
++            for (net.minecraft.world.level.block.entity.BlockEntity $$34 : $$33) {
++                int $$38;
++                net.minecraft.core.BlockPos $$35 = $$34.getBlockPos();
++                net.minecraft.client.renderer.MultiBufferSource$BufferSource $$36 = $$21;
++                $$0.pushPose();
++                $$0.translate((double)$$35.getX() - $$11, (double)$$35.getY() - $$12, (double)$$35.getZ() - $$13);
++                java.util.SortedSet $$37 = (java.util.SortedSet)this.destructionProgress.get($$35.asLong());
++                if ($$37 != null && !$$37.isEmpty() && ($$38 = ((net.minecraft.server.level.BlockDestructionProgress)$$37.last()).getProgress()) >= 0) {
++                    com.mojang.blaze3d.vertex.PoseStack$Pose $$39 = $$0.last();
++                    com.mojang.blaze3d.vertex.SheetedDecalTextureGenerator $$40 = new com.mojang.blaze3d.vertex.SheetedDecalTextureGenerator(this.renderBuffers.crumblingBufferSource().getBuffer((net.minecraft.client.renderer.RenderType)net.minecraft.client.resources.model.ModelBakery.DESTROY_TYPES.get($$38)), $$39.pose(), $$39.normal());
++                    $$36 = arg_0 -> net.minecraft.client.renderer.LevelRenderer.lambda$renderLevel$5($$21, (com.mojang.blaze3d.vertex.VertexConsumer)$$40, arg_0);
+                 }
+-                this.blockEntityRenderDispatcher.render((net.minecraft.world.level.block.entity.BlockEntity)outlineBufferSource, partialTicks, matrixStack, (net.minecraft.client.renderer.MultiBufferSource)bufferSource3);
+-                matrixStack.popPose();
++                this.blockEntityRenderDispatcher.render($$34, $$1, $$0, (net.minecraft.client.renderer.MultiBufferSource)$$36);
++                $$0.popPose();
+             }
+         }
+         java.util.Iterator iterator = this.globalBlockEntities;
+         synchronized (iterator) {
+-            for (net.minecraft.core.BlockPos blockPos3 : this.globalBlockEntities) {
+-                bufferSource = blockPos3.getBlockPos();
+-                matrixStack.pushPose();
+-                matrixStack.translate((double)bufferSource.getX() - d, (double)bufferSource.getY() - d2, (double)bufferSource.getZ() - d3);
+-                this.blockEntityRenderDispatcher.render((net.minecraft.world.level.block.entity.BlockEntity)blockPos3, partialTicks, matrixStack, (net.minecraft.client.renderer.MultiBufferSource)bufferSource2);
+-                matrixStack.popPose();
++            for (net.minecraft.world.level.block.entity.BlockEntity $$41 : this.globalBlockEntities) {
++                net.minecraft.core.BlockPos $$42 = $$41.getBlockPos();
++                $$0.pushPose();
++                $$0.translate((double)$$42.getX() - $$11, (double)$$42.getY() - $$12, (double)$$42.getZ() - $$13);
++                this.blockEntityRenderDispatcher.render($$41, $$1, $$0, (net.minecraft.client.renderer.MultiBufferSource)$$21);
++                $$0.popPose();
+             }
+         }
+-        this.checkPoseStack(matrixStack);
+-        bufferSource2.endBatch(net.minecraft.client.renderer.RenderType.solid());
+-        bufferSource2.endBatch(net.minecraft.client.renderer.RenderType.endPortal());
+-        bufferSource2.endBatch(net.minecraft.client.renderer.RenderType.endGateway());
+-        bufferSource2.endBatch(net.minecraft.client.renderer.Sheets.solidBlockSheet());
+-        bufferSource2.endBatch(net.minecraft.client.renderer.Sheets.cutoutBlockSheet());
+-        bufferSource2.endBatch(net.minecraft.client.renderer.Sheets.bedSheet());
+-        bufferSource2.endBatch(net.minecraft.client.renderer.Sheets.shulkerBoxSheet());
+-        bufferSource2.endBatch(net.minecraft.client.renderer.Sheets.signSheet());
+-        bufferSource2.endBatch(net.minecraft.client.renderer.Sheets.chestSheet());
++        this.checkPoseStack($$0);
++        $$21.endBatch(net.minecraft.client.renderer.RenderType.solid());
++        $$21.endBatch(net.minecraft.client.renderer.RenderType.endPortal());
++        $$21.endBatch(net.minecraft.client.renderer.RenderType.endGateway());
++        $$21.endBatch(net.minecraft.client.renderer.Sheets.solidBlockSheet());
++        $$21.endBatch(net.minecraft.client.renderer.Sheets.cutoutBlockSheet());
++        $$21.endBatch(net.minecraft.client.renderer.Sheets.bedSheet());
++        $$21.endBatch(net.minecraft.client.renderer.Sheets.shulkerBoxSheet());
++        $$21.endBatch(net.minecraft.client.renderer.Sheets.signSheet());
++        $$21.endBatch(net.minecraft.client.renderer.Sheets.hangingSignSheet());
++        $$21.endBatch(net.minecraft.client.renderer.Sheets.chestSheet());
+         this.renderBuffers.outlineBufferSource().endOutlineBatch();
+-        if (bl5) {
+-            this.entityEffect.process(partialTicks);
++        if ($$20) {
++            this.entityEffect.process($$1);
+             this.minecraft.getMainRenderTarget().bindWrite(false);
+         }
+-        profilerFiller.popPush("destroyProgress");
+-        for (net.minecraft.world.entity.Entity entity2 : this.destructionProgress.long2ObjectEntrySet()) {
+-            java.util.SortedSet sortedSet;
+-            double d4;
+-            double d5;
+-            blockPos3 = net.minecraft.core.BlockPos.of((long)entity2.getLongKey());
+-            double d6 = (double)blockPos3.getX() - d;
+-            if (d6 * d6 + (d5 = (double)blockPos3.getY() - d2) * d5 + (d4 = (double)blockPos3.getZ() - d3) * d4 > 1024.0 || (sortedSet = (java.util.SortedSet)entity2.getValue()) == null || sortedSet.isEmpty()) continue;
+-            int n6 = ((net.minecraft.server.level.BlockDestructionProgress)sortedSet.last()).getProgress();
+-            matrixStack.pushPose();
+-            matrixStack.translate((double)blockPos3.getX() - d, (double)blockPos3.getY() - d2, (double)blockPos3.getZ() - d3);
+-            com.mojang.blaze3d.vertex.PoseStack$Pose pose = matrixStack.last();
+-            com.mojang.blaze3d.vertex.SheetedDecalTextureGenerator sheetedDecalTextureGenerator = new com.mojang.blaze3d.vertex.SheetedDecalTextureGenerator(this.renderBuffers.crumblingBufferSource().getBuffer((net.minecraft.client.renderer.RenderType)net.minecraft.client.resources.model.ModelBakery.DESTROY_TYPES.get(n6)), pose.pose(), pose.normal());
+-            this.minecraft.getBlockRenderer().renderBreakingTexture(this.level.getBlockState(blockPos3), blockPos3, (net.minecraft.world.level.BlockAndTintGetter)this.level, matrixStack, (com.mojang.blaze3d.vertex.VertexConsumer)sheetedDecalTextureGenerator);
+-            matrixStack.popPose();
++        $$8.popPush("destroyProgress");
++        for (it.unimi.dsi.fastutil.longs.Long2ObjectMap$Entry $$43 : this.destructionProgress.long2ObjectEntrySet()) {
++            java.util.SortedSet $$48;
++            double $$47;
++            double $$46;
++            net.minecraft.core.BlockPos $$44 = net.minecraft.core.BlockPos.of((long)$$43.getLongKey());
++            double $$45 = (double)$$44.getX() - $$11;
++            if ($$45 * $$45 + ($$46 = (double)$$44.getY() - $$12) * $$46 + ($$47 = (double)$$44.getZ() - $$13) * $$47 > 1024.0 || ($$48 = (java.util.SortedSet)$$43.getValue()) == null || $$48.isEmpty()) continue;
++            int $$49 = ((net.minecraft.server.level.BlockDestructionProgress)$$48.last()).getProgress();
++            $$0.pushPose();
++            $$0.translate((double)$$44.getX() - $$11, (double)$$44.getY() - $$12, (double)$$44.getZ() - $$13);
++            com.mojang.blaze3d.vertex.PoseStack$Pose $$50 = $$0.last();
++            com.mojang.blaze3d.vertex.SheetedDecalTextureGenerator $$51 = new com.mojang.blaze3d.vertex.SheetedDecalTextureGenerator(this.renderBuffers.crumblingBufferSource().getBuffer((net.minecraft.client.renderer.RenderType)net.minecraft.client.resources.model.ModelBakery.DESTROY_TYPES.get($$49)), $$50.pose(), $$50.normal());
++            this.minecraft.getBlockRenderer().renderBreakingTexture(this.level.getBlockState($$44), $$44, (net.minecraft.world.level.BlockAndTintGetter)this.level, $$0, (com.mojang.blaze3d.vertex.VertexConsumer)$$51);
++            $$0.popPose();
+         }
+-        this.checkPoseStack(matrixStack);
+-        iterator = this.minecraft.hitResult;
+-        if (drawBlockOutline && iterator != null && iterator.getType() == net.minecraft.world.phys.HitResult$Type.BLOCK) {
+-            profilerFiller.popPush("outline");
+-            entity2 = ((net.minecraft.world.phys.BlockHitResult)iterator).getBlockPos();
+-            blockPos3 = this.level.getBlockState((net.minecraft.core.BlockPos)entity2);
+-            if (!blockPos3.isAir() && this.level.getWorldBorder().isWithinBounds((net.minecraft.core.BlockPos)entity2)) {
+-                com.mojang.blaze3d.vertex.VertexConsumer vertexConsumer = bufferSource2.getBuffer(net.minecraft.client.renderer.RenderType.lines());
+-                this.renderHitOutline(matrixStack, vertexConsumer, activeRenderInfo.getEntity(), d, d2, d3, (net.minecraft.core.BlockPos)entity2, (net.minecraft.world.level.block.state.BlockState)blockPos3);
++        this.checkPoseStack($$0);
++        net.minecraft.world.phys.HitResult $$52 = this.minecraft.hitResult;
++        if ($$3 && $$52 != null && $$52.getType() == net.minecraft.world.phys.HitResult$Type.BLOCK) {
++            $$8.popPush("outline");
++            net.minecraft.core.BlockPos $$53 = ((net.minecraft.world.phys.BlockHitResult)$$52).getBlockPos();
++            net.minecraft.world.level.block.state.BlockState $$54 = this.level.getBlockState($$53);
++            if (!$$54.isAir() && this.level.getWorldBorder().isWithinBounds($$53)) {
++                com.mojang.blaze3d.vertex.VertexConsumer $$55 = $$21.getBuffer(net.minecraft.client.renderer.RenderType.lines());
++                this.renderHitOutline($$0, $$55, $$4.getEntity(), $$11, $$12, $$13, $$53, $$54);
+             }
+         }
+-        entity2 = com.mojang.blaze3d.systems.RenderSystem.getModelViewStack();
+-        entity2.pushPose();
+-        entity2.mulPoseMatrix(matrixStack.last().pose());
++        com.mojang.blaze3d.vertex.PoseStack $$56 = com.mojang.blaze3d.systems.RenderSystem.getModelViewStack();
++        $$56.pushPose();
++        $$56.mulPoseMatrix($$0.last().pose());
+         com.mojang.blaze3d.systems.RenderSystem.applyModelViewMatrix();
+-        this.minecraft.debugRenderer.render(matrixStack, bufferSource2, d, d2, d3);
+-        entity2.popPose();
++        this.minecraft.debugRenderer.render($$0, $$21, $$11, $$12, $$13);
++        $$56.popPose();
+         com.mojang.blaze3d.systems.RenderSystem.applyModelViewMatrix();
+-        bufferSource2.endBatch(net.minecraft.client.renderer.Sheets.translucentCullBlockSheet());
+-        bufferSource2.endBatch(net.minecraft.client.renderer.Sheets.bannerSheet());
+-        bufferSource2.endBatch(net.minecraft.client.renderer.Sheets.shieldSheet());
+-        bufferSource2.endBatch(net.minecraft.client.renderer.RenderType.armorGlint());
+-        bufferSource2.endBatch(net.minecraft.client.renderer.RenderType.armorEntityGlint());
+-        bufferSource2.endBatch(net.minecraft.client.renderer.RenderType.glint());
+-        bufferSource2.endBatch(net.minecraft.client.renderer.RenderType.glintDirect());
+-        bufferSource2.endBatch(net.minecraft.client.renderer.RenderType.glintTranslucent());
+-        bufferSource2.endBatch(net.minecraft.client.renderer.RenderType.entityGlint());
+-        bufferSource2.endBatch(net.minecraft.client.renderer.RenderType.entityGlintDirect());
+-        bufferSource2.endBatch(net.minecraft.client.renderer.RenderType.waterMask());
++        $$21.endBatch(net.minecraft.client.renderer.Sheets.translucentCullBlockSheet());
++        $$21.endBatch(net.minecraft.client.renderer.Sheets.bannerSheet());
++        $$21.endBatch(net.minecraft.client.renderer.Sheets.shieldSheet());
++        $$21.endBatch(net.minecraft.client.renderer.RenderType.armorGlint());
++        $$21.endBatch(net.minecraft.client.renderer.RenderType.armorEntityGlint());
++        $$21.endBatch(net.minecraft.client.renderer.RenderType.glint());
++        $$21.endBatch(net.minecraft.client.renderer.RenderType.glintDirect());
++        $$21.endBatch(net.minecraft.client.renderer.RenderType.glintTranslucent());
++        $$21.endBatch(net.minecraft.client.renderer.RenderType.entityGlint());
++        $$21.endBatch(net.minecraft.client.renderer.RenderType.entityGlintDirect());
++        $$21.endBatch(net.minecraft.client.renderer.RenderType.waterMask());
+         this.renderBuffers.crumblingBufferSource().endBatch();
+         if (this.transparencyChain != null) {
+-            bufferSource2.endBatch(net.minecraft.client.renderer.RenderType.lines());
+-            bufferSource2.endBatch();
++            $$21.endBatch(net.minecraft.client.renderer.RenderType.lines());
++            $$21.endBatch();
+             this.translucentTarget.clear(net.minecraft.client.Minecraft.ON_OSX);
+             this.translucentTarget.copyDepthFrom(this.minecraft.getMainRenderTarget());
+-            profilerFiller.popPush("translucent");
+-            this.renderChunkLayer(net.minecraft.client.renderer.RenderType.translucent(), matrixStack, d, d2, d3, projection);
+-            profilerFiller.popPush("string");
+-            this.renderChunkLayer(net.minecraft.client.renderer.RenderType.tripwire(), matrixStack, d, d2, d3, projection);
++            $$8.popPush("translucent");
++            this.renderChunkLayer(net.minecraft.client.renderer.RenderType.translucent(), $$0, $$11, $$12, $$13, $$7);
++            $$8.popPush("string");
++            this.renderChunkLayer(net.minecraft.client.renderer.RenderType.tripwire(), $$0, $$11, $$12, $$13, $$7);
+             this.particlesTarget.clear(net.minecraft.client.Minecraft.ON_OSX);
+             this.particlesTarget.copyDepthFrom(this.minecraft.getMainRenderTarget());
+             net.minecraft.client.renderer.RenderStateShard.PARTICLES_TARGET.setupRenderState();
+-            profilerFiller.popPush("particles");
+-            this.minecraft.particleEngine.render(matrixStack, bufferSource2, lightmap, activeRenderInfo, partialTicks);
++            $$8.popPush("particles");
++            this.minecraft.particleEngine.render($$0, $$21, $$6, $$4, $$1);
+             net.minecraft.client.renderer.RenderStateShard.PARTICLES_TARGET.clearRenderState();
+         } else {
+-            profilerFiller.popPush("translucent");
++            $$8.popPush("translucent");
+             if (this.translucentTarget != null) {
+                 this.translucentTarget.clear(net.minecraft.client.Minecraft.ON_OSX);
+             }
+-            this.renderChunkLayer(net.minecraft.client.renderer.RenderType.translucent(), matrixStack, d, d2, d3, projection);
+-            bufferSource2.endBatch(net.minecraft.client.renderer.RenderType.lines());
+-            bufferSource2.endBatch();
+-            profilerFiller.popPush("string");
+-            this.renderChunkLayer(net.minecraft.client.renderer.RenderType.tripwire(), matrixStack, d, d2, d3, projection);
+-            profilerFiller.popPush("particles");
+-            this.minecraft.particleEngine.render(matrixStack, bufferSource2, lightmap, activeRenderInfo, partialTicks);
++            this.renderChunkLayer(net.minecraft.client.renderer.RenderType.translucent(), $$0, $$11, $$12, $$13, $$7);
++            $$21.endBatch(net.minecraft.client.renderer.RenderType.lines());
++            $$21.endBatch();
++            $$8.popPush("string");
++            this.renderChunkLayer(net.minecraft.client.renderer.RenderType.tripwire(), $$0, $$11, $$12, $$13, $$7);
++            $$8.popPush("particles");
++            this.minecraft.particleEngine.render($$0, $$21, $$6, $$4, $$1);
+         }
+-        entity2.pushPose();
+-        entity2.mulPoseMatrix(matrixStack.last().pose());
++        $$56.pushPose();
++        $$56.mulPoseMatrix($$0.last().pose());
+         com.mojang.blaze3d.systems.RenderSystem.applyModelViewMatrix();
+         if (this.minecraft.options.getCloudsType() != net.minecraft.client.CloudStatus.OFF) {
+             if (this.transparencyChain != null) {
+                 this.cloudsTarget.clear(net.minecraft.client.Minecraft.ON_OSX);
+                 net.minecraft.client.renderer.RenderStateShard.CLOUDS_TARGET.setupRenderState();
+-                profilerFiller.popPush("clouds");
+-                this.renderClouds(matrixStack, projection, partialTicks, d, d2, d3);
++                $$8.popPush("clouds");
++                this.renderClouds($$0, $$7, $$1, $$11, $$12, $$13);
+                 net.minecraft.client.renderer.RenderStateShard.CLOUDS_TARGET.clearRenderState();
+             } else {
+-                profilerFiller.popPush("clouds");
++                $$8.popPush("clouds");
+                 com.mojang.blaze3d.systems.RenderSystem.setShader(net.minecraft.client.renderer.GameRenderer::getPositionTexColorNormalShader);
+-                this.renderClouds(matrixStack, projection, partialTicks, d, d2, d3);
++                this.renderClouds($$0, $$7, $$1, $$11, $$12, $$13);
+             }
+         }
+         if (this.transparencyChain != null) {
+             net.minecraft.client.renderer.RenderStateShard.WEATHER_TARGET.setupRenderState();
+-            profilerFiller.popPush("weather");
+-            this.renderSnowAndRain(lightmap, partialTicks, d, d2, d3);
+-            this.renderWorldBorder(activeRenderInfo);
++            $$8.popPush("weather");
++            this.renderSnowAndRain($$6, $$1, $$11, $$12, $$13);
++            this.renderWorldBorder($$4);
+             net.minecraft.client.renderer.RenderStateShard.WEATHER_TARGET.clearRenderState();
+-            this.transparencyChain.process(partialTicks);
++            this.transparencyChain.process($$1);
+             this.minecraft.getMainRenderTarget().bindWrite(false);
+         } else {
+             com.mojang.blaze3d.systems.RenderSystem.depthMask((boolean)false);
+-            profilerFiller.popPush("weather");
+-            this.renderSnowAndRain(lightmap, partialTicks, d, d2, d3);
+-            this.renderWorldBorder(activeRenderInfo);
++            $$8.popPush("weather");
++            this.renderSnowAndRain($$6, $$1, $$11, $$12, $$13);
++            this.renderWorldBorder($$4);
+             com.mojang.blaze3d.systems.RenderSystem.depthMask((boolean)true);
+         }
+-        this.renderDebug(activeRenderInfo);
++        this.renderDebug($$4);
+         com.mojang.blaze3d.systems.RenderSystem.depthMask((boolean)true);
+         com.mojang.blaze3d.systems.RenderSystem.disableBlend();
+-        entity2.popPose();
++        $$56.popPose();
+         com.mojang.blaze3d.systems.RenderSystem.applyModelViewMatrix();
+         net.minecraft.client.renderer.FogRenderer.setupNoFog();
+     }
+ 
+-    public void checkPoseStack(com.mojang.blaze3d.vertex.PoseStack matrixStack) {
+-        if (!matrixStack.clear()) {
++    public void checkPoseStack(com.mojang.blaze3d.vertex.PoseStack $$0) {
++        if (!$$0.clear()) {
+             throw new java.lang.IllegalStateException("Pose stack not empty");
+         }
+     }
+ 
+-    public void renderEntity(net.minecraft.world.entity.Entity entity, double camX, double camY, double camZ, float partialTicks, com.mojang.blaze3d.vertex.PoseStack matrixStack, net.minecraft.client.renderer.MultiBufferSource buffer) {
+-        double d = net.minecraft.util.Mth.lerp((double)partialTicks, (double)entity.xOld, (double)entity.getX());
+-        double d2 = net.minecraft.util.Mth.lerp((double)partialTicks, (double)entity.yOld, (double)entity.getY());
+-        double d3 = net.minecraft.util.Mth.lerp((double)partialTicks, (double)entity.zOld, (double)entity.getZ());
+-        float f = net.minecraft.util.Mth.lerp((float)partialTicks, (float)entity.yRotO, (float)entity.getYRot());
+-        this.entityRenderDispatcher.render(entity, d - camX, d2 - camY, d3 - camZ, f, partialTicks, matrixStack, buffer, this.entityRenderDispatcher.getPackedLightCoords(entity, partialTicks));
++    public void renderEntity(net.minecraft.world.entity.Entity $$0, double $$1, double $$2, double $$3, float $$4, com.mojang.blaze3d.vertex.PoseStack $$5, net.minecraft.client.renderer.MultiBufferSource $$6) {
++        double $$7 = net.minecraft.util.Mth.lerp((double)$$4, (double)$$0.xOld, (double)$$0.getX());
++        double $$8 = net.minecraft.util.Mth.lerp((double)$$4, (double)$$0.yOld, (double)$$0.getY());
++        double $$9 = net.minecraft.util.Mth.lerp((double)$$4, (double)$$0.zOld, (double)$$0.getZ());
++        float $$10 = net.minecraft.util.Mth.lerp((float)$$4, (float)$$0.yRotO, (float)$$0.getYRot());
++        this.entityRenderDispatcher.render($$0, $$7 - $$1, $$8 - $$2, $$9 - $$3, $$10, $$4, $$5, $$6, this.entityRenderDispatcher.getPackedLightCoords($$0, $$4));
+     }
+ 
+     public void renderChunkLayer(net.minecraft.client.renderer.RenderType $$0, com.mojang.blaze3d.vertex.PoseStack $$1, double $$2, double $$3, double $$4, com.mojang.math.Matrix4f $$5) {
+@@ -1223,93 +1221,92 @@
+         $$0.clearRenderState();
+     }
+ 
+-    public void renderDebug(net.minecraft.client.Camera activeRenderInfo) {
+-        com.mojang.blaze3d.vertex.Tesselator tesselator = com.mojang.blaze3d.vertex.Tesselator.getInstance();
+-        com.mojang.blaze3d.vertex.BufferBuilder bufferBuilder = tesselator.getBuilder();
++    public void renderDebug(net.minecraft.client.Camera $$0) {
++        com.mojang.blaze3d.vertex.Tesselator $$1 = com.mojang.blaze3d.vertex.Tesselator.getInstance();
++        com.mojang.blaze3d.vertex.BufferBuilder $$2 = $$1.getBuilder();
+         com.mojang.blaze3d.systems.RenderSystem.setShader(net.minecraft.client.renderer.GameRenderer::getPositionColorShader);
+         if (this.minecraft.chunkPath || this.minecraft.chunkVisibility) {
+-            double d = activeRenderInfo.getPosition().x();
+-            double d2 = activeRenderInfo.getPosition().y();
+-            double d3 = activeRenderInfo.getPosition().z();
++            double $$3 = $$0.getPosition().x();
++            double $$4 = $$0.getPosition().y();
++            double $$5 = $$0.getPosition().z();
+             com.mojang.blaze3d.systems.RenderSystem.depthMask((boolean)true);
+             com.mojang.blaze3d.systems.RenderSystem.disableCull();
+             com.mojang.blaze3d.systems.RenderSystem.enableBlend();
+             com.mojang.blaze3d.systems.RenderSystem.defaultBlendFunc();
+             com.mojang.blaze3d.systems.RenderSystem.disableTexture();
+-            for (net.minecraft.client.renderer.LevelRenderer$RenderChunkInfo renderChunkInfo : this.renderChunksInFrustum) {
+-                int n;
+-                net.minecraft.client.renderer.chunk.ChunkRenderDispatcher$RenderChunk renderChunk = renderChunkInfo.chunk;
+-                net.minecraft.core.BlockPos blockPos = renderChunk.getOrigin();
+-                com.mojang.blaze3d.vertex.PoseStack poseStack = com.mojang.blaze3d.systems.RenderSystem.getModelViewStack();
+-                poseStack.pushPose();
+-                poseStack.translate((double)blockPos.getX() - d, (double)blockPos.getY() - d2, (double)blockPos.getZ() - d3);
++            for (net.minecraft.client.renderer.LevelRenderer$RenderChunkInfo $$6 : this.renderChunksInFrustum) {
++                net.minecraft.client.renderer.chunk.ChunkRenderDispatcher$RenderChunk $$7 = $$6.chunk;
++                net.minecraft.core.BlockPos $$8 = $$7.getOrigin();
++                com.mojang.blaze3d.vertex.PoseStack $$9 = com.mojang.blaze3d.systems.RenderSystem.getModelViewStack();
++                $$9.pushPose();
++                $$9.translate((double)$$8.getX() - $$3, (double)$$8.getY() - $$4, (double)$$8.getZ() - $$5);
+                 com.mojang.blaze3d.systems.RenderSystem.applyModelViewMatrix();
+                 com.mojang.blaze3d.systems.RenderSystem.setShader(net.minecraft.client.renderer.GameRenderer::getRendertypeLinesShader);
+                 if (this.minecraft.chunkPath) {
+-                    bufferBuilder.begin(com.mojang.blaze3d.vertex.VertexFormat$Mode.LINES, com.mojang.blaze3d.vertex.DefaultVertexFormat.POSITION_COLOR_NORMAL);
++                    $$2.begin(com.mojang.blaze3d.vertex.VertexFormat$Mode.LINES, com.mojang.blaze3d.vertex.DefaultVertexFormat.POSITION_COLOR_NORMAL);
+                     com.mojang.blaze3d.systems.RenderSystem.lineWidth((float)5.0f);
+-                    n = renderChunkInfo.step == 0 ? 0 : net.minecraft.util.Mth.hsvToRgb((float)((float)renderChunkInfo.step / 50.0f), (float)0.9f, (float)0.9f);
+-                    int n2 = n >> 16 & 0xFF;
+-                    int n3 = n >> 8 & 0xFF;
+-                    int n4 = n & 0xFF;
+-                    for (int i = 0; i < DIRECTIONS.length; ++i) {
+-                        if (!renderChunkInfo.hasSourceDirection(i)) continue;
+-                        net.minecraft.core.Direction direction = DIRECTIONS[i];
+-                        bufferBuilder.vertex(8.0, 8.0, 8.0).color(n2, n3, n4, 255).normal((float)direction.getStepX(), (float)direction.getStepY(), (float)direction.getStepZ()).endVertex();
+-                        bufferBuilder.vertex((double)(8 - 16 * direction.getStepX()), (double)(8 - 16 * direction.getStepY()), (double)(8 - 16 * direction.getStepZ())).color(n2, n3, n4, 255).normal((float)direction.getStepX(), (float)direction.getStepY(), (float)direction.getStepZ()).endVertex();
++                    int $$10 = $$6.step == 0 ? 0 : net.minecraft.util.Mth.hsvToRgb((float)((float)$$6.step / 50.0f), (float)0.9f, (float)0.9f);
++                    int $$11 = $$10 >> 16 & 0xFF;
++                    int $$12 = $$10 >> 8 & 0xFF;
++                    int $$13 = $$10 & 0xFF;
++                    for (int $$14 = 0; $$14 < DIRECTIONS.length; ++$$14) {
++                        if (!$$6.hasSourceDirection($$14)) continue;
++                        net.minecraft.core.Direction $$15 = DIRECTIONS[$$14];
++                        $$2.vertex(8.0, 8.0, 8.0).color($$11, $$12, $$13, 255).normal((float)$$15.getStepX(), (float)$$15.getStepY(), (float)$$15.getStepZ()).endVertex();
++                        $$2.vertex((double)(8 - 16 * $$15.getStepX()), (double)(8 - 16 * $$15.getStepY()), (double)(8 - 16 * $$15.getStepZ())).color($$11, $$12, $$13, 255).normal((float)$$15.getStepX(), (float)$$15.getStepY(), (float)$$15.getStepZ()).endVertex();
+                     }
+-                    tesselator.end();
++                    $$1.end();
+                     com.mojang.blaze3d.systems.RenderSystem.lineWidth((float)1.0f);
+                 }
+-                if (this.minecraft.chunkVisibility && !renderChunk.getCompiledChunk().hasNoRenderableLayers()) {
+-                    bufferBuilder.begin(com.mojang.blaze3d.vertex.VertexFormat$Mode.LINES, com.mojang.blaze3d.vertex.DefaultVertexFormat.POSITION_COLOR_NORMAL);
++                if (this.minecraft.chunkVisibility && !$$7.getCompiledChunk().hasNoRenderableLayers()) {
++                    $$2.begin(com.mojang.blaze3d.vertex.VertexFormat$Mode.LINES, com.mojang.blaze3d.vertex.DefaultVertexFormat.POSITION_COLOR_NORMAL);
+                     com.mojang.blaze3d.systems.RenderSystem.setShader(net.minecraft.client.renderer.GameRenderer::getRendertypeLinesShader);
+                     com.mojang.blaze3d.systems.RenderSystem.lineWidth((float)5.0f);
+-                    n = 0;
+-                    for (net.minecraft.core.Direction direction : DIRECTIONS) {
+-                        for (net.minecraft.core.Direction direction2 : DIRECTIONS) {
+-                            boolean bl = renderChunk.getCompiledChunk().facesCanSeeEachother(direction, direction2);
+-                            if (bl) continue;
+-                            ++n;
+-                            bufferBuilder.vertex((double)(8 + 8 * direction.getStepX()), (double)(8 + 8 * direction.getStepY()), (double)(8 + 8 * direction.getStepZ())).color(255, 0, 0, 255).normal((float)direction.getStepX(), (float)direction.getStepY(), (float)direction.getStepZ()).endVertex();
+-                            bufferBuilder.vertex((double)(8 + 8 * direction2.getStepX()), (double)(8 + 8 * direction2.getStepY()), (double)(8 + 8 * direction2.getStepZ())).color(255, 0, 0, 255).normal((float)direction2.getStepX(), (float)direction2.getStepY(), (float)direction2.getStepZ()).endVertex();
++                    int $$16 = 0;
++                    for (net.minecraft.core.Direction $$17 : DIRECTIONS) {
++                        for (net.minecraft.core.Direction $$18 : DIRECTIONS) {
++                            boolean $$19 = $$7.getCompiledChunk().facesCanSeeEachother($$17, $$18);
++                            if ($$19) continue;
++                            ++$$16;
++                            $$2.vertex((double)(8 + 8 * $$17.getStepX()), (double)(8 + 8 * $$17.getStepY()), (double)(8 + 8 * $$17.getStepZ())).color(255, 0, 0, 255).normal((float)$$17.getStepX(), (float)$$17.getStepY(), (float)$$17.getStepZ()).endVertex();
++                            $$2.vertex((double)(8 + 8 * $$18.getStepX()), (double)(8 + 8 * $$18.getStepY()), (double)(8 + 8 * $$18.getStepZ())).color(255, 0, 0, 255).normal((float)$$18.getStepX(), (float)$$18.getStepY(), (float)$$18.getStepZ()).endVertex();
+                         }
+                     }
+-                    tesselator.end();
++                    $$1.end();
+                     com.mojang.blaze3d.systems.RenderSystem.lineWidth((float)1.0f);
+                     com.mojang.blaze3d.systems.RenderSystem.setShader(net.minecraft.client.renderer.GameRenderer::getPositionColorShader);
+-                    if (n > 0) {
+-                        bufferBuilder.begin(com.mojang.blaze3d.vertex.VertexFormat$Mode.QUADS, com.mojang.blaze3d.vertex.DefaultVertexFormat.POSITION_COLOR);
+-                        float f = 0.5f;
+-                        float f2 = 0.2f;
+-                        bufferBuilder.vertex(0.5, 15.5, 0.5).color(0.9f, 0.9f, 0.0f, 0.2f).endVertex();
+-                        bufferBuilder.vertex(15.5, 15.5, 0.5).color(0.9f, 0.9f, 0.0f, 0.2f).endVertex();
+-                        bufferBuilder.vertex(15.5, 15.5, 15.5).color(0.9f, 0.9f, 0.0f, 0.2f).endVertex();
+-                        bufferBuilder.vertex(0.5, 15.5, 15.5).color(0.9f, 0.9f, 0.0f, 0.2f).endVertex();
+-                        bufferBuilder.vertex(0.5, 0.5, 15.5).color(0.9f, 0.9f, 0.0f, 0.2f).endVertex();
+-                        bufferBuilder.vertex(15.5, 0.5, 15.5).color(0.9f, 0.9f, 0.0f, 0.2f).endVertex();
+-                        bufferBuilder.vertex(15.5, 0.5, 0.5).color(0.9f, 0.9f, 0.0f, 0.2f).endVertex();
+-                        bufferBuilder.vertex(0.5, 0.5, 0.5).color(0.9f, 0.9f, 0.0f, 0.2f).endVertex();
+-                        bufferBuilder.vertex(0.5, 15.5, 0.5).color(0.9f, 0.9f, 0.0f, 0.2f).endVertex();
+-                        bufferBuilder.vertex(0.5, 15.5, 15.5).color(0.9f, 0.9f, 0.0f, 0.2f).endVertex();
+-                        bufferBuilder.vertex(0.5, 0.5, 15.5).color(0.9f, 0.9f, 0.0f, 0.2f).endVertex();
+-                        bufferBuilder.vertex(0.5, 0.5, 0.5).color(0.9f, 0.9f, 0.0f, 0.2f).endVertex();
+-                        bufferBuilder.vertex(15.5, 0.5, 0.5).color(0.9f, 0.9f, 0.0f, 0.2f).endVertex();
+-                        bufferBuilder.vertex(15.5, 0.5, 15.5).color(0.9f, 0.9f, 0.0f, 0.2f).endVertex();
+-                        bufferBuilder.vertex(15.5, 15.5, 15.5).color(0.9f, 0.9f, 0.0f, 0.2f).endVertex();
+-                        bufferBuilder.vertex(15.5, 15.5, 0.5).color(0.9f, 0.9f, 0.0f, 0.2f).endVertex();
+-                        bufferBuilder.vertex(0.5, 0.5, 0.5).color(0.9f, 0.9f, 0.0f, 0.2f).endVertex();
+-                        bufferBuilder.vertex(15.5, 0.5, 0.5).color(0.9f, 0.9f, 0.0f, 0.2f).endVertex();
+-                        bufferBuilder.vertex(15.5, 15.5, 0.5).color(0.9f, 0.9f, 0.0f, 0.2f).endVertex();
+-                        bufferBuilder.vertex(0.5, 15.5, 0.5).color(0.9f, 0.9f, 0.0f, 0.2f).endVertex();
+-                        bufferBuilder.vertex(0.5, 15.5, 15.5).color(0.9f, 0.9f, 0.0f, 0.2f).endVertex();
+-                        bufferBuilder.vertex(15.5, 15.5, 15.5).color(0.9f, 0.9f, 0.0f, 0.2f).endVertex();
+-                        bufferBuilder.vertex(15.5, 0.5, 15.5).color(0.9f, 0.9f, 0.0f, 0.2f).endVertex();
+-                        bufferBuilder.vertex(0.5, 0.5, 15.5).color(0.9f, 0.9f, 0.0f, 0.2f).endVertex();
+-                        tesselator.end();
++                    if ($$16 > 0) {
++                        $$2.begin(com.mojang.blaze3d.vertex.VertexFormat$Mode.QUADS, com.mojang.blaze3d.vertex.DefaultVertexFormat.POSITION_COLOR);
++                        float $$20 = 0.5f;
++                        float $$21 = 0.2f;
++                        $$2.vertex(0.5, 15.5, 0.5).color(0.9f, 0.9f, 0.0f, 0.2f).endVertex();
++                        $$2.vertex(15.5, 15.5, 0.5).color(0.9f, 0.9f, 0.0f, 0.2f).endVertex();
++                        $$2.vertex(15.5, 15.5, 15.5).color(0.9f, 0.9f, 0.0f, 0.2f).endVertex();
++                        $$2.vertex(0.5, 15.5, 15.5).color(0.9f, 0.9f, 0.0f, 0.2f).endVertex();
++                        $$2.vertex(0.5, 0.5, 15.5).color(0.9f, 0.9f, 0.0f, 0.2f).endVertex();
++                        $$2.vertex(15.5, 0.5, 15.5).color(0.9f, 0.9f, 0.0f, 0.2f).endVertex();
++                        $$2.vertex(15.5, 0.5, 0.5).color(0.9f, 0.9f, 0.0f, 0.2f).endVertex();
++                        $$2.vertex(0.5, 0.5, 0.5).color(0.9f, 0.9f, 0.0f, 0.2f).endVertex();
++                        $$2.vertex(0.5, 15.5, 0.5).color(0.9f, 0.9f, 0.0f, 0.2f).endVertex();
++                        $$2.vertex(0.5, 15.5, 15.5).color(0.9f, 0.9f, 0.0f, 0.2f).endVertex();
++                        $$2.vertex(0.5, 0.5, 15.5).color(0.9f, 0.9f, 0.0f, 0.2f).endVertex();
++                        $$2.vertex(0.5, 0.5, 0.5).color(0.9f, 0.9f, 0.0f, 0.2f).endVertex();
++                        $$2.vertex(15.5, 0.5, 0.5).color(0.9f, 0.9f, 0.0f, 0.2f).endVertex();
++                        $$2.vertex(15.5, 0.5, 15.5).color(0.9f, 0.9f, 0.0f, 0.2f).endVertex();
++                        $$2.vertex(15.5, 15.5, 15.5).color(0.9f, 0.9f, 0.0f, 0.2f).endVertex();
++                        $$2.vertex(15.5, 15.5, 0.5).color(0.9f, 0.9f, 0.0f, 0.2f).endVertex();
++                        $$2.vertex(0.5, 0.5, 0.5).color(0.9f, 0.9f, 0.0f, 0.2f).endVertex();
++                        $$2.vertex(15.5, 0.5, 0.5).color(0.9f, 0.9f, 0.0f, 0.2f).endVertex();
++                        $$2.vertex(15.5, 15.5, 0.5).color(0.9f, 0.9f, 0.0f, 0.2f).endVertex();
++                        $$2.vertex(0.5, 15.5, 0.5).color(0.9f, 0.9f, 0.0f, 0.2f).endVertex();
++                        $$2.vertex(0.5, 15.5, 15.5).color(0.9f, 0.9f, 0.0f, 0.2f).endVertex();
++                        $$2.vertex(15.5, 15.5, 15.5).color(0.9f, 0.9f, 0.0f, 0.2f).endVertex();
++                        $$2.vertex(15.5, 0.5, 15.5).color(0.9f, 0.9f, 0.0f, 0.2f).endVertex();
++                        $$2.vertex(0.5, 0.5, 15.5).color(0.9f, 0.9f, 0.0f, 0.2f).endVertex();
++                        $$1.end();
+                     }
+                 }
+-                poseStack.popPose();
++                $$9.popPose();
+                 com.mojang.blaze3d.systems.RenderSystem.applyModelViewMatrix();
+             }
+             com.mojang.blaze3d.systems.RenderSystem.depthMask((boolean)true);
+@@ -1324,49 +1321,49 @@
+             com.mojang.blaze3d.systems.RenderSystem.defaultBlendFunc();
+             com.mojang.blaze3d.systems.RenderSystem.lineWidth((float)5.0f);
+             com.mojang.blaze3d.systems.RenderSystem.setShader(net.minecraft.client.renderer.GameRenderer::getPositionColorShader);
+-            com.mojang.blaze3d.vertex.PoseStack poseStack = com.mojang.blaze3d.systems.RenderSystem.getModelViewStack();
+-            poseStack.pushPose();
+-            poseStack.translate((double)((float)(this.frustumPos.x - activeRenderInfo.getPosition().x)), (double)((float)(this.frustumPos.y - activeRenderInfo.getPosition().y)), (double)((float)(this.frustumPos.z - activeRenderInfo.getPosition().z)));
++            com.mojang.blaze3d.vertex.PoseStack $$22 = com.mojang.blaze3d.systems.RenderSystem.getModelViewStack();
++            $$22.pushPose();
++            $$22.translate((double)((float)(this.frustumPos.x - $$0.getPosition().x)), (double)((float)(this.frustumPos.y - $$0.getPosition().y)), (double)((float)(this.frustumPos.z - $$0.getPosition().z)));
+             com.mojang.blaze3d.systems.RenderSystem.applyModelViewMatrix();
+             com.mojang.blaze3d.systems.RenderSystem.depthMask((boolean)true);
+-            bufferBuilder.begin(com.mojang.blaze3d.vertex.VertexFormat$Mode.QUADS, com.mojang.blaze3d.vertex.DefaultVertexFormat.POSITION_COLOR);
+-            this.addFrustumQuad((com.mojang.blaze3d.vertex.VertexConsumer)bufferBuilder, 0, 1, 2, 3, 0, 1, 1);
+-            this.addFrustumQuad((com.mojang.blaze3d.vertex.VertexConsumer)bufferBuilder, 4, 5, 6, 7, 1, 0, 0);
+-            this.addFrustumQuad((com.mojang.blaze3d.vertex.VertexConsumer)bufferBuilder, 0, 1, 5, 4, 1, 1, 0);
+-            this.addFrustumQuad((com.mojang.blaze3d.vertex.VertexConsumer)bufferBuilder, 2, 3, 7, 6, 0, 0, 1);
+-            this.addFrustumQuad((com.mojang.blaze3d.vertex.VertexConsumer)bufferBuilder, 0, 4, 7, 3, 0, 1, 0);
+-            this.addFrustumQuad((com.mojang.blaze3d.vertex.VertexConsumer)bufferBuilder, 1, 5, 6, 2, 1, 0, 1);
+-            tesselator.end();
++            $$2.begin(com.mojang.blaze3d.vertex.VertexFormat$Mode.QUADS, com.mojang.blaze3d.vertex.DefaultVertexFormat.POSITION_COLOR);
++            this.addFrustumQuad((com.mojang.blaze3d.vertex.VertexConsumer)$$2, 0, 1, 2, 3, 0, 1, 1);
++            this.addFrustumQuad((com.mojang.blaze3d.vertex.VertexConsumer)$$2, 4, 5, 6, 7, 1, 0, 0);
++            this.addFrustumQuad((com.mojang.blaze3d.vertex.VertexConsumer)$$2, 0, 1, 5, 4, 1, 1, 0);
++            this.addFrustumQuad((com.mojang.blaze3d.vertex.VertexConsumer)$$2, 2, 3, 7, 6, 0, 0, 1);
++            this.addFrustumQuad((com.mojang.blaze3d.vertex.VertexConsumer)$$2, 0, 4, 7, 3, 0, 1, 0);
++            this.addFrustumQuad((com.mojang.blaze3d.vertex.VertexConsumer)$$2, 1, 5, 6, 2, 1, 0, 1);
++            $$1.end();
+             com.mojang.blaze3d.systems.RenderSystem.depthMask((boolean)false);
+             com.mojang.blaze3d.systems.RenderSystem.setShader(net.minecraft.client.renderer.GameRenderer::getRendertypeLinesShader);
+-            bufferBuilder.begin(com.mojang.blaze3d.vertex.VertexFormat$Mode.LINES, com.mojang.blaze3d.vertex.DefaultVertexFormat.POSITION_COLOR_NORMAL);
++            $$2.begin(com.mojang.blaze3d.vertex.VertexFormat$Mode.LINES, com.mojang.blaze3d.vertex.DefaultVertexFormat.POSITION_COLOR_NORMAL);
+             com.mojang.blaze3d.systems.RenderSystem.setShaderColor((float)1.0f, (float)1.0f, (float)1.0f, (float)1.0f);
+-            this.addFrustumVertex((com.mojang.blaze3d.vertex.VertexConsumer)bufferBuilder, 0);
+-            this.addFrustumVertex((com.mojang.blaze3d.vertex.VertexConsumer)bufferBuilder, 1);
+-            this.addFrustumVertex((com.mojang.blaze3d.vertex.VertexConsumer)bufferBuilder, 1);
+-            this.addFrustumVertex((com.mojang.blaze3d.vertex.VertexConsumer)bufferBuilder, 2);
+-            this.addFrustumVertex((com.mojang.blaze3d.vertex.VertexConsumer)bufferBuilder, 2);
+-            this.addFrustumVertex((com.mojang.blaze3d.vertex.VertexConsumer)bufferBuilder, 3);
+-            this.addFrustumVertex((com.mojang.blaze3d.vertex.VertexConsumer)bufferBuilder, 3);
+-            this.addFrustumVertex((com.mojang.blaze3d.vertex.VertexConsumer)bufferBuilder, 0);
+-            this.addFrustumVertex((com.mojang.blaze3d.vertex.VertexConsumer)bufferBuilder, 4);
+-            this.addFrustumVertex((com.mojang.blaze3d.vertex.VertexConsumer)bufferBuilder, 5);
+-            this.addFrustumVertex((com.mojang.blaze3d.vertex.VertexConsumer)bufferBuilder, 5);
+-            this.addFrustumVertex((com.mojang.blaze3d.vertex.VertexConsumer)bufferBuilder, 6);
+-            this.addFrustumVertex((com.mojang.blaze3d.vertex.VertexConsumer)bufferBuilder, 6);
+-            this.addFrustumVertex((com.mojang.blaze3d.vertex.VertexConsumer)bufferBuilder, 7);
+-            this.addFrustumVertex((com.mojang.blaze3d.vertex.VertexConsumer)bufferBuilder, 7);
+-            this.addFrustumVertex((com.mojang.blaze3d.vertex.VertexConsumer)bufferBuilder, 4);
+-            this.addFrustumVertex((com.mojang.blaze3d.vertex.VertexConsumer)bufferBuilder, 0);
+-            this.addFrustumVertex((com.mojang.blaze3d.vertex.VertexConsumer)bufferBuilder, 4);
+-            this.addFrustumVertex((com.mojang.blaze3d.vertex.VertexConsumer)bufferBuilder, 1);
+-            this.addFrustumVertex((com.mojang.blaze3d.vertex.VertexConsumer)bufferBuilder, 5);
+-            this.addFrustumVertex((com.mojang.blaze3d.vertex.VertexConsumer)bufferBuilder, 2);
+-            this.addFrustumVertex((com.mojang.blaze3d.vertex.VertexConsumer)bufferBuilder, 6);
+-            this.addFrustumVertex((com.mojang.blaze3d.vertex.VertexConsumer)bufferBuilder, 3);
+-            this.addFrustumVertex((com.mojang.blaze3d.vertex.VertexConsumer)bufferBuilder, 7);
+-            tesselator.end();
+-            poseStack.popPose();
++            this.addFrustumVertex((com.mojang.blaze3d.vertex.VertexConsumer)$$2, 0);
++            this.addFrustumVertex((com.mojang.blaze3d.vertex.VertexConsumer)$$2, 1);
++            this.addFrustumVertex((com.mojang.blaze3d.vertex.VertexConsumer)$$2, 1);
++            this.addFrustumVertex((com.mojang.blaze3d.vertex.VertexConsumer)$$2, 2);
++            this.addFrustumVertex((com.mojang.blaze3d.vertex.VertexConsumer)$$2, 2);
++            this.addFrustumVertex((com.mojang.blaze3d.vertex.VertexConsumer)$$2, 3);
++            this.addFrustumVertex((com.mojang.blaze3d.vertex.VertexConsumer)$$2, 3);
++            this.addFrustumVertex((com.mojang.blaze3d.vertex.VertexConsumer)$$2, 0);
++            this.addFrustumVertex((com.mojang.blaze3d.vertex.VertexConsumer)$$2, 4);
++            this.addFrustumVertex((com.mojang.blaze3d.vertex.VertexConsumer)$$2, 5);
++            this.addFrustumVertex((com.mojang.blaze3d.vertex.VertexConsumer)$$2, 5);
++            this.addFrustumVertex((com.mojang.blaze3d.vertex.VertexConsumer)$$2, 6);
++            this.addFrustumVertex((com.mojang.blaze3d.vertex.VertexConsumer)$$2, 6);
++            this.addFrustumVertex((com.mojang.blaze3d.vertex.VertexConsumer)$$2, 7);
++            this.addFrustumVertex((com.mojang.blaze3d.vertex.VertexConsumer)$$2, 7);
++            this.addFrustumVertex((com.mojang.blaze3d.vertex.VertexConsumer)$$2, 4);
++            this.addFrustumVertex((com.mojang.blaze3d.vertex.VertexConsumer)$$2, 0);
++            this.addFrustumVertex((com.mojang.blaze3d.vertex.VertexConsumer)$$2, 4);
++            this.addFrustumVertex((com.mojang.blaze3d.vertex.VertexConsumer)$$2, 1);
++            this.addFrustumVertex((com.mojang.blaze3d.vertex.VertexConsumer)$$2, 5);
++            this.addFrustumVertex((com.mojang.blaze3d.vertex.VertexConsumer)$$2, 2);
++            this.addFrustumVertex((com.mojang.blaze3d.vertex.VertexConsumer)$$2, 6);
++            this.addFrustumVertex((com.mojang.blaze3d.vertex.VertexConsumer)$$2, 3);
++            this.addFrustumVertex((com.mojang.blaze3d.vertex.VertexConsumer)$$2, 7);
++            $$1.end();
++            $$22.popPose();
+             com.mojang.blaze3d.systems.RenderSystem.applyModelViewMatrix();
+             com.mojang.blaze3d.systems.RenderSystem.depthMask((boolean)true);
+             com.mojang.blaze3d.systems.RenderSystem.disableBlend();
+@@ -1376,16 +1373,16 @@
+         }
+     }
+ 
+-    public void addFrustumVertex(com.mojang.blaze3d.vertex.VertexConsumer buffer, int vertex) {
+-        buffer.vertex((double)this.frustumPoints[vertex].x(), (double)this.frustumPoints[vertex].y(), (double)this.frustumPoints[vertex].z()).color(0, 0, 0, 255).normal(0.0f, 0.0f, -1.0f).endVertex();
++    public void addFrustumVertex(com.mojang.blaze3d.vertex.VertexConsumer $$0, int $$1) {
++        $$0.vertex((double)this.frustumPoints[$$1].x(), (double)this.frustumPoints[$$1].y(), (double)this.frustumPoints[$$1].z()).color(0, 0, 0, 255).normal(0.0f, 0.0f, -1.0f).endVertex();
+     }
+ 
+-    public void addFrustumQuad(com.mojang.blaze3d.vertex.VertexConsumer buffer, int vertex1, int vertex2, int vertex3, int vertex4, int red, int green, int blue) {
+-        float f = 0.25f;
+-        buffer.vertex((double)this.frustumPoints[vertex1].x(), (double)this.frustumPoints[vertex1].y(), (double)this.frustumPoints[vertex1].z()).color((float)red, (float)green, (float)blue, 0.25f).endVertex();
+-        buffer.vertex((double)this.frustumPoints[vertex2].x(), (double)this.frustumPoints[vertex2].y(), (double)this.frustumPoints[vertex2].z()).color((float)red, (float)green, (float)blue, 0.25f).endVertex();
+-        buffer.vertex((double)this.frustumPoints[vertex3].x(), (double)this.frustumPoints[vertex3].y(), (double)this.frustumPoints[vertex3].z()).color((float)red, (float)green, (float)blue, 0.25f).endVertex();
+-        buffer.vertex((double)this.frustumPoints[vertex4].x(), (double)this.frustumPoints[vertex4].y(), (double)this.frustumPoints[vertex4].z()).color((float)red, (float)green, (float)blue, 0.25f).endVertex();
++    public void addFrustumQuad(com.mojang.blaze3d.vertex.VertexConsumer $$0, int $$1, int $$2, int $$3, int $$4, int $$5, int $$6, int $$7) {
++        float $$8 = 0.25f;
++        $$0.vertex((double)this.frustumPoints[$$1].x(), (double)this.frustumPoints[$$1].y(), (double)this.frustumPoints[$$1].z()).color((float)$$5, (float)$$6, (float)$$7, 0.25f).endVertex();
++        $$0.vertex((double)this.frustumPoints[$$2].x(), (double)this.frustumPoints[$$2].y(), (double)this.frustumPoints[$$2].z()).color((float)$$5, (float)$$6, (float)$$7, 0.25f).endVertex();
++        $$0.vertex((double)this.frustumPoints[$$3].x(), (double)this.frustumPoints[$$3].y(), (double)this.frustumPoints[$$3].z()).color((float)$$5, (float)$$6, (float)$$7, 0.25f).endVertex();
++        $$0.vertex((double)this.frustumPoints[$$4].x(), (double)this.frustumPoints[$$4].y(), (double)this.frustumPoints[$$4].z()).color((float)$$5, (float)$$6, (float)$$7, 0.25f).endVertex();
+     }
+ 
+     public void captureFrustum() {
+@@ -1411,48 +1408,48 @@
+         }
+     }
+ 
+-    public void removeProgress(net.minecraft.server.level.BlockDestructionProgress progress) {
+-        long l = progress.getPos().asLong();
+-        java.util.Set set = (java.util.Set)this.destructionProgress.get(l);
+-        set.remove((java.lang.Object)progress);
+-        if (set.isEmpty()) {
+-            this.destructionProgress.remove(l);
++    public void removeProgress(net.minecraft.server.level.BlockDestructionProgress $$0) {
++        long $$1 = $$0.getPos().asLong();
++        java.util.Set $$2 = (java.util.Set)this.destructionProgress.get($$1);
++        $$2.remove((java.lang.Object)$$0);
++        if ($$2.isEmpty()) {
++            this.destructionProgress.remove($$1);
+         }
+     }
+ 
+-    public void renderEndSky(com.mojang.blaze3d.vertex.PoseStack matrixStack) {
++    public void renderEndSky(com.mojang.blaze3d.vertex.PoseStack $$0) {
+         com.mojang.blaze3d.systems.RenderSystem.enableBlend();
+         com.mojang.blaze3d.systems.RenderSystem.defaultBlendFunc();
+         com.mojang.blaze3d.systems.RenderSystem.depthMask((boolean)false);
+         com.mojang.blaze3d.systems.RenderSystem.setShader(net.minecraft.client.renderer.GameRenderer::getPositionTexColorShader);
+         com.mojang.blaze3d.systems.RenderSystem.setShaderTexture((int)0, (net.minecraft.resources.ResourceLocation)END_SKY_LOCATION);
+-        com.mojang.blaze3d.vertex.Tesselator tesselator = com.mojang.blaze3d.vertex.Tesselator.getInstance();
+-        com.mojang.blaze3d.vertex.BufferBuilder bufferBuilder = tesselator.getBuilder();
+-        for (int i = 0; i < 6; ++i) {
+-            matrixStack.pushPose();
+-            if (i == 1) {
+-                matrixStack.mulPose(com.mojang.math.Vector3f.XP.rotationDegrees(90.0f));
++        com.mojang.blaze3d.vertex.Tesselator $$1 = com.mojang.blaze3d.vertex.Tesselator.getInstance();
++        com.mojang.blaze3d.vertex.BufferBuilder $$2 = $$1.getBuilder();
++        for (int $$3 = 0; $$3 < 6; ++$$3) {
++            $$0.pushPose();
++            if ($$3 == 1) {
++                $$0.mulPose(com.mojang.math.Vector3f.XP.rotationDegrees(90.0f));
+             }
+-            if (i == 2) {
+-                matrixStack.mulPose(com.mojang.math.Vector3f.XP.rotationDegrees(-90.0f));
++            if ($$3 == 2) {
++                $$0.mulPose(com.mojang.math.Vector3f.XP.rotationDegrees(-90.0f));
+             }
+-            if (i == 3) {
+-                matrixStack.mulPose(com.mojang.math.Vector3f.XP.rotationDegrees(180.0f));
++            if ($$3 == 3) {
++                $$0.mulPose(com.mojang.math.Vector3f.XP.rotationDegrees(180.0f));
+             }
+-            if (i == 4) {
+-                matrixStack.mulPose(com.mojang.math.Vector3f.ZP.rotationDegrees(90.0f));
++            if ($$3 == 4) {
++                $$0.mulPose(com.mojang.math.Vector3f.ZP.rotationDegrees(90.0f));
+             }
+-            if (i == 5) {
+-                matrixStack.mulPose(com.mojang.math.Vector3f.ZP.rotationDegrees(-90.0f));
++            if ($$3 == 5) {
++                $$0.mulPose(com.mojang.math.Vector3f.ZP.rotationDegrees(-90.0f));
+             }
+-            com.mojang.math.Matrix4f matrix4f = matrixStack.last().pose();
+-            bufferBuilder.begin(com.mojang.blaze3d.vertex.VertexFormat$Mode.QUADS, com.mojang.blaze3d.vertex.DefaultVertexFormat.POSITION_TEX_COLOR);
+-            bufferBuilder.vertex(matrix4f, -100.0f, -100.0f, -100.0f).uv(0.0f, 0.0f).color(40, 40, 40, 255).endVertex();
+-            bufferBuilder.vertex(matrix4f, -100.0f, -100.0f, 100.0f).uv(0.0f, 16.0f).color(40, 40, 40, 255).endVertex();
+-            bufferBuilder.vertex(matrix4f, 100.0f, -100.0f, 100.0f).uv(16.0f, 16.0f).color(40, 40, 40, 255).endVertex();
+-            bufferBuilder.vertex(matrix4f, 100.0f, -100.0f, -100.0f).uv(16.0f, 0.0f).color(40, 40, 40, 255).endVertex();
+-            tesselator.end();
+-            matrixStack.popPose();
++            com.mojang.math.Matrix4f $$4 = $$0.last().pose();
++            $$2.begin(com.mojang.blaze3d.vertex.VertexFormat$Mode.QUADS, com.mojang.blaze3d.vertex.DefaultVertexFormat.POSITION_TEX_COLOR);
++            $$2.vertex($$4, -100.0f, -100.0f, -100.0f).uv(0.0f, 0.0f).color(40, 40, 40, 255).endVertex();
++            $$2.vertex($$4, -100.0f, -100.0f, 100.0f).uv(0.0f, 16.0f).color(40, 40, 40, 255).endVertex();
++            $$2.vertex($$4, 100.0f, -100.0f, 100.0f).uv(16.0f, 16.0f).color(40, 40, 40, 255).endVertex();
++            $$2.vertex($$4, 100.0f, -100.0f, -100.0f).uv(16.0f, 0.0f).color(40, 40, 40, 255).endVertex();
++            $$1.end();
++            $$0.popPose();
+         }
+         com.mojang.blaze3d.systems.RenderSystem.depthMask((boolean)true);
+         com.mojang.blaze3d.systems.RenderSystem.enableTexture();
+@@ -1890,33 +1887,33 @@
+         com.mojang.blaze3d.systems.RenderSystem.depthMask((boolean)true);
+     }
+ 
+-    public void renderHitOutline(com.mojang.blaze3d.vertex.PoseStack matrixStack, com.mojang.blaze3d.vertex.VertexConsumer buffer, net.minecraft.world.entity.Entity entity, double x, double y, double z, net.minecraft.core.BlockPos blockPos, net.minecraft.world.level.block.state.BlockState blockState) {
+-        net.minecraft.client.renderer.LevelRenderer.renderShape((com.mojang.blaze3d.vertex.PoseStack)matrixStack, (com.mojang.blaze3d.vertex.VertexConsumer)buffer, (net.minecraft.world.phys.shapes.VoxelShape)blockState.getShape((net.minecraft.world.level.BlockGetter)this.level, blockPos, net.minecraft.world.phys.shapes.CollisionContext.of((net.minecraft.world.entity.Entity)entity)), (double)((double)blockPos.getX() - x), (double)((double)blockPos.getY() - y), (double)((double)blockPos.getZ() - z), (float)0.0f, (float)0.0f, (float)0.0f, (float)0.4f);
++    public void renderHitOutline(com.mojang.blaze3d.vertex.PoseStack $$0, com.mojang.blaze3d.vertex.VertexConsumer $$1, net.minecraft.world.entity.Entity $$2, double $$3, double $$4, double $$5, net.minecraft.core.BlockPos $$6, net.minecraft.world.level.block.state.BlockState $$7) {
++        net.minecraft.client.renderer.LevelRenderer.renderShape((com.mojang.blaze3d.vertex.PoseStack)$$0, (com.mojang.blaze3d.vertex.VertexConsumer)$$1, (net.minecraft.world.phys.shapes.VoxelShape)$$7.getShape((net.minecraft.world.level.BlockGetter)this.level, $$6, net.minecraft.world.phys.shapes.CollisionContext.of((net.minecraft.world.entity.Entity)$$2)), (double)((double)$$6.getX() - $$3), (double)((double)$$6.getY() - $$4), (double)((double)$$6.getZ() - $$5), (float)0.0f, (float)0.0f, (float)0.0f, (float)0.4f);
+     }
+ 
+-    public static void renderVoxelShape(com.mojang.blaze3d.vertex.PoseStack matrixStack, com.mojang.blaze3d.vertex.VertexConsumer buffer, net.minecraft.world.phys.shapes.VoxelShape shape, double x, double y, double z, float red, float green, float blue, float alpha) {
+-        java.util.List list = shape.toAabbs();
+-        int n = net.minecraft.util.Mth.ceil((double)((double)list.size() / 3.0));
+-        for (int i = 0; i < list.size(); ++i) {
+-            net.minecraft.world.phys.AABB aABB = (net.minecraft.world.phys.AABB)list.get(i);
+-            float f = ((float)i % (float)n + 1.0f) / (float)n;
+-            float f2 = i / n;
+-            float f3 = f * (float)(f2 == 0.0f ? 1 : 0);
+-            float f4 = f * (float)(f2 == 1.0f ? 1 : 0);
+-            float f5 = f * (float)(f2 == 2.0f ? 1 : 0);
+-            net.minecraft.client.renderer.LevelRenderer.renderShape((com.mojang.blaze3d.vertex.PoseStack)matrixStack, (com.mojang.blaze3d.vertex.VertexConsumer)buffer, (net.minecraft.world.phys.shapes.VoxelShape)net.minecraft.world.phys.shapes.Shapes.create((net.minecraft.world.phys.AABB)aABB.move(0.0, 0.0, 0.0)), (double)x, (double)y, (double)z, (float)f3, (float)f4, (float)f5, (float)1.0f);
++    public static void renderVoxelShape(com.mojang.blaze3d.vertex.PoseStack $$0, com.mojang.blaze3d.vertex.VertexConsumer $$1, net.minecraft.world.phys.shapes.VoxelShape $$2, double $$3, double $$4, double $$5, float $$6, float $$7, float $$8, float $$9) {
++        java.util.List $$10 = $$2.toAabbs();
++        int $$11 = net.minecraft.util.Mth.ceil((double)((double)$$10.size() / 3.0));
++        for (int $$12 = 0; $$12 < $$10.size(); ++$$12) {
++            net.minecraft.world.phys.AABB $$13 = (net.minecraft.world.phys.AABB)$$10.get($$12);
++            float $$14 = ((float)$$12 % (float)$$11 + 1.0f) / (float)$$11;
++            float $$15 = $$12 / $$11;
++            float $$16 = $$14 * (float)($$15 == 0.0f ? 1 : 0);
++            float $$17 = $$14 * (float)($$15 == 1.0f ? 1 : 0);
++            float $$18 = $$14 * (float)($$15 == 2.0f ? 1 : 0);
++            net.minecraft.client.renderer.LevelRenderer.renderShape((com.mojang.blaze3d.vertex.PoseStack)$$0, (com.mojang.blaze3d.vertex.VertexConsumer)$$1, (net.minecraft.world.phys.shapes.VoxelShape)net.minecraft.world.phys.shapes.Shapes.create((net.minecraft.world.phys.AABB)$$13.move(0.0, 0.0, 0.0)), (double)$$3, (double)$$4, (double)$$5, (float)$$16, (float)$$17, (float)$$18, (float)1.0f);
+         }
+     }
+ 
+-    public static void renderShape(com.mojang.blaze3d.vertex.PoseStack matrixStack, com.mojang.blaze3d.vertex.VertexConsumer buffer, net.minecraft.world.phys.shapes.VoxelShape shape, double x, double y, double z, float red, float green, float blue, float alpha) {
+-        com.mojang.blaze3d.vertex.PoseStack$Pose pose = matrixStack.last();
+-        shape.forAllEdges(($$9, $$10, $$11, $$12, $$13, $$14) -> {
++    public static void renderShape(com.mojang.blaze3d.vertex.PoseStack $$0, com.mojang.blaze3d.vertex.VertexConsumer $$1, net.minecraft.world.phys.shapes.VoxelShape $$2, double $$3, double $$4, double $$5, float $$6, float $$7, float $$8, float $$92) {
++        com.mojang.blaze3d.vertex.PoseStack$Pose $$102 = $$0.last();
++        $$2.forAllEdges(($$9, $$10, $$11, $$12, $$13, $$14) -> {
+             float $$15 = (float)($$12 - $$9);
+             float $$16 = (float)($$13 - $$10);
+             float $$17 = (float)($$14 - $$11);
+             float $$18 = net.minecraft.util.Mth.sqrt((float)($$15 * $$15 + $$16 * $$16 + $$17 * $$17));
+-            buffer.vertex(pose.pose(), (float)($$9 + x), (float)($$10 + y), (float)($$11 + z)).color(red, green, blue, alpha).normal(pose.normal(), $$15 /= $$18, $$16 /= $$18, $$17 /= $$18).endVertex();
+-            buffer.vertex(pose.pose(), (float)($$12 + x), (float)($$13 + y), (float)($$14 + z)).color(red, green, blue, alpha).normal(pose.normal(), $$15, $$16, $$17).endVertex();
++            $$1.vertex($$102.pose(), (float)($$9 + $$3), (float)($$10 + $$4), (float)($$11 + $$5)).color($$6, $$7, $$8, $$92).normal($$102.normal(), $$15 /= $$18, $$16 /= $$18, $$17 /= $$18).endVertex();
++            $$1.vertex($$102.pose(), (float)($$12 + $$3), (float)($$13 + $$4), (float)($$14 + $$5)).color($$6, $$7, $$8, $$92).normal($$102.normal(), $$15, $$16, $$17).endVertex();
+         });
+     }
+ 
+@@ -1924,243 +1921,243 @@
+         net.minecraft.client.renderer.LevelRenderer.renderLineBox((com.mojang.blaze3d.vertex.PoseStack)new com.mojang.blaze3d.vertex.PoseStack(), (com.mojang.blaze3d.vertex.VertexConsumer)$$0, (double)$$1, (double)$$2, (double)$$3, (double)$$4, (double)$$5, (double)$$6, (float)$$7, (float)$$8, (float)$$9, (float)$$10, (float)$$7, (float)$$8, (float)$$9);
+     }
+ 
+-    public static void renderLineBox(com.mojang.blaze3d.vertex.PoseStack matrixStack, com.mojang.blaze3d.vertex.VertexConsumer buffer, net.minecraft.world.phys.AABB aabb, float red, float green, float blue, float alpha) {
+-        net.minecraft.client.renderer.LevelRenderer.renderLineBox((com.mojang.blaze3d.vertex.PoseStack)matrixStack, (com.mojang.blaze3d.vertex.VertexConsumer)buffer, (double)aabb.minX, (double)aabb.minY, (double)aabb.minZ, (double)aabb.maxX, (double)aabb.maxY, (double)aabb.maxZ, (float)red, (float)green, (float)blue, (float)alpha, (float)red, (float)green, (float)blue);
++    public static void renderLineBox(com.mojang.blaze3d.vertex.PoseStack $$0, com.mojang.blaze3d.vertex.VertexConsumer $$1, net.minecraft.world.phys.AABB $$2, float $$3, float $$4, float $$5, float $$6) {
++        net.minecraft.client.renderer.LevelRenderer.renderLineBox((com.mojang.blaze3d.vertex.PoseStack)$$0, (com.mojang.blaze3d.vertex.VertexConsumer)$$1, (double)$$2.minX, (double)$$2.minY, (double)$$2.minZ, (double)$$2.maxX, (double)$$2.maxY, (double)$$2.maxZ, (float)$$3, (float)$$4, (float)$$5, (float)$$6, (float)$$3, (float)$$4, (float)$$5);
+     }
+ 
+-    public static void renderLineBox(com.mojang.blaze3d.vertex.PoseStack matrixStack, com.mojang.blaze3d.vertex.VertexConsumer buffer, double minX, double minY, double minZ, double maxX, double maxY, double maxZ, float red, float green, float blue, float alpha) {
+-        net.minecraft.client.renderer.LevelRenderer.renderLineBox((com.mojang.blaze3d.vertex.PoseStack)matrixStack, (com.mojang.blaze3d.vertex.VertexConsumer)buffer, (double)minX, (double)minY, (double)minZ, (double)maxX, (double)maxY, (double)maxZ, (float)red, (float)green, (float)blue, (float)alpha, (float)red, (float)green, (float)blue);
++    public static void renderLineBox(com.mojang.blaze3d.vertex.PoseStack $$0, com.mojang.blaze3d.vertex.VertexConsumer $$1, double $$2, double $$3, double $$4, double $$5, double $$6, double $$7, float $$8, float $$9, float $$10, float $$11) {
++        net.minecraft.client.renderer.LevelRenderer.renderLineBox((com.mojang.blaze3d.vertex.PoseStack)$$0, (com.mojang.blaze3d.vertex.VertexConsumer)$$1, (double)$$2, (double)$$3, (double)$$4, (double)$$5, (double)$$6, (double)$$7, (float)$$8, (float)$$9, (float)$$10, (float)$$11, (float)$$8, (float)$$9, (float)$$10);
+     }
+ 
+-    public static void renderLineBox(com.mojang.blaze3d.vertex.PoseStack matrixStack, com.mojang.blaze3d.vertex.VertexConsumer buffer, double minX, double minY, double minZ, double maxX, double maxY, double maxZ, float red, float green, float blue, float alpha, float red2, float green2, float blue2) {
+-        com.mojang.math.Matrix4f matrix4f = matrixStack.last().pose();
+-        com.mojang.math.Matrix3f matrix3f = matrixStack.last().normal();
+-        float f = (float)minX;
+-        float f2 = (float)minY;
+-        float f3 = (float)minZ;
+-        float f4 = (float)maxX;
+-        float f5 = (float)maxY;
+-        float f6 = (float)maxZ;
+-        buffer.vertex(matrix4f, f, f2, f3).color(red, green2, blue2, alpha).normal(matrix3f, 1.0f, 0.0f, 0.0f).endVertex();
+-        buffer.vertex(matrix4f, f4, f2, f3).color(red, green2, blue2, alpha).normal(matrix3f, 1.0f, 0.0f, 0.0f).endVertex();
+-        buffer.vertex(matrix4f, f, f2, f3).color(red2, green, blue2, alpha).normal(matrix3f, 0.0f, 1.0f, 0.0f).endVertex();
+-        buffer.vertex(matrix4f, f, f5, f3).color(red2, green, blue2, alpha).normal(matrix3f, 0.0f, 1.0f, 0.0f).endVertex();
+-        buffer.vertex(matrix4f, f, f2, f3).color(red2, green2, blue, alpha).normal(matrix3f, 0.0f, 0.0f, 1.0f).endVertex();
+-        buffer.vertex(matrix4f, f, f2, f6).color(red2, green2, blue, alpha).normal(matrix3f, 0.0f, 0.0f, 1.0f).endVertex();
+-        buffer.vertex(matrix4f, f4, f2, f3).color(red, green, blue, alpha).normal(matrix3f, 0.0f, 1.0f, 0.0f).endVertex();
+-        buffer.vertex(matrix4f, f4, f5, f3).color(red, green, blue, alpha).normal(matrix3f, 0.0f, 1.0f, 0.0f).endVertex();
+-        buffer.vertex(matrix4f, f4, f5, f3).color(red, green, blue, alpha).normal(matrix3f, -1.0f, 0.0f, 0.0f).endVertex();
+-        buffer.vertex(matrix4f, f, f5, f3).color(red, green, blue, alpha).normal(matrix3f, -1.0f, 0.0f, 0.0f).endVertex();
+-        buffer.vertex(matrix4f, f, f5, f3).color(red, green, blue, alpha).normal(matrix3f, 0.0f, 0.0f, 1.0f).endVertex();
+-        buffer.vertex(matrix4f, f, f5, f6).color(red, green, blue, alpha).normal(matrix3f, 0.0f, 0.0f, 1.0f).endVertex();
+-        buffer.vertex(matrix4f, f, f5, f6).color(red, green, blue, alpha).normal(matrix3f, 0.0f, -1.0f, 0.0f).endVertex();
+-        buffer.vertex(matrix4f, f, f2, f6).color(red, green, blue, alpha).normal(matrix3f, 0.0f, -1.0f, 0.0f).endVertex();
+-        buffer.vertex(matrix4f, f, f2, f6).color(red, green, blue, alpha).normal(matrix3f, 1.0f, 0.0f, 0.0f).endVertex();
+-        buffer.vertex(matrix4f, f4, f2, f6).color(red, green, blue, alpha).normal(matrix3f, 1.0f, 0.0f, 0.0f).endVertex();
+-        buffer.vertex(matrix4f, f4, f2, f6).color(red, green, blue, alpha).normal(matrix3f, 0.0f, 0.0f, -1.0f).endVertex();
+-        buffer.vertex(matrix4f, f4, f2, f3).color(red, green, blue, alpha).normal(matrix3f, 0.0f, 0.0f, -1.0f).endVertex();
+-        buffer.vertex(matrix4f, f, f5, f6).color(red, green, blue, alpha).normal(matrix3f, 1.0f, 0.0f, 0.0f).endVertex();
+-        buffer.vertex(matrix4f, f4, f5, f6).color(red, green, blue, alpha).normal(matrix3f, 1.0f, 0.0f, 0.0f).endVertex();
+-        buffer.vertex(matrix4f, f4, f2, f6).color(red, green, blue, alpha).normal(matrix3f, 0.0f, 1.0f, 0.0f).endVertex();
+-        buffer.vertex(matrix4f, f4, f5, f6).color(red, green, blue, alpha).normal(matrix3f, 0.0f, 1.0f, 0.0f).endVertex();
+-        buffer.vertex(matrix4f, f4, f5, f3).color(red, green, blue, alpha).normal(matrix3f, 0.0f, 0.0f, 1.0f).endVertex();
+-        buffer.vertex(matrix4f, f4, f5, f6).color(red, green, blue, alpha).normal(matrix3f, 0.0f, 0.0f, 1.0f).endVertex();
++    public static void renderLineBox(com.mojang.blaze3d.vertex.PoseStack $$0, com.mojang.blaze3d.vertex.VertexConsumer $$1, double $$2, double $$3, double $$4, double $$5, double $$6, double $$7, float $$8, float $$9, float $$10, float $$11, float $$12, float $$13, float $$14) {
++        com.mojang.math.Matrix4f $$15 = $$0.last().pose();
++        com.mojang.math.Matrix3f $$16 = $$0.last().normal();
++        float $$17 = (float)$$2;
++        float $$18 = (float)$$3;
++        float $$19 = (float)$$4;
++        float $$20 = (float)$$5;
++        float $$21 = (float)$$6;
++        float $$22 = (float)$$7;
++        $$1.vertex($$15, $$17, $$18, $$19).color($$8, $$13, $$14, $$11).normal($$16, 1.0f, 0.0f, 0.0f).endVertex();
++        $$1.vertex($$15, $$20, $$18, $$19).color($$8, $$13, $$14, $$11).normal($$16, 1.0f, 0.0f, 0.0f).endVertex();
++        $$1.vertex($$15, $$17, $$18, $$19).color($$12, $$9, $$14, $$11).normal($$16, 0.0f, 1.0f, 0.0f).endVertex();
++        $$1.vertex($$15, $$17, $$21, $$19).color($$12, $$9, $$14, $$11).normal($$16, 0.0f, 1.0f, 0.0f).endVertex();
++        $$1.vertex($$15, $$17, $$18, $$19).color($$12, $$13, $$10, $$11).normal($$16, 0.0f, 0.0f, 1.0f).endVertex();
++        $$1.vertex($$15, $$17, $$18, $$22).color($$12, $$13, $$10, $$11).normal($$16, 0.0f, 0.0f, 1.0f).endVertex();
++        $$1.vertex($$15, $$20, $$18, $$19).color($$8, $$9, $$10, $$11).normal($$16, 0.0f, 1.0f, 0.0f).endVertex();
++        $$1.vertex($$15, $$20, $$21, $$19).color($$8, $$9, $$10, $$11).normal($$16, 0.0f, 1.0f, 0.0f).endVertex();
++        $$1.vertex($$15, $$20, $$21, $$19).color($$8, $$9, $$10, $$11).normal($$16, -1.0f, 0.0f, 0.0f).endVertex();
++        $$1.vertex($$15, $$17, $$21, $$19).color($$8, $$9, $$10, $$11).normal($$16, -1.0f, 0.0f, 0.0f).endVertex();
++        $$1.vertex($$15, $$17, $$21, $$19).color($$8, $$9, $$10, $$11).normal($$16, 0.0f, 0.0f, 1.0f).endVertex();
++        $$1.vertex($$15, $$17, $$21, $$22).color($$8, $$9, $$10, $$11).normal($$16, 0.0f, 0.0f, 1.0f).endVertex();
++        $$1.vertex($$15, $$17, $$21, $$22).color($$8, $$9, $$10, $$11).normal($$16, 0.0f, -1.0f, 0.0f).endVertex();
++        $$1.vertex($$15, $$17, $$18, $$22).color($$8, $$9, $$10, $$11).normal($$16, 0.0f, -1.0f, 0.0f).endVertex();
++        $$1.vertex($$15, $$17, $$18, $$22).color($$8, $$9, $$10, $$11).normal($$16, 1.0f, 0.0f, 0.0f).endVertex();
++        $$1.vertex($$15, $$20, $$18, $$22).color($$8, $$9, $$10, $$11).normal($$16, 1.0f, 0.0f, 0.0f).endVertex();
++        $$1.vertex($$15, $$20, $$18, $$22).color($$8, $$9, $$10, $$11).normal($$16, 0.0f, 0.0f, -1.0f).endVertex();
++        $$1.vertex($$15, $$20, $$18, $$19).color($$8, $$9, $$10, $$11).normal($$16, 0.0f, 0.0f, -1.0f).endVertex();
++        $$1.vertex($$15, $$17, $$21, $$22).color($$8, $$9, $$10, $$11).normal($$16, 1.0f, 0.0f, 0.0f).endVertex();
++        $$1.vertex($$15, $$20, $$21, $$22).color($$8, $$9, $$10, $$11).normal($$16, 1.0f, 0.0f, 0.0f).endVertex();
++        $$1.vertex($$15, $$20, $$18, $$22).color($$8, $$9, $$10, $$11).normal($$16, 0.0f, 1.0f, 0.0f).endVertex();
++        $$1.vertex($$15, $$20, $$21, $$22).color($$8, $$9, $$10, $$11).normal($$16, 0.0f, 1.0f, 0.0f).endVertex();
++        $$1.vertex($$15, $$20, $$21, $$19).color($$8, $$9, $$10, $$11).normal($$16, 0.0f, 0.0f, 1.0f).endVertex();
++        $$1.vertex($$15, $$20, $$21, $$22).color($$8, $$9, $$10, $$11).normal($$16, 0.0f, 0.0f, 1.0f).endVertex();
+     }
+ 
+-    public static void addChainedFilledBoxVertices(com.mojang.blaze3d.vertex.BufferBuilder builder, double x1, double y1, double z1, double x2, double y2, double z2, float red, float green, float blue, float alpha) {
+-        builder.vertex(x1, y1, z1).color(red, green, blue, alpha).endVertex();
+-        builder.vertex(x1, y1, z1).color(red, green, blue, alpha).endVertex();
+-        builder.vertex(x1, y1, z1).color(red, green, blue, alpha).endVertex();
+-        builder.vertex(x1, y1, z2).color(red, green, blue, alpha).endVertex();
+-        builder.vertex(x1, y2, z1).color(red, green, blue, alpha).endVertex();
+-        builder.vertex(x1, y2, z2).color(red, green, blue, alpha).endVertex();
+-        builder.vertex(x1, y2, z2).color(red, green, blue, alpha).endVertex();
+-        builder.vertex(x1, y1, z2).color(red, green, blue, alpha).endVertex();
+-        builder.vertex(x2, y2, z2).color(red, green, blue, alpha).endVertex();
+-        builder.vertex(x2, y1, z2).color(red, green, blue, alpha).endVertex();
+-        builder.vertex(x2, y1, z2).color(red, green, blue, alpha).endVertex();
+-        builder.vertex(x2, y1, z1).color(red, green, blue, alpha).endVertex();
+-        builder.vertex(x2, y2, z2).color(red, green, blue, alpha).endVertex();
+-        builder.vertex(x2, y2, z1).color(red, green, blue, alpha).endVertex();
+-        builder.vertex(x2, y2, z1).color(red, green, blue, alpha).endVertex();
+-        builder.vertex(x2, y1, z1).color(red, green, blue, alpha).endVertex();
+-        builder.vertex(x1, y2, z1).color(red, green, blue, alpha).endVertex();
+-        builder.vertex(x1, y1, z1).color(red, green, blue, alpha).endVertex();
+-        builder.vertex(x1, y1, z1).color(red, green, blue, alpha).endVertex();
+-        builder.vertex(x2, y1, z1).color(red, green, blue, alpha).endVertex();
+-        builder.vertex(x1, y1, z2).color(red, green, blue, alpha).endVertex();
+-        builder.vertex(x2, y1, z2).color(red, green, blue, alpha).endVertex();
+-        builder.vertex(x2, y1, z2).color(red, green, blue, alpha).endVertex();
+-        builder.vertex(x1, y2, z1).color(red, green, blue, alpha).endVertex();
+-        builder.vertex(x1, y2, z1).color(red, green, blue, alpha).endVertex();
+-        builder.vertex(x1, y2, z2).color(red, green, blue, alpha).endVertex();
+-        builder.vertex(x2, y2, z1).color(red, green, blue, alpha).endVertex();
+-        builder.vertex(x2, y2, z2).color(red, green, blue, alpha).endVertex();
+-        builder.vertex(x2, y2, z2).color(red, green, blue, alpha).endVertex();
+-        builder.vertex(x2, y2, z2).color(red, green, blue, alpha).endVertex();
++    public static void addChainedFilledBoxVertices(com.mojang.blaze3d.vertex.BufferBuilder $$0, double $$1, double $$2, double $$3, double $$4, double $$5, double $$6, float $$7, float $$8, float $$9, float $$10) {
++        $$0.vertex($$1, $$2, $$3).color($$7, $$8, $$9, $$10).endVertex();
++        $$0.vertex($$1, $$2, $$3).color($$7, $$8, $$9, $$10).endVertex();
++        $$0.vertex($$1, $$2, $$3).color($$7, $$8, $$9, $$10).endVertex();
++        $$0.vertex($$1, $$2, $$6).color($$7, $$8, $$9, $$10).endVertex();
++        $$0.vertex($$1, $$5, $$3).color($$7, $$8, $$9, $$10).endVertex();
++        $$0.vertex($$1, $$5, $$6).color($$7, $$8, $$9, $$10).endVertex();
++        $$0.vertex($$1, $$5, $$6).color($$7, $$8, $$9, $$10).endVertex();
++        $$0.vertex($$1, $$2, $$6).color($$7, $$8, $$9, $$10).endVertex();
++        $$0.vertex($$4, $$5, $$6).color($$7, $$8, $$9, $$10).endVertex();
++        $$0.vertex($$4, $$2, $$6).color($$7, $$8, $$9, $$10).endVertex();
++        $$0.vertex($$4, $$2, $$6).color($$7, $$8, $$9, $$10).endVertex();
++        $$0.vertex($$4, $$2, $$3).color($$7, $$8, $$9, $$10).endVertex();
++        $$0.vertex($$4, $$5, $$6).color($$7, $$8, $$9, $$10).endVertex();
++        $$0.vertex($$4, $$5, $$3).color($$7, $$8, $$9, $$10).endVertex();
++        $$0.vertex($$4, $$5, $$3).color($$7, $$8, $$9, $$10).endVertex();
++        $$0.vertex($$4, $$2, $$3).color($$7, $$8, $$9, $$10).endVertex();
++        $$0.vertex($$1, $$5, $$3).color($$7, $$8, $$9, $$10).endVertex();
++        $$0.vertex($$1, $$2, $$3).color($$7, $$8, $$9, $$10).endVertex();
++        $$0.vertex($$1, $$2, $$3).color($$7, $$8, $$9, $$10).endVertex();
++        $$0.vertex($$4, $$2, $$3).color($$7, $$8, $$9, $$10).endVertex();
++        $$0.vertex($$1, $$2, $$6).color($$7, $$8, $$9, $$10).endVertex();
++        $$0.vertex($$4, $$2, $$6).color($$7, $$8, $$9, $$10).endVertex();
++        $$0.vertex($$4, $$2, $$6).color($$7, $$8, $$9, $$10).endVertex();
++        $$0.vertex($$1, $$5, $$3).color($$7, $$8, $$9, $$10).endVertex();
++        $$0.vertex($$1, $$5, $$3).color($$7, $$8, $$9, $$10).endVertex();
++        $$0.vertex($$1, $$5, $$6).color($$7, $$8, $$9, $$10).endVertex();
++        $$0.vertex($$4, $$5, $$3).color($$7, $$8, $$9, $$10).endVertex();
++        $$0.vertex($$4, $$5, $$6).color($$7, $$8, $$9, $$10).endVertex();
++        $$0.vertex($$4, $$5, $$6).color($$7, $$8, $$9, $$10).endVertex();
++        $$0.vertex($$4, $$5, $$6).color($$7, $$8, $$9, $$10).endVertex();
+     }
+ 
+-    public void blockChanged(net.minecraft.world.level.BlockGetter level, net.minecraft.core.BlockPos pos, net.minecraft.world.level.block.state.BlockState oldState, net.minecraft.world.level.block.state.BlockState newState, int flags) {
+-        this.setBlockDirty(pos, (flags & 8) != 0);
++    public void blockChanged(net.minecraft.world.level.BlockGetter $$0, net.minecraft.core.BlockPos $$1, net.minecraft.world.level.block.state.BlockState $$2, net.minecraft.world.level.block.state.BlockState $$3, int $$4) {
++        this.setBlockDirty($$1, ($$4 & 8) != 0);
+     }
+ 
+-    public void setBlockDirty(net.minecraft.core.BlockPos pos, boolean rerenderOnMainThread) {
+-        for (int i = pos.getZ() - 1; i <= pos.getZ() + 1; ++i) {
+-            for (int j = pos.getX() - 1; j <= pos.getX() + 1; ++j) {
+-                for (int k = pos.getY() - 1; k <= pos.getY() + 1; ++k) {
+-                    this.setSectionDirty(net.minecraft.core.SectionPos.blockToSectionCoord((int)j), net.minecraft.core.SectionPos.blockToSectionCoord((int)k), net.minecraft.core.SectionPos.blockToSectionCoord((int)i), rerenderOnMainThread);
++    public void setBlockDirty(net.minecraft.core.BlockPos $$0, boolean $$1) {
++        for (int $$2 = $$0.getZ() - 1; $$2 <= $$0.getZ() + 1; ++$$2) {
++            for (int $$3 = $$0.getX() - 1; $$3 <= $$0.getX() + 1; ++$$3) {
++                for (int $$4 = $$0.getY() - 1; $$4 <= $$0.getY() + 1; ++$$4) {
++                    this.setSectionDirty(net.minecraft.core.SectionPos.blockToSectionCoord((int)$$3), net.minecraft.core.SectionPos.blockToSectionCoord((int)$$4), net.minecraft.core.SectionPos.blockToSectionCoord((int)$$2), $$1);
+                 }
+             }
+         }
+     }
+ 
+-    public void setBlocksDirty(int x1, int y1, int z1, int x2, int y2, int z2) {
+-        for (int i = z1 - 1; i <= z2 + 1; ++i) {
+-            for (int j = x1 - 1; j <= x2 + 1; ++j) {
+-                for (int k = y1 - 1; k <= y2 + 1; ++k) {
+-                    this.setSectionDirty(net.minecraft.core.SectionPos.blockToSectionCoord((int)j), net.minecraft.core.SectionPos.blockToSectionCoord((int)k), net.minecraft.core.SectionPos.blockToSectionCoord((int)i));
++    public void setBlocksDirty(int $$0, int $$1, int $$2, int $$3, int $$4, int $$5) {
++        for (int $$6 = $$2 - 1; $$6 <= $$5 + 1; ++$$6) {
++            for (int $$7 = $$0 - 1; $$7 <= $$3 + 1; ++$$7) {
++                for (int $$8 = $$1 - 1; $$8 <= $$4 + 1; ++$$8) {
++                    this.setSectionDirty(net.minecraft.core.SectionPos.blockToSectionCoord((int)$$7), net.minecraft.core.SectionPos.blockToSectionCoord((int)$$8), net.minecraft.core.SectionPos.blockToSectionCoord((int)$$6));
+                 }
+             }
+         }
+     }
+ 
+-    public void setBlockDirty(net.minecraft.core.BlockPos blockPos, net.minecraft.world.level.block.state.BlockState oldState, net.minecraft.world.level.block.state.BlockState newState) {
+-        if (this.minecraft.getModelManager().requiresRender(oldState, newState)) {
+-            this.setBlocksDirty(blockPos.getX(), blockPos.getY(), blockPos.getZ(), blockPos.getX(), blockPos.getY(), blockPos.getZ());
++    public void setBlockDirty(net.minecraft.core.BlockPos $$0, net.minecraft.world.level.block.state.BlockState $$1, net.minecraft.world.level.block.state.BlockState $$2) {
++        if (this.minecraft.getModelManager().requiresRender($$1, $$2)) {
++            this.setBlocksDirty($$0.getX(), $$0.getY(), $$0.getZ(), $$0.getX(), $$0.getY(), $$0.getZ());
+         }
+     }
+ 
+-    public void setSectionDirtyWithNeighbors(int sectionX, int sectionY, int sectionZ) {
+-        for (int i = sectionZ - 1; i <= sectionZ + 1; ++i) {
+-            for (int j = sectionX - 1; j <= sectionX + 1; ++j) {
+-                for (int k = sectionY - 1; k <= sectionY + 1; ++k) {
+-                    this.setSectionDirty(j, k, i);
++    public void setSectionDirtyWithNeighbors(int $$0, int $$1, int $$2) {
++        for (int $$3 = $$2 - 1; $$3 <= $$2 + 1; ++$$3) {
++            for (int $$4 = $$0 - 1; $$4 <= $$0 + 1; ++$$4) {
++                for (int $$5 = $$1 - 1; $$5 <= $$1 + 1; ++$$5) {
++                    this.setSectionDirty($$4, $$5, $$3);
+                 }
+             }
+         }
+     }
+ 
+-    public void setSectionDirty(int sectionX, int sectionY, int sectionZ) {
+-        this.setSectionDirty(sectionX, sectionY, sectionZ, false);
++    public void setSectionDirty(int $$0, int $$1, int $$2) {
++        this.setSectionDirty($$0, $$1, $$2, false);
+     }
+ 
+-    public void setSectionDirty(int sectionX, int sectionY, int sectionZ, boolean rerenderOnMainThread) {
+-        this.viewArea.setDirty(sectionX, sectionY, sectionZ, rerenderOnMainThread);
++    public void setSectionDirty(int $$0, int $$1, int $$2, boolean $$3) {
++        this.viewArea.setDirty($$0, $$1, $$2, $$3);
+     }
+ 
+-    public void playStreamingMusic(@javax.annotation.Nullable net.minecraft.sounds.SoundEvent sound, net.minecraft.core.BlockPos pos) {
+-        net.minecraft.client.resources.sounds.SoundInstance soundInstance = (net.minecraft.client.resources.sounds.SoundInstance)this.playingRecords.get((java.lang.Object)pos);
+-        if (soundInstance != null) {
+-            this.minecraft.getSoundManager().stop(soundInstance);
+-            this.playingRecords.remove((java.lang.Object)pos);
++    public void playStreamingMusic(@javax.annotation.Nullable net.minecraft.sounds.SoundEvent $$0, net.minecraft.core.BlockPos $$1) {
++        net.minecraft.client.resources.sounds.SoundInstance $$2 = (net.minecraft.client.resources.sounds.SoundInstance)this.playingRecords.get((java.lang.Object)$$1);
++        if ($$2 != null) {
++            this.minecraft.getSoundManager().stop($$2);
++            this.playingRecords.remove((java.lang.Object)$$1);
+         }
+-        if (sound != null) {
+-            net.minecraft.world.item.RecordItem recordItem = net.minecraft.world.item.RecordItem.getBySound((net.minecraft.sounds.SoundEvent)sound);
+-            if (recordItem != null) {
+-                this.minecraft.gui.setNowPlaying((net.minecraft.network.chat.Component)recordItem.getDisplayName());
++        if ($$0 != null) {
++            net.minecraft.world.item.RecordItem $$3 = net.minecraft.world.item.RecordItem.getBySound((net.minecraft.sounds.SoundEvent)$$0);
++            if ($$3 != null) {
++                this.minecraft.gui.setNowPlaying((net.minecraft.network.chat.Component)$$3.getDisplayName());
+             }
+-            soundInstance = net.minecraft.client.resources.sounds.SimpleSoundInstance.forRecord((net.minecraft.sounds.SoundEvent)sound, (double)pos.getX(), (double)pos.getY(), (double)pos.getZ());
+-            this.playingRecords.put((java.lang.Object)pos, (java.lang.Object)soundInstance);
+-            this.minecraft.getSoundManager().play(soundInstance);
++            $$2 = net.minecraft.client.resources.sounds.SimpleSoundInstance.forRecord((net.minecraft.sounds.SoundEvent)$$0, (net.minecraft.world.phys.Vec3)net.minecraft.world.phys.Vec3.atCenterOf((net.minecraft.core.Vec3i)$$1));
++            this.playingRecords.put((java.lang.Object)$$1, (java.lang.Object)$$2);
++            this.minecraft.getSoundManager().play($$2);
+         }
+-        this.notifyNearbyEntities((net.minecraft.world.level.Level)this.level, pos, sound != null);
++        this.notifyNearbyEntities((net.minecraft.world.level.Level)this.level, $$1, $$0 != null);
+     }
+ 
+-    public void notifyNearbyEntities(net.minecraft.world.level.Level level, net.minecraft.core.BlockPos pos, boolean isPartying) {
+-        java.util.List list = level.getEntitiesOfClass(net.minecraft.world.entity.LivingEntity.class, new net.minecraft.world.phys.AABB(pos).inflate(3.0));
+-        for (net.minecraft.world.entity.LivingEntity livingEntity : list) {
+-            livingEntity.setRecordPlayingNearby(pos, isPartying);
++    public void notifyNearbyEntities(net.minecraft.world.level.Level $$0, net.minecraft.core.BlockPos $$1, boolean $$2) {
++        java.util.List $$3 = $$0.getEntitiesOfClass(net.minecraft.world.entity.LivingEntity.class, new net.minecraft.world.phys.AABB($$1).inflate(3.0));
++        for (net.minecraft.world.entity.LivingEntity $$4 : $$3) {
++            $$4.setRecordPlayingNearby($$1, $$2);
+         }
+     }
+ 
+-    public void addParticle(net.minecraft.core.particles.ParticleOptions particleData, boolean alwaysRender, double x, double y, double z, double xSpeed, double ySpeed, double zSpeed) {
+-        this.addParticle(particleData, alwaysRender, false, x, y, z, xSpeed, ySpeed, zSpeed);
++    public void addParticle(net.minecraft.core.particles.ParticleOptions $$0, boolean $$1, double $$2, double $$3, double $$4, double $$5, double $$6, double $$7) {
++        this.addParticle($$0, $$1, false, $$2, $$3, $$4, $$5, $$6, $$7);
+     }
+ 
+-    public void addParticle(net.minecraft.core.particles.ParticleOptions particleData, boolean ignoreRange, boolean minimizeLevel, double x, double y, double z, double xSpeed, double ySpeed, double zSpeed) {
++    public void addParticle(net.minecraft.core.particles.ParticleOptions $$0, boolean $$1, boolean $$2, double $$3, double $$4, double $$5, double $$6, double $$7, double $$8) {
+         try {
+-            this.addParticleInternal(particleData, ignoreRange, minimizeLevel, x, y, z, xSpeed, ySpeed, zSpeed);
++            this.addParticleInternal($$0, $$1, $$2, $$3, $$4, $$5, $$6, $$7, $$8);
+         }
+-        catch (java.lang.Throwable throwable) {
+-            net.minecraft.CrashReport crashReport = net.minecraft.CrashReport.forThrowable((java.lang.Throwable)throwable, (java.lang.String)"Exception while adding particle");
+-            net.minecraft.CrashReportCategory crashReportCategory = crashReport.addCategory("Particle being added");
+-            crashReportCategory.setDetail("ID", (java.lang.Object)net.minecraft.core.Registry.PARTICLE_TYPE.getKey((java.lang.Object)particleData.getType()));
+-            crashReportCategory.setDetail("Parameters", (java.lang.Object)particleData.writeToString());
+-            crashReportCategory.setDetail("Position", () -> net.minecraft.CrashReportCategory.formatLocation((net.minecraft.world.level.LevelHeightAccessor)this.level, (double)x, (double)y, (double)z));
+-            throw new net.minecraft.ReportedException(crashReport);
++        catch (java.lang.Throwable $$9) {
++            net.minecraft.CrashReport $$10 = net.minecraft.CrashReport.forThrowable((java.lang.Throwable)$$9, (java.lang.String)"Exception while adding particle");
++            net.minecraft.CrashReportCategory $$11 = $$10.addCategory("Particle being added");
++            $$11.setDetail("ID", (java.lang.Object)net.minecraft.core.Registry.PARTICLE_TYPE.getKey((java.lang.Object)$$0.getType()));
++            $$11.setDetail("Parameters", (java.lang.Object)$$0.writeToString());
++            $$11.setDetail("Position", () -> net.minecraft.CrashReportCategory.formatLocation((net.minecraft.world.level.LevelHeightAccessor)this.level, (double)$$3, (double)$$4, (double)$$5));
++            throw new net.minecraft.ReportedException($$10);
+         }
+     }
+ 
+-    public <T extends net.minecraft.core.particles.ParticleOptions> void addParticle(T particleData, double x, double y, double z, double xSpeed, double ySpeed, double zSpeed) {
+-        this.addParticle(particleData, particleData.getType().getOverrideLimiter(), x, y, z, xSpeed, ySpeed, zSpeed);
++    public <T extends net.minecraft.core.particles.ParticleOptions> void addParticle(T $$0, double $$1, double $$2, double $$3, double $$4, double $$5, double $$6) {
++        this.addParticle($$0, $$0.getType().getOverrideLimiter(), $$1, $$2, $$3, $$4, $$5, $$6);
+     }
+ 
+     @javax.annotation.Nullable
+-    public net.minecraft.client.particle.Particle addParticleInternal(net.minecraft.core.particles.ParticleOptions particleData, boolean alwaysRender, double x, double y, double z, double xSpeed, double ySpeed, double zSpeed) {
+-        return this.addParticleInternal(particleData, alwaysRender, false, x, y, z, xSpeed, ySpeed, zSpeed);
++    public net.minecraft.client.particle.Particle addParticleInternal(net.minecraft.core.particles.ParticleOptions $$0, boolean $$1, double $$2, double $$3, double $$4, double $$5, double $$6, double $$7) {
++        return this.addParticleInternal($$0, $$1, false, $$2, $$3, $$4, $$5, $$6, $$7);
+     }
+ 
+     @javax.annotation.Nullable
+-    public net.minecraft.client.particle.Particle addParticleInternal(net.minecraft.core.particles.ParticleOptions particleData, boolean alwaysRender, boolean minimizeLevel, double x, double y, double z, double xSpeed, double ySpeed, double zSpeed) {
+-        net.minecraft.client.Camera camera = this.minecraft.gameRenderer.getMainCamera();
+-        if (this.minecraft == null || !camera.isInitialized() || this.minecraft.particleEngine == null) {
++    public net.minecraft.client.particle.Particle addParticleInternal(net.minecraft.core.particles.ParticleOptions $$0, boolean $$1, boolean $$2, double $$3, double $$4, double $$5, double $$6, double $$7, double $$8) {
++        net.minecraft.client.Camera $$9 = this.minecraft.gameRenderer.getMainCamera();
++        if (this.minecraft == null || !$$9.isInitialized() || this.minecraft.particleEngine == null) {
+             return null;
+         }
+-        net.minecraft.client.ParticleStatus particleStatus = this.calculateParticleLevel(minimizeLevel);
+-        if (alwaysRender) {
+-            return this.minecraft.particleEngine.createParticle(particleData, x, y, z, xSpeed, ySpeed, zSpeed);
++        net.minecraft.client.ParticleStatus $$10 = this.calculateParticleLevel($$2);
++        if ($$1) {
++            return this.minecraft.particleEngine.createParticle($$0, $$3, $$4, $$5, $$6, $$7, $$8);
+         }
+-        if (camera.getPosition().distanceToSqr(x, y, z) > 1024.0) {
++        if ($$9.getPosition().distanceToSqr($$3, $$4, $$5) > 1024.0) {
+             return null;
+         }
+-        if (particleStatus == net.minecraft.client.ParticleStatus.MINIMAL) {
++        if ($$10 == net.minecraft.client.ParticleStatus.MINIMAL) {
+             return null;
+         }
+-        return this.minecraft.particleEngine.createParticle(particleData, x, y, z, xSpeed, ySpeed, zSpeed);
++        return this.minecraft.particleEngine.createParticle($$0, $$3, $$4, $$5, $$6, $$7, $$8);
+     }
+ 
+-    public net.minecraft.client.ParticleStatus calculateParticleLevel(boolean minimiseLevel) {
+-        net.minecraft.client.ParticleStatus particleStatus = (net.minecraft.client.ParticleStatus)this.minecraft.options.particles().get();
+-        if (minimiseLevel && particleStatus == net.minecraft.client.ParticleStatus.MINIMAL && this.level.random.nextInt(10) == 0) {
+-            particleStatus = net.minecraft.client.ParticleStatus.DECREASED;
++    public net.minecraft.client.ParticleStatus calculateParticleLevel(boolean $$0) {
++        net.minecraft.client.ParticleStatus $$1 = (net.minecraft.client.ParticleStatus)this.minecraft.options.particles().get();
++        if ($$0 && $$1 == net.minecraft.client.ParticleStatus.MINIMAL && this.level.random.nextInt(10) == 0) {
++            $$1 = net.minecraft.client.ParticleStatus.DECREASED;
+         }
+-        if (particleStatus == net.minecraft.client.ParticleStatus.DECREASED && this.level.random.nextInt(3) == 0) {
+-            particleStatus = net.minecraft.client.ParticleStatus.MINIMAL;
++        if ($$1 == net.minecraft.client.ParticleStatus.DECREASED && this.level.random.nextInt(3) == 0) {
++            $$1 = net.minecraft.client.ParticleStatus.MINIMAL;
+         }
+-        return particleStatus;
++        return $$1;
+     }
+ 
+     public void clear() {
+     }
+ 
+-    public void globalLevelEvent(int soundID, net.minecraft.core.BlockPos pos, int data) {
+-        switch (soundID) {
++    public void globalLevelEvent(int $$0, net.minecraft.core.BlockPos $$1, int $$2) {
++        switch ($$0) {
+             case 1023: 
+             case 1028: 
+             case 1038: {
+-                net.minecraft.client.Camera camera = this.minecraft.gameRenderer.getMainCamera();
+-                if (!camera.isInitialized()) break;
+-                double d = (double)pos.getX() - camera.getPosition().x;
+-                double d2 = (double)pos.getY() - camera.getPosition().y;
+-                double d3 = (double)pos.getZ() - camera.getPosition().z;
+-                double d4 = java.lang.Math.sqrt((double)(d * d + d2 * d2 + d3 * d3));
+-                double d5 = camera.getPosition().x;
+-                double d6 = camera.getPosition().y;
+-                double d7 = camera.getPosition().z;
+-                if (d4 > 0.0) {
+-                    d5 += d / d4 * 2.0;
+-                    d6 += d2 / d4 * 2.0;
+-                    d7 += d3 / d4 * 2.0;
++                net.minecraft.client.Camera $$3 = this.minecraft.gameRenderer.getMainCamera();
++                if (!$$3.isInitialized()) break;
++                double $$4 = (double)$$1.getX() - $$3.getPosition().x;
++                double $$5 = (double)$$1.getY() - $$3.getPosition().y;
++                double $$6 = (double)$$1.getZ() - $$3.getPosition().z;
++                double $$7 = java.lang.Math.sqrt((double)($$4 * $$4 + $$5 * $$5 + $$6 * $$6));
++                double $$8 = $$3.getPosition().x;
++                double $$9 = $$3.getPosition().y;
++                double $$10 = $$3.getPosition().z;
++                if ($$7 > 0.0) {
++                    $$8 += $$4 / $$7 * 2.0;
++                    $$9 += $$5 / $$7 * 2.0;
++                    $$10 += $$6 / $$7 * 2.0;
+                 }
+-                if (soundID == 1023) {
+-                    this.level.playLocalSound(d5, d6, d7, net.minecraft.sounds.SoundEvents.WITHER_SPAWN, net.minecraft.sounds.SoundSource.HOSTILE, 1.0f, 1.0f, false);
++                if ($$0 == 1023) {
++                    this.level.playLocalSound($$8, $$9, $$10, net.minecraft.sounds.SoundEvents.WITHER_SPAWN, net.minecraft.sounds.SoundSource.HOSTILE, 1.0f, 1.0f, false);
+                     break;
+                 }
+-                if (soundID == 1038) {
+-                    this.level.playLocalSound(d5, d6, d7, net.minecraft.sounds.SoundEvents.END_PORTAL_SPAWN, net.minecraft.sounds.SoundSource.HOSTILE, 1.0f, 1.0f, false);
++                if ($$0 == 1038) {
++                    this.level.playLocalSound($$8, $$9, $$10, net.minecraft.sounds.SoundEvents.END_PORTAL_SPAWN, net.minecraft.sounds.SoundSource.HOSTILE, 1.0f, 1.0f, false);
+                     break;
+                 }
+-                this.level.playLocalSound(d5, d6, d7, net.minecraft.sounds.SoundEvents.ENDER_DRAGON_DEATH, net.minecraft.sounds.SoundSource.HOSTILE, 5.0f, 1.0f, false);
++                this.level.playLocalSound($$8, $$9, $$10, net.minecraft.sounds.SoundEvents.ENDER_DRAGON_DEATH, net.minecraft.sounds.SoundSource.HOSTILE, 5.0f, 1.0f, false);
+             }
+         }
+     }
+@@ -2418,46 +2415,6 @@
+                 }
+                 break;
+             }
+-            case 1012: {
+-                this.level.playLocalSound($$1, net.minecraft.sounds.SoundEvents.WOODEN_DOOR_CLOSE, net.minecraft.sounds.SoundSource.BLOCKS, 1.0f, $$3.nextFloat() * 0.1f + 0.9f, false);
+-                break;
+-            }
+-            case 1036: {
+-                this.level.playLocalSound($$1, net.minecraft.sounds.SoundEvents.IRON_TRAPDOOR_CLOSE, net.minecraft.sounds.SoundSource.BLOCKS, 1.0f, $$3.nextFloat() * 0.1f + 0.9f, false);
+-                break;
+-            }
+-            case 1013: {
+-                this.level.playLocalSound($$1, net.minecraft.sounds.SoundEvents.WOODEN_TRAPDOOR_CLOSE, net.minecraft.sounds.SoundSource.BLOCKS, 1.0f, $$3.nextFloat() * 0.1f + 0.9f, false);
+-                break;
+-            }
+-            case 1014: {
+-                this.level.playLocalSound($$1, net.minecraft.sounds.SoundEvents.FENCE_GATE_CLOSE, net.minecraft.sounds.SoundSource.BLOCKS, 1.0f, $$3.nextFloat() * 0.1f + 0.9f, false);
+-                break;
+-            }
+-            case 1011: {
+-                this.level.playLocalSound($$1, net.minecraft.sounds.SoundEvents.IRON_DOOR_CLOSE, net.minecraft.sounds.SoundSource.BLOCKS, 1.0f, $$3.nextFloat() * 0.1f + 0.9f, false);
+-                break;
+-            }
+-            case 1006: {
+-                this.level.playLocalSound($$1, net.minecraft.sounds.SoundEvents.WOODEN_DOOR_OPEN, net.minecraft.sounds.SoundSource.BLOCKS, 1.0f, $$3.nextFloat() * 0.1f + 0.9f, false);
+-                break;
+-            }
+-            case 1007: {
+-                this.level.playLocalSound($$1, net.minecraft.sounds.SoundEvents.WOODEN_TRAPDOOR_OPEN, net.minecraft.sounds.SoundSource.BLOCKS, 1.0f, $$3.nextFloat() * 0.1f + 0.9f, false);
+-                break;
+-            }
+-            case 1037: {
+-                this.level.playLocalSound($$1, net.minecraft.sounds.SoundEvents.IRON_TRAPDOOR_OPEN, net.minecraft.sounds.SoundSource.BLOCKS, 1.0f, $$3.nextFloat() * 0.1f + 0.9f, false);
+-                break;
+-            }
+-            case 1008: {
+-                this.level.playLocalSound($$1, net.minecraft.sounds.SoundEvents.FENCE_GATE_OPEN, net.minecraft.sounds.SoundSource.BLOCKS, 1.0f, $$3.nextFloat() * 0.1f + 0.9f, false);
+-                break;
+-            }
+-            case 1005: {
+-                this.level.playLocalSound($$1, net.minecraft.sounds.SoundEvents.IRON_DOOR_OPEN, net.minecraft.sounds.SoundSource.BLOCKS, 1.0f, $$3.nextFloat() * 0.1f + 0.9f, false);
+-                break;
+-            }
+             case 1009: {
+                 if ($$2 == 0) {
+                     this.level.playLocalSound($$1, net.minecraft.sounds.SoundEvents.FIRE_EXTINGUISH, net.minecraft.sounds.SoundSource.BLOCKS, 0.5f, 2.6f + ($$3.nextFloat() - $$3.nextFloat()) * 0.8f, false);
+@@ -2586,24 +2543,24 @@
+         }
+     }
+ 
+-    public void destroyBlockProgress(int breakerId, net.minecraft.core.BlockPos pos, int progress) {
+-        if (progress < 0 || progress >= 10) {
+-            net.minecraft.server.level.BlockDestructionProgress blockDestructionProgress = (net.minecraft.server.level.BlockDestructionProgress)this.destroyingBlocks.remove(breakerId);
+-            if (blockDestructionProgress != null) {
+-                this.removeProgress(blockDestructionProgress);
++    public void destroyBlockProgress(int $$02, net.minecraft.core.BlockPos $$1, int $$2) {
++        if ($$2 < 0 || $$2 >= 10) {
++            net.minecraft.server.level.BlockDestructionProgress $$3 = (net.minecraft.server.level.BlockDestructionProgress)this.destroyingBlocks.remove($$02);
++            if ($$3 != null) {
++                this.removeProgress($$3);
+             }
+         } else {
+-            net.minecraft.server.level.BlockDestructionProgress blockDestructionProgress = (net.minecraft.server.level.BlockDestructionProgress)this.destroyingBlocks.get(breakerId);
+-            if (blockDestructionProgress != null) {
+-                this.removeProgress(blockDestructionProgress);
++            net.minecraft.server.level.BlockDestructionProgress $$4 = (net.minecraft.server.level.BlockDestructionProgress)this.destroyingBlocks.get($$02);
++            if ($$4 != null) {
++                this.removeProgress($$4);
+             }
+-            if (blockDestructionProgress == null || blockDestructionProgress.getPos().getX() != pos.getX() || blockDestructionProgress.getPos().getY() != pos.getY() || blockDestructionProgress.getPos().getZ() != pos.getZ()) {
+-                blockDestructionProgress = new net.minecraft.server.level.BlockDestructionProgress(breakerId, pos);
+-                this.destroyingBlocks.put(breakerId, (java.lang.Object)blockDestructionProgress);
++            if ($$4 == null || $$4.getPos().getX() != $$1.getX() || $$4.getPos().getY() != $$1.getY() || $$4.getPos().getZ() != $$1.getZ()) {
++                $$4 = new net.minecraft.server.level.BlockDestructionProgress($$02, $$1);
++                this.destroyingBlocks.put($$02, (java.lang.Object)$$4);
+             }
+-            blockDestructionProgress.setProgress(progress);
+-            blockDestructionProgress.updateTick(this.ticks);
+-            ((java.util.SortedSet)this.destructionProgress.computeIfAbsent(blockDestructionProgress.getPos().asLong(), $$0 -> com.google.common.collect.Sets.newTreeSet())).add((java.lang.Object)blockDestructionProgress);
++            $$4.setProgress($$2);
++            $$4.updateTick(this.ticks);
++            ((java.util.SortedSet)this.destructionProgress.computeIfAbsent($$4.getPos().asLong(), $$0 -> com.google.common.collect.Sets.newTreeSet())).add((java.lang.Object)$$4);
+         }
+     }
+ 
+@@ -2619,29 +2576,29 @@
+     /*
+      * WARNING - Removed try catching itself - possible behaviour change.
+      */
+-    public void updateGlobalBlockEntities(java.util.Collection<net.minecraft.world.level.block.entity.BlockEntity> tileEntitiesToRemove, java.util.Collection<net.minecraft.world.level.block.entity.BlockEntity> tileEntitiesToAdd) {
++    public void updateGlobalBlockEntities(java.util.Collection<net.minecraft.world.level.block.entity.BlockEntity> $$0, java.util.Collection<net.minecraft.world.level.block.entity.BlockEntity> $$1) {
+         java.util.Set set = this.globalBlockEntities;
+         synchronized (set) {
+-            this.globalBlockEntities.removeAll(tileEntitiesToRemove);
+-            this.globalBlockEntities.addAll(tileEntitiesToAdd);
++            this.globalBlockEntities.removeAll($$0);
++            this.globalBlockEntities.addAll($$1);
+         }
+     }
+ 
+-    public static int getLightColor(net.minecraft.world.level.BlockAndTintGetter lightReader, net.minecraft.core.BlockPos blockPos) {
+-        return net.minecraft.client.renderer.LevelRenderer.getLightColor((net.minecraft.world.level.BlockAndTintGetter)lightReader, (net.minecraft.world.level.block.state.BlockState)lightReader.getBlockState(blockPos), (net.minecraft.core.BlockPos)blockPos);
++    public static int getLightColor(net.minecraft.world.level.BlockAndTintGetter $$0, net.minecraft.core.BlockPos $$1) {
++        return net.minecraft.client.renderer.LevelRenderer.getLightColor((net.minecraft.world.level.BlockAndTintGetter)$$0, (net.minecraft.world.level.block.state.BlockState)$$0.getBlockState($$1), (net.minecraft.core.BlockPos)$$1);
+     }
+ 
+-    public static int getLightColor(net.minecraft.world.level.BlockAndTintGetter lightReader, net.minecraft.world.level.block.state.BlockState blockState, net.minecraft.core.BlockPos blockPos) {
+-        int n;
+-        if (blockState.emissiveRendering((net.minecraft.world.level.BlockGetter)lightReader, blockPos)) {
++    public static int getLightColor(net.minecraft.world.level.BlockAndTintGetter $$0, net.minecraft.world.level.block.state.BlockState $$1, net.minecraft.core.BlockPos $$2) {
++        int $$5;
++        if ($$1.emissiveRendering((net.minecraft.world.level.BlockGetter)$$0, $$2)) {
+             return 0xF000F0;
+         }
+-        int n2 = lightReader.getBrightness(net.minecraft.world.level.LightLayer.SKY, blockPos);
+-        int n3 = lightReader.getBrightness(net.minecraft.world.level.LightLayer.BLOCK, blockPos);
+-        if (n3 < (n = blockState.getLightEmission())) {
+-            n3 = n;
++        int $$3 = $$0.getBrightness(net.minecraft.world.level.LightLayer.SKY, $$2);
++        int $$4 = $$0.getBrightness(net.minecraft.world.level.LightLayer.BLOCK, $$2);
++        if ($$4 < ($$5 = $$1.getLightEmission())) {
++            $$4 = $$5;
+         }
+-        return n2 << 20 | n3 << 4;
++        return $$3 << 20 | $$4 << 4;
+     }
+ 
+     public boolean isChunkCompiled(net.minecraft.core.BlockPos $$0) {

@@ -1,0 +1,364 @@
+--- net/minecraft/server/players/OldUsersConverter.java
++++ net/minecraft/server/players/OldUsersConverter.java
+@@ -14,54 +14,54 @@
+     public net.minecraft.server.players.OldUsersConverter() {
+     }
+ 
+-    public static java.util.List<java.lang.String> readOldListFormat(java.io.File inFile, java.util.Map<java.lang.String, java.lang.String[]> read) throws java.io.IOException {
+-        java.util.List list = com.google.common.io.Files.readLines((java.io.File)inFile, (java.nio.charset.Charset)java.nio.charset.StandardCharsets.UTF_8);
+-        for (java.lang.String string : list) {
+-            if ((string = string.trim()).startsWith("#") || string.length() < 1) continue;
+-            java.lang.String[] stringArray = string.split("\\|");
+-            read.put((java.lang.Object)stringArray[0].toLowerCase(java.util.Locale.ROOT), (java.lang.Object)stringArray);
++    public static java.util.List<java.lang.String> readOldListFormat(java.io.File $$0, java.util.Map<java.lang.String, java.lang.String[]> $$1) throws java.io.IOException {
++        java.util.List $$2 = com.google.common.io.Files.readLines((java.io.File)$$0, (java.nio.charset.Charset)java.nio.charset.StandardCharsets.UTF_8);
++        for (java.lang.String $$3 : $$2) {
++            if (($$3 = $$3.trim()).startsWith("#") || $$3.length() < 1) continue;
++            java.lang.String[] $$4 = $$3.split("\\|");
++            $$1.put((java.lang.Object)$$4[0].toLowerCase(java.util.Locale.ROOT), (java.lang.Object)$$4);
+         }
+-        return list;
++        return $$2;
+     }
+ 
+-    public static void lookupPlayers(net.minecraft.server.MinecraftServer server, java.util.Collection<java.lang.String> names, com.mojang.authlib.ProfileLookupCallback callback) {
+-        java.lang.String[] stringArray = (java.lang.String[])names.stream().filter($$0 -> !net.minecraft.util.StringUtil.isNullOrEmpty((java.lang.String)$$0)).toArray(java.lang.String[]::new);
+-        if (server.usesAuthentication()) {
+-            server.getProfileRepository().findProfilesByNames(stringArray, com.mojang.authlib.Agent.MINECRAFT, callback);
++    public static void lookupPlayers(net.minecraft.server.MinecraftServer $$02, java.util.Collection<java.lang.String> $$1, com.mojang.authlib.ProfileLookupCallback $$2) {
++        java.lang.String[] $$3 = (java.lang.String[])$$1.stream().filter($$0 -> !net.minecraft.util.StringUtil.isNullOrEmpty((java.lang.String)$$0)).toArray(java.lang.String[]::new);
++        if ($$02.usesAuthentication()) {
++            $$02.getProfileRepository().findProfilesByNames($$3, com.mojang.authlib.Agent.MINECRAFT, $$2);
+         } else {
+-            for (java.lang.String string : stringArray) {
+-                java.util.UUID uUID = net.minecraft.core.UUIDUtil.getOrCreatePlayerUUID((com.mojang.authlib.GameProfile)new com.mojang.authlib.GameProfile(null, string));
+-                com.mojang.authlib.GameProfile gameProfile = new com.mojang.authlib.GameProfile(uUID, string);
+-                callback.onProfileLookupSucceeded(gameProfile);
++            for (java.lang.String $$4 : $$3) {
++                java.util.UUID $$5 = net.minecraft.core.UUIDUtil.getOrCreatePlayerUUID((com.mojang.authlib.GameProfile)new com.mojang.authlib.GameProfile(null, $$4));
++                com.mojang.authlib.GameProfile $$6 = new com.mojang.authlib.GameProfile($$5, $$4);
++                $$2.onProfileLookupSucceeded($$6);
+             }
+         }
+     }
+ 
+-    public static boolean convertUserBanlist(net.minecraft.server.MinecraftServer server) {
+-        net.minecraft.server.players.UserBanList userBanList = new net.minecraft.server.players.UserBanList(net.minecraft.server.players.PlayerList.USERBANLIST_FILE);
++    public static boolean convertUserBanlist(net.minecraft.server.MinecraftServer $$0) {
++        net.minecraft.server.players.UserBanList $$1 = new net.minecraft.server.players.UserBanList(net.minecraft.server.players.PlayerList.USERBANLIST_FILE);
+         if (OLD_USERBANLIST.exists() && OLD_USERBANLIST.isFile()) {
+-            if (userBanList.getFile().exists()) {
++            if ($$1.getFile().exists()) {
+                 try {
+-                    userBanList.load();
++                    $$1.load();
+                 }
+-                catch (java.io.IOException iOException) {
+-                    LOGGER.warn("Could not load existing file {}", (java.lang.Object)userBanList.getFile().getName(), (java.lang.Object)((java.lang.Object)iOException));
++                catch (java.io.IOException $$2) {
++                    LOGGER.warn("Could not load existing file {}", (java.lang.Object)$$1.getFile().getName(), (java.lang.Object)((java.lang.Object)$$2));
+                 }
+             }
+             try {
+-                java.util.HashMap hashMap = com.google.common.collect.Maps.newHashMap();
+-                net.minecraft.server.players.OldUsersConverter.readOldListFormat((java.io.File)OLD_USERBANLIST, (java.util.Map)hashMap);
+-                net.minecraft.server.players.OldUsersConverter$1 var3_6 = new /* Unavailable Anonymous Inner Class!! */;
+-                net.minecraft.server.players.OldUsersConverter.lookupPlayers((net.minecraft.server.MinecraftServer)server, (java.util.Collection)hashMap.keySet(), (com.mojang.authlib.ProfileLookupCallback)var3_6);
+-                userBanList.save();
++                java.util.HashMap $$3 = com.google.common.collect.Maps.newHashMap();
++                net.minecraft.server.players.OldUsersConverter.readOldListFormat((java.io.File)OLD_USERBANLIST, (java.util.Map)$$3);
++                net.minecraft.server.players.OldUsersConverter$1 $$4 = new /* Unavailable Anonymous Inner Class!! */;
++                net.minecraft.server.players.OldUsersConverter.lookupPlayers((net.minecraft.server.MinecraftServer)$$0, (java.util.Collection)$$3.keySet(), (com.mojang.authlib.ProfileLookupCallback)$$4);
++                $$1.save();
+                 net.minecraft.server.players.OldUsersConverter.renameOldFile((java.io.File)OLD_USERBANLIST);
+             }
+-            catch (java.io.IOException iOException) {
+-                LOGGER.warn("Could not read old user banlist to convert it!", (java.lang.Throwable)iOException);
++            catch (java.io.IOException $$5) {
++                LOGGER.warn("Could not read old user banlist to convert it!", (java.lang.Throwable)$$5);
+                 return false;
+             }
+-            catch (net.minecraft.server.players.OldUsersConverter$ConversionError conversionError) {
+-                LOGGER.error("Conversion failed, please try again later", (java.lang.Throwable)conversionError);
++            catch (net.minecraft.server.players.OldUsersConverter$ConversionError $$6) {
++                LOGGER.error("Conversion failed, please try again later", (java.lang.Throwable)$$6);
+                 return false;
+             }
+             return true;
+@@ -69,33 +69,33 @@
+         return true;
+     }
+ 
+-    public static boolean convertIpBanlist(net.minecraft.server.MinecraftServer server) {
+-        net.minecraft.server.players.IpBanList ipBanList = new net.minecraft.server.players.IpBanList(net.minecraft.server.players.PlayerList.IPBANLIST_FILE);
++    public static boolean convertIpBanlist(net.minecraft.server.MinecraftServer $$0) {
++        net.minecraft.server.players.IpBanList $$1 = new net.minecraft.server.players.IpBanList(net.minecraft.server.players.PlayerList.IPBANLIST_FILE);
+         if (OLD_IPBANLIST.exists() && OLD_IPBANLIST.isFile()) {
+-            if (ipBanList.getFile().exists()) {
++            if ($$1.getFile().exists()) {
+                 try {
+-                    ipBanList.load();
++                    $$1.load();
+                 }
+-                catch (java.io.IOException iOException) {
+-                    LOGGER.warn("Could not load existing file {}", (java.lang.Object)ipBanList.getFile().getName(), (java.lang.Object)((java.lang.Object)iOException));
++                catch (java.io.IOException $$2) {
++                    LOGGER.warn("Could not load existing file {}", (java.lang.Object)$$1.getFile().getName(), (java.lang.Object)((java.lang.Object)$$2));
+                 }
+             }
+             try {
+-                java.util.HashMap hashMap = com.google.common.collect.Maps.newHashMap();
+-                net.minecraft.server.players.OldUsersConverter.readOldListFormat((java.io.File)OLD_IPBANLIST, (java.util.Map)hashMap);
+-                for (java.lang.String string : hashMap.keySet()) {
+-                    java.lang.String[] stringArray = (java.lang.String[])hashMap.get((java.lang.Object)string);
+-                    java.util.Date date = stringArray.length > 1 ? net.minecraft.server.players.OldUsersConverter.parseDate((java.lang.String)stringArray[1], null) : null;
+-                    java.lang.String string2 = stringArray.length > 2 ? stringArray[2] : null;
+-                    java.util.Date date2 = stringArray.length > 3 ? net.minecraft.server.players.OldUsersConverter.parseDate((java.lang.String)stringArray[3], null) : null;
+-                    java.lang.String string3 = stringArray.length > 4 ? stringArray[4] : null;
+-                    ipBanList.add((net.minecraft.server.players.StoredUserEntry)new net.minecraft.server.players.IpBanListEntry(string, date, string2, date2, string3));
++                java.util.HashMap $$3 = com.google.common.collect.Maps.newHashMap();
++                net.minecraft.server.players.OldUsersConverter.readOldListFormat((java.io.File)OLD_IPBANLIST, (java.util.Map)$$3);
++                for (java.lang.String $$4 : $$3.keySet()) {
++                    java.lang.String[] $$5 = (java.lang.String[])$$3.get((java.lang.Object)$$4);
++                    java.util.Date $$6 = $$5.length > 1 ? net.minecraft.server.players.OldUsersConverter.parseDate((java.lang.String)$$5[1], null) : null;
++                    java.lang.String $$7 = $$5.length > 2 ? $$5[2] : null;
++                    java.util.Date $$8 = $$5.length > 3 ? net.minecraft.server.players.OldUsersConverter.parseDate((java.lang.String)$$5[3], null) : null;
++                    java.lang.String $$9 = $$5.length > 4 ? $$5[4] : null;
++                    $$1.add((net.minecraft.server.players.StoredUserEntry)new net.minecraft.server.players.IpBanListEntry($$4, $$6, $$7, $$8, $$9));
+                 }
+-                ipBanList.save();
++                $$1.save();
+                 net.minecraft.server.players.OldUsersConverter.renameOldFile((java.io.File)OLD_IPBANLIST);
+             }
+-            catch (java.io.IOException iOException) {
+-                LOGGER.warn("Could not parse old ip banlist to convert it!", (java.lang.Throwable)iOException);
++            catch (java.io.IOException $$10) {
++                LOGGER.warn("Could not parse old ip banlist to convert it!", (java.lang.Throwable)$$10);
+                 return false;
+             }
+             return true;
+@@ -103,30 +103,30 @@
+         return true;
+     }
+ 
+-    public static boolean convertOpsList(net.minecraft.server.MinecraftServer server) {
+-        net.minecraft.server.players.ServerOpList serverOpList = new net.minecraft.server.players.ServerOpList(net.minecraft.server.players.PlayerList.OPLIST_FILE);
++    public static boolean convertOpsList(net.minecraft.server.MinecraftServer $$0) {
++        net.minecraft.server.players.ServerOpList $$1 = new net.minecraft.server.players.ServerOpList(net.minecraft.server.players.PlayerList.OPLIST_FILE);
+         if (OLD_OPLIST.exists() && OLD_OPLIST.isFile()) {
+-            if (serverOpList.getFile().exists()) {
++            if ($$1.getFile().exists()) {
+                 try {
+-                    serverOpList.load();
++                    $$1.load();
+                 }
+-                catch (java.io.IOException iOException) {
+-                    LOGGER.warn("Could not load existing file {}", (java.lang.Object)serverOpList.getFile().getName(), (java.lang.Object)((java.lang.Object)iOException));
++                catch (java.io.IOException $$2) {
++                    LOGGER.warn("Could not load existing file {}", (java.lang.Object)$$1.getFile().getName(), (java.lang.Object)((java.lang.Object)$$2));
+                 }
+             }
+             try {
+-                java.util.List list = com.google.common.io.Files.readLines((java.io.File)OLD_OPLIST, (java.nio.charset.Charset)java.nio.charset.StandardCharsets.UTF_8);
+-                net.minecraft.server.players.OldUsersConverter$2 var3_6 = new /* Unavailable Anonymous Inner Class!! */;
+-                net.minecraft.server.players.OldUsersConverter.lookupPlayers((net.minecraft.server.MinecraftServer)server, (java.util.Collection)list, (com.mojang.authlib.ProfileLookupCallback)var3_6);
+-                serverOpList.save();
++                java.util.List $$3 = com.google.common.io.Files.readLines((java.io.File)OLD_OPLIST, (java.nio.charset.Charset)java.nio.charset.StandardCharsets.UTF_8);
++                net.minecraft.server.players.OldUsersConverter$2 $$4 = new /* Unavailable Anonymous Inner Class!! */;
++                net.minecraft.server.players.OldUsersConverter.lookupPlayers((net.minecraft.server.MinecraftServer)$$0, (java.util.Collection)$$3, (com.mojang.authlib.ProfileLookupCallback)$$4);
++                $$1.save();
+                 net.minecraft.server.players.OldUsersConverter.renameOldFile((java.io.File)OLD_OPLIST);
+             }
+-            catch (java.io.IOException iOException) {
+-                LOGGER.warn("Could not read old oplist to convert it!", (java.lang.Throwable)iOException);
++            catch (java.io.IOException $$5) {
++                LOGGER.warn("Could not read old oplist to convert it!", (java.lang.Throwable)$$5);
+                 return false;
+             }
+-            catch (net.minecraft.server.players.OldUsersConverter$ConversionError conversionError) {
+-                LOGGER.error("Conversion failed, please try again later", (java.lang.Throwable)conversionError);
++            catch (net.minecraft.server.players.OldUsersConverter$ConversionError $$6) {
++                LOGGER.error("Conversion failed, please try again later", (java.lang.Throwable)$$6);
+                 return false;
+             }
+             return true;
+@@ -134,30 +134,30 @@
+         return true;
+     }
+ 
+-    public static boolean convertWhiteList(net.minecraft.server.MinecraftServer server) {
+-        net.minecraft.server.players.UserWhiteList userWhiteList = new net.minecraft.server.players.UserWhiteList(net.minecraft.server.players.PlayerList.WHITELIST_FILE);
++    public static boolean convertWhiteList(net.minecraft.server.MinecraftServer $$0) {
++        net.minecraft.server.players.UserWhiteList $$1 = new net.minecraft.server.players.UserWhiteList(net.minecraft.server.players.PlayerList.WHITELIST_FILE);
+         if (OLD_WHITELIST.exists() && OLD_WHITELIST.isFile()) {
+-            if (userWhiteList.getFile().exists()) {
++            if ($$1.getFile().exists()) {
+                 try {
+-                    userWhiteList.load();
++                    $$1.load();
+                 }
+-                catch (java.io.IOException iOException) {
+-                    LOGGER.warn("Could not load existing file {}", (java.lang.Object)userWhiteList.getFile().getName(), (java.lang.Object)((java.lang.Object)iOException));
++                catch (java.io.IOException $$2) {
++                    LOGGER.warn("Could not load existing file {}", (java.lang.Object)$$1.getFile().getName(), (java.lang.Object)((java.lang.Object)$$2));
+                 }
+             }
+             try {
+-                java.util.List list = com.google.common.io.Files.readLines((java.io.File)OLD_WHITELIST, (java.nio.charset.Charset)java.nio.charset.StandardCharsets.UTF_8);
+-                net.minecraft.server.players.OldUsersConverter$3 var3_6 = new /* Unavailable Anonymous Inner Class!! */;
+-                net.minecraft.server.players.OldUsersConverter.lookupPlayers((net.minecraft.server.MinecraftServer)server, (java.util.Collection)list, (com.mojang.authlib.ProfileLookupCallback)var3_6);
+-                userWhiteList.save();
++                java.util.List $$3 = com.google.common.io.Files.readLines((java.io.File)OLD_WHITELIST, (java.nio.charset.Charset)java.nio.charset.StandardCharsets.UTF_8);
++                net.minecraft.server.players.OldUsersConverter$3 $$4 = new /* Unavailable Anonymous Inner Class!! */;
++                net.minecraft.server.players.OldUsersConverter.lookupPlayers((net.minecraft.server.MinecraftServer)$$0, (java.util.Collection)$$3, (com.mojang.authlib.ProfileLookupCallback)$$4);
++                $$1.save();
+                 net.minecraft.server.players.OldUsersConverter.renameOldFile((java.io.File)OLD_WHITELIST);
+             }
+-            catch (java.io.IOException iOException) {
+-                LOGGER.warn("Could not read old whitelist to convert it!", (java.lang.Throwable)iOException);
++            catch (java.io.IOException $$5) {
++                LOGGER.warn("Could not read old whitelist to convert it!", (java.lang.Throwable)$$5);
+                 return false;
+             }
+-            catch (net.minecraft.server.players.OldUsersConverter$ConversionError conversionError) {
+-                LOGGER.error("Conversion failed, please try again later", (java.lang.Throwable)conversionError);
++            catch (net.minecraft.server.players.OldUsersConverter$ConversionError $$6) {
++                LOGGER.error("Conversion failed, please try again later", (java.lang.Throwable)$$6);
+                 return false;
+             }
+             return true;
+@@ -166,67 +166,67 @@
+     }
+ 
+     @javax.annotation.Nullable
+-    public static java.util.UUID convertMobOwnerIfNecessary(net.minecraft.server.MinecraftServer server, java.lang.String username) {
+-        if (net.minecraft.util.StringUtil.isNullOrEmpty((java.lang.String)username) || username.length() > 16) {
++    public static java.util.UUID convertMobOwnerIfNecessary(net.minecraft.server.MinecraftServer $$0, java.lang.String $$1) {
++        if (net.minecraft.util.StringUtil.isNullOrEmpty((java.lang.String)$$1) || $$1.length() > 16) {
+             try {
+-                return java.util.UUID.fromString((java.lang.String)username);
++                return java.util.UUID.fromString((java.lang.String)$$1);
+             }
+-            catch (java.lang.IllegalArgumentException illegalArgumentException) {
++            catch (java.lang.IllegalArgumentException $$2) {
+                 return null;
+             }
+         }
+-        java.util.Optional optional = server.getProfileCache().get(username).map(com.mojang.authlib.GameProfile::getId);
+-        if (optional.isPresent()) {
+-            return (java.util.UUID)optional.get();
++        java.util.Optional $$3 = $$0.getProfileCache().get($$1).map(com.mojang.authlib.GameProfile::getId);
++        if ($$3.isPresent()) {
++            return (java.util.UUID)$$3.get();
+         }
+-        if (server.isSingleplayer() || !server.usesAuthentication()) {
+-            return net.minecraft.core.UUIDUtil.getOrCreatePlayerUUID((com.mojang.authlib.GameProfile)new com.mojang.authlib.GameProfile(null, username));
++        if ($$0.isSingleplayer() || !$$0.usesAuthentication()) {
++            return net.minecraft.core.UUIDUtil.getOrCreatePlayerUUID((com.mojang.authlib.GameProfile)new com.mojang.authlib.GameProfile(null, $$1));
+         }
+-        java.util.ArrayList arrayList = com.google.common.collect.Lists.newArrayList();
+-        net.minecraft.server.players.OldUsersConverter$4 var4_5 = new /* Unavailable Anonymous Inner Class!! */;
+-        net.minecraft.server.players.OldUsersConverter.lookupPlayers((net.minecraft.server.MinecraftServer)server, (java.util.Collection)com.google.common.collect.Lists.newArrayList((java.lang.Object[])new java.lang.String[]{username}), (com.mojang.authlib.ProfileLookupCallback)var4_5);
+-        if (!arrayList.isEmpty() && ((com.mojang.authlib.GameProfile)arrayList.get(0)).getId() != null) {
+-            return ((com.mojang.authlib.GameProfile)arrayList.get(0)).getId();
++        java.util.ArrayList $$4 = com.google.common.collect.Lists.newArrayList();
++        net.minecraft.server.players.OldUsersConverter$4 $$5 = new /* Unavailable Anonymous Inner Class!! */;
++        net.minecraft.server.players.OldUsersConverter.lookupPlayers((net.minecraft.server.MinecraftServer)$$0, (java.util.Collection)com.google.common.collect.Lists.newArrayList((java.lang.Object[])new java.lang.String[]{$$1}), (com.mojang.authlib.ProfileLookupCallback)$$5);
++        if (!$$4.isEmpty() && ((com.mojang.authlib.GameProfile)$$4.get(0)).getId() != null) {
++            return ((com.mojang.authlib.GameProfile)$$4.get(0)).getId();
+         }
+         return null;
+     }
+ 
+-    public static boolean convertPlayers(net.minecraft.server.dedicated.DedicatedServer server) {
+-        java.io.File file = net.minecraft.server.players.OldUsersConverter.getWorldPlayersDirectory((net.minecraft.server.MinecraftServer)server);
+-        java.io.File file2 = new java.io.File(file.getParentFile(), "playerdata");
+-        java.io.File file3 = new java.io.File(file.getParentFile(), "unknownplayers");
+-        if (!file.exists() || !file.isDirectory()) {
++    public static boolean convertPlayers(net.minecraft.server.dedicated.DedicatedServer $$0) {
++        java.io.File $$1 = net.minecraft.server.players.OldUsersConverter.getWorldPlayersDirectory((net.minecraft.server.MinecraftServer)$$0);
++        java.io.File $$2 = new java.io.File($$1.getParentFile(), "playerdata");
++        java.io.File $$3 = new java.io.File($$1.getParentFile(), "unknownplayers");
++        if (!$$1.exists() || !$$1.isDirectory()) {
+             return true;
+         }
+-        java.io.File[] fileArray = file.listFiles();
+-        java.util.ArrayList arrayList = com.google.common.collect.Lists.newArrayList();
+-        for (java.io.File file4 : fileArray) {
+-            java.lang.String string;
+-            java.lang.String string2 = file4.getName();
+-            if (!string2.toLowerCase(java.util.Locale.ROOT).endsWith(".dat") || (string = string2.substring(0, string2.length() - ".dat".length())).isEmpty()) continue;
+-            arrayList.add((java.lang.Object)string);
++        java.io.File[] $$4 = $$1.listFiles();
++        java.util.ArrayList $$5 = com.google.common.collect.Lists.newArrayList();
++        for (java.io.File $$6 : $$4) {
++            java.lang.String $$8;
++            java.lang.String $$7 = $$6.getName();
++            if (!$$7.toLowerCase(java.util.Locale.ROOT).endsWith(".dat") || ($$8 = $$7.substring(0, $$7.length() - ".dat".length())).isEmpty()) continue;
++            $$5.add((java.lang.Object)$$8);
+         }
+         try {
+-            java.lang.Object[] objectArray = (java.lang.String[])arrayList.toArray((java.lang.Object[])new java.lang.String[arrayList.size()]);
+-            net.minecraft.server.players.OldUsersConverter$5 var7_9 = new /* Unavailable Anonymous Inner Class!! */;
+-            net.minecraft.server.players.OldUsersConverter.lookupPlayers((net.minecraft.server.MinecraftServer)server, (java.util.Collection)com.google.common.collect.Lists.newArrayList((java.lang.Object[])objectArray), (com.mojang.authlib.ProfileLookupCallback)var7_9);
++            java.lang.Object[] $$9 = (java.lang.String[])$$5.toArray((java.lang.Object[])new java.lang.String[$$5.size()]);
++            net.minecraft.server.players.OldUsersConverter$5 $$10 = new /* Unavailable Anonymous Inner Class!! */;
++            net.minecraft.server.players.OldUsersConverter.lookupPlayers((net.minecraft.server.MinecraftServer)$$0, (java.util.Collection)com.google.common.collect.Lists.newArrayList((java.lang.Object[])$$9), (com.mojang.authlib.ProfileLookupCallback)$$10);
+         }
+-        catch (net.minecraft.server.players.OldUsersConverter$ConversionError conversionError) {
+-            LOGGER.error("Conversion failed, please try again later", (java.lang.Throwable)conversionError);
++        catch (net.minecraft.server.players.OldUsersConverter$ConversionError $$11) {
++            LOGGER.error("Conversion failed, please try again later", (java.lang.Throwable)$$11);
+             return false;
+         }
+         return true;
+     }
+ 
+-    public static void ensureDirectoryExists(java.io.File dir) {
+-        if (dir.exists()) {
+-            if (dir.isDirectory()) {
++    public static void ensureDirectoryExists(java.io.File $$0) {
++        if ($$0.exists()) {
++            if ($$0.isDirectory()) {
+                 return;
+             }
+-            throw new net.minecraft.server.players.OldUsersConverter$ConversionError("Can't create directory " + dir.getName() + " in world save directory.");
++            throw new net.minecraft.server.players.OldUsersConverter$ConversionError("Can't create directory " + $$0.getName() + " in world save directory.");
+         }
+-        if (!dir.mkdirs()) {
+-            throw new net.minecraft.server.players.OldUsersConverter$ConversionError("Can't create directory " + dir.getName() + " in world save directory.");
++        if (!$$0.mkdirs()) {
++            throw new net.minecraft.server.players.OldUsersConverter$ConversionError("Can't create directory " + $$0.getName() + " in world save directory.");
+         }
+     }
+ 
+@@ -288,20 +288,20 @@
+         return $$0.getWorldPath(net.minecraft.world.level.storage.LevelResource.PLAYER_OLD_DATA_DIR).toFile();
+     }
+ 
+-    public static void renameOldFile(java.io.File convertedFile) {
+-        java.io.File file = new java.io.File(convertedFile.getName() + ".converted");
+-        convertedFile.renameTo(file);
++    public static void renameOldFile(java.io.File $$0) {
++        java.io.File $$1 = new java.io.File($$0.getName() + ".converted");
++        $$0.renameTo($$1);
+     }
+ 
+-    public static java.util.Date parseDate(java.lang.String input, java.util.Date defaultValue) {
+-        java.util.Date date;
++    public static java.util.Date parseDate(java.lang.String $$0, java.util.Date $$1) {
++        java.util.Date $$4;
+         try {
+-            date = net.minecraft.server.players.BanListEntry.DATE_FORMAT.parse(input);
++            java.util.Date $$2 = net.minecraft.server.players.BanListEntry.DATE_FORMAT.parse($$0);
+         }
+-        catch (java.text.ParseException parseException) {
+-            date = defaultValue;
++        catch (java.text.ParseException $$3) {
++            $$4 = $$1;
+         }
+-        return date;
++        return $$4;
+     }
+ 
+     static {

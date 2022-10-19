@@ -1,0 +1,55 @@
+--- net/minecraft/client/sounds/SoundBufferLibrary.java
++++ net/minecraft/client/sounds/SoundBufferLibrary.java
+@@ -5,16 +5,16 @@
+ 
+ public class net.minecraft.client.sounds.SoundBufferLibrary
+  {
+-    public net.minecraft.server.packs.resources.ResourceManager resourceManager;
++    public net.minecraft.server.packs.resources.ResourceProvider resourceManager;
+     public java.util.Map<net.minecraft.resources.ResourceLocation, java.util.concurrent.CompletableFuture<com.mojang.blaze3d.audio.SoundBuffer>> cache;
+ 
+-    public net.minecraft.client.sounds.SoundBufferLibrary(net.minecraft.server.packs.resources.ResourceManager resourceManager) {
++    public net.minecraft.client.sounds.SoundBufferLibrary(net.minecraft.server.packs.resources.ResourceProvider $$0) {
+         this.cache = com.google.common.collect.Maps.newHashMap();
+-        this.resourceManager = resourceManager;
++        this.resourceManager = $$0;
+     }
+ 
+-    public java.util.concurrent.CompletableFuture<com.mojang.blaze3d.audio.SoundBuffer> getCompleteBuffer(net.minecraft.resources.ResourceLocation soundID) {
+-        return (java.util.concurrent.CompletableFuture)this.cache.computeIfAbsent((java.lang.Object)soundID, $$0 -> java.util.concurrent.CompletableFuture.supplyAsync(() -> {
++    public java.util.concurrent.CompletableFuture<com.mojang.blaze3d.audio.SoundBuffer> getCompleteBuffer(net.minecraft.resources.ResourceLocation $$02) {
++        return (java.util.concurrent.CompletableFuture)this.cache.computeIfAbsent((java.lang.Object)$$02, $$0 -> java.util.concurrent.CompletableFuture.supplyAsync(() -> {
+             /*
+              * This method has failed to decompile.  When submitting a bug report, please provide this stack trace, and (if you hold appropriate legal rights) the relevant class file.
+ 
+@@ -87,11 +87,11 @@
+         }, (java.util.concurrent.Executor)net.minecraft.Util.backgroundExecutor()));
+     }
+ 
+-    public java.util.concurrent.CompletableFuture<net.minecraft.client.sounds.AudioStream> getStream(net.minecraft.resources.ResourceLocation resourceLocation, boolean isWrapper) {
++    public java.util.concurrent.CompletableFuture<net.minecraft.client.sounds.AudioStream> getStream(net.minecraft.resources.ResourceLocation $$0, boolean $$1) {
+         return java.util.concurrent.CompletableFuture.supplyAsync(() -> {
+             try {
+-                java.io.InputStream $$2 = this.resourceManager.open(resourceLocation);
+-                return isWrapper ? new net.minecraft.client.sounds.LoopingAudioStream(com.mojang.blaze3d.audio.OggAudioStream::new, $$2) : new com.mojang.blaze3d.audio.OggAudioStream($$2);
++                java.io.InputStream $$2 = this.resourceManager.open($$0);
++                return $$1 ? new net.minecraft.client.sounds.LoopingAudioStream(com.mojang.blaze3d.audio.OggAudioStream::new, $$2) : new com.mojang.blaze3d.audio.OggAudioStream($$2);
+             }
+             catch (java.io.IOException $$3) {
+                 throw new java.util.concurrent.CompletionException((java.lang.Throwable)$$3);
+@@ -100,12 +100,12 @@
+     }
+ 
+     public void clear() {
+-        this.cache.values().forEach(buffer -> buffer.thenAccept(com.mojang.blaze3d.audio.SoundBuffer::discardAlBuffer));
++        this.cache.values().forEach($$0 -> $$0.thenAccept(com.mojang.blaze3d.audio.SoundBuffer::discardAlBuffer));
+         this.cache.clear();
+     }
+ 
+-    public java.util.concurrent.CompletableFuture<?> preload(java.util.Collection<net.minecraft.client.resources.sounds.Sound> sounds) {
+-        return java.util.concurrent.CompletableFuture.allOf((java.util.concurrent.CompletableFuture[])((java.util.concurrent.CompletableFuture[])sounds.stream().map($$0 -> this.getCompleteBuffer($$0.getPath())).toArray(java.util.concurrent.CompletableFuture[]::new)));
++    public java.util.concurrent.CompletableFuture<?> preload(java.util.Collection<net.minecraft.client.resources.sounds.Sound> $$02) {
++        return java.util.concurrent.CompletableFuture.allOf((java.util.concurrent.CompletableFuture[])((java.util.concurrent.CompletableFuture[])$$02.stream().map($$0 -> this.getCompleteBuffer($$0.getPath())).toArray(java.util.concurrent.CompletableFuture[]::new)));
+     }
+ }
+ 

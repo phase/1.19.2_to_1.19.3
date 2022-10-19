@@ -1,0 +1,115 @@
+--- net/minecraft/util/Crypt.java
++++ net/minecraft/util/Crypt.java
+@@ -12,6 +12,7 @@
+     public static java.lang.String BYTE_ENCODING = "ISO_8859_1";
+     public static java.lang.String HASH_ALGORITHM = "SHA-1";
+     public static java.lang.String SIGNING_ALGORITHM = "SHA256withRSA";
++    public static int SIGNATURE_BYTES = 256;
+     public static java.lang.String PEM_RSA_PRIVATE_KEY_HEADER = "-----BEGIN RSA PRIVATE KEY-----";
+     public static java.lang.String PEM_RSA_PRIVATE_KEY_FOOTER = "-----END RSA PRIVATE KEY-----";
+     public static java.lang.String RSA_PUBLIC_KEY_HEADER = "-----BEGIN RSA PUBLIC KEY-----";
+@@ -46,12 +47,12 @@
+         }
+     }
+ 
+-    public static byte[] digestData(java.lang.String serverId, java.security.PublicKey publicKey, javax.crypto.SecretKey secretKey) throws net.minecraft.util.CryptException {
++    public static byte[] digestData(java.lang.String $$0, java.security.PublicKey $$1, javax.crypto.SecretKey $$2) throws net.minecraft.util.CryptException {
+         try {
+-            return net.minecraft.util.Crypt.digestData((byte[][])new byte[][]{serverId.getBytes("ISO_8859_1"), secretKey.getEncoded(), publicKey.getEncoded()});
++            return net.minecraft.util.Crypt.digestData((byte[][])new byte[][]{$$0.getBytes("ISO_8859_1"), $$2.getEncoded(), $$1.getEncoded()});
+         }
+-        catch (java.lang.Exception exception) {
+-            throw new net.minecraft.util.CryptException((java.lang.Throwable)exception);
++        catch (java.lang.Exception $$3) {
++            throw new net.minecraft.util.CryptException((java.lang.Throwable)$$3);
+         }
+     }
+ 
+@@ -110,58 +111,58 @@
+         }
+     }
+ 
+-    public static java.security.PublicKey byteToPublicKey(byte[] encodedKey) throws net.minecraft.util.CryptException {
++    public static java.security.PublicKey byteToPublicKey(byte[] $$0) throws net.minecraft.util.CryptException {
+         try {
+-            java.security.spec.X509EncodedKeySpec x509EncodedKeySpec = new java.security.spec.X509EncodedKeySpec(encodedKey);
+-            java.security.KeyFactory keyFactory = java.security.KeyFactory.getInstance((java.lang.String)"RSA");
+-            return keyFactory.generatePublic((java.security.spec.KeySpec)x509EncodedKeySpec);
++            java.security.spec.X509EncodedKeySpec $$1 = new java.security.spec.X509EncodedKeySpec($$0);
++            java.security.KeyFactory $$2 = java.security.KeyFactory.getInstance((java.lang.String)"RSA");
++            return $$2.generatePublic((java.security.spec.KeySpec)$$1);
+         }
+-        catch (java.lang.Exception exception) {
+-            throw new net.minecraft.util.CryptException((java.lang.Throwable)exception);
++        catch (java.lang.Exception $$3) {
++            throw new net.minecraft.util.CryptException((java.lang.Throwable)$$3);
+         }
+     }
+ 
+-    public static javax.crypto.SecretKey decryptByteToSecretKey(java.security.PrivateKey key, byte[] secretKeyEncrypted) throws net.minecraft.util.CryptException {
+-        byte[] byArray = net.minecraft.util.Crypt.decryptUsingKey((java.security.Key)key, (byte[])secretKeyEncrypted);
++    public static javax.crypto.SecretKey decryptByteToSecretKey(java.security.PrivateKey $$0, byte[] $$1) throws net.minecraft.util.CryptException {
++        byte[] $$2 = net.minecraft.util.Crypt.decryptUsingKey((java.security.Key)$$0, (byte[])$$1);
+         try {
+-            return new javax.crypto.spec.SecretKeySpec(byArray, "AES");
++            return new javax.crypto.spec.SecretKeySpec($$2, "AES");
+         }
+-        catch (java.lang.Exception exception) {
+-            throw new net.minecraft.util.CryptException((java.lang.Throwable)exception);
++        catch (java.lang.Exception $$3) {
++            throw new net.minecraft.util.CryptException((java.lang.Throwable)$$3);
+         }
+     }
+ 
+-    public static byte[] encryptUsingKey(java.security.Key key, byte[] data) throws net.minecraft.util.CryptException {
+-        return net.minecraft.util.Crypt.cipherData((int)1, (java.security.Key)key, (byte[])data);
++    public static byte[] encryptUsingKey(java.security.Key $$0, byte[] $$1) throws net.minecraft.util.CryptException {
++        return net.minecraft.util.Crypt.cipherData((int)1, (java.security.Key)$$0, (byte[])$$1);
+     }
+ 
+-    public static byte[] decryptUsingKey(java.security.Key key, byte[] data) throws net.minecraft.util.CryptException {
+-        return net.minecraft.util.Crypt.cipherData((int)2, (java.security.Key)key, (byte[])data);
++    public static byte[] decryptUsingKey(java.security.Key $$0, byte[] $$1) throws net.minecraft.util.CryptException {
++        return net.minecraft.util.Crypt.cipherData((int)2, (java.security.Key)$$0, (byte[])$$1);
+     }
+ 
+-    public static byte[] cipherData(int opMode, java.security.Key key, byte[] data) throws net.minecraft.util.CryptException {
++    public static byte[] cipherData(int $$0, java.security.Key $$1, byte[] $$2) throws net.minecraft.util.CryptException {
+         try {
+-            return net.minecraft.util.Crypt.setupCipher((int)opMode, (java.lang.String)key.getAlgorithm(), (java.security.Key)key).doFinal(data);
++            return net.minecraft.util.Crypt.setupCipher((int)$$0, (java.lang.String)$$1.getAlgorithm(), (java.security.Key)$$1).doFinal($$2);
+         }
+-        catch (java.lang.Exception exception) {
+-            throw new net.minecraft.util.CryptException((java.lang.Throwable)exception);
++        catch (java.lang.Exception $$3) {
++            throw new net.minecraft.util.CryptException((java.lang.Throwable)$$3);
+         }
+     }
+ 
+-    public static javax.crypto.Cipher setupCipher(int opMode, java.lang.String transformation, java.security.Key key) throws java.lang.Exception {
+-        javax.crypto.Cipher cipher = javax.crypto.Cipher.getInstance((java.lang.String)transformation);
+-        cipher.init(opMode, key);
+-        return cipher;
++    public static javax.crypto.Cipher setupCipher(int $$0, java.lang.String $$1, java.security.Key $$2) throws java.lang.Exception {
++        javax.crypto.Cipher $$3 = javax.crypto.Cipher.getInstance((java.lang.String)$$1);
++        $$3.init($$0, $$2);
++        return $$3;
+     }
+ 
+-    public static javax.crypto.Cipher getCipher(int opMode, java.security.Key key) throws net.minecraft.util.CryptException {
++    public static javax.crypto.Cipher getCipher(int $$0, java.security.Key $$1) throws net.minecraft.util.CryptException {
+         try {
+-            javax.crypto.Cipher cipher = javax.crypto.Cipher.getInstance((java.lang.String)"AES/CFB8/NoPadding");
+-            cipher.init(opMode, key, (java.security.spec.AlgorithmParameterSpec)new javax.crypto.spec.IvParameterSpec(key.getEncoded()));
+-            return cipher;
++            javax.crypto.Cipher $$2 = javax.crypto.Cipher.getInstance((java.lang.String)"AES/CFB8/NoPadding");
++            $$2.init($$0, $$1, (java.security.spec.AlgorithmParameterSpec)new javax.crypto.spec.IvParameterSpec($$1.getEncoded()));
++            return $$2;
+         }
+-        catch (java.lang.Exception exception) {
+-            throw new net.minecraft.util.CryptException((java.lang.Throwable)exception);
++        catch (java.lang.Exception $$3) {
++            throw new net.minecraft.util.CryptException((java.lang.Throwable)$$3);
+         }
+     }
+ 

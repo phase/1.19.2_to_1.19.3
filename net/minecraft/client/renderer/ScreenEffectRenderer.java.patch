@@ -1,0 +1,190 @@
+--- net/minecraft/client/renderer/ScreenEffectRenderer.java
++++ net/minecraft/client/renderer/ScreenEffectRenderer.java
+@@ -10,39 +10,39 @@
+     public net.minecraft.client.renderer.ScreenEffectRenderer() {
+     }
+ 
+-    public static void renderScreenEffect(net.minecraft.client.Minecraft minecraft, com.mojang.blaze3d.vertex.PoseStack matrixStack) {
+-        net.minecraft.world.level.block.state.BlockState blockState;
+-        net.minecraft.client.player.LocalPlayer localPlayer = minecraft.player;
+-        if (!localPlayer.noPhysics && (blockState = net.minecraft.client.renderer.ScreenEffectRenderer.getViewBlockingState((net.minecraft.world.entity.player.Player)localPlayer)) != null) {
+-            net.minecraft.client.renderer.ScreenEffectRenderer.renderTex((net.minecraft.client.renderer.texture.TextureAtlasSprite)minecraft.getBlockRenderer().getBlockModelShaper().getParticleIcon(blockState), (com.mojang.blaze3d.vertex.PoseStack)matrixStack);
++    public static void renderScreenEffect(net.minecraft.client.Minecraft $$0, com.mojang.blaze3d.vertex.PoseStack $$1) {
++        net.minecraft.world.level.block.state.BlockState $$3;
++        net.minecraft.client.player.LocalPlayer $$2 = $$0.player;
++        if (!$$2.noPhysics && ($$3 = net.minecraft.client.renderer.ScreenEffectRenderer.getViewBlockingState((net.minecraft.world.entity.player.Player)$$2)) != null) {
++            net.minecraft.client.renderer.ScreenEffectRenderer.renderTex((net.minecraft.client.renderer.texture.TextureAtlasSprite)$$0.getBlockRenderer().getBlockModelShaper().getParticleIcon($$3), (com.mojang.blaze3d.vertex.PoseStack)$$1);
+         }
+-        if (!minecraft.player.isSpectator()) {
+-            if (minecraft.player.isEyeInFluid(net.minecraft.tags.FluidTags.WATER)) {
+-                net.minecraft.client.renderer.ScreenEffectRenderer.renderWater((net.minecraft.client.Minecraft)minecraft, (com.mojang.blaze3d.vertex.PoseStack)matrixStack);
++        if (!$$0.player.isSpectator()) {
++            if ($$0.player.isEyeInFluid(net.minecraft.tags.FluidTags.WATER)) {
++                net.minecraft.client.renderer.ScreenEffectRenderer.renderWater((net.minecraft.client.Minecraft)$$0, (com.mojang.blaze3d.vertex.PoseStack)$$1);
+             }
+-            if (minecraft.player.isOnFire()) {
+-                net.minecraft.client.renderer.ScreenEffectRenderer.renderFire((net.minecraft.client.Minecraft)minecraft, (com.mojang.blaze3d.vertex.PoseStack)matrixStack);
++            if ($$0.player.isOnFire()) {
++                net.minecraft.client.renderer.ScreenEffectRenderer.renderFire((net.minecraft.client.Minecraft)$$0, (com.mojang.blaze3d.vertex.PoseStack)$$1);
+             }
+         }
+     }
+ 
+     @javax.annotation.Nullable
+-    public static net.minecraft.world.level.block.state.BlockState getViewBlockingState(net.minecraft.world.entity.player.Player player) {
+-        net.minecraft.core.BlockPos$MutableBlockPos mutableBlockPos = new net.minecraft.core.BlockPos$MutableBlockPos();
+-        for (int i = 0; i < 8; ++i) {
+-            double d = player.getX() + (double)(((float)((i >> 0) % 2) - 0.5f) * player.getBbWidth() * 0.8f);
+-            double d2 = player.getEyeY() + (double)(((float)((i >> 1) % 2) - 0.5f) * 0.1f);
+-            double d3 = player.getZ() + (double)(((float)((i >> 2) % 2) - 0.5f) * player.getBbWidth() * 0.8f);
+-            mutableBlockPos.set(d, d2, d3);
+-            net.minecraft.world.level.block.state.BlockState blockState = player.level.getBlockState((net.minecraft.core.BlockPos)mutableBlockPos);
+-            if (blockState.getRenderShape() == net.minecraft.world.level.block.RenderShape.INVISIBLE || !blockState.isViewBlocking((net.minecraft.world.level.BlockGetter)player.level, (net.minecraft.core.BlockPos)mutableBlockPos)) continue;
+-            return blockState;
++    public static net.minecraft.world.level.block.state.BlockState getViewBlockingState(net.minecraft.world.entity.player.Player $$0) {
++        net.minecraft.core.BlockPos$MutableBlockPos $$1 = new net.minecraft.core.BlockPos$MutableBlockPos();
++        for (int $$2 = 0; $$2 < 8; ++$$2) {
++            double $$3 = $$0.getX() + (double)(((float)(($$2 >> 0) % 2) - 0.5f) * $$0.getBbWidth() * 0.8f);
++            double $$4 = $$0.getEyeY() + (double)(((float)(($$2 >> 1) % 2) - 0.5f) * 0.1f);
++            double $$5 = $$0.getZ() + (double)(((float)(($$2 >> 2) % 2) - 0.5f) * $$0.getBbWidth() * 0.8f);
++            $$1.set($$3, $$4, $$5);
++            net.minecraft.world.level.block.state.BlockState $$6 = $$0.level.getBlockState((net.minecraft.core.BlockPos)$$1);
++            if ($$6.getRenderShape() == net.minecraft.world.level.block.RenderShape.INVISIBLE || !$$6.isViewBlocking((net.minecraft.world.level.BlockGetter)$$0.level, (net.minecraft.core.BlockPos)$$1)) continue;
++            return $$6;
+         }
+         return null;
+     }
+ 
+     public static void renderTex(net.minecraft.client.renderer.texture.TextureAtlasSprite $$0, com.mojang.blaze3d.vertex.PoseStack $$1) {
+-        com.mojang.blaze3d.systems.RenderSystem.setShaderTexture((int)0, (net.minecraft.resources.ResourceLocation)$$0.atlas().location());
++        com.mojang.blaze3d.systems.RenderSystem.setShaderTexture((int)0, (net.minecraft.resources.ResourceLocation)$$0.atlasLocation());
+         com.mojang.blaze3d.systems.RenderSystem.setShader(net.minecraft.client.renderer.GameRenderer::getPositionColorTexShader);
+         com.mojang.blaze3d.vertex.BufferBuilder $$2 = com.mojang.blaze3d.vertex.Tesselator.getInstance().getBuilder();
+         float $$3 = 0.1f;
+@@ -64,73 +64,73 @@
+         com.mojang.blaze3d.vertex.BufferUploader.drawWithShader((com.mojang.blaze3d.vertex.BufferBuilder$RenderedBuffer)$$2.end());
+     }
+ 
+-    public static void renderWater(net.minecraft.client.Minecraft minecraft, com.mojang.blaze3d.vertex.PoseStack matrixStack) {
++    public static void renderWater(net.minecraft.client.Minecraft $$0, com.mojang.blaze3d.vertex.PoseStack $$1) {
+         com.mojang.blaze3d.systems.RenderSystem.setShader(net.minecraft.client.renderer.GameRenderer::getPositionTexShader);
+         com.mojang.blaze3d.systems.RenderSystem.enableTexture();
+         com.mojang.blaze3d.systems.RenderSystem.setShaderTexture((int)0, (net.minecraft.resources.ResourceLocation)UNDERWATER_LOCATION);
+-        com.mojang.blaze3d.vertex.BufferBuilder bufferBuilder = com.mojang.blaze3d.vertex.Tesselator.getInstance().getBuilder();
+-        net.minecraft.core.BlockPos blockPos = new net.minecraft.core.BlockPos(minecraft.player.getX(), minecraft.player.getEyeY(), minecraft.player.getZ());
+-        float f = net.minecraft.client.renderer.LightTexture.getBrightness((net.minecraft.world.level.dimension.DimensionType)minecraft.player.level.dimensionType(), (int)minecraft.player.level.getMaxLocalRawBrightness(blockPos));
++        com.mojang.blaze3d.vertex.BufferBuilder $$2 = com.mojang.blaze3d.vertex.Tesselator.getInstance().getBuilder();
++        net.minecraft.core.BlockPos $$3 = new net.minecraft.core.BlockPos($$0.player.getX(), $$0.player.getEyeY(), $$0.player.getZ());
++        float $$4 = net.minecraft.client.renderer.LightTexture.getBrightness((net.minecraft.world.level.dimension.DimensionType)$$0.player.level.dimensionType(), (int)$$0.player.level.getMaxLocalRawBrightness($$3));
+         com.mojang.blaze3d.systems.RenderSystem.enableBlend();
+         com.mojang.blaze3d.systems.RenderSystem.defaultBlendFunc();
+-        com.mojang.blaze3d.systems.RenderSystem.setShaderColor((float)f, (float)f, (float)f, (float)0.1f);
+-        float f2 = 4.0f;
+-        float f3 = -1.0f;
+-        float f4 = 1.0f;
+-        float f5 = -1.0f;
+-        float f6 = 1.0f;
+-        float f7 = -0.5f;
+-        float f8 = -minecraft.player.getYRot() / 64.0f;
+-        float f9 = minecraft.player.getXRot() / 64.0f;
+-        com.mojang.math.Matrix4f matrix4f = matrixStack.last().pose();
+-        bufferBuilder.begin(com.mojang.blaze3d.vertex.VertexFormat$Mode.QUADS, com.mojang.blaze3d.vertex.DefaultVertexFormat.POSITION_TEX);
+-        bufferBuilder.vertex(matrix4f, -1.0f, -1.0f, -0.5f).uv(4.0f + f8, 4.0f + f9).endVertex();
+-        bufferBuilder.vertex(matrix4f, 1.0f, -1.0f, -0.5f).uv(0.0f + f8, 4.0f + f9).endVertex();
+-        bufferBuilder.vertex(matrix4f, 1.0f, 1.0f, -0.5f).uv(0.0f + f8, 0.0f + f9).endVertex();
+-        bufferBuilder.vertex(matrix4f, -1.0f, 1.0f, -0.5f).uv(4.0f + f8, 0.0f + f9).endVertex();
+-        com.mojang.blaze3d.vertex.BufferUploader.drawWithShader((com.mojang.blaze3d.vertex.BufferBuilder$RenderedBuffer)bufferBuilder.end());
++        com.mojang.blaze3d.systems.RenderSystem.setShaderColor((float)$$4, (float)$$4, (float)$$4, (float)0.1f);
++        float $$5 = 4.0f;
++        float $$6 = -1.0f;
++        float $$7 = 1.0f;
++        float $$8 = -1.0f;
++        float $$9 = 1.0f;
++        float $$10 = -0.5f;
++        float $$11 = -$$0.player.getYRot() / 64.0f;
++        float $$12 = $$0.player.getXRot() / 64.0f;
++        com.mojang.math.Matrix4f $$13 = $$1.last().pose();
++        $$2.begin(com.mojang.blaze3d.vertex.VertexFormat$Mode.QUADS, com.mojang.blaze3d.vertex.DefaultVertexFormat.POSITION_TEX);
++        $$2.vertex($$13, -1.0f, -1.0f, -0.5f).uv(4.0f + $$11, 4.0f + $$12).endVertex();
++        $$2.vertex($$13, 1.0f, -1.0f, -0.5f).uv(0.0f + $$11, 4.0f + $$12).endVertex();
++        $$2.vertex($$13, 1.0f, 1.0f, -0.5f).uv(0.0f + $$11, 0.0f + $$12).endVertex();
++        $$2.vertex($$13, -1.0f, 1.0f, -0.5f).uv(4.0f + $$11, 0.0f + $$12).endVertex();
++        com.mojang.blaze3d.vertex.BufferUploader.drawWithShader((com.mojang.blaze3d.vertex.BufferBuilder$RenderedBuffer)$$2.end());
+         com.mojang.blaze3d.systems.RenderSystem.disableBlend();
+     }
+ 
+-    public static void renderFire(net.minecraft.client.Minecraft minecraft, com.mojang.blaze3d.vertex.PoseStack matrixStack) {
+-        com.mojang.blaze3d.vertex.BufferBuilder bufferBuilder = com.mojang.blaze3d.vertex.Tesselator.getInstance().getBuilder();
++    public static void renderFire(net.minecraft.client.Minecraft $$0, com.mojang.blaze3d.vertex.PoseStack $$1) {
++        com.mojang.blaze3d.vertex.BufferBuilder $$2 = com.mojang.blaze3d.vertex.Tesselator.getInstance().getBuilder();
+         com.mojang.blaze3d.systems.RenderSystem.setShader(net.minecraft.client.renderer.GameRenderer::getPositionColorTexShader);
+         com.mojang.blaze3d.systems.RenderSystem.depthFunc((int)519);
+         com.mojang.blaze3d.systems.RenderSystem.depthMask((boolean)false);
+         com.mojang.blaze3d.systems.RenderSystem.enableBlend();
+         com.mojang.blaze3d.systems.RenderSystem.defaultBlendFunc();
+         com.mojang.blaze3d.systems.RenderSystem.enableTexture();
+-        net.minecraft.client.renderer.texture.TextureAtlasSprite textureAtlasSprite = net.minecraft.client.resources.model.ModelBakery.FIRE_1.sprite();
+-        com.mojang.blaze3d.systems.RenderSystem.setShaderTexture((int)0, (net.minecraft.resources.ResourceLocation)textureAtlasSprite.atlas().location());
+-        float f = textureAtlasSprite.getU0();
+-        float f2 = textureAtlasSprite.getU1();
+-        float f3 = (f + f2) / 2.0f;
+-        float f4 = textureAtlasSprite.getV0();
+-        float f5 = textureAtlasSprite.getV1();
+-        float f6 = (f4 + f5) / 2.0f;
+-        float f7 = textureAtlasSprite.uvShrinkRatio();
+-        float f8 = net.minecraft.util.Mth.lerp((float)f7, (float)f, (float)f3);
+-        float f9 = net.minecraft.util.Mth.lerp((float)f7, (float)f2, (float)f3);
+-        float f10 = net.minecraft.util.Mth.lerp((float)f7, (float)f4, (float)f6);
+-        float f11 = net.minecraft.util.Mth.lerp((float)f7, (float)f5, (float)f6);
+-        float f12 = 1.0f;
+-        for (int i = 0; i < 2; ++i) {
+-            matrixStack.pushPose();
+-            float f13 = -0.5f;
+-            float f14 = 0.5f;
+-            float f15 = -0.5f;
+-            float f16 = 0.5f;
+-            float f17 = -0.5f;
+-            matrixStack.translate((double)((float)(-(i * 2 - 1)) * 0.24f), (double)-0.3f, 0.0);
+-            matrixStack.mulPose(com.mojang.math.Vector3f.YP.rotationDegrees((float)(i * 2 - 1) * 10.0f));
+-            com.mojang.math.Matrix4f matrix4f = matrixStack.last().pose();
+-            bufferBuilder.begin(com.mojang.blaze3d.vertex.VertexFormat$Mode.QUADS, com.mojang.blaze3d.vertex.DefaultVertexFormat.POSITION_COLOR_TEX);
+-            bufferBuilder.vertex(matrix4f, -0.5f, -0.5f, -0.5f).color(1.0f, 1.0f, 1.0f, 0.9f).uv(f9, f11).endVertex();
+-            bufferBuilder.vertex(matrix4f, 0.5f, -0.5f, -0.5f).color(1.0f, 1.0f, 1.0f, 0.9f).uv(f8, f11).endVertex();
+-            bufferBuilder.vertex(matrix4f, 0.5f, 0.5f, -0.5f).color(1.0f, 1.0f, 1.0f, 0.9f).uv(f8, f10).endVertex();
+-            bufferBuilder.vertex(matrix4f, -0.5f, 0.5f, -0.5f).color(1.0f, 1.0f, 1.0f, 0.9f).uv(f9, f10).endVertex();
+-            com.mojang.blaze3d.vertex.BufferUploader.drawWithShader((com.mojang.blaze3d.vertex.BufferBuilder$RenderedBuffer)bufferBuilder.end());
+-            matrixStack.popPose();
++        net.minecraft.client.renderer.texture.TextureAtlasSprite $$3 = net.minecraft.client.resources.model.ModelBakery.FIRE_1.sprite();
++        com.mojang.blaze3d.systems.RenderSystem.setShaderTexture((int)0, (net.minecraft.resources.ResourceLocation)$$3.atlasLocation());
++        float $$4 = $$3.getU0();
++        float $$5 = $$3.getU1();
++        float $$6 = ($$4 + $$5) / 2.0f;
++        float $$7 = $$3.getV0();
++        float $$8 = $$3.getV1();
++        float $$9 = ($$7 + $$8) / 2.0f;
++        float $$10 = $$3.uvShrinkRatio();
++        float $$11 = net.minecraft.util.Mth.lerp((float)$$10, (float)$$4, (float)$$6);
++        float $$12 = net.minecraft.util.Mth.lerp((float)$$10, (float)$$5, (float)$$6);
++        float $$13 = net.minecraft.util.Mth.lerp((float)$$10, (float)$$7, (float)$$9);
++        float $$14 = net.minecraft.util.Mth.lerp((float)$$10, (float)$$8, (float)$$9);
++        float $$15 = 1.0f;
++        for (int $$16 = 0; $$16 < 2; ++$$16) {
++            $$1.pushPose();
++            float $$17 = -0.5f;
++            float $$18 = 0.5f;
++            float $$19 = -0.5f;
++            float $$20 = 0.5f;
++            float $$21 = -0.5f;
++            $$1.translate((double)((float)(-($$16 * 2 - 1)) * 0.24f), (double)-0.3f, 0.0);
++            $$1.mulPose(com.mojang.math.Vector3f.YP.rotationDegrees((float)($$16 * 2 - 1) * 10.0f));
++            com.mojang.math.Matrix4f $$22 = $$1.last().pose();
++            $$2.begin(com.mojang.blaze3d.vertex.VertexFormat$Mode.QUADS, com.mojang.blaze3d.vertex.DefaultVertexFormat.POSITION_COLOR_TEX);
++            $$2.vertex($$22, -0.5f, -0.5f, -0.5f).color(1.0f, 1.0f, 1.0f, 0.9f).uv($$12, $$14).endVertex();
++            $$2.vertex($$22, 0.5f, -0.5f, -0.5f).color(1.0f, 1.0f, 1.0f, 0.9f).uv($$11, $$14).endVertex();
++            $$2.vertex($$22, 0.5f, 0.5f, -0.5f).color(1.0f, 1.0f, 1.0f, 0.9f).uv($$11, $$13).endVertex();
++            $$2.vertex($$22, -0.5f, 0.5f, -0.5f).color(1.0f, 1.0f, 1.0f, 0.9f).uv($$12, $$13).endVertex();
++            com.mojang.blaze3d.vertex.BufferUploader.drawWithShader((com.mojang.blaze3d.vertex.BufferBuilder$RenderedBuffer)$$2.end());
++            $$1.popPose();
+         }
+         com.mojang.blaze3d.systems.RenderSystem.disableBlend();
+         com.mojang.blaze3d.systems.RenderSystem.depthMask((boolean)true);

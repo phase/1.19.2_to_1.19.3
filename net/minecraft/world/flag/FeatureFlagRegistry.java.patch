@@ -1,0 +1,78 @@
+--- net/minecraft/world/flag/FeatureFlagRegistry.java
++++ net/minecraft/world/flag/FeatureFlagRegistry.java
+@@ -1,0 +1,75 @@
++/*
++ * Decompiled with CFR 0.151.
++ */
++package net.minecraft.world.flag;
++
++public class net.minecraft.world.flag.FeatureFlagRegistry
++ {
++    public static org.slf4j.Logger LOGGER;
++    public net.minecraft.world.flag.FeatureFlagUniverse universe;
++    public java.util.Map<net.minecraft.resources.ResourceLocation, net.minecraft.world.flag.FeatureFlag> names;
++    public net.minecraft.world.flag.FeatureFlagSet allFlags;
++
++    public net.minecraft.world.flag.FeatureFlagRegistry(net.minecraft.world.flag.FeatureFlagUniverse $$0, net.minecraft.world.flag.FeatureFlagSet $$1, java.util.Map<net.minecraft.resources.ResourceLocation, net.minecraft.world.flag.FeatureFlag> $$2) {
++        this.universe = $$0;
++        this.names = $$2;
++        this.allFlags = $$1;
++    }
++
++    public boolean isSubset(net.minecraft.world.flag.FeatureFlagSet $$0) {
++        return $$0.isSubsetOf(this.allFlags);
++    }
++
++    public net.minecraft.world.flag.FeatureFlagSet allFlags() {
++        return this.allFlags;
++    }
++
++    public net.minecraft.world.flag.FeatureFlagSet fromNames(java.lang.Iterable<net.minecraft.resources.ResourceLocation> $$02) {
++        return this.fromNames($$02, $$0 -> LOGGER.warn("Unknown feature flag: {}", $$0));
++    }
++
++    public net.minecraft.world.flag.FeatureFlagSet subset(net.minecraft.world.flag.FeatureFlag ... $$0) {
++        return net.minecraft.world.flag.FeatureFlagSet.create((net.minecraft.world.flag.FeatureFlagUniverse)this.universe, (java.util.Collection)java.util.Arrays.asList((java.lang.Object[])$$0));
++    }
++
++    public net.minecraft.world.flag.FeatureFlagSet fromNames(java.lang.Iterable<net.minecraft.resources.ResourceLocation> $$0, java.util.function.Consumer<net.minecraft.resources.ResourceLocation> $$1) {
++        java.util.Set $$2 = com.google.common.collect.Sets.newIdentityHashSet();
++        for (net.minecraft.resources.ResourceLocation $$3 : $$0) {
++            net.minecraft.world.flag.FeatureFlag $$4 = (net.minecraft.world.flag.FeatureFlag)this.names.get((java.lang.Object)$$3);
++            if ($$4 == null) {
++                $$1.accept((java.lang.Object)$$3);
++                continue;
++            }
++            $$2.add((java.lang.Object)$$4);
++        }
++        return net.minecraft.world.flag.FeatureFlagSet.create((net.minecraft.world.flag.FeatureFlagUniverse)this.universe, (java.util.Collection)$$2);
++    }
++
++    public java.util.Set<net.minecraft.resources.ResourceLocation> toNames(net.minecraft.world.flag.FeatureFlagSet $$0) {
++        java.util.HashSet $$1 = new java.util.HashSet();
++        this.names.forEach((arg_0, arg_1) -> net.minecraft.world.flag.FeatureFlagRegistry.lambda$toNames$1($$0, (java.util.Set)$$1, arg_0, arg_1));
++        return $$1;
++    }
++
++    public com.mojang.serialization.Codec<net.minecraft.world.flag.FeatureFlagSet> codec() {
++        return net.minecraft.resources.ResourceLocation.CODEC.listOf().comapFlatMap($$0 -> {
++            java.util.HashSet $$1 = new java.util.HashSet();
++            net.minecraft.world.flag.FeatureFlagSet $$2 = this.fromNames((java.lang.Iterable)$$0, arg_0 -> ((java.util.Set)$$1).add(arg_0));
++            if (!$$1.isEmpty()) {
++                return com.mojang.serialization.DataResult.error((java.lang.String)("Unknown feature ids: " + (java.util.Set)$$1), (java.lang.Object)$$2);
++            }
++            return com.mojang.serialization.DataResult.success((java.lang.Object)$$2);
++        }, $$0 -> java.util.List.copyOf((java.util.Collection)this.toNames($$0)));
++    }
++
++    public static /* synthetic */ void lambda$toNames$1(net.minecraft.world.flag.FeatureFlagSet $$0, java.util.Set $$1, net.minecraft.resources.ResourceLocation $$2, net.minecraft.world.flag.FeatureFlag $$3) {
++        if ($$0.contains($$3)) {
++            $$1.add((java.lang.Object)$$2);
++        }
++    }
++
++    static {
++        LOGGER = com.mojang.logging.LogUtils.getLogger();
++    }
++}
++

@@ -1,0 +1,246 @@
+--- net/minecraft/world/entity/monster/ZombieVillager.java
++++ net/minecraft/world/entity/monster/ZombieVillager.java
+@@ -34,39 +34,39 @@
+         this.entityData.define(DATA_VILLAGER_DATA, (java.lang.Object)new net.minecraft.world.entity.npc.VillagerData(net.minecraft.world.entity.npc.VillagerType.PLAINS, net.minecraft.world.entity.npc.VillagerProfession.NONE, 1));
+     }
+ 
+-    public void addAdditionalSaveData(net.minecraft.nbt.CompoundTag compound) {
+-        super.addAdditionalSaveData(compound);
+-        net.minecraft.world.entity.npc.VillagerData.CODEC.encodeStart((com.mojang.serialization.DynamicOps)net.minecraft.nbt.NbtOps.INSTANCE, (java.lang.Object)this.getVillagerData()).resultOrPartial(arg_0 -> ((org.slf4j.Logger)LOGGER).error(arg_0)).ifPresent($$1 -> compound.put("VillagerData", $$1));
++    public void addAdditionalSaveData(net.minecraft.nbt.CompoundTag $$0) {
++        super.addAdditionalSaveData($$0);
++        net.minecraft.world.entity.npc.VillagerData.CODEC.encodeStart((com.mojang.serialization.DynamicOps)net.minecraft.nbt.NbtOps.INSTANCE, (java.lang.Object)this.getVillagerData()).resultOrPartial(arg_0 -> ((org.slf4j.Logger)LOGGER).error(arg_0)).ifPresent($$1 -> $$0.put("VillagerData", $$1));
+         if (this.tradeOffers != null) {
+-            compound.put("Offers", (net.minecraft.nbt.Tag)this.tradeOffers);
++            $$0.put("Offers", (net.minecraft.nbt.Tag)this.tradeOffers);
+         }
+         if (this.gossips != null) {
+-            compound.put("Gossips", this.gossips);
++            $$0.put("Gossips", this.gossips);
+         }
+-        compound.putInt("ConversionTime", this.isConverting() ? this.villagerConversionTime : -1);
++        $$0.putInt("ConversionTime", this.isConverting() ? this.villagerConversionTime : -1);
+         if (this.conversionStarter != null) {
+-            compound.putUUID("ConversionPlayer", this.conversionStarter);
++            $$0.putUUID("ConversionPlayer", this.conversionStarter);
+         }
+-        compound.putInt("Xp", this.villagerXp);
++        $$0.putInt("Xp", this.villagerXp);
+     }
+ 
+-    public void readAdditionalSaveData(net.minecraft.nbt.CompoundTag compound) {
+-        super.readAdditionalSaveData(compound);
+-        if (compound.contains("VillagerData", 10)) {
+-            com.mojang.serialization.DataResult dataResult = net.minecraft.world.entity.npc.VillagerData.CODEC.parse(new com.mojang.serialization.Dynamic((com.mojang.serialization.DynamicOps)net.minecraft.nbt.NbtOps.INSTANCE, (java.lang.Object)compound.get("VillagerData")));
+-            dataResult.resultOrPartial(arg_0 -> ((org.slf4j.Logger)LOGGER).error(arg_0)).ifPresent(arg_0 -> this.setVillagerData(arg_0));
++    public void readAdditionalSaveData(net.minecraft.nbt.CompoundTag $$0) {
++        super.readAdditionalSaveData($$0);
++        if ($$0.contains("VillagerData", 10)) {
++            com.mojang.serialization.DataResult $$1 = net.minecraft.world.entity.npc.VillagerData.CODEC.parse(new com.mojang.serialization.Dynamic((com.mojang.serialization.DynamicOps)net.minecraft.nbt.NbtOps.INSTANCE, (java.lang.Object)$$0.get("VillagerData")));
++            $$1.resultOrPartial(arg_0 -> ((org.slf4j.Logger)LOGGER).error(arg_0)).ifPresent(arg_0 -> this.setVillagerData(arg_0));
+         }
+-        if (compound.contains("Offers", 10)) {
+-            this.tradeOffers = compound.getCompound("Offers");
++        if ($$0.contains("Offers", 10)) {
++            this.tradeOffers = $$0.getCompound("Offers");
+         }
+-        if (compound.contains("Gossips", 10)) {
+-            this.gossips = compound.getList("Gossips", 10);
++        if ($$0.contains("Gossips", 10)) {
++            this.gossips = $$0.getList("Gossips", 10);
+         }
+-        if (compound.contains("ConversionTime", 99) && compound.getInt("ConversionTime") > -1) {
+-            this.startConverting(compound.hasUUID("ConversionPlayer") ? compound.getUUID("ConversionPlayer") : null, compound.getInt("ConversionTime"));
++        if ($$0.contains("ConversionTime", 99) && $$0.getInt("ConversionTime") > -1) {
++            this.startConverting($$0.hasUUID("ConversionPlayer") ? $$0.getUUID("ConversionPlayer") : null, $$0.getInt("ConversionTime"));
+         }
+-        if (compound.contains("Xp", 3)) {
+-            this.villagerXp = compound.getInt("Xp");
++        if ($$0.contains("Xp", 3)) {
++            this.villagerXp = $$0.getInt("Xp");
+         }
+     }
+ 
+@@ -81,28 +81,28 @@
+         super.tick();
+     }
+ 
+-    public net.minecraft.world.InteractionResult mobInteract(net.minecraft.world.entity.player.Player player, net.minecraft.world.InteractionHand hand) {
+-        net.minecraft.world.item.ItemStack itemStack = player.getItemInHand(hand);
+-        if (itemStack.is(net.minecraft.world.item.Items.GOLDEN_APPLE)) {
++    public net.minecraft.world.InteractionResult mobInteract(net.minecraft.world.entity.player.Player $$0, net.minecraft.world.InteractionHand $$1) {
++        net.minecraft.world.item.ItemStack $$2 = $$0.getItemInHand($$1);
++        if ($$2.is(net.minecraft.world.item.Items.GOLDEN_APPLE)) {
+             if (this.hasEffect(net.minecraft.world.effect.MobEffects.WEAKNESS)) {
+-                if (!player.getAbilities().instabuild) {
+-                    itemStack.shrink(1);
++                if (!$$0.getAbilities().instabuild) {
++                    $$2.shrink(1);
+                 }
+                 if (!this.level.isClientSide) {
+-                    this.startConverting(player.getUUID(), this.random.nextInt(2401) + 3600);
++                    this.startConverting($$0.getUUID(), this.random.nextInt(2401) + 3600);
+                 }
+                 return net.minecraft.world.InteractionResult.SUCCESS;
+             }
+             return net.minecraft.world.InteractionResult.CONSUME;
+         }
+-        return super.mobInteract(player, hand);
++        return super.mobInteract($$0, $$1);
+     }
+ 
+     public boolean convertsInWater() {
+         return false;
+     }
+ 
+-    public boolean removeWhenFarAway(double distanceToClosestPlayer) {
++    public boolean removeWhenFarAway(double $$0) {
+         return !this.isConverting() && this.villagerXp == 0;
+     }
+ 
+@@ -110,58 +110,56 @@
+         return (java.lang.Boolean)this.getEntityData().get(DATA_CONVERTING_ID);
+     }
+ 
+-    public void startConverting(@javax.annotation.Nullable java.util.UUID conversionStarter, int villagerConversionTime) {
+-        this.conversionStarter = conversionStarter;
+-        this.villagerConversionTime = villagerConversionTime;
++    public void startConverting(@javax.annotation.Nullable java.util.UUID $$0, int $$1) {
++        this.conversionStarter = $$0;
++        this.villagerConversionTime = $$1;
+         this.getEntityData().set(DATA_CONVERTING_ID, (java.lang.Object)true);
+         this.removeEffect(net.minecraft.world.effect.MobEffects.WEAKNESS);
+-        this.addEffect(new net.minecraft.world.effect.MobEffectInstance(net.minecraft.world.effect.MobEffects.DAMAGE_BOOST, villagerConversionTime, java.lang.Math.min((int)(this.level.getDifficulty().getId() - 1), (int)0)));
++        this.addEffect(new net.minecraft.world.effect.MobEffectInstance(net.minecraft.world.effect.MobEffects.DAMAGE_BOOST, $$1, java.lang.Math.min((int)(this.level.getDifficulty().getId() - 1), (int)0)));
+         this.level.broadcastEntityEvent((net.minecraft.world.entity.Entity)this, (byte)16);
+     }
+ 
+-    public void handleEntityEvent(byte id) {
+-        if (id == 16) {
++    public void handleEntityEvent(byte $$0) {
++        if ($$0 == 16) {
+             if (!this.isSilent()) {
+                 this.level.playLocalSound(this.getX(), this.getEyeY(), this.getZ(), net.minecraft.sounds.SoundEvents.ZOMBIE_VILLAGER_CURE, this.getSoundSource(), 1.0f + this.random.nextFloat(), this.random.nextFloat() * 0.7f + 0.3f, false);
+             }
+             return;
+         }
+-        super.handleEntityEvent(id);
++        super.handleEntityEvent($$0);
+     }
+ 
+-    public void finishConversion(net.minecraft.server.level.ServerLevel serverLevel) {
+-        net.minecraft.world.entity.npc.Villager villager = (net.minecraft.world.entity.npc.Villager)this.convertTo(net.minecraft.world.entity.EntityType.VILLAGER, false);
+-        net.minecraft.world.entity.player.Player player = net.minecraft.world.entity.EquipmentSlot.values();
+-        int n = ((net.minecraft.world.entity.EquipmentSlot[])player).length;
+-        for (int i = 0; i < n; ++i) {
+-            net.minecraft.world.entity.EquipmentSlot equipmentSlot = player[i];
+-            net.minecraft.world.item.ItemStack itemStack = this.getItemBySlot(equipmentSlot);
+-            if (itemStack.isEmpty()) continue;
+-            if (net.minecraft.world.item.enchantment.EnchantmentHelper.hasBindingCurse((net.minecraft.world.item.ItemStack)itemStack)) {
+-                villager.getSlot(equipmentSlot.getIndex() + 300).set(itemStack);
++    public void finishConversion(net.minecraft.server.level.ServerLevel $$0) {
++        net.minecraft.world.entity.player.Player $$5;
++        net.minecraft.world.entity.npc.Villager $$1 = (net.minecraft.world.entity.npc.Villager)this.convertTo(net.minecraft.world.entity.EntityType.VILLAGER, false);
++        for (net.minecraft.world.entity.EquipmentSlot $$2 : net.minecraft.world.entity.EquipmentSlot.values()) {
++            net.minecraft.world.item.ItemStack $$3 = this.getItemBySlot($$2);
++            if ($$3.isEmpty()) continue;
++            if (net.minecraft.world.item.enchantment.EnchantmentHelper.hasBindingCurse((net.minecraft.world.item.ItemStack)$$3)) {
++                $$1.getSlot($$2.getIndex() + 300).set($$3);
+                 continue;
+             }
+-            double d = this.getEquipmentDropChance(equipmentSlot);
+-            if (!(d > 1.0)) continue;
+-            this.spawnAtLocation(itemStack);
++            double $$4 = this.getEquipmentDropChance($$2);
++            if (!($$4 > 1.0)) continue;
++            this.spawnAtLocation($$3);
+         }
+-        villager.setVillagerData(this.getVillagerData());
++        $$1.setVillagerData(this.getVillagerData());
+         if (this.gossips != null) {
+-            villager.setGossips(this.gossips);
++            $$1.setGossips(this.gossips);
+         }
+         if (this.tradeOffers != null) {
+-            villager.setOffers(new net.minecraft.world.item.trading.MerchantOffers(this.tradeOffers));
++            $$1.setOffers(new net.minecraft.world.item.trading.MerchantOffers(this.tradeOffers));
+         }
+-        villager.setVillagerXp(this.villagerXp);
+-        villager.finalizeSpawn((net.minecraft.world.level.ServerLevelAccessor)serverLevel, serverLevel.getCurrentDifficultyAt(villager.blockPosition()), net.minecraft.world.entity.MobSpawnType.CONVERSION, null, null);
+-        villager.refreshBrain(serverLevel);
+-        if (this.conversionStarter != null && (player = serverLevel.getPlayerByUUID(this.conversionStarter)) instanceof net.minecraft.server.level.ServerPlayer) {
+-            net.minecraft.advancements.CriteriaTriggers.CURED_ZOMBIE_VILLAGER.trigger((net.minecraft.server.level.ServerPlayer)player, (net.minecraft.world.entity.monster.Zombie)this, villager);
+-            serverLevel.onReputationEvent(net.minecraft.world.entity.ai.village.ReputationEventType.ZOMBIE_VILLAGER_CURED, (net.minecraft.world.entity.Entity)player, (net.minecraft.world.entity.ReputationEventHandler)villager);
++        $$1.setVillagerXp(this.villagerXp);
++        $$1.finalizeSpawn((net.minecraft.world.level.ServerLevelAccessor)$$0, $$0.getCurrentDifficultyAt($$1.blockPosition()), net.minecraft.world.entity.MobSpawnType.CONVERSION, null, null);
++        $$1.refreshBrain($$0);
++        if (this.conversionStarter != null && ($$5 = $$0.getPlayerByUUID(this.conversionStarter)) instanceof net.minecraft.server.level.ServerPlayer) {
++            net.minecraft.advancements.CriteriaTriggers.CURED_ZOMBIE_VILLAGER.trigger((net.minecraft.server.level.ServerPlayer)$$5, (net.minecraft.world.entity.monster.Zombie)this, $$1);
++            $$0.onReputationEvent(net.minecraft.world.entity.ai.village.ReputationEventType.ZOMBIE_VILLAGER_CURED, (net.minecraft.world.entity.Entity)$$5, (net.minecraft.world.entity.ReputationEventHandler)$$1);
+         }
+-        villager.addEffect(new net.minecraft.world.effect.MobEffectInstance(net.minecraft.world.effect.MobEffects.CONFUSION, 200, 0));
++        $$1.addEffect(new net.minecraft.world.effect.MobEffectInstance(net.minecraft.world.effect.MobEffects.CONFUSION, 200, 0));
+         if (!this.isSilent()) {
+-            serverLevel.levelEvent(null, 1027, this.blockPosition(), 0);
++            $$0.levelEvent(null, 1027, this.blockPosition(), 0);
+         }
+     }
+ 
+@@ -197,7 +195,7 @@
+         return net.minecraft.sounds.SoundEvents.ZOMBIE_VILLAGER_AMBIENT;
+     }
+ 
+-    public net.minecraft.sounds.SoundEvent getHurtSound(net.minecraft.world.damagesource.DamageSource damageSource) {
++    public net.minecraft.sounds.SoundEvent getHurtSound(net.minecraft.world.damagesource.DamageSource $$0) {
+         return net.minecraft.sounds.SoundEvents.ZOMBIE_VILLAGER_HURT;
+     }
+ 
+@@ -213,26 +211,26 @@
+         return net.minecraft.world.item.ItemStack.EMPTY;
+     }
+ 
+-    public void setTradeOffers(net.minecraft.nbt.CompoundTag tradeOffers) {
+-        this.tradeOffers = tradeOffers;
++    public void setTradeOffers(net.minecraft.nbt.CompoundTag $$0) {
++        this.tradeOffers = $$0;
+     }
+ 
+-    public void setGossips(net.minecraft.nbt.Tag gossips) {
+-        this.gossips = gossips;
++    public void setGossips(net.minecraft.nbt.Tag $$0) {
++        this.gossips = $$0;
+     }
+ 
+     @javax.annotation.Nullable
+-    public net.minecraft.world.entity.SpawnGroupData finalizeSpawn(net.minecraft.world.level.ServerLevelAccessor level, net.minecraft.world.DifficultyInstance difficulty, net.minecraft.world.entity.MobSpawnType reason, @javax.annotation.Nullable net.minecraft.world.entity.SpawnGroupData spawnData, @javax.annotation.Nullable net.minecraft.nbt.CompoundTag dataTag) {
+-        this.setVillagerData(this.getVillagerData().setType(net.minecraft.world.entity.npc.VillagerType.byBiome((net.minecraft.core.Holder)level.getBiome(this.blockPosition()))));
+-        return super.finalizeSpawn(level, difficulty, reason, spawnData, dataTag);
++    public net.minecraft.world.entity.SpawnGroupData finalizeSpawn(net.minecraft.world.level.ServerLevelAccessor $$0, net.minecraft.world.DifficultyInstance $$1, net.minecraft.world.entity.MobSpawnType $$2, @javax.annotation.Nullable net.minecraft.world.entity.SpawnGroupData $$3, @javax.annotation.Nullable net.minecraft.nbt.CompoundTag $$4) {
++        this.setVillagerData(this.getVillagerData().setType(net.minecraft.world.entity.npc.VillagerType.byBiome((net.minecraft.core.Holder)$$0.getBiome(this.blockPosition()))));
++        return super.finalizeSpawn($$0, $$1, $$2, $$3, $$4);
+     }
+ 
+-    public void setVillagerData(net.minecraft.world.entity.npc.VillagerData villagerData) {
+-        net.minecraft.world.entity.npc.VillagerData villagerData2 = this.getVillagerData();
+-        if (villagerData2.getProfession() != villagerData.getProfession()) {
++    public void setVillagerData(net.minecraft.world.entity.npc.VillagerData $$0) {
++        net.minecraft.world.entity.npc.VillagerData $$1 = this.getVillagerData();
++        if ($$1.getProfession() != $$0.getProfession()) {
+             this.tradeOffers = null;
+         }
+-        this.entityData.set(DATA_VILLAGER_DATA, (java.lang.Object)villagerData);
++        this.entityData.set(DATA_VILLAGER_DATA, (java.lang.Object)$$0);
+     }
+ 
+     public net.minecraft.world.entity.npc.VillagerData getVillagerData() {
+@@ -243,8 +241,8 @@
+         return this.villagerXp;
+     }
+ 
+-    public void setVillagerXp(int villagerXp) {
+-        this.villagerXp = villagerXp;
++    public void setVillagerXp(int $$0) {
++        this.villagerXp = $$0;
+     }
+ 
+     static {

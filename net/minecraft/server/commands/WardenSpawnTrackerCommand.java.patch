@@ -1,0 +1,32 @@
+--- net/minecraft/server/commands/WardenSpawnTrackerCommand.java
++++ net/minecraft/server/commands/WardenSpawnTrackerCommand.java
+@@ -12,21 +12,21 @@
+         $$02.register((com.mojang.brigadier.builder.LiteralArgumentBuilder)((com.mojang.brigadier.builder.LiteralArgumentBuilder)((com.mojang.brigadier.builder.LiteralArgumentBuilder)net.minecraft.commands.Commands.literal((java.lang.String)"warden_spawn_tracker").requires($$0 -> $$0.hasPermission(2))).then(net.minecraft.commands.Commands.literal((java.lang.String)"clear").executes($$0 -> net.minecraft.server.commands.WardenSpawnTrackerCommand.resetTracker((net.minecraft.commands.CommandSourceStack)((net.minecraft.commands.CommandSourceStack)$$0.getSource()), (java.util.Collection)com.google.common.collect.ImmutableList.of((java.lang.Object)((net.minecraft.commands.CommandSourceStack)$$0.getSource()).getPlayerOrException()))))).then(net.minecraft.commands.Commands.literal((java.lang.String)"set").then(net.minecraft.commands.Commands.argument((java.lang.String)"warning_level", (com.mojang.brigadier.arguments.ArgumentType)com.mojang.brigadier.arguments.IntegerArgumentType.integer((int)0, (int)4)).executes($$0 -> net.minecraft.server.commands.WardenSpawnTrackerCommand.setWarningLevel((net.minecraft.commands.CommandSourceStack)((net.minecraft.commands.CommandSourceStack)$$0.getSource()), (java.util.Collection)com.google.common.collect.ImmutableList.of((java.lang.Object)((net.minecraft.commands.CommandSourceStack)$$0.getSource()).getPlayerOrException()), (int)com.mojang.brigadier.arguments.IntegerArgumentType.getInteger((com.mojang.brigadier.context.CommandContext)$$0, (java.lang.String)"warning_level"))))));
+     }
+ 
+-    public static int setWarningLevel(net.minecraft.commands.CommandSourceStack $$0, java.util.Collection<? extends net.minecraft.world.entity.player.Player> $$1, int $$2) {
+-        for (net.minecraft.world.entity.player.Player $$3 : $$1) {
+-            $$3.getWardenSpawnTracker().setWarningLevel($$2);
++    public static int setWarningLevel(net.minecraft.commands.CommandSourceStack $$0, java.util.Collection<? extends net.minecraft.world.entity.player.Player> $$12, int $$2) {
++        for (net.minecraft.world.entity.player.Player $$3 : $$12) {
++            $$3.getWardenSpawnTracker().ifPresent($$1 -> $$1.setWarningLevel($$2));
+         }
+-        if ($$1.size() == 1) {
+-            $$0.sendSuccess((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"commands.warden_spawn_tracker.set.success.single", (java.lang.Object[])new java.lang.Object[]{((net.minecraft.world.entity.player.Player)$$1.iterator().next()).getDisplayName()}), true);
++        if ($$12.size() == 1) {
++            $$0.sendSuccess((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"commands.warden_spawn_tracker.set.success.single", (java.lang.Object[])new java.lang.Object[]{((net.minecraft.world.entity.player.Player)$$12.iterator().next()).getDisplayName()}), true);
+         } else {
+-            $$0.sendSuccess((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"commands.warden_spawn_tracker.set.success.multiple", (java.lang.Object[])new java.lang.Object[]{$$1.size()}), true);
++            $$0.sendSuccess((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"commands.warden_spawn_tracker.set.success.multiple", (java.lang.Object[])new java.lang.Object[]{$$12.size()}), true);
+         }
+-        return $$1.size();
++        return $$12.size();
+     }
+ 
+     public static int resetTracker(net.minecraft.commands.CommandSourceStack $$0, java.util.Collection<? extends net.minecraft.world.entity.player.Player> $$1) {
+         for (net.minecraft.world.entity.player.Player $$2 : $$1) {
+-            $$2.getWardenSpawnTracker().reset();
++            $$2.getWardenSpawnTracker().ifPresent(net.minecraft.world.entity.monster.warden.WardenSpawnTracker::reset);
+         }
+         if ($$1.size() == 1) {
+             $$0.sendSuccess((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"commands.warden_spawn_tracker.clear.success.single", (java.lang.Object[])new java.lang.Object[]{((net.minecraft.world.entity.player.Player)$$1.iterator().next()).getDisplayName()}), true);

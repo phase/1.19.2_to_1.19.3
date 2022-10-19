@@ -1,0 +1,112 @@
+--- net/minecraft/data/recipes/SimpleCookingRecipeBuilder.java
++++ net/minecraft/data/recipes/SimpleCookingRecipeBuilder.java
+@@ -6,6 +6,8 @@
+ public class net.minecraft.data.recipes.SimpleCookingRecipeBuilder
+ implements net.minecraft.data.recipes.RecipeBuilder
+  {
++    public net.minecraft.data.recipes.RecipeCategory category;
++    public net.minecraft.world.item.crafting.CookingBookCategory bookCategory;
+     public net.minecraft.world.item.Item result;
+     public net.minecraft.world.item.crafting.Ingredient ingredient;
+     public float experience;
+@@ -13,35 +15,37 @@
+     public net.minecraft.advancements.Advancement$Builder advancement;
+     @javax.annotation.Nullable
+     public java.lang.String group;
+-    public net.minecraft.world.item.crafting.SimpleCookingSerializer<?> serializer;
++    public net.minecraft.world.item.crafting.RecipeSerializer<? extends net.minecraft.world.item.crafting.AbstractCookingRecipe> serializer;
+ 
+-    public net.minecraft.data.recipes.SimpleCookingRecipeBuilder(net.minecraft.world.level.ItemLike result, net.minecraft.world.item.crafting.Ingredient ingredient, float experience, int cookingTime, net.minecraft.world.item.crafting.SimpleCookingSerializer<?> serializer) {
++    public net.minecraft.data.recipes.SimpleCookingRecipeBuilder(net.minecraft.data.recipes.RecipeCategory $$0, net.minecraft.world.item.crafting.CookingBookCategory $$1, net.minecraft.world.level.ItemLike $$2, net.minecraft.world.item.crafting.Ingredient $$3, float $$4, int $$5, net.minecraft.world.item.crafting.RecipeSerializer<? extends net.minecraft.world.item.crafting.AbstractCookingRecipe> $$6) {
+         this.advancement = net.minecraft.advancements.Advancement$Builder.advancement();
+-        this.result = result.asItem();
+-        this.ingredient = ingredient;
+-        this.experience = experience;
+-        this.cookingTime = cookingTime;
+-        this.serializer = serializer;
++        this.category = $$0;
++        this.bookCategory = $$1;
++        this.result = $$2.asItem();
++        this.ingredient = $$3;
++        this.experience = $$4;
++        this.cookingTime = $$5;
++        this.serializer = $$6;
+     }
+ 
+-    public static net.minecraft.data.recipes.SimpleCookingRecipeBuilder cooking(net.minecraft.world.item.crafting.Ingredient ingredient, net.minecraft.world.level.ItemLike result, float experience, int cookingTime, net.minecraft.world.item.crafting.SimpleCookingSerializer<?> serializer) {
+-        return new net.minecraft.data.recipes.SimpleCookingRecipeBuilder(result, ingredient, experience, cookingTime, serializer);
++    public static net.minecraft.data.recipes.SimpleCookingRecipeBuilder generic(net.minecraft.world.item.crafting.Ingredient $$0, net.minecraft.data.recipes.RecipeCategory $$1, net.minecraft.world.level.ItemLike $$2, float $$3, int $$4, net.minecraft.world.item.crafting.RecipeSerializer<? extends net.minecraft.world.item.crafting.AbstractCookingRecipe> $$5) {
++        return new net.minecraft.data.recipes.SimpleCookingRecipeBuilder($$1, net.minecraft.data.recipes.SimpleCookingRecipeBuilder.determineRecipeCategory($$5, (net.minecraft.world.level.ItemLike)$$2), $$2, $$0, $$3, $$4, $$5);
+     }
+ 
+-    public static net.minecraft.data.recipes.SimpleCookingRecipeBuilder campfireCooking(net.minecraft.world.item.crafting.Ingredient $$0, net.minecraft.world.level.ItemLike $$1, float $$2, int $$3) {
+-        return net.minecraft.data.recipes.SimpleCookingRecipeBuilder.cooking((net.minecraft.world.item.crafting.Ingredient)$$0, (net.minecraft.world.level.ItemLike)$$1, (float)$$2, (int)$$3, (net.minecraft.world.item.crafting.SimpleCookingSerializer)net.minecraft.world.item.crafting.RecipeSerializer.CAMPFIRE_COOKING_RECIPE);
++    public static net.minecraft.data.recipes.SimpleCookingRecipeBuilder campfireCooking(net.minecraft.world.item.crafting.Ingredient $$0, net.minecraft.data.recipes.RecipeCategory $$1, net.minecraft.world.level.ItemLike $$2, float $$3, int $$4) {
++        return new net.minecraft.data.recipes.SimpleCookingRecipeBuilder($$1, net.minecraft.world.item.crafting.CookingBookCategory.FOOD, $$2, $$0, $$3, $$4, net.minecraft.world.item.crafting.RecipeSerializer.CAMPFIRE_COOKING_RECIPE);
+     }
+ 
+-    public static net.minecraft.data.recipes.SimpleCookingRecipeBuilder blasting(net.minecraft.world.item.crafting.Ingredient ingredient, net.minecraft.world.level.ItemLike result, float experience, int cookingTime) {
+-        return net.minecraft.data.recipes.SimpleCookingRecipeBuilder.cooking((net.minecraft.world.item.crafting.Ingredient)ingredient, (net.minecraft.world.level.ItemLike)result, (float)experience, (int)cookingTime, (net.minecraft.world.item.crafting.SimpleCookingSerializer)net.minecraft.world.item.crafting.RecipeSerializer.BLASTING_RECIPE);
++    public static net.minecraft.data.recipes.SimpleCookingRecipeBuilder blasting(net.minecraft.world.item.crafting.Ingredient $$0, net.minecraft.data.recipes.RecipeCategory $$1, net.minecraft.world.level.ItemLike $$2, float $$3, int $$4) {
++        return new net.minecraft.data.recipes.SimpleCookingRecipeBuilder($$1, net.minecraft.data.recipes.SimpleCookingRecipeBuilder.determineBlastingRecipeCategory((net.minecraft.world.level.ItemLike)$$2), $$2, $$0, $$3, $$4, net.minecraft.world.item.crafting.RecipeSerializer.BLASTING_RECIPE);
+     }
+ 
+-    public static net.minecraft.data.recipes.SimpleCookingRecipeBuilder smelting(net.minecraft.world.item.crafting.Ingredient ingredient, net.minecraft.world.level.ItemLike result, float experience, int cookingTime) {
+-        return net.minecraft.data.recipes.SimpleCookingRecipeBuilder.cooking((net.minecraft.world.item.crafting.Ingredient)ingredient, (net.minecraft.world.level.ItemLike)result, (float)experience, (int)cookingTime, (net.minecraft.world.item.crafting.SimpleCookingSerializer)net.minecraft.world.item.crafting.RecipeSerializer.SMELTING_RECIPE);
++    public static net.minecraft.data.recipes.SimpleCookingRecipeBuilder smelting(net.minecraft.world.item.crafting.Ingredient $$0, net.minecraft.data.recipes.RecipeCategory $$1, net.minecraft.world.level.ItemLike $$2, float $$3, int $$4) {
++        return new net.minecraft.data.recipes.SimpleCookingRecipeBuilder($$1, net.minecraft.data.recipes.SimpleCookingRecipeBuilder.determineSmeltingRecipeCategory((net.minecraft.world.level.ItemLike)$$2), $$2, $$0, $$3, $$4, net.minecraft.world.item.crafting.RecipeSerializer.SMELTING_RECIPE);
+     }
+ 
+-    public static net.minecraft.data.recipes.SimpleCookingRecipeBuilder smoking(net.minecraft.world.item.crafting.Ingredient $$0, net.minecraft.world.level.ItemLike $$1, float $$2, int $$3) {
+-        return net.minecraft.data.recipes.SimpleCookingRecipeBuilder.cooking((net.minecraft.world.item.crafting.Ingredient)$$0, (net.minecraft.world.level.ItemLike)$$1, (float)$$2, (int)$$3, (net.minecraft.world.item.crafting.SimpleCookingSerializer)net.minecraft.world.item.crafting.RecipeSerializer.SMOKING_RECIPE);
++    public static net.minecraft.data.recipes.SimpleCookingRecipeBuilder smoking(net.minecraft.world.item.crafting.Ingredient $$0, net.minecraft.data.recipes.RecipeCategory $$1, net.minecraft.world.level.ItemLike $$2, float $$3, int $$4) {
++        return new net.minecraft.data.recipes.SimpleCookingRecipeBuilder($$1, net.minecraft.world.item.crafting.CookingBookCategory.FOOD, $$2, $$0, $$3, $$4, net.minecraft.world.item.crafting.RecipeSerializer.SMOKING_RECIPE);
+     }
+ 
+     public net.minecraft.data.recipes.SimpleCookingRecipeBuilder unlockedBy(java.lang.String $$0, net.minecraft.advancements.CriterionTriggerInstance $$1) {
+@@ -61,12 +65,42 @@
+     public void save(java.util.function.Consumer<net.minecraft.data.recipes.FinishedRecipe> $$0, net.minecraft.resources.ResourceLocation $$1) {
+         this.ensureValid($$1);
+         this.advancement.parent(ROOT_RECIPE_ADVANCEMENT).addCriterion("has_the_recipe", (net.minecraft.advancements.CriterionTriggerInstance)net.minecraft.advancements.critereon.RecipeUnlockedTrigger.unlocked((net.minecraft.resources.ResourceLocation)$$1)).rewards(net.minecraft.advancements.AdvancementRewards$Builder.recipe((net.minecraft.resources.ResourceLocation)$$1)).requirements(net.minecraft.advancements.RequirementsStrategy.OR);
+-        $$0.accept((java.lang.Object)new net.minecraft.data.recipes.SimpleCookingRecipeBuilder$Result($$1, this.group == null ? "" : this.group, this.ingredient, this.result, this.experience, this.cookingTime, this.advancement, new net.minecraft.resources.ResourceLocation($$1.getNamespace(), "recipes/" + this.result.getItemCategory().getRecipeFolderName() + "/" + $$1.getPath()), (net.minecraft.world.item.crafting.RecipeSerializer)this.serializer));
++        $$0.accept((java.lang.Object)new net.minecraft.data.recipes.SimpleCookingRecipeBuilder$Result($$1, this.group == null ? "" : this.group, this.bookCategory, this.ingredient, this.result, this.experience, this.cookingTime, this.advancement, $$1.withPrefix("recipes/" + this.category.getFolderName() + "/"), this.serializer));
+     }
+ 
+-    public void ensureValid(net.minecraft.resources.ResourceLocation id) {
++    public static net.minecraft.world.item.crafting.CookingBookCategory determineSmeltingRecipeCategory(net.minecraft.world.level.ItemLike $$0) {
++        if ($$0.asItem().isEdible()) {
++            return net.minecraft.world.item.crafting.CookingBookCategory.FOOD;
++        }
++        if ($$0.asItem() instanceof net.minecraft.world.item.BlockItem) {
++            return net.minecraft.world.item.crafting.CookingBookCategory.BLOCKS;
++        }
++        return net.minecraft.world.item.crafting.CookingBookCategory.MISC;
++    }
++
++    public static net.minecraft.world.item.crafting.CookingBookCategory determineBlastingRecipeCategory(net.minecraft.world.level.ItemLike $$0) {
++        if ($$0.asItem() instanceof net.minecraft.world.item.BlockItem) {
++            return net.minecraft.world.item.crafting.CookingBookCategory.BLOCKS;
++        }
++        return net.minecraft.world.item.crafting.CookingBookCategory.MISC;
++    }
++
++    public static net.minecraft.world.item.crafting.CookingBookCategory determineRecipeCategory(net.minecraft.world.item.crafting.RecipeSerializer<? extends net.minecraft.world.item.crafting.AbstractCookingRecipe> $$0, net.minecraft.world.level.ItemLike $$1) {
++        if ($$0 == net.minecraft.world.item.crafting.RecipeSerializer.SMELTING_RECIPE) {
++            return net.minecraft.data.recipes.SimpleCookingRecipeBuilder.determineSmeltingRecipeCategory((net.minecraft.world.level.ItemLike)$$1);
++        }
++        if ($$0 == net.minecraft.world.item.crafting.RecipeSerializer.BLASTING_RECIPE) {
++            return net.minecraft.data.recipes.SimpleCookingRecipeBuilder.determineBlastingRecipeCategory((net.minecraft.world.level.ItemLike)$$1);
++        }
++        if ($$0 == net.minecraft.world.item.crafting.RecipeSerializer.SMOKING_RECIPE || $$0 == net.minecraft.world.item.crafting.RecipeSerializer.CAMPFIRE_COOKING_RECIPE) {
++            return net.minecraft.world.item.crafting.CookingBookCategory.FOOD;
++        }
++        throw new java.lang.IllegalStateException("Unknown cooking recipe type");
++    }
++
++    public void ensureValid(net.minecraft.resources.ResourceLocation $$0) {
+         if (this.advancement.getCriteria().isEmpty()) {
+-            throw new java.lang.IllegalStateException("No way of obtaining recipe " + id);
++            throw new java.lang.IllegalStateException("No way of obtaining recipe " + $$0);
+         }
+     }
+ 

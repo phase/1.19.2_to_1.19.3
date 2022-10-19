@@ -1,0 +1,682 @@
+--- net/minecraft/server/players/PlayerList.java
++++ net/minecraft/server/players/PlayerList.java
+@@ -24,7 +24,7 @@
+     public java.util.Map<java.util.UUID, net.minecraft.server.PlayerAdvancements> advancements;
+     public net.minecraft.world.level.storage.PlayerDataStorage playerIo;
+     public boolean doWhiteList;
+-    public net.minecraft.core.RegistryAccess$Frozen registryHolder;
++    public net.minecraft.core.LayeredRegistryAccess<net.minecraft.server.RegistryLayer> registries;
+     public int maxPlayers;
+     public int viewDistance;
+     public int simulationDistance;
+@@ -32,7 +32,7 @@
+     public static boolean ALLOW_LOGOUTIVATOR = false;
+     public int sendAllPlayerInfoIn;
+ 
+-    public net.minecraft.server.players.PlayerList(net.minecraft.server.MinecraftServer $$0, net.minecraft.core.RegistryAccess$Frozen $$1, net.minecraft.world.level.storage.PlayerDataStorage $$2, int $$3) {
++    public net.minecraft.server.players.PlayerList(net.minecraft.server.MinecraftServer $$0, net.minecraft.core.LayeredRegistryAccess<net.minecraft.server.RegistryLayer> $$1, net.minecraft.world.level.storage.PlayerDataStorage $$2, int $$3) {
+         this.players = com.google.common.collect.Lists.newArrayList();
+         this.playersByUUID = com.google.common.collect.Maps.newHashMap();
+         this.bans = new net.minecraft.server.players.UserBanList(USERBANLIST_FILE);
+@@ -42,112 +42,119 @@
+         this.stats = com.google.common.collect.Maps.newHashMap();
+         this.advancements = com.google.common.collect.Maps.newHashMap();
+         this.server = $$0;
+-        this.registryHolder = $$1;
++        this.registries = $$1;
+         this.maxPlayers = $$3;
+         this.playerIo = $$2;
+     }
+ 
+-    public void placeNewPlayer(net.minecraft.network.Connection netManager, net.minecraft.server.level.ServerPlayer player) {
+-        net.minecraft.world.effect.MobEffectInstance mobEffectInstance;
+-        net.minecraft.server.level.ServerLevel serverLevel;
+-        com.mojang.authlib.GameProfile gameProfile = player.getGameProfile();
+-        net.minecraft.server.players.GameProfileCache gameProfileCache = this.server.getProfileCache();
+-        java.util.Optional optional = gameProfileCache.get(gameProfile.getId());
+-        java.lang.String string = (java.lang.String)optional.map(com.mojang.authlib.GameProfile::getName).orElse((java.lang.Object)gameProfile.getName());
+-        gameProfileCache.add(gameProfile);
+-        net.minecraft.nbt.CompoundTag compoundTag = this.load(player);
+-        net.minecraft.resources.ResourceKey resourceKey = compoundTag != null ? (net.minecraft.resources.ResourceKey)net.minecraft.world.level.dimension.DimensionType.parseLegacy((com.mojang.serialization.Dynamic)new com.mojang.serialization.Dynamic((com.mojang.serialization.DynamicOps)net.minecraft.nbt.NbtOps.INSTANCE, (java.lang.Object)compoundTag.get("Dimension"))).resultOrPartial(arg_0 -> ((org.slf4j.Logger)LOGGER).error(arg_0)).orElse((java.lang.Object)net.minecraft.world.level.Level.OVERWORLD) : net.minecraft.world.level.Level.OVERWORLD;
+-        net.minecraft.server.level.ServerLevel serverLevel2 = this.server.getLevel(resourceKey);
+-        if (serverLevel2 == null) {
+-            LOGGER.warn("Unknown respawn dimension {}, defaulting to overworld", (java.lang.Object)resourceKey);
+-            serverLevel = this.server.overworld();
++    public void placeNewPlayer(net.minecraft.network.Connection $$0, net.minecraft.server.level.ServerPlayer $$12) {
++        net.minecraft.nbt.CompoundTag $$20;
++        net.minecraft.world.entity.Entity $$21;
++        net.minecraft.network.chat.MutableComponent $$18;
++        net.minecraft.server.level.ServerLevel $$10;
++        com.mojang.authlib.GameProfile $$2 = $$12.getGameProfile();
++        net.minecraft.server.players.GameProfileCache $$3 = this.server.getProfileCache();
++        java.util.Optional $$4 = $$3.get($$2.getId());
++        java.lang.String $$5 = (java.lang.String)$$4.map(com.mojang.authlib.GameProfile::getName).orElse((java.lang.Object)$$2.getName());
++        $$3.add($$2);
++        net.minecraft.nbt.CompoundTag $$6 = this.load($$12);
++        net.minecraft.resources.ResourceKey $$7 = $$6 != null ? (net.minecraft.resources.ResourceKey)net.minecraft.world.level.dimension.DimensionType.parseLegacy((com.mojang.serialization.Dynamic)new com.mojang.serialization.Dynamic((com.mojang.serialization.DynamicOps)net.minecraft.nbt.NbtOps.INSTANCE, (java.lang.Object)$$6.get("Dimension"))).resultOrPartial(arg_0 -> ((org.slf4j.Logger)LOGGER).error(arg_0)).orElse((java.lang.Object)net.minecraft.world.level.Level.OVERWORLD) : net.minecraft.world.level.Level.OVERWORLD;
++        net.minecraft.server.level.ServerLevel $$8 = this.server.getLevel($$7);
++        if ($$8 == null) {
++            LOGGER.warn("Unknown respawn dimension {}, defaulting to overworld", (java.lang.Object)$$7);
++            net.minecraft.server.level.ServerLevel $$9 = this.server.overworld();
+         } else {
+-            serverLevel = serverLevel2;
++            $$10 = $$8;
+         }
+-        player.setLevel(serverLevel);
+-        java.lang.String string2 = "local";
+-        if (netManager.getRemoteAddress() != null) {
+-            string2 = netManager.getRemoteAddress().toString();
++        $$12.setLevel($$10);
++        java.lang.String $$11 = "local";
++        if ($$0.getRemoteAddress() != null) {
++            $$11 = $$0.getRemoteAddress().toString();
+         }
+-        LOGGER.info("{}[{}] logged in with entity id {} at ({}, {}, {})", new java.lang.Object[]{player.getName().getString(), string2, player.getId(), player.getX(), player.getY(), player.getZ()});
+-        net.minecraft.world.level.storage.LevelData levelData = serverLevel.getLevelData();
+-        player.loadGameTypes(compoundTag);
+-        net.minecraft.server.network.ServerGamePacketListenerImpl serverGamePacketListenerImpl = new net.minecraft.server.network.ServerGamePacketListenerImpl(this.server, netManager, player);
+-        net.minecraft.world.level.GameRules gameRules = serverLevel.getGameRules();
+-        boolean bl = gameRules.getBoolean(net.minecraft.world.level.GameRules.RULE_DO_IMMEDIATE_RESPAWN);
+-        boolean bl2 = gameRules.getBoolean(net.minecraft.world.level.GameRules.RULE_REDUCEDDEBUGINFO);
+-        serverGamePacketListenerImpl.send((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ClientboundLoginPacket(player.getId(), levelData.isHardcore(), player.gameMode.getGameModeForPlayer(), player.gameMode.getPreviousGameModeForPlayer(), this.server.levelKeys(), this.registryHolder, serverLevel.dimensionTypeId(), serverLevel.dimension(), net.minecraft.world.level.biome.BiomeManager.obfuscateSeed((long)serverLevel.getSeed()), this.getMaxPlayers(), this.viewDistance, this.simulationDistance, bl2, !bl, serverLevel.isDebug(), serverLevel.isFlat(), player.getLastDeathLocation()));
+-        serverGamePacketListenerImpl.send((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ClientboundCustomPayloadPacket(net.minecraft.network.protocol.game.ClientboundCustomPayloadPacket.BRAND, new net.minecraft.network.FriendlyByteBuf(io.netty.buffer.Unpooled.buffer()).writeUtf(this.getServer().getServerModName())));
+-        serverGamePacketListenerImpl.send((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ClientboundChangeDifficultyPacket(levelData.getDifficulty(), levelData.isDifficultyLocked()));
+-        serverGamePacketListenerImpl.send((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ClientboundPlayerAbilitiesPacket(player.getAbilities()));
+-        serverGamePacketListenerImpl.send((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ClientboundSetCarriedItemPacket(player.getInventory().selected));
+-        serverGamePacketListenerImpl.send((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ClientboundUpdateRecipesPacket(this.server.getRecipeManager().getRecipes()));
+-        serverGamePacketListenerImpl.send((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ClientboundUpdateTagsPacket(net.minecraft.tags.TagNetworkSerialization.serializeTagsToNetwork((net.minecraft.core.RegistryAccess)this.registryHolder)));
+-        this.sendPlayerPermissionLevel(player);
+-        player.getStats().markAllDirty();
+-        player.getRecipeBook().sendInitialRecipeBook(player);
+-        this.updateEntireScoreboard(serverLevel.getScoreboard(), player);
++        LOGGER.info("{}[{}] logged in with entity id {} at ({}, {}, {})", new java.lang.Object[]{$$12.getName().getString(), $$11, $$12.getId(), $$12.getX(), $$12.getY(), $$12.getZ()});
++        net.minecraft.world.level.storage.LevelData $$122 = $$10.getLevelData();
++        $$12.loadGameTypes($$6);
++        net.minecraft.server.network.ServerGamePacketListenerImpl $$13 = new net.minecraft.server.network.ServerGamePacketListenerImpl(this.server, $$0, $$12);
++        net.minecraft.world.level.GameRules $$14 = $$10.getGameRules();
++        boolean $$15 = $$14.getBoolean(net.minecraft.world.level.GameRules.RULE_DO_IMMEDIATE_RESPAWN);
++        boolean $$16 = $$14.getBoolean(net.minecraft.world.level.GameRules.RULE_REDUCEDDEBUGINFO);
++        $$13.send((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ClientboundLoginPacket($$12.getId(), $$122.isHardcore(), $$12.gameMode.getGameModeForPlayer(), $$12.gameMode.getPreviousGameModeForPlayer(), this.server.levelKeys(), this.registries.getAccessFrom((java.lang.Object)net.minecraft.server.RegistryLayer.WORLDGEN), $$10.dimensionTypeId(), $$10.dimension(), net.minecraft.world.level.biome.BiomeManager.obfuscateSeed((long)$$10.getSeed()), this.getMaxPlayers(), this.viewDistance, this.simulationDistance, $$16, !$$15, $$10.isDebug(), $$10.isFlat(), $$12.getLastDeathLocation()));
++        $$13.send((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ClientboundUpdateEnabledFeaturesPacket(net.minecraft.world.flag.FeatureFlags.REGISTRY.toNames($$10.enabledFeatures())));
++        $$13.send((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ClientboundCustomPayloadPacket(net.minecraft.network.protocol.game.ClientboundCustomPayloadPacket.BRAND, new net.minecraft.network.FriendlyByteBuf(io.netty.buffer.Unpooled.buffer()).writeUtf(this.getServer().getServerModName())));
++        $$13.send((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ClientboundChangeDifficultyPacket($$122.getDifficulty(), $$122.isDifficultyLocked()));
++        $$13.send((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ClientboundPlayerAbilitiesPacket($$12.getAbilities()));
++        $$13.send((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ClientboundSetCarriedItemPacket($$12.getInventory().selected));
++        $$13.send((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ClientboundUpdateRecipesPacket(this.server.getRecipeManager().getRecipes()));
++        $$13.send((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ClientboundUpdateTagsPacket(net.minecraft.tags.TagNetworkSerialization.serializeTagsToNetwork((net.minecraft.core.LayeredRegistryAccess)this.registries)));
++        this.sendPlayerPermissionLevel($$12);
++        $$12.getStats().markAllDirty();
++        $$12.getRecipeBook().sendInitialRecipeBook($$12);
++        this.updateEntireScoreboard($$10.getScoreboard(), $$12);
+         this.server.invalidateStatus();
+-        net.minecraft.network.chat.MutableComponent mutableComponent = player.getGameProfile().getName().equalsIgnoreCase(string) ? net.minecraft.network.chat.Component.translatable((java.lang.String)"multiplayer.player.joined", (java.lang.Object[])new java.lang.Object[]{player.getDisplayName()}) : net.minecraft.network.chat.Component.translatable((java.lang.String)"multiplayer.player.joined.renamed", (java.lang.Object[])new java.lang.Object[]{player.getDisplayName(), string});
+-        this.broadcastSystemMessage((net.minecraft.network.chat.Component)mutableComponent.withStyle(net.minecraft.ChatFormatting.YELLOW), false);
+-        serverGamePacketListenerImpl.teleport(player.getX(), player.getY(), player.getZ(), player.getYRot(), player.getXRot());
+-        this.players.add((java.lang.Object)player);
+-        this.playersByUUID.put((java.lang.Object)player.getUUID(), (java.lang.Object)player);
+-        this.broadcastAll((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ClientboundPlayerInfoPacket(net.minecraft.network.protocol.game.ClientboundPlayerInfoPacket$Action.ADD_PLAYER, new net.minecraft.server.level.ServerPlayer[]{player}));
+-        for (int i = 0; i < this.players.size(); ++i) {
+-            player.connection.send((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ClientboundPlayerInfoPacket(net.minecraft.network.protocol.game.ClientboundPlayerInfoPacket$Action.ADD_PLAYER, new net.minecraft.server.level.ServerPlayer[]{(net.minecraft.server.level.ServerPlayer)this.players.get(i)}));
++        if ($$12.getGameProfile().getName().equalsIgnoreCase($$5)) {
++            net.minecraft.network.chat.MutableComponent $$17 = net.minecraft.network.chat.Component.translatable((java.lang.String)"multiplayer.player.joined", (java.lang.Object[])new java.lang.Object[]{$$12.getDisplayName()});
++        } else {
++            $$18 = net.minecraft.network.chat.Component.translatable((java.lang.String)"multiplayer.player.joined.renamed", (java.lang.Object[])new java.lang.Object[]{$$12.getDisplayName(), $$5});
+         }
+-        serverLevel.addNewPlayer(player);
+-        this.server.getCustomBossEvents().onPlayerConnect(player);
+-        this.sendLevelInfo(player, serverLevel);
+-        this.server.getServerResourcePack().ifPresent($$1 -> player.sendTexturePack($$1.url(), $$1.hash(), $$1.isRequired(), $$1.prompt()));
+-        player.sendServerStatus(this.server.getStatus());
+-        java.util.Iterator iterator = player.getActiveEffects().iterator();
+-        while (iterator.hasNext()) {
+-            mobEffectInstance = (net.minecraft.world.effect.MobEffectInstance)iterator.next();
+-            serverGamePacketListenerImpl.send((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ClientboundUpdateMobEffectPacket(player.getId(), mobEffectInstance));
++        this.broadcastSystemMessage((net.minecraft.network.chat.Component)$$18.withStyle(net.minecraft.ChatFormatting.YELLOW), false);
++        $$13.teleport($$12.getX(), $$12.getY(), $$12.getZ(), $$12.getYRot(), $$12.getXRot());
++        $$12.sendServerStatus(this.server.getStatus());
++        $$12.connection.send((net.minecraft.network.protocol.Packet)net.minecraft.network.protocol.game.ClientboundPlayerInfoUpdatePacket.createPlayerInitializing((java.util.Collection)this.players));
++        this.players.add((java.lang.Object)$$12);
++        this.playersByUUID.put((java.lang.Object)$$12.getUUID(), (java.lang.Object)$$12);
++        this.broadcastAll((net.minecraft.network.protocol.Packet)net.minecraft.network.protocol.game.ClientboundPlayerInfoUpdatePacket.createPlayerInitializing((java.util.Collection)java.util.List.of((java.lang.Object)$$12)));
++        $$10.addNewPlayer($$12);
++        this.server.getCustomBossEvents().onPlayerConnect($$12);
++        this.sendLevelInfo($$12, $$10);
++        this.server.getServerResourcePack().ifPresent($$1 -> $$12.sendTexturePack($$1.url(), $$1.hash(), $$1.isRequired(), $$1.prompt()));
++        for (net.minecraft.world.effect.MobEffectInstance $$19 : $$12.getActiveEffects()) {
++            $$13.send((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ClientboundUpdateMobEffectPacket($$12.getId(), $$19));
+         }
+-        if (compoundTag != null && compoundTag.contains("RootVehicle", 10) && (mobEffectInstance = net.minecraft.world.entity.EntityType.loadEntityRecursive((net.minecraft.nbt.CompoundTag)(iterator = compoundTag.getCompound("RootVehicle")).getCompound("Entity"), (net.minecraft.world.level.Level)serverLevel, $$1 -> {
+-            if (!serverLevel.addWithUUID($$1)) {
++        if ($$6 != null && $$6.contains("RootVehicle", 10) && ($$21 = net.minecraft.world.entity.EntityType.loadEntityRecursive((net.minecraft.nbt.CompoundTag)($$20 = $$6.getCompound("RootVehicle")).getCompound("Entity"), (net.minecraft.world.level.Level)$$10, $$1 -> {
++            if (!$$10.addWithUUID($$1)) {
+                 return null;
+             }
+             return $$1;
+         })) != null) {
+-            java.util.UUID uUID = iterator.hasUUID("Attach") ? iterator.getUUID("Attach") : null;
+-            if (mobEffectInstance.getUUID().equals((java.lang.Object)uUID)) {
+-                player.startRiding((net.minecraft.world.entity.Entity)mobEffectInstance, true);
++            java.lang.Object $$23;
++            if ($$20.hasUUID("Attach")) {
++                java.util.UUID $$22 = $$20.getUUID("Attach");
+             } else {
+-                for (net.minecraft.world.entity.Entity entity : mobEffectInstance.getIndirectPassengers()) {
+-                    if (!entity.getUUID().equals((java.lang.Object)uUID)) continue;
+-                    player.startRiding(entity, true);
++                $$23 = null;
++            }
++            if ($$21.getUUID().equals($$23)) {
++                $$12.startRiding($$21, true);
++            } else {
++                for (net.minecraft.world.entity.Entity $$24 : $$21.getIndirectPassengers()) {
++                    if (!$$24.getUUID().equals($$23)) continue;
++                    $$12.startRiding($$24, true);
+                     break;
+                 }
+             }
+-            if (!player.isPassenger()) {
++            if (!$$12.isPassenger()) {
+                 LOGGER.warn("Couldn't reattach entity to player");
+-                mobEffectInstance.discard();
+-                for (net.minecraft.world.entity.Entity entity : mobEffectInstance.getIndirectPassengers()) {
+-                    entity.discard();
++                $$21.discard();
++                for (net.minecraft.world.entity.Entity $$25 : $$21.getIndirectPassengers()) {
++                    $$25.discard();
+                 }
+             }
+         }
+-        player.initInventoryMenu();
++        $$12.initInventoryMenu();
+     }
+ 
+-    public void updateEntireScoreboard(net.minecraft.server.ServerScoreboard scoreboard, net.minecraft.server.level.ServerPlayer player) {
+-        java.util.HashSet hashSet = com.google.common.collect.Sets.newHashSet();
+-        for (net.minecraft.world.scores.PlayerTeam playerTeam : scoreboard.getPlayerTeams()) {
+-            player.connection.send((net.minecraft.network.protocol.Packet)net.minecraft.network.protocol.game.ClientboundSetPlayerTeamPacket.createAddOrModifyPacket((net.minecraft.world.scores.PlayerTeam)playerTeam, (boolean)true));
++    public void updateEntireScoreboard(net.minecraft.server.ServerScoreboard $$0, net.minecraft.server.level.ServerPlayer $$1) {
++        java.util.HashSet $$2 = com.google.common.collect.Sets.newHashSet();
++        for (net.minecraft.world.scores.PlayerTeam $$3 : $$0.getPlayerTeams()) {
++            $$1.connection.send((net.minecraft.network.protocol.Packet)net.minecraft.network.protocol.game.ClientboundSetPlayerTeamPacket.createAddOrModifyPacket((net.minecraft.world.scores.PlayerTeam)$$3, (boolean)true));
+         }
+-        for (int i = 0; i < 19; ++i) {
+-            net.minecraft.world.scores.PlayerTeam playerTeam;
+-            playerTeam = scoreboard.getDisplayObjective(i);
+-            if (playerTeam == null || hashSet.contains((java.lang.Object)playerTeam)) continue;
+-            java.util.List list = scoreboard.getStartTrackingPackets((net.minecraft.world.scores.Objective)playerTeam);
+-            for (net.minecraft.network.protocol.Packet packet : list) {
+-                player.connection.send(packet);
++        for (int $$4 = 0; $$4 < 19; ++$$4) {
++            net.minecraft.world.scores.Objective $$5 = $$0.getDisplayObjective($$4);
++            if ($$5 == null || $$2.contains((java.lang.Object)$$5)) continue;
++            java.util.List $$6 = $$0.getStartTrackingPackets($$5);
++            for (net.minecraft.network.protocol.Packet $$7 : $$6) {
++                $$1.connection.send($$7);
+             }
+-            hashSet.add((java.lang.Object)playerTeam);
++            $$2.add((java.lang.Object)$$5);
+         }
+     }
+ 
+@@ -156,84 +163,84 @@
+     }
+ 
+     @javax.annotation.Nullable
+-    public net.minecraft.nbt.CompoundTag load(net.minecraft.server.level.ServerPlayer player) {
+-        net.minecraft.nbt.CompoundTag compoundTag;
+-        net.minecraft.nbt.CompoundTag compoundTag2 = this.server.getWorldData().getLoadedPlayerTag();
+-        if (this.server.isSingleplayerOwner(player.getGameProfile()) && compoundTag2 != null) {
+-            compoundTag = compoundTag2;
+-            player.load(compoundTag);
++    public net.minecraft.nbt.CompoundTag load(net.minecraft.server.level.ServerPlayer $$0) {
++        net.minecraft.nbt.CompoundTag $$3;
++        net.minecraft.nbt.CompoundTag $$1 = this.server.getWorldData().getLoadedPlayerTag();
++        if (this.server.isSingleplayerOwner($$0.getGameProfile()) && $$1 != null) {
++            net.minecraft.nbt.CompoundTag $$2 = $$1;
++            $$0.load($$2);
+             LOGGER.debug("loading single player");
+         } else {
+-            compoundTag = this.playerIo.load((net.minecraft.world.entity.player.Player)player);
++            $$3 = this.playerIo.load((net.minecraft.world.entity.player.Player)$$0);
+         }
+-        return compoundTag;
++        return $$3;
+     }
+ 
+-    public void save(net.minecraft.server.level.ServerPlayer player) {
+-        net.minecraft.server.PlayerAdvancements playerAdvancements;
+-        this.playerIo.save((net.minecraft.world.entity.player.Player)player);
+-        net.minecraft.stats.ServerStatsCounter serverStatsCounter = (net.minecraft.stats.ServerStatsCounter)this.stats.get((java.lang.Object)player.getUUID());
+-        if (serverStatsCounter != null) {
+-            serverStatsCounter.save();
++    public void save(net.minecraft.server.level.ServerPlayer $$0) {
++        net.minecraft.server.PlayerAdvancements $$2;
++        this.playerIo.save((net.minecraft.world.entity.player.Player)$$0);
++        net.minecraft.stats.ServerStatsCounter $$1 = (net.minecraft.stats.ServerStatsCounter)this.stats.get((java.lang.Object)$$0.getUUID());
++        if ($$1 != null) {
++            $$1.save();
+         }
+-        if ((playerAdvancements = (net.minecraft.server.PlayerAdvancements)this.advancements.get((java.lang.Object)player.getUUID())) != null) {
+-            playerAdvancements.save();
++        if (($$2 = (net.minecraft.server.PlayerAdvancements)this.advancements.get((java.lang.Object)$$0.getUUID())) != null) {
++            $$2.save();
+         }
+     }
+ 
+-    public void remove(net.minecraft.server.level.ServerPlayer player) {
+-        net.minecraft.world.entity.Entity entity;
+-        net.minecraft.server.level.ServerLevel serverLevel = player.getLevel();
+-        player.awardStat(net.minecraft.stats.Stats.LEAVE_GAME);
+-        this.save(player);
+-        if (player.isPassenger() && (entity = player.getRootVehicle()).hasExactlyOnePlayerPassenger()) {
++    public void remove(net.minecraft.server.level.ServerPlayer $$02) {
++        net.minecraft.world.entity.Entity $$2;
++        net.minecraft.server.level.ServerLevel $$1 = $$02.getLevel();
++        $$02.awardStat(net.minecraft.stats.Stats.LEAVE_GAME);
++        this.save($$02);
++        if ($$02.isPassenger() && ($$2 = $$02.getRootVehicle()).hasExactlyOnePlayerPassenger()) {
+             LOGGER.debug("Removing player mount");
+-            player.stopRiding();
+-            entity.getPassengersAndSelf().forEach($$0 -> $$0.setRemoved(net.minecraft.world.entity.Entity$RemovalReason.UNLOADED_WITH_PLAYER));
++            $$02.stopRiding();
++            $$2.getPassengersAndSelf().forEach($$0 -> $$0.setRemoved(net.minecraft.world.entity.Entity$RemovalReason.UNLOADED_WITH_PLAYER));
+         }
+-        player.unRide();
+-        serverLevel.removePlayerImmediately(player, net.minecraft.world.entity.Entity$RemovalReason.UNLOADED_WITH_PLAYER);
+-        player.getAdvancements().stopListening();
+-        this.players.remove((java.lang.Object)player);
+-        this.server.getCustomBossEvents().onPlayerDisconnect(player);
+-        entity = player.getUUID();
+-        net.minecraft.server.level.ServerPlayer serverPlayer = (net.minecraft.server.level.ServerPlayer)this.playersByUUID.get((java.lang.Object)entity);
+-        if (serverPlayer == player) {
+-            this.playersByUUID.remove((java.lang.Object)entity);
+-            this.stats.remove((java.lang.Object)entity);
+-            this.advancements.remove((java.lang.Object)entity);
++        $$02.unRide();
++        $$1.removePlayerImmediately($$02, net.minecraft.world.entity.Entity$RemovalReason.UNLOADED_WITH_PLAYER);
++        $$02.getAdvancements().stopListening();
++        this.players.remove((java.lang.Object)$$02);
++        this.server.getCustomBossEvents().onPlayerDisconnect($$02);
++        java.util.UUID $$3 = $$02.getUUID();
++        net.minecraft.server.level.ServerPlayer $$4 = (net.minecraft.server.level.ServerPlayer)this.playersByUUID.get((java.lang.Object)$$3);
++        if ($$4 == $$02) {
++            this.playersByUUID.remove((java.lang.Object)$$3);
++            this.stats.remove((java.lang.Object)$$3);
++            this.advancements.remove((java.lang.Object)$$3);
+         }
+-        this.broadcastAll((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ClientboundPlayerInfoPacket(net.minecraft.network.protocol.game.ClientboundPlayerInfoPacket$Action.REMOVE_PLAYER, new net.minecraft.server.level.ServerPlayer[]{player}));
++        this.broadcastAll((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ClientboundPlayerInfoRemovePacket(java.util.List.of((java.lang.Object)$$02.getUUID())));
+     }
+ 
+     @javax.annotation.Nullable
+-    public net.minecraft.network.chat.Component canPlayerLogin(java.net.SocketAddress address, com.mojang.authlib.GameProfile profile) {
+-        if (this.bans.isBanned(profile)) {
+-            net.minecraft.server.players.UserBanListEntry userBanListEntry = (net.minecraft.server.players.UserBanListEntry)this.bans.get((java.lang.Object)profile);
+-            net.minecraft.network.chat.MutableComponent mutableComponent = net.minecraft.network.chat.Component.translatable((java.lang.String)"multiplayer.disconnect.banned.reason", (java.lang.Object[])new java.lang.Object[]{userBanListEntry.getReason()});
+-            if (userBanListEntry.getExpires() != null) {
+-                mutableComponent.append((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"multiplayer.disconnect.banned.expiration", (java.lang.Object[])new java.lang.Object[]{BAN_DATE_FORMAT.format(userBanListEntry.getExpires())}));
++    public net.minecraft.network.chat.Component canPlayerLogin(java.net.SocketAddress $$0, com.mojang.authlib.GameProfile $$1) {
++        if (this.bans.isBanned($$1)) {
++            net.minecraft.server.players.UserBanListEntry $$2 = (net.minecraft.server.players.UserBanListEntry)this.bans.get((java.lang.Object)$$1);
++            net.minecraft.network.chat.MutableComponent $$3 = net.minecraft.network.chat.Component.translatable((java.lang.String)"multiplayer.disconnect.banned.reason", (java.lang.Object[])new java.lang.Object[]{$$2.getReason()});
++            if ($$2.getExpires() != null) {
++                $$3.append((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"multiplayer.disconnect.banned.expiration", (java.lang.Object[])new java.lang.Object[]{BAN_DATE_FORMAT.format($$2.getExpires())}));
+             }
+-            return mutableComponent;
++            return $$3;
+         }
+-        if (!this.isWhiteListed(profile)) {
++        if (!this.isWhiteListed($$1)) {
+             return net.minecraft.network.chat.Component.translatable((java.lang.String)"multiplayer.disconnect.not_whitelisted");
+         }
+-        if (this.ipBans.isBanned(address)) {
+-            net.minecraft.server.players.IpBanListEntry ipBanListEntry = this.ipBans.get(address);
+-            net.minecraft.network.chat.MutableComponent mutableComponent = net.minecraft.network.chat.Component.translatable((java.lang.String)"multiplayer.disconnect.banned_ip.reason", (java.lang.Object[])new java.lang.Object[]{ipBanListEntry.getReason()});
+-            if (ipBanListEntry.getExpires() != null) {
+-                mutableComponent.append((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"multiplayer.disconnect.banned_ip.expiration", (java.lang.Object[])new java.lang.Object[]{BAN_DATE_FORMAT.format(ipBanListEntry.getExpires())}));
++        if (this.ipBans.isBanned($$0)) {
++            net.minecraft.server.players.IpBanListEntry $$4 = this.ipBans.get($$0);
++            net.minecraft.network.chat.MutableComponent $$5 = net.minecraft.network.chat.Component.translatable((java.lang.String)"multiplayer.disconnect.banned_ip.reason", (java.lang.Object[])new java.lang.Object[]{$$4.getReason()});
++            if ($$4.getExpires() != null) {
++                $$5.append((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"multiplayer.disconnect.banned_ip.expiration", (java.lang.Object[])new java.lang.Object[]{BAN_DATE_FORMAT.format($$4.getExpires())}));
+             }
+-            return mutableComponent;
++            return $$5;
+         }
+-        if (this.players.size() >= this.maxPlayers && !this.canBypassPlayerLimit(profile)) {
++        if (this.players.size() >= this.maxPlayers && !this.canBypassPlayerLimit($$1)) {
+             return net.minecraft.network.chat.Component.translatable((java.lang.String)"multiplayer.disconnect.server_full");
+         }
+         return null;
+     }
+ 
+-    public net.minecraft.server.level.ServerPlayer getPlayerForLogin(com.mojang.authlib.GameProfile $$0, @javax.annotation.Nullable net.minecraft.world.entity.player.ProfilePublicKey $$1) {
++    public net.minecraft.server.level.ServerPlayer getPlayerForLogin(com.mojang.authlib.GameProfile $$0, net.minecraft.network.chat.RemoteChatSession $$1) {
+         java.util.UUID $$2 = net.minecraft.core.UUIDUtil.getOrCreatePlayerUUID((com.mojang.authlib.GameProfile)$$0);
+         java.util.ArrayList $$3 = com.google.common.collect.Lists.newArrayList();
+         for (int $$4 = 0; $$4 < this.players.size(); ++$$4) {
+@@ -265,7 +272,7 @@
+             $$7 = java.util.Optional.empty();
+         }
+         net.minecraft.server.level.ServerLevel $$8 = $$5 != null && $$7.isPresent() ? $$5 : this.server.overworld();
+-        net.minecraft.server.level.ServerPlayer $$9 = new net.minecraft.server.level.ServerPlayer(this.server, $$8, $$0.getGameProfile(), $$0.getProfilePublicKey());
++        net.minecraft.server.level.ServerPlayer $$9 = new net.minecraft.server.level.ServerPlayer(this.server, $$8, $$0.getGameProfile(), $$0.getChatSession());
+         $$9.connection = $$0.connection;
+         $$9.restoreFrom($$0, $$1);
+         $$9.setId($$0.getId());
+@@ -313,22 +320,22 @@
+         return $$9;
+     }
+ 
+-    public void sendPlayerPermissionLevel(net.minecraft.server.level.ServerPlayer player) {
+-        com.mojang.authlib.GameProfile gameProfile = player.getGameProfile();
+-        int n = this.server.getProfilePermissions(gameProfile);
+-        this.sendPlayerPermissionLevel(player, n);
++    public void sendPlayerPermissionLevel(net.minecraft.server.level.ServerPlayer $$0) {
++        com.mojang.authlib.GameProfile $$1 = $$0.getGameProfile();
++        int $$2 = this.server.getProfilePermissions($$1);
++        this.sendPlayerPermissionLevel($$0, $$2);
+     }
+ 
+     public void tick() {
+         if (++this.sendAllPlayerInfoIn > 600) {
+-            this.broadcastAll((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ClientboundPlayerInfoPacket(net.minecraft.network.protocol.game.ClientboundPlayerInfoPacket$Action.UPDATE_LATENCY, (java.util.Collection)this.players));
++            this.broadcastAll((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ClientboundPlayerInfoUpdatePacket(java.util.EnumSet.of((java.lang.Enum)net.minecraft.network.protocol.game.ClientboundPlayerInfoUpdatePacket$Action.UPDATE_LATENCY), (java.util.Collection)this.players));
+             this.sendAllPlayerInfoIn = 0;
+         }
+     }
+ 
+-    public void broadcastAll(net.minecraft.network.protocol.Packet<?> packet) {
+-        for (net.minecraft.server.level.ServerPlayer serverPlayer : this.players) {
+-            serverPlayer.connection.send(packet);
++    public void broadcastAll(net.minecraft.network.protocol.Packet<?> $$0) {
++        for (net.minecraft.server.level.ServerPlayer $$1 : this.players) {
++            $$1.connection.send($$0);
+         }
+     }
+ 
+@@ -381,55 +388,62 @@
+         return this.ipBans;
+     }
+ 
+-    public void op(com.mojang.authlib.GameProfile profile) {
+-        this.ops.add((net.minecraft.server.players.StoredUserEntry)new net.minecraft.server.players.ServerOpListEntry(profile, this.server.getOperatorUserPermissionLevel(), this.ops.canBypassPlayerLimit(profile)));
+-        net.minecraft.server.level.ServerPlayer serverPlayer = this.getPlayer(profile.getId());
+-        if (serverPlayer != null) {
+-            this.sendPlayerPermissionLevel(serverPlayer);
++    public void op(com.mojang.authlib.GameProfile $$0) {
++        this.ops.add((net.minecraft.server.players.StoredUserEntry)new net.minecraft.server.players.ServerOpListEntry($$0, this.server.getOperatorUserPermissionLevel(), this.ops.canBypassPlayerLimit($$0)));
++        net.minecraft.server.level.ServerPlayer $$1 = this.getPlayer($$0.getId());
++        if ($$1 != null) {
++            this.sendPlayerPermissionLevel($$1);
+         }
+     }
+ 
+-    public void deop(com.mojang.authlib.GameProfile profile) {
+-        this.ops.remove((java.lang.Object)profile);
+-        net.minecraft.server.level.ServerPlayer serverPlayer = this.getPlayer(profile.getId());
+-        if (serverPlayer != null) {
+-            this.sendPlayerPermissionLevel(serverPlayer);
++    public void deop(com.mojang.authlib.GameProfile $$0) {
++        this.ops.remove((java.lang.Object)$$0);
++        net.minecraft.server.level.ServerPlayer $$1 = this.getPlayer($$0.getId());
++        if ($$1 != null) {
++            this.sendPlayerPermissionLevel($$1);
+         }
+     }
+ 
+-    public void sendPlayerPermissionLevel(net.minecraft.server.level.ServerPlayer player, int permLevel) {
+-        if (player.connection != null) {
+-            byte by = permLevel <= 0 ? (byte)24 : (permLevel >= 4 ? (byte)28 : (byte)((byte)(24 + permLevel)));
+-            player.connection.send((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ClientboundEntityEventPacket((net.minecraft.world.entity.Entity)player, by));
++    public void sendPlayerPermissionLevel(net.minecraft.server.level.ServerPlayer $$0, int $$1) {
++        if ($$0.connection != null) {
++            byte $$4;
++            if ($$1 <= 0) {
++                int $$2 = 24;
++            } else if ($$1 >= 4) {
++                int $$3 = 28;
++            } else {
++                $$4 = (byte)(24 + $$1);
++            }
++            $$0.connection.send((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ClientboundEntityEventPacket((net.minecraft.world.entity.Entity)$$0, $$4));
+         }
+-        this.server.getCommands().sendCommands(player);
++        this.server.getCommands().sendCommands($$0);
+     }
+ 
+-    public boolean isWhiteListed(com.mojang.authlib.GameProfile profile) {
+-        return !this.doWhiteList || this.ops.contains((java.lang.Object)profile) || this.whitelist.contains((java.lang.Object)profile);
++    public boolean isWhiteListed(com.mojang.authlib.GameProfile $$0) {
++        return !this.doWhiteList || this.ops.contains((java.lang.Object)$$0) || this.whitelist.contains((java.lang.Object)$$0);
+     }
+ 
+-    public boolean isOp(com.mojang.authlib.GameProfile profile) {
+-        return this.ops.contains((java.lang.Object)profile) || this.server.isSingleplayerOwner(profile) && this.server.getWorldData().getAllowCommands() || this.allowCheatsForAllPlayers;
++    public boolean isOp(com.mojang.authlib.GameProfile $$0) {
++        return this.ops.contains((java.lang.Object)$$0) || this.server.isSingleplayerOwner($$0) && this.server.getWorldData().getAllowCommands() || this.allowCheatsForAllPlayers;
+     }
+ 
+     @javax.annotation.Nullable
+-    public net.minecraft.server.level.ServerPlayer getPlayerByName(java.lang.String username) {
+-        for (net.minecraft.server.level.ServerPlayer serverPlayer : this.players) {
+-            if (!serverPlayer.getGameProfile().getName().equalsIgnoreCase(username)) continue;
+-            return serverPlayer;
++    public net.minecraft.server.level.ServerPlayer getPlayerByName(java.lang.String $$0) {
++        for (net.minecraft.server.level.ServerPlayer $$1 : this.players) {
++            if (!$$1.getGameProfile().getName().equalsIgnoreCase($$0)) continue;
++            return $$1;
+         }
+         return null;
+     }
+ 
+-    public void broadcast(@javax.annotation.Nullable net.minecraft.world.entity.player.Player except, double x, double y, double z, double radius, net.minecraft.resources.ResourceKey<net.minecraft.world.level.Level> dimension, net.minecraft.network.protocol.Packet<?> packet) {
+-        for (int i = 0; i < this.players.size(); ++i) {
+-            double d;
+-            double d2;
+-            double d3;
+-            net.minecraft.server.level.ServerPlayer serverPlayer = (net.minecraft.server.level.ServerPlayer)this.players.get(i);
+-            if (serverPlayer == except || serverPlayer.level.dimension() != dimension || !((d3 = x - serverPlayer.getX()) * d3 + (d2 = y - serverPlayer.getY()) * d2 + (d = z - serverPlayer.getZ()) * d < radius * radius)) continue;
+-            serverPlayer.connection.send(packet);
++    public void broadcast(@javax.annotation.Nullable net.minecraft.world.entity.player.Player $$0, double $$1, double $$2, double $$3, double $$4, net.minecraft.resources.ResourceKey<net.minecraft.world.level.Level> $$5, net.minecraft.network.protocol.Packet<?> $$6) {
++        for (int $$7 = 0; $$7 < this.players.size(); ++$$7) {
++            double $$11;
++            double $$10;
++            double $$9;
++            net.minecraft.server.level.ServerPlayer $$8 = (net.minecraft.server.level.ServerPlayer)this.players.get($$7);
++            if ($$8 == $$0 || $$8.level.dimension() != $$5 || !(($$9 = $$1 - $$8.getX()) * $$9 + ($$10 = $$2 - $$8.getY()) * $$10 + ($$11 = $$3 - $$8.getZ()) * $$11 < $$4 * $$4)) continue;
++            $$8.connection.send($$6);
+         }
+     }
+ 
+@@ -458,22 +472,22 @@
+     public void reloadWhiteList() {
+     }
+ 
+-    public void sendLevelInfo(net.minecraft.server.level.ServerPlayer player, net.minecraft.server.level.ServerLevel level) {
+-        net.minecraft.world.level.border.WorldBorder worldBorder = this.server.overworld().getWorldBorder();
+-        player.connection.send((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ClientboundInitializeBorderPacket(worldBorder));
+-        player.connection.send((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ClientboundSetTimePacket(level.getGameTime(), level.getDayTime(), level.getGameRules().getBoolean(net.minecraft.world.level.GameRules.RULE_DAYLIGHT)));
+-        player.connection.send((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ClientboundSetDefaultSpawnPositionPacket(level.getSharedSpawnPos(), level.getSharedSpawnAngle()));
+-        if (level.isRaining()) {
+-            player.connection.send((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ClientboundGameEventPacket(net.minecraft.network.protocol.game.ClientboundGameEventPacket.START_RAINING, 0.0f));
+-            player.connection.send((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ClientboundGameEventPacket(net.minecraft.network.protocol.game.ClientboundGameEventPacket.RAIN_LEVEL_CHANGE, level.getRainLevel(1.0f)));
+-            player.connection.send((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ClientboundGameEventPacket(net.minecraft.network.protocol.game.ClientboundGameEventPacket.THUNDER_LEVEL_CHANGE, level.getThunderLevel(1.0f)));
++    public void sendLevelInfo(net.minecraft.server.level.ServerPlayer $$0, net.minecraft.server.level.ServerLevel $$1) {
++        net.minecraft.world.level.border.WorldBorder $$2 = this.server.overworld().getWorldBorder();
++        $$0.connection.send((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ClientboundInitializeBorderPacket($$2));
++        $$0.connection.send((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ClientboundSetTimePacket($$1.getGameTime(), $$1.getDayTime(), $$1.getGameRules().getBoolean(net.minecraft.world.level.GameRules.RULE_DAYLIGHT)));
++        $$0.connection.send((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ClientboundSetDefaultSpawnPositionPacket($$1.getSharedSpawnPos(), $$1.getSharedSpawnAngle()));
++        if ($$1.isRaining()) {
++            $$0.connection.send((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ClientboundGameEventPacket(net.minecraft.network.protocol.game.ClientboundGameEventPacket.START_RAINING, 0.0f));
++            $$0.connection.send((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ClientboundGameEventPacket(net.minecraft.network.protocol.game.ClientboundGameEventPacket.RAIN_LEVEL_CHANGE, $$1.getRainLevel(1.0f)));
++            $$0.connection.send((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ClientboundGameEventPacket(net.minecraft.network.protocol.game.ClientboundGameEventPacket.THUNDER_LEVEL_CHANGE, $$1.getThunderLevel(1.0f)));
+         }
+     }
+ 
+-    public void sendAllPlayerInfo(net.minecraft.server.level.ServerPlayer player) {
+-        player.inventoryMenu.sendAllDataToRemote();
+-        player.resetSentInfo();
+-        player.connection.send((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ClientboundSetCarriedItemPacket(player.getInventory().selected));
++    public void sendAllPlayerInfo(net.minecraft.server.level.ServerPlayer $$0) {
++        $$0.inventoryMenu.sendAllDataToRemote();
++        $$0.resetSentInfo();
++        $$0.connection.send((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ClientboundSetCarriedItemPacket($$0.getInventory().selected));
+     }
+ 
+     public int getPlayerCount() {
+@@ -488,17 +502,17 @@
+         return this.doWhiteList;
+     }
+ 
+-    public void setUsingWhiteList(boolean whitelistEnabled) {
+-        this.doWhiteList = whitelistEnabled;
++    public void setUsingWhiteList(boolean $$0) {
++        this.doWhiteList = $$0;
+     }
+ 
+-    public java.util.List<net.minecraft.server.level.ServerPlayer> getPlayersWithAddress(java.lang.String address) {
+-        java.util.ArrayList arrayList = com.google.common.collect.Lists.newArrayList();
+-        for (net.minecraft.server.level.ServerPlayer serverPlayer : this.players) {
+-            if (!serverPlayer.getIpAddress().equals((java.lang.Object)address)) continue;
+-            arrayList.add((java.lang.Object)serverPlayer);
++    public java.util.List<net.minecraft.server.level.ServerPlayer> getPlayersWithAddress(java.lang.String $$0) {
++        java.util.ArrayList $$1 = com.google.common.collect.Lists.newArrayList();
++        for (net.minecraft.server.level.ServerPlayer $$2 : this.players) {
++            if (!$$2.getIpAddress().equals((java.lang.Object)$$0)) continue;
++            $$1.add((java.lang.Object)$$2);
+         }
+-        return arrayList;
++        return $$1;
+     }
+ 
+     public int getViewDistance() {
+@@ -542,58 +556,47 @@
+     }
+ 
+     public void broadcastChatMessage(net.minecraft.network.chat.PlayerChatMessage $$0, net.minecraft.commands.CommandSourceStack $$1, net.minecraft.network.chat.ChatType$Bound $$2) {
+-        this.broadcastChatMessage($$0, arg_0 -> ((net.minecraft.commands.CommandSourceStack)$$1).shouldFilterMessageTo(arg_0), $$1.getPlayer(), $$1.asChatSender(), $$2);
++        this.broadcastChatMessage($$0, arg_0 -> ((net.minecraft.commands.CommandSourceStack)$$1).shouldFilterMessageTo(arg_0), $$1.getPlayer(), $$2);
+     }
+ 
+     public void broadcastChatMessage(net.minecraft.network.chat.PlayerChatMessage $$0, net.minecraft.server.level.ServerPlayer $$1, net.minecraft.network.chat.ChatType$Bound $$2) {
+-        this.broadcastChatMessage($$0, arg_0 -> ((net.minecraft.server.level.ServerPlayer)$$1).shouldFilterMessageTo(arg_0), $$1, $$1.asChatSender(), $$2);
++        this.broadcastChatMessage($$0, arg_0 -> ((net.minecraft.server.level.ServerPlayer)$$1).shouldFilterMessageTo(arg_0), $$1, $$2);
+     }
+ 
+-    public void broadcastChatMessage(net.minecraft.network.chat.PlayerChatMessage $$0, java.util.function.Predicate<net.minecraft.server.level.ServerPlayer> $$1, @javax.annotation.Nullable net.minecraft.server.level.ServerPlayer $$2, net.minecraft.network.chat.ChatSender $$3, net.minecraft.network.chat.ChatType$Bound $$4) {
+-        boolean $$5 = this.verifyChatTrusted($$0, $$3);
+-        this.server.logChatMessage($$0.serverContent(), $$4, $$5 ? null : "Not Secure");
+-        net.minecraft.network.chat.OutgoingPlayerChatMessage $$6 = net.minecraft.network.chat.OutgoingPlayerChatMessage.create((net.minecraft.network.chat.PlayerChatMessage)$$0);
+-        boolean $$7 = $$0.isFullyFiltered();
+-        boolean $$8 = false;
+-        for (net.minecraft.server.level.ServerPlayer $$9 : this.players) {
+-            boolean $$10 = $$1.test((java.lang.Object)$$9);
+-            $$9.sendChatMessage($$6, $$10, $$4);
+-            if ($$2 == $$9) continue;
+-            $$8 |= $$7 && $$10;
++    public void broadcastChatMessage(net.minecraft.network.chat.PlayerChatMessage $$0, java.util.function.Predicate<net.minecraft.server.level.ServerPlayer> $$1, @javax.annotation.Nullable net.minecraft.server.level.ServerPlayer $$2, net.minecraft.network.chat.ChatType$Bound $$3) {
++        boolean $$4 = this.verifyChatTrusted($$0);
++        this.server.logChatMessage($$0.decoratedContent(), $$3, $$4 ? null : "Not Secure");
++        net.minecraft.network.chat.OutgoingChatMessage $$5 = net.minecraft.network.chat.OutgoingChatMessage.create((net.minecraft.network.chat.PlayerChatMessage)$$0);
++        boolean $$6 = false;
++        for (net.minecraft.server.level.ServerPlayer $$7 : this.players) {
++            boolean $$8 = $$1.test((java.lang.Object)$$7);
++            $$7.sendChatMessage($$5, $$8, $$3);
++            $$6 |= $$8 && $$0.isFullyFiltered();
+         }
+-        if ($$8 && $$2 != null) {
++        if ($$6 && $$2 != null) {
+             $$2.sendSystemMessage(CHAT_FILTERED_FULL);
+         }
+-        $$6.sendHeadersToRemainingPlayers(this);
+     }
+ 
+-    public void broadcastMessageHeader(net.minecraft.network.chat.PlayerChatMessage $$0, java.util.Set<net.minecraft.server.level.ServerPlayer> $$1) {
+-        byte[] $$2 = $$0.signedBody().hash().asBytes();
+-        for (net.minecraft.server.level.ServerPlayer $$3 : this.players) {
+-            if ($$1.contains((java.lang.Object)$$3)) continue;
+-            $$3.sendChatHeader($$0.signedHeader(), $$0.headerSignature(), $$2);
+-        }
++    public boolean verifyChatTrusted(net.minecraft.network.chat.PlayerChatMessage $$0) {
++        return $$0.hasSignature() && !$$0.hasExpiredServer(java.time.Instant.now());
+     }
+ 
+-    public boolean verifyChatTrusted(net.minecraft.network.chat.PlayerChatMessage $$0, net.minecraft.network.chat.ChatSender $$1) {
+-        return !$$0.hasExpiredServer(java.time.Instant.now()) && $$0.verify($$1);
+-    }
+-
+-    public net.minecraft.stats.ServerStatsCounter getPlayerStats(net.minecraft.world.entity.player.Player player) {
+-        java.util.UUID uUID = player.getUUID();
+-        net.minecraft.stats.ServerStatsCounter serverStatsCounter = (net.minecraft.stats.ServerStatsCounter)this.stats.get((java.lang.Object)uUID);
+-        if (serverStatsCounter == null) {
+-            java.io.File file;
+-            java.nio.file.Path path;
+-            java.io.File file2 = this.server.getWorldPath(net.minecraft.world.level.storage.LevelResource.PLAYER_STATS_DIR).toFile();
+-            java.io.File file3 = new java.io.File(file2, uUID + ".json");
+-            if (!file3.exists() && net.minecraft.FileUtil.isPathNormalized((java.nio.file.Path)(path = (file = new java.io.File(file2, player.getName().getString() + ".json")).toPath())) && net.minecraft.FileUtil.isPathPortable((java.nio.file.Path)path) && path.startsWith(file2.getPath()) && file.isFile()) {
+-                file.renameTo(file3);
++    public net.minecraft.stats.ServerStatsCounter getPlayerStats(net.minecraft.world.entity.player.Player $$0) {
++        java.util.UUID $$1 = $$0.getUUID();
++        net.minecraft.stats.ServerStatsCounter $$2 = (net.minecraft.stats.ServerStatsCounter)this.stats.get((java.lang.Object)$$1);
++        if ($$2 == null) {
++            java.io.File $$5;
++            java.nio.file.Path $$6;
++            java.io.File $$3 = this.server.getWorldPath(net.minecraft.world.level.storage.LevelResource.PLAYER_STATS_DIR).toFile();
++            java.io.File $$4 = new java.io.File($$3, $$1 + ".json");
++            if (!$$4.exists() && net.minecraft.FileUtil.isPathNormalized((java.nio.file.Path)($$6 = ($$5 = new java.io.File($$3, $$0.getName().getString() + ".json")).toPath())) && net.minecraft.FileUtil.isPathPortable((java.nio.file.Path)$$6) && $$6.startsWith($$3.getPath()) && $$5.isFile()) {
++                $$5.renameTo($$4);
+             }
+-            serverStatsCounter = new net.minecraft.stats.ServerStatsCounter(this.server, file3);
+-            this.stats.put((java.lang.Object)uUID, (java.lang.Object)serverStatsCounter);
++            $$2 = new net.minecraft.stats.ServerStatsCounter(this.server, $$4);
++            this.stats.put((java.lang.Object)$$1, (java.lang.Object)$$2);
+         }
+-        return serverStatsCounter;
++        return $$2;
+     }
+ 
+     public net.minecraft.server.PlayerAdvancements getPlayerAdvancements(net.minecraft.server.level.ServerPlayer $$0) {
+@@ -609,12 +612,12 @@
+         return $$2;
+     }
+ 
+-    public void setViewDistance(int viewDistance) {
+-        this.viewDistance = viewDistance;
+-        this.broadcastAll((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ClientboundSetChunkCacheRadiusPacket(viewDistance));
+-        for (net.minecraft.server.level.ServerLevel serverLevel : this.server.getAllLevels()) {
+-            if (serverLevel == null) continue;
+-            serverLevel.getChunkSource().setViewDistance(viewDistance);
++    public void setViewDistance(int $$0) {
++        this.viewDistance = $$0;
++        this.broadcastAll((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ClientboundSetChunkCacheRadiusPacket($$0));
++        for (net.minecraft.server.level.ServerLevel $$1 : this.server.getAllLevels()) {
++            if ($$1 == null) continue;
++            $$1.getChunkSource().setViewDistance($$0);
+         }
+     }
+ 
+@@ -632,11 +635,11 @@
+     }
+ 
+     @javax.annotation.Nullable
+-    public net.minecraft.server.level.ServerPlayer getPlayer(java.util.UUID playerUUID) {
+-        return (net.minecraft.server.level.ServerPlayer)this.playersByUUID.get((java.lang.Object)playerUUID);
++    public net.minecraft.server.level.ServerPlayer getPlayer(java.util.UUID $$0) {
++        return (net.minecraft.server.level.ServerPlayer)this.playersByUUID.get((java.lang.Object)$$0);
+     }
+ 
+-    public boolean canBypassPlayerLimit(com.mojang.authlib.GameProfile profile) {
++    public boolean canBypassPlayerLimit(com.mojang.authlib.GameProfile $$0) {
+         return false;
+     }
+ 
+@@ -644,7 +647,7 @@
+         for (net.minecraft.server.PlayerAdvancements $$0 : this.advancements.values()) {
+             $$0.reload(this.server.getAdvancements());
+         }
+-        this.broadcastAll((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ClientboundUpdateTagsPacket(net.minecraft.tags.TagNetworkSerialization.serializeTagsToNetwork((net.minecraft.core.RegistryAccess)this.registryHolder)));
++        this.broadcastAll((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ClientboundUpdateTagsPacket(net.minecraft.tags.TagNetworkSerialization.serializeTagsToNetwork((net.minecraft.core.LayeredRegistryAccess)this.registries)));
+         net.minecraft.network.protocol.game.ClientboundUpdateRecipesPacket $$1 = new net.minecraft.network.protocol.game.ClientboundUpdateRecipesPacket(this.server.getRecipeManager().getRecipes());
+         for (net.minecraft.server.level.ServerPlayer $$2 : this.players) {
+             $$2.connection.send((net.minecraft.network.protocol.Packet)$$1);

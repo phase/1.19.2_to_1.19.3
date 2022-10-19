@@ -1,0 +1,77 @@
+--- net/minecraft/server/dedicated/DedicatedServerProperties$WorldGenProperties.java
++++ net/minecraft/server/dedicated/DedicatedServerProperties$WorldGenProperties.java
+@@ -1,74 +1,0 @@
+-/*
+- * Decompiled with CFR 0.151.
+- */
+-package net.minecraft.server.dedicated;
+-
+-public class net.minecraft.server.dedicated.DedicatedServerProperties$WorldGenProperties
+-extends java.lang.Record
+- {
+-    public java.lang.String levelSeed;
+-    public com.google.gson.JsonObject generatorSettings;
+-    public boolean generateStructures;
+-    public java.lang.String levelType;
+-    public static java.util.Map<java.lang.String, net.minecraft.resources.ResourceKey<net.minecraft.world.level.levelgen.presets.WorldPreset>> LEGACY_PRESET_NAMES;
+-
+-    public net.minecraft.server.dedicated.DedicatedServerProperties$WorldGenProperties(java.lang.String $$0, com.google.gson.JsonObject $$1, boolean $$2, java.lang.String $$3) {
+-        this.levelSeed = $$0;
+-        this.generatorSettings = $$1;
+-        this.generateStructures = $$2;
+-        this.levelType = $$3;
+-    }
+-
+-    public net.minecraft.world.level.levelgen.WorldGenSettings create(net.minecraft.core.RegistryAccess $$02) {
+-        long $$1 = net.minecraft.world.level.levelgen.WorldGenSettings.parseSeed((java.lang.String)this.levelSeed()).orElse(net.minecraft.util.RandomSource.create().nextLong());
+-        net.minecraft.core.Registry $$2 = $$02.registryOrThrow(net.minecraft.core.Registry.WORLD_PRESET_REGISTRY);
+-        net.minecraft.core.Holder $$3 = (net.minecraft.core.Holder)$$2.getHolder(net.minecraft.world.level.levelgen.presets.WorldPresets.NORMAL).or(() -> $$2.holders().findAny()).orElseThrow(() -> new java.lang.IllegalStateException("Invalid datapack contents: can't find default preset"));
+-        net.minecraft.core.Holder $$4 = (net.minecraft.core.Holder)java.util.Optional.ofNullable((java.lang.Object)net.minecraft.resources.ResourceLocation.tryParse((java.lang.String)this.levelType)).map($$0 -> net.minecraft.resources.ResourceKey.create((net.minecraft.resources.ResourceKey)net.minecraft.core.Registry.WORLD_PRESET_REGISTRY, (net.minecraft.resources.ResourceLocation)$$0)).or(() -> java.util.Optional.ofNullable((java.lang.Object)((net.minecraft.resources.ResourceKey)LEGACY_PRESET_NAMES.get((java.lang.Object)this.levelType)))).flatMap(arg_0 -> ((net.minecraft.core.Registry)$$2).getHolder(arg_0)).orElseGet(() -> {
+-            net.minecraft.server.dedicated.DedicatedServerProperties.LOGGER.warn("Failed to parse level-type {}, defaulting to {}", (java.lang.Object)this.levelType, $$3.unwrapKey().map($$0 -> $$0.location().toString()).orElse((java.lang.Object)"[unnamed]"));
+-            return $$3;
+-        });
+-        net.minecraft.world.level.levelgen.WorldGenSettings $$5 = ((net.minecraft.world.level.levelgen.presets.WorldPreset)$$4.value()).createWorldGenSettings($$1, this.generateStructures, false);
+-        if ($$4.is(net.minecraft.world.level.levelgen.presets.WorldPresets.FLAT)) {
+-            net.minecraft.resources.RegistryOps $$6 = net.minecraft.resources.RegistryOps.create((com.mojang.serialization.DynamicOps)com.mojang.serialization.JsonOps.INSTANCE, (net.minecraft.core.RegistryAccess)$$02);
+-            java.util.Optional $$7 = net.minecraft.world.level.levelgen.flat.FlatLevelGeneratorSettings.CODEC.parse(new com.mojang.serialization.Dynamic((com.mojang.serialization.DynamicOps)$$6, (java.lang.Object)this.generatorSettings())).resultOrPartial(arg_0 -> ((org.slf4j.Logger)net.minecraft.server.dedicated.DedicatedServerProperties.LOGGER).error(arg_0));
+-            if ($$7.isPresent()) {
+-                net.minecraft.core.Registry $$8 = $$02.registryOrThrow(net.minecraft.core.Registry.STRUCTURE_SET_REGISTRY);
+-                return net.minecraft.world.level.levelgen.WorldGenSettings.replaceOverworldGenerator((net.minecraft.core.RegistryAccess)$$02, (net.minecraft.world.level.levelgen.WorldGenSettings)$$5, (net.minecraft.world.level.chunk.ChunkGenerator)new net.minecraft.world.level.levelgen.FlatLevelSource($$8, (net.minecraft.world.level.levelgen.flat.FlatLevelGeneratorSettings)$$7.get()));
+-            }
+-        }
+-        return $$5;
+-    }
+-
+-    public java.lang.String toString() {
+-        return java.lang.runtime.ObjectMethods.bootstrap("toString", new java.lang.invoke.MethodHandle[]{net.minecraft.server.dedicated.DedicatedServerProperties$WorldGenProperties.class, "levelSeed;generatorSettings;generateStructures;levelType", "levelSeed", "generatorSettings", "generateStructures", "levelType"}, this);
+-    }
+-
+-    public int hashCode() {
+-        return (int)java.lang.runtime.ObjectMethods.bootstrap("hashCode", new java.lang.invoke.MethodHandle[]{net.minecraft.server.dedicated.DedicatedServerProperties$WorldGenProperties.class, "levelSeed;generatorSettings;generateStructures;levelType", "levelSeed", "generatorSettings", "generateStructures", "levelType"}, this);
+-    }
+-
+-    public boolean equals(java.lang.Object $$0) {
+-        return (boolean)java.lang.runtime.ObjectMethods.bootstrap("equals", new java.lang.invoke.MethodHandle[]{net.minecraft.server.dedicated.DedicatedServerProperties$WorldGenProperties.class, "levelSeed;generatorSettings;generateStructures;levelType", "levelSeed", "generatorSettings", "generateStructures", "levelType"}, this, $$0);
+-    }
+-
+-    public java.lang.String levelSeed() {
+-        return this.levelSeed;
+-    }
+-
+-    public com.google.gson.JsonObject generatorSettings() {
+-        return this.generatorSettings;
+-    }
+-
+-    public boolean generateStructures() {
+-        return this.generateStructures;
+-    }
+-
+-    public java.lang.String levelType() {
+-        return this.levelType;
+-    }
+-
+-    static {
+-        LEGACY_PRESET_NAMES = java.util.Map.of((java.lang.Object)"default", (java.lang.Object)net.minecraft.world.level.levelgen.presets.WorldPresets.NORMAL, (java.lang.Object)"largebiomes", (java.lang.Object)net.minecraft.world.level.levelgen.presets.WorldPresets.LARGE_BIOMES);
+-    }
+-}
+-

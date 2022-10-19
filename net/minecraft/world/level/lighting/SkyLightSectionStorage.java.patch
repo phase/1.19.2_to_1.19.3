@@ -1,0 +1,230 @@
+--- net/minecraft/world/level/lighting/SkyLightSectionStorage.java
++++ net/minecraft/world/level/lighting/SkyLightSectionStorage.java
+@@ -21,8 +21,8 @@
+         this.columnsWithSkySources = new it.unimi.dsi.fastutil.longs.LongOpenHashSet();
+     }
+ 
+-    public int getLightValue(long levelPos) {
+-        return this.getLightValue(levelPos, false);
++    public int getLightValue(long $$0) {
++        return this.getLightValue($$0, false);
+     }
+ 
+     public int getLightValue(long $$0, boolean $$1) {
+@@ -51,21 +51,21 @@
+         return $$6.get(net.minecraft.core.SectionPos.sectionRelative((int)net.minecraft.core.BlockPos.getX((long)$$0)), net.minecraft.core.SectionPos.sectionRelative((int)net.minecraft.core.BlockPos.getY((long)$$0)), net.minecraft.core.SectionPos.sectionRelative((int)net.minecraft.core.BlockPos.getZ((long)$$0)));
+     }
+ 
+-    public void onNodeAdded(long sectionPos) {
+-        long l;
+-        int n;
+-        int n2 = net.minecraft.core.SectionPos.y((long)sectionPos);
+-        if (((net.minecraft.world.level.lighting.SkyLightSectionStorage$SkyDataLayerStorageMap)this.updatingSectionData).currentLowestY > n2) {
+-            ((net.minecraft.world.level.lighting.SkyLightSectionStorage$SkyDataLayerStorageMap)this.updatingSectionData).currentLowestY = n2;
++    public void onNodeAdded(long $$0) {
++        long $$2;
++        int $$3;
++        int $$1 = net.minecraft.core.SectionPos.y((long)$$0);
++        if (((net.minecraft.world.level.lighting.SkyLightSectionStorage$SkyDataLayerStorageMap)this.updatingSectionData).currentLowestY > $$1) {
++            ((net.minecraft.world.level.lighting.SkyLightSectionStorage$SkyDataLayerStorageMap)this.updatingSectionData).currentLowestY = $$1;
+             ((net.minecraft.world.level.lighting.SkyLightSectionStorage$SkyDataLayerStorageMap)this.updatingSectionData).topSections.defaultReturnValue(((net.minecraft.world.level.lighting.SkyLightSectionStorage$SkyDataLayerStorageMap)this.updatingSectionData).currentLowestY);
+         }
+-        if ((n = ((net.minecraft.world.level.lighting.SkyLightSectionStorage$SkyDataLayerStorageMap)this.updatingSectionData).topSections.get(l = net.minecraft.core.SectionPos.getZeroNode((long)sectionPos))) < n2 + 1) {
+-            ((net.minecraft.world.level.lighting.SkyLightSectionStorage$SkyDataLayerStorageMap)this.updatingSectionData).topSections.put(l, n2 + 1);
+-            if (this.columnsWithSkySources.contains(l)) {
+-                this.queueAddSource(sectionPos);
+-                if (n > ((net.minecraft.world.level.lighting.SkyLightSectionStorage$SkyDataLayerStorageMap)this.updatingSectionData).currentLowestY) {
+-                    long l2 = net.minecraft.core.SectionPos.asLong((int)net.minecraft.core.SectionPos.x((long)sectionPos), (int)(n - 1), (int)net.minecraft.core.SectionPos.z((long)sectionPos));
+-                    this.queueRemoveSource(l2);
++        if (($$3 = ((net.minecraft.world.level.lighting.SkyLightSectionStorage$SkyDataLayerStorageMap)this.updatingSectionData).topSections.get($$2 = net.minecraft.core.SectionPos.getZeroNode((long)$$0))) < $$1 + 1) {
++            ((net.minecraft.world.level.lighting.SkyLightSectionStorage$SkyDataLayerStorageMap)this.updatingSectionData).topSections.put($$2, $$1 + 1);
++            if (this.columnsWithSkySources.contains($$2)) {
++                this.queueAddSource($$0);
++                if ($$3 > ((net.minecraft.world.level.lighting.SkyLightSectionStorage$SkyDataLayerStorageMap)this.updatingSectionData).currentLowestY) {
++                    long $$4 = net.minecraft.core.SectionPos.asLong((int)net.minecraft.core.SectionPos.x((long)$$0), (int)($$3 - 1), (int)net.minecraft.core.SectionPos.z((long)$$0));
++                    this.queueRemoveSource($$4);
+                 }
+                 this.recheckInconsistencyFlag();
+             }
+@@ -131,21 +131,21 @@
+         return super.hasInconsistencies() || this.hasSourceInconsistencies;
+     }
+ 
+-    public net.minecraft.world.level.chunk.DataLayer createDataLayer(long sectionPos) {
+-        net.minecraft.world.level.chunk.DataLayer dataLayer;
+-        net.minecraft.world.level.chunk.DataLayer dataLayer2 = (net.minecraft.world.level.chunk.DataLayer)this.queuedSections.get(sectionPos);
+-        if (dataLayer2 != null) {
+-            return dataLayer2;
++    public net.minecraft.world.level.chunk.DataLayer createDataLayer(long $$0) {
++        net.minecraft.world.level.chunk.DataLayer $$4;
++        net.minecraft.world.level.chunk.DataLayer $$1 = (net.minecraft.world.level.chunk.DataLayer)this.queuedSections.get($$0);
++        if ($$1 != null) {
++            return $$1;
+         }
+-        long l = net.minecraft.core.SectionPos.offset((long)sectionPos, (net.minecraft.core.Direction)net.minecraft.core.Direction.UP);
+-        int n = ((net.minecraft.world.level.lighting.SkyLightSectionStorage$SkyDataLayerStorageMap)this.updatingSectionData).topSections.get(net.minecraft.core.SectionPos.getZeroNode((long)sectionPos));
+-        if (n == ((net.minecraft.world.level.lighting.SkyLightSectionStorage$SkyDataLayerStorageMap)this.updatingSectionData).currentLowestY || net.minecraft.core.SectionPos.y((long)l) >= n) {
++        long $$2 = net.minecraft.core.SectionPos.offset((long)$$0, (net.minecraft.core.Direction)net.minecraft.core.Direction.UP);
++        int $$3 = ((net.minecraft.world.level.lighting.SkyLightSectionStorage$SkyDataLayerStorageMap)this.updatingSectionData).topSections.get(net.minecraft.core.SectionPos.getZeroNode((long)$$0));
++        if ($$3 == ((net.minecraft.world.level.lighting.SkyLightSectionStorage$SkyDataLayerStorageMap)this.updatingSectionData).currentLowestY || net.minecraft.core.SectionPos.y((long)$$2) >= $$3) {
+             return new net.minecraft.world.level.chunk.DataLayer();
+         }
+-        while ((dataLayer = this.getDataLayer(l, true)) == null) {
+-            l = net.minecraft.core.SectionPos.offset((long)l, (net.minecraft.core.Direction)net.minecraft.core.Direction.UP);
++        while (($$4 = this.getDataLayer($$2, true)) == null) {
++            $$2 = net.minecraft.core.SectionPos.offset((long)$$2, (net.minecraft.core.Direction)net.minecraft.core.Direction.UP);
+         }
+-        return net.minecraft.world.level.lighting.SkyLightSectionStorage.repeatFirstLayer((net.minecraft.world.level.chunk.DataLayer)dataLayer);
++        return net.minecraft.world.level.lighting.SkyLightSectionStorage.repeatFirstLayer((net.minecraft.world.level.chunk.DataLayer)$$4);
+     }
+ 
+     public static net.minecraft.world.level.chunk.DataLayer repeatFirstLayer(net.minecraft.world.level.chunk.DataLayer $$0) {
+@@ -160,79 +160,72 @@
+         return new net.minecraft.world.level.chunk.DataLayer($$2);
+     }
+ 
+-    public void markNewInconsistencies(net.minecraft.world.level.lighting.LayerLightEngine<net.minecraft.world.level.lighting.SkyLightSectionStorage$SkyDataLayerStorageMap, ?> engine, boolean updateSkyLight, boolean updateBlockLight) {
+-        int n;
+-        int n2;
+-        long l;
++    public void markNewInconsistencies(net.minecraft.world.level.lighting.LayerLightEngine<net.minecraft.world.level.lighting.SkyLightSectionStorage$SkyDataLayerStorageMap, ?> $$0, boolean $$1, boolean $$2) {
+         it.unimi.dsi.fastutil.longs.LongIterator longIterator;
+-        super.markNewInconsistencies(engine, updateSkyLight, updateBlockLight);
+-        if (!updateSkyLight) {
++        super.markNewInconsistencies($$0, $$1, $$2);
++        if (!$$1) {
+             return;
+         }
+         if (!this.sectionsToAddSourcesTo.isEmpty()) {
+             longIterator = this.sectionsToAddSourcesTo.iterator();
+             while (longIterator.hasNext()) {
+-                int n3;
+-                l = (java.lang.Long)longIterator.next();
+-                n2 = this.getLevel(l);
+-                if (n2 == 2 || this.sectionsToRemoveSourcesFrom.contains(l) || !this.sectionsWithSources.add(l)) continue;
+-                if (n2 == 1) {
+-                    long l2;
+-                    this.clearQueuedSectionBlocks(engine, l);
+-                    if (this.changedSections.add(l)) {
+-                        ((net.minecraft.world.level.lighting.SkyLightSectionStorage$SkyDataLayerStorageMap)this.updatingSectionData).copyDataLayer(l);
++                long $$3 = (java.lang.Long)longIterator.next();
++                int $$4 = this.getLevel($$3);
++                if ($$4 == 2 || this.sectionsToRemoveSourcesFrom.contains($$3) || !this.sectionsWithSources.add($$3)) continue;
++                if ($$4 == 1) {
++                    this.clearQueuedSectionBlocks($$0, $$3);
++                    if (this.changedSections.add($$3)) {
++                        ((net.minecraft.world.level.lighting.SkyLightSectionStorage$SkyDataLayerStorageMap)this.updatingSectionData).copyDataLayer($$3);
+                     }
+-                    java.util.Arrays.fill((byte[])this.getDataLayer(l, true).getData(), (byte)-1);
+-                    n = net.minecraft.core.SectionPos.sectionToBlockCoord((int)net.minecraft.core.SectionPos.x((long)l));
+-                    n3 = net.minecraft.core.SectionPos.sectionToBlockCoord((int)net.minecraft.core.SectionPos.y((long)l));
+-                    int n4 = net.minecraft.core.SectionPos.sectionToBlockCoord((int)net.minecraft.core.SectionPos.z((long)l));
+-                    net.minecraft.core.Direction[] directionArray = HORIZONTALS;
+-                    int n5 = directionArray.length;
+-                    for (int i = 0; i < n5; ++i) {
+-                        net.minecraft.core.Direction direction = directionArray[i];
+-                        l2 = net.minecraft.core.SectionPos.offset((long)l, (net.minecraft.core.Direction)direction);
+-                        if (!this.sectionsToRemoveSourcesFrom.contains(l2) && (this.sectionsWithSources.contains(l2) || this.sectionsToAddSourcesTo.contains(l2)) || !this.storingLightForSection(l2)) continue;
+-                        for (int j = 0; j < 16; ++j) {
+-                            for (int k = 0; k < 16; ++k) {
+-                                long l3;
+-                                long l4 = switch (net.minecraft.world.level.lighting.SkyLightSectionStorage$1.$SwitchMap$net$minecraft$core$Direction[direction.ordinal()]) {
+-                                    case 1 -> {
+-                                        l3 = net.minecraft.core.BlockPos.asLong((int)(n + j), (int)(n3 + k), (int)n4);
+-                                        yield net.minecraft.core.BlockPos.asLong((int)(n + j), (int)(n3 + k), (int)(n4 - 1));
++                    java.util.Arrays.fill((byte[])this.getDataLayer($$3, true).getData(), (byte)-1);
++                    int $$5 = net.minecraft.core.SectionPos.sectionToBlockCoord((int)net.minecraft.core.SectionPos.x((long)$$3));
++                    int $$6 = net.minecraft.core.SectionPos.sectionToBlockCoord((int)net.minecraft.core.SectionPos.y((long)$$3));
++                    int $$7 = net.minecraft.core.SectionPos.sectionToBlockCoord((int)net.minecraft.core.SectionPos.z((long)$$3));
++                    for (net.minecraft.core.Direction $$8 : HORIZONTALS) {
++                        long $$9 = net.minecraft.core.SectionPos.offset((long)$$3, (net.minecraft.core.Direction)$$8);
++                        if (!this.sectionsToRemoveSourcesFrom.contains($$9) && (this.sectionsWithSources.contains($$9) || this.sectionsToAddSourcesTo.contains($$9)) || !this.storingLightForSection($$9)) continue;
++                        for (int $$10 = 0; $$10 < 16; ++$$10) {
++                            for (int $$11 = 0; $$11 < 16; ++$$11) {
++                                long $$19;
++                                long $$18;
++                                switch (net.minecraft.world.level.lighting.SkyLightSectionStorage$1.$SwitchMap$net$minecraft$core$Direction[$$8.ordinal()]) {
++                                    case 1: {
++                                        long $$12 = net.minecraft.core.BlockPos.asLong((int)($$5 + $$10), (int)($$6 + $$11), (int)$$7);
++                                        long $$13 = net.minecraft.core.BlockPos.asLong((int)($$5 + $$10), (int)($$6 + $$11), (int)($$7 - 1));
++                                        break;
+                                     }
+-                                    case 2 -> {
+-                                        l3 = net.minecraft.core.BlockPos.asLong((int)(n + j), (int)(n3 + k), (int)(n4 + 16 - 1));
+-                                        yield net.minecraft.core.BlockPos.asLong((int)(n + j), (int)(n3 + k), (int)(n4 + 16));
++                                    case 2: {
++                                        long $$14 = net.minecraft.core.BlockPos.asLong((int)($$5 + $$10), (int)($$6 + $$11), (int)($$7 + 16 - 1));
++                                        long $$15 = net.minecraft.core.BlockPos.asLong((int)($$5 + $$10), (int)($$6 + $$11), (int)($$7 + 16));
++                                        break;
+                                     }
+-                                    case 3 -> {
+-                                        l3 = net.minecraft.core.BlockPos.asLong((int)n, (int)(n3 + j), (int)(n4 + k));
+-                                        yield net.minecraft.core.BlockPos.asLong((int)(n - 1), (int)(n3 + j), (int)(n4 + k));
++                                    case 3: {
++                                        long $$16 = net.minecraft.core.BlockPos.asLong((int)$$5, (int)($$6 + $$10), (int)($$7 + $$11));
++                                        long $$17 = net.minecraft.core.BlockPos.asLong((int)($$5 - 1), (int)($$6 + $$10), (int)($$7 + $$11));
++                                        break;
+                                     }
+-                                    default -> {
+-                                        l3 = net.minecraft.core.BlockPos.asLong((int)(n + 16 - 1), (int)(n3 + j), (int)(n4 + k));
+-                                        yield net.minecraft.core.BlockPos.asLong((int)(n + 16), (int)(n3 + j), (int)(n4 + k));
++                                    default: {
++                                        $$18 = net.minecraft.core.BlockPos.asLong((int)($$5 + 16 - 1), (int)($$6 + $$10), (int)($$7 + $$11));
++                                        $$19 = net.minecraft.core.BlockPos.asLong((int)($$5 + 16), (int)($$6 + $$10), (int)($$7 + $$11));
+                                     }
+-                                };
+-                                engine.checkEdge(l3, l4, engine.computeLevelFromNeighbor(l3, l4, 0), true);
++                                }
++                                $$0.checkEdge($$18, $$19, $$0.computeLevelFromNeighbor($$18, $$19, 0), true);
+                             }
+                         }
+                     }
+-                    for (int i = 0; i < 16; ++i) {
+-                        for (n5 = 0;
+- n5 < 16; ++n5) {
+-                            long l5 = net.minecraft.core.BlockPos.asLong((int)net.minecraft.core.SectionPos.sectionToBlockCoord((int)net.minecraft.core.SectionPos.x((long)l), (int)i), (int)net.minecraft.core.SectionPos.sectionToBlockCoord((int)net.minecraft.core.SectionPos.y((long)l)), (int)net.minecraft.core.SectionPos.sectionToBlockCoord((int)net.minecraft.core.SectionPos.z((long)l), (int)n5));
+-                            l2 = net.minecraft.core.BlockPos.asLong((int)net.minecraft.core.SectionPos.sectionToBlockCoord((int)net.minecraft.core.SectionPos.x((long)l), (int)i), (int)(net.minecraft.core.SectionPos.sectionToBlockCoord((int)net.minecraft.core.SectionPos.y((long)l)) - 1), (int)net.minecraft.core.SectionPos.sectionToBlockCoord((int)net.minecraft.core.SectionPos.z((long)l), (int)n5));
+-                            engine.checkEdge(l5, l2, engine.computeLevelFromNeighbor(l5, l2, 0), true);
++                    for (int $$20 = 0; $$20 < 16; ++$$20) {
++                        for (int $$21 = 0; $$21 < 16; ++$$21) {
++                            long $$22 = net.minecraft.core.BlockPos.asLong((int)net.minecraft.core.SectionPos.sectionToBlockCoord((int)net.minecraft.core.SectionPos.x((long)$$3), (int)$$20), (int)net.minecraft.core.SectionPos.sectionToBlockCoord((int)net.minecraft.core.SectionPos.y((long)$$3)), (int)net.minecraft.core.SectionPos.sectionToBlockCoord((int)net.minecraft.core.SectionPos.z((long)$$3), (int)$$21));
++                            long $$23 = net.minecraft.core.BlockPos.asLong((int)net.minecraft.core.SectionPos.sectionToBlockCoord((int)net.minecraft.core.SectionPos.x((long)$$3), (int)$$20), (int)(net.minecraft.core.SectionPos.sectionToBlockCoord((int)net.minecraft.core.SectionPos.y((long)$$3)) - 1), (int)net.minecraft.core.SectionPos.sectionToBlockCoord((int)net.minecraft.core.SectionPos.z((long)$$3), (int)$$21));
++                            $$0.checkEdge($$22, $$23, $$0.computeLevelFromNeighbor($$22, $$23, 0), true);
+                         }
+                     }
+                     continue;
+                 }
+-                for (n = 0;
+- n < 16; ++n) {
+-                    for (n3 = 0;
+- n3 < 16; ++n3) {
+-                        long l6 = net.minecraft.core.BlockPos.asLong((int)net.minecraft.core.SectionPos.sectionToBlockCoord((int)net.minecraft.core.SectionPos.x((long)l), (int)n), (int)net.minecraft.core.SectionPos.sectionToBlockCoord((int)net.minecraft.core.SectionPos.y((long)l), (int)15), (int)net.minecraft.core.SectionPos.sectionToBlockCoord((int)net.minecraft.core.SectionPos.z((long)l), (int)n3));
+-                        engine.checkEdge(java.lang.Long.MAX_VALUE, l6, 0, true);
++                for (int $$24 = 0; $$24 < 16; ++$$24) {
++                    for (int $$25 = 0; $$25 < 16; ++$$25) {
++                        long $$26 = net.minecraft.core.BlockPos.asLong((int)net.minecraft.core.SectionPos.sectionToBlockCoord((int)net.minecraft.core.SectionPos.x((long)$$3), (int)$$24), (int)net.minecraft.core.SectionPos.sectionToBlockCoord((int)net.minecraft.core.SectionPos.y((long)$$3), (int)15), (int)net.minecraft.core.SectionPos.sectionToBlockCoord((int)net.minecraft.core.SectionPos.z((long)$$3), (int)$$25));
++                        $$0.checkEdge(java.lang.Long.MAX_VALUE, $$26, 0, true);
+                     }
+                 }
+             }
+@@ -241,14 +234,12 @@
+         if (!this.sectionsToRemoveSourcesFrom.isEmpty()) {
+             longIterator = this.sectionsToRemoveSourcesFrom.iterator();
+             while (longIterator.hasNext()) {
+-                l = (java.lang.Long)longIterator.next();
+-                if (!this.sectionsWithSources.remove(l) || !this.storingLightForSection(l)) continue;
+-                for (n2 = 0;
+- n2 < 16; ++n2) {
+-                    for (n = 0;
+- n < 16; ++n) {
+-                        long l7 = net.minecraft.core.BlockPos.asLong((int)net.minecraft.core.SectionPos.sectionToBlockCoord((int)net.minecraft.core.SectionPos.x((long)l), (int)n2), (int)net.minecraft.core.SectionPos.sectionToBlockCoord((int)net.minecraft.core.SectionPos.y((long)l), (int)15), (int)net.minecraft.core.SectionPos.sectionToBlockCoord((int)net.minecraft.core.SectionPos.z((long)l), (int)n));
+-                        engine.checkEdge(java.lang.Long.MAX_VALUE, l7, 15, false);
++                long $$27 = (java.lang.Long)longIterator.next();
++                if (!this.sectionsWithSources.remove($$27) || !this.storingLightForSection($$27)) continue;
++                for (int $$28 = 0; $$28 < 16; ++$$28) {
++                    for (int $$29 = 0; $$29 < 16; ++$$29) {
++                        long $$30 = net.minecraft.core.BlockPos.asLong((int)net.minecraft.core.SectionPos.sectionToBlockCoord((int)net.minecraft.core.SectionPos.x((long)$$27), (int)$$28), (int)net.minecraft.core.SectionPos.sectionToBlockCoord((int)net.minecraft.core.SectionPos.y((long)$$27), (int)15), (int)net.minecraft.core.SectionPos.sectionToBlockCoord((int)net.minecraft.core.SectionPos.z((long)$$27), (int)$$29));
++                        $$0.checkEdge(java.lang.Long.MAX_VALUE, $$30, 15, false);
+                     }
+                 }
+             }

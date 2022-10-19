@@ -1,0 +1,169 @@
+--- net/minecraft/recipebook/ServerPlaceRecipe.java
++++ net/minecraft/recipebook/ServerPlaceRecipe.java
+@@ -16,24 +16,24 @@
+         this.menu = $$0;
+     }
+ 
+-    public void recipeClicked(net.minecraft.server.level.ServerPlayer player, @javax.annotation.Nullable net.minecraft.world.item.crafting.Recipe<C> recipe, boolean placeAll) {
+-        if (recipe == null || !player.getRecipeBook().contains(recipe)) {
++    public void recipeClicked(net.minecraft.server.level.ServerPlayer $$0, @javax.annotation.Nullable net.minecraft.world.item.crafting.Recipe<C> $$1, boolean $$2) {
++        if ($$1 == null || !$$0.getRecipeBook().contains($$1)) {
+             return;
+         }
+-        this.inventory = player.getInventory();
+-        if (!this.testClearGrid() && !player.isCreative()) {
++        this.inventory = $$0.getInventory();
++        if (!this.testClearGrid() && !$$0.isCreative()) {
+             return;
+         }
+         this.stackedContents.clear();
+-        player.getInventory().fillStackedContents(this.stackedContents);
++        $$0.getInventory().fillStackedContents(this.stackedContents);
+         this.menu.fillCraftSlotsStackedContents(this.stackedContents);
+-        if (this.stackedContents.canCraft(recipe, null)) {
+-            this.handleRecipeClicked(recipe, placeAll);
++        if (this.stackedContents.canCraft($$1, null)) {
++            this.handleRecipeClicked($$1, $$2);
+         } else {
+             this.clearGrid(true);
+-            player.connection.send((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ClientboundPlaceGhostRecipePacket(player.containerMenu.containerId, recipe));
++            $$0.connection.send((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ClientboundPlaceGhostRecipePacket($$0.containerMenu.containerId, $$1));
+         }
+-        player.getInventory().setChanged();
++        $$0.getInventory().setChanged();
+     }
+ 
+     public void clearGrid(boolean $$0) {
+@@ -46,82 +46,82 @@
+         this.menu.clearCraftingContent();
+     }
+ 
+-    public void handleRecipeClicked(net.minecraft.world.item.crafting.Recipe<C> recipe, boolean placeAll) {
+-        it.unimi.dsi.fastutil.ints.IntArrayList intArrayList;
+-        int n;
+-        boolean bl = this.menu.recipeMatches(recipe);
+-        int n2 = this.stackedContents.getBiggestCraftableStack(recipe, null);
+-        if (bl) {
+-            for (n = 0;
+- n < this.menu.getGridHeight() * this.menu.getGridWidth() + 1; ++n) {
+-                if (n == this.menu.getResultSlotIndex() || (intArrayList = this.menu.getSlot(n).getItem()).isEmpty() || java.lang.Math.min((int)n2, (int)intArrayList.getMaxStackSize()) >= intArrayList.getCount() + 1) continue;
++    public void handleRecipeClicked(net.minecraft.world.item.crafting.Recipe<C> $$0, boolean $$1) {
++        int $$6;
++        it.unimi.dsi.fastutil.ints.IntArrayList $$7;
++        boolean $$2 = this.menu.recipeMatches($$0);
++        int $$3 = this.stackedContents.getBiggestCraftableStack($$0, null);
++        if ($$2) {
++            for (int $$4 = 0; $$4 < this.menu.getGridHeight() * this.menu.getGridWidth() + 1; ++$$4) {
++                net.minecraft.world.item.ItemStack $$5;
++                if ($$4 == this.menu.getResultSlotIndex() || ($$5 = this.menu.getSlot($$4).getItem()).isEmpty() || java.lang.Math.min((int)$$3, (int)$$5.getMaxStackSize()) >= $$5.getCount() + 1) continue;
+                 return;
+             }
+         }
+-        if (this.stackedContents.canCraft(recipe, (it.unimi.dsi.fastutil.ints.IntList)(intArrayList = new it.unimi.dsi.fastutil.ints.IntArrayList()), n = this.getStackSize(placeAll, n2, bl))) {
+-            int n3 = n;
+-            it.unimi.dsi.fastutil.ints.IntListIterator intListIterator = intArrayList.iterator();
++        if (this.stackedContents.canCraft($$0, (it.unimi.dsi.fastutil.ints.IntList)($$7 = new it.unimi.dsi.fastutil.ints.IntArrayList()), $$6 = this.getStackSize($$1, $$3, $$2))) {
++            int $$8 = $$6;
++            it.unimi.dsi.fastutil.ints.IntListIterator intListIterator = $$7.iterator();
+             while (intListIterator.hasNext()) {
+-                int n4 = (java.lang.Integer)intListIterator.next();
+-                int n5 = net.minecraft.world.entity.player.StackedContents.fromStackingIndex((int)n4).getMaxStackSize();
+-                if (n5 >= n3) continue;
+-                n3 = n5;
++                int $$9 = (java.lang.Integer)intListIterator.next();
++                int $$10 = net.minecraft.world.entity.player.StackedContents.fromStackingIndex((int)$$9).getMaxStackSize();
++                if ($$10 >= $$8) continue;
++                $$8 = $$10;
+             }
+-            n = n3;
+-            if (this.stackedContents.canCraft(recipe, (it.unimi.dsi.fastutil.ints.IntList)intArrayList, n)) {
++            $$6 = $$8;
++            if (this.stackedContents.canCraft($$0, (it.unimi.dsi.fastutil.ints.IntList)$$7, $$6)) {
+                 this.clearGrid(false);
+-                this.placeRecipe(this.menu.getGridWidth(), this.menu.getGridHeight(), this.menu.getResultSlotIndex(), recipe, (java.util.Iterator)intArrayList.iterator(), n);
++                this.placeRecipe(this.menu.getGridWidth(), this.menu.getGridHeight(), this.menu.getResultSlotIndex(), $$0, (java.util.Iterator)$$7.iterator(), $$6);
+             }
+         }
+     }
+ 
+-    public void addItemToSlot(java.util.Iterator<java.lang.Integer> ingredients, int slot, int maxAmount, int y, int x) {
+-        net.minecraft.world.inventory.Slot slot2 = this.menu.getSlot(slot);
+-        net.minecraft.world.item.ItemStack itemStack = net.minecraft.world.entity.player.StackedContents.fromStackingIndex((int)((java.lang.Integer)ingredients.next()));
+-        if (!itemStack.isEmpty()) {
+-            for (int i = 0; i < maxAmount; ++i) {
+-                this.moveItemToGrid(slot2, itemStack);
++    public void addItemToSlot(java.util.Iterator<java.lang.Integer> $$0, int $$1, int $$2, int $$3, int $$4) {
++        net.minecraft.world.inventory.Slot $$5 = this.menu.getSlot($$1);
++        net.minecraft.world.item.ItemStack $$6 = net.minecraft.world.entity.player.StackedContents.fromStackingIndex((int)((java.lang.Integer)$$0.next()));
++        if (!$$6.isEmpty()) {
++            for (int $$7 = 0; $$7 < $$2; ++$$7) {
++                this.moveItemToGrid($$5, $$6);
+             }
+         }
+     }
+ 
+-    public int getStackSize(boolean placeAll, int maxPossible, boolean recipeMatches) {
+-        int n = 1;
+-        if (placeAll) {
+-            n = maxPossible;
+-        } else if (recipeMatches) {
+-            n = 64;
+-            for (int i = 0; i < this.menu.getGridWidth() * this.menu.getGridHeight() + 1; ++i) {
+-                net.minecraft.world.item.ItemStack itemStack;
+-                if (i == this.menu.getResultSlotIndex() || (itemStack = this.menu.getSlot(i).getItem()).isEmpty() || n <= itemStack.getCount()) continue;
+-                n = itemStack.getCount();
++    public int getStackSize(boolean $$0, int $$1, boolean $$2) {
++        int $$3 = 1;
++        if ($$0) {
++            $$3 = $$1;
++        } else if ($$2) {
++            $$3 = 64;
++            for (int $$4 = 0; $$4 < this.menu.getGridWidth() * this.menu.getGridHeight() + 1; ++$$4) {
++                net.minecraft.world.item.ItemStack $$5;
++                if ($$4 == this.menu.getResultSlotIndex() || ($$5 = this.menu.getSlot($$4).getItem()).isEmpty() || $$3 <= $$5.getCount()) continue;
++                $$3 = $$5.getCount();
+             }
+-            if (n < 64) {
+-                ++n;
++            if ($$3 < 64) {
++                ++$$3;
+             }
+         }
+-        return n;
++        return $$3;
+     }
+ 
+-    public void moveItemToGrid(net.minecraft.world.inventory.Slot slotToFill, net.minecraft.world.item.ItemStack ingredient) {
+-        int n = this.inventory.findSlotMatchingUnusedItem(ingredient);
+-        if (n == -1) {
++    public void moveItemToGrid(net.minecraft.world.inventory.Slot $$0, net.minecraft.world.item.ItemStack $$1) {
++        int $$2 = this.inventory.findSlotMatchingUnusedItem($$1);
++        if ($$2 == -1) {
+             return;
+         }
+-        net.minecraft.world.item.ItemStack itemStack = this.inventory.getItem(n).copy();
+-        if (itemStack.isEmpty()) {
++        net.minecraft.world.item.ItemStack $$3 = this.inventory.getItem($$2).copy();
++        if ($$3.isEmpty()) {
+             return;
+         }
+-        if (itemStack.getCount() > 1) {
+-            this.inventory.removeItem(n, 1);
++        if ($$3.getCount() > 1) {
++            this.inventory.removeItem($$2, 1);
+         } else {
+-            this.inventory.removeItemNoUpdate(n);
++            this.inventory.removeItemNoUpdate($$2);
+         }
+-        itemStack.setCount(1);
+-        if (slotToFill.getItem().isEmpty()) {
+-            slotToFill.set(itemStack);
++        $$3.setCount(1);
++        if ($$0.getItem().isEmpty()) {
++            $$0.set($$3);
+         } else {
+-            slotToFill.getItem().grow(1);
++            $$0.getItem().grow(1);
+         }
+     }
+ 

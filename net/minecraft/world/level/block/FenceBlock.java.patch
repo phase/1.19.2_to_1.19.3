@@ -1,0 +1,106 @@
+--- net/minecraft/world/level/block/FenceBlock.java
++++ net/minecraft/world/level/block/FenceBlock.java
+@@ -14,67 +14,67 @@
+         this.occlusionByIndex = this.makeShapes(2.0f, 1.0f, 16.0f, 6.0f, 15.0f);
+     }
+ 
+-    public net.minecraft.world.phys.shapes.VoxelShape getOcclusionShape(net.minecraft.world.level.block.state.BlockState state, net.minecraft.world.level.BlockGetter level, net.minecraft.core.BlockPos pos) {
+-        return this.occlusionByIndex[this.getAABBIndex(state)];
++    public net.minecraft.world.phys.shapes.VoxelShape getOcclusionShape(net.minecraft.world.level.block.state.BlockState $$0, net.minecraft.world.level.BlockGetter $$1, net.minecraft.core.BlockPos $$2) {
++        return this.occlusionByIndex[this.getAABBIndex($$0)];
+     }
+ 
+-    public net.minecraft.world.phys.shapes.VoxelShape getVisualShape(net.minecraft.world.level.block.state.BlockState state, net.minecraft.world.level.BlockGetter reader, net.minecraft.core.BlockPos pos, net.minecraft.world.phys.shapes.CollisionContext context) {
+-        return this.getShape(state, reader, pos, context);
++    public net.minecraft.world.phys.shapes.VoxelShape getVisualShape(net.minecraft.world.level.block.state.BlockState $$0, net.minecraft.world.level.BlockGetter $$1, net.minecraft.core.BlockPos $$2, net.minecraft.world.phys.shapes.CollisionContext $$3) {
++        return this.getShape($$0, $$1, $$2, $$3);
+     }
+ 
+-    public boolean isPathfindable(net.minecraft.world.level.block.state.BlockState state, net.minecraft.world.level.BlockGetter level, net.minecraft.core.BlockPos pos, net.minecraft.world.level.pathfinder.PathComputationType type) {
++    public boolean isPathfindable(net.minecraft.world.level.block.state.BlockState $$0, net.minecraft.world.level.BlockGetter $$1, net.minecraft.core.BlockPos $$2, net.minecraft.world.level.pathfinder.PathComputationType $$3) {
+         return false;
+     }
+ 
+-    public boolean connectsTo(net.minecraft.world.level.block.state.BlockState state, boolean isSideSolid, net.minecraft.core.Direction direction) {
+-        net.minecraft.world.level.block.Block block = state.getBlock();
+-        boolean bl = this.isSameFence(state);
+-        boolean bl2 = block instanceof net.minecraft.world.level.block.FenceGateBlock && net.minecraft.world.level.block.FenceGateBlock.connectsToDirection((net.minecraft.world.level.block.state.BlockState)state, (net.minecraft.core.Direction)direction);
+-        return !net.minecraft.world.level.block.FenceBlock.isExceptionForConnection((net.minecraft.world.level.block.state.BlockState)state) && isSideSolid || bl || bl2;
++    public boolean connectsTo(net.minecraft.world.level.block.state.BlockState $$0, boolean $$1, net.minecraft.core.Direction $$2) {
++        net.minecraft.world.level.block.Block $$3 = $$0.getBlock();
++        boolean $$4 = this.isSameFence($$0);
++        boolean $$5 = $$3 instanceof net.minecraft.world.level.block.FenceGateBlock && net.minecraft.world.level.block.FenceGateBlock.connectsToDirection((net.minecraft.world.level.block.state.BlockState)$$0, (net.minecraft.core.Direction)$$2);
++        return !net.minecraft.world.level.block.FenceBlock.isExceptionForConnection((net.minecraft.world.level.block.state.BlockState)$$0) && $$1 || $$4 || $$5;
+     }
+ 
+     public boolean isSameFence(net.minecraft.world.level.block.state.BlockState $$0) {
+         return $$0.is(net.minecraft.tags.BlockTags.FENCES) && $$0.is(net.minecraft.tags.BlockTags.WOODEN_FENCES) == this.defaultBlockState().is(net.minecraft.tags.BlockTags.WOODEN_FENCES);
+     }
+ 
+-    public net.minecraft.world.InteractionResult use(net.minecraft.world.level.block.state.BlockState state, net.minecraft.world.level.Level level, net.minecraft.core.BlockPos pos, net.minecraft.world.entity.player.Player player, net.minecraft.world.InteractionHand hand, net.minecraft.world.phys.BlockHitResult hit) {
+-        if (level.isClientSide) {
+-            net.minecraft.world.item.ItemStack itemStack = player.getItemInHand(hand);
+-            if (itemStack.is(net.minecraft.world.item.Items.LEAD)) {
++    public net.minecraft.world.InteractionResult use(net.minecraft.world.level.block.state.BlockState $$0, net.minecraft.world.level.Level $$1, net.minecraft.core.BlockPos $$2, net.minecraft.world.entity.player.Player $$3, net.minecraft.world.InteractionHand $$4, net.minecraft.world.phys.BlockHitResult $$5) {
++        if ($$1.isClientSide) {
++            net.minecraft.world.item.ItemStack $$6 = $$3.getItemInHand($$4);
++            if ($$6.is(net.minecraft.world.item.Items.LEAD)) {
+                 return net.minecraft.world.InteractionResult.SUCCESS;
+             }
+             return net.minecraft.world.InteractionResult.PASS;
+         }
+-        return net.minecraft.world.item.LeadItem.bindPlayerMobs((net.minecraft.world.entity.player.Player)player, (net.minecraft.world.level.Level)level, (net.minecraft.core.BlockPos)pos);
++        return net.minecraft.world.item.LeadItem.bindPlayerMobs((net.minecraft.world.entity.player.Player)$$3, (net.minecraft.world.level.Level)$$1, (net.minecraft.core.BlockPos)$$2);
+     }
+ 
+-    public net.minecraft.world.level.block.state.BlockState getStateForPlacement(net.minecraft.world.item.context.BlockPlaceContext context) {
+-        net.minecraft.world.level.Level level = context.getLevel();
+-        net.minecraft.core.BlockPos blockPos = context.getClickedPos();
+-        net.minecraft.world.level.material.FluidState fluidState = context.getLevel().getFluidState(context.getClickedPos());
+-        net.minecraft.core.BlockPos blockPos2 = blockPos.north();
+-        net.minecraft.core.BlockPos blockPos3 = blockPos.east();
+-        net.minecraft.core.BlockPos blockPos4 = blockPos.south();
+-        net.minecraft.core.BlockPos blockPos5 = blockPos.west();
+-        net.minecraft.world.level.block.state.BlockState blockState = level.getBlockState(blockPos2);
+-        net.minecraft.world.level.block.state.BlockState blockState2 = level.getBlockState(blockPos3);
+-        net.minecraft.world.level.block.state.BlockState blockState3 = level.getBlockState(blockPos4);
+-        net.minecraft.world.level.block.state.BlockState blockState4 = level.getBlockState(blockPos5);
+-        return (net.minecraft.world.level.block.state.BlockState)((net.minecraft.world.level.block.state.BlockState)((net.minecraft.world.level.block.state.BlockState)((net.minecraft.world.level.block.state.BlockState)((net.minecraft.world.level.block.state.BlockState)super.getStateForPlacement(context).setValue((net.minecraft.world.level.block.state.properties.Property)NORTH, (java.lang.Comparable)java.lang.Boolean.valueOf((boolean)this.connectsTo(blockState, blockState.isFaceSturdy((net.minecraft.world.level.BlockGetter)level, blockPos2, net.minecraft.core.Direction.SOUTH), net.minecraft.core.Direction.SOUTH)))).setValue((net.minecraft.world.level.block.state.properties.Property)EAST, (java.lang.Comparable)java.lang.Boolean.valueOf((boolean)this.connectsTo(blockState2, blockState2.isFaceSturdy((net.minecraft.world.level.BlockGetter)level, blockPos3, net.minecraft.core.Direction.WEST), net.minecraft.core.Direction.WEST)))).setValue((net.minecraft.world.level.block.state.properties.Property)SOUTH, (java.lang.Comparable)java.lang.Boolean.valueOf((boolean)this.connectsTo(blockState3, blockState3.isFaceSturdy((net.minecraft.world.level.BlockGetter)level, blockPos4, net.minecraft.core.Direction.NORTH), net.minecraft.core.Direction.NORTH)))).setValue((net.minecraft.world.level.block.state.properties.Property)WEST, (java.lang.Comparable)java.lang.Boolean.valueOf((boolean)this.connectsTo(blockState4, blockState4.isFaceSturdy((net.minecraft.world.level.BlockGetter)level, blockPos5, net.minecraft.core.Direction.EAST), net.minecraft.core.Direction.EAST)))).setValue((net.minecraft.world.level.block.state.properties.Property)WATERLOGGED, (java.lang.Comparable)java.lang.Boolean.valueOf((fluidState.getType() == net.minecraft.world.level.material.Fluids.WATER ? 1 : 0) != 0));
++    public net.minecraft.world.level.block.state.BlockState getStateForPlacement(net.minecraft.world.item.context.BlockPlaceContext $$0) {
++        net.minecraft.world.level.Level $$1 = $$0.getLevel();
++        net.minecraft.core.BlockPos $$2 = $$0.getClickedPos();
++        net.minecraft.world.level.material.FluidState $$3 = $$0.getLevel().getFluidState($$0.getClickedPos());
++        net.minecraft.core.BlockPos $$4 = $$2.north();
++        net.minecraft.core.BlockPos $$5 = $$2.east();
++        net.minecraft.core.BlockPos $$6 = $$2.south();
++        net.minecraft.core.BlockPos $$7 = $$2.west();
++        net.minecraft.world.level.block.state.BlockState $$8 = $$1.getBlockState($$4);
++        net.minecraft.world.level.block.state.BlockState $$9 = $$1.getBlockState($$5);
++        net.minecraft.world.level.block.state.BlockState $$10 = $$1.getBlockState($$6);
++        net.minecraft.world.level.block.state.BlockState $$11 = $$1.getBlockState($$7);
++        return (net.minecraft.world.level.block.state.BlockState)((net.minecraft.world.level.block.state.BlockState)((net.minecraft.world.level.block.state.BlockState)((net.minecraft.world.level.block.state.BlockState)((net.minecraft.world.level.block.state.BlockState)super.getStateForPlacement($$0).setValue((net.minecraft.world.level.block.state.properties.Property)NORTH, (java.lang.Comparable)java.lang.Boolean.valueOf((boolean)this.connectsTo($$8, $$8.isFaceSturdy((net.minecraft.world.level.BlockGetter)$$1, $$4, net.minecraft.core.Direction.SOUTH), net.minecraft.core.Direction.SOUTH)))).setValue((net.minecraft.world.level.block.state.properties.Property)EAST, (java.lang.Comparable)java.lang.Boolean.valueOf((boolean)this.connectsTo($$9, $$9.isFaceSturdy((net.minecraft.world.level.BlockGetter)$$1, $$5, net.minecraft.core.Direction.WEST), net.minecraft.core.Direction.WEST)))).setValue((net.minecraft.world.level.block.state.properties.Property)SOUTH, (java.lang.Comparable)java.lang.Boolean.valueOf((boolean)this.connectsTo($$10, $$10.isFaceSturdy((net.minecraft.world.level.BlockGetter)$$1, $$6, net.minecraft.core.Direction.NORTH), net.minecraft.core.Direction.NORTH)))).setValue((net.minecraft.world.level.block.state.properties.Property)WEST, (java.lang.Comparable)java.lang.Boolean.valueOf((boolean)this.connectsTo($$11, $$11.isFaceSturdy((net.minecraft.world.level.BlockGetter)$$1, $$7, net.minecraft.core.Direction.EAST), net.minecraft.core.Direction.EAST)))).setValue((net.minecraft.world.level.block.state.properties.Property)WATERLOGGED, (java.lang.Comparable)java.lang.Boolean.valueOf(($$3.getType() == net.minecraft.world.level.material.Fluids.WATER ? 1 : 0) != 0));
+     }
+ 
+-    public net.minecraft.world.level.block.state.BlockState updateShape(net.minecraft.world.level.block.state.BlockState state, net.minecraft.core.Direction facing, net.minecraft.world.level.block.state.BlockState facingState, net.minecraft.world.level.LevelAccessor level, net.minecraft.core.BlockPos currentPos, net.minecraft.core.BlockPos facingPos) {
+-        if (((java.lang.Boolean)state.getValue((net.minecraft.world.level.block.state.properties.Property)WATERLOGGED)).booleanValue()) {
+-            level.scheduleTick(currentPos, (net.minecraft.world.level.material.Fluid)net.minecraft.world.level.material.Fluids.WATER, net.minecraft.world.level.material.Fluids.WATER.getTickDelay((net.minecraft.world.level.LevelReader)level));
++    public net.minecraft.world.level.block.state.BlockState updateShape(net.minecraft.world.level.block.state.BlockState $$0, net.minecraft.core.Direction $$1, net.minecraft.world.level.block.state.BlockState $$2, net.minecraft.world.level.LevelAccessor $$3, net.minecraft.core.BlockPos $$4, net.minecraft.core.BlockPos $$5) {
++        if (((java.lang.Boolean)$$0.getValue((net.minecraft.world.level.block.state.properties.Property)WATERLOGGED)).booleanValue()) {
++            $$3.scheduleTick($$4, (net.minecraft.world.level.material.Fluid)net.minecraft.world.level.material.Fluids.WATER, net.minecraft.world.level.material.Fluids.WATER.getTickDelay((net.minecraft.world.level.LevelReader)$$3));
+         }
+-        if (facing.getAxis().getPlane() == net.minecraft.core.Direction$Plane.HORIZONTAL) {
+-            return (net.minecraft.world.level.block.state.BlockState)state.setValue((net.minecraft.world.level.block.state.properties.Property)PROPERTY_BY_DIRECTION.get((java.lang.Object)facing), (java.lang.Comparable)java.lang.Boolean.valueOf((boolean)this.connectsTo(facingState, facingState.isFaceSturdy((net.minecraft.world.level.BlockGetter)level, facingPos, facing.getOpposite()), facing.getOpposite())));
++        if ($$1.getAxis().getPlane() == net.minecraft.core.Direction$Plane.HORIZONTAL) {
++            return (net.minecraft.world.level.block.state.BlockState)$$0.setValue((net.minecraft.world.level.block.state.properties.Property)PROPERTY_BY_DIRECTION.get((java.lang.Object)$$1), (java.lang.Comparable)java.lang.Boolean.valueOf((boolean)this.connectsTo($$2, $$2.isFaceSturdy((net.minecraft.world.level.BlockGetter)$$3, $$5, $$1.getOpposite()), $$1.getOpposite())));
+         }
+-        return super.updateShape(state, facing, facingState, level, currentPos, facingPos);
++        return super.updateShape($$0, $$1, $$2, $$3, $$4, $$5);
+     }
+ 
+-    public void createBlockStateDefinition(net.minecraft.world.level.block.state.StateDefinition$Builder<net.minecraft.world.level.block.Block, net.minecraft.world.level.block.state.BlockState> builder) {
+-        builder.add(new net.minecraft.world.level.block.state.properties.Property[]{NORTH, EAST, WEST, SOUTH, WATERLOGGED});
++    public void createBlockStateDefinition(net.minecraft.world.level.block.state.StateDefinition$Builder<net.minecraft.world.level.block.Block, net.minecraft.world.level.block.state.BlockState> $$0) {
++        $$0.add(new net.minecraft.world.level.block.state.properties.Property[]{NORTH, EAST, WEST, SOUTH, WATERLOGGED});
+     }
+ }
+ 

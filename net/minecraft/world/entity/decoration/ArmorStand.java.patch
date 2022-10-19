@@ -1,0 +1,800 @@
+--- net/minecraft/world/entity/decoration/ArmorStand.java
++++ net/minecraft/world/entity/decoration/ArmorStand.java
+@@ -59,9 +59,9 @@
+         this.maxUpStep = 0.0f;
+     }
+ 
+-    public net.minecraft.world.entity.decoration.ArmorStand(net.minecraft.world.level.Level level, double x, double y, double z) {
+-        this(net.minecraft.world.entity.EntityType.ARMOR_STAND, level);
+-        this.setPos(x, y, z);
++    public net.minecraft.world.entity.decoration.ArmorStand(net.minecraft.world.level.Level $$0, double $$1, double $$2, double $$3) {
++        this(net.minecraft.world.entity.EntityType.ARMOR_STAND, $$0);
++        this.setPos($$1, $$2, $$3);
+     }
+ 
+     public void refreshDimensions() {
+@@ -99,109 +99,105 @@
+         return this.armorItems;
+     }
+ 
+-    public net.minecraft.world.item.ItemStack getItemBySlot(net.minecraft.world.entity.EquipmentSlot slot) {
+-        switch (net.minecraft.world.entity.decoration.ArmorStand$1.$SwitchMap$net$minecraft$world$entity$EquipmentSlot$Type[slot.getType().ordinal()]) {
++    public net.minecraft.world.item.ItemStack getItemBySlot(net.minecraft.world.entity.EquipmentSlot $$0) {
++        switch (net.minecraft.world.entity.decoration.ArmorStand$1.$SwitchMap$net$minecraft$world$entity$EquipmentSlot$Type[$$0.getType().ordinal()]) {
+             case 1: {
+-                return (net.minecraft.world.item.ItemStack)this.handItems.get(slot.getIndex());
++                return (net.minecraft.world.item.ItemStack)this.handItems.get($$0.getIndex());
+             }
+             case 2: {
+-                return (net.minecraft.world.item.ItemStack)this.armorItems.get(slot.getIndex());
++                return (net.minecraft.world.item.ItemStack)this.armorItems.get($$0.getIndex());
+             }
+         }
+         return net.minecraft.world.item.ItemStack.EMPTY;
+     }
+ 
+-    public void setItemSlot(net.minecraft.world.entity.EquipmentSlot slot, net.minecraft.world.item.ItemStack stack) {
+-        this.verifyEquippedItem(stack);
+-        switch (net.minecraft.world.entity.decoration.ArmorStand$1.$SwitchMap$net$minecraft$world$entity$EquipmentSlot$Type[slot.getType().ordinal()]) {
++    public void setItemSlot(net.minecraft.world.entity.EquipmentSlot $$0, net.minecraft.world.item.ItemStack $$1) {
++        this.verifyEquippedItem($$1);
++        switch (net.minecraft.world.entity.decoration.ArmorStand$1.$SwitchMap$net$minecraft$world$entity$EquipmentSlot$Type[$$0.getType().ordinal()]) {
+             case 1: {
+-                this.onEquipItem(slot, (net.minecraft.world.item.ItemStack)this.handItems.set(slot.getIndex(), (java.lang.Object)stack), stack);
++                this.onEquipItem($$0, (net.minecraft.world.item.ItemStack)this.handItems.set($$0.getIndex(), (java.lang.Object)$$1), $$1);
+                 break;
+             }
+             case 2: {
+-                this.onEquipItem(slot, (net.minecraft.world.item.ItemStack)this.armorItems.set(slot.getIndex(), (java.lang.Object)stack), stack);
++                this.onEquipItem($$0, (net.minecraft.world.item.ItemStack)this.armorItems.set($$0.getIndex(), (java.lang.Object)$$1), $$1);
+             }
+         }
+     }
+ 
+-    public boolean canTakeItem(net.minecraft.world.item.ItemStack itemstack) {
+-        net.minecraft.world.entity.EquipmentSlot equipmentSlot = net.minecraft.world.entity.Mob.getEquipmentSlotForItem((net.minecraft.world.item.ItemStack)itemstack);
+-        return this.getItemBySlot(equipmentSlot).isEmpty() && !this.isDisabled(equipmentSlot);
++    public boolean canTakeItem(net.minecraft.world.item.ItemStack $$0) {
++        net.minecraft.world.entity.EquipmentSlot $$1 = net.minecraft.world.entity.Mob.getEquipmentSlotForItem((net.minecraft.world.item.ItemStack)$$0);
++        return this.getItemBySlot($$1).isEmpty() && !this.isDisabled($$1);
+     }
+ 
+-    public void addAdditionalSaveData(net.minecraft.nbt.CompoundTag compound) {
+-        super.addAdditionalSaveData(compound);
+-        net.minecraft.nbt.ListTag listTag = new net.minecraft.nbt.ListTag();
+-        for (net.minecraft.world.item.ItemStack itemStack : this.armorItems) {
+-            net.minecraft.nbt.CompoundTag compoundTag = new net.minecraft.nbt.CompoundTag();
+-            if (!itemStack.isEmpty()) {
+-                itemStack.save(compoundTag);
++    public void addAdditionalSaveData(net.minecraft.nbt.CompoundTag $$0) {
++        super.addAdditionalSaveData($$0);
++        net.minecraft.nbt.ListTag $$1 = new net.minecraft.nbt.ListTag();
++        for (net.minecraft.world.item.ItemStack $$2 : this.armorItems) {
++            net.minecraft.nbt.CompoundTag $$3 = new net.minecraft.nbt.CompoundTag();
++            if (!$$2.isEmpty()) {
++                $$2.save($$3);
+             }
+-            listTag.add((java.lang.Object)compoundTag);
++            $$1.add((java.lang.Object)$$3);
+         }
+-        compound.put("ArmorItems", (net.minecraft.nbt.Tag)listTag);
+-        java.util.Iterator iterator = new net.minecraft.nbt.ListTag();
+-        for (net.minecraft.nbt.CompoundTag compoundTag : this.handItems) {
+-            net.minecraft.nbt.CompoundTag compoundTag2 = new net.minecraft.nbt.CompoundTag();
+-            if (!compoundTag.isEmpty()) {
+-                compoundTag.save(compoundTag2);
++        $$0.put("ArmorItems", (net.minecraft.nbt.Tag)$$1);
++        net.minecraft.nbt.ListTag $$4 = new net.minecraft.nbt.ListTag();
++        for (net.minecraft.world.item.ItemStack $$5 : this.handItems) {
++            net.minecraft.nbt.CompoundTag $$6 = new net.minecraft.nbt.CompoundTag();
++            if (!$$5.isEmpty()) {
++                $$5.save($$6);
+             }
+-            iterator.add((java.lang.Object)compoundTag2);
++            $$4.add((java.lang.Object)$$6);
+         }
+-        compound.put("HandItems", (net.minecraft.nbt.Tag)iterator);
+-        compound.putBoolean("Invisible", this.isInvisible());
+-        compound.putBoolean("Small", this.isSmall());
+-        compound.putBoolean("ShowArms", this.isShowArms());
+-        compound.putInt("DisabledSlots", this.disabledSlots);
+-        compound.putBoolean("NoBasePlate", this.isNoBasePlate());
++        $$0.put("HandItems", (net.minecraft.nbt.Tag)$$4);
++        $$0.putBoolean("Invisible", this.isInvisible());
++        $$0.putBoolean("Small", this.isSmall());
++        $$0.putBoolean("ShowArms", this.isShowArms());
++        $$0.putInt("DisabledSlots", this.disabledSlots);
++        $$0.putBoolean("NoBasePlate", this.isNoBasePlate());
+         if (this.isMarker()) {
+-            compound.putBoolean("Marker", this.isMarker());
++            $$0.putBoolean("Marker", this.isMarker());
+         }
+-        compound.put("Pose", (net.minecraft.nbt.Tag)this.writePose());
++        $$0.put("Pose", (net.minecraft.nbt.Tag)this.writePose());
+     }
+ 
+-    public void readAdditionalSaveData(net.minecraft.nbt.CompoundTag compound) {
+-        int n;
+-        net.minecraft.nbt.ListTag listTag;
+-        super.readAdditionalSaveData(compound);
+-        if (compound.contains("ArmorItems", 9)) {
+-            listTag = compound.getList("ArmorItems", 10);
+-            for (n = 0;
+- n < this.armorItems.size(); ++n) {
+-                this.armorItems.set(n, (java.lang.Object)net.minecraft.world.item.ItemStack.of((net.minecraft.nbt.CompoundTag)listTag.getCompound(n)));
++    public void readAdditionalSaveData(net.minecraft.nbt.CompoundTag $$0) {
++        super.readAdditionalSaveData($$0);
++        if ($$0.contains("ArmorItems", 9)) {
++            net.minecraft.nbt.ListTag $$1 = $$0.getList("ArmorItems", 10);
++            for (int $$2 = 0; $$2 < this.armorItems.size(); ++$$2) {
++                this.armorItems.set($$2, (java.lang.Object)net.minecraft.world.item.ItemStack.of((net.minecraft.nbt.CompoundTag)$$1.getCompound($$2)));
+             }
+         }
+-        if (compound.contains("HandItems", 9)) {
+-            listTag = compound.getList("HandItems", 10);
+-            for (n = 0;
+- n < this.handItems.size(); ++n) {
+-                this.handItems.set(n, (java.lang.Object)net.minecraft.world.item.ItemStack.of((net.minecraft.nbt.CompoundTag)listTag.getCompound(n)));
++        if ($$0.contains("HandItems", 9)) {
++            net.minecraft.nbt.ListTag $$3 = $$0.getList("HandItems", 10);
++            for (int $$4 = 0; $$4 < this.handItems.size(); ++$$4) {
++                this.handItems.set($$4, (java.lang.Object)net.minecraft.world.item.ItemStack.of((net.minecraft.nbt.CompoundTag)$$3.getCompound($$4)));
+             }
+         }
+-        this.setInvisible(compound.getBoolean("Invisible"));
+-        this.setSmall(compound.getBoolean("Small"));
+-        this.setShowArms(compound.getBoolean("ShowArms"));
+-        this.disabledSlots = compound.getInt("DisabledSlots");
+-        this.setNoBasePlate(compound.getBoolean("NoBasePlate"));
+-        this.setMarker(compound.getBoolean("Marker"));
++        this.setInvisible($$0.getBoolean("Invisible"));
++        this.setSmall($$0.getBoolean("Small"));
++        this.setShowArms($$0.getBoolean("ShowArms"));
++        this.disabledSlots = $$0.getInt("DisabledSlots");
++        this.setNoBasePlate($$0.getBoolean("NoBasePlate"));
++        this.setMarker($$0.getBoolean("Marker"));
+         this.noPhysics = !this.hasPhysics();
+-        listTag = compound.getCompound("Pose");
+-        this.readPose((net.minecraft.nbt.CompoundTag)listTag);
++        net.minecraft.nbt.CompoundTag $$5 = $$0.getCompound("Pose");
++        this.readPose($$5);
+     }
+ 
+-    public void readPose(net.minecraft.nbt.CompoundTag compound) {
+-        net.minecraft.nbt.ListTag listTag = compound.getList("Head", 5);
+-        this.setHeadPose(listTag.isEmpty() ? DEFAULT_HEAD_POSE : new net.minecraft.core.Rotations(listTag));
+-        net.minecraft.nbt.ListTag listTag2 = compound.getList("Body", 5);
+-        this.setBodyPose(listTag2.isEmpty() ? DEFAULT_BODY_POSE : new net.minecraft.core.Rotations(listTag2));
+-        net.minecraft.nbt.ListTag listTag3 = compound.getList("LeftArm", 5);
+-        this.setLeftArmPose(listTag3.isEmpty() ? DEFAULT_LEFT_ARM_POSE : new net.minecraft.core.Rotations(listTag3));
+-        net.minecraft.nbt.ListTag listTag4 = compound.getList("RightArm", 5);
+-        this.setRightArmPose(listTag4.isEmpty() ? DEFAULT_RIGHT_ARM_POSE : new net.minecraft.core.Rotations(listTag4));
+-        net.minecraft.nbt.ListTag listTag5 = compound.getList("LeftLeg", 5);
+-        this.setLeftLegPose(listTag5.isEmpty() ? DEFAULT_LEFT_LEG_POSE : new net.minecraft.core.Rotations(listTag5));
+-        net.minecraft.nbt.ListTag listTag6 = compound.getList("RightLeg", 5);
+-        this.setRightLegPose(listTag6.isEmpty() ? DEFAULT_RIGHT_LEG_POSE : new net.minecraft.core.Rotations(listTag6));
++    public void readPose(net.minecraft.nbt.CompoundTag $$0) {
++        net.minecraft.nbt.ListTag $$1 = $$0.getList("Head", 5);
++        this.setHeadPose($$1.isEmpty() ? DEFAULT_HEAD_POSE : new net.minecraft.core.Rotations($$1));
++        net.minecraft.nbt.ListTag $$2 = $$0.getList("Body", 5);
++        this.setBodyPose($$2.isEmpty() ? DEFAULT_BODY_POSE : new net.minecraft.core.Rotations($$2));
++        net.minecraft.nbt.ListTag $$3 = $$0.getList("LeftArm", 5);
++        this.setLeftArmPose($$3.isEmpty() ? DEFAULT_LEFT_ARM_POSE : new net.minecraft.core.Rotations($$3));
++        net.minecraft.nbt.ListTag $$4 = $$0.getList("RightArm", 5);
++        this.setRightArmPose($$4.isEmpty() ? DEFAULT_RIGHT_ARM_POSE : new net.minecraft.core.Rotations($$4));
++        net.minecraft.nbt.ListTag $$5 = $$0.getList("LeftLeg", 5);
++        this.setLeftLegPose($$5.isEmpty() ? DEFAULT_LEFT_LEG_POSE : new net.minecraft.core.Rotations($$5));
++        net.minecraft.nbt.ListTag $$6 = $$0.getList("RightLeg", 5);
++        this.setRightLegPose($$6.isEmpty() ? DEFAULT_RIGHT_LEG_POSE : new net.minecraft.core.Rotations($$6));
+     }
+ 
+     public net.minecraft.nbt.CompoundTag writePose() {
+@@ -231,7 +227,7 @@
+         return false;
+     }
+ 
+-    public void doPush(net.minecraft.world.entity.Entity entity) {
++    public void doPush(net.minecraft.world.entity.Entity $$0) {
+     }
+ 
+     public void pushEntities() {
+@@ -243,33 +239,33 @@
+         }
+     }
+ 
+-    public net.minecraft.world.InteractionResult interactAt(net.minecraft.world.entity.player.Player player, net.minecraft.world.phys.Vec3 vec, net.minecraft.world.InteractionHand hand) {
+-        net.minecraft.world.item.ItemStack itemStack = player.getItemInHand(hand);
+-        if (this.isMarker() || itemStack.is(net.minecraft.world.item.Items.NAME_TAG)) {
++    public net.minecraft.world.InteractionResult interactAt(net.minecraft.world.entity.player.Player $$0, net.minecraft.world.phys.Vec3 $$1, net.minecraft.world.InteractionHand $$2) {
++        net.minecraft.world.item.ItemStack $$3 = $$0.getItemInHand($$2);
++        if (this.isMarker() || $$3.is(net.minecraft.world.item.Items.NAME_TAG)) {
+             return net.minecraft.world.InteractionResult.PASS;
+         }
+-        if (player.isSpectator()) {
++        if ($$0.isSpectator()) {
+             return net.minecraft.world.InteractionResult.SUCCESS;
+         }
+-        if (player.level.isClientSide) {
++        if ($$0.level.isClientSide) {
+             return net.minecraft.world.InteractionResult.CONSUME;
+         }
+-        net.minecraft.world.entity.EquipmentSlot equipmentSlot = net.minecraft.world.entity.Mob.getEquipmentSlotForItem((net.minecraft.world.item.ItemStack)itemStack);
+-        if (itemStack.isEmpty()) {
+-            net.minecraft.world.entity.EquipmentSlot equipmentSlot2;
+-            net.minecraft.world.entity.EquipmentSlot equipmentSlot3 = this.getClickedSlot(vec);
+-            net.minecraft.world.entity.EquipmentSlot equipmentSlot4 = equipmentSlot2 = this.isDisabled(equipmentSlot3) ? equipmentSlot : equipmentSlot3;
+-            if (this.hasItemInSlot(equipmentSlot2) && this.swapItem(player, equipmentSlot2, itemStack, hand)) {
++        net.minecraft.world.entity.EquipmentSlot $$4 = net.minecraft.world.entity.Mob.getEquipmentSlotForItem((net.minecraft.world.item.ItemStack)$$3);
++        if ($$3.isEmpty()) {
++            net.minecraft.world.entity.EquipmentSlot $$6;
++            net.minecraft.world.entity.EquipmentSlot $$5 = this.getClickedSlot($$1);
++            net.minecraft.world.entity.EquipmentSlot equipmentSlot = $$6 = this.isDisabled($$5) ? $$4 : $$5;
++            if (this.hasItemInSlot($$6) && this.swapItem($$0, $$6, $$3, $$2)) {
+                 return net.minecraft.world.InteractionResult.SUCCESS;
+             }
+         } else {
+-            if (this.isDisabled(equipmentSlot)) {
++            if (this.isDisabled($$4)) {
+                 return net.minecraft.world.InteractionResult.FAIL;
+             }
+-            if (equipmentSlot.getType() == net.minecraft.world.entity.EquipmentSlot$Type.HAND && !this.isShowArms()) {
++            if ($$4.getType() == net.minecraft.world.entity.EquipmentSlot$Type.HAND && !this.isShowArms()) {
+                 return net.minecraft.world.InteractionResult.FAIL;
+             }
+-            if (this.swapItem(player, equipmentSlot, itemStack, hand)) {
++            if (this.swapItem($$0, $$4, $$3, $$2)) {
+                 return net.minecraft.world.InteractionResult.SUCCESS;
+             }
+         }
+@@ -279,146 +275,146 @@
+     /*
+      * Unable to fully structure code
+      */
+-    public net.minecraft.world.entity.EquipmentSlot getClickedSlot(net.minecraft.world.phys.Vec3 vector) {
++    public net.minecraft.world.entity.EquipmentSlot getClickedSlot(net.minecraft.world.phys.Vec3 $$0) {
+ block6:        {
+ block7:            {
+ block5:                {
+-                    var2_2 = net.minecraft.world.entity.EquipmentSlot.MAINHAND;
+-                    var3_3 = this.isSmall();
+-                    var4_4 = var3_3 != false ? vector.y * 2.0 : vector.y;
+-                    var6_5 = net.minecraft.world.entity.EquipmentSlot.FEET;
+-                    if (!(var4_4 >= 0.1)) break block5;
+-                    v0 = var3_3 != false ? 0.8 : 0.45;
+-                    if (!(var4_4 < 0.1 + v0) || !this.hasItemInSlot(var6_5)) break block5;
+-                    var2_2 = net.minecraft.world.entity.EquipmentSlot.FEET;
++                    $$1 = net.minecraft.world.entity.EquipmentSlot.MAINHAND;
++                    $$2 = this.isSmall();
++                    $$3 = $$2 != false ? $$0.y * 2.0 : $$0.y;
++                    $$4 = net.minecraft.world.entity.EquipmentSlot.FEET;
++                    if (!($$3 >= 0.1)) break block5;
++                    v0 = $$2 != false ? 0.8 : 0.45;
++                    if (!($$3 < 0.1 + v0) || !this.hasItemInSlot($$4)) break block5;
++                    $$1 = net.minecraft.world.entity.EquipmentSlot.FEET;
+                     break block6;
+                 }
+-                v1 = var3_3 != false ? 0.3 : 0.0;
+-                if (!(var4_4 >= 0.9 + v1)) break block7;
+-                v2 = var3_3 != false ? 1.0 : 0.7;
+-                if (!(var4_4 < 0.9 + v2) || !this.hasItemInSlot(net.minecraft.world.entity.EquipmentSlot.CHEST)) break block7;
+-                var2_2 = net.minecraft.world.entity.EquipmentSlot.CHEST;
++                v1 = $$2 != false ? 0.3 : 0.0;
++                if (!($$3 >= 0.9 + v1)) break block7;
++                v2 = $$2 != false ? 1.0 : 0.7;
++                if (!($$3 < 0.9 + v2) || !this.hasItemInSlot(net.minecraft.world.entity.EquipmentSlot.CHEST)) break block7;
++                $$1 = net.minecraft.world.entity.EquipmentSlot.CHEST;
+                 break block6;
+             }
+-            if (!(var4_4 >= 0.4)) ** GOTO lbl-1000
+-            v3 = var3_3 != false ? 1.0 : 0.8;
+-            if (var4_4 < 0.4 + v3 && this.hasItemInSlot(net.minecraft.world.entity.EquipmentSlot.LEGS)) {
+-                var2_2 = net.minecraft.world.entity.EquipmentSlot.LEGS;
+-            } else if (var4_4 >= 1.6 && this.hasItemInSlot(net.minecraft.world.entity.EquipmentSlot.HEAD)) {
+-                var2_2 = net.minecraft.world.entity.EquipmentSlot.HEAD;
++            if (!($$3 >= 0.4)) ** GOTO lbl-1000
++            v3 = $$2 != false ? 1.0 : 0.8;
++            if ($$3 < 0.4 + v3 && this.hasItemInSlot(net.minecraft.world.entity.EquipmentSlot.LEGS)) {
++                $$1 = net.minecraft.world.entity.EquipmentSlot.LEGS;
++            } else if ($$3 >= 1.6 && this.hasItemInSlot(net.minecraft.world.entity.EquipmentSlot.HEAD)) {
++                $$1 = net.minecraft.world.entity.EquipmentSlot.HEAD;
+             } else if (!this.hasItemInSlot(net.minecraft.world.entity.EquipmentSlot.MAINHAND) && this.hasItemInSlot(net.minecraft.world.entity.EquipmentSlot.OFFHAND)) {
+-                var2_2 = net.minecraft.world.entity.EquipmentSlot.OFFHAND;
++                $$1 = net.minecraft.world.entity.EquipmentSlot.OFFHAND;
+             }
+         }
+-        return var2_2;
++        return $$1;
+     }
+ 
+-    public boolean isDisabled(net.minecraft.world.entity.EquipmentSlot slot) {
+-        return (this.disabledSlots & 1 << slot.getFilterFlag()) != 0 || slot.getType() == net.minecraft.world.entity.EquipmentSlot$Type.HAND && !this.isShowArms();
++    public boolean isDisabled(net.minecraft.world.entity.EquipmentSlot $$0) {
++        return (this.disabledSlots & 1 << $$0.getFilterFlag()) != 0 || $$0.getType() == net.minecraft.world.entity.EquipmentSlot$Type.HAND && !this.isShowArms();
+     }
+ 
+-    public boolean swapItem(net.minecraft.world.entity.player.Player player, net.minecraft.world.entity.EquipmentSlot slot, net.minecraft.world.item.ItemStack stack, net.minecraft.world.InteractionHand hand) {
+-        net.minecraft.world.item.ItemStack itemStack = this.getItemBySlot(slot);
+-        if (!itemStack.isEmpty() && (this.disabledSlots & 1 << slot.getFilterFlag() + 8) != 0) {
++    public boolean swapItem(net.minecraft.world.entity.player.Player $$0, net.minecraft.world.entity.EquipmentSlot $$1, net.minecraft.world.item.ItemStack $$2, net.minecraft.world.InteractionHand $$3) {
++        net.minecraft.world.item.ItemStack $$4 = this.getItemBySlot($$1);
++        if (!$$4.isEmpty() && (this.disabledSlots & 1 << $$1.getFilterFlag() + 8) != 0) {
+             return false;
+         }
+-        if (itemStack.isEmpty() && (this.disabledSlots & 1 << slot.getFilterFlag() + 16) != 0) {
++        if ($$4.isEmpty() && (this.disabledSlots & 1 << $$1.getFilterFlag() + 16) != 0) {
+             return false;
+         }
+-        if (player.getAbilities().instabuild && itemStack.isEmpty() && !stack.isEmpty()) {
+-            net.minecraft.world.item.ItemStack itemStack2 = stack.copy();
+-            itemStack2.setCount(1);
+-            this.setItemSlot(slot, itemStack2);
++        if ($$0.getAbilities().instabuild && $$4.isEmpty() && !$$2.isEmpty()) {
++            net.minecraft.world.item.ItemStack $$5 = $$2.copy();
++            $$5.setCount(1);
++            this.setItemSlot($$1, $$5);
+             return true;
+         }
+-        if (!stack.isEmpty() && stack.getCount() > 1) {
+-            if (!itemStack.isEmpty()) {
++        if (!$$2.isEmpty() && $$2.getCount() > 1) {
++            if (!$$4.isEmpty()) {
+                 return false;
+             }
+-            net.minecraft.world.item.ItemStack itemStack3 = stack.copy();
+-            itemStack3.setCount(1);
+-            this.setItemSlot(slot, itemStack3);
+-            stack.shrink(1);
++            net.minecraft.world.item.ItemStack $$6 = $$2.copy();
++            $$6.setCount(1);
++            this.setItemSlot($$1, $$6);
++            $$2.shrink(1);
+             return true;
+         }
+-        this.setItemSlot(slot, stack);
+-        player.setItemInHand(hand, itemStack);
++        this.setItemSlot($$1, $$2);
++        $$0.setItemInHand($$3, $$4);
+         return true;
+     }
+ 
+-    public boolean hurt(net.minecraft.world.damagesource.DamageSource source, float amount) {
++    public boolean hurt(net.minecraft.world.damagesource.DamageSource $$0, float $$1) {
+         if (this.level.isClientSide || this.isRemoved()) {
+             return false;
+         }
+-        if (net.minecraft.world.damagesource.DamageSource.OUT_OF_WORLD.equals((java.lang.Object)source)) {
++        if (net.minecraft.world.damagesource.DamageSource.OUT_OF_WORLD.equals((java.lang.Object)$$0)) {
+             this.kill();
+             return false;
+         }
+-        if (this.isInvulnerableTo(source) || this.invisible || this.isMarker()) {
++        if (this.isInvulnerableTo($$0) || this.invisible || this.isMarker()) {
+             return false;
+         }
+-        if (source.isExplosion()) {
+-            this.brokenByAnything(source);
++        if ($$0.isExplosion()) {
++            this.brokenByAnything($$0);
+             this.kill();
+             return false;
+         }
+-        if (net.minecraft.world.damagesource.DamageSource.IN_FIRE.equals((java.lang.Object)source)) {
++        if (net.minecraft.world.damagesource.DamageSource.IN_FIRE.equals((java.lang.Object)$$0)) {
+             if (this.isOnFire()) {
+-                this.causeDamage(source, 0.15f);
++                this.causeDamage($$0, 0.15f);
+             } else {
+                 this.setSecondsOnFire(5);
+             }
+             return false;
+         }
+-        if (net.minecraft.world.damagesource.DamageSource.ON_FIRE.equals((java.lang.Object)source) && this.getHealth() > 0.5f) {
+-            this.causeDamage(source, 4.0f);
++        if (net.minecraft.world.damagesource.DamageSource.ON_FIRE.equals((java.lang.Object)$$0) && this.getHealth() > 0.5f) {
++            this.causeDamage($$0, 4.0f);
+             return false;
+         }
+-        boolean bl = source.getDirectEntity() instanceof net.minecraft.world.entity.projectile.AbstractArrow;
+-        boolean bl2 = bl && ((net.minecraft.world.entity.projectile.AbstractArrow)source.getDirectEntity()).getPierceLevel() > 0;
+-        boolean bl3 = "player".equals((java.lang.Object)source.getMsgId());
+-        if (!bl3 && !bl) {
++        boolean $$2 = $$0.getDirectEntity() instanceof net.minecraft.world.entity.projectile.AbstractArrow;
++        boolean $$3 = $$2 && ((net.minecraft.world.entity.projectile.AbstractArrow)$$0.getDirectEntity()).getPierceLevel() > 0;
++        boolean $$4 = "player".equals((java.lang.Object)$$0.getMsgId());
++        if (!$$4 && !$$2) {
+             return false;
+         }
+-        if (source.getEntity() instanceof net.minecraft.world.entity.player.Player && !((net.minecraft.world.entity.player.Player)source.getEntity()).getAbilities().mayBuild) {
++        if ($$0.getEntity() instanceof net.minecraft.world.entity.player.Player && !((net.minecraft.world.entity.player.Player)$$0.getEntity()).getAbilities().mayBuild) {
+             return false;
+         }
+-        if (source.isCreativePlayer()) {
++        if ($$0.isCreativePlayer()) {
+             this.playBrokenSound();
+             this.showBreakingParticles();
+             this.kill();
+-            return bl2;
++            return $$3;
+         }
+-        long l = this.level.getGameTime();
+-        if (l - this.lastHit <= 5L || bl) {
+-            this.brokenByPlayer(source);
++        long $$5 = this.level.getGameTime();
++        if ($$5 - this.lastHit <= 5L || $$2) {
++            this.brokenByPlayer($$0);
+             this.showBreakingParticles();
+             this.kill();
+         } else {
+             this.level.broadcastEntityEvent((net.minecraft.world.entity.Entity)this, (byte)32);
+-            this.gameEvent(net.minecraft.world.level.gameevent.GameEvent.ENTITY_DAMAGE, source.getEntity());
+-            this.lastHit = l;
++            this.gameEvent(net.minecraft.world.level.gameevent.GameEvent.ENTITY_DAMAGE, $$0.getEntity());
++            this.lastHit = $$5;
+         }
+         return true;
+     }
+ 
+-    public void handleEntityEvent(byte id) {
+-        if (id == 32) {
++    public void handleEntityEvent(byte $$0) {
++        if ($$0 == 32) {
+             if (this.level.isClientSide) {
+                 this.level.playLocalSound(this.getX(), this.getY(), this.getZ(), net.minecraft.sounds.SoundEvents.ARMOR_STAND_HIT, this.getSoundSource(), 0.3f, 1.0f, false);
+                 this.lastHit = this.level.getGameTime();
+             }
+         } else {
+-            super.handleEntityEvent(id);
++            super.handleEntityEvent($$0);
+         }
+     }
+ 
+-    public boolean shouldRenderAtSqrDistance(double distance) {
+-        double d = this.getBoundingBox().getSize() * 4.0;
+-        if (java.lang.Double.isNaN((double)d) || d == 0.0) {
+-            d = 4.0;
++    public boolean shouldRenderAtSqrDistance(double $$0) {
++        double $$1 = this.getBoundingBox().getSize() * 4.0;
++        if (java.lang.Double.isNaN((double)$$1) || $$1 == 0.0) {
++            $$1 = 4.0;
+         }
+-        return distance < (d *= 64.0) * d;
++        return $$0 < ($$1 *= 64.0) * $$1;
+     }
+ 
+     public void showBreakingParticles() {
+@@ -427,40 +423,36 @@
+         }
+     }
+ 
+-    public void causeDamage(net.minecraft.world.damagesource.DamageSource damageSource, float amount) {
+-        float f = this.getHealth();
+-        if ((f -= amount) <= 0.5f) {
+-            this.brokenByAnything(damageSource);
++    public void causeDamage(net.minecraft.world.damagesource.DamageSource $$0, float $$1) {
++        float $$2 = this.getHealth();
++        if (($$2 -= $$1) <= 0.5f) {
++            this.brokenByAnything($$0);
+             this.kill();
+         } else {
+-            this.setHealth(f);
+-            this.gameEvent(net.minecraft.world.level.gameevent.GameEvent.ENTITY_DAMAGE, damageSource.getEntity());
++            this.setHealth($$2);
++            this.gameEvent(net.minecraft.world.level.gameevent.GameEvent.ENTITY_DAMAGE, $$0.getEntity());
+         }
+     }
+ 
+-    public void brokenByPlayer(net.minecraft.world.damagesource.DamageSource damageSource) {
++    public void brokenByPlayer(net.minecraft.world.damagesource.DamageSource $$0) {
+         net.minecraft.world.level.block.Block.popResource((net.minecraft.world.level.Level)this.level, (net.minecraft.core.BlockPos)this.blockPosition(), (net.minecraft.world.item.ItemStack)new net.minecraft.world.item.ItemStack((net.minecraft.world.level.ItemLike)net.minecraft.world.item.Items.ARMOR_STAND));
+-        this.brokenByAnything(damageSource);
++        this.brokenByAnything($$0);
+     }
+ 
+-    public void brokenByAnything(net.minecraft.world.damagesource.DamageSource damageSource) {
+-        net.minecraft.world.item.ItemStack itemStack;
+-        int n;
++    public void brokenByAnything(net.minecraft.world.damagesource.DamageSource $$0) {
+         this.playBrokenSound();
+-        this.dropAllDeathLoot(damageSource);
+-        for (n = 0;
+- n < this.handItems.size(); ++n) {
+-            itemStack = (net.minecraft.world.item.ItemStack)this.handItems.get(n);
+-            if (itemStack.isEmpty()) continue;
+-            net.minecraft.world.level.block.Block.popResource((net.minecraft.world.level.Level)this.level, (net.minecraft.core.BlockPos)this.blockPosition().above(), (net.minecraft.world.item.ItemStack)itemStack);
+-            this.handItems.set(n, (java.lang.Object)net.minecraft.world.item.ItemStack.EMPTY);
++        this.dropAllDeathLoot($$0);
++        for (int $$1 = 0; $$1 < this.handItems.size(); ++$$1) {
++            net.minecraft.world.item.ItemStack $$2 = (net.minecraft.world.item.ItemStack)this.handItems.get($$1);
++            if ($$2.isEmpty()) continue;
++            net.minecraft.world.level.block.Block.popResource((net.minecraft.world.level.Level)this.level, (net.minecraft.core.BlockPos)this.blockPosition().above(), (net.minecraft.world.item.ItemStack)$$2);
++            this.handItems.set($$1, (java.lang.Object)net.minecraft.world.item.ItemStack.EMPTY);
+         }
+-        for (n = 0;
+- n < this.armorItems.size(); ++n) {
+-            itemStack = (net.minecraft.world.item.ItemStack)this.armorItems.get(n);
+-            if (itemStack.isEmpty()) continue;
+-            net.minecraft.world.level.block.Block.popResource((net.minecraft.world.level.Level)this.level, (net.minecraft.core.BlockPos)this.blockPosition().above(), (net.minecraft.world.item.ItemStack)itemStack);
+-            this.armorItems.set(n, (java.lang.Object)net.minecraft.world.item.ItemStack.EMPTY);
++        for (int $$3 = 0; $$3 < this.armorItems.size(); ++$$3) {
++            net.minecraft.world.item.ItemStack $$4 = (net.minecraft.world.item.ItemStack)this.armorItems.get($$3);
++            if ($$4.isEmpty()) continue;
++            net.minecraft.world.level.block.Block.popResource((net.minecraft.world.level.Level)this.level, (net.minecraft.core.BlockPos)this.blockPosition().above(), (net.minecraft.world.item.ItemStack)$$4);
++            this.armorItems.set($$3, (java.lang.Object)net.minecraft.world.item.ItemStack.EMPTY);
+         }
+     }
+ 
+@@ -468,35 +460,35 @@
+         this.level.playSound(null, this.getX(), this.getY(), this.getZ(), net.minecraft.sounds.SoundEvents.ARMOR_STAND_BREAK, this.getSoundSource(), 1.0f, 1.0f);
+     }
+ 
+-    public float tickHeadTurn(float yRot, float animStep) {
++    public float tickHeadTurn(float $$0, float $$1) {
+         this.yBodyRotO = this.yRotO;
+         this.yBodyRot = this.getYRot();
+         return 0.0f;
+     }
+ 
+-    public float getStandingEyeHeight(net.minecraft.world.entity.Pose pose, net.minecraft.world.entity.EntityDimensions size) {
+-        return size.height * (this.isBaby() ? 0.5f : 0.9f);
++    public float getStandingEyeHeight(net.minecraft.world.entity.Pose $$0, net.minecraft.world.entity.EntityDimensions $$1) {
++        return $$1.height * (this.isBaby() ? 0.5f : 0.9f);
+     }
+ 
+     public double getMyRidingOffset() {
+         return this.isMarker() ? 0.0 : (double)0.1f;
+     }
+ 
+-    public void travel(net.minecraft.world.phys.Vec3 travelVector) {
++    public void travel(net.minecraft.world.phys.Vec3 $$0) {
+         if (!this.hasPhysics()) {
+             return;
+         }
+-        super.travel(travelVector);
++        super.travel($$0);
+     }
+ 
+-    public void setYBodyRot(float offset) {
+-        this.yBodyRotO = this.yRotO = offset;
+-        this.yHeadRotO = this.yHeadRot = offset;
++    public void setYBodyRot(float $$0) {
++        this.yBodyRotO = this.yRotO = $$0;
++        this.yHeadRotO = this.yHeadRot = $$0;
+     }
+ 
+-    public void setYHeadRot(float rotation) {
+-        this.yBodyRotO = this.yRotO = rotation;
+-        this.yHeadRotO = this.yHeadRot = rotation;
++    public void setYHeadRot(float $$0) {
++        this.yBodyRotO = this.yRotO = $$0;
++        this.yHeadRotO = this.yHeadRot = $$0;
+     }
+ 
+     public void tick() {
+@@ -531,9 +523,9 @@
+         this.setInvisible(this.invisible);
+     }
+ 
+-    public void setInvisible(boolean invisible) {
+-        this.invisible = invisible;
+-        super.setInvisible(invisible);
++    public void setInvisible(boolean $$0) {
++        this.invisible = $$0;
++        super.setInvisible($$0);
+     }
+ 
+     public boolean isBaby() {
+@@ -556,71 +548,71 @@
+         return super.getPistonPushReaction();
+     }
+ 
+-    public void setSmall(boolean small) {
+-        this.entityData.set(DATA_CLIENT_FLAGS, (java.lang.Object)this.setBit(((java.lang.Byte)this.entityData.get(DATA_CLIENT_FLAGS)).byteValue(), 1, small));
++    public void setSmall(boolean $$0) {
++        this.entityData.set(DATA_CLIENT_FLAGS, (java.lang.Object)this.setBit(((java.lang.Byte)this.entityData.get(DATA_CLIENT_FLAGS)).byteValue(), 1, $$0));
+     }
+ 
+     public boolean isSmall() {
+         return ((java.lang.Byte)this.entityData.get(DATA_CLIENT_FLAGS) & 1) != 0;
+     }
+ 
+-    public void setShowArms(boolean showArms) {
+-        this.entityData.set(DATA_CLIENT_FLAGS, (java.lang.Object)this.setBit(((java.lang.Byte)this.entityData.get(DATA_CLIENT_FLAGS)).byteValue(), 4, showArms));
++    public void setShowArms(boolean $$0) {
++        this.entityData.set(DATA_CLIENT_FLAGS, (java.lang.Object)this.setBit(((java.lang.Byte)this.entityData.get(DATA_CLIENT_FLAGS)).byteValue(), 4, $$0));
+     }
+ 
+     public boolean isShowArms() {
+         return ((java.lang.Byte)this.entityData.get(DATA_CLIENT_FLAGS) & 4) != 0;
+     }
+ 
+-    public void setNoBasePlate(boolean noBasePlate) {
+-        this.entityData.set(DATA_CLIENT_FLAGS, (java.lang.Object)this.setBit(((java.lang.Byte)this.entityData.get(DATA_CLIENT_FLAGS)).byteValue(), 8, noBasePlate));
++    public void setNoBasePlate(boolean $$0) {
++        this.entityData.set(DATA_CLIENT_FLAGS, (java.lang.Object)this.setBit(((java.lang.Byte)this.entityData.get(DATA_CLIENT_FLAGS)).byteValue(), 8, $$0));
+     }
+ 
+     public boolean isNoBasePlate() {
+         return ((java.lang.Byte)this.entityData.get(DATA_CLIENT_FLAGS) & 8) != 0;
+     }
+ 
+-    public void setMarker(boolean marker) {
+-        this.entityData.set(DATA_CLIENT_FLAGS, (java.lang.Object)this.setBit(((java.lang.Byte)this.entityData.get(DATA_CLIENT_FLAGS)).byteValue(), 16, marker));
++    public void setMarker(boolean $$0) {
++        this.entityData.set(DATA_CLIENT_FLAGS, (java.lang.Object)this.setBit(((java.lang.Byte)this.entityData.get(DATA_CLIENT_FLAGS)).byteValue(), 16, $$0));
+     }
+ 
+     public boolean isMarker() {
+         return ((java.lang.Byte)this.entityData.get(DATA_CLIENT_FLAGS) & 0x10) != 0;
+     }
+ 
+-    public byte setBit(byte oldBit, int offset, boolean value) {
+-        oldBit = value ? (byte)(oldBit | offset) : (byte)(oldBit & ~offset);
+-        return oldBit;
++    public byte setBit(byte $$0, int $$1, boolean $$2) {
++        $$0 = $$2 ? (byte)($$0 | $$1) : (byte)($$0 & ~$$1);
++        return $$0;
+     }
+ 
+-    public void setHeadPose(net.minecraft.core.Rotations headPose) {
+-        this.headPose = headPose;
+-        this.entityData.set(DATA_HEAD_POSE, (java.lang.Object)headPose);
++    public void setHeadPose(net.minecraft.core.Rotations $$0) {
++        this.headPose = $$0;
++        this.entityData.set(DATA_HEAD_POSE, (java.lang.Object)$$0);
+     }
+ 
+-    public void setBodyPose(net.minecraft.core.Rotations bodyPose) {
+-        this.bodyPose = bodyPose;
+-        this.entityData.set(DATA_BODY_POSE, (java.lang.Object)bodyPose);
++    public void setBodyPose(net.minecraft.core.Rotations $$0) {
++        this.bodyPose = $$0;
++        this.entityData.set(DATA_BODY_POSE, (java.lang.Object)$$0);
+     }
+ 
+-    public void setLeftArmPose(net.minecraft.core.Rotations leftArmPose) {
+-        this.leftArmPose = leftArmPose;
+-        this.entityData.set(DATA_LEFT_ARM_POSE, (java.lang.Object)leftArmPose);
++    public void setLeftArmPose(net.minecraft.core.Rotations $$0) {
++        this.leftArmPose = $$0;
++        this.entityData.set(DATA_LEFT_ARM_POSE, (java.lang.Object)$$0);
+     }
+ 
+-    public void setRightArmPose(net.minecraft.core.Rotations rightArmPose) {
+-        this.rightArmPose = rightArmPose;
+-        this.entityData.set(DATA_RIGHT_ARM_POSE, (java.lang.Object)rightArmPose);
++    public void setRightArmPose(net.minecraft.core.Rotations $$0) {
++        this.rightArmPose = $$0;
++        this.entityData.set(DATA_RIGHT_ARM_POSE, (java.lang.Object)$$0);
+     }
+ 
+-    public void setLeftLegPose(net.minecraft.core.Rotations leftLegPose) {
+-        this.leftLegPose = leftLegPose;
+-        this.entityData.set(DATA_LEFT_LEG_POSE, (java.lang.Object)leftLegPose);
++    public void setLeftLegPose(net.minecraft.core.Rotations $$0) {
++        this.leftLegPose = $$0;
++        this.entityData.set(DATA_LEFT_LEG_POSE, (java.lang.Object)$$0);
+     }
+ 
+-    public void setRightLegPose(net.minecraft.core.Rotations rightLegPose) {
+-        this.rightLegPose = rightLegPose;
+-        this.entityData.set(DATA_RIGHT_LEG_POSE, (java.lang.Object)rightLegPose);
++    public void setRightLegPose(net.minecraft.core.Rotations $$0) {
++        this.rightLegPose = $$0;
++        this.entityData.set(DATA_RIGHT_LEG_POSE, (java.lang.Object)$$0);
+     }
+ 
+     public net.minecraft.core.Rotations getHeadPose() {
+@@ -651,8 +643,8 @@
+         return super.isPickable() && !this.isMarker();
+     }
+ 
+-    public boolean skipAttackInteraction(net.minecraft.world.entity.Entity entity) {
+-        return entity instanceof net.minecraft.world.entity.player.Player && !this.level.mayInteract((net.minecraft.world.entity.player.Player)entity, this.blockPosition());
++    public boolean skipAttackInteraction(net.minecraft.world.entity.Entity $$0) {
++        return $$0 instanceof net.minecraft.world.entity.player.Player && !this.level.mayInteract((net.minecraft.world.entity.player.Player)$$0, this.blockPosition());
+     }
+ 
+     public net.minecraft.world.entity.HumanoidArm getMainArm() {
+@@ -664,7 +656,7 @@
+     }
+ 
+     @javax.annotation.Nullable
+-    public net.minecraft.sounds.SoundEvent getHurtSound(net.minecraft.world.damagesource.DamageSource damageSource) {
++    public net.minecraft.sounds.SoundEvent getHurtSound(net.minecraft.world.damagesource.DamageSource $$0) {
+         return net.minecraft.sounds.SoundEvents.ARMOR_STAND_HIT;
+     }
+ 
+@@ -673,53 +665,53 @@
+         return net.minecraft.sounds.SoundEvents.ARMOR_STAND_BREAK;
+     }
+ 
+-    public void thunderHit(net.minecraft.server.level.ServerLevel level, net.minecraft.world.entity.LightningBolt lightning) {
++    public void thunderHit(net.minecraft.server.level.ServerLevel $$0, net.minecraft.world.entity.LightningBolt $$1) {
+     }
+ 
+     public boolean isAffectedByPotions() {
+         return false;
+     }
+ 
+-    public void onSyncedDataUpdated(net.minecraft.network.syncher.EntityDataAccessor<?> key) {
+-        if (DATA_CLIENT_FLAGS.equals(key)) {
++    public void onSyncedDataUpdated(net.minecraft.network.syncher.EntityDataAccessor<?> $$0) {
++        if (DATA_CLIENT_FLAGS.equals($$0)) {
+             this.refreshDimensions();
+             this.blocksBuilding = !this.isMarker();
+         }
+-        super.onSyncedDataUpdated(key);
++        super.onSyncedDataUpdated($$0);
+     }
+ 
+     public boolean attackable() {
+         return false;
+     }
+ 
+-    public net.minecraft.world.entity.EntityDimensions getDimensions(net.minecraft.world.entity.Pose pose) {
++    public net.minecraft.world.entity.EntityDimensions getDimensions(net.minecraft.world.entity.Pose $$0) {
+         return this.getDimensionsMarker(this.isMarker());
+     }
+ 
+-    public net.minecraft.world.entity.EntityDimensions getDimensionsMarker(boolean isMarker) {
+-        if (isMarker) {
++    public net.minecraft.world.entity.EntityDimensions getDimensionsMarker(boolean $$0) {
++        if ($$0) {
+             return MARKER_DIMENSIONS;
+         }
+         return this.isBaby() ? BABY_DIMENSIONS : this.getType().getDimensions();
+     }
+ 
+-    public net.minecraft.world.phys.Vec3 getLightProbePosition(float partialTicks) {
++    public net.minecraft.world.phys.Vec3 getLightProbePosition(float $$0) {
+         if (this.isMarker()) {
+-            net.minecraft.world.phys.AABB aABB = this.getDimensionsMarker(false).makeBoundingBox(this.position());
+-            net.minecraft.core.BlockPos blockPos = this.blockPosition();
+-            int n = java.lang.Integer.MIN_VALUE;
+-            for (net.minecraft.core.BlockPos blockPos2 : net.minecraft.core.BlockPos.betweenClosed((net.minecraft.core.BlockPos)new net.minecraft.core.BlockPos(aABB.minX, aABB.minY, aABB.minZ), (net.minecraft.core.BlockPos)new net.minecraft.core.BlockPos(aABB.maxX, aABB.maxY, aABB.maxZ))) {
+-                int n2 = java.lang.Math.max((int)this.level.getBrightness(net.minecraft.world.level.LightLayer.BLOCK, blockPos2), (int)this.level.getBrightness(net.minecraft.world.level.LightLayer.SKY, blockPos2));
+-                if (n2 == 15) {
+-                    return net.minecraft.world.phys.Vec3.atCenterOf((net.minecraft.core.Vec3i)blockPos2);
++            net.minecraft.world.phys.AABB $$1 = this.getDimensionsMarker(false).makeBoundingBox(this.position());
++            net.minecraft.core.BlockPos $$2 = this.blockPosition();
++            int $$3 = java.lang.Integer.MIN_VALUE;
++            for (net.minecraft.core.BlockPos $$4 : net.minecraft.core.BlockPos.betweenClosed((net.minecraft.core.BlockPos)new net.minecraft.core.BlockPos($$1.minX, $$1.minY, $$1.minZ), (net.minecraft.core.BlockPos)new net.minecraft.core.BlockPos($$1.maxX, $$1.maxY, $$1.maxZ))) {
++                int $$5 = java.lang.Math.max((int)this.level.getBrightness(net.minecraft.world.level.LightLayer.BLOCK, $$4), (int)this.level.getBrightness(net.minecraft.world.level.LightLayer.SKY, $$4));
++                if ($$5 == 15) {
++                    return net.minecraft.world.phys.Vec3.atCenterOf((net.minecraft.core.Vec3i)$$4);
+                 }
+-                if (n2 <= n) continue;
+-                n = n2;
+-                blockPos = blockPos2.immutable();
++                if ($$5 <= $$3) continue;
++                $$3 = $$5;
++                $$2 = $$4.immutable();
+             }
+-            return net.minecraft.world.phys.Vec3.atCenterOf((net.minecraft.core.Vec3i)blockPos);
++            return net.minecraft.world.phys.Vec3.atCenterOf((net.minecraft.core.Vec3i)$$2);
+         }
+-        return super.getLightProbePosition(partialTicks);
++        return super.getLightProbePosition($$0);
+     }
+ 
+     public net.minecraft.world.item.ItemStack getPickResult() {
+@@ -730,8 +722,8 @@
+         return !this.isInvisible() && !this.isMarker();
+     }
+ 
+-    public static /* synthetic */ boolean lambda$static$0(net.minecraft.world.entity.Entity entity) {
+-        return entity instanceof net.minecraft.world.entity.vehicle.AbstractMinecart && ((net.minecraft.world.entity.vehicle.AbstractMinecart)entity).getMinecartType() == net.minecraft.world.entity.vehicle.AbstractMinecart$Type.RIDEABLE;
++    public static /* synthetic */ boolean lambda$static$0(net.minecraft.world.entity.Entity $$0) {
++        return $$0 instanceof net.minecraft.world.entity.vehicle.AbstractMinecart && ((net.minecraft.world.entity.vehicle.AbstractMinecart)$$0).getMinecartType() == net.minecraft.world.entity.vehicle.AbstractMinecart$Type.RIDEABLE;
+     }
+ 
+     static {
+@@ -750,7 +742,7 @@
+         DATA_RIGHT_ARM_POSE = net.minecraft.network.syncher.SynchedEntityData.defineId(net.minecraft.world.entity.decoration.ArmorStand.class, (net.minecraft.network.syncher.EntityDataSerializer)net.minecraft.network.syncher.EntityDataSerializers.ROTATIONS);
+         DATA_LEFT_LEG_POSE = net.minecraft.network.syncher.SynchedEntityData.defineId(net.minecraft.world.entity.decoration.ArmorStand.class, (net.minecraft.network.syncher.EntityDataSerializer)net.minecraft.network.syncher.EntityDataSerializers.ROTATIONS);
+         DATA_RIGHT_LEG_POSE = net.minecraft.network.syncher.SynchedEntityData.defineId(net.minecraft.world.entity.decoration.ArmorStand.class, (net.minecraft.network.syncher.EntityDataSerializer)net.minecraft.network.syncher.EntityDataSerializers.ROTATIONS);
+-        RIDABLE_MINECARTS = entity -> entity instanceof net.minecraft.world.entity.vehicle.AbstractMinecart && ((net.minecraft.world.entity.vehicle.AbstractMinecart)entity).getMinecartType() == net.minecraft.world.entity.vehicle.AbstractMinecart$Type.RIDEABLE;
++        RIDABLE_MINECARTS = $$0 -> $$0 instanceof net.minecraft.world.entity.vehicle.AbstractMinecart && ((net.minecraft.world.entity.vehicle.AbstractMinecart)$$0).getMinecartType() == net.minecraft.world.entity.vehicle.AbstractMinecart$Type.RIDEABLE;
+     }
+ }
+ 

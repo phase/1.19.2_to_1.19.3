@@ -1,0 +1,666 @@
+--- net/minecraft/server/level/ChunkMap.java
++++ net/minecraft/server/level/ChunkMap.java
+@@ -103,12 +103,12 @@
+         });
+     }
+ 
+-    public static double euclideanDistanceSquared(net.minecraft.world.level.ChunkPos chunkPos, net.minecraft.world.entity.Entity entity) {
+-        double d = net.minecraft.core.SectionPos.sectionToBlockCoord((int)chunkPos.x, (int)8);
+-        double d2 = net.minecraft.core.SectionPos.sectionToBlockCoord((int)chunkPos.z, (int)8);
+-        double d3 = d - entity.getX();
+-        double d4 = d2 - entity.getZ();
+-        return d3 * d3 + d4 * d4;
++    public static double euclideanDistanceSquared(net.minecraft.world.level.ChunkPos $$0, net.minecraft.world.entity.Entity $$1) {
++        double $$2 = net.minecraft.core.SectionPos.sectionToBlockCoord((int)$$0.x, (int)8);
++        double $$3 = net.minecraft.core.SectionPos.sectionToBlockCoord((int)$$0.z, (int)8);
++        double $$4 = $$2 - $$1.getX();
++        double $$5 = $$3 - $$1.getZ();
++        return $$4 * $$4 + $$5 * $$5;
+     }
+ 
+     public static boolean isChunkInRange(int $$0, int $$1, int $$2, int $$3, int $$4) {
+@@ -162,23 +162,23 @@
+         };
+     }
+ 
+-    public java.lang.String getChunkDebugData(net.minecraft.world.level.ChunkPos pos) {
+-        net.minecraft.server.level.ChunkHolder chunkHolder = this.getVisibleChunkIfPresent(pos.toLong());
+-        if (chunkHolder == null) {
++    public java.lang.String getChunkDebugData(net.minecraft.world.level.ChunkPos $$0) {
++        net.minecraft.server.level.ChunkHolder $$1 = this.getVisibleChunkIfPresent($$0.toLong());
++        if ($$1 == null) {
+             return "null";
+         }
+-        java.lang.String string = chunkHolder.getTicketLevel() + "\n";
+-        net.minecraft.world.level.chunk.ChunkStatus chunkStatus = chunkHolder.getLastAvailableStatus();
+-        net.minecraft.world.level.chunk.ChunkAccess chunkAccess = chunkHolder.getLastAvailable();
+-        if (chunkStatus != null) {
+-            string = string + "St: §" + chunkStatus.getIndex() + chunkStatus + "§r\n";
++        java.lang.String $$2 = $$1.getTicketLevel() + "\n";
++        net.minecraft.world.level.chunk.ChunkStatus $$3 = $$1.getLastAvailableStatus();
++        net.minecraft.world.level.chunk.ChunkAccess $$4 = $$1.getLastAvailable();
++        if ($$3 != null) {
++            $$2 = $$2 + "St: §" + $$3.getIndex() + $$3 + "§r\n";
+         }
+-        if (chunkAccess != null) {
+-            string = string + "Ch: §" + chunkAccess.getStatus().getIndex() + chunkAccess.getStatus() + "§r\n";
++        if ($$4 != null) {
++            $$2 = $$2 + "Ch: §" + $$4.getStatus().getIndex() + $$4.getStatus() + "§r\n";
+         }
+-        net.minecraft.server.level.ChunkHolder$FullChunkStatus fullChunkStatus = chunkHolder.getFullStatus();
+-        string = string + "§" + fullChunkStatus.ordinal() + fullChunkStatus;
+-        return string + "§r";
++        net.minecraft.server.level.ChunkHolder$FullChunkStatus $$5 = $$1.getFullStatus();
++        $$2 = $$2 + "§" + $$5.ordinal() + $$5;
++        return $$2 + "§r";
+     }
+ 
+     public java.util.concurrent.CompletableFuture<com.mojang.datafixers.util.Either<java.util.List<net.minecraft.world.level.chunk.ChunkAccess>, net.minecraft.server.level.ChunkHolder$ChunkLoadingFailure>> getChunkRangeFuture(net.minecraft.world.level.ChunkPos $$0, int $$1, java.util.function.IntFunction<net.minecraft.world.level.chunk.ChunkStatus> $$2) {
+@@ -250,31 +250,31 @@
+     }
+ 
+     @javax.annotation.Nullable
+-    public net.minecraft.server.level.ChunkHolder updateChunkScheduling(long chunkPos, int newLevel, @javax.annotation.Nullable net.minecraft.server.level.ChunkHolder holder, int oldLevel) {
+-        if (oldLevel > MAX_CHUNK_DISTANCE && newLevel > MAX_CHUNK_DISTANCE) {
+-            return holder;
++    public net.minecraft.server.level.ChunkHolder updateChunkScheduling(long $$0, int $$1, @javax.annotation.Nullable net.minecraft.server.level.ChunkHolder $$2, int $$3) {
++        if ($$3 > MAX_CHUNK_DISTANCE && $$1 > MAX_CHUNK_DISTANCE) {
++            return $$2;
+         }
+-        if (holder != null) {
+-            holder.setTicketLevel(newLevel);
++        if ($$2 != null) {
++            $$2.setTicketLevel($$1);
+         }
+-        if (holder != null) {
+-            if (newLevel > MAX_CHUNK_DISTANCE) {
+-                this.toDrop.add(chunkPos);
++        if ($$2 != null) {
++            if ($$1 > MAX_CHUNK_DISTANCE) {
++                this.toDrop.add($$0);
+             } else {
+-                this.toDrop.remove(chunkPos);
++                this.toDrop.remove($$0);
+             }
+         }
+-        if (newLevel <= MAX_CHUNK_DISTANCE && holder == null) {
+-            holder = (net.minecraft.server.level.ChunkHolder)this.pendingUnloads.remove(chunkPos);
+-            if (holder != null) {
+-                holder.setTicketLevel(newLevel);
++        if ($$1 <= MAX_CHUNK_DISTANCE && $$2 == null) {
++            $$2 = (net.minecraft.server.level.ChunkHolder)this.pendingUnloads.remove($$0);
++            if ($$2 != null) {
++                $$2.setTicketLevel($$1);
+             } else {
+-                holder = new net.minecraft.server.level.ChunkHolder(new net.minecraft.world.level.ChunkPos(chunkPos), newLevel, (net.minecraft.world.level.LevelHeightAccessor)this.level, (net.minecraft.world.level.lighting.LevelLightEngine)this.lightEngine, (net.minecraft.server.level.ChunkHolder$LevelChangeListener)this.queueSorter, (net.minecraft.server.level.ChunkHolder$PlayerProvider)this);
++                $$2 = new net.minecraft.server.level.ChunkHolder(new net.minecraft.world.level.ChunkPos($$0), $$1, (net.minecraft.world.level.LevelHeightAccessor)this.level, (net.minecraft.world.level.lighting.LevelLightEngine)this.lightEngine, (net.minecraft.server.level.ChunkHolder$LevelChangeListener)this.queueSorter, (net.minecraft.server.level.ChunkHolder$PlayerProvider)this);
+             }
+-            this.updatingChunkMap.put(chunkPos, (java.lang.Object)holder);
++            this.updatingChunkMap.put($$0, (java.lang.Object)$$2);
+             this.modified = true;
+         }
+-        return holder;
++        return $$2;
+     }
+ 
+     public void close() throws java.io.IOException {
+@@ -287,21 +287,21 @@
+         }
+     }
+ 
+-    public void saveAllChunks(boolean flush) {
+-        if (flush) {
+-            java.util.List list = (java.util.List)this.visibleChunkMap.values().stream().filter(net.minecraft.server.level.ChunkHolder::wasAccessibleSinceLastSave).peek(net.minecraft.server.level.ChunkHolder::refreshAccessibility).collect(java.util.stream.Collectors.toList());
+-            org.apache.commons.lang3.mutable.MutableBoolean mutableBoolean = new org.apache.commons.lang3.mutable.MutableBoolean();
++    public void saveAllChunks(boolean $$02) {
++        if ($$02) {
++            java.util.List $$12 = (java.util.List)this.visibleChunkMap.values().stream().filter(net.minecraft.server.level.ChunkHolder::wasAccessibleSinceLastSave).peek(net.minecraft.server.level.ChunkHolder::refreshAccessibility).collect(java.util.stream.Collectors.toList());
++            org.apache.commons.lang3.mutable.MutableBoolean $$2 = new org.apache.commons.lang3.mutable.MutableBoolean();
+             do {
+-                mutableBoolean.setFalse();
+-                list.stream().map($$0 -> {
++                $$2.setFalse();
++                $$12.stream().map($$0 -> {
+                     java.util.concurrent.CompletableFuture $$1;
+                     do {
+                         $$1 = $$0.getChunkToSave();
+                         this.mainThreadExecutor.managedBlock(() -> ((java.util.concurrent.CompletableFuture)$$1).isDone());
+                     } while ($$1 != $$0.getChunkToSave());
+                     return (net.minecraft.world.level.chunk.ChunkAccess)$$1.join();
+-                }).filter($$0 -> $$0 instanceof net.minecraft.world.level.chunk.ImposterProtoChunk || $$0 instanceof net.minecraft.world.level.chunk.LevelChunk).filter(arg_0 -> this.save(arg_0)).forEach($$1 -> mutableBoolean.setTrue());
+-            } while (mutableBoolean.isTrue());
++                }).filter($$0 -> $$0 instanceof net.minecraft.world.level.chunk.ImposterProtoChunk || $$0 instanceof net.minecraft.world.level.chunk.LevelChunk).filter(arg_0 -> this.save(arg_0)).forEach($$1 -> $$2.setTrue());
++            } while ($$2.isTrue());
+             this.processUnloads(() -> true);
+             this.flushWorker();
+         } else {
+@@ -309,61 +309,61 @@
+         }
+     }
+ 
+-    public void tick(java.util.function.BooleanSupplier hasMoreTime) {
+-        net.minecraft.util.profiling.ProfilerFiller profilerFiller = this.level.getProfiler();
+-        profilerFiller.push("poi");
+-        this.poiManager.tick(hasMoreTime);
+-        profilerFiller.popPush("chunk_unload");
++    public void tick(java.util.function.BooleanSupplier $$0) {
++        net.minecraft.util.profiling.ProfilerFiller $$1 = this.level.getProfiler();
++        $$1.push("poi");
++        this.poiManager.tick($$0);
++        $$1.popPush("chunk_unload");
+         if (!this.level.noSave()) {
+-            this.processUnloads(hasMoreTime);
++            this.processUnloads($$0);
+         }
+-        profilerFiller.pop();
++        $$1.pop();
+     }
+ 
+     public boolean hasWork() {
+         return this.lightEngine.hasLightWork() || !this.pendingUnloads.isEmpty() || !this.updatingChunkMap.isEmpty() || this.poiManager.hasWork() || !this.toDrop.isEmpty() || !this.unloadQueue.isEmpty() || this.queueSorter.hasWork() || this.distanceManager.hasTickets();
+     }
+ 
+-    public void processUnloads(java.util.function.BooleanSupplier hasMoreTime) {
+-        java.lang.Runnable runnable;
+-        it.unimi.dsi.fastutil.longs.LongIterator longIterator = this.toDrop.iterator();
+-        int n = 0;
+-        while (longIterator.hasNext() && (hasMoreTime.getAsBoolean() || n < 200 || this.toDrop.size() > 2000)) {
+-            long l = longIterator.nextLong();
+-            net.minecraft.server.level.ChunkHolder chunkHolder = (net.minecraft.server.level.ChunkHolder)this.updatingChunkMap.remove(l);
+-            if (chunkHolder != null) {
+-                this.pendingUnloads.put(l, (java.lang.Object)chunkHolder);
++    public void processUnloads(java.util.function.BooleanSupplier $$0) {
++        java.lang.Runnable $$6;
++        it.unimi.dsi.fastutil.longs.LongIterator $$1 = this.toDrop.iterator();
++        int $$2 = 0;
++        while ($$1.hasNext() && ($$0.getAsBoolean() || $$2 < 200 || this.toDrop.size() > 2000)) {
++            long $$3 = $$1.nextLong();
++            net.minecraft.server.level.ChunkHolder $$4 = (net.minecraft.server.level.ChunkHolder)this.updatingChunkMap.remove($$3);
++            if ($$4 != null) {
++                this.pendingUnloads.put($$3, (java.lang.Object)$$4);
+                 this.modified = true;
+-                ++n;
+-                this.scheduleUnload(l, chunkHolder);
++                ++$$2;
++                this.scheduleUnload($$3, $$4);
+             }
+-            longIterator.remove();
++            $$1.remove();
+         }
+-        for (int i = java.lang.Math.max((int)0, (int)(this.unloadQueue.size() - 2000)); (hasMoreTime.getAsBoolean() || i > 0) && (runnable = (java.lang.Runnable)this.unloadQueue.poll()) != null; --i) {
+-            runnable.run();
++        for (int $$5 = java.lang.Math.max((int)0, (int)(this.unloadQueue.size() - 2000)); ($$0.getAsBoolean() || $$5 > 0) && ($$6 = (java.lang.Runnable)this.unloadQueue.poll()) != null; --$$5) {
++            $$6.run();
+         }
+-        int n2 = 0;
+-        it.unimi.dsi.fastutil.objects.ObjectIterator objectIterator = this.visibleChunkMap.values().iterator();
+-        while (n2 < 20 && hasMoreTime.getAsBoolean() && objectIterator.hasNext()) {
+-            if (!this.saveChunkIfNeeded((net.minecraft.server.level.ChunkHolder)objectIterator.next())) continue;
+-            ++n2;
++        int $$7 = 0;
++        it.unimi.dsi.fastutil.objects.ObjectIterator $$8 = this.visibleChunkMap.values().iterator();
++        while ($$7 < 20 && $$0.getAsBoolean() && $$8.hasNext()) {
++            if (!this.saveChunkIfNeeded((net.minecraft.server.level.ChunkHolder)$$8.next())) continue;
++            ++$$7;
+         }
+     }
+ 
+-    public void scheduleUnload(long chunkPos, net.minecraft.server.level.ChunkHolder chunkHolder) {
+-        java.util.concurrent.CompletableFuture completableFuture = chunkHolder.getChunkToSave();
+-        completableFuture.thenAcceptAsync($$3 -> {
+-            java.util.concurrent.CompletableFuture $$4 = chunkHolder.getChunkToSave();
+-            if ($$4 != completableFuture) {
+-                this.scheduleUnload(chunkPos, chunkHolder);
++    public void scheduleUnload(long $$0, net.minecraft.server.level.ChunkHolder $$12) {
++        java.util.concurrent.CompletableFuture $$22 = $$12.getChunkToSave();
++        $$22.thenAcceptAsync($$3 -> {
++            java.util.concurrent.CompletableFuture $$4 = $$12.getChunkToSave();
++            if ($$4 != $$22) {
++                this.scheduleUnload($$0, $$12);
+                 return;
+             }
+-            if (this.pendingUnloads.remove(chunkPos, (java.lang.Object)chunkHolder) && $$3 != null) {
++            if (this.pendingUnloads.remove($$0, (java.lang.Object)$$12) && $$3 != null) {
+                 if ($$3 instanceof net.minecraft.world.level.chunk.LevelChunk) {
+                     ((net.minecraft.world.level.chunk.LevelChunk)$$3).setLoaded(false);
+                 }
+                 this.save($$3);
+-                if (this.entitiesInLevel.remove(chunkPos) && $$3 instanceof net.minecraft.world.level.chunk.LevelChunk) {
++                if (this.entitiesInLevel.remove($$0) && $$3 instanceof net.minecraft.world.level.chunk.LevelChunk) {
+                     net.minecraft.world.level.chunk.LevelChunk $$5 = (net.minecraft.world.level.chunk.LevelChunk)$$3;
+                     this.level.unload($$5);
+                 }
+@@ -374,7 +374,7 @@
+             }
+         }, arg_0 -> ((java.util.Queue)this.unloadQueue).add(arg_0)).whenComplete(($$1, $$2) -> {
+             if ($$2 != null) {
+-                LOGGER.error("Failed to save chunk {}", (java.lang.Object)chunkHolder.getPos(), $$2);
++                LOGGER.error("Failed to save chunk {}", (java.lang.Object)$$12.getPos(), $$2);
+             }
+         });
+     }
+@@ -405,22 +405,22 @@
+         return this.scheduleChunkGeneration($$0, $$12);
+     }
+ 
+-    public java.util.concurrent.CompletableFuture<com.mojang.datafixers.util.Either<net.minecraft.world.level.chunk.ChunkAccess, net.minecraft.server.level.ChunkHolder$ChunkLoadingFailure>> scheduleChunkLoad(net.minecraft.world.level.ChunkPos chunkPos) {
+-        return this.readChunk(chunkPos).thenApply($$12 -> $$12.filter($$1 -> {
++    public java.util.concurrent.CompletableFuture<com.mojang.datafixers.util.Either<net.minecraft.world.level.chunk.ChunkAccess, net.minecraft.server.level.ChunkHolder$ChunkLoadingFailure>> scheduleChunkLoad(net.minecraft.world.level.ChunkPos $$0) {
++        return this.readChunk($$0).thenApply($$12 -> $$12.filter($$1 -> {
+             boolean $$2 = net.minecraft.server.level.ChunkMap.isChunkDataValid((net.minecraft.nbt.CompoundTag)$$1);
+             if (!$$2) {
+-                LOGGER.error("Chunk file at {} is missing level data, skipping", (java.lang.Object)chunkPos);
++                LOGGER.error("Chunk file at {} is missing level data, skipping", (java.lang.Object)$$0);
+             }
+             return $$2;
+         })).thenApplyAsync($$1 -> {
+             this.level.getProfiler().incrementCounter("chunkLoad");
+             if ($$1.isPresent()) {
+-                net.minecraft.world.level.chunk.ProtoChunk $$2 = net.minecraft.world.level.chunk.storage.ChunkSerializer.read((net.minecraft.server.level.ServerLevel)this.level, (net.minecraft.world.entity.ai.village.poi.PoiManager)this.poiManager, (net.minecraft.world.level.ChunkPos)chunkPos, (net.minecraft.nbt.CompoundTag)((net.minecraft.nbt.CompoundTag)$$1.get()));
+-                this.markPosition(chunkPos, $$2.getStatus().getChunkType());
++                net.minecraft.world.level.chunk.ProtoChunk $$2 = net.minecraft.world.level.chunk.storage.ChunkSerializer.read((net.minecraft.server.level.ServerLevel)this.level, (net.minecraft.world.entity.ai.village.poi.PoiManager)this.poiManager, (net.minecraft.world.level.ChunkPos)$$0, (net.minecraft.nbt.CompoundTag)((net.minecraft.nbt.CompoundTag)$$1.get()));
++                this.markPosition($$0, $$2.getStatus().getChunkType());
+                 return com.mojang.datafixers.util.Either.left((java.lang.Object)$$2);
+             }
+-            return com.mojang.datafixers.util.Either.left((java.lang.Object)this.createEmptyChunk(chunkPos));
+-        }, (java.util.concurrent.Executor)this.mainThreadExecutor).exceptionallyAsync($$1 -> this.handleChunkLoadFailure($$1, chunkPos), (java.util.concurrent.Executor)this.mainThreadExecutor);
++            return com.mojang.datafixers.util.Either.left((java.lang.Object)this.createEmptyChunk($$0));
++        }, (java.util.concurrent.Executor)this.mainThreadExecutor).exceptionallyAsync($$1 -> this.handleChunkLoadFailure($$1, $$0), (java.util.concurrent.Executor)this.mainThreadExecutor);
+     }
+ 
+     public static boolean isChunkDataValid(net.minecraft.nbt.CompoundTag $$0) {
+@@ -460,15 +460,15 @@
+         return this.chunkTypeCache.put($$0.toLong(), $$1 == net.minecraft.world.level.chunk.ChunkStatus$ChunkType.PROTOCHUNK ? (byte)-1 : 1);
+     }
+ 
+-    public java.util.concurrent.CompletableFuture<com.mojang.datafixers.util.Either<net.minecraft.world.level.chunk.ChunkAccess, net.minecraft.server.level.ChunkHolder$ChunkLoadingFailure>> scheduleChunkGeneration(net.minecraft.server.level.ChunkHolder chunkHolder, net.minecraft.world.level.chunk.ChunkStatus chunkStatus) {
+-        net.minecraft.world.level.ChunkPos chunkPos = chunkHolder.getPos();
+-        java.util.concurrent.CompletableFuture completableFuture = this.getChunkRangeFuture(chunkPos, chunkStatus.getRange(), $$1 -> this.getDependencyStatus(chunkStatus, $$1));
+-        this.level.getProfiler().incrementCounter(() -> "chunkGenerate " + chunkStatus.getName());
+-        java.util.concurrent.Executor executor = $$1 -> this.worldgenMailbox.tell((java.lang.Object)net.minecraft.server.level.ChunkTaskPriorityQueueSorter.message((net.minecraft.server.level.ChunkHolder)chunkHolder, (java.lang.Runnable)$$1));
+-        return completableFuture.thenComposeAsync($$42 -> (java.util.concurrent.CompletionStage)$$42.map($$4 -> {
++    public java.util.concurrent.CompletableFuture<com.mojang.datafixers.util.Either<net.minecraft.world.level.chunk.ChunkAccess, net.minecraft.server.level.ChunkHolder$ChunkLoadingFailure>> scheduleChunkGeneration(net.minecraft.server.level.ChunkHolder $$0, net.minecraft.world.level.chunk.ChunkStatus $$12) {
++        net.minecraft.world.level.ChunkPos $$2 = $$0.getPos();
++        java.util.concurrent.CompletableFuture $$3 = this.getChunkRangeFuture($$2, $$12.getRange(), $$1 -> this.getDependencyStatus($$12, $$1));
++        this.level.getProfiler().incrementCounter(() -> "chunkGenerate " + $$12.getName());
++        java.util.concurrent.Executor $$4 = $$1 -> this.worldgenMailbox.tell((java.lang.Object)net.minecraft.server.level.ChunkTaskPriorityQueueSorter.message((net.minecraft.server.level.ChunkHolder)$$0, (java.lang.Runnable)$$1));
++        return $$3.thenComposeAsync($$42 -> (java.util.concurrent.CompletionStage)$$42.map($$4 -> {
+             try {
+-                java.util.concurrent.CompletableFuture $$5 = chunkStatus.generate(executor, this.level, this.generator, this.structureTemplateManager, this.lightEngine, $$1 -> this.protoChunkToFullChunk(chunkHolder), $$4, false);
+-                this.progressListener.onStatusChange(chunkPos, chunkStatus);
++                java.util.concurrent.CompletableFuture $$5 = $$12.generate($$4, this.level, this.generator, this.structureTemplateManager, this.lightEngine, $$1 -> this.protoChunkToFullChunk($$0), $$4, false);
++                this.progressListener.onStatusChange($$2, $$12);
+                 return $$5;
+             }
+             catch (java.lang.Exception $$6) {
+@@ -484,9 +484,9 @@
+                 throw new net.minecraft.ReportedException($$7);
+             }
+         }, $$1 -> {
+-            this.releaseLightTicket(chunkPos);
++            this.releaseLightTicket($$2);
+             return java.util.concurrent.CompletableFuture.completedFuture((java.lang.Object)com.mojang.datafixers.util.Either.right((java.lang.Object)$$1));
+-        }), executor);
++        }), $$4);
+     }
+ 
+     public void releaseLightTicket(net.minecraft.world.level.ChunkPos $$0) {
+@@ -586,31 +586,31 @@
+         return false;
+     }
+ 
+-    public boolean save(net.minecraft.world.level.chunk.ChunkAccess chunk) {
+-        this.poiManager.flush(chunk.getPos());
+-        if (!chunk.isUnsaved()) {
++    public boolean save(net.minecraft.world.level.chunk.ChunkAccess $$0) {
++        this.poiManager.flush($$0.getPos());
++        if (!$$0.isUnsaved()) {
+             return false;
+         }
+-        chunk.setUnsaved(false);
+-        net.minecraft.world.level.ChunkPos chunkPos = chunk.getPos();
++        $$0.setUnsaved(false);
++        net.minecraft.world.level.ChunkPos $$1 = $$0.getPos();
+         try {
+-            net.minecraft.world.level.chunk.ChunkStatus chunkStatus = chunk.getStatus();
+-            if (chunkStatus.getChunkType() != net.minecraft.world.level.chunk.ChunkStatus$ChunkType.LEVELCHUNK) {
+-                if (this.isExistingChunkFull(chunkPos)) {
++            net.minecraft.world.level.chunk.ChunkStatus $$2 = $$0.getStatus();
++            if ($$2.getChunkType() != net.minecraft.world.level.chunk.ChunkStatus$ChunkType.LEVELCHUNK) {
++                if (this.isExistingChunkFull($$1)) {
+                     return false;
+                 }
+-                if (chunkStatus == net.minecraft.world.level.chunk.ChunkStatus.EMPTY && chunk.getAllStarts().values().stream().noneMatch(net.minecraft.world.level.levelgen.structure.StructureStart::isValid)) {
++                if ($$2 == net.minecraft.world.level.chunk.ChunkStatus.EMPTY && $$0.getAllStarts().values().stream().noneMatch(net.minecraft.world.level.levelgen.structure.StructureStart::isValid)) {
+                     return false;
+                 }
+             }
+             this.level.getProfiler().incrementCounter("chunkSave");
+-            net.minecraft.nbt.CompoundTag compoundTag = net.minecraft.world.level.chunk.storage.ChunkSerializer.write((net.minecraft.server.level.ServerLevel)this.level, (net.minecraft.world.level.chunk.ChunkAccess)chunk);
+-            this.write(chunkPos, compoundTag);
+-            this.markPosition(chunkPos, chunkStatus.getChunkType());
++            net.minecraft.nbt.CompoundTag $$3 = net.minecraft.world.level.chunk.storage.ChunkSerializer.write((net.minecraft.server.level.ServerLevel)this.level, (net.minecraft.world.level.chunk.ChunkAccess)$$0);
++            this.write($$1, $$3);
++            this.markPosition($$1, $$2.getChunkType());
+             return true;
+         }
+-        catch (java.lang.Exception exception) {
+-            LOGGER.error("Failed to save chunk {},{}", new java.lang.Object[]{chunkPos.x, chunkPos.z, exception});
++        catch (java.lang.Exception $$4) {
++            LOGGER.error("Failed to save chunk {},{}", new java.lang.Object[]{$$1.x, $$1.z, $$4});
+             return false;
+         }
+     }
+@@ -640,20 +640,20 @@
+         return this.markPosition($$0, $$5) == 1;
+     }
+ 
+-    public void setViewDistance(int viewDistance) {
+-        int n = net.minecraft.util.Mth.clamp((int)(viewDistance + 1), (int)3, (int)33);
+-        if (n != this.viewDistance) {
+-            int n2 = this.viewDistance;
+-            this.viewDistance = n;
++    public void setViewDistance(int $$0) {
++        int $$1 = net.minecraft.util.Mth.clamp((int)($$0 + 1), (int)3, (int)33);
++        if ($$1 != this.viewDistance) {
++            int $$2 = this.viewDistance;
++            this.viewDistance = $$1;
+             this.distanceManager.updatePlayerTickets(this.viewDistance + 1);
+-            for (net.minecraft.server.level.ChunkHolder chunkHolder : this.updatingChunkMap.values()) {
+-                net.minecraft.world.level.ChunkPos chunkPos = chunkHolder.getPos();
+-                org.apache.commons.lang3.mutable.MutableObject mutableObject = new org.apache.commons.lang3.mutable.MutableObject();
+-                this.getPlayers(chunkPos, false).forEach($$3 -> {
++            for (net.minecraft.server.level.ChunkHolder $$32 : this.updatingChunkMap.values()) {
++                net.minecraft.world.level.ChunkPos $$4 = $$32.getPos();
++                org.apache.commons.lang3.mutable.MutableObject $$5 = new org.apache.commons.lang3.mutable.MutableObject();
++                this.getPlayers($$4, false).forEach($$3 -> {
+                     net.minecraft.core.SectionPos $$4 = $$3.getLastSectionPos();
+-                    boolean $$5 = net.minecraft.server.level.ChunkMap.isChunkInRange((int)$$0.x, (int)$$0.z, (int)$$4.x(), (int)$$4.z(), (int)n2);
++                    boolean $$5 = net.minecraft.server.level.ChunkMap.isChunkInRange((int)$$0.x, (int)$$0.z, (int)$$4.x(), (int)$$4.z(), (int)$$2);
+                     boolean $$6 = net.minecraft.server.level.ChunkMap.isChunkInRange((int)$$0.x, (int)$$0.z, (int)$$4.x(), (int)$$4.z(), (int)this.viewDistance);
+-                    this.updateChunkTracking($$3, chunkPos, mutableObject, $$5, $$6);
++                    this.updateChunkTracking($$3, $$4, $$5, $$5, $$6);
+                 });
+             }
+         }
+@@ -758,33 +758,33 @@
+         return $$2 < 16384.0;
+     }
+ 
+-    public boolean skipPlayer(net.minecraft.server.level.ServerPlayer player) {
+-        return player.isSpectator() && !this.level.getGameRules().getBoolean(net.minecraft.world.level.GameRules.RULE_SPECTATORSGENERATECHUNKS);
++    public boolean skipPlayer(net.minecraft.server.level.ServerPlayer $$0) {
++        return $$0.isSpectator() && !this.level.getGameRules().getBoolean(net.minecraft.world.level.GameRules.RULE_SPECTATORSGENERATECHUNKS);
+     }
+ 
+-    public void updatePlayerStatus(net.minecraft.server.level.ServerPlayer player, boolean track) {
+-        boolean bl = this.skipPlayer(player);
+-        boolean bl2 = this.playerMap.ignoredOrUnknown(player);
+-        int n = net.minecraft.core.SectionPos.blockToSectionCoord((int)player.getBlockX());
+-        int n2 = net.minecraft.core.SectionPos.blockToSectionCoord((int)player.getBlockZ());
+-        if (track) {
+-            this.playerMap.addPlayer(net.minecraft.world.level.ChunkPos.asLong((int)n, (int)n2), player, bl);
+-            this.updatePlayerPos(player);
+-            if (!bl) {
+-                this.distanceManager.addPlayer(net.minecraft.core.SectionPos.of((net.minecraft.world.level.entity.EntityAccess)player), player);
++    public void updatePlayerStatus(net.minecraft.server.level.ServerPlayer $$0, boolean $$1) {
++        boolean $$2 = this.skipPlayer($$0);
++        boolean $$3 = this.playerMap.ignoredOrUnknown($$0);
++        int $$4 = net.minecraft.core.SectionPos.blockToSectionCoord((int)$$0.getBlockX());
++        int $$5 = net.minecraft.core.SectionPos.blockToSectionCoord((int)$$0.getBlockZ());
++        if ($$1) {
++            this.playerMap.addPlayer(net.minecraft.world.level.ChunkPos.asLong((int)$$4, (int)$$5), $$0, $$2);
++            this.updatePlayerPos($$0);
++            if (!$$2) {
++                this.distanceManager.addPlayer(net.minecraft.core.SectionPos.of((net.minecraft.world.level.entity.EntityAccess)$$0), $$0);
+             }
+         } else {
+-            net.minecraft.core.SectionPos sectionPos = player.getLastSectionPos();
+-            this.playerMap.removePlayer(sectionPos.chunk().toLong(), player);
+-            if (!bl2) {
+-                this.distanceManager.removePlayer(sectionPos, player);
++            net.minecraft.core.SectionPos $$6 = $$0.getLastSectionPos();
++            this.playerMap.removePlayer($$6.chunk().toLong(), $$0);
++            if (!$$3) {
++                this.distanceManager.removePlayer($$6, $$0);
+             }
+         }
+-        for (int i = n - this.viewDistance - 1; i <= n + this.viewDistance + 1; ++i) {
+-            for (int j = n2 - this.viewDistance - 1; j <= n2 + this.viewDistance + 1; ++j) {
+-                if (!net.minecraft.server.level.ChunkMap.isChunkInRange((int)i, (int)j, (int)n, (int)n2, (int)this.viewDistance)) continue;
+-                net.minecraft.world.level.ChunkPos chunkPos = new net.minecraft.world.level.ChunkPos(i, j);
+-                this.updateChunkTracking(player, chunkPos, new org.apache.commons.lang3.mutable.MutableObject(), !track, track);
++        for (int $$7 = $$4 - this.viewDistance - 1; $$7 <= $$4 + this.viewDistance + 1; ++$$7) {
++            for (int $$8 = $$5 - this.viewDistance - 1; $$8 <= $$5 + this.viewDistance + 1; ++$$8) {
++                if (!net.minecraft.server.level.ChunkMap.isChunkInRange((int)$$7, (int)$$8, (int)$$4, (int)$$5, (int)this.viewDistance)) continue;
++                net.minecraft.world.level.ChunkPos $$9 = new net.minecraft.world.level.ChunkPos($$7, $$8);
++                this.updateChunkTracking($$0, $$9, new org.apache.commons.lang3.mutable.MutableObject(), !$$1, $$1);
+             }
+         }
+     }
+@@ -796,79 +796,71 @@
+         return $$1;
+     }
+ 
+-    public void move(net.minecraft.server.level.ServerPlayer player) {
+-        boolean bl;
+-        for (net.minecraft.server.level.ChunkMap$TrackedEntity trackedEntity : this.entityMap.values()) {
+-            if (trackedEntity.entity == player) {
+-                trackedEntity.updatePlayers(this.level.players());
++    public void move(net.minecraft.server.level.ServerPlayer $$0) {
++        boolean $$10;
++        for (net.minecraft.server.level.ChunkMap$TrackedEntity $$1 : this.entityMap.values()) {
++            if ($$1.entity == $$0) {
++                $$1.updatePlayers(this.level.players());
+                 continue;
+             }
+-            trackedEntity.updatePlayer(player);
++            $$1.updatePlayer($$0);
+         }
+-        int n = net.minecraft.core.SectionPos.blockToSectionCoord((int)player.getBlockX());
+-        int n2 = net.minecraft.core.SectionPos.blockToSectionCoord((int)player.getBlockZ());
+-        net.minecraft.core.SectionPos sectionPos = player.getLastSectionPos();
+-        net.minecraft.core.SectionPos sectionPos2 = net.minecraft.core.SectionPos.of((net.minecraft.world.level.entity.EntityAccess)player);
+-        long l = sectionPos.chunk().toLong();
+-        long l2 = sectionPos2.chunk().toLong();
+-        boolean bl2 = this.playerMap.ignored(player);
+-        boolean bl3 = this.skipPlayer(player);
+-        boolean bl4 = bl = sectionPos.asLong() != sectionPos2.asLong();
+-        if (bl || bl2 != bl3) {
+-            this.updatePlayerPos(player);
+-            if (!bl2) {
+-                this.distanceManager.removePlayer(sectionPos, player);
++        int $$2 = net.minecraft.core.SectionPos.blockToSectionCoord((int)$$0.getBlockX());
++        int $$3 = net.minecraft.core.SectionPos.blockToSectionCoord((int)$$0.getBlockZ());
++        net.minecraft.core.SectionPos $$4 = $$0.getLastSectionPos();
++        net.minecraft.core.SectionPos $$5 = net.minecraft.core.SectionPos.of((net.minecraft.world.level.entity.EntityAccess)$$0);
++        long $$6 = $$4.chunk().toLong();
++        long $$7 = $$5.chunk().toLong();
++        boolean $$8 = this.playerMap.ignored($$0);
++        boolean $$9 = this.skipPlayer($$0);
++        boolean bl = $$10 = $$4.asLong() != $$5.asLong();
++        if ($$10 || $$8 != $$9) {
++            this.updatePlayerPos($$0);
++            if (!$$8) {
++                this.distanceManager.removePlayer($$4, $$0);
+             }
+-            if (!bl3) {
+-                this.distanceManager.addPlayer(sectionPos2, player);
++            if (!$$9) {
++                this.distanceManager.addPlayer($$5, $$0);
+             }
+-            if (!bl2 && bl3) {
+-                this.playerMap.ignorePlayer(player);
++            if (!$$8 && $$9) {
++                this.playerMap.ignorePlayer($$0);
+             }
+-            if (bl2 && !bl3) {
+-                this.playerMap.unIgnorePlayer(player);
++            if ($$8 && !$$9) {
++                this.playerMap.unIgnorePlayer($$0);
+             }
+-            if (l != l2) {
+-                this.playerMap.updatePlayer(l, l2, player);
++            if ($$6 != $$7) {
++                this.playerMap.updatePlayer($$6, $$7, $$0);
+             }
+         }
+-        int n3 = sectionPos.x();
+-        int n4 = sectionPos.z();
+-        if (java.lang.Math.abs((int)(n3 - n)) <= this.viewDistance * 2 && java.lang.Math.abs((int)(n4 - n2)) <= this.viewDistance * 2) {
+-            int n5 = java.lang.Math.min((int)n, (int)n3) - this.viewDistance - 1;
+-            int n6 = java.lang.Math.min((int)n2, (int)n4) - this.viewDistance - 1;
+-            int n7 = java.lang.Math.max((int)n, (int)n3) + this.viewDistance + 1;
+-            int n8 = java.lang.Math.max((int)n2, (int)n4) + this.viewDistance + 1;
+-            for (int i = n5; i <= n7; ++i) {
+-                for (int j = n6; j <= n8; ++j) {
+-                    boolean bl5 = net.minecraft.server.level.ChunkMap.isChunkInRange((int)i, (int)j, (int)n3, (int)n4, (int)this.viewDistance);
+-                    boolean bl6 = net.minecraft.server.level.ChunkMap.isChunkInRange((int)i, (int)j, (int)n, (int)n2, (int)this.viewDistance);
+-                    this.updateChunkTracking(player, new net.minecraft.world.level.ChunkPos(i, j), new org.apache.commons.lang3.mutable.MutableObject(), bl5, bl6);
++        int $$11 = $$4.x();
++        int $$12 = $$4.z();
++        if (java.lang.Math.abs((int)($$11 - $$2)) <= this.viewDistance * 2 && java.lang.Math.abs((int)($$12 - $$3)) <= this.viewDistance * 2) {
++            int $$13 = java.lang.Math.min((int)$$2, (int)$$11) - this.viewDistance - 1;
++            int $$14 = java.lang.Math.min((int)$$3, (int)$$12) - this.viewDistance - 1;
++            int $$15 = java.lang.Math.max((int)$$2, (int)$$11) + this.viewDistance + 1;
++            int $$16 = java.lang.Math.max((int)$$3, (int)$$12) + this.viewDistance + 1;
++            for (int $$17 = $$13; $$17 <= $$15; ++$$17) {
++                for (int $$18 = $$14; $$18 <= $$16; ++$$18) {
++                    boolean $$19 = net.minecraft.server.level.ChunkMap.isChunkInRange((int)$$17, (int)$$18, (int)$$11, (int)$$12, (int)this.viewDistance);
++                    boolean $$20 = net.minecraft.server.level.ChunkMap.isChunkInRange((int)$$17, (int)$$18, (int)$$2, (int)$$3, (int)this.viewDistance);
++                    this.updateChunkTracking($$0, new net.minecraft.world.level.ChunkPos($$17, $$18), new org.apache.commons.lang3.mutable.MutableObject(), $$19, $$20);
+                 }
+             }
+         } else {
+-            boolean bl7;
+-            boolean bl8;
+-            int n9;
+-            int n10;
+-            for (n10 = n3 - this.viewDistance - 1;
+- n10 <= n3 + this.viewDistance + 1; ++n10) {
+-                for (n9 = n4 - this.viewDistance - 1;
+- n9 <= n4 + this.viewDistance + 1; ++n9) {
+-                    if (!net.minecraft.server.level.ChunkMap.isChunkInRange((int)n10, (int)n9, (int)n3, (int)n4, (int)this.viewDistance)) continue;
+-                    bl8 = true;
+-                    bl7 = false;
+-                    this.updateChunkTracking(player, new net.minecraft.world.level.ChunkPos(n10, n9), new org.apache.commons.lang3.mutable.MutableObject(), true, false);
++            for (int $$21 = $$11 - this.viewDistance - 1; $$21 <= $$11 + this.viewDistance + 1; ++$$21) {
++                for (int $$22 = $$12 - this.viewDistance - 1; $$22 <= $$12 + this.viewDistance + 1; ++$$22) {
++                    if (!net.minecraft.server.level.ChunkMap.isChunkInRange((int)$$21, (int)$$22, (int)$$11, (int)$$12, (int)this.viewDistance)) continue;
++                    boolean $$23 = true;
++                    boolean $$24 = false;
++                    this.updateChunkTracking($$0, new net.minecraft.world.level.ChunkPos($$21, $$22), new org.apache.commons.lang3.mutable.MutableObject(), true, false);
+                 }
+             }
+-            for (n10 = n - this.viewDistance - 1;
+- n10 <= n + this.viewDistance + 1; ++n10) {
+-                for (n9 = n2 - this.viewDistance - 1;
+- n9 <= n2 + this.viewDistance + 1; ++n9) {
+-                    if (!net.minecraft.server.level.ChunkMap.isChunkInRange((int)n10, (int)n9, (int)n, (int)n2, (int)this.viewDistance)) continue;
+-                    bl8 = false;
+-                    bl7 = true;
+-                    this.updateChunkTracking(player, new net.minecraft.world.level.ChunkPos(n10, n9), new org.apache.commons.lang3.mutable.MutableObject(), false, true);
++            for (int $$25 = $$2 - this.viewDistance - 1; $$25 <= $$2 + this.viewDistance + 1; ++$$25) {
++                for (int $$26 = $$3 - this.viewDistance - 1; $$26 <= $$3 + this.viewDistance + 1; ++$$26) {
++                    if (!net.minecraft.server.level.ChunkMap.isChunkInRange((int)$$25, (int)$$26, (int)$$2, (int)$$3, (int)this.viewDistance)) continue;
++                    boolean $$27 = false;
++                    boolean $$28 = true;
++                    this.updateChunkTracking($$0, new net.minecraft.world.level.ChunkPos($$25, $$26), new org.apache.commons.lang3.mutable.MutableObject(), false, true);
+                 }
+             }
+         }
+@@ -885,43 +877,43 @@
+         return $$3.build();
+     }
+ 
+-    public void addEntity(net.minecraft.world.entity.Entity entity) {
+-        if (entity instanceof net.minecraft.world.entity.boss.EnderDragonPart) {
++    public void addEntity(net.minecraft.world.entity.Entity $$0) {
++        if ($$0 instanceof net.minecraft.world.entity.boss.EnderDragonPart) {
+             return;
+         }
+-        net.minecraft.world.entity.EntityType entityType = entity.getType();
+-        int n = entityType.clientTrackingRange() * 16;
+-        if (n == 0) {
++        net.minecraft.world.entity.EntityType $$1 = $$0.getType();
++        int $$2 = $$1.clientTrackingRange() * 16;
++        if ($$2 == 0) {
+             return;
+         }
+-        int n2 = entityType.updateInterval();
+-        if (this.entityMap.containsKey(entity.getId())) {
++        int $$3 = $$1.updateInterval();
++        if (this.entityMap.containsKey($$0.getId())) {
+             throw (java.lang.IllegalStateException)net.minecraft.Util.pauseInIde((java.lang.Throwable)new java.lang.IllegalStateException("Entity is already tracked!"));
+         }
+-        net.minecraft.server.level.ChunkMap$TrackedEntity trackedEntity = new net.minecraft.server.level.ChunkMap$TrackedEntity(this, entity, n, n2, entityType.trackDeltas());
+-        this.entityMap.put(entity.getId(), (java.lang.Object)trackedEntity);
+-        trackedEntity.updatePlayers(this.level.players());
+-        if (entity instanceof net.minecraft.server.level.ServerPlayer) {
+-            net.minecraft.server.level.ServerPlayer serverPlayer = (net.minecraft.server.level.ServerPlayer)entity;
+-            this.updatePlayerStatus(serverPlayer, true);
+-            for (net.minecraft.server.level.ChunkMap$TrackedEntity trackedEntity2 : this.entityMap.values()) {
+-                if (trackedEntity2.entity == serverPlayer) continue;
+-                trackedEntity2.updatePlayer(serverPlayer);
++        net.minecraft.server.level.ChunkMap$TrackedEntity $$4 = new net.minecraft.server.level.ChunkMap$TrackedEntity(this, $$0, $$2, $$3, $$1.trackDeltas());
++        this.entityMap.put($$0.getId(), (java.lang.Object)$$4);
++        $$4.updatePlayers(this.level.players());
++        if ($$0 instanceof net.minecraft.server.level.ServerPlayer) {
++            net.minecraft.server.level.ServerPlayer $$5 = (net.minecraft.server.level.ServerPlayer)$$0;
++            this.updatePlayerStatus($$5, true);
++            for (net.minecraft.server.level.ChunkMap$TrackedEntity $$6 : this.entityMap.values()) {
++                if ($$6.entity == $$5) continue;
++                $$6.updatePlayer($$5);
+             }
+         }
+     }
+ 
+-    public void removeEntity(net.minecraft.world.entity.Entity entity) {
+-        net.minecraft.server.level.ServerPlayer serverPlayer;
+-        if (entity instanceof net.minecraft.server.level.ServerPlayer) {
+-            serverPlayer = (net.minecraft.server.level.ServerPlayer)entity;
+-            this.updatePlayerStatus(serverPlayer, false);
+-            for (net.minecraft.server.level.ChunkMap$TrackedEntity trackedEntity : this.entityMap.values()) {
+-                trackedEntity.removePlayer(serverPlayer);
++    public void removeEntity(net.minecraft.world.entity.Entity $$0) {
++        net.minecraft.server.level.ChunkMap$TrackedEntity $$3;
++        if ($$0 instanceof net.minecraft.server.level.ServerPlayer) {
++            net.minecraft.server.level.ServerPlayer $$1 = (net.minecraft.server.level.ServerPlayer)$$0;
++            this.updatePlayerStatus($$1, false);
++            for (net.minecraft.server.level.ChunkMap$TrackedEntity $$2 : this.entityMap.values()) {
++                $$2.removePlayer($$1);
+             }
+         }
+-        if ((serverPlayer = (net.minecraft.server.level.ChunkMap$TrackedEntity)this.entityMap.remove(entity.getId())) != null) {
+-            serverPlayer.broadcastRemoved();
++        if (($$3 = (net.minecraft.server.level.ChunkMap$TrackedEntity)this.entityMap.remove($$0.getId())) != null) {
++            $$3.broadcastRemoved();
+         }
+     }
+ 
+@@ -951,17 +943,17 @@
+         }
+     }
+ 
+-    public void broadcast(net.minecraft.world.entity.Entity entity, net.minecraft.network.protocol.Packet<?> packet) {
+-        net.minecraft.server.level.ChunkMap$TrackedEntity trackedEntity = (net.minecraft.server.level.ChunkMap$TrackedEntity)this.entityMap.get(entity.getId());
+-        if (trackedEntity != null) {
+-            trackedEntity.broadcast(packet);
++    public void broadcast(net.minecraft.world.entity.Entity $$0, net.minecraft.network.protocol.Packet<?> $$1) {
++        net.minecraft.server.level.ChunkMap$TrackedEntity $$2 = (net.minecraft.server.level.ChunkMap$TrackedEntity)this.entityMap.get($$0.getId());
++        if ($$2 != null) {
++            $$2.broadcast($$1);
+         }
+     }
+ 
+-    public void broadcastAndSend(net.minecraft.world.entity.Entity entity, net.minecraft.network.protocol.Packet<?> packet) {
+-        net.minecraft.server.level.ChunkMap$TrackedEntity trackedEntity = (net.minecraft.server.level.ChunkMap$TrackedEntity)this.entityMap.get(entity.getId());
+-        if (trackedEntity != null) {
+-            trackedEntity.broadcastAndSend(packet);
++    public void broadcastAndSend(net.minecraft.world.entity.Entity $$0, net.minecraft.network.protocol.Packet<?> $$1) {
++        net.minecraft.server.level.ChunkMap$TrackedEntity $$2 = (net.minecraft.server.level.ChunkMap$TrackedEntity)this.entityMap.get($$0.getId());
++        if ($$2 != null) {
++            $$2.broadcastAndSend($$1);
+         }
+     }
+ 

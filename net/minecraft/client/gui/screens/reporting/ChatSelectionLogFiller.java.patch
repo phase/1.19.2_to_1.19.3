@@ -1,0 +1,96 @@
+--- net/minecraft/client/gui/screens/reporting/ChatSelectionLogFiller.java
++++ net/minecraft/client/gui/screens/reporting/ChatSelectionLogFiller.java
+@@ -3,59 +3,52 @@
+  */
+ package net.minecraft.client.gui.screens.reporting;
+ 
+-public class net.minecraft.client.gui.screens.reporting.ChatSelectionLogFiller<T extends net.minecraft.client.multiplayer.chat.LoggedChatMessage>
++public class net.minecraft.client.gui.screens.reporting.ChatSelectionLogFiller
+  {
+-    public static int CONTEXT_FOLDED_SIZE = 4;
+     public net.minecraft.client.multiplayer.chat.ChatLog log;
+-    public java.util.function.Predicate<T> canReport;
+-    public int nextMessageId;
+-    public java.lang.Class<T> tClass;
++    public net.minecraft.client.multiplayer.chat.report.ChatReportContextBuilder contextBuilder;
++    public java.util.function.Predicate<net.minecraft.client.multiplayer.chat.LoggedChatMessage$Player> canReport;
++    public int eventId;
++    public int missedCount;
++    @javax.annotation.Nullable
++    public net.minecraft.network.chat.PlayerChatMessage lastMessage;
+ 
+-    public net.minecraft.client.gui.screens.reporting.ChatSelectionLogFiller(net.minecraft.client.multiplayer.chat.ChatLog $$0, java.util.function.Predicate<T> $$1, java.lang.Class<T> $$2) {
+-        this.log = $$0;
++    public net.minecraft.client.gui.screens.reporting.ChatSelectionLogFiller(net.minecraft.client.multiplayer.chat.report.ReportingContext $$0, java.util.function.Predicate<net.minecraft.client.multiplayer.chat.LoggedChatMessage$Player> $$1) {
++        this.log = $$0.chatLog();
++        this.contextBuilder = new net.minecraft.client.multiplayer.chat.report.ChatReportContextBuilder($$0.sender().reportLimits().leadingContextMessageCount());
+         this.canReport = $$1;
+-        this.nextMessageId = $$0.newest();
+-        this.tClass = $$2;
++        this.eventId = this.log.end();
+     }
+ 
+-    public void fillNextPage(int $$0, net.minecraft.client.gui.screens.reporting.ChatSelectionLogFiller$Output<T> $$1) {
+-        net.minecraft.client.gui.screens.reporting.ChatLogSegmenter$Results $$3;
++    public void fillNextPage(int $$0, net.minecraft.client.gui.screens.reporting.ChatSelectionLogFiller$Output $$1) {
++        net.minecraft.client.multiplayer.chat.LoggedChatEvent $$3;
+         int $$2 = 0;
+-        while ($$2 < $$0 && ($$3 = this.nextSegment()) != null) {
+-            if ($$3.type().foldable()) {
+-                $$2 += this.addFoldedMessagesTo($$3.messages(), $$1);
+-                continue;
++        while ($$2 < $$0 && ($$3 = this.log.lookup(this.eventId)) != null) {
++            net.minecraft.client.multiplayer.chat.LoggedChatMessage$Player $$5;
++            int $$4 = this.eventId--;
++            if (!($$3 instanceof net.minecraft.client.multiplayer.chat.LoggedChatMessage$Player) || ($$5 = (net.minecraft.client.multiplayer.chat.LoggedChatMessage$Player)$$3).message().equals((java.lang.Object)this.lastMessage)) continue;
++            if (this.acceptMessage($$5)) {
++                if (this.missedCount > 0) {
++                    $$1.acceptDivider((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"gui.chatSelection.fold", (java.lang.Object[])new java.lang.Object[]{this.missedCount}));
++                    this.missedCount = 0;
++                }
++                $$1.acceptMessage($$4, $$5);
++                ++$$2;
++            } else {
++                ++this.missedCount;
+             }
+-            $$1.acceptMessages((java.lang.Iterable)$$3.messages());
+-            $$2 += $$3.messages().size();
++            this.lastMessage = $$5.message();
+         }
+     }
+ 
+-    public int addFoldedMessagesTo(java.util.List<net.minecraft.client.multiplayer.chat.ChatLog$Entry<T>> $$0, net.minecraft.client.gui.screens.reporting.ChatSelectionLogFiller$Output<T> $$1) {
+-        int $$2 = 8;
+-        if ($$0.size() > 8) {
+-            int $$3 = $$0.size() - 8;
+-            $$1.acceptMessages((java.lang.Iterable)$$0.subList(0, 4));
+-            $$1.acceptDivider((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"gui.chatSelection.fold", (java.lang.Object[])new java.lang.Object[]{$$3}));
+-            $$1.acceptMessages((java.lang.Iterable)$$0.subList($$0.size() - 4, $$0.size()));
+-            return 9;
++    public boolean acceptMessage(net.minecraft.client.multiplayer.chat.LoggedChatMessage$Player $$0) {
++        net.minecraft.network.chat.PlayerChatMessage $$1 = $$0.message();
++        boolean $$2 = this.contextBuilder.acceptContext($$1);
++        if (this.canReport.test((java.lang.Object)$$0)) {
++            this.contextBuilder.trackContext($$1);
++            return true;
+         }
+-        $$1.acceptMessages($$0);
+-        return $$0.size();
++        return $$2;
+     }
+-
+-    @org.jetbrains.annotations.Nullable
+-    public net.minecraft.client.gui.screens.reporting.ChatLogSegmenter$Results<T> nextSegment() {
+-        net.minecraft.client.gui.screens.reporting.ChatLogSegmenter $$02 = new net.minecraft.client.gui.screens.reporting.ChatLogSegmenter($$0 -> this.getMessageType((net.minecraft.client.multiplayer.chat.LoggedChatMessage)$$0.event()));
+-        java.util.OptionalInt $$12 = this.log.selectBefore(this.nextMessageId).entries().map($$0 -> $$0.tryCast(this.tClass)).filter(java.util.Objects::nonNull).takeWhile(arg_0 -> ((net.minecraft.client.gui.screens.reporting.ChatLogSegmenter)$$02).accept(arg_0)).mapToInt(net.minecraft.client.multiplayer.chat.ChatLog$Entry::id).reduce(($$0, $$1) -> $$1);
+-        if ($$12.isPresent()) {
+-            this.nextMessageId = this.log.before($$12.getAsInt());
+-        }
+-        return $$02.build();
+-    }
+-
+-    public net.minecraft.client.gui.screens.reporting.ChatLogSegmenter$MessageType getMessageType(T $$0) {
+-        return this.canReport.test($$0) ? net.minecraft.client.gui.screens.reporting.ChatLogSegmenter$MessageType.REPORTABLE : net.minecraft.client.gui.screens.reporting.ChatLogSegmenter$MessageType.CONTEXT;
+-    }
+ }
+ 

@@ -1,0 +1,131 @@
+--- net/minecraft/world/level/block/JukeboxBlock.java
++++ net/minecraft/world/level/block/JukeboxBlock.java
+@@ -13,22 +13,22 @@
+         this.registerDefaultState((net.minecraft.world.level.block.state.BlockState)((net.minecraft.world.level.block.state.BlockState)this.stateDefinition.any()).setValue((net.minecraft.world.level.block.state.properties.Property)HAS_RECORD, (java.lang.Comparable)java.lang.Boolean.valueOf((boolean)false)));
+     }
+ 
+-    public void setPlacedBy(net.minecraft.world.level.Level level, net.minecraft.core.BlockPos pos, net.minecraft.world.level.block.state.BlockState state, @javax.annotation.Nullable net.minecraft.world.entity.LivingEntity placer, net.minecraft.world.item.ItemStack stack) {
+-        super.setPlacedBy(level, pos, state, placer, stack);
+-        net.minecraft.nbt.CompoundTag compoundTag = net.minecraft.world.item.BlockItem.getBlockEntityData((net.minecraft.world.item.ItemStack)stack);
+-        if (compoundTag != null && compoundTag.contains("RecordItem")) {
+-            level.setBlock(pos, (net.minecraft.world.level.block.state.BlockState)state.setValue((net.minecraft.world.level.block.state.properties.Property)HAS_RECORD, (java.lang.Comparable)java.lang.Boolean.valueOf((boolean)true)), 2);
++    public void setPlacedBy(net.minecraft.world.level.Level $$0, net.minecraft.core.BlockPos $$1, net.minecraft.world.level.block.state.BlockState $$2, @javax.annotation.Nullable net.minecraft.world.entity.LivingEntity $$3, net.minecraft.world.item.ItemStack $$4) {
++        super.setPlacedBy($$0, $$1, $$2, $$3, $$4);
++        net.minecraft.nbt.CompoundTag $$5 = net.minecraft.world.item.BlockItem.getBlockEntityData((net.minecraft.world.item.ItemStack)$$4);
++        if ($$5 != null && $$5.contains("RecordItem")) {
++            $$0.setBlock($$1, (net.minecraft.world.level.block.state.BlockState)$$2.setValue((net.minecraft.world.level.block.state.properties.Property)HAS_RECORD, (java.lang.Comparable)java.lang.Boolean.valueOf((boolean)true)), 2);
+         }
+     }
+ 
+-    public net.minecraft.world.InteractionResult use(net.minecraft.world.level.block.state.BlockState state, net.minecraft.world.level.Level level, net.minecraft.core.BlockPos pos, net.minecraft.world.entity.player.Player player, net.minecraft.world.InteractionHand hand, net.minecraft.world.phys.BlockHitResult hit) {
+-        if (((java.lang.Boolean)state.getValue((net.minecraft.world.level.block.state.properties.Property)HAS_RECORD)).booleanValue()) {
+-            this.dropRecording(level, pos);
+-            state = (net.minecraft.world.level.block.state.BlockState)state.setValue((net.minecraft.world.level.block.state.properties.Property)HAS_RECORD, (java.lang.Comparable)java.lang.Boolean.valueOf((boolean)false));
+-            level.gameEvent(net.minecraft.world.level.gameevent.GameEvent.JUKEBOX_STOP_PLAY, pos, net.minecraft.world.level.gameevent.GameEvent$Context.of((net.minecraft.world.level.block.state.BlockState)state));
+-            level.setBlock(pos, state, 2);
+-            level.gameEvent(net.minecraft.world.level.gameevent.GameEvent.BLOCK_CHANGE, pos, net.minecraft.world.level.gameevent.GameEvent$Context.of((net.minecraft.world.entity.Entity)player, (net.minecraft.world.level.block.state.BlockState)state));
+-            return net.minecraft.world.InteractionResult.sidedSuccess((boolean)level.isClientSide);
++    public net.minecraft.world.InteractionResult use(net.minecraft.world.level.block.state.BlockState $$0, net.minecraft.world.level.Level $$1, net.minecraft.core.BlockPos $$2, net.minecraft.world.entity.player.Player $$3, net.minecraft.world.InteractionHand $$4, net.minecraft.world.phys.BlockHitResult $$5) {
++        if (((java.lang.Boolean)$$0.getValue((net.minecraft.world.level.block.state.properties.Property)HAS_RECORD)).booleanValue()) {
++            this.dropRecording($$1, $$2);
++            $$0 = (net.minecraft.world.level.block.state.BlockState)$$0.setValue((net.minecraft.world.level.block.state.properties.Property)HAS_RECORD, (java.lang.Comparable)java.lang.Boolean.valueOf((boolean)false));
++            $$1.gameEvent(net.minecraft.world.level.gameevent.GameEvent.JUKEBOX_STOP_PLAY, $$2, net.minecraft.world.level.gameevent.GameEvent$Context.of((net.minecraft.world.level.block.state.BlockState)$$0));
++            $$1.setBlock($$2, $$0, 2);
++            $$1.gameEvent(net.minecraft.world.level.gameevent.GameEvent.BLOCK_CHANGE, $$2, net.minecraft.world.level.gameevent.GameEvent$Context.of((net.minecraft.world.entity.Entity)$$3, (net.minecraft.world.level.block.state.BlockState)$$0));
++            return net.minecraft.world.InteractionResult.sidedSuccess((boolean)$$1.isClientSide);
+         }
+         return net.minecraft.world.InteractionResult.PASS;
+     }
+@@ -44,62 +44,62 @@
+         }
+     }
+ 
+-    public void dropRecording(net.minecraft.world.level.Level level, net.minecraft.core.BlockPos pos) {
+-        if (level.isClientSide) {
++    public void dropRecording(net.minecraft.world.level.Level $$0, net.minecraft.core.BlockPos $$1) {
++        if ($$0.isClientSide) {
+             return;
+         }
+-        net.minecraft.world.level.block.entity.BlockEntity blockEntity = level.getBlockEntity(pos);
+-        if (!(blockEntity instanceof net.minecraft.world.level.block.entity.JukeboxBlockEntity)) {
++        net.minecraft.world.level.block.entity.BlockEntity $$2 = $$0.getBlockEntity($$1);
++        if (!($$2 instanceof net.minecraft.world.level.block.entity.JukeboxBlockEntity)) {
+             return;
+         }
+-        net.minecraft.world.level.block.entity.JukeboxBlockEntity jukeboxBlockEntity = (net.minecraft.world.level.block.entity.JukeboxBlockEntity)blockEntity;
+-        net.minecraft.world.item.ItemStack itemStack = jukeboxBlockEntity.getRecord();
+-        if (itemStack.isEmpty()) {
++        net.minecraft.world.level.block.entity.JukeboxBlockEntity $$3 = (net.minecraft.world.level.block.entity.JukeboxBlockEntity)$$2;
++        net.minecraft.world.item.ItemStack $$4 = $$3.getRecord();
++        if ($$4.isEmpty()) {
+             return;
+         }
+-        level.levelEvent(1010, pos, 0);
+-        jukeboxBlockEntity.clearContent();
+-        float f = 0.7f;
+-        double d = (double)(level.random.nextFloat() * 0.7f) + (double)0.15f;
+-        double d2 = (double)(level.random.nextFloat() * 0.7f) + 0.06000000238418579 + 0.6;
+-        double d3 = (double)(level.random.nextFloat() * 0.7f) + (double)0.15f;
+-        net.minecraft.world.item.ItemStack itemStack2 = itemStack.copy();
+-        net.minecraft.world.entity.item.ItemEntity itemEntity = new net.minecraft.world.entity.item.ItemEntity(level, (double)pos.getX() + d, (double)pos.getY() + d2, (double)pos.getZ() + d3, itemStack2);
+-        itemEntity.setDefaultPickUpDelay();
+-        level.addFreshEntity((net.minecraft.world.entity.Entity)itemEntity);
++        $$0.levelEvent(1010, $$1, 0);
++        $$3.clearContent();
++        float $$5 = 0.7f;
++        double $$6 = (double)($$0.random.nextFloat() * 0.7f) + (double)0.15f;
++        double $$7 = (double)($$0.random.nextFloat() * 0.7f) + 0.06000000238418579 + 0.6;
++        double $$8 = (double)($$0.random.nextFloat() * 0.7f) + (double)0.15f;
++        net.minecraft.world.item.ItemStack $$9 = $$4.copy();
++        net.minecraft.world.entity.item.ItemEntity $$10 = new net.minecraft.world.entity.item.ItemEntity($$0, (double)$$1.getX() + $$6, (double)$$1.getY() + $$7, (double)$$1.getZ() + $$8, $$9);
++        $$10.setDefaultPickUpDelay();
++        $$0.addFreshEntity((net.minecraft.world.entity.Entity)$$10);
+     }
+ 
+-    public void onRemove(net.minecraft.world.level.block.state.BlockState state, net.minecraft.world.level.Level level, net.minecraft.core.BlockPos pos, net.minecraft.world.level.block.state.BlockState newState, boolean isMoving) {
+-        if (state.is(newState.getBlock())) {
++    public void onRemove(net.minecraft.world.level.block.state.BlockState $$0, net.minecraft.world.level.Level $$1, net.minecraft.core.BlockPos $$2, net.minecraft.world.level.block.state.BlockState $$3, boolean $$4) {
++        if ($$0.is($$3.getBlock())) {
+             return;
+         }
+-        this.dropRecording(level, pos);
+-        super.onRemove(state, level, pos, newState, isMoving);
++        this.dropRecording($$1, $$2);
++        super.onRemove($$0, $$1, $$2, $$3, $$4);
+     }
+ 
+     public net.minecraft.world.level.block.entity.BlockEntity newBlockEntity(net.minecraft.core.BlockPos $$0, net.minecraft.world.level.block.state.BlockState $$1) {
+         return new net.minecraft.world.level.block.entity.JukeboxBlockEntity($$0, $$1);
+     }
+ 
+-    public boolean hasAnalogOutputSignal(net.minecraft.world.level.block.state.BlockState state) {
++    public boolean hasAnalogOutputSignal(net.minecraft.world.level.block.state.BlockState $$0) {
+         return true;
+     }
+ 
+-    public int getAnalogOutputSignal(net.minecraft.world.level.block.state.BlockState blockState, net.minecraft.world.level.Level level, net.minecraft.core.BlockPos pos) {
+-        net.minecraft.world.item.Item item;
+-        net.minecraft.world.level.block.entity.BlockEntity blockEntity = level.getBlockEntity(pos);
+-        if (blockEntity instanceof net.minecraft.world.level.block.entity.JukeboxBlockEntity && (item = ((net.minecraft.world.level.block.entity.JukeboxBlockEntity)blockEntity).getRecord().getItem()) instanceof net.minecraft.world.item.RecordItem) {
+-            return ((net.minecraft.world.item.RecordItem)item).getAnalogOutput();
++    public int getAnalogOutputSignal(net.minecraft.world.level.block.state.BlockState $$0, net.minecraft.world.level.Level $$1, net.minecraft.core.BlockPos $$2) {
++        net.minecraft.world.item.Item $$4;
++        net.minecraft.world.level.block.entity.BlockEntity $$3 = $$1.getBlockEntity($$2);
++        if ($$3 instanceof net.minecraft.world.level.block.entity.JukeboxBlockEntity && ($$4 = ((net.minecraft.world.level.block.entity.JukeboxBlockEntity)$$3).getRecord().getItem()) instanceof net.minecraft.world.item.RecordItem) {
++            return ((net.minecraft.world.item.RecordItem)$$4).getAnalogOutput();
+         }
+         return 0;
+     }
+ 
+-    public net.minecraft.world.level.block.RenderShape getRenderShape(net.minecraft.world.level.block.state.BlockState state) {
++    public net.minecraft.world.level.block.RenderShape getRenderShape(net.minecraft.world.level.block.state.BlockState $$0) {
+         return net.minecraft.world.level.block.RenderShape.MODEL;
+     }
+ 
+-    public void createBlockStateDefinition(net.minecraft.world.level.block.state.StateDefinition$Builder<net.minecraft.world.level.block.Block, net.minecraft.world.level.block.state.BlockState> builder) {
+-        builder.add(new net.minecraft.world.level.block.state.properties.Property[]{HAS_RECORD});
++    public void createBlockStateDefinition(net.minecraft.world.level.block.state.StateDefinition$Builder<net.minecraft.world.level.block.Block, net.minecraft.world.level.block.state.BlockState> $$0) {
++        $$0.add(new net.minecraft.world.level.block.state.properties.Property[]{HAS_RECORD});
+     }
+ 
+     @javax.annotation.Nullable

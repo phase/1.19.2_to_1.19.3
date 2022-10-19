@@ -1,0 +1,71 @@
+--- net/minecraft/commands/CommandFunction.java
++++ net/minecraft/commands/CommandFunction.java
+@@ -8,9 +8,9 @@
+     public net.minecraft.commands.CommandFunction$Entry[] entries;
+     public net.minecraft.resources.ResourceLocation id;
+ 
+-    public net.minecraft.commands.CommandFunction(net.minecraft.resources.ResourceLocation id, net.minecraft.commands.CommandFunction$Entry[] entries) {
+-        this.id = id;
+-        this.entries = entries;
++    public net.minecraft.commands.CommandFunction(net.minecraft.resources.ResourceLocation $$0, net.minecraft.commands.CommandFunction$Entry[] $$1) {
++        this.id = $$0;
++        this.entries = $$1;
+     }
+ 
+     public net.minecraft.resources.ResourceLocation getId() {
+@@ -21,35 +21,34 @@
+         return this.entries;
+     }
+ 
+-    public static net.minecraft.commands.CommandFunction fromLines(net.minecraft.resources.ResourceLocation id, com.mojang.brigadier.CommandDispatcher<net.minecraft.commands.CommandSourceStack> dispatcher, net.minecraft.commands.CommandSourceStack source, java.util.List<java.lang.String> lines) {
+-        java.util.ArrayList arrayList = com.google.common.collect.Lists.newArrayListWithCapacity((int)lines.size());
+-        for (int i = 0; i < lines.size(); ++i) {
+-            java.lang.Object object;
+-            int n = i + 1;
+-            java.lang.String string = ((java.lang.String)lines.get(i)).trim();
+-            com.mojang.brigadier.StringReader stringReader = new com.mojang.brigadier.StringReader(string);
+-            if (!stringReader.canRead() || stringReader.peek() == '#') continue;
+-            if (stringReader.peek() == '/') {
+-                stringReader.skip();
+-                if (stringReader.peek() == '/') {
+-                    throw new java.lang.IllegalArgumentException("Unknown or invalid command '" + string + "' on line " + n + " (if you intended to make a comment, use '#' not '//')");
++    public static net.minecraft.commands.CommandFunction fromLines(net.minecraft.resources.ResourceLocation $$0, com.mojang.brigadier.CommandDispatcher<net.minecraft.commands.CommandSourceStack> $$1, net.minecraft.commands.CommandSourceStack $$2, java.util.List<java.lang.String> $$3) {
++        java.util.ArrayList $$4 = com.google.common.collect.Lists.newArrayListWithCapacity((int)$$3.size());
++        for (int $$5 = 0; $$5 < $$3.size(); ++$$5) {
++            int $$6 = $$5 + 1;
++            java.lang.String $$7 = ((java.lang.String)$$3.get($$5)).trim();
++            com.mojang.brigadier.StringReader $$8 = new com.mojang.brigadier.StringReader($$7);
++            if (!$$8.canRead() || $$8.peek() == '#') continue;
++            if ($$8.peek() == '/') {
++                $$8.skip();
++                if ($$8.peek() == '/') {
++                    throw new java.lang.IllegalArgumentException("Unknown or invalid command '" + $$7 + "' on line " + $$6 + " (if you intended to make a comment, use '#' not '//')");
+                 }
+-                object = stringReader.readUnquotedString();
+-                throw new java.lang.IllegalArgumentException("Unknown or invalid command '" + string + "' on line " + n + " (did you mean '" + (java.lang.String)object + "'? Do not use a preceding forwards slash.)");
++                java.lang.String $$9 = $$8.readUnquotedString();
++                throw new java.lang.IllegalArgumentException("Unknown or invalid command '" + $$7 + "' on line " + $$6 + " (did you mean '" + $$9 + "'? Do not use a preceding forwards slash.)");
+             }
+             try {
+-                object = dispatcher.parse(stringReader, (java.lang.Object)source);
+-                if (object.getReader().canRead()) {
+-                    throw net.minecraft.commands.Commands.getParseException((com.mojang.brigadier.ParseResults)object);
++                com.mojang.brigadier.ParseResults $$10 = $$1.parse($$8, (java.lang.Object)$$2);
++                if ($$10.getReader().canRead()) {
++                    throw net.minecraft.commands.Commands.getParseException((com.mojang.brigadier.ParseResults)$$10);
+                 }
+-                arrayList.add((java.lang.Object)new net.minecraft.commands.CommandFunction$CommandEntry(object));
++                $$4.add((java.lang.Object)new net.minecraft.commands.CommandFunction$CommandEntry($$10));
+                 continue;
+             }
+-            catch (com.mojang.brigadier.exceptions.CommandSyntaxException commandSyntaxException) {
+-                throw new java.lang.IllegalArgumentException("Whilst parsing command on line " + n + ": " + commandSyntaxException.getMessage());
++            catch (com.mojang.brigadier.exceptions.CommandSyntaxException $$11) {
++                throw new java.lang.IllegalArgumentException("Whilst parsing command on line " + $$6 + ": " + $$11.getMessage());
+             }
+         }
+-        return new net.minecraft.commands.CommandFunction(id, (net.minecraft.commands.CommandFunction$Entry[])arrayList.toArray((java.lang.Object[])new net.minecraft.commands.CommandFunction$Entry[0]));
++        return new net.minecraft.commands.CommandFunction($$0, (net.minecraft.commands.CommandFunction$Entry[])$$4.toArray((java.lang.Object[])new net.minecraft.commands.CommandFunction$Entry[0]));
+     }
+ }
+ 

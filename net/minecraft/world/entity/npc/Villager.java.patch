@@ -1,0 +1,681 @@
+--- net/minecraft/world/entity/npc/Villager.java
++++ net/minecraft/world/entity/npc/Villager.java
+@@ -45,13 +45,13 @@
+         this($$0, $$1, net.minecraft.world.entity.npc.VillagerType.PLAINS);
+     }
+ 
+-    public net.minecraft.world.entity.npc.Villager(net.minecraft.world.entity.EntityType<? extends net.minecraft.world.entity.npc.Villager> entityType, net.minecraft.world.level.Level level, net.minecraft.world.entity.npc.VillagerType villagerType) {
+-        super(entityType, level);
++    public net.minecraft.world.entity.npc.Villager(net.minecraft.world.entity.EntityType<? extends net.minecraft.world.entity.npc.Villager> $$0, net.minecraft.world.level.Level $$1, net.minecraft.world.entity.npc.VillagerType $$2) {
++        super($$0, $$1);
+         this.gossips = new net.minecraft.world.entity.ai.gossip.GossipContainer();
+         ((net.minecraft.world.entity.ai.navigation.GroundPathNavigation)this.getNavigation()).setCanOpenDoors(true);
+         this.getNavigation().setCanFloat(true);
+         this.setCanPickUpLoot(true);
+-        this.setVillagerData(this.getVillagerData().setType(villagerType).setProfession(net.minecraft.world.entity.npc.VillagerProfession.NONE));
++        this.setVillagerData(this.getVillagerData().setType($$2).setProfession(net.minecraft.world.entity.npc.VillagerProfession.NONE));
+     }
+ 
+     public net.minecraft.world.entity.ai.Brain<net.minecraft.world.entity.npc.Villager> getBrain() {
+@@ -62,40 +62,40 @@
+         return net.minecraft.world.entity.ai.Brain.provider((java.util.Collection)MEMORY_TYPES, (java.util.Collection)SENSOR_TYPES);
+     }
+ 
+-    public net.minecraft.world.entity.ai.Brain<?> makeBrain(com.mojang.serialization.Dynamic<?> dynamic) {
+-        net.minecraft.world.entity.ai.Brain brain = this.brainProvider().makeBrain(dynamic);
+-        this.registerBrainGoals(brain);
+-        return brain;
++    public net.minecraft.world.entity.ai.Brain<?> makeBrain(com.mojang.serialization.Dynamic<?> $$0) {
++        net.minecraft.world.entity.ai.Brain $$1 = this.brainProvider().makeBrain($$0);
++        this.registerBrainGoals($$1);
++        return $$1;
+     }
+ 
+-    public void refreshBrain(net.minecraft.server.level.ServerLevel serverLevel) {
+-        net.minecraft.world.entity.ai.Brain brain = this.getBrain();
+-        brain.stopAll(serverLevel, (net.minecraft.world.entity.LivingEntity)this);
+-        this.brain = brain.copyWithoutBehaviors();
++    public void refreshBrain(net.minecraft.server.level.ServerLevel $$0) {
++        net.minecraft.world.entity.ai.Brain $$1 = this.getBrain();
++        $$1.stopAll($$0, (net.minecraft.world.entity.LivingEntity)this);
++        this.brain = $$1.copyWithoutBehaviors();
+         this.registerBrainGoals(this.getBrain());
+     }
+ 
+-    public void registerBrainGoals(net.minecraft.world.entity.ai.Brain<net.minecraft.world.entity.npc.Villager> villagerBrain) {
+-        net.minecraft.world.entity.npc.VillagerProfession villagerProfession = this.getVillagerData().getProfession();
++    public void registerBrainGoals(net.minecraft.world.entity.ai.Brain<net.minecraft.world.entity.npc.Villager> $$0) {
++        net.minecraft.world.entity.npc.VillagerProfession $$1 = this.getVillagerData().getProfession();
+         if (this.isBaby()) {
+-            villagerBrain.setSchedule(net.minecraft.world.entity.schedule.Schedule.VILLAGER_BABY);
+-            villagerBrain.addActivity(net.minecraft.world.entity.schedule.Activity.PLAY, net.minecraft.world.entity.ai.behavior.VillagerGoalPackages.getPlayPackage((float)0.5f));
++            $$0.setSchedule(net.minecraft.world.entity.schedule.Schedule.VILLAGER_BABY);
++            $$0.addActivity(net.minecraft.world.entity.schedule.Activity.PLAY, net.minecraft.world.entity.ai.behavior.VillagerGoalPackages.getPlayPackage((float)0.5f));
+         } else {
+-            villagerBrain.setSchedule(net.minecraft.world.entity.schedule.Schedule.VILLAGER_DEFAULT);
+-            villagerBrain.addActivityWithConditions(net.minecraft.world.entity.schedule.Activity.WORK, net.minecraft.world.entity.ai.behavior.VillagerGoalPackages.getWorkPackage((net.minecraft.world.entity.npc.VillagerProfession)villagerProfession, (float)0.5f), (java.util.Set)com.google.common.collect.ImmutableSet.of((java.lang.Object)com.mojang.datafixers.util.Pair.of((java.lang.Object)net.minecraft.world.entity.ai.memory.MemoryModuleType.JOB_SITE, (java.lang.Object)net.minecraft.world.entity.ai.memory.MemoryStatus.VALUE_PRESENT)));
++            $$0.setSchedule(net.minecraft.world.entity.schedule.Schedule.VILLAGER_DEFAULT);
++            $$0.addActivityWithConditions(net.minecraft.world.entity.schedule.Activity.WORK, net.minecraft.world.entity.ai.behavior.VillagerGoalPackages.getWorkPackage((net.minecraft.world.entity.npc.VillagerProfession)$$1, (float)0.5f), (java.util.Set)com.google.common.collect.ImmutableSet.of((java.lang.Object)com.mojang.datafixers.util.Pair.of((java.lang.Object)net.minecraft.world.entity.ai.memory.MemoryModuleType.JOB_SITE, (java.lang.Object)net.minecraft.world.entity.ai.memory.MemoryStatus.VALUE_PRESENT)));
+         }
+-        villagerBrain.addActivity(net.minecraft.world.entity.schedule.Activity.CORE, net.minecraft.world.entity.ai.behavior.VillagerGoalPackages.getCorePackage((net.minecraft.world.entity.npc.VillagerProfession)villagerProfession, (float)0.5f));
+-        villagerBrain.addActivityWithConditions(net.minecraft.world.entity.schedule.Activity.MEET, net.minecraft.world.entity.ai.behavior.VillagerGoalPackages.getMeetPackage((net.minecraft.world.entity.npc.VillagerProfession)villagerProfession, (float)0.5f), (java.util.Set)com.google.common.collect.ImmutableSet.of((java.lang.Object)com.mojang.datafixers.util.Pair.of((java.lang.Object)net.minecraft.world.entity.ai.memory.MemoryModuleType.MEETING_POINT, (java.lang.Object)net.minecraft.world.entity.ai.memory.MemoryStatus.VALUE_PRESENT)));
+-        villagerBrain.addActivity(net.minecraft.world.entity.schedule.Activity.REST, net.minecraft.world.entity.ai.behavior.VillagerGoalPackages.getRestPackage((net.minecraft.world.entity.npc.VillagerProfession)villagerProfession, (float)0.5f));
+-        villagerBrain.addActivity(net.minecraft.world.entity.schedule.Activity.IDLE, net.minecraft.world.entity.ai.behavior.VillagerGoalPackages.getIdlePackage((net.minecraft.world.entity.npc.VillagerProfession)villagerProfession, (float)0.5f));
+-        villagerBrain.addActivity(net.minecraft.world.entity.schedule.Activity.PANIC, net.minecraft.world.entity.ai.behavior.VillagerGoalPackages.getPanicPackage((net.minecraft.world.entity.npc.VillagerProfession)villagerProfession, (float)0.5f));
+-        villagerBrain.addActivity(net.minecraft.world.entity.schedule.Activity.PRE_RAID, net.minecraft.world.entity.ai.behavior.VillagerGoalPackages.getPreRaidPackage((net.minecraft.world.entity.npc.VillagerProfession)villagerProfession, (float)0.5f));
+-        villagerBrain.addActivity(net.minecraft.world.entity.schedule.Activity.RAID, net.minecraft.world.entity.ai.behavior.VillagerGoalPackages.getRaidPackage((net.minecraft.world.entity.npc.VillagerProfession)villagerProfession, (float)0.5f));
+-        villagerBrain.addActivity(net.minecraft.world.entity.schedule.Activity.HIDE, net.minecraft.world.entity.ai.behavior.VillagerGoalPackages.getHidePackage((net.minecraft.world.entity.npc.VillagerProfession)villagerProfession, (float)0.5f));
+-        villagerBrain.setCoreActivities((java.util.Set)com.google.common.collect.ImmutableSet.of((java.lang.Object)net.minecraft.world.entity.schedule.Activity.CORE));
+-        villagerBrain.setDefaultActivity(net.minecraft.world.entity.schedule.Activity.IDLE);
+-        villagerBrain.setActiveActivityIfPossible(net.minecraft.world.entity.schedule.Activity.IDLE);
+-        villagerBrain.updateActivityFromSchedule(this.level.getDayTime(), this.level.getGameTime());
++        $$0.addActivity(net.minecraft.world.entity.schedule.Activity.CORE, net.minecraft.world.entity.ai.behavior.VillagerGoalPackages.getCorePackage((net.minecraft.world.entity.npc.VillagerProfession)$$1, (float)0.5f));
++        $$0.addActivityWithConditions(net.minecraft.world.entity.schedule.Activity.MEET, net.minecraft.world.entity.ai.behavior.VillagerGoalPackages.getMeetPackage((net.minecraft.world.entity.npc.VillagerProfession)$$1, (float)0.5f), (java.util.Set)com.google.common.collect.ImmutableSet.of((java.lang.Object)com.mojang.datafixers.util.Pair.of((java.lang.Object)net.minecraft.world.entity.ai.memory.MemoryModuleType.MEETING_POINT, (java.lang.Object)net.minecraft.world.entity.ai.memory.MemoryStatus.VALUE_PRESENT)));
++        $$0.addActivity(net.minecraft.world.entity.schedule.Activity.REST, net.minecraft.world.entity.ai.behavior.VillagerGoalPackages.getRestPackage((net.minecraft.world.entity.npc.VillagerProfession)$$1, (float)0.5f));
++        $$0.addActivity(net.minecraft.world.entity.schedule.Activity.IDLE, net.minecraft.world.entity.ai.behavior.VillagerGoalPackages.getIdlePackage((net.minecraft.world.entity.npc.VillagerProfession)$$1, (float)0.5f));
++        $$0.addActivity(net.minecraft.world.entity.schedule.Activity.PANIC, net.minecraft.world.entity.ai.behavior.VillagerGoalPackages.getPanicPackage((net.minecraft.world.entity.npc.VillagerProfession)$$1, (float)0.5f));
++        $$0.addActivity(net.minecraft.world.entity.schedule.Activity.PRE_RAID, net.minecraft.world.entity.ai.behavior.VillagerGoalPackages.getPreRaidPackage((net.minecraft.world.entity.npc.VillagerProfession)$$1, (float)0.5f));
++        $$0.addActivity(net.minecraft.world.entity.schedule.Activity.RAID, net.minecraft.world.entity.ai.behavior.VillagerGoalPackages.getRaidPackage((net.minecraft.world.entity.npc.VillagerProfession)$$1, (float)0.5f));
++        $$0.addActivity(net.minecraft.world.entity.schedule.Activity.HIDE, net.minecraft.world.entity.ai.behavior.VillagerGoalPackages.getHidePackage((net.minecraft.world.entity.npc.VillagerProfession)$$1, (float)0.5f));
++        $$0.setCoreActivities((java.util.Set)com.google.common.collect.ImmutableSet.of((java.lang.Object)net.minecraft.world.entity.schedule.Activity.CORE));
++        $$0.setDefaultActivity(net.minecraft.world.entity.schedule.Activity.IDLE);
++        $$0.setActiveActivityIfPossible(net.minecraft.world.entity.schedule.Activity.IDLE);
++        $$0.updateActivityFromSchedule(this.level.getDayTime(), this.level.getGameTime());
+     }
+ 
+     public void ageBoundaryReached() {
+@@ -153,29 +153,29 @@
+         this.maybeDecayGossip();
+     }
+ 
+-    public net.minecraft.world.InteractionResult mobInteract(net.minecraft.world.entity.player.Player player, net.minecraft.world.InteractionHand hand) {
+-        net.minecraft.world.item.ItemStack itemStack = player.getItemInHand(hand);
+-        if (!itemStack.is(net.minecraft.world.item.Items.VILLAGER_SPAWN_EGG) && this.isAlive() && !this.isTrading() && !this.isSleeping()) {
++    public net.minecraft.world.InteractionResult mobInteract(net.minecraft.world.entity.player.Player $$0, net.minecraft.world.InteractionHand $$1) {
++        net.minecraft.world.item.ItemStack $$2 = $$0.getItemInHand($$1);
++        if (!$$2.is(net.minecraft.world.item.Items.VILLAGER_SPAWN_EGG) && this.isAlive() && !this.isTrading() && !this.isSleeping()) {
+             if (this.isBaby()) {
+                 this.setUnhappy();
+                 return net.minecraft.world.InteractionResult.sidedSuccess((boolean)this.level.isClientSide);
+             }
+-            boolean bl = this.getOffers().isEmpty();
+-            if (hand == net.minecraft.world.InteractionHand.MAIN_HAND) {
+-                if (bl && !this.level.isClientSide) {
++            boolean $$3 = this.getOffers().isEmpty();
++            if ($$1 == net.minecraft.world.InteractionHand.MAIN_HAND) {
++                if ($$3 && !this.level.isClientSide) {
+                     this.setUnhappy();
+                 }
+-                player.awardStat(net.minecraft.stats.Stats.TALKED_TO_VILLAGER);
++                $$0.awardStat(net.minecraft.stats.Stats.TALKED_TO_VILLAGER);
+             }
+-            if (bl) {
++            if ($$3) {
+                 return net.minecraft.world.InteractionResult.sidedSuccess((boolean)this.level.isClientSide);
+             }
+             if (!this.level.isClientSide && !this.offers.isEmpty()) {
+-                this.startTrading(player);
++                this.startTrading($$0);
+             }
+             return net.minecraft.world.InteractionResult.sidedSuccess((boolean)this.level.isClientSide);
+         }
+-        return super.mobInteract(player, hand);
++        return super.mobInteract($$0, $$1);
+     }
+ 
+     public void setUnhappy() {
+@@ -185,16 +185,16 @@
+         }
+     }
+ 
+-    public void startTrading(net.minecraft.world.entity.player.Player player) {
+-        this.updateSpecialPrices(player);
+-        this.setTradingPlayer(player);
+-        this.openTradingScreen(player, this.getDisplayName(), this.getVillagerData().getLevel());
++    public void startTrading(net.minecraft.world.entity.player.Player $$0) {
++        this.updateSpecialPrices($$0);
++        this.setTradingPlayer($$0);
++        this.openTradingScreen($$0, this.getDisplayName(), this.getVillagerData().getLevel());
+     }
+ 
+-    public void setTradingPlayer(@javax.annotation.Nullable net.minecraft.world.entity.player.Player player) {
+-        boolean bl = this.getTradingPlayer() != null && player == null;
+-        super.setTradingPlayer(player);
+-        if (bl) {
++    public void setTradingPlayer(@javax.annotation.Nullable net.minecraft.world.entity.player.Player $$0) {
++        boolean $$1 = this.getTradingPlayer() != null && $$0 == null;
++        super.setTradingPlayer($$0);
++        if ($$1) {
+             this.stopTrading();
+         }
+     }
+@@ -275,20 +275,20 @@
+         }
+     }
+ 
+-    public void updateSpecialPrices(net.minecraft.world.entity.player.Player player) {
+-        int n = this.getPlayerReputation(player);
+-        if (n != 0) {
+-            for (net.minecraft.world.item.trading.MerchantOffer merchantOffer : this.getOffers()) {
+-                merchantOffer.addToSpecialPriceDiff(-net.minecraft.util.Mth.floor((float)((float)n * merchantOffer.getPriceMultiplier())));
++    public void updateSpecialPrices(net.minecraft.world.entity.player.Player $$0) {
++        int $$1 = this.getPlayerReputation($$0);
++        if ($$1 != 0) {
++            for (net.minecraft.world.item.trading.MerchantOffer $$2 : this.getOffers()) {
++                $$2.addToSpecialPriceDiff(-net.minecraft.util.Mth.floor((float)((float)$$1 * $$2.getPriceMultiplier())));
+             }
+         }
+-        if (player.hasEffect(net.minecraft.world.effect.MobEffects.HERO_OF_THE_VILLAGE)) {
+-            java.util.Iterator iterator = player.getEffect(net.minecraft.world.effect.MobEffects.HERO_OF_THE_VILLAGE);
+-            int n2 = iterator.getAmplifier();
+-            for (net.minecraft.world.item.trading.MerchantOffer merchantOffer : this.getOffers()) {
+-                double d = 0.3 + 0.0625 * (double)n2;
+-                int n3 = (int)java.lang.Math.floor((double)(d * (double)merchantOffer.getBaseCostA().getCount()));
+-                merchantOffer.addToSpecialPriceDiff(-java.lang.Math.max((int)n3, (int)1));
++        if ($$0.hasEffect(net.minecraft.world.effect.MobEffects.HERO_OF_THE_VILLAGE)) {
++            net.minecraft.world.effect.MobEffectInstance $$3 = $$0.getEffect(net.minecraft.world.effect.MobEffects.HERO_OF_THE_VILLAGE);
++            int $$4 = $$3.getAmplifier();
++            for (net.minecraft.world.item.trading.MerchantOffer $$5 : this.getOffers()) {
++                double $$6 = 0.3 + 0.0625 * (double)$$4;
++                int $$7 = (int)java.lang.Math.floor((double)($$6 * (double)$$5.getBaseCostA().getCount()));
++                $$5.addToSpecialPriceDiff(-java.lang.Math.max((int)$$7, (int)1));
+             }
+         }
+     }
+@@ -298,51 +298,50 @@
+         this.entityData.define(DATA_VILLAGER_DATA, (java.lang.Object)new net.minecraft.world.entity.npc.VillagerData(net.minecraft.world.entity.npc.VillagerType.PLAINS, net.minecraft.world.entity.npc.VillagerProfession.NONE, 1));
+     }
+ 
+-    public void addAdditionalSaveData(net.minecraft.nbt.CompoundTag compound) {
+-        super.addAdditionalSaveData(compound);
+-        net.minecraft.world.entity.npc.VillagerData.CODEC.encodeStart((com.mojang.serialization.DynamicOps)net.minecraft.nbt.NbtOps.INSTANCE, (java.lang.Object)this.getVillagerData()).resultOrPartial(arg_0 -> ((org.slf4j.Logger)LOGGER).error(arg_0)).ifPresent($$1 -> compound.put("VillagerData", $$1));
+-        compound.putByte("FoodLevel", (byte)this.foodLevel);
+-        compound.put("Gossips", (net.minecraft.nbt.Tag)this.gossips.store((com.mojang.serialization.DynamicOps)net.minecraft.nbt.NbtOps.INSTANCE).getValue());
+-        compound.putInt("Xp", this.villagerXp);
+-        compound.putLong("LastRestock", this.lastRestockGameTime);
+-        compound.putLong("LastGossipDecay", this.lastGossipDecayTime);
+-        compound.putInt("RestocksToday", this.numberOfRestocksToday);
++    public void addAdditionalSaveData(net.minecraft.nbt.CompoundTag $$0) {
++        super.addAdditionalSaveData($$0);
++        net.minecraft.world.entity.npc.VillagerData.CODEC.encodeStart((com.mojang.serialization.DynamicOps)net.minecraft.nbt.NbtOps.INSTANCE, (java.lang.Object)this.getVillagerData()).resultOrPartial(arg_0 -> ((org.slf4j.Logger)LOGGER).error(arg_0)).ifPresent($$1 -> $$0.put("VillagerData", $$1));
++        $$0.putByte("FoodLevel", (byte)this.foodLevel);
++        $$0.put("Gossips", (net.minecraft.nbt.Tag)this.gossips.store((com.mojang.serialization.DynamicOps)net.minecraft.nbt.NbtOps.INSTANCE).getValue());
++        $$0.putInt("Xp", this.villagerXp);
++        $$0.putLong("LastRestock", this.lastRestockGameTime);
++        $$0.putLong("LastGossipDecay", this.lastGossipDecayTime);
++        $$0.putInt("RestocksToday", this.numberOfRestocksToday);
+         if (this.assignProfessionWhenSpawned) {
+-            compound.putBoolean("AssignProfessionWhenSpawned", true);
++            $$0.putBoolean("AssignProfessionWhenSpawned", true);
+         }
+     }
+ 
+-    public void readAdditionalSaveData(net.minecraft.nbt.CompoundTag compound) {
+-        com.mojang.serialization.DataResult dataResult;
+-        super.readAdditionalSaveData(compound);
+-        if (compound.contains("VillagerData", 10)) {
+-            dataResult = net.minecraft.world.entity.npc.VillagerData.CODEC.parse(new com.mojang.serialization.Dynamic((com.mojang.serialization.DynamicOps)net.minecraft.nbt.NbtOps.INSTANCE, (java.lang.Object)compound.get("VillagerData")));
+-            dataResult.resultOrPartial(arg_0 -> ((org.slf4j.Logger)LOGGER).error(arg_0)).ifPresent(arg_0 -> this.setVillagerData(arg_0));
++    public void readAdditionalSaveData(net.minecraft.nbt.CompoundTag $$0) {
++        super.readAdditionalSaveData($$0);
++        if ($$0.contains("VillagerData", 10)) {
++            com.mojang.serialization.DataResult $$1 = net.minecraft.world.entity.npc.VillagerData.CODEC.parse(new com.mojang.serialization.Dynamic((com.mojang.serialization.DynamicOps)net.minecraft.nbt.NbtOps.INSTANCE, (java.lang.Object)$$0.get("VillagerData")));
++            $$1.resultOrPartial(arg_0 -> ((org.slf4j.Logger)LOGGER).error(arg_0)).ifPresent(arg_0 -> this.setVillagerData(arg_0));
+         }
+-        if (compound.contains("Offers", 10)) {
+-            this.offers = new net.minecraft.world.item.trading.MerchantOffers(compound.getCompound("Offers"));
++        if ($$0.contains("Offers", 10)) {
++            this.offers = new net.minecraft.world.item.trading.MerchantOffers($$0.getCompound("Offers"));
+         }
+-        if (compound.contains("FoodLevel", 1)) {
+-            this.foodLevel = compound.getByte("FoodLevel");
++        if ($$0.contains("FoodLevel", 1)) {
++            this.foodLevel = $$0.getByte("FoodLevel");
+         }
+-        dataResult = compound.getList("Gossips", 10);
+-        this.gossips.update(new com.mojang.serialization.Dynamic((com.mojang.serialization.DynamicOps)net.minecraft.nbt.NbtOps.INSTANCE, (java.lang.Object)dataResult));
+-        if (compound.contains("Xp", 3)) {
+-            this.villagerXp = compound.getInt("Xp");
++        net.minecraft.nbt.ListTag $$2 = $$0.getList("Gossips", 10);
++        this.gossips.update(new com.mojang.serialization.Dynamic((com.mojang.serialization.DynamicOps)net.minecraft.nbt.NbtOps.INSTANCE, (java.lang.Object)$$2));
++        if ($$0.contains("Xp", 3)) {
++            this.villagerXp = $$0.getInt("Xp");
+         }
+-        this.lastRestockGameTime = compound.getLong("LastRestock");
+-        this.lastGossipDecayTime = compound.getLong("LastGossipDecay");
++        this.lastRestockGameTime = $$0.getLong("LastRestock");
++        this.lastGossipDecayTime = $$0.getLong("LastGossipDecay");
+         this.setCanPickUpLoot(true);
+         if (this.level instanceof net.minecraft.server.level.ServerLevel) {
+             this.refreshBrain((net.minecraft.server.level.ServerLevel)this.level);
+         }
+-        this.numberOfRestocksToday = compound.getInt("RestocksToday");
+-        if (compound.contains("AssignProfessionWhenSpawned")) {
+-            this.assignProfessionWhenSpawned = compound.getBoolean("AssignProfessionWhenSpawned");
++        this.numberOfRestocksToday = $$0.getInt("RestocksToday");
++        if ($$0.contains("AssignProfessionWhenSpawned")) {
++            this.assignProfessionWhenSpawned = $$0.getBoolean("AssignProfessionWhenSpawned");
+         }
+     }
+ 
+-    public boolean removeWhenFarAway(double distanceToClosestPlayer) {
++    public boolean removeWhenFarAway(double $$0) {
+         return false;
+     }
+ 
+@@ -357,7 +356,7 @@
+         return net.minecraft.sounds.SoundEvents.VILLAGER_AMBIENT;
+     }
+ 
+-    public net.minecraft.sounds.SoundEvent getHurtSound(net.minecraft.world.damagesource.DamageSource damageSource) {
++    public net.minecraft.sounds.SoundEvent getHurtSound(net.minecraft.world.damagesource.DamageSource $$0) {
+         return net.minecraft.sounds.SoundEvents.VILLAGER_HURT;
+     }
+ 
+@@ -372,29 +371,29 @@
+         }
+     }
+ 
+-    public void setVillagerData(net.minecraft.world.entity.npc.VillagerData villagerData) {
+-        net.minecraft.world.entity.npc.VillagerData villagerData2 = this.getVillagerData();
+-        if (villagerData2.getProfession() != villagerData.getProfession()) {
++    public void setVillagerData(net.minecraft.world.entity.npc.VillagerData $$0) {
++        net.minecraft.world.entity.npc.VillagerData $$1 = this.getVillagerData();
++        if ($$1.getProfession() != $$0.getProfession()) {
+             this.offers = null;
+         }
+-        this.entityData.set(DATA_VILLAGER_DATA, (java.lang.Object)villagerData);
++        this.entityData.set(DATA_VILLAGER_DATA, (java.lang.Object)$$0);
+     }
+ 
+     public net.minecraft.world.entity.npc.VillagerData getVillagerData() {
+         return (net.minecraft.world.entity.npc.VillagerData)this.entityData.get(DATA_VILLAGER_DATA);
+     }
+ 
+-    public void rewardTradeXp(net.minecraft.world.item.trading.MerchantOffer offer) {
+-        int n = 3 + this.random.nextInt(4);
+-        this.villagerXp += offer.getXp();
++    public void rewardTradeXp(net.minecraft.world.item.trading.MerchantOffer $$0) {
++        int $$1 = 3 + this.random.nextInt(4);
++        this.villagerXp += $$0.getXp();
+         this.lastTradedPlayer = this.getTradingPlayer();
+         if (this.shouldIncreaseLevel()) {
+             this.updateMerchantTimer = 40;
+             this.increaseProfessionLevelOnUpdate = true;
+-            n += 5;
++            $$1 += 5;
+         }
+-        if (offer.shouldRewardExp()) {
+-            this.level.addFreshEntity((net.minecraft.world.entity.Entity)new net.minecraft.world.entity.ExperienceOrb(this.level, this.getX(), this.getY() + 0.5, this.getZ(), n));
++        if ($$0.shouldRewardExp()) {
++            this.level.addFreshEntity((net.minecraft.world.entity.Entity)new net.minecraft.world.entity.ExperienceOrb(this.level, this.getX(), this.getY() + 0.5, this.getZ(), $$1));
+         }
+     }
+ 
+@@ -406,24 +405,24 @@
+         return this.chasing;
+     }
+ 
+-    public void setLastHurtByMob(@javax.annotation.Nullable net.minecraft.world.entity.LivingEntity livingBase) {
+-        if (livingBase != null && this.level instanceof net.minecraft.server.level.ServerLevel) {
+-            ((net.minecraft.server.level.ServerLevel)this.level).onReputationEvent(net.minecraft.world.entity.ai.village.ReputationEventType.VILLAGER_HURT, (net.minecraft.world.entity.Entity)livingBase, (net.minecraft.world.entity.ReputationEventHandler)this);
+-            if (this.isAlive() && livingBase instanceof net.minecraft.world.entity.player.Player) {
++    public void setLastHurtByMob(@javax.annotation.Nullable net.minecraft.world.entity.LivingEntity $$0) {
++        if ($$0 != null && this.level instanceof net.minecraft.server.level.ServerLevel) {
++            ((net.minecraft.server.level.ServerLevel)this.level).onReputationEvent(net.minecraft.world.entity.ai.village.ReputationEventType.VILLAGER_HURT, (net.minecraft.world.entity.Entity)$$0, (net.minecraft.world.entity.ReputationEventHandler)this);
++            if (this.isAlive() && $$0 instanceof net.minecraft.world.entity.player.Player) {
+                 this.level.broadcastEntityEvent((net.minecraft.world.entity.Entity)this, (byte)13);
+             }
+         }
+-        super.setLastHurtByMob(livingBase);
++        super.setLastHurtByMob($$0);
+     }
+ 
+-    public void die(net.minecraft.world.damagesource.DamageSource cause) {
+-        LOGGER.info("Villager {} died, message: '{}'", (java.lang.Object)this, (java.lang.Object)cause.getLocalizedDeathMessage((net.minecraft.world.entity.LivingEntity)this).getString());
+-        net.minecraft.world.entity.Entity entity = cause.getEntity();
+-        if (entity != null) {
+-            this.tellWitnessesThatIWasMurdered(entity);
++    public void die(net.minecraft.world.damagesource.DamageSource $$0) {
++        LOGGER.info("Villager {} died, message: '{}'", (java.lang.Object)this, (java.lang.Object)$$0.getLocalizedDeathMessage((net.minecraft.world.entity.LivingEntity)this).getString());
++        net.minecraft.world.entity.Entity $$1 = $$0.getEntity();
++        if ($$1 != null) {
++            this.tellWitnessesThatIWasMurdered($$1);
+         }
+         this.releaseAllPois();
+-        super.die(cause);
++        super.die($$0);
+     }
+ 
+     public void releaseAllPois() {
+@@ -433,32 +432,36 @@
+         this.releasePoi(net.minecraft.world.entity.ai.memory.MemoryModuleType.MEETING_POINT);
+     }
+ 
+-    public void tellWitnessesThatIWasMurdered(net.minecraft.world.entity.Entity murderer) {
++    /*
++     * WARNING - void declaration
++     */
++    public void tellWitnessesThatIWasMurdered(net.minecraft.world.entity.Entity $$0) {
++        void $$2;
+         net.minecraft.world.level.Level level = this.level;
+         if (!(level instanceof net.minecraft.server.level.ServerLevel)) {
+             return;
+         }
+-        net.minecraft.server.level.ServerLevel serverLevel = (net.minecraft.server.level.ServerLevel)level;
+-        level = this.brain.getMemory(net.minecraft.world.entity.ai.memory.MemoryModuleType.NEAREST_VISIBLE_LIVING_ENTITIES);
+-        if (level.isEmpty()) {
++        net.minecraft.server.level.ServerLevel $$1 = (net.minecraft.server.level.ServerLevel)level;
++        java.util.Optional $$3 = this.brain.getMemory(net.minecraft.world.entity.ai.memory.MemoryModuleType.NEAREST_VISIBLE_LIVING_ENTITIES);
++        if ($$3.isEmpty()) {
+             return;
+         }
+-        ((net.minecraft.world.entity.ai.memory.NearestVisibleLivingEntities)level.get()).findAll(arg_0 -> net.minecraft.world.entity.ReputationEventHandler.class.isInstance(arg_0)).forEach($$2 -> serverLevel.onReputationEvent(net.minecraft.world.entity.ai.village.ReputationEventType.VILLAGER_KILLED, murderer, (net.minecraft.world.entity.ReputationEventHandler)$$2));
++        ((net.minecraft.world.entity.ai.memory.NearestVisibleLivingEntities)$$3.get()).findAll(arg_0 -> net.minecraft.world.entity.ReputationEventHandler.class.isInstance(arg_0)).forEach(arg_0 -> net.minecraft.world.entity.npc.Villager.lambda$tellWitnessesThatIWasMurdered$5((net.minecraft.server.level.ServerLevel)$$2, $$0, arg_0));
+     }
+ 
+-    public void releasePoi(net.minecraft.world.entity.ai.memory.MemoryModuleType<net.minecraft.core.GlobalPos> moduleType) {
++    public void releasePoi(net.minecraft.world.entity.ai.memory.MemoryModuleType<net.minecraft.core.GlobalPos> $$0) {
+         if (!(this.level instanceof net.minecraft.server.level.ServerLevel)) {
+             return;
+         }
+-        net.minecraft.server.MinecraftServer minecraftServer = ((net.minecraft.server.level.ServerLevel)this.level).getServer();
+-        this.brain.getMemory(moduleType).ifPresent($$2 -> {
+-            net.minecraft.server.level.ServerLevel $$3 = minecraftServer.getLevel($$2.dimension());
++        net.minecraft.server.MinecraftServer $$1 = ((net.minecraft.server.level.ServerLevel)this.level).getServer();
++        this.brain.getMemory($$0).ifPresent($$2 -> {
++            net.minecraft.server.level.ServerLevel $$3 = $$1.getLevel($$2.dimension());
+             if ($$3 == null) {
+                 return;
+             }
+             net.minecraft.world.entity.ai.village.poi.PoiManager $$4 = $$3.getPoiManager();
+             java.util.Optional $$5 = $$4.getType($$2.pos());
+-            java.util.function.BiPredicate $$6 = (java.util.function.BiPredicate)POI_MEMORIES.get((java.lang.Object)moduleType);
++            java.util.function.BiPredicate $$6 = (java.util.function.BiPredicate)POI_MEMORIES.get((java.lang.Object)$$0);
+             if ($$5.isPresent() && $$6.test((java.lang.Object)this, (java.lang.Object)((net.minecraft.core.Holder)$$5.get()))) {
+                 $$4.release($$2.pos());
+                 net.minecraft.network.protocol.game.DebugPackets.sendPoiTicketCountPacket((net.minecraft.server.level.ServerLevel)$$3, (net.minecraft.core.BlockPos)$$2.pos());
+@@ -467,7 +470,7 @@
+     }
+ 
+     public boolean canBreed() {
+-        return this.foodLevel + this.countFoodPointsInInventory() >= 12 && this.getAge() == 0;
++        return this.foodLevel + this.countFoodPointsInInventory() >= 12 && !this.isSleeping() && this.getAge() == 0;
+     }
+ 
+     public boolean hungry() {
+@@ -492,12 +495,12 @@
+         }
+     }
+ 
+-    public int getPlayerReputation(net.minecraft.world.entity.player.Player player) {
+-        return this.gossips.getReputation(player.getUUID(), $$0 -> true);
++    public int getPlayerReputation(net.minecraft.world.entity.player.Player $$02) {
++        return this.gossips.getReputation($$02.getUUID(), $$0 -> true);
+     }
+ 
+-    public void digestFood(int qty) {
+-        this.foodLevel -= qty;
++    public void digestFood(int $$0) {
++        this.foodLevel -= $$0;
+     }
+ 
+     public void eatAndDigestFood() {
+@@ -505,8 +508,8 @@
+         this.digestFood(12);
+     }
+ 
+-    public void setOffers(net.minecraft.world.item.trading.MerchantOffers offers) {
+-        this.offers = offers;
++    public void setOffers(net.minecraft.world.item.trading.MerchantOffers $$0) {
++        this.offers = $$0;
+     }
+ 
+     public boolean shouldIncreaseLevel() {
+@@ -523,34 +526,35 @@
+         return net.minecraft.network.chat.Component.translatable((java.lang.String)(this.getType().getDescriptionId() + "." + net.minecraft.core.Registry.VILLAGER_PROFESSION.getKey((java.lang.Object)this.getVillagerData().getProfession()).getPath()));
+     }
+ 
+-    public void handleEntityEvent(byte id) {
+-        if (id == 12) {
++    public void handleEntityEvent(byte $$0) {
++        if ($$0 == 12) {
+             this.addParticlesAroundSelf((net.minecraft.core.particles.ParticleOptions)net.minecraft.core.particles.ParticleTypes.HEART);
+-        } else if (id == 13) {
++        } else if ($$0 == 13) {
+             this.addParticlesAroundSelf((net.minecraft.core.particles.ParticleOptions)net.minecraft.core.particles.ParticleTypes.ANGRY_VILLAGER);
+-        } else if (id == 14) {
++        } else if ($$0 == 14) {
+             this.addParticlesAroundSelf((net.minecraft.core.particles.ParticleOptions)net.minecraft.core.particles.ParticleTypes.HAPPY_VILLAGER);
+-        } else if (id == 42) {
++        } else if ($$0 == 42) {
+             this.addParticlesAroundSelf((net.minecraft.core.particles.ParticleOptions)net.minecraft.core.particles.ParticleTypes.SPLASH);
+         } else {
+-            super.handleEntityEvent(id);
++            super.handleEntityEvent($$0);
+         }
+     }
+ 
+     @javax.annotation.Nullable
+-    public net.minecraft.world.entity.SpawnGroupData finalizeSpawn(net.minecraft.world.level.ServerLevelAccessor level, net.minecraft.world.DifficultyInstance difficulty, net.minecraft.world.entity.MobSpawnType reason, @javax.annotation.Nullable net.minecraft.world.entity.SpawnGroupData spawnData, @javax.annotation.Nullable net.minecraft.nbt.CompoundTag dataTag) {
+-        if (reason == net.minecraft.world.entity.MobSpawnType.BREEDING) {
++    public net.minecraft.world.entity.SpawnGroupData finalizeSpawn(net.minecraft.world.level.ServerLevelAccessor $$0, net.minecraft.world.DifficultyInstance $$1, net.minecraft.world.entity.MobSpawnType $$2, @javax.annotation.Nullable net.minecraft.world.entity.SpawnGroupData $$3, @javax.annotation.Nullable net.minecraft.nbt.CompoundTag $$4) {
++        if ($$2 == net.minecraft.world.entity.MobSpawnType.BREEDING) {
+             this.setVillagerData(this.getVillagerData().setProfession(net.minecraft.world.entity.npc.VillagerProfession.NONE));
+         }
+-        if (reason == net.minecraft.world.entity.MobSpawnType.COMMAND || reason == net.minecraft.world.entity.MobSpawnType.SPAWN_EGG || reason == net.minecraft.world.entity.MobSpawnType.SPAWNER || reason == net.minecraft.world.entity.MobSpawnType.DISPENSER) {
+-            this.setVillagerData(this.getVillagerData().setType(net.minecraft.world.entity.npc.VillagerType.byBiome((net.minecraft.core.Holder)level.getBiome(this.blockPosition()))));
++        if ($$2 == net.minecraft.world.entity.MobSpawnType.COMMAND || $$2 == net.minecraft.world.entity.MobSpawnType.SPAWN_EGG || $$2 == net.minecraft.world.entity.MobSpawnType.SPAWNER || $$2 == net.minecraft.world.entity.MobSpawnType.DISPENSER) {
++            this.setVillagerData(this.getVillagerData().setType(net.minecraft.world.entity.npc.VillagerType.byBiome((net.minecraft.core.Holder)$$0.getBiome(this.blockPosition()))));
+         }
+-        if (reason == net.minecraft.world.entity.MobSpawnType.STRUCTURE) {
++        if ($$2 == net.minecraft.world.entity.MobSpawnType.STRUCTURE) {
+             this.assignProfessionWhenSpawned = true;
+         }
+-        return super.finalizeSpawn(level, difficulty, reason, spawnData, dataTag);
++        return super.finalizeSpawn($$0, $$1, $$2, $$3, $$4);
+     }
+ 
++    @javax.annotation.Nullable
+     public net.minecraft.world.entity.npc.Villager getBreedOffspring(net.minecraft.server.level.ServerLevel $$0, net.minecraft.world.entity.AgeableMob $$1) {
+         net.minecraft.world.entity.npc.VillagerType $$5;
+         double $$2 = this.random.nextDouble();
+@@ -566,33 +570,37 @@
+         return $$6;
+     }
+ 
+-    public void thunderHit(net.minecraft.server.level.ServerLevel level, net.minecraft.world.entity.LightningBolt lightning) {
+-        if (level.getDifficulty() != net.minecraft.world.Difficulty.PEACEFUL) {
+-            LOGGER.info("Villager {} was struck by lightning {}.", (java.lang.Object)this, (java.lang.Object)lightning);
+-            net.minecraft.world.entity.monster.Witch witch = (net.minecraft.world.entity.monster.Witch)net.minecraft.world.entity.EntityType.WITCH.create((net.minecraft.world.level.Level)level);
+-            witch.moveTo(this.getX(), this.getY(), this.getZ(), this.getYRot(), this.getXRot());
+-            witch.finalizeSpawn((net.minecraft.world.level.ServerLevelAccessor)level, level.getCurrentDifficultyAt(witch.blockPosition()), net.minecraft.world.entity.MobSpawnType.CONVERSION, null, null);
+-            witch.setNoAi(this.isNoAi());
+-            if (this.hasCustomName()) {
+-                witch.setCustomName(this.getCustomName());
+-                witch.setCustomNameVisible(this.isCustomNameVisible());
++    public void thunderHit(net.minecraft.server.level.ServerLevel $$0, net.minecraft.world.entity.LightningBolt $$1) {
++        if ($$0.getDifficulty() != net.minecraft.world.Difficulty.PEACEFUL) {
++            LOGGER.info("Villager {} was struck by lightning {}.", (java.lang.Object)this, (java.lang.Object)$$1);
++            net.minecraft.world.entity.monster.Witch $$2 = (net.minecraft.world.entity.monster.Witch)net.minecraft.world.entity.EntityType.WITCH.create((net.minecraft.world.level.Level)$$0);
++            if ($$2 != null) {
++                $$2.moveTo(this.getX(), this.getY(), this.getZ(), this.getYRot(), this.getXRot());
++                $$2.finalizeSpawn((net.minecraft.world.level.ServerLevelAccessor)$$0, $$0.getCurrentDifficultyAt($$2.blockPosition()), net.minecraft.world.entity.MobSpawnType.CONVERSION, null, null);
++                $$2.setNoAi(this.isNoAi());
++                if (this.hasCustomName()) {
++                    $$2.setCustomName(this.getCustomName());
++                    $$2.setCustomNameVisible(this.isCustomNameVisible());
++                }
++                $$2.setPersistenceRequired();
++                $$0.addFreshEntityWithPassengers((net.minecraft.world.entity.Entity)$$2);
++                this.releaseAllPois();
++                this.discard();
++            } else {
++                super.thunderHit($$0, $$1);
+             }
+-            witch.setPersistenceRequired();
+-            level.addFreshEntityWithPassengers((net.minecraft.world.entity.Entity)witch);
+-            this.releaseAllPois();
+-            this.discard();
+         } else {
+-            super.thunderHit(level, lightning);
++            super.thunderHit($$0, $$1);
+         }
+     }
+ 
+-    public void pickUpItem(net.minecraft.world.entity.item.ItemEntity itemEntity) {
+-        net.minecraft.world.entity.npc.InventoryCarrier.pickUpItem((net.minecraft.world.entity.Mob)this, (net.minecraft.world.entity.npc.InventoryCarrier)this, (net.minecraft.world.entity.item.ItemEntity)itemEntity);
++    public void pickUpItem(net.minecraft.world.entity.item.ItemEntity $$0) {
++        net.minecraft.world.entity.npc.InventoryCarrier.pickUpItem((net.minecraft.world.entity.Mob)this, (net.minecraft.world.entity.npc.InventoryCarrier)this, (net.minecraft.world.entity.item.ItemEntity)$$0);
+     }
+ 
+-    public boolean wantsToPickUp(net.minecraft.world.item.ItemStack stack) {
+-        net.minecraft.world.item.Item item = stack.getItem();
+-        return (WANTED_ITEMS.contains((java.lang.Object)item) || this.getVillagerData().getProfession().requestedItems().contains((java.lang.Object)item)) && this.getInventory().canAddItem(stack);
++    public boolean wantsToPickUp(net.minecraft.world.item.ItemStack $$0) {
++        net.minecraft.world.item.Item $$1 = $$0.getItem();
++        return (WANTED_ITEMS.contains((java.lang.Object)$$1) || this.getVillagerData().getProfession().requestedItems().contains((java.lang.Object)$$1)) && this.getInventory().canAddItem($$0);
+     }
+ 
+     public boolean hasExcessFood() {
+@@ -626,14 +634,14 @@
+         this.addOffersFromItemListings($$3, $$2, 2);
+     }
+ 
+-    public void gossip(net.minecraft.server.level.ServerLevel serverLevel, net.minecraft.world.entity.npc.Villager target, long gameTime) {
+-        if (gameTime >= this.lastGossipTime && gameTime < this.lastGossipTime + 1200L || gameTime >= target.lastGossipTime && gameTime < target.lastGossipTime + 1200L) {
++    public void gossip(net.minecraft.server.level.ServerLevel $$0, net.minecraft.world.entity.npc.Villager $$1, long $$2) {
++        if ($$2 >= this.lastGossipTime && $$2 < this.lastGossipTime + 1200L || $$2 >= $$1.lastGossipTime && $$2 < $$1.lastGossipTime + 1200L) {
+             return;
+         }
+-        this.gossips.transferFrom(target.gossips, this.random, 10);
+-        this.lastGossipTime = gameTime;
+-        target.lastGossipTime = gameTime;
+-        this.spawnGolemIfNeeded(serverLevel, gameTime, 5);
++        this.gossips.transferFrom($$1.gossips, this.random, 10);
++        this.lastGossipTime = $$2;
++        $$1.lastGossipTime = $$2;
++        this.spawnGolemIfNeeded($$0, $$2, 5);
+     }
+ 
+     public void maybeDecayGossip() {
+@@ -649,39 +657,39 @@
+         this.lastGossipDecayTime = $$0;
+     }
+ 
+-    public void spawnGolemIfNeeded(net.minecraft.server.level.ServerLevel serverLevel, long gameTime, int minVillagerAmount) {
+-        if (!this.wantsToSpawnGolem(gameTime)) {
++    public void spawnGolemIfNeeded(net.minecraft.server.level.ServerLevel $$0, long $$12, int $$2) {
++        if (!this.wantsToSpawnGolem($$12)) {
+             return;
+         }
+-        net.minecraft.world.phys.AABB aABB = this.getBoundingBox().inflate(10.0, 10.0, 10.0);
+-        java.util.List list = serverLevel.getEntitiesOfClass(net.minecraft.world.entity.npc.Villager.class, aABB);
+-        java.util.List list2 = (java.util.List)list.stream().filter($$1 -> $$1.wantsToSpawnGolem(gameTime)).limit(5L).collect(java.util.stream.Collectors.toList());
+-        if (list2.size() < minVillagerAmount) {
++        net.minecraft.world.phys.AABB $$3 = this.getBoundingBox().inflate(10.0, 10.0, 10.0);
++        java.util.List $$4 = $$0.getEntitiesOfClass(net.minecraft.world.entity.npc.Villager.class, $$3);
++        java.util.List $$5 = (java.util.List)$$4.stream().filter($$1 -> $$1.wantsToSpawnGolem($$12)).limit(5L).collect(java.util.stream.Collectors.toList());
++        if ($$5.size() < $$2) {
+             return;
+         }
+-        if (!net.minecraft.util.SpawnUtil.trySpawnMob((net.minecraft.world.entity.EntityType)net.minecraft.world.entity.EntityType.IRON_GOLEM, (net.minecraft.world.entity.MobSpawnType)net.minecraft.world.entity.MobSpawnType.MOB_SUMMONED, (net.minecraft.server.level.ServerLevel)serverLevel, (net.minecraft.core.BlockPos)this.blockPosition(), (int)10, (int)8, (int)6, (net.minecraft.util.SpawnUtil$Strategy)net.minecraft.util.SpawnUtil$Strategy.LEGACY_IRON_GOLEM).isPresent()) {
++        if (!net.minecraft.util.SpawnUtil.trySpawnMob((net.minecraft.world.entity.EntityType)net.minecraft.world.entity.EntityType.IRON_GOLEM, (net.minecraft.world.entity.MobSpawnType)net.minecraft.world.entity.MobSpawnType.MOB_SUMMONED, (net.minecraft.server.level.ServerLevel)$$0, (net.minecraft.core.BlockPos)this.blockPosition(), (int)10, (int)8, (int)6, (net.minecraft.util.SpawnUtil$Strategy)net.minecraft.util.SpawnUtil$Strategy.LEGACY_IRON_GOLEM).isPresent()) {
+             return;
+         }
+-        list.forEach(net.minecraft.world.entity.ai.sensing.GolemSensor::golemDetected);
++        $$4.forEach(net.minecraft.world.entity.ai.sensing.GolemSensor::golemDetected);
+     }
+ 
+-    public boolean wantsToSpawnGolem(long gameTime) {
++    public boolean wantsToSpawnGolem(long $$0) {
+         if (!this.golemSpawnConditionsMet(this.level.getGameTime())) {
+             return false;
+         }
+         return !this.brain.hasMemoryValue(net.minecraft.world.entity.ai.memory.MemoryModuleType.GOLEM_DETECTED_RECENTLY);
+     }
+ 
+-    public void onReputationEventFrom(net.minecraft.world.entity.ai.village.ReputationEventType type, net.minecraft.world.entity.Entity target) {
+-        if (type == net.minecraft.world.entity.ai.village.ReputationEventType.ZOMBIE_VILLAGER_CURED) {
+-            this.gossips.add(target.getUUID(), net.minecraft.world.entity.ai.gossip.GossipType.MAJOR_POSITIVE, 20);
+-            this.gossips.add(target.getUUID(), net.minecraft.world.entity.ai.gossip.GossipType.MINOR_POSITIVE, 25);
+-        } else if (type == net.minecraft.world.entity.ai.village.ReputationEventType.TRADE) {
+-            this.gossips.add(target.getUUID(), net.minecraft.world.entity.ai.gossip.GossipType.TRADING, 2);
+-        } else if (type == net.minecraft.world.entity.ai.village.ReputationEventType.VILLAGER_HURT) {
+-            this.gossips.add(target.getUUID(), net.minecraft.world.entity.ai.gossip.GossipType.MINOR_NEGATIVE, 25);
+-        } else if (type == net.minecraft.world.entity.ai.village.ReputationEventType.VILLAGER_KILLED) {
+-            this.gossips.add(target.getUUID(), net.minecraft.world.entity.ai.gossip.GossipType.MAJOR_NEGATIVE, 25);
++    public void onReputationEventFrom(net.minecraft.world.entity.ai.village.ReputationEventType $$0, net.minecraft.world.entity.Entity $$1) {
++        if ($$0 == net.minecraft.world.entity.ai.village.ReputationEventType.ZOMBIE_VILLAGER_CURED) {
++            this.gossips.add($$1.getUUID(), net.minecraft.world.entity.ai.gossip.GossipType.MAJOR_POSITIVE, 20);
++            this.gossips.add($$1.getUUID(), net.minecraft.world.entity.ai.gossip.GossipType.MINOR_POSITIVE, 25);
++        } else if ($$0 == net.minecraft.world.entity.ai.village.ReputationEventType.TRADE) {
++            this.gossips.add($$1.getUUID(), net.minecraft.world.entity.ai.gossip.GossipType.TRADING, 2);
++        } else if ($$0 == net.minecraft.world.entity.ai.village.ReputationEventType.VILLAGER_HURT) {
++            this.gossips.add($$1.getUUID(), net.minecraft.world.entity.ai.gossip.GossipType.MINOR_NEGATIVE, 25);
++        } else if ($$0 == net.minecraft.world.entity.ai.village.ReputationEventType.VILLAGER_KILLED) {
++            this.gossips.add($$1.getUUID(), net.minecraft.world.entity.ai.gossip.GossipType.MAJOR_NEGATIVE, 25);
+         }
+     }
+ 
+@@ -689,8 +697,8 @@
+         return this.villagerXp;
+     }
+ 
+-    public void setVillagerXp(int villagerXp) {
+-        this.villagerXp = villagerXp;
++    public void setVillagerXp(int $$0) {
++        this.villagerXp = $$0;
+     }
+ 
+     public void resetNumberOfRestocks() {
+@@ -702,8 +710,8 @@
+         return this.gossips;
+     }
+ 
+-    public void setGossips(net.minecraft.nbt.Tag gossip) {
+-        this.gossips.update(new com.mojang.serialization.Dynamic((com.mojang.serialization.DynamicOps)net.minecraft.nbt.NbtOps.INSTANCE, (java.lang.Object)gossip));
++    public void setGossips(net.minecraft.nbt.Tag $$0) {
++        this.gossips.update(new com.mojang.serialization.Dynamic((com.mojang.serialization.DynamicOps)net.minecraft.nbt.NbtOps.INSTANCE, (java.lang.Object)$$0));
+     }
+ 
+     public void sendDebugPackets() {
+@@ -711,8 +719,8 @@
+         net.minecraft.network.protocol.game.DebugPackets.sendEntityBrain((net.minecraft.world.entity.LivingEntity)this);
+     }
+ 
+-    public void startSleeping(net.minecraft.core.BlockPos pos) {
+-        super.startSleeping(pos);
++    public void startSleeping(net.minecraft.core.BlockPos $$0) {
++        super.startSleeping($$0);
+         this.brain.setMemory(net.minecraft.world.entity.ai.memory.MemoryModuleType.LAST_SLEPT, (java.lang.Object)this.level.getGameTime());
+         this.brain.eraseMemory(net.minecraft.world.entity.ai.memory.MemoryModuleType.WALK_TARGET);
+         this.brain.eraseMemory(net.minecraft.world.entity.ai.memory.MemoryModuleType.CANT_REACH_WALK_TARGET_SINCE);
+@@ -723,18 +731,23 @@
+         this.brain.setMemory(net.minecraft.world.entity.ai.memory.MemoryModuleType.LAST_WOKEN, (java.lang.Object)this.level.getGameTime());
+     }
+ 
+-    public boolean golemSpawnConditionsMet(long gameTime) {
+-        java.util.Optional optional = this.brain.getMemory(net.minecraft.world.entity.ai.memory.MemoryModuleType.LAST_SLEPT);
+-        if (optional.isPresent()) {
+-            return gameTime - (java.lang.Long)optional.get() < 24000L;
++    public boolean golemSpawnConditionsMet(long $$0) {
++        java.util.Optional $$1 = this.brain.getMemory(net.minecraft.world.entity.ai.memory.MemoryModuleType.LAST_SLEPT);
++        if ($$1.isPresent()) {
++            return $$0 - (java.lang.Long)$$1.get() < 24000L;
+         }
+         return false;
+     }
+ 
++    @javax.annotation.Nullable
+     public /* synthetic */ net.minecraft.world.entity.AgeableMob getBreedOffspring(net.minecraft.server.level.ServerLevel serverLevel, net.minecraft.world.entity.AgeableMob ageableMob) {
+         return this.getBreedOffspring(serverLevel, ageableMob);
+     }
+ 
++    public static /* synthetic */ void lambda$tellWitnessesThatIWasMurdered$5(net.minecraft.server.level.ServerLevel $$0, net.minecraft.world.entity.Entity $$1, net.minecraft.world.entity.LivingEntity $$2) {
++        $$0.onReputationEvent(net.minecraft.world.entity.ai.village.ReputationEventType.VILLAGER_KILLED, $$1, (net.minecraft.world.entity.ReputationEventHandler)$$2);
++    }
++
+     public static /* synthetic */ boolean lambda$static$3(net.minecraft.world.entity.npc.Villager $$0, net.minecraft.core.Holder $$1) {
+         return $$1.is(net.minecraft.world.entity.ai.village.poi.PoiTypes.MEETING);
+     }

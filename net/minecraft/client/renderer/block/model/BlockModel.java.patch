@@ -1,0 +1,241 @@
+--- net/minecraft/client/renderer/block/model/BlockModel.java
++++ net/minecraft/client/renderer/block/model/BlockModel.java
+@@ -26,12 +26,12 @@
+     @javax.annotation.Nullable
+     public net.minecraft.resources.ResourceLocation parentLocation;
+ 
+-    public static net.minecraft.client.renderer.block.model.BlockModel fromStream(java.io.Reader reader) {
+-        return (net.minecraft.client.renderer.block.model.BlockModel)net.minecraft.util.GsonHelper.fromJson((com.google.gson.Gson)GSON, (java.io.Reader)reader, net.minecraft.client.renderer.block.model.BlockModel.class);
++    public static net.minecraft.client.renderer.block.model.BlockModel fromStream(java.io.Reader $$0) {
++        return (net.minecraft.client.renderer.block.model.BlockModel)net.minecraft.util.GsonHelper.fromJson((com.google.gson.Gson)GSON, (java.io.Reader)$$0, net.minecraft.client.renderer.block.model.BlockModel.class);
+     }
+ 
+-    public static net.minecraft.client.renderer.block.model.BlockModel fromString(java.lang.String jsonString) {
+-        return net.minecraft.client.renderer.block.model.BlockModel.fromStream((java.io.Reader)new java.io.StringReader(jsonString));
++    public static net.minecraft.client.renderer.block.model.BlockModel fromString(java.lang.String $$0) {
++        return net.minecraft.client.renderer.block.model.BlockModel.fromStream((java.io.Reader)new java.io.StringReader($$0));
+     }
+ 
+     public net.minecraft.client.renderer.block.model.BlockModel(@javax.annotation.Nullable net.minecraft.resources.ResourceLocation $$0, java.util.List<net.minecraft.client.renderer.block.model.BlockElement> $$1, java.util.Map<java.lang.String, com.mojang.datafixers.util.Either<net.minecraft.client.resources.model.Material, java.lang.String>> $$2, boolean $$3, @javax.annotation.Nullable net.minecraft.client.renderer.block.model.BlockModel$GuiLight $$4, net.minecraft.client.renderer.block.model.ItemTransforms $$5, java.util.List<net.minecraft.client.renderer.block.model.ItemOverride> $$6) {
+@@ -77,11 +77,11 @@
+         return this.overrides;
+     }
+ 
+-    public net.minecraft.client.renderer.block.model.ItemOverrides getItemOverrides(net.minecraft.client.resources.model.ModelBakery modelBakery, net.minecraft.client.renderer.block.model.BlockModel model) {
++    public net.minecraft.client.renderer.block.model.ItemOverrides getItemOverrides(net.minecraft.client.resources.model.ModelBaker $$0, net.minecraft.client.renderer.block.model.BlockModel $$1) {
+         if (this.overrides.isEmpty()) {
+             return net.minecraft.client.renderer.block.model.ItemOverrides.EMPTY;
+         }
+-        return new net.minecraft.client.renderer.block.model.ItemOverrides(modelBakery, model, arg_0 -> ((net.minecraft.client.resources.model.ModelBakery)modelBakery).getModel(arg_0), this.overrides);
++        return new net.minecraft.client.renderer.block.model.ItemOverrides($$0, $$1, this.overrides);
+     }
+ 
+     public java.util.Collection<net.minecraft.resources.ResourceLocation> getDependencies() {
+@@ -95,111 +95,102 @@
+         return $$0;
+     }
+ 
+-    public java.util.Collection<net.minecraft.client.resources.model.Material> getMaterials(java.util.function.Function<net.minecraft.resources.ResourceLocation, net.minecraft.client.resources.model.UnbakedModel> modelGetter, java.util.Set<com.mojang.datafixers.util.Pair<java.lang.String, java.lang.String>> missingTextureErrors) {
+-        java.util.HashSet hashSet;
+-        java.util.LinkedHashSet linkedHashSet = com.google.common.collect.Sets.newLinkedHashSet();
+-        net.minecraft.client.renderer.block.model.BlockModel blockModel = this;
+-        while (blockModel.parentLocation != null && blockModel.parent == null) {
+-            linkedHashSet.add((java.lang.Object)blockModel);
+-            hashSet = (net.minecraft.client.resources.model.UnbakedModel)modelGetter.apply((java.lang.Object)blockModel.parentLocation);
+-            if (hashSet == null) {
+-                LOGGER.warn("No parent '{}' while loading model '{}'", (java.lang.Object)this.parentLocation, (java.lang.Object)blockModel);
++    public void resolveParents(java.util.function.Function<net.minecraft.resources.ResourceLocation, net.minecraft.client.resources.model.UnbakedModel> $$0) {
++        java.util.LinkedHashSet $$12 = com.google.common.collect.Sets.newLinkedHashSet();
++        net.minecraft.client.renderer.block.model.BlockModel $$2 = this;
++        while ($$2.parentLocation != null && $$2.parent == null) {
++            $$12.add((java.lang.Object)$$2);
++            net.minecraft.client.resources.model.UnbakedModel $$3 = (net.minecraft.client.resources.model.UnbakedModel)$$0.apply((java.lang.Object)$$2.parentLocation);
++            if ($$3 == null) {
++                LOGGER.warn("No parent '{}' while loading model '{}'", (java.lang.Object)this.parentLocation, (java.lang.Object)$$2);
+             }
+-            if (linkedHashSet.contains((java.lang.Object)hashSet)) {
+-                LOGGER.warn("Found 'parent' loop while loading model '{}' in chain: {} -> {}", new java.lang.Object[]{blockModel, linkedHashSet.stream().map(java.lang.Object::toString).collect(java.util.stream.Collectors.joining((java.lang.CharSequence)" -> ")), this.parentLocation});
+-                hashSet = null;
++            if ($$12.contains((java.lang.Object)$$3)) {
++                LOGGER.warn("Found 'parent' loop while loading model '{}' in chain: {} -> {}", new java.lang.Object[]{$$2, $$12.stream().map(java.lang.Object::toString).collect(java.util.stream.Collectors.joining((java.lang.CharSequence)" -> ")), this.parentLocation});
++                $$3 = null;
+             }
+-            if (hashSet == null) {
+-                blockModel.parentLocation = net.minecraft.client.resources.model.ModelBakery.MISSING_MODEL_LOCATION;
+-                hashSet = (net.minecraft.client.resources.model.UnbakedModel)modelGetter.apply((java.lang.Object)blockModel.parentLocation);
++            if ($$3 == null) {
++                $$2.parentLocation = net.minecraft.client.resources.model.ModelBakery.MISSING_MODEL_LOCATION;
++                $$3 = (net.minecraft.client.resources.model.UnbakedModel)$$0.apply((java.lang.Object)$$2.parentLocation);
+             }
+-            if (!(hashSet instanceof net.minecraft.client.renderer.block.model.BlockModel)) {
++            if (!($$3 instanceof net.minecraft.client.renderer.block.model.BlockModel)) {
+                 throw new java.lang.IllegalStateException("BlockModel parent has to be a block model.");
+             }
+-            blockModel.parent = (net.minecraft.client.renderer.block.model.BlockModel)hashSet;
+-            blockModel = blockModel.parent;
++            $$2.parent = (net.minecraft.client.renderer.block.model.BlockModel)$$3;
++            $$2 = $$2.parent;
+         }
+-        hashSet = com.google.common.collect.Sets.newHashSet((java.lang.Object[])new net.minecraft.client.resources.model.Material[]{this.getMaterial("particle")});
+-        for (net.minecraft.client.renderer.block.model.BlockElement blockElement : this.getElements()) {
+-            for (net.minecraft.client.renderer.block.model.BlockElementFace blockElementFace : blockElement.faces.values()) {
+-                net.minecraft.client.resources.model.Material material = this.getMaterial(blockElementFace.texture);
+-                if (java.util.Objects.equals((java.lang.Object)material.texture(), (java.lang.Object)net.minecraft.client.renderer.texture.MissingTextureAtlasSprite.getLocation())) {
+-                    missingTextureErrors.add((java.lang.Object)com.mojang.datafixers.util.Pair.of((java.lang.Object)blockElementFace.texture, (java.lang.Object)this.name));
+-                }
+-                hashSet.add((java.lang.Object)material);
++        this.overrides.forEach($$1 -> {
++            net.minecraft.client.resources.model.UnbakedModel $$2 = (net.minecraft.client.resources.model.UnbakedModel)$$0.apply((java.lang.Object)$$1.getModel());
++            if (java.util.Objects.equals((java.lang.Object)$$2, (java.lang.Object)this)) {
++                return;
+             }
+-        }
+-        this.overrides.forEach(arg_0 -> this.lambda$getMaterials$0(modelGetter, (java.util.Set)hashSet, missingTextureErrors, arg_0));
+-        if (this.getRootModel() == net.minecraft.client.resources.model.ModelBakery.GENERATION_MARKER) {
+-            net.minecraft.client.renderer.block.model.ItemModelGenerator.LAYERS.forEach(arg_0 -> this.lambda$getMaterials$1((java.util.Set)hashSet, arg_0));
+-        }
+-        return hashSet;
++            $$2.resolveParents($$0);
++        });
+     }
+ 
+-    public net.minecraft.client.resources.model.BakedModel bake(net.minecraft.client.resources.model.ModelBakery modelBakery, java.util.function.Function<net.minecraft.client.resources.model.Material, net.minecraft.client.renderer.texture.TextureAtlasSprite> spriteGetter, net.minecraft.client.resources.model.ModelState transform, net.minecraft.resources.ResourceLocation location) {
+-        return this.bake(modelBakery, this, spriteGetter, transform, location, true);
++    public net.minecraft.client.resources.model.BakedModel bake(net.minecraft.client.resources.model.ModelBaker $$0, java.util.function.Function<net.minecraft.client.resources.model.Material, net.minecraft.client.renderer.texture.TextureAtlasSprite> $$1, net.minecraft.client.resources.model.ModelState $$2, net.minecraft.resources.ResourceLocation $$3) {
++        return this.bake($$0, this, $$1, $$2, $$3, true);
+     }
+ 
+-    public net.minecraft.client.resources.model.BakedModel bake(net.minecraft.client.resources.model.ModelBakery modelBakery, net.minecraft.client.renderer.block.model.BlockModel model, java.util.function.Function<net.minecraft.client.resources.model.Material, net.minecraft.client.renderer.texture.TextureAtlasSprite> spriteGetter, net.minecraft.client.resources.model.ModelState transform, net.minecraft.resources.ResourceLocation location, boolean guiLight3d) {
+-        net.minecraft.client.renderer.texture.TextureAtlasSprite textureAtlasSprite = (net.minecraft.client.renderer.texture.TextureAtlasSprite)spriteGetter.apply((java.lang.Object)this.getMaterial("particle"));
++    public net.minecraft.client.resources.model.BakedModel bake(net.minecraft.client.resources.model.ModelBaker $$0, net.minecraft.client.renderer.block.model.BlockModel $$1, java.util.function.Function<net.minecraft.client.resources.model.Material, net.minecraft.client.renderer.texture.TextureAtlasSprite> $$2, net.minecraft.client.resources.model.ModelState $$3, net.minecraft.resources.ResourceLocation $$4, boolean $$5) {
++        net.minecraft.client.renderer.texture.TextureAtlasSprite $$6 = (net.minecraft.client.renderer.texture.TextureAtlasSprite)$$2.apply((java.lang.Object)this.getMaterial("particle"));
+         if (this.getRootModel() == net.minecraft.client.resources.model.ModelBakery.BLOCK_ENTITY_MARKER) {
+-            return new net.minecraft.client.resources.model.BuiltInModel(this.getTransforms(), this.getItemOverrides(modelBakery, model), textureAtlasSprite, this.getGuiLight().lightLikeBlock());
++            return new net.minecraft.client.resources.model.BuiltInModel(this.getTransforms(), this.getItemOverrides($$0, $$1), $$6, this.getGuiLight().lightLikeBlock());
+         }
+-        net.minecraft.client.resources.model.SimpleBakedModel$Builder builder = new net.minecraft.client.resources.model.SimpleBakedModel$Builder(this, this.getItemOverrides(modelBakery, model), guiLight3d).particle(textureAtlasSprite);
+-        for (net.minecraft.client.renderer.block.model.BlockElement blockElement : this.getElements()) {
+-            for (net.minecraft.core.Direction direction : blockElement.faces.keySet()) {
+-                net.minecraft.client.renderer.block.model.BlockElementFace blockElementFace = (net.minecraft.client.renderer.block.model.BlockElementFace)blockElement.faces.get((java.lang.Object)direction);
+-                net.minecraft.client.renderer.texture.TextureAtlasSprite textureAtlasSprite2 = (net.minecraft.client.renderer.texture.TextureAtlasSprite)spriteGetter.apply((java.lang.Object)this.getMaterial(blockElementFace.texture));
+-                if (blockElementFace.cullForDirection == null) {
+-                    builder.addUnculledFace(net.minecraft.client.renderer.block.model.BlockModel.bakeFace((net.minecraft.client.renderer.block.model.BlockElement)blockElement, (net.minecraft.client.renderer.block.model.BlockElementFace)blockElementFace, (net.minecraft.client.renderer.texture.TextureAtlasSprite)textureAtlasSprite2, (net.minecraft.core.Direction)direction, (net.minecraft.client.resources.model.ModelState)transform, (net.minecraft.resources.ResourceLocation)location));
++        net.minecraft.client.resources.model.SimpleBakedModel$Builder $$7 = new net.minecraft.client.resources.model.SimpleBakedModel$Builder(this, this.getItemOverrides($$0, $$1), $$5).particle($$6);
++        for (net.minecraft.client.renderer.block.model.BlockElement $$8 : this.getElements()) {
++            for (net.minecraft.core.Direction $$9 : $$8.faces.keySet()) {
++                net.minecraft.client.renderer.block.model.BlockElementFace $$10 = (net.minecraft.client.renderer.block.model.BlockElementFace)$$8.faces.get((java.lang.Object)$$9);
++                net.minecraft.client.renderer.texture.TextureAtlasSprite $$11 = (net.minecraft.client.renderer.texture.TextureAtlasSprite)$$2.apply((java.lang.Object)this.getMaterial($$10.texture));
++                if ($$10.cullForDirection == null) {
++                    $$7.addUnculledFace(net.minecraft.client.renderer.block.model.BlockModel.bakeFace((net.minecraft.client.renderer.block.model.BlockElement)$$8, (net.minecraft.client.renderer.block.model.BlockElementFace)$$10, (net.minecraft.client.renderer.texture.TextureAtlasSprite)$$11, (net.minecraft.core.Direction)$$9, (net.minecraft.client.resources.model.ModelState)$$3, (net.minecraft.resources.ResourceLocation)$$4));
+                     continue;
+                 }
+-                builder.addCulledFace(net.minecraft.core.Direction.rotate((com.mojang.math.Matrix4f)transform.getRotation().getMatrix(), (net.minecraft.core.Direction)blockElementFace.cullForDirection), net.minecraft.client.renderer.block.model.BlockModel.bakeFace((net.minecraft.client.renderer.block.model.BlockElement)blockElement, (net.minecraft.client.renderer.block.model.BlockElementFace)blockElementFace, (net.minecraft.client.renderer.texture.TextureAtlasSprite)textureAtlasSprite2, (net.minecraft.core.Direction)direction, (net.minecraft.client.resources.model.ModelState)transform, (net.minecraft.resources.ResourceLocation)location));
++                $$7.addCulledFace(net.minecraft.core.Direction.rotate((com.mojang.math.Matrix4f)$$3.getRotation().getMatrix(), (net.minecraft.core.Direction)$$10.cullForDirection), net.minecraft.client.renderer.block.model.BlockModel.bakeFace((net.minecraft.client.renderer.block.model.BlockElement)$$8, (net.minecraft.client.renderer.block.model.BlockElementFace)$$10, (net.minecraft.client.renderer.texture.TextureAtlasSprite)$$11, (net.minecraft.core.Direction)$$9, (net.minecraft.client.resources.model.ModelState)$$3, (net.minecraft.resources.ResourceLocation)$$4));
+             }
+         }
+-        return builder.build();
++        return $$7.build();
+     }
+ 
+-    public static net.minecraft.client.renderer.block.model.BakedQuad bakeFace(net.minecraft.client.renderer.block.model.BlockElement part, net.minecraft.client.renderer.block.model.BlockElementFace partFace, net.minecraft.client.renderer.texture.TextureAtlasSprite sprite, net.minecraft.core.Direction direction, net.minecraft.client.resources.model.ModelState transform, net.minecraft.resources.ResourceLocation location) {
+-        return FACE_BAKERY.bakeQuad(part.from, part.to, partFace, sprite, direction, transform, part.rotation, part.shade, location);
++    public static net.minecraft.client.renderer.block.model.BakedQuad bakeFace(net.minecraft.client.renderer.block.model.BlockElement $$0, net.minecraft.client.renderer.block.model.BlockElementFace $$1, net.minecraft.client.renderer.texture.TextureAtlasSprite $$2, net.minecraft.core.Direction $$3, net.minecraft.client.resources.model.ModelState $$4, net.minecraft.resources.ResourceLocation $$5) {
++        return FACE_BAKERY.bakeQuad($$0.from, $$0.to, $$1, $$2, $$3, $$4, $$0.rotation, $$0.shade, $$5);
+     }
+ 
+-    public boolean hasTexture(java.lang.String textureName) {
+-        return !net.minecraft.client.renderer.texture.MissingTextureAtlasSprite.getLocation().equals((java.lang.Object)this.getMaterial(textureName).texture());
++    public boolean hasTexture(java.lang.String $$0) {
++        return !net.minecraft.client.renderer.texture.MissingTextureAtlasSprite.getLocation().equals((java.lang.Object)this.getMaterial($$0).texture());
+     }
+ 
+-    public net.minecraft.client.resources.model.Material getMaterial(java.lang.String name) {
+-        if (net.minecraft.client.renderer.block.model.BlockModel.isTextureReference((java.lang.String)name)) {
+-            name = name.substring(1);
++    public net.minecraft.client.resources.model.Material getMaterial(java.lang.String $$0) {
++        if (net.minecraft.client.renderer.block.model.BlockModel.isTextureReference((java.lang.String)$$0)) {
++            $$0 = $$0.substring(1);
+         }
+-        java.util.ArrayList arrayList = com.google.common.collect.Lists.newArrayList();
+-        com.mojang.datafixers.util.Either either;
+-        java.util.Optional optional;
+-        while (!(optional = (either = this.findTextureEntry(name)).left()).isPresent()) {
+-            name = (java.lang.String)either.right().get();
+-            if (arrayList.contains((java.lang.Object)name)) {
+-                LOGGER.warn("Unable to resolve texture due to reference chain {}->{} in {}", new java.lang.Object[]{com.google.common.base.Joiner.on((java.lang.String)"->").join((java.lang.Iterable)arrayList), name, this.name});
++        java.util.ArrayList $$1 = com.google.common.collect.Lists.newArrayList();
++        com.mojang.datafixers.util.Either $$2;
++        java.util.Optional $$3;
++        while (!($$3 = ($$2 = this.findTextureEntry($$0)).left()).isPresent()) {
++            $$0 = (java.lang.String)$$2.right().get();
++            if ($$1.contains((java.lang.Object)$$0)) {
++                LOGGER.warn("Unable to resolve texture due to reference chain {}->{} in {}", new java.lang.Object[]{com.google.common.base.Joiner.on((java.lang.String)"->").join((java.lang.Iterable)$$1), $$0, this.name});
+                 return new net.minecraft.client.resources.model.Material(net.minecraft.client.renderer.texture.TextureAtlas.LOCATION_BLOCKS, net.minecraft.client.renderer.texture.MissingTextureAtlasSprite.getLocation());
+             }
+-            arrayList.add((java.lang.Object)name);
++            $$1.add((java.lang.Object)$$0);
+         }
+-        return (net.minecraft.client.resources.model.Material)optional.get();
++        return (net.minecraft.client.resources.model.Material)$$3.get();
+     }
+ 
+-    public com.mojang.datafixers.util.Either<net.minecraft.client.resources.model.Material, java.lang.String> findTextureEntry(java.lang.String name) {
+-        net.minecraft.client.renderer.block.model.BlockModel blockModel = this;
+-        while (blockModel != null) {
+-            com.mojang.datafixers.util.Either either = (com.mojang.datafixers.util.Either)blockModel.textureMap.get((java.lang.Object)name);
+-            if (either != null) {
+-                return either;
++    public com.mojang.datafixers.util.Either<net.minecraft.client.resources.model.Material, java.lang.String> findTextureEntry(java.lang.String $$0) {
++        net.minecraft.client.renderer.block.model.BlockModel $$1 = this;
++        while ($$1 != null) {
++            com.mojang.datafixers.util.Either $$2 = (com.mojang.datafixers.util.Either)$$1.textureMap.get((java.lang.Object)$$0);
++            if ($$2 != null) {
++                return $$2;
+             }
+-            blockModel = blockModel.parent;
++            $$1 = $$1.parent;
+         }
+         return com.mojang.datafixers.util.Either.left((java.lang.Object)new net.minecraft.client.resources.model.Material(net.minecraft.client.renderer.texture.TextureAtlas.LOCATION_BLOCKS, net.minecraft.client.renderer.texture.MissingTextureAtlasSprite.getLocation()));
+     }
+ 
+-    public static boolean isTextureReference(java.lang.String str) {
+-        return str.charAt(0) == '#';
++    public static boolean isTextureReference(java.lang.String $$0) {
++        return $$0.charAt(0) == '#';
+     }
+ 
+     public net.minecraft.client.renderer.block.model.BlockModel getRootModel() {
+@@ -218,29 +209,17 @@
+         return new net.minecraft.client.renderer.block.model.ItemTransforms($$0, $$1, $$2, $$3, $$4, $$5, $$6, $$7);
+     }
+ 
+-    public net.minecraft.client.renderer.block.model.ItemTransform getTransform(net.minecraft.client.renderer.block.model.ItemTransforms$TransformType type) {
+-        if (this.parent != null && !this.transforms.hasTransform(type)) {
+-            return this.parent.getTransform(type);
++    public net.minecraft.client.renderer.block.model.ItemTransform getTransform(net.minecraft.client.renderer.block.model.ItemTransforms$TransformType $$0) {
++        if (this.parent != null && !this.transforms.hasTransform($$0)) {
++            return this.parent.getTransform($$0);
+         }
+-        return this.transforms.getTransform(type);
++        return this.transforms.getTransform($$0);
+     }
+ 
+     public java.lang.String toString() {
+         return this.name;
+     }
+ 
+-    public /* synthetic */ void lambda$getMaterials$1(java.util.Set $$0, java.lang.String $$1) {
+-        $$0.add((java.lang.Object)this.getMaterial($$1));
+-    }
+-
+-    public /* synthetic */ void lambda$getMaterials$0(java.util.function.Function $$0, java.util.Set $$1, java.util.Set $$2, net.minecraft.client.renderer.block.model.ItemOverride $$3) {
+-        net.minecraft.client.resources.model.UnbakedModel $$4 = (net.minecraft.client.resources.model.UnbakedModel)$$0.apply((java.lang.Object)$$3.getModel());
+-        if (java.util.Objects.equals((java.lang.Object)$$4, (java.lang.Object)this)) {
+-            return;
+-        }
+-        $$1.addAll($$4.getMaterials($$0, $$2));
+-    }
+-
+     static {
+         LOGGER = com.mojang.logging.LogUtils.getLogger();
+         FACE_BAKERY = new net.minecraft.client.renderer.block.model.FaceBakery();

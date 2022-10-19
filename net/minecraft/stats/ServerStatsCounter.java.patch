@@ -1,0 +1,173 @@
+--- net/minecraft/stats/ServerStatsCounter.java
++++ net/minecraft/stats/ServerStatsCounter.java
+@@ -11,19 +11,19 @@
+     public java.io.File file;
+     public java.util.Set<net.minecraft.stats.Stat<?>> dirty;
+ 
+-    public net.minecraft.stats.ServerStatsCounter(net.minecraft.server.MinecraftServer server, java.io.File file) {
++    public net.minecraft.stats.ServerStatsCounter(net.minecraft.server.MinecraftServer $$0, java.io.File $$1) {
+         this.dirty = com.google.common.collect.Sets.newHashSet();
+-        this.server = server;
+-        this.file = file;
+-        if (file.isFile()) {
++        this.server = $$0;
++        this.file = $$1;
++        if ($$1.isFile()) {
+             try {
+-                this.parseLocal(server.getFixerUpper(), org.apache.commons.io.FileUtils.readFileToString((java.io.File)file));
++                this.parseLocal($$0.getFixerUpper(), org.apache.commons.io.FileUtils.readFileToString((java.io.File)$$1));
+             }
+-            catch (java.io.IOException iOException) {
+-                LOGGER.error("Couldn't read statistics file {}", (java.lang.Object)file, (java.lang.Object)((java.lang.Object)iOException));
++            catch (java.io.IOException $$2) {
++                LOGGER.error("Couldn't read statistics file {}", (java.lang.Object)$$1, (java.lang.Object)((java.lang.Object)$$2));
+             }
+-            catch (com.google.gson.JsonParseException jsonParseException) {
+-                LOGGER.error("Couldn't parse statistics file {}", (java.lang.Object)file, (java.lang.Object)((java.lang.Object)jsonParseException));
++            catch (com.google.gson.JsonParseException $$3) {
++                LOGGER.error("Couldn't parse statistics file {}", (java.lang.Object)$$1, (java.lang.Object)((java.lang.Object)$$3));
+             }
+         }
+     }
+@@ -37,9 +37,9 @@
+         }
+     }
+ 
+-    public void setValue(net.minecraft.world.entity.player.Player player, net.minecraft.stats.Stat<?> stat, int value) {
+-        super.setValue(player, stat, value);
+-        this.dirty.add(stat);
++    public void setValue(net.minecraft.world.entity.player.Player $$0, net.minecraft.stats.Stat<?> $$1, int $$2) {
++        super.setValue($$0, $$1, $$2);
++        this.dirty.add($$1);
+     }
+ 
+     public java.util.Set<net.minecraft.stats.Stat<?>> getDirty() {
+@@ -48,25 +48,25 @@
+         return $$0;
+     }
+ 
+-    public void parseLocal(com.mojang.datafixers.DataFixer dataFixer, java.lang.String fileData) {
+-        try (com.google.gson.stream.JsonReader jsonReader = new com.google.gson.stream.JsonReader((java.io.Reader)new java.io.StringReader(fileData));
++    public void parseLocal(com.mojang.datafixers.DataFixer $$0, java.lang.String $$1) {
++        try (com.google.gson.stream.JsonReader $$2 = new com.google.gson.stream.JsonReader((java.io.Reader)new java.io.StringReader($$1));
+ ){
+-            jsonReader.setLenient(false);
+-            com.google.gson.JsonElement jsonElement = com.google.gson.internal.Streams.parse((com.google.gson.stream.JsonReader)jsonReader);
+-            if (jsonElement.isJsonNull()) {
++            $$2.setLenient(false);
++            com.google.gson.JsonElement $$3 = com.google.gson.internal.Streams.parse((com.google.gson.stream.JsonReader)$$2);
++            if ($$3.isJsonNull()) {
+                 LOGGER.error("Unable to parse Stat data from {}", (java.lang.Object)this.file);
+                 return;
+             }
+-            net.minecraft.nbt.CompoundTag compoundTag = net.minecraft.stats.ServerStatsCounter.fromJson((com.google.gson.JsonObject)jsonElement.getAsJsonObject());
+-            if (!compoundTag.contains("DataVersion", 99)) {
+-                compoundTag.putInt("DataVersion", 1343);
++            net.minecraft.nbt.CompoundTag $$4 = net.minecraft.stats.ServerStatsCounter.fromJson((com.google.gson.JsonObject)$$3.getAsJsonObject());
++            if (!$$4.contains("DataVersion", 99)) {
++                $$4.putInt("DataVersion", 1343);
+             }
+-            if ((compoundTag = net.minecraft.nbt.NbtUtils.update((com.mojang.datafixers.DataFixer)dataFixer, (net.minecraft.util.datafix.DataFixTypes)net.minecraft.util.datafix.DataFixTypes.STATS, (net.minecraft.nbt.CompoundTag)compoundTag, (int)compoundTag.getInt("DataVersion"))).contains("stats", 10)) {
+-                net.minecraft.nbt.CompoundTag compoundTag2 = compoundTag.getCompound("stats");
+-                for (java.lang.String string : compoundTag2.getAllKeys()) {
+-                    if (!compoundTag2.contains(string, 10)) continue;
+-                    net.minecraft.Util.ifElse((java.util.Optional)net.minecraft.core.Registry.STAT_TYPE.getOptional(new net.minecraft.resources.ResourceLocation(string)), $$22 -> {
+-                        net.minecraft.nbt.CompoundTag $$3 = compoundTag2.getCompound(string);
++            if (($$4 = net.minecraft.nbt.NbtUtils.update((com.mojang.datafixers.DataFixer)$$0, (net.minecraft.util.datafix.DataFixTypes)net.minecraft.util.datafix.DataFixTypes.STATS, (net.minecraft.nbt.CompoundTag)$$4, (int)$$4.getInt("DataVersion"))).contains("stats", 10)) {
++                net.minecraft.nbt.CompoundTag $$5 = $$4.getCompound("stats");
++                for (java.lang.String $$6 : $$5.getAllKeys()) {
++                    if (!$$5.contains($$6, 10)) continue;
++                    net.minecraft.Util.ifElse((java.util.Optional)net.minecraft.core.Registry.STAT_TYPE.getOptional(new net.minecraft.resources.ResourceLocation($$6)), $$22 -> {
++                        net.minecraft.nbt.CompoundTag $$3 = $$5.getCompound($$6);
+                         for (java.lang.String $$4 : $$3.getAllKeys()) {
+                             if ($$3.contains($$4, 99)) {
+                                 net.minecraft.Util.ifElse((java.util.Optional)this.getStat($$22, $$4), $$2 -> this.stats.put($$2, $$3.getInt($$4)), () -> LOGGER.warn("Invalid statistic in {}: Don't know what {} is", (java.lang.Object)this.file, (java.lang.Object)$$4));
+@@ -74,42 +74,42 @@
+                             }
+                             LOGGER.warn("Invalid statistic value in {}: Don't know what {} is for key {}", new java.lang.Object[]{this.file, $$3.get($$4), $$4});
+                         }
+-                    }, () -> LOGGER.warn("Invalid statistic type in {}: Don't know what {} is", (java.lang.Object)this.file, (java.lang.Object)string));
++                    }, () -> LOGGER.warn("Invalid statistic type in {}: Don't know what {} is", (java.lang.Object)this.file, (java.lang.Object)$$6));
+                 }
+             }
+         }
+-        catch (com.google.gson.JsonParseException | java.io.IOException throwable) {
+-            LOGGER.error("Unable to parse Stat data from {}", (java.lang.Object)this.file, (java.lang.Object)throwable);
++        catch (com.google.gson.JsonParseException | java.io.IOException $$7) {
++            LOGGER.error("Unable to parse Stat data from {}", (java.lang.Object)this.file, (java.lang.Object)$$7);
+         }
+     }
+ 
+-    public <T> java.util.Optional<net.minecraft.stats.Stat<T>> getStat(net.minecraft.stats.StatType<T> type, java.lang.String id) {
+-        return java.util.Optional.ofNullable((java.lang.Object)net.minecraft.resources.ResourceLocation.tryParse((java.lang.String)id)).flatMap(arg_0 -> ((net.minecraft.core.Registry)type.getRegistry()).getOptional(arg_0)).map(arg_0 -> type.get(arg_0));
++    public <T> java.util.Optional<net.minecraft.stats.Stat<T>> getStat(net.minecraft.stats.StatType<T> $$0, java.lang.String $$1) {
++        return java.util.Optional.ofNullable((java.lang.Object)net.minecraft.resources.ResourceLocation.tryParse((java.lang.String)$$1)).flatMap(arg_0 -> ((net.minecraft.core.Registry)$$0.getRegistry()).getOptional(arg_0)).map(arg_0 -> $$0.get(arg_0));
+     }
+ 
+-    public static net.minecraft.nbt.CompoundTag fromJson(com.google.gson.JsonObject tagObject) {
+-        net.minecraft.nbt.CompoundTag compoundTag = new net.minecraft.nbt.CompoundTag();
+-        for (java.util.Map$Entry entry : tagObject.entrySet()) {
+-            com.google.gson.JsonPrimitive jsonPrimitive;
+-            com.google.gson.JsonElement jsonElement = (com.google.gson.JsonElement)entry.getValue();
+-            if (jsonElement.isJsonObject()) {
+-                compoundTag.put((java.lang.String)entry.getKey(), (net.minecraft.nbt.Tag)net.minecraft.stats.ServerStatsCounter.fromJson((com.google.gson.JsonObject)jsonElement.getAsJsonObject()));
++    public static net.minecraft.nbt.CompoundTag fromJson(com.google.gson.JsonObject $$0) {
++        net.minecraft.nbt.CompoundTag $$1 = new net.minecraft.nbt.CompoundTag();
++        for (java.util.Map$Entry $$2 : $$0.entrySet()) {
++            com.google.gson.JsonPrimitive $$4;
++            com.google.gson.JsonElement $$3 = (com.google.gson.JsonElement)$$2.getValue();
++            if ($$3.isJsonObject()) {
++                $$1.put((java.lang.String)$$2.getKey(), (net.minecraft.nbt.Tag)net.minecraft.stats.ServerStatsCounter.fromJson((com.google.gson.JsonObject)$$3.getAsJsonObject()));
+                 continue;
+             }
+-            if (!jsonElement.isJsonPrimitive() || !(jsonPrimitive = jsonElement.getAsJsonPrimitive()).isNumber()) continue;
+-            compoundTag.putInt((java.lang.String)entry.getKey(), jsonPrimitive.getAsInt());
++            if (!$$3.isJsonPrimitive() || !($$4 = $$3.getAsJsonPrimitive()).isNumber()) continue;
++            $$1.putInt((java.lang.String)$$2.getKey(), $$4.getAsInt());
+         }
+-        return compoundTag;
++        return $$1;
+     }
+ 
+     public java.lang.String toJson() {
+-        java.util.HashMap $$0 = com.google.common.collect.Maps.newHashMap();
++        java.util.HashMap $$02 = com.google.common.collect.Maps.newHashMap();
+         for (it.unimi.dsi.fastutil.objects.Object2IntMap$Entry $$1 : this.stats.object2IntEntrySet()) {
+             net.minecraft.stats.Stat $$2 = (net.minecraft.stats.Stat)$$1.getKey();
+-            ((com.google.gson.JsonObject)$$0.computeIfAbsent((java.lang.Object)$$2.getType(), type -> new com.google.gson.JsonObject())).addProperty(net.minecraft.stats.ServerStatsCounter.getKey((net.minecraft.stats.Stat)$$2).toString(), (java.lang.Number)java.lang.Integer.valueOf((int)$$1.getIntValue()));
++            ((com.google.gson.JsonObject)$$02.computeIfAbsent((java.lang.Object)$$2.getType(), $$0 -> new com.google.gson.JsonObject())).addProperty(net.minecraft.stats.ServerStatsCounter.getKey((net.minecraft.stats.Stat)$$2).toString(), (java.lang.Number)java.lang.Integer.valueOf((int)$$1.getIntValue()));
+         }
+         com.google.gson.JsonObject $$3 = new com.google.gson.JsonObject();
+-        for (java.util.Map$Entry $$4 : $$0.entrySet()) {
++        for (java.util.Map$Entry $$4 : $$02.entrySet()) {
+             $$3.add(net.minecraft.core.Registry.STAT_TYPE.getKey((java.lang.Object)((net.minecraft.stats.StatType)$$4.getKey())).toString(), (com.google.gson.JsonElement)$$4.getValue());
+         }
+         com.google.gson.JsonObject $$5 = new com.google.gson.JsonObject();
+@@ -118,20 +118,20 @@
+         return $$5.toString();
+     }
+ 
+-    public static <T> net.minecraft.resources.ResourceLocation getKey(net.minecraft.stats.Stat<T> stat) {
+-        return stat.getType().getRegistry().getKey(stat.getValue());
++    public static <T> net.minecraft.resources.ResourceLocation getKey(net.minecraft.stats.Stat<T> $$0) {
++        return $$0.getType().getRegistry().getKey($$0.getValue());
+     }
+ 
+     public void markAllDirty() {
+         this.dirty.addAll((java.util.Collection)this.stats.keySet());
+     }
+ 
+-    public void sendStats(net.minecraft.server.level.ServerPlayer player) {
+-        it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap object2IntOpenHashMap = new it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap();
+-        for (net.minecraft.stats.Stat stat : this.getDirty()) {
+-            object2IntOpenHashMap.put((java.lang.Object)stat, this.getValue(stat));
++    public void sendStats(net.minecraft.server.level.ServerPlayer $$0) {
++        it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap $$1 = new it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap();
++        for (net.minecraft.stats.Stat $$2 : this.getDirty()) {
++            $$1.put((java.lang.Object)$$2, this.getValue($$2));
+         }
+-        player.connection.send((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ClientboundAwardStatsPacket((it.unimi.dsi.fastutil.objects.Object2IntMap)object2IntOpenHashMap));
++        $$0.connection.send((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ClientboundAwardStatsPacket((it.unimi.dsi.fastutil.objects.Object2IntMap)$$1));
+     }
+ 
+     static {

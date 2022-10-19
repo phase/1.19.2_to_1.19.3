@@ -1,0 +1,304 @@
+--- net/minecraft/world/inventory/EnchantmentMenu.java
++++ net/minecraft/world/inventory/EnchantmentMenu.java
+@@ -14,36 +14,33 @@
+     public int[] enchantClue;
+     public int[] levelClue;
+ 
+-    public net.minecraft.world.inventory.EnchantmentMenu(int containerId, net.minecraft.world.entity.player.Inventory playerInventory) {
+-        this(containerId, playerInventory, net.minecraft.world.inventory.ContainerLevelAccess.NULL);
++    public net.minecraft.world.inventory.EnchantmentMenu(int $$0, net.minecraft.world.entity.player.Inventory $$1) {
++        this($$0, $$1, net.minecraft.world.inventory.ContainerLevelAccess.NULL);
+     }
+ 
+-    public net.minecraft.world.inventory.EnchantmentMenu(int containerId, net.minecraft.world.entity.player.Inventory playerInventory, net.minecraft.world.inventory.ContainerLevelAccess access) {
+-        super(net.minecraft.world.inventory.MenuType.ENCHANTMENT, containerId);
+-        int n;
++    public net.minecraft.world.inventory.EnchantmentMenu(int $$0, net.minecraft.world.entity.player.Inventory $$1, net.minecraft.world.inventory.ContainerLevelAccess $$2) {
++        super(net.minecraft.world.inventory.MenuType.ENCHANTMENT, $$0);
+         this.enchantSlots = new /* Unavailable Anonymous Inner Class!! */;
+         this.random = net.minecraft.util.RandomSource.create();
+         this.enchantmentSeed = net.minecraft.world.inventory.DataSlot.standalone();
+         this.costs = new int[3];
+         this.enchantClue = new int[]{-1, -1, -1};
+         this.levelClue = new int[]{-1, -1, -1};
+-        this.access = access;
++        this.access = $$2;
+         this.addSlot((net.minecraft.world.inventory.Slot)new /* Unavailable Anonymous Inner Class!! */);
+         this.addSlot((net.minecraft.world.inventory.Slot)new /* Unavailable Anonymous Inner Class!! */);
+-        for (n = 0;
+- n < 3; ++n) {
+-            for (int i = 0; i < 9; ++i) {
+-                this.addSlot(new net.minecraft.world.inventory.Slot((net.minecraft.world.Container)playerInventory, i + n * 9 + 9, 8 + i * 18, 84 + n * 18));
++        for (int $$3 = 0; $$3 < 3; ++$$3) {
++            for (int $$4 = 0; $$4 < 9; ++$$4) {
++                this.addSlot(new net.minecraft.world.inventory.Slot((net.minecraft.world.Container)$$1, $$4 + $$3 * 9 + 9, 8 + $$4 * 18, 84 + $$3 * 18));
+             }
+         }
+-        for (n = 0;
+- n < 9; ++n) {
+-            this.addSlot(new net.minecraft.world.inventory.Slot((net.minecraft.world.Container)playerInventory, n, 8 + n * 18, 142));
++        for (int $$5 = 0; $$5 < 9; ++$$5) {
++            this.addSlot(new net.minecraft.world.inventory.Slot((net.minecraft.world.Container)$$1, $$5, 8 + $$5 * 18, 142));
+         }
+         this.addDataSlot(net.minecraft.world.inventory.DataSlot.shared((int[])this.costs, (int)0));
+         this.addDataSlot(net.minecraft.world.inventory.DataSlot.shared((int[])this.costs, (int)1));
+         this.addDataSlot(net.minecraft.world.inventory.DataSlot.shared((int[])this.costs, (int)2));
+-        this.addDataSlot(this.enchantmentSeed).set(playerInventory.player.getEnchantmentSeed());
++        this.addDataSlot(this.enchantmentSeed).set($$1.player.getEnchantmentSeed());
+         this.addDataSlot(net.minecraft.world.inventory.DataSlot.shared((int[])this.enchantClue, (int)0));
+         this.addDataSlot(net.minecraft.world.inventory.DataSlot.shared((int[])this.enchantClue, (int)1));
+         this.addDataSlot(net.minecraft.world.inventory.DataSlot.shared((int[])this.enchantClue, (int)2));
+@@ -52,39 +49,36 @@
+         this.addDataSlot(net.minecraft.world.inventory.DataSlot.shared((int[])this.levelClue, (int)2));
+     }
+ 
+-    public void slotsChanged(net.minecraft.world.Container inventory) {
+-        if (inventory == this.enchantSlots) {
+-            net.minecraft.world.item.ItemStack itemStack = inventory.getItem(0);
+-            if (itemStack.isEmpty() || !itemStack.isEnchantable()) {
+-                for (int i = 0; i < 3; ++i) {
+-                    this.costs[i] = 0;
+-                    this.enchantClue[i] = -1;
+-                    this.levelClue[i] = -1;
++    public void slotsChanged(net.minecraft.world.Container $$0) {
++        if ($$0 == this.enchantSlots) {
++            net.minecraft.world.item.ItemStack $$12 = $$0.getItem(0);
++            if ($$12.isEmpty() || !$$12.isEnchantable()) {
++                for (int $$22 = 0; $$22 < 3; ++$$22) {
++                    this.costs[$$22] = 0;
++                    this.enchantClue[$$22] = -1;
++                    this.levelClue[$$22] = -1;
+                 }
+             } else {
+-                this.access.execute((level, blockPos) -> {
+-                    int n;
+-                    int n2 = 0;
+-                    for (net.minecraft.core.BlockPos blockPos2 : net.minecraft.world.level.block.EnchantmentTableBlock.BOOKSHELF_OFFSETS) {
+-                        if (!net.minecraft.world.level.block.EnchantmentTableBlock.isValidBookShelf((net.minecraft.world.level.Level)level, (net.minecraft.core.BlockPos)blockPos, (net.minecraft.core.BlockPos)blockPos2)) continue;
+-                        ++n2;
++                this.access.execute(($$1, $$2) -> {
++                    int $$3 = 0;
++                    for (net.minecraft.core.BlockPos $$4 : net.minecraft.world.level.block.EnchantmentTableBlock.BOOKSHELF_OFFSETS) {
++                        if (!net.minecraft.world.level.block.EnchantmentTableBlock.isValidBookShelf((net.minecraft.world.level.Level)$$1, (net.minecraft.core.BlockPos)$$2, (net.minecraft.core.BlockPos)$$4)) continue;
++                        ++$$3;
+                     }
+                     this.random.setSeed((long)this.enchantmentSeed.get());
+-                    for (n = 0;
+- n < 3; ++n) {
+-                        this.costs[n] = net.minecraft.world.item.enchantment.EnchantmentHelper.getEnchantmentCost((net.minecraft.util.RandomSource)this.random, (int)n, (int)n2, (net.minecraft.world.item.ItemStack)itemStack);
+-                        this.enchantClue[n] = -1;
+-                        this.levelClue[n] = -1;
+-                        if (this.costs[n] >= n + 1) continue;
+-                        this.costs[n] = 0;
++                    for (int $$5 = 0; $$5 < 3; ++$$5) {
++                        this.costs[$$5] = net.minecraft.world.item.enchantment.EnchantmentHelper.getEnchantmentCost((net.minecraft.util.RandomSource)this.random, (int)$$5, (int)$$3, (net.minecraft.world.item.ItemStack)$$12);
++                        this.enchantClue[$$5] = -1;
++                        this.levelClue[$$5] = -1;
++                        if (this.costs[$$5] >= $$5 + 1) continue;
++                        this.costs[$$5] = 0;
+                     }
+-                    for (n = 0;
+- n < 3; ++n) {
+-                        net.minecraft.core.BlockPos blockPos2;
+-                        if (this.costs[n] <= 0 || (blockPos2 = this.getEnchantmentList(itemStack, n, this.costs[n])) == null || blockPos2.isEmpty()) continue;
+-                        net.minecraft.world.item.enchantment.EnchantmentInstance enchantmentInstance = (net.minecraft.world.item.enchantment.EnchantmentInstance)blockPos2.get(this.random.nextInt(blockPos2.size()));
+-                        this.enchantClue[n] = net.minecraft.core.Registry.ENCHANTMENT.getId((java.lang.Object)enchantmentInstance.enchantment);
+-                        this.levelClue[n] = enchantmentInstance.level;
++                    for (int $$6 = 0; $$6 < 3; ++$$6) {
++                        java.util.List $$7;
++                        if (this.costs[$$6] <= 0 || ($$7 = this.getEnchantmentList($$12, $$6, this.costs[$$6])) == null || $$7.isEmpty()) continue;
++                        net.minecraft.world.item.enchantment.EnchantmentInstance $$8 = (net.minecraft.world.item.enchantment.EnchantmentInstance)$$7.get(this.random.nextInt($$7.size()));
++                        this.enchantClue[$$6] = net.minecraft.core.Registry.ENCHANTMENT.getId((java.lang.Object)$$8.enchantment);
++                        this.levelClue[$$6] = $$8.level;
+                     }
+                     this.broadcastChanges();
+                 });
+@@ -92,54 +86,54 @@
+         }
+     }
+ 
+-    public boolean clickMenuButton(net.minecraft.world.entity.player.Player player, int id) {
+-        if (id < 0 || id >= this.costs.length) {
+-            net.minecraft.Util.logAndPauseIfInIde((java.lang.String)(player.getName() + " pressed invalid button id: " + id));
++    public boolean clickMenuButton(net.minecraft.world.entity.player.Player $$0, int $$1) {
++        if ($$1 < 0 || $$1 >= this.costs.length) {
++            net.minecraft.Util.logAndPauseIfInIde((java.lang.String)($$0.getName() + " pressed invalid button id: " + $$1));
+             return false;
+         }
+-        net.minecraft.world.item.ItemStack itemStack = this.enchantSlots.getItem(0);
+-        net.minecraft.world.item.ItemStack itemStack2 = this.enchantSlots.getItem(1);
+-        int n = id + 1;
+-        if ((itemStack2.isEmpty() || itemStack2.getCount() < n) && !player.getAbilities().instabuild) {
++        net.minecraft.world.item.ItemStack $$2 = this.enchantSlots.getItem(0);
++        net.minecraft.world.item.ItemStack $$3 = this.enchantSlots.getItem(1);
++        int $$4 = $$1 + 1;
++        if (($$3.isEmpty() || $$3.getCount() < $$4) && !$$0.getAbilities().instabuild) {
+             return false;
+         }
+-        if (this.costs[id] > 0 && !itemStack.isEmpty() && (player.experienceLevel >= n && player.experienceLevel >= this.costs[id] || player.getAbilities().instabuild)) {
+-            this.access.execute((level, blockPos) -> {
+-                net.minecraft.world.item.ItemStack itemStack3 = itemStack;
+-                java.util.List list = this.getEnchantmentList(itemStack3, id, this.costs[id]);
+-                if (!list.isEmpty()) {
+-                    player.onEnchantmentPerformed(itemStack3, n);
+-                    boolean bl = itemStack3.is(net.minecraft.world.item.Items.BOOK);
+-                    if (bl) {
+-                        itemStack3 = new net.minecraft.world.item.ItemStack((net.minecraft.world.level.ItemLike)net.minecraft.world.item.Items.ENCHANTED_BOOK);
+-                        net.minecraft.nbt.CompoundTag compoundTag = itemStack.getTag();
+-                        if (compoundTag != null) {
+-                            itemStack3.setTag(compoundTag.copy());
++        if (this.costs[$$1] > 0 && !$$2.isEmpty() && ($$0.experienceLevel >= $$4 && $$0.experienceLevel >= this.costs[$$1] || $$0.getAbilities().instabuild)) {
++            this.access.execute(($$5, $$6) -> {
++                net.minecraft.world.item.ItemStack $$7 = $$2;
++                java.util.List $$8 = this.getEnchantmentList($$7, $$1, this.costs[$$1]);
++                if (!$$8.isEmpty()) {
++                    $$0.onEnchantmentPerformed($$7, $$4);
++                    boolean $$9 = $$7.is(net.minecraft.world.item.Items.BOOK);
++                    if ($$9) {
++                        $$7 = new net.minecraft.world.item.ItemStack((net.minecraft.world.level.ItemLike)net.minecraft.world.item.Items.ENCHANTED_BOOK);
++                        net.minecraft.nbt.CompoundTag $$10 = $$2.getTag();
++                        if ($$10 != null) {
++                            $$7.setTag($$10.copy());
+                         }
+-                        this.enchantSlots.setItem(0, itemStack3);
++                        this.enchantSlots.setItem(0, $$7);
+                     }
+-                    for (int i = 0; i < list.size(); ++i) {
+-                        net.minecraft.world.item.enchantment.EnchantmentInstance enchantmentInstance = (net.minecraft.world.item.enchantment.EnchantmentInstance)list.get(i);
+-                        if (bl) {
+-                            net.minecraft.world.item.EnchantedBookItem.addEnchantment((net.minecraft.world.item.ItemStack)itemStack3, (net.minecraft.world.item.enchantment.EnchantmentInstance)enchantmentInstance);
++                    for (int $$11 = 0; $$11 < $$8.size(); ++$$11) {
++                        net.minecraft.world.item.enchantment.EnchantmentInstance $$12 = (net.minecraft.world.item.enchantment.EnchantmentInstance)$$8.get($$11);
++                        if ($$9) {
++                            net.minecraft.world.item.EnchantedBookItem.addEnchantment((net.minecraft.world.item.ItemStack)$$7, (net.minecraft.world.item.enchantment.EnchantmentInstance)$$12);
+                             continue;
+                         }
+-                        itemStack3.enchant(enchantmentInstance.enchantment, enchantmentInstance.level);
++                        $$7.enchant($$12.enchantment, $$12.level);
+                     }
+-                    if (!player.getAbilities().instabuild) {
+-                        itemStack2.shrink(n);
+-                        if (itemStack2.isEmpty()) {
++                    if (!$$2.getAbilities().instabuild) {
++                        $$3.shrink($$4);
++                        if ($$3.isEmpty()) {
+                             this.enchantSlots.setItem(1, net.minecraft.world.item.ItemStack.EMPTY);
+                         }
+                     }
+-                    player.awardStat(net.minecraft.stats.Stats.ENCHANT_ITEM);
+-                    if (player instanceof net.minecraft.server.level.ServerPlayer) {
+-                        net.minecraft.advancements.CriteriaTriggers.ENCHANTED_ITEM.trigger((net.minecraft.server.level.ServerPlayer)player, itemStack3, n);
++                    $$0.awardStat(net.minecraft.stats.Stats.ENCHANT_ITEM);
++                    if ($$0 instanceof net.minecraft.server.level.ServerPlayer) {
++                        net.minecraft.advancements.CriteriaTriggers.ENCHANTED_ITEM.trigger((net.minecraft.server.level.ServerPlayer)$$0, $$7, $$4);
+                     }
+                     this.enchantSlots.setChanged();
+-                    this.enchantmentSeed.set(player.getEnchantmentSeed());
++                    this.enchantmentSeed.set($$0.getEnchantmentSeed());
+                     this.slotsChanged(this.enchantSlots);
+-                    level.playSound(null, blockPos, net.minecraft.sounds.SoundEvents.ENCHANTMENT_TABLE_USE, net.minecraft.sounds.SoundSource.BLOCKS, 1.0f, level.random.nextFloat() * 0.1f + 0.9f);
++                    $$5.playSound(null, $$6, net.minecraft.sounds.SoundEvents.ENCHANTMENT_TABLE_USE, net.minecraft.sounds.SoundSource.BLOCKS, 1.0f, $$5.random.nextFloat() * 0.1f + 0.9f);
+                 }
+             });
+             return true;
+@@ -147,13 +141,13 @@
+         return false;
+     }
+ 
+-    public java.util.List<net.minecraft.world.item.enchantment.EnchantmentInstance> getEnchantmentList(net.minecraft.world.item.ItemStack stack, int enchantSlot, int level) {
+-        this.random.setSeed((long)(this.enchantmentSeed.get() + enchantSlot));
+-        java.util.List list = net.minecraft.world.item.enchantment.EnchantmentHelper.selectEnchantment((net.minecraft.util.RandomSource)this.random, (net.minecraft.world.item.ItemStack)stack, (int)level, (boolean)false);
+-        if (stack.is(net.minecraft.world.item.Items.BOOK) && list.size() > 1) {
+-            list.remove(this.random.nextInt(list.size()));
++    public java.util.List<net.minecraft.world.item.enchantment.EnchantmentInstance> getEnchantmentList(net.minecraft.world.item.ItemStack $$0, int $$1, int $$2) {
++        this.random.setSeed((long)(this.enchantmentSeed.get() + $$1));
++        java.util.List $$3 = net.minecraft.world.item.enchantment.EnchantmentHelper.selectEnchantment((net.minecraft.util.RandomSource)this.random, (net.minecraft.world.item.ItemStack)$$0, (int)$$2, (boolean)false);
++        if ($$0.is(net.minecraft.world.item.Items.BOOK) && $$3.size() > 1) {
++            $$3.remove(this.random.nextInt($$3.size()));
+         }
+-        return list;
++        return $$3;
+     }
+ 
+     public int getGoldCount() {
+@@ -168,52 +162,52 @@
+         return this.enchantmentSeed.get();
+     }
+ 
+-    public void removed(net.minecraft.world.entity.player.Player player) {
+-        super.removed(player);
+-        this.access.execute((level, blockPos) -> this.clearContainer(player, this.enchantSlots));
++    public void removed(net.minecraft.world.entity.player.Player $$0) {
++        super.removed($$0);
++        this.access.execute(($$1, $$2) -> this.clearContainer($$0, this.enchantSlots));
+     }
+ 
+-    public boolean stillValid(net.minecraft.world.entity.player.Player player) {
+-        return net.minecraft.world.inventory.EnchantmentMenu.stillValid((net.minecraft.world.inventory.ContainerLevelAccess)this.access, (net.minecraft.world.entity.player.Player)player, (net.minecraft.world.level.block.Block)net.minecraft.world.level.block.Blocks.ENCHANTING_TABLE);
++    public boolean stillValid(net.minecraft.world.entity.player.Player $$0) {
++        return net.minecraft.world.inventory.EnchantmentMenu.stillValid((net.minecraft.world.inventory.ContainerLevelAccess)this.access, (net.minecraft.world.entity.player.Player)$$0, (net.minecraft.world.level.block.Block)net.minecraft.world.level.block.Blocks.ENCHANTING_TABLE);
+     }
+ 
+-    public net.minecraft.world.item.ItemStack quickMoveStack(net.minecraft.world.entity.player.Player player, int index) {
+-        net.minecraft.world.item.ItemStack itemStack = net.minecraft.world.item.ItemStack.EMPTY;
+-        net.minecraft.world.inventory.Slot slot = (net.minecraft.world.inventory.Slot)this.slots.get(index);
+-        if (slot != null && slot.hasItem()) {
+-            net.minecraft.world.item.ItemStack itemStack2 = slot.getItem();
+-            itemStack = itemStack2.copy();
+-            if (index == 0) {
+-                if (!this.moveItemStackTo(itemStack2, 2, 38, true)) {
++    public net.minecraft.world.item.ItemStack quickMoveStack(net.minecraft.world.entity.player.Player $$0, int $$1) {
++        net.minecraft.world.item.ItemStack $$2 = net.minecraft.world.item.ItemStack.EMPTY;
++        net.minecraft.world.inventory.Slot $$3 = (net.minecraft.world.inventory.Slot)this.slots.get($$1);
++        if ($$3 != null && $$3.hasItem()) {
++            net.minecraft.world.item.ItemStack $$4 = $$3.getItem();
++            $$2 = $$4.copy();
++            if ($$1 == 0) {
++                if (!this.moveItemStackTo($$4, 2, 38, true)) {
+                     return net.minecraft.world.item.ItemStack.EMPTY;
+                 }
+-            } else if (index == 1) {
+-                if (!this.moveItemStackTo(itemStack2, 2, 38, true)) {
++            } else if ($$1 == 1) {
++                if (!this.moveItemStackTo($$4, 2, 38, true)) {
+                     return net.minecraft.world.item.ItemStack.EMPTY;
+                 }
+-            } else if (itemStack2.is(net.minecraft.world.item.Items.LAPIS_LAZULI)) {
+-                if (!this.moveItemStackTo(itemStack2, 1, 2, true)) {
++            } else if ($$4.is(net.minecraft.world.item.Items.LAPIS_LAZULI)) {
++                if (!this.moveItemStackTo($$4, 1, 2, true)) {
+                     return net.minecraft.world.item.ItemStack.EMPTY;
+                 }
+-            } else if (!((net.minecraft.world.inventory.Slot)this.slots.get(0)).hasItem() && ((net.minecraft.world.inventory.Slot)this.slots.get(0)).mayPlace(itemStack2)) {
+-                net.minecraft.world.item.ItemStack itemStack3 = itemStack2.copy();
+-                itemStack3.setCount(1);
+-                itemStack2.shrink(1);
+-                ((net.minecraft.world.inventory.Slot)this.slots.get(0)).set(itemStack3);
++            } else if (!((net.minecraft.world.inventory.Slot)this.slots.get(0)).hasItem() && ((net.minecraft.world.inventory.Slot)this.slots.get(0)).mayPlace($$4)) {
++                net.minecraft.world.item.ItemStack $$5 = $$4.copy();
++                $$5.setCount(1);
++                $$4.shrink(1);
++                ((net.minecraft.world.inventory.Slot)this.slots.get(0)).set($$5);
+             } else {
+                 return net.minecraft.world.item.ItemStack.EMPTY;
+             }
+-            if (itemStack2.isEmpty()) {
+-                slot.set(net.minecraft.world.item.ItemStack.EMPTY);
++            if ($$4.isEmpty()) {
++                $$3.set(net.minecraft.world.item.ItemStack.EMPTY);
+             } else {
+-                slot.setChanged();
++                $$3.setChanged();
+             }
+-            if (itemStack2.getCount() == itemStack.getCount()) {
++            if ($$4.getCount() == $$2.getCount()) {
+                 return net.minecraft.world.item.ItemStack.EMPTY;
+             }
+-            slot.onTake(player, itemStack2);
++            $$3.onTake($$0, $$4);
+         }
+-        return itemStack;
++        return $$2;
+     }
+ }
+ 

@@ -1,0 +1,271 @@
+--- net/minecraft/world/entity/projectile/ShulkerBullet.java
++++ net/minecraft/world/entity/projectile/ShulkerBullet.java
+@@ -23,48 +23,48 @@
+         this.noPhysics = true;
+     }
+ 
+-    public net.minecraft.world.entity.projectile.ShulkerBullet(net.minecraft.world.level.Level level, net.minecraft.world.entity.LivingEntity shooter, net.minecraft.world.entity.Entity finalTarget, net.minecraft.core.Direction$Axis axis) {
+-        this(net.minecraft.world.entity.EntityType.SHULKER_BULLET, level);
+-        this.setOwner((net.minecraft.world.entity.Entity)shooter);
+-        net.minecraft.core.BlockPos blockPos = shooter.blockPosition();
+-        double d = (double)blockPos.getX() + 0.5;
+-        double d2 = (double)blockPos.getY() + 0.5;
+-        double d3 = (double)blockPos.getZ() + 0.5;
+-        this.moveTo(d, d2, d3, this.getYRot(), this.getXRot());
+-        this.finalTarget = finalTarget;
++    public net.minecraft.world.entity.projectile.ShulkerBullet(net.minecraft.world.level.Level $$0, net.minecraft.world.entity.LivingEntity $$1, net.minecraft.world.entity.Entity $$2, net.minecraft.core.Direction$Axis $$3) {
++        this(net.minecraft.world.entity.EntityType.SHULKER_BULLET, $$0);
++        this.setOwner((net.minecraft.world.entity.Entity)$$1);
++        net.minecraft.core.BlockPos $$4 = $$1.blockPosition();
++        double $$5 = (double)$$4.getX() + 0.5;
++        double $$6 = (double)$$4.getY() + 0.5;
++        double $$7 = (double)$$4.getZ() + 0.5;
++        this.moveTo($$5, $$6, $$7, this.getYRot(), this.getXRot());
++        this.finalTarget = $$2;
+         this.currentMoveDirection = net.minecraft.core.Direction.UP;
+-        this.selectNextMoveDirection(axis);
++        this.selectNextMoveDirection($$3);
+     }
+ 
+     public net.minecraft.sounds.SoundSource getSoundSource() {
+         return net.minecraft.sounds.SoundSource.HOSTILE;
+     }
+ 
+-    public void addAdditionalSaveData(net.minecraft.nbt.CompoundTag compound) {
+-        super.addAdditionalSaveData(compound);
++    public void addAdditionalSaveData(net.minecraft.nbt.CompoundTag $$0) {
++        super.addAdditionalSaveData($$0);
+         if (this.finalTarget != null) {
+-            compound.putUUID("Target", this.finalTarget.getUUID());
++            $$0.putUUID("Target", this.finalTarget.getUUID());
+         }
+         if (this.currentMoveDirection != null) {
+-            compound.putInt("Dir", this.currentMoveDirection.get3DDataValue());
++            $$0.putInt("Dir", this.currentMoveDirection.get3DDataValue());
+         }
+-        compound.putInt("Steps", this.flightSteps);
+-        compound.putDouble("TXD", this.targetDeltaX);
+-        compound.putDouble("TYD", this.targetDeltaY);
+-        compound.putDouble("TZD", this.targetDeltaZ);
++        $$0.putInt("Steps", this.flightSteps);
++        $$0.putDouble("TXD", this.targetDeltaX);
++        $$0.putDouble("TYD", this.targetDeltaY);
++        $$0.putDouble("TZD", this.targetDeltaZ);
+     }
+ 
+-    public void readAdditionalSaveData(net.minecraft.nbt.CompoundTag compound) {
+-        super.readAdditionalSaveData(compound);
+-        this.flightSteps = compound.getInt("Steps");
+-        this.targetDeltaX = compound.getDouble("TXD");
+-        this.targetDeltaY = compound.getDouble("TYD");
+-        this.targetDeltaZ = compound.getDouble("TZD");
+-        if (compound.contains("Dir", 99)) {
+-            this.currentMoveDirection = net.minecraft.core.Direction.from3DDataValue((int)compound.getInt("Dir"));
++    public void readAdditionalSaveData(net.minecraft.nbt.CompoundTag $$0) {
++        super.readAdditionalSaveData($$0);
++        this.flightSteps = $$0.getInt("Steps");
++        this.targetDeltaX = $$0.getDouble("TXD");
++        this.targetDeltaY = $$0.getDouble("TYD");
++        this.targetDeltaZ = $$0.getDouble("TZD");
++        if ($$0.contains("Dir", 99)) {
++            this.currentMoveDirection = net.minecraft.core.Direction.from3DDataValue((int)$$0.getInt("Dir"));
+         }
+-        if (compound.hasUUID("Target")) {
+-            this.targetId = compound.getUUID("Target");
++        if ($$0.hasUUID("Target")) {
++            this.targetId = $$0.getUUID("Target");
+         }
+     }
+ 
+@@ -76,72 +76,72 @@
+         return this.currentMoveDirection;
+     }
+ 
+-    public void setMoveDirection(@javax.annotation.Nullable net.minecraft.core.Direction direction) {
+-        this.currentMoveDirection = direction;
++    public void setMoveDirection(@javax.annotation.Nullable net.minecraft.core.Direction $$0) {
++        this.currentMoveDirection = $$0;
+     }
+ 
+-    public void selectNextMoveDirection(@javax.annotation.Nullable net.minecraft.core.Direction$Axis axis) {
+-        net.minecraft.core.BlockPos blockPos;
+-        double d = 0.5;
++    public void selectNextMoveDirection(@javax.annotation.Nullable net.minecraft.core.Direction$Axis $$0) {
++        net.minecraft.core.BlockPos $$3;
++        double $$1 = 0.5;
+         if (this.finalTarget == null) {
+-            blockPos = this.blockPosition().below();
++            net.minecraft.core.BlockPos $$2 = this.blockPosition().below();
+         } else {
+-            d = (double)this.finalTarget.getBbHeight() * 0.5;
+-            blockPos = new net.minecraft.core.BlockPos(this.finalTarget.getX(), this.finalTarget.getY() + d, this.finalTarget.getZ());
++            $$1 = (double)this.finalTarget.getBbHeight() * 0.5;
++            $$3 = new net.minecraft.core.BlockPos(this.finalTarget.getX(), this.finalTarget.getY() + $$1, this.finalTarget.getZ());
+         }
+-        double d2 = (double)blockPos.getX() + 0.5;
+-        double d3 = (double)blockPos.getY() + d;
+-        double d4 = (double)blockPos.getZ() + 0.5;
+-        net.minecraft.core.Direction direction = null;
+-        if (!blockPos.closerToCenterThan((net.minecraft.core.Position)this.position(), 2.0)) {
+-            net.minecraft.core.BlockPos blockPos2 = this.blockPosition();
+-            java.util.ArrayList arrayList = com.google.common.collect.Lists.newArrayList();
+-            if (axis != net.minecraft.core.Direction$Axis.X) {
+-                if (blockPos2.getX() < blockPos.getX() && this.level.isEmptyBlock(blockPos2.east())) {
+-                    arrayList.add((java.lang.Object)net.minecraft.core.Direction.EAST);
+-                } else if (blockPos2.getX() > blockPos.getX() && this.level.isEmptyBlock(blockPos2.west())) {
+-                    arrayList.add((java.lang.Object)net.minecraft.core.Direction.WEST);
++        double $$4 = (double)$$3.getX() + 0.5;
++        double $$5 = (double)$$3.getY() + $$1;
++        double $$6 = (double)$$3.getZ() + 0.5;
++        net.minecraft.core.Direction $$7 = null;
++        if (!$$3.closerToCenterThan((net.minecraft.core.Position)this.position(), 2.0)) {
++            net.minecraft.core.BlockPos $$8 = this.blockPosition();
++            java.util.ArrayList $$9 = com.google.common.collect.Lists.newArrayList();
++            if ($$0 != net.minecraft.core.Direction$Axis.X) {
++                if ($$8.getX() < $$3.getX() && this.level.isEmptyBlock($$8.east())) {
++                    $$9.add((java.lang.Object)net.minecraft.core.Direction.EAST);
++                } else if ($$8.getX() > $$3.getX() && this.level.isEmptyBlock($$8.west())) {
++                    $$9.add((java.lang.Object)net.minecraft.core.Direction.WEST);
+                 }
+             }
+-            if (axis != net.minecraft.core.Direction$Axis.Y) {
+-                if (blockPos2.getY() < blockPos.getY() && this.level.isEmptyBlock(blockPos2.above())) {
+-                    arrayList.add((java.lang.Object)net.minecraft.core.Direction.UP);
+-                } else if (blockPos2.getY() > blockPos.getY() && this.level.isEmptyBlock(blockPos2.below())) {
+-                    arrayList.add((java.lang.Object)net.minecraft.core.Direction.DOWN);
++            if ($$0 != net.minecraft.core.Direction$Axis.Y) {
++                if ($$8.getY() < $$3.getY() && this.level.isEmptyBlock($$8.above())) {
++                    $$9.add((java.lang.Object)net.minecraft.core.Direction.UP);
++                } else if ($$8.getY() > $$3.getY() && this.level.isEmptyBlock($$8.below())) {
++                    $$9.add((java.lang.Object)net.minecraft.core.Direction.DOWN);
+                 }
+             }
+-            if (axis != net.minecraft.core.Direction$Axis.Z) {
+-                if (blockPos2.getZ() < blockPos.getZ() && this.level.isEmptyBlock(blockPos2.south())) {
+-                    arrayList.add((java.lang.Object)net.minecraft.core.Direction.SOUTH);
+-                } else if (blockPos2.getZ() > blockPos.getZ() && this.level.isEmptyBlock(blockPos2.north())) {
+-                    arrayList.add((java.lang.Object)net.minecraft.core.Direction.NORTH);
++            if ($$0 != net.minecraft.core.Direction$Axis.Z) {
++                if ($$8.getZ() < $$3.getZ() && this.level.isEmptyBlock($$8.south())) {
++                    $$9.add((java.lang.Object)net.minecraft.core.Direction.SOUTH);
++                } else if ($$8.getZ() > $$3.getZ() && this.level.isEmptyBlock($$8.north())) {
++                    $$9.add((java.lang.Object)net.minecraft.core.Direction.NORTH);
+                 }
+             }
+-            direction = net.minecraft.core.Direction.getRandom((net.minecraft.util.RandomSource)this.random);
+-            if (arrayList.isEmpty()) {
+-                for (int i = 5; !this.level.isEmptyBlock(blockPos2.relative(direction)) && i > 0; --i) {
+-                    direction = net.minecraft.core.Direction.getRandom((net.minecraft.util.RandomSource)this.random);
++            $$7 = net.minecraft.core.Direction.getRandom((net.minecraft.util.RandomSource)this.random);
++            if ($$9.isEmpty()) {
++                for (int $$10 = 5; !this.level.isEmptyBlock($$8.relative($$7)) && $$10 > 0; --$$10) {
++                    $$7 = net.minecraft.core.Direction.getRandom((net.minecraft.util.RandomSource)this.random);
+                 }
+             } else {
+-                direction = (net.minecraft.core.Direction)arrayList.get(this.random.nextInt(arrayList.size()));
++                $$7 = (net.minecraft.core.Direction)$$9.get(this.random.nextInt($$9.size()));
+             }
+-            d2 = this.getX() + (double)direction.getStepX();
+-            d3 = this.getY() + (double)direction.getStepY();
+-            d4 = this.getZ() + (double)direction.getStepZ();
++            $$4 = this.getX() + (double)$$7.getStepX();
++            $$5 = this.getY() + (double)$$7.getStepY();
++            $$6 = this.getZ() + (double)$$7.getStepZ();
+         }
+-        this.setMoveDirection(direction);
+-        double d5 = d2 - this.getX();
+-        double d6 = d3 - this.getY();
+-        double d7 = d4 - this.getZ();
+-        double d8 = java.lang.Math.sqrt((double)(d5 * d5 + d6 * d6 + d7 * d7));
+-        if (d8 == 0.0) {
++        this.setMoveDirection($$7);
++        double $$11 = $$4 - this.getX();
++        double $$12 = $$5 - this.getY();
++        double $$13 = $$6 - this.getZ();
++        double $$14 = java.lang.Math.sqrt((double)($$11 * $$11 + $$12 * $$12 + $$13 * $$13));
++        if ($$14 == 0.0) {
+             this.targetDeltaX = 0.0;
+             this.targetDeltaY = 0.0;
+             this.targetDeltaZ = 0.0;
+         } else {
+-            this.targetDeltaX = d5 / d8 * 0.15;
+-            this.targetDeltaY = d6 / d8 * 0.15;
+-            this.targetDeltaZ = d7 / d8 * 0.15;
++            this.targetDeltaX = $$11 / $$14 * 0.15;
++            this.targetDeltaY = $$12 / $$14 * 0.15;
++            this.targetDeltaZ = $$13 / $$14 * 0.15;
+         }
+         this.hasImpulse = true;
+         this.flightSteps = 10 + this.random.nextInt(5) * 10;
+@@ -204,44 +204,44 @@
+         }
+     }
+ 
+-    public boolean canHitEntity(net.minecraft.world.entity.Entity target) {
+-        return super.canHitEntity(target) && !target.noPhysics;
++    public boolean canHitEntity(net.minecraft.world.entity.Entity $$0) {
++        return super.canHitEntity($$0) && !$$0.noPhysics;
+     }
+ 
+     public boolean isOnFire() {
+         return false;
+     }
+ 
+-    public boolean shouldRenderAtSqrDistance(double distance) {
+-        return distance < 16384.0;
++    public boolean shouldRenderAtSqrDistance(double $$0) {
++        return $$0 < 16384.0;
+     }
+ 
+     public float getLightLevelDependentMagicValue() {
+         return 1.0f;
+     }
+ 
+-    public void onHitEntity(net.minecraft.world.phys.EntityHitResult result) {
+-        super.onHitEntity(result);
+-        net.minecraft.world.entity.Entity entity = result.getEntity();
+-        net.minecraft.world.entity.Entity entity2 = this.getOwner();
+-        net.minecraft.world.entity.LivingEntity livingEntity = entity2 instanceof net.minecraft.world.entity.LivingEntity ? (net.minecraft.world.entity.LivingEntity)entity2 : null;
+-        boolean bl = entity.hurt(net.minecraft.world.damagesource.DamageSource.indirectMobAttack((net.minecraft.world.entity.Entity)this, (net.minecraft.world.entity.LivingEntity)livingEntity).setProjectile(), 4.0f);
+-        if (bl) {
+-            this.doEnchantDamageEffects(livingEntity, entity);
+-            if (entity instanceof net.minecraft.world.entity.LivingEntity) {
+-                ((net.minecraft.world.entity.LivingEntity)entity).addEffect(new net.minecraft.world.effect.MobEffectInstance(net.minecraft.world.effect.MobEffects.LEVITATION, 200), (net.minecraft.world.entity.Entity)com.google.common.base.MoreObjects.firstNonNull((java.lang.Object)entity2, (java.lang.Object)this));
++    public void onHitEntity(net.minecraft.world.phys.EntityHitResult $$0) {
++        super.onHitEntity($$0);
++        net.minecraft.world.entity.Entity $$1 = $$0.getEntity();
++        net.minecraft.world.entity.Entity $$2 = this.getOwner();
++        net.minecraft.world.entity.LivingEntity $$3 = $$2 instanceof net.minecraft.world.entity.LivingEntity ? (net.minecraft.world.entity.LivingEntity)$$2 : null;
++        boolean $$4 = $$1.hurt(net.minecraft.world.damagesource.DamageSource.indirectMobAttack((net.minecraft.world.entity.Entity)this, (net.minecraft.world.entity.LivingEntity)$$3).setProjectile(), 4.0f);
++        if ($$4) {
++            this.doEnchantDamageEffects($$3, $$1);
++            if ($$1 instanceof net.minecraft.world.entity.LivingEntity) {
++                ((net.minecraft.world.entity.LivingEntity)$$1).addEffect(new net.minecraft.world.effect.MobEffectInstance(net.minecraft.world.effect.MobEffects.LEVITATION, 200), (net.minecraft.world.entity.Entity)com.google.common.base.MoreObjects.firstNonNull((java.lang.Object)$$2, (java.lang.Object)this));
+             }
+         }
+     }
+ 
+-    public void onHitBlock(net.minecraft.world.phys.BlockHitResult result) {
+-        super.onHitBlock(result);
++    public void onHitBlock(net.minecraft.world.phys.BlockHitResult $$0) {
++        super.onHitBlock($$0);
+         ((net.minecraft.server.level.ServerLevel)this.level).sendParticles((net.minecraft.core.particles.ParticleOptions)net.minecraft.core.particles.ParticleTypes.EXPLOSION, this.getX(), this.getY(), this.getZ(), 2, 0.2, 0.2, 0.2, 0.0);
+         this.playSound(net.minecraft.sounds.SoundEvents.SHULKER_BULLET_HIT, 1.0f, 1.0f);
+     }
+ 
+-    public void onHit(net.minecraft.world.phys.HitResult result) {
+-        super.onHit(result);
++    public void onHit(net.minecraft.world.phys.HitResult $$0) {
++        super.onHit($$0);
+         this.discard();
+     }
+ 
+@@ -249,7 +249,7 @@
+         return true;
+     }
+ 
+-    public boolean hurt(net.minecraft.world.damagesource.DamageSource source, float amount) {
++    public boolean hurt(net.minecraft.world.damagesource.DamageSource $$0, float $$1) {
+         if (!this.level.isClientSide) {
+             this.playSound(net.minecraft.sounds.SoundEvents.SHULKER_BULLET_HURT, 1.0f, 1.0f);
+             ((net.minecraft.server.level.ServerLevel)this.level).sendParticles((net.minecraft.core.particles.ParticleOptions)net.minecraft.core.particles.ParticleTypes.CRIT, this.getX(), this.getY(), this.getZ(), 15, 0.2, 0.2, 0.2, 0.0);

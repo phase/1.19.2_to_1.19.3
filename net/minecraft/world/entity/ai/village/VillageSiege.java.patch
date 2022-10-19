@@ -1,0 +1,121 @@
+--- net/minecraft/world/entity/ai/village/VillageSiege.java
++++ net/minecraft/world/entity/ai/village/VillageSiege.java
+@@ -19,21 +19,21 @@
+         this.siegeState = net.minecraft.world.entity.ai.village.VillageSiege$State.SIEGE_DONE;
+     }
+ 
+-    public int tick(net.minecraft.server.level.ServerLevel level, boolean spawnHostiles, boolean spawnPassives) {
+-        if (level.isDay() || !spawnHostiles) {
++    public int tick(net.minecraft.server.level.ServerLevel $$0, boolean $$1, boolean $$2) {
++        if ($$0.isDay() || !$$1) {
+             this.siegeState = net.minecraft.world.entity.ai.village.VillageSiege$State.SIEGE_DONE;
+             this.hasSetupSiege = false;
+             return 0;
+         }
+-        float f = level.getTimeOfDay(0.0f);
+-        if ((double)f == 0.5) {
+-            net.minecraft.world.entity.ai.village.VillageSiege$State state = this.siegeState = level.random.nextInt(10) == 0 ? net.minecraft.world.entity.ai.village.VillageSiege$State.SIEGE_TONIGHT : net.minecraft.world.entity.ai.village.VillageSiege$State.SIEGE_DONE;
++        float $$3 = $$0.getTimeOfDay(0.0f);
++        if ((double)$$3 == 0.5) {
++            net.minecraft.world.entity.ai.village.VillageSiege$State state = this.siegeState = $$0.random.nextInt(10) == 0 ? net.minecraft.world.entity.ai.village.VillageSiege$State.SIEGE_TONIGHT : net.minecraft.world.entity.ai.village.VillageSiege$State.SIEGE_DONE;
+         }
+         if (this.siegeState == net.minecraft.world.entity.ai.village.VillageSiege$State.SIEGE_DONE) {
+             return 0;
+         }
+         if (!this.hasSetupSiege) {
+-            if (this.tryToSetupSiege(level)) {
++            if (this.tryToSetupSiege($$0)) {
+                 this.hasSetupSiege = true;
+             } else {
+                 return 0;
+@@ -45,7 +45,7 @@
+         }
+         this.nextSpawnTime = 2;
+         if (this.zombiesToSpawn > 0) {
+-            this.trySpawn(level);
++            this.trySpawn($$0);
+             --this.zombiesToSpawn;
+         } else {
+             this.siegeState = net.minecraft.world.entity.ai.village.VillageSiege$State.SIEGE_DONE;
+@@ -53,16 +53,16 @@
+         return 1;
+     }
+ 
+-    public boolean tryToSetupSiege(net.minecraft.server.level.ServerLevel level) {
+-        for (net.minecraft.world.entity.player.Player player : level.players()) {
+-            net.minecraft.core.BlockPos blockPos;
+-            if (player.isSpectator() || !level.isVillage(blockPos = player.blockPosition()) || level.getBiome(blockPos).is(net.minecraft.tags.BiomeTags.WITHOUT_ZOMBIE_SIEGES)) continue;
+-            for (int i = 0; i < 10; ++i) {
+-                float f = level.random.nextFloat() * ((float)java.lang.Math.PI * 2);
+-                this.spawnX = blockPos.getX() + net.minecraft.util.Mth.floor((float)(net.minecraft.util.Mth.cos((float)f) * 32.0f));
+-                this.spawnY = blockPos.getY();
+-                this.spawnZ = blockPos.getZ() + net.minecraft.util.Mth.floor((float)(net.minecraft.util.Mth.sin((float)f) * 32.0f));
+-                if (this.findRandomSpawnPos(level, new net.minecraft.core.BlockPos(this.spawnX, this.spawnY, this.spawnZ)) == null) continue;
++    public boolean tryToSetupSiege(net.minecraft.server.level.ServerLevel $$0) {
++        for (net.minecraft.world.entity.player.Player $$1 : $$0.players()) {
++            net.minecraft.core.BlockPos $$2;
++            if ($$1.isSpectator() || !$$0.isVillage($$2 = $$1.blockPosition()) || $$0.getBiome($$2).is(net.minecraft.tags.BiomeTags.WITHOUT_ZOMBIE_SIEGES)) continue;
++            for (int $$3 = 0; $$3 < 10; ++$$3) {
++                float $$4 = $$0.random.nextFloat() * ((float)java.lang.Math.PI * 2);
++                this.spawnX = $$2.getX() + net.minecraft.util.Mth.floor((float)(net.minecraft.util.Mth.cos((float)$$4) * 32.0f));
++                this.spawnY = $$2.getY();
++                this.spawnZ = $$2.getZ() + net.minecraft.util.Mth.floor((float)(net.minecraft.util.Mth.sin((float)$$4) * 32.0f));
++                if (this.findRandomSpawnPos($$0, new net.minecraft.core.BlockPos(this.spawnX, this.spawnY, this.spawnZ)) == null) continue;
+                 this.nextSpawnTime = 0;
+                 this.zombiesToSpawn = 20;
+                 break;
+@@ -72,33 +72,36 @@
+         return false;
+     }
+ 
+-    public void trySpawn(net.minecraft.server.level.ServerLevel level) {
+-        net.minecraft.world.entity.monster.Zombie zombie;
+-        net.minecraft.world.phys.Vec3 vec3 = this.findRandomSpawnPos(level, new net.minecraft.core.BlockPos(this.spawnX, this.spawnY, this.spawnZ));
+-        if (vec3 == null) {
++    /*
++     * WARNING - void declaration
++     */
++    public void trySpawn(net.minecraft.server.level.ServerLevel $$0) {
++        void $$4;
++        net.minecraft.world.phys.Vec3 $$1 = this.findRandomSpawnPos($$0, new net.minecraft.core.BlockPos(this.spawnX, this.spawnY, this.spawnZ));
++        if ($$1 == null) {
+             return;
+         }
+         try {
+-            zombie = new net.minecraft.world.entity.monster.Zombie((net.minecraft.world.level.Level)level);
+-            zombie.finalizeSpawn((net.minecraft.world.level.ServerLevelAccessor)level, level.getCurrentDifficultyAt(zombie.blockPosition()), net.minecraft.world.entity.MobSpawnType.EVENT, null, null);
++            net.minecraft.world.entity.monster.Zombie $$2 = new net.minecraft.world.entity.monster.Zombie((net.minecraft.world.level.Level)$$0);
++            $$2.finalizeSpawn((net.minecraft.world.level.ServerLevelAccessor)$$0, $$0.getCurrentDifficultyAt($$2.blockPosition()), net.minecraft.world.entity.MobSpawnType.EVENT, null, null);
+         }
+-        catch (java.lang.Exception exception) {
+-            LOGGER.warn("Failed to create zombie for village siege at {}", (java.lang.Object)vec3, (java.lang.Object)((java.lang.Object)exception));
++        catch (java.lang.Exception $$3) {
++            LOGGER.warn("Failed to create zombie for village siege at {}", (java.lang.Object)$$1, (java.lang.Object)((java.lang.Object)$$3));
+             return;
+         }
+-        zombie.moveTo(vec3.x, vec3.y, vec3.z, level.random.nextFloat() * 360.0f, 0.0f);
+-        level.addFreshEntityWithPassengers((net.minecraft.world.entity.Entity)zombie);
++        $$4.moveTo($$1.x, $$1.y, $$1.z, $$0.random.nextFloat() * 360.0f, 0.0f);
++        $$0.addFreshEntityWithPassengers((net.minecraft.world.entity.Entity)$$4);
+     }
+ 
+     @javax.annotation.Nullable
+-    public net.minecraft.world.phys.Vec3 findRandomSpawnPos(net.minecraft.server.level.ServerLevel level, net.minecraft.core.BlockPos pos) {
+-        for (int i = 0; i < 10; ++i) {
+-            int n;
+-            int n2;
+-            int n3 = pos.getX() + level.random.nextInt(16) - 8;
+-            net.minecraft.core.BlockPos blockPos = new net.minecraft.core.BlockPos(n3, n2 = level.getHeight(net.minecraft.world.level.levelgen.Heightmap$Types.WORLD_SURFACE, n3, n = pos.getZ() + level.random.nextInt(16) - 8), n);
+-            if (!level.isVillage(blockPos) || !net.minecraft.world.entity.monster.Monster.checkMonsterSpawnRules((net.minecraft.world.entity.EntityType)net.minecraft.world.entity.EntityType.ZOMBIE, (net.minecraft.world.level.ServerLevelAccessor)level, (net.minecraft.world.entity.MobSpawnType)net.minecraft.world.entity.MobSpawnType.EVENT, (net.minecraft.core.BlockPos)blockPos, (net.minecraft.util.RandomSource)level.random)) continue;
+-            return net.minecraft.world.phys.Vec3.atBottomCenterOf((net.minecraft.core.Vec3i)blockPos);
++    public net.minecraft.world.phys.Vec3 findRandomSpawnPos(net.minecraft.server.level.ServerLevel $$0, net.minecraft.core.BlockPos $$1) {
++        for (int $$2 = 0; $$2 < 10; ++$$2) {
++            int $$4;
++            int $$5;
++            int $$3 = $$1.getX() + $$0.random.nextInt(16) - 8;
++            net.minecraft.core.BlockPos $$6 = new net.minecraft.core.BlockPos($$3, $$5 = $$0.getHeight(net.minecraft.world.level.levelgen.Heightmap$Types.WORLD_SURFACE, $$3, $$4 = $$1.getZ() + $$0.random.nextInt(16) - 8), $$4);
++            if (!$$0.isVillage($$6) || !net.minecraft.world.entity.monster.Monster.checkMonsterSpawnRules((net.minecraft.world.entity.EntityType)net.minecraft.world.entity.EntityType.ZOMBIE, (net.minecraft.world.level.ServerLevelAccessor)$$0, (net.minecraft.world.entity.MobSpawnType)net.minecraft.world.entity.MobSpawnType.EVENT, (net.minecraft.core.BlockPos)$$6, (net.minecraft.util.RandomSource)$$0.random)) continue;
++            return net.minecraft.world.phys.Vec3.atBottomCenterOf((net.minecraft.core.Vec3i)$$6);
+         }
+         return null;
+     }

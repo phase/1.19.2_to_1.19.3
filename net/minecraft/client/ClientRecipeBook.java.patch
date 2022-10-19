@@ -1,0 +1,95 @@
+--- net/minecraft/client/ClientRecipeBook.java
++++ net/minecraft/client/ClientRecipeBook.java
+@@ -47,50 +47,46 @@
+         return $$1;
+     }
+ 
+-    public static net.minecraft.client.RecipeBookCategories getCategory(net.minecraft.world.item.crafting.Recipe<?> recipe) {
+-        net.minecraft.world.item.crafting.RecipeType recipeType = recipe.getType();
+-        if (recipeType == net.minecraft.world.item.crafting.RecipeType.CRAFTING) {
+-            net.minecraft.world.item.ItemStack itemStack = recipe.getResultItem();
+-            net.minecraft.world.item.CreativeModeTab creativeModeTab = itemStack.getItem().getItemCategory();
+-            if (creativeModeTab == net.minecraft.world.item.CreativeModeTab.TAB_BUILDING_BLOCKS) {
+-                return net.minecraft.client.RecipeBookCategories.CRAFTING_BUILDING_BLOCKS;
++    public static net.minecraft.client.RecipeBookCategories getCategory(net.minecraft.world.item.crafting.Recipe<?> $$0) {
++        if ($$0 instanceof net.minecraft.world.item.crafting.CraftingRecipe) {
++            net.minecraft.world.item.crafting.CraftingRecipe $$1 = (net.minecraft.world.item.crafting.CraftingRecipe)$$0;
++            return switch (net.minecraft.client.ClientRecipeBook$1.$SwitchMap$net$minecraft$world$item$crafting$CraftingBookCategory[$$1.category().ordinal()]) {
++                default -> throw new java.lang.IncompatibleClassChangeError();
++                case 1 -> net.minecraft.client.RecipeBookCategories.CRAFTING_BUILDING_BLOCKS;
++                case 2 -> net.minecraft.client.RecipeBookCategories.CRAFTING_EQUIPMENT;
++                case 3 -> net.minecraft.client.RecipeBookCategories.CRAFTING_REDSTONE;
++                case 4 -> net.minecraft.client.RecipeBookCategories.CRAFTING_MISC;
++            };
++        }
++        net.minecraft.world.item.crafting.RecipeType $$2 = $$0.getType();
++        if ($$0 instanceof net.minecraft.world.item.crafting.AbstractCookingRecipe) {
++            net.minecraft.world.item.crafting.AbstractCookingRecipe $$3 = (net.minecraft.world.item.crafting.AbstractCookingRecipe)$$0;
++            net.minecraft.world.item.crafting.CookingBookCategory $$4 = $$3.category();
++            if ($$2 == net.minecraft.world.item.crafting.RecipeType.SMELTING) {
++                return switch (net.minecraft.client.ClientRecipeBook$1.$SwitchMap$net$minecraft$world$item$crafting$CookingBookCategory[$$4.ordinal()]) {
++                    default -> throw new java.lang.IncompatibleClassChangeError();
++                    case 1 -> net.minecraft.client.RecipeBookCategories.FURNACE_BLOCKS;
++                    case 2 -> net.minecraft.client.RecipeBookCategories.FURNACE_FOOD;
++                    case 3 -> net.minecraft.client.RecipeBookCategories.FURNACE_MISC;
++                };
+             }
+-            if (creativeModeTab == net.minecraft.world.item.CreativeModeTab.TAB_TOOLS || creativeModeTab == net.minecraft.world.item.CreativeModeTab.TAB_COMBAT) {
+-                return net.minecraft.client.RecipeBookCategories.CRAFTING_EQUIPMENT;
++            if ($$2 == net.minecraft.world.item.crafting.RecipeType.BLASTING) {
++                return $$4 == net.minecraft.world.item.crafting.CookingBookCategory.BLOCKS ? net.minecraft.client.RecipeBookCategories.BLAST_FURNACE_BLOCKS : net.minecraft.client.RecipeBookCategories.BLAST_FURNACE_MISC;
+             }
+-            if (creativeModeTab == net.minecraft.world.item.CreativeModeTab.TAB_REDSTONE) {
+-                return net.minecraft.client.RecipeBookCategories.CRAFTING_REDSTONE;
++            if ($$2 == net.minecraft.world.item.crafting.RecipeType.SMOKING) {
++                return net.minecraft.client.RecipeBookCategories.SMOKER_FOOD;
+             }
+-            return net.minecraft.client.RecipeBookCategories.CRAFTING_MISC;
+-        }
+-        if (recipeType == net.minecraft.world.item.crafting.RecipeType.SMELTING) {
+-            if (recipe.getResultItem().getItem().isEdible()) {
+-                return net.minecraft.client.RecipeBookCategories.FURNACE_FOOD;
++            if ($$2 == net.minecraft.world.item.crafting.RecipeType.CAMPFIRE_COOKING) {
++                return net.minecraft.client.RecipeBookCategories.CAMPFIRE;
+             }
+-            if (recipe.getResultItem().getItem() instanceof net.minecraft.world.item.BlockItem) {
+-                return net.minecraft.client.RecipeBookCategories.FURNACE_BLOCKS;
+-            }
+-            return net.minecraft.client.RecipeBookCategories.FURNACE_MISC;
+         }
+-        if (recipeType == net.minecraft.world.item.crafting.RecipeType.BLASTING) {
+-            if (recipe.getResultItem().getItem() instanceof net.minecraft.world.item.BlockItem) {
+-                return net.minecraft.client.RecipeBookCategories.BLAST_FURNACE_BLOCKS;
+-            }
+-            return net.minecraft.client.RecipeBookCategories.BLAST_FURNACE_MISC;
+-        }
+-        if (recipeType == net.minecraft.world.item.crafting.RecipeType.SMOKING) {
+-            return net.minecraft.client.RecipeBookCategories.SMOKER_FOOD;
+-        }
+-        if (recipeType == net.minecraft.world.item.crafting.RecipeType.STONECUTTING) {
++        if ($$2 == net.minecraft.world.item.crafting.RecipeType.STONECUTTING) {
+             return net.minecraft.client.RecipeBookCategories.STONECUTTER;
+         }
+-        if (recipeType == net.minecraft.world.item.crafting.RecipeType.CAMPFIRE_COOKING) {
+-            return net.minecraft.client.RecipeBookCategories.CAMPFIRE;
+-        }
+-        if (recipeType == net.minecraft.world.item.crafting.RecipeType.SMITHING) {
++        if ($$2 == net.minecraft.world.item.crafting.RecipeType.SMITHING) {
+             return net.minecraft.client.RecipeBookCategories.SMITHING;
+         }
+-        LOGGER.warn("Unknown recipe category: {}/{}", com.mojang.logging.LogUtils.defer(() -> net.minecraft.core.Registry.RECIPE_TYPE.getKey((java.lang.Object)recipe.getType())), com.mojang.logging.LogUtils.defer(() -> recipe.getId()));
++        LOGGER.warn("Unknown recipe category: {}/{}", com.mojang.logging.LogUtils.defer(() -> net.minecraft.core.Registry.RECIPE_TYPE.getKey((java.lang.Object)$$0.getType())), com.mojang.logging.LogUtils.defer(() -> $$0.getId()));
+         return net.minecraft.client.RecipeBookCategories.UNKNOWN;
+     }
+ 
+@@ -98,8 +94,8 @@
+         return this.allCollections;
+     }
+ 
+-    public java.util.List<net.minecraft.client.gui.screens.recipebook.RecipeCollection> getCollection(net.minecraft.client.RecipeBookCategories categories) {
+-        return (java.util.List)this.collectionsByTab.getOrDefault((java.lang.Object)categories, (java.lang.Object)java.util.Collections.emptyList());
++    public java.util.List<net.minecraft.client.gui.screens.recipebook.RecipeCollection> getCollection(net.minecraft.client.RecipeBookCategories $$0) {
++        return (java.util.List)this.collectionsByTab.getOrDefault((java.lang.Object)$$0, (java.lang.Object)java.util.Collections.emptyList());
+     }
+ 
+     public static /* synthetic */ void lambda$setupCollections$2(java.util.Map $$0, net.minecraft.client.RecipeBookCategories $$12, java.util.List $$2) {

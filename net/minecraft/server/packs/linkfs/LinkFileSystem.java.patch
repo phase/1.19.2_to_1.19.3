@@ -1,0 +1,126 @@
+--- net/minecraft/server/packs/linkfs/LinkFileSystem.java
++++ net/minecraft/server/packs/linkfs/LinkFileSystem.java
+@@ -1,0 +1,123 @@
++/*
++ * Decompiled with CFR 0.151.
++ */
++package net.minecraft.server.packs.linkfs;
++
++public class net.minecraft.server.packs.linkfs.LinkFileSystem
++extends java.nio.file.FileSystem
++ {
++    public static java.util.Set<java.lang.String> VIEWS;
++    public static java.lang.String PATH_SEPARATOR = "/";
++    public static com.google.common.base.Splitter PATH_SPLITTER;
++    public java.nio.file.FileStore store;
++    public java.nio.file.spi.FileSystemProvider provider;
++    public net.minecraft.server.packs.linkfs.LinkFSPath root;
++
++    public net.minecraft.server.packs.linkfs.LinkFileSystem(java.lang.String $$0, net.minecraft.server.packs.linkfs.LinkFileSystem$DirectoryEntry $$1) {
++        this.provider = new net.minecraft.server.packs.linkfs.LinkFSProvider();
++        this.store = new net.minecraft.server.packs.linkfs.LinkFSFileStore($$0);
++        this.root = net.minecraft.server.packs.linkfs.LinkFileSystem.buildPath((net.minecraft.server.packs.linkfs.LinkFileSystem$DirectoryEntry)$$1, (net.minecraft.server.packs.linkfs.LinkFileSystem)this, (java.lang.String)"", null);
++    }
++
++    public static net.minecraft.server.packs.linkfs.LinkFSPath buildPath(net.minecraft.server.packs.linkfs.LinkFileSystem$DirectoryEntry $$0, net.minecraft.server.packs.linkfs.LinkFileSystem $$1, java.lang.String $$2, @javax.annotation.Nullable net.minecraft.server.packs.linkfs.LinkFSPath $$32) {
++        it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap $$42 = new it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap();
++        net.minecraft.server.packs.linkfs.LinkFSPath $$5 = new net.minecraft.server.packs.linkfs.LinkFSPath($$1, $$2, $$32, (net.minecraft.server.packs.linkfs.PathContents)new net.minecraft.server.packs.linkfs.PathContents$DirectoryContents((java.util.Map)$$42));
++        $$0.files.forEach(($$3, $$4) -> $$42.put($$3, (java.lang.Object)new net.minecraft.server.packs.linkfs.LinkFSPath($$1, $$3, $$5, (net.minecraft.server.packs.linkfs.PathContents)new net.minecraft.server.packs.linkfs.PathContents$FileContents($$4))));
++        $$0.children.forEach(($$3, $$4) -> $$42.put($$3, (java.lang.Object)net.minecraft.server.packs.linkfs.LinkFileSystem.buildPath((net.minecraft.server.packs.linkfs.LinkFileSystem$DirectoryEntry)$$4, (net.minecraft.server.packs.linkfs.LinkFileSystem)$$1, (java.lang.String)$$3, (net.minecraft.server.packs.linkfs.LinkFSPath)$$5)));
++        $$42.trim();
++        return $$5;
++    }
++
++    public java.nio.file.spi.FileSystemProvider provider() {
++        return this.provider;
++    }
++
++    public void close() {
++    }
++
++    public boolean isOpen() {
++        return true;
++    }
++
++    public boolean isReadOnly() {
++        return true;
++    }
++
++    public java.lang.String getSeparator() {
++        return "/";
++    }
++
++    public java.lang.Iterable<java.nio.file.Path> getRootDirectories() {
++        return java.util.List.of((java.lang.Object)this.root);
++    }
++
++    public java.lang.Iterable<java.nio.file.FileStore> getFileStores() {
++        return java.util.List.of((java.lang.Object)this.store);
++    }
++
++    public java.util.Set<java.lang.String> supportedFileAttributeViews() {
++        return VIEWS;
++    }
++
++    public java.nio.file.Path getPath(java.lang.String $$0, java.lang.String ... $$1) {
++        java.lang.String $$3;
++        java.util.stream.Stream $$2 = java.util.stream.Stream.of((java.lang.Object)$$0);
++        if ($$1.length > 0) {
++            $$2 = java.util.stream.Stream.concat((java.util.stream.Stream)$$2, (java.util.stream.Stream)java.util.stream.Stream.of((java.lang.Object[])$$1));
++        }
++        if (($$3 = (java.lang.String)$$2.collect(java.util.stream.Collectors.joining((java.lang.CharSequence)"/"))).equals((java.lang.Object)"/")) {
++            return this.root;
++        }
++        if ($$3.startsWith("/")) {
++            net.minecraft.server.packs.linkfs.LinkFSPath $$4 = this.root;
++            for (java.lang.String $$5 : PATH_SPLITTER.split((java.lang.CharSequence)$$3.substring(1))) {
++                if ($$5.isEmpty()) {
++                    throw new java.lang.IllegalArgumentException("Empty paths not allowed");
++                }
++                $$4 = $$4.resolveName($$5);
++            }
++            return $$4;
++        }
++        net.minecraft.server.packs.linkfs.LinkFSPath $$6 = null;
++        for (java.lang.String $$7 : PATH_SPLITTER.split((java.lang.CharSequence)$$3)) {
++            if ($$7.isEmpty()) {
++                throw new java.lang.IllegalArgumentException("Empty paths not allowed");
++            }
++            $$6 = new net.minecraft.server.packs.linkfs.LinkFSPath(this, $$7, $$6, net.minecraft.server.packs.linkfs.PathContents.RELATIVE);
++        }
++        if ($$6 == null) {
++            throw new java.lang.IllegalArgumentException("Empty paths not allowed");
++        }
++        return $$6;
++    }
++
++    public java.nio.file.PathMatcher getPathMatcher(java.lang.String $$0) {
++        throw new java.lang.UnsupportedOperationException();
++    }
++
++    public java.nio.file.attribute.UserPrincipalLookupService getUserPrincipalLookupService() {
++        throw new java.lang.UnsupportedOperationException();
++    }
++
++    public java.nio.file.WatchService newWatchService() {
++        throw new java.lang.UnsupportedOperationException();
++    }
++
++    public java.nio.file.FileStore store() {
++        return this.store;
++    }
++
++    public net.minecraft.server.packs.linkfs.LinkFSPath rootPath() {
++        return this.root;
++    }
++
++    public static net.minecraft.server.packs.linkfs.LinkFileSystem$Builder builder() {
++        return new net.minecraft.server.packs.linkfs.LinkFileSystem$Builder();
++    }
++
++    static {
++        VIEWS = java.util.Set.of((java.lang.Object)"basic");
++        PATH_SPLITTER = com.google.common.base.Splitter.on((char)'/');
++    }
++}
++

@@ -1,0 +1,53 @@
+--- net/minecraft/server/packs/resources/MultiPackResourceManager.java
++++ net/minecraft/server/packs/resources/MultiPackResourceManager.java
+@@ -36,7 +36,7 @@
+                     $$11.push($$4);
+                     continue;
+                 }
+-                $$11.pushFilterOnly($$4.getName(), $$7);
++                $$11.pushFilterOnly($$4.packId(), $$7);
+             }
+         }
+         this.namespacedManagers = $$2;
+@@ -45,10 +45,10 @@
+     @javax.annotation.Nullable
+     public net.minecraft.server.packs.resources.ResourceFilterSection getPackFilterSection(net.minecraft.server.packs.PackResources $$0) {
+         try {
+-            return (net.minecraft.server.packs.resources.ResourceFilterSection)$$0.getMetadataSection(net.minecraft.server.packs.resources.ResourceFilterSection.SERIALIZER);
++            return (net.minecraft.server.packs.resources.ResourceFilterSection)$$0.getMetadataSection((net.minecraft.server.packs.metadata.MetadataSectionSerializer)net.minecraft.server.packs.resources.ResourceFilterSection.TYPE);
+         }
+         catch (java.io.IOException $$1) {
+-            LOGGER.error("Failed to get filter section from pack {}", (java.lang.Object)$$0.getName());
++            LOGGER.error("Failed to get filter section from pack {}", (java.lang.Object)$$0.packId());
+             return null;
+         }
+     }
+@@ -74,6 +74,7 @@
+     }
+ 
+     public java.util.Map<net.minecraft.resources.ResourceLocation, net.minecraft.server.packs.resources.Resource> listResources(java.lang.String $$0, java.util.function.Predicate<net.minecraft.resources.ResourceLocation> $$1) {
++        net.minecraft.server.packs.resources.MultiPackResourceManager.checkTrailingDirectoryPath((java.lang.String)$$0);
+         java.util.TreeMap $$2 = new java.util.TreeMap();
+         for (net.minecraft.server.packs.resources.FallbackResourceManager $$3 : this.namespacedManagers.values()) {
+             $$2.putAll($$3.listResources($$0, $$1));
+@@ -82,6 +83,7 @@
+     }
+ 
+     public java.util.Map<net.minecraft.resources.ResourceLocation, java.util.List<net.minecraft.server.packs.resources.Resource>> listResourceStacks(java.lang.String $$0, java.util.function.Predicate<net.minecraft.resources.ResourceLocation> $$1) {
++        net.minecraft.server.packs.resources.MultiPackResourceManager.checkTrailingDirectoryPath((java.lang.String)$$0);
+         java.util.TreeMap $$2 = new java.util.TreeMap();
+         for (net.minecraft.server.packs.resources.FallbackResourceManager $$3 : this.namespacedManagers.values()) {
+             $$2.putAll($$3.listResourceStacks($$0, $$1));
+@@ -89,6 +91,12 @@
+         return $$2;
+     }
+ 
++    public static void checkTrailingDirectoryPath(java.lang.String $$0) {
++        if ($$0.endsWith("/")) {
++            throw new java.lang.IllegalArgumentException("Trailing slash in path " + $$0);
++        }
++    }
++
+     public java.util.stream.Stream<net.minecraft.server.packs.PackResources> listPacks() {
+         return this.packs.stream();
+     }

@@ -1,0 +1,54 @@
+--- net/minecraft/world/item/InstrumentItem.java
++++ net/minecraft/world/item/InstrumentItem.java
+@@ -31,9 +31,7 @@
+ 
+     public static void setRandom(net.minecraft.world.item.ItemStack $$0, net.minecraft.tags.TagKey<net.minecraft.world.item.Instrument> $$12, net.minecraft.util.RandomSource $$2) {
+         java.util.Optional $$3 = net.minecraft.core.Registry.INSTRUMENT.getTag($$12).flatMap($$1 -> $$1.getRandomElement($$2));
+-        if ($$3.isPresent()) {
+-            net.minecraft.world.item.InstrumentItem.setSoundVariantId((net.minecraft.world.item.ItemStack)$$0, (net.minecraft.core.Holder)((net.minecraft.core.Holder)$$3.get()));
+-        }
++        $$3.ifPresent($$1 -> net.minecraft.world.item.InstrumentItem.setSoundVariantId((net.minecraft.world.item.ItemStack)$$0, (net.minecraft.core.Holder)$$1));
+     }
+ 
+     public static void setSoundVariantId(net.minecraft.world.item.ItemStack $$0, net.minecraft.core.Holder<net.minecraft.world.item.Instrument> $$1) {
+@@ -41,14 +39,6 @@
+         $$2.putString("instrument", ((net.minecraft.resources.ResourceKey)$$1.unwrapKey().orElseThrow(() -> new java.lang.IllegalStateException("Invalid instrument"))).location().toString());
+     }
+ 
+-    public void fillItemCategory(net.minecraft.world.item.CreativeModeTab $$0, net.minecraft.core.NonNullList<net.minecraft.world.item.ItemStack> $$1) {
+-        if (this.allowedIn($$0)) {
+-            for (net.minecraft.core.Holder $$2 : net.minecraft.core.Registry.INSTRUMENT.getTagOrEmpty(this.instruments)) {
+-                $$1.add((java.lang.Object)net.minecraft.world.item.InstrumentItem.create((net.minecraft.world.item.Item)net.minecraft.world.item.Items.GOAT_HORN, (net.minecraft.core.Holder)$$2));
+-            }
+-        }
+-    }
+-
+     public net.minecraft.world.InteractionResultHolder<net.minecraft.world.item.ItemStack> use(net.minecraft.world.level.Level $$0, net.minecraft.world.entity.player.Player $$1, net.minecraft.world.InteractionHand $$2) {
+         net.minecraft.world.item.ItemStack $$3 = $$1.getItemInHand($$2);
+         java.util.Optional $$4 = this.getInstrument($$3);
+@@ -57,20 +47,18 @@
+             $$1.startUsingItem($$2);
+             net.minecraft.world.item.InstrumentItem.play((net.minecraft.world.level.Level)$$0, (net.minecraft.world.entity.player.Player)$$1, (net.minecraft.world.item.Instrument)$$5);
+             $$1.getCooldowns().addCooldown((net.minecraft.world.item.Item)this, $$5.useDuration());
++            $$1.awardStat(net.minecraft.stats.Stats.ITEM_USED.get((java.lang.Object)this));
+             return net.minecraft.world.InteractionResultHolder.consume((java.lang.Object)$$3);
+         }
+         return net.minecraft.world.InteractionResultHolder.fail((java.lang.Object)$$3);
+     }
+ 
+-    public int getUseDuration(net.minecraft.world.item.ItemStack $$0) {
+-        java.util.Optional $$1 = this.getInstrument($$0);
+-        if ($$1.isPresent()) {
+-            return ((net.minecraft.world.item.Instrument)((net.minecraft.core.Holder)$$1.get()).value()).useDuration();
+-        }
+-        return 0;
++    public int getUseDuration(net.minecraft.world.item.ItemStack $$02) {
++        java.util.Optional $$1 = this.getInstrument($$02);
++        return (java.lang.Integer)$$1.map($$0 -> ((net.minecraft.world.item.Instrument)$$0.value()).useDuration()).orElse((java.lang.Object)0);
+     }
+ 
+-    public java.util.Optional<net.minecraft.core.Holder<net.minecraft.world.item.Instrument>> getInstrument(net.minecraft.world.item.ItemStack $$0) {
++    public java.util.Optional<? extends net.minecraft.core.Holder<net.minecraft.world.item.Instrument>> getInstrument(net.minecraft.world.item.ItemStack $$0) {
+         net.minecraft.resources.ResourceLocation $$2;
+         net.minecraft.nbt.CompoundTag $$1 = $$0.getTag();
+         if ($$1 != null && ($$2 = net.minecraft.resources.ResourceLocation.tryParse((java.lang.String)$$1.getString("instrument"))) != null) {

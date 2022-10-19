@@ -1,0 +1,208 @@
+--- net/minecraft/world/item/SpawnEggItem.java
++++ net/minecraft/world/item/SpawnEggItem.java
+@@ -11,119 +11,133 @@
+     public int highlightColor;
+     public net.minecraft.world.entity.EntityType<?> defaultType;
+ 
+-    public net.minecraft.world.item.SpawnEggItem(net.minecraft.world.entity.EntityType<? extends net.minecraft.world.entity.Mob> defaultType, int backgroundColor, int highlightColor, net.minecraft.world.item.Item$Properties properties) {
+-        super(properties);
+-        this.defaultType = defaultType;
+-        this.backgroundColor = backgroundColor;
+-        this.highlightColor = highlightColor;
+-        BY_ID.put(defaultType, (java.lang.Object)this);
++    public net.minecraft.world.item.SpawnEggItem(net.minecraft.world.entity.EntityType<? extends net.minecraft.world.entity.Mob> $$0, int $$1, int $$2, net.minecraft.world.item.Item$Properties $$3) {
++        super($$3);
++        this.defaultType = $$0;
++        this.backgroundColor = $$1;
++        this.highlightColor = $$2;
++        BY_ID.put($$0, (java.lang.Object)this);
+     }
+ 
+-    public net.minecraft.world.InteractionResult useOn(net.minecraft.world.item.context.UseOnContext context) {
+-        net.minecraft.world.level.block.entity.BlockEntity blockEntity;
+-        net.minecraft.world.level.Level level = context.getLevel();
+-        if (!(level instanceof net.minecraft.server.level.ServerLevel)) {
++    public net.minecraft.world.InteractionResult useOn(net.minecraft.world.item.context.UseOnContext $$0) {
++        net.minecraft.core.BlockPos $$10;
++        net.minecraft.world.level.block.entity.BlockEntity $$6;
++        net.minecraft.world.level.Level $$1 = $$0.getLevel();
++        if (!($$1 instanceof net.minecraft.server.level.ServerLevel)) {
+             return net.minecraft.world.InteractionResult.SUCCESS;
+         }
+-        net.minecraft.world.item.ItemStack itemStack = context.getItemInHand();
+-        net.minecraft.core.BlockPos blockPos = context.getClickedPos();
+-        net.minecraft.core.Direction direction = context.getClickedFace();
+-        net.minecraft.world.level.block.state.BlockState blockState = level.getBlockState(blockPos);
+-        if (blockState.is(net.minecraft.world.level.block.Blocks.SPAWNER) && (blockEntity = level.getBlockEntity(blockPos)) instanceof net.minecraft.world.level.block.entity.SpawnerBlockEntity) {
+-            net.minecraft.world.level.BaseSpawner baseSpawner = ((net.minecraft.world.level.block.entity.SpawnerBlockEntity)blockEntity).getSpawner();
+-            net.minecraft.world.entity.EntityType entityType = this.getType(itemStack.getTag());
+-            baseSpawner.setEntityId(entityType);
+-            blockEntity.setChanged();
+-            level.sendBlockUpdated(blockPos, blockState, blockState, 3);
+-            level.gameEvent((net.minecraft.world.entity.Entity)context.getPlayer(), net.minecraft.world.level.gameevent.GameEvent.BLOCK_CHANGE, blockPos);
+-            itemStack.shrink(1);
++        net.minecraft.world.item.ItemStack $$2 = $$0.getItemInHand();
++        net.minecraft.core.BlockPos $$3 = $$0.getClickedPos();
++        net.minecraft.core.Direction $$4 = $$0.getClickedFace();
++        net.minecraft.world.level.block.state.BlockState $$5 = $$1.getBlockState($$3);
++        if ($$5.is(net.minecraft.world.level.block.Blocks.SPAWNER) && ($$6 = $$1.getBlockEntity($$3)) instanceof net.minecraft.world.level.block.entity.SpawnerBlockEntity) {
++            net.minecraft.world.level.BaseSpawner $$7 = ((net.minecraft.world.level.block.entity.SpawnerBlockEntity)$$6).getSpawner();
++            net.minecraft.world.entity.EntityType $$8 = this.getType($$2.getTag());
++            $$7.setEntityId($$8);
++            $$6.setChanged();
++            $$1.sendBlockUpdated($$3, $$5, $$5, 3);
++            $$1.gameEvent((net.minecraft.world.entity.Entity)$$0.getPlayer(), net.minecraft.world.level.gameevent.GameEvent.BLOCK_CHANGE, $$3);
++            $$2.shrink(1);
+             return net.minecraft.world.InteractionResult.CONSUME;
+         }
+-        blockEntity = blockState.getCollisionShape((net.minecraft.world.level.BlockGetter)level, blockPos).isEmpty() ? blockPos : blockPos.relative(direction);
+-        net.minecraft.world.entity.EntityType entityType = this.getType(itemStack.getTag());
+-        if (entityType.spawn((net.minecraft.server.level.ServerLevel)level, itemStack, context.getPlayer(), (net.minecraft.core.BlockPos)blockEntity, net.minecraft.world.entity.MobSpawnType.SPAWN_EGG, true, !java.util.Objects.equals((java.lang.Object)blockPos, (java.lang.Object)blockEntity) && direction == net.minecraft.core.Direction.UP) != null) {
+-            itemStack.shrink(1);
+-            level.gameEvent((net.minecraft.world.entity.Entity)context.getPlayer(), net.minecraft.world.level.gameevent.GameEvent.ENTITY_PLACE, blockPos);
++        if ($$5.getCollisionShape((net.minecraft.world.level.BlockGetter)$$1, $$3).isEmpty()) {
++            net.minecraft.core.BlockPos $$9 = $$3;
++        } else {
++            $$10 = $$3.relative($$4);
+         }
++        net.minecraft.world.entity.EntityType $$11 = this.getType($$2.getTag());
++        if ($$11.spawn((net.minecraft.server.level.ServerLevel)$$1, $$2, $$0.getPlayer(), $$10, net.minecraft.world.entity.MobSpawnType.SPAWN_EGG, true, !java.util.Objects.equals((java.lang.Object)$$3, (java.lang.Object)$$10) && $$4 == net.minecraft.core.Direction.UP) != null) {
++            $$2.shrink(1);
++            $$1.gameEvent((net.minecraft.world.entity.Entity)$$0.getPlayer(), net.minecraft.world.level.gameevent.GameEvent.ENTITY_PLACE, $$3);
++        }
+         return net.minecraft.world.InteractionResult.CONSUME;
+     }
+ 
+-    public net.minecraft.world.InteractionResultHolder<net.minecraft.world.item.ItemStack> use(net.minecraft.world.level.Level level, net.minecraft.world.entity.player.Player player, net.minecraft.world.InteractionHand hand) {
+-        net.minecraft.world.item.ItemStack itemStack = player.getItemInHand(hand);
+-        net.minecraft.world.phys.BlockHitResult blockHitResult = net.minecraft.world.item.SpawnEggItem.getPlayerPOVHitResult((net.minecraft.world.level.Level)level, (net.minecraft.world.entity.player.Player)player, (net.minecraft.world.level.ClipContext$Fluid)net.minecraft.world.level.ClipContext$Fluid.SOURCE_ONLY);
+-        if (blockHitResult.getType() != net.minecraft.world.phys.HitResult$Type.BLOCK) {
+-            return net.minecraft.world.InteractionResultHolder.pass((java.lang.Object)itemStack);
++    public net.minecraft.world.InteractionResultHolder<net.minecraft.world.item.ItemStack> use(net.minecraft.world.level.Level $$0, net.minecraft.world.entity.player.Player $$1, net.minecraft.world.InteractionHand $$2) {
++        net.minecraft.world.item.ItemStack $$3 = $$1.getItemInHand($$2);
++        net.minecraft.world.phys.BlockHitResult $$4 = net.minecraft.world.item.SpawnEggItem.getPlayerPOVHitResult((net.minecraft.world.level.Level)$$0, (net.minecraft.world.entity.player.Player)$$1, (net.minecraft.world.level.ClipContext$Fluid)net.minecraft.world.level.ClipContext$Fluid.SOURCE_ONLY);
++        if ($$4.getType() != net.minecraft.world.phys.HitResult$Type.BLOCK) {
++            return net.minecraft.world.InteractionResultHolder.pass((java.lang.Object)$$3);
+         }
+-        if (!(level instanceof net.minecraft.server.level.ServerLevel)) {
+-            return net.minecraft.world.InteractionResultHolder.success((java.lang.Object)itemStack);
++        if (!($$0 instanceof net.minecraft.server.level.ServerLevel)) {
++            return net.minecraft.world.InteractionResultHolder.success((java.lang.Object)$$3);
+         }
+-        net.minecraft.world.phys.BlockHitResult blockHitResult2 = blockHitResult;
+-        net.minecraft.core.BlockPos blockPos = blockHitResult2.getBlockPos();
+-        if (!(level.getBlockState(blockPos).getBlock() instanceof net.minecraft.world.level.block.LiquidBlock)) {
+-            return net.minecraft.world.InteractionResultHolder.pass((java.lang.Object)itemStack);
++        net.minecraft.world.phys.BlockHitResult $$5 = $$4;
++        net.minecraft.core.BlockPos $$6 = $$5.getBlockPos();
++        if (!($$0.getBlockState($$6).getBlock() instanceof net.minecraft.world.level.block.LiquidBlock)) {
++            return net.minecraft.world.InteractionResultHolder.pass((java.lang.Object)$$3);
+         }
+-        if (!level.mayInteract(player, blockPos) || !player.mayUseItemAt(blockPos, blockHitResult2.getDirection(), itemStack)) {
+-            return net.minecraft.world.InteractionResultHolder.fail((java.lang.Object)itemStack);
++        if (!$$0.mayInteract($$1, $$6) || !$$1.mayUseItemAt($$6, $$5.getDirection(), $$3)) {
++            return net.minecraft.world.InteractionResultHolder.fail((java.lang.Object)$$3);
+         }
+-        net.minecraft.world.entity.EntityType entityType = this.getType(itemStack.getTag());
+-        net.minecraft.world.entity.Entity entity = entityType.spawn((net.minecraft.server.level.ServerLevel)level, itemStack, player, blockPos, net.minecraft.world.entity.MobSpawnType.SPAWN_EGG, false, false);
+-        if (entity == null) {
+-            return net.minecraft.world.InteractionResultHolder.pass((java.lang.Object)itemStack);
++        net.minecraft.world.entity.EntityType $$7 = this.getType($$3.getTag());
++        net.minecraft.world.entity.Entity $$8 = $$7.spawn((net.minecraft.server.level.ServerLevel)$$0, $$3, $$1, $$6, net.minecraft.world.entity.MobSpawnType.SPAWN_EGG, false, false);
++        if ($$8 == null) {
++            return net.minecraft.world.InteractionResultHolder.pass((java.lang.Object)$$3);
+         }
+-        if (!player.getAbilities().instabuild) {
+-            itemStack.shrink(1);
++        if (!$$1.getAbilities().instabuild) {
++            $$3.shrink(1);
+         }
+-        player.awardStat(net.minecraft.stats.Stats.ITEM_USED.get((java.lang.Object)this));
+-        level.gameEvent((net.minecraft.world.entity.Entity)player, net.minecraft.world.level.gameevent.GameEvent.ENTITY_PLACE, entity.position());
+-        return net.minecraft.world.InteractionResultHolder.consume((java.lang.Object)itemStack);
++        $$1.awardStat(net.minecraft.stats.Stats.ITEM_USED.get((java.lang.Object)this));
++        $$0.gameEvent((net.minecraft.world.entity.Entity)$$1, net.minecraft.world.level.gameevent.GameEvent.ENTITY_PLACE, $$8.position());
++        return net.minecraft.world.InteractionResultHolder.consume((java.lang.Object)$$3);
+     }
+ 
+-    public boolean spawnsEntity(@javax.annotation.Nullable net.minecraft.nbt.CompoundTag nbt, net.minecraft.world.entity.EntityType<?> type) {
+-        return java.util.Objects.equals((java.lang.Object)this.getType(nbt), type);
++    public boolean spawnsEntity(@javax.annotation.Nullable net.minecraft.nbt.CompoundTag $$0, net.minecraft.world.entity.EntityType<?> $$1) {
++        return java.util.Objects.equals((java.lang.Object)this.getType($$0), $$1);
+     }
+ 
+-    public int getColor(int tintIndex) {
+-        return tintIndex == 0 ? this.backgroundColor : this.highlightColor;
++    public int getColor(int $$0) {
++        return $$0 == 0 ? this.backgroundColor : this.highlightColor;
+     }
+ 
+     @javax.annotation.Nullable
+-    public static net.minecraft.world.item.SpawnEggItem byId(@javax.annotation.Nullable net.minecraft.world.entity.EntityType<?> type) {
+-        return (net.minecraft.world.item.SpawnEggItem)BY_ID.get(type);
++    public static net.minecraft.world.item.SpawnEggItem byId(@javax.annotation.Nullable net.minecraft.world.entity.EntityType<?> $$0) {
++        return (net.minecraft.world.item.SpawnEggItem)BY_ID.get($$0);
+     }
+ 
+     public static java.lang.Iterable<net.minecraft.world.item.SpawnEggItem> eggs() {
+         return com.google.common.collect.Iterables.unmodifiableIterable((java.lang.Iterable)BY_ID.values());
+     }
+ 
+-    public net.minecraft.world.entity.EntityType<?> getType(@javax.annotation.Nullable net.minecraft.nbt.CompoundTag nbt) {
+-        net.minecraft.nbt.CompoundTag compoundTag;
+-        if (nbt != null && nbt.contains("EntityTag", 10) && (compoundTag = nbt.getCompound("EntityTag")).contains("id", 8)) {
+-            return (net.minecraft.world.entity.EntityType)net.minecraft.world.entity.EntityType.byString((java.lang.String)compoundTag.getString("id")).orElse((java.lang.Object)this.defaultType);
++    public net.minecraft.world.entity.EntityType<?> getType(@javax.annotation.Nullable net.minecraft.nbt.CompoundTag $$0) {
++        net.minecraft.nbt.CompoundTag $$1;
++        if ($$0 != null && $$0.contains("EntityTag", 10) && ($$1 = $$0.getCompound("EntityTag")).contains("id", 8)) {
++            return (net.minecraft.world.entity.EntityType)net.minecraft.world.entity.EntityType.byString((java.lang.String)$$1.getString("id")).orElse((java.lang.Object)this.defaultType);
+         }
+         return this.defaultType;
+     }
+ 
+-    public java.util.Optional<net.minecraft.world.entity.Mob> spawnOffspringFromSpawnEgg(net.minecraft.world.entity.player.Player player, net.minecraft.world.entity.Mob mob, net.minecraft.world.entity.EntityType<? extends net.minecraft.world.entity.Mob> entityType, net.minecraft.server.level.ServerLevel serverLevel, net.minecraft.world.phys.Vec3 pos, net.minecraft.world.item.ItemStack stack) {
+-        if (!this.spawnsEntity(stack.getTag(), entityType)) {
++    public net.minecraft.world.flag.FeatureFlagSet requiredFeatures() {
++        return this.defaultType.requiredFeatures();
++    }
++
++    public java.util.Optional<net.minecraft.world.entity.Mob> spawnOffspringFromSpawnEgg(net.minecraft.world.entity.player.Player $$0, net.minecraft.world.entity.Mob $$1, net.minecraft.world.entity.EntityType<? extends net.minecraft.world.entity.Mob> $$2, net.minecraft.server.level.ServerLevel $$3, net.minecraft.world.phys.Vec3 $$4, net.minecraft.world.item.ItemStack $$5) {
++        net.minecraft.world.entity.Mob $$7;
++        if (!this.spawnsEntity($$5.getTag(), $$2)) {
+             return java.util.Optional.empty();
+         }
+-        java.lang.Object object = mob instanceof net.minecraft.world.entity.AgeableMob ? ((net.minecraft.world.entity.AgeableMob)mob).getBreedOffspring(serverLevel, (net.minecraft.world.entity.AgeableMob)mob) : (net.minecraft.world.entity.Mob)entityType.create((net.minecraft.world.level.Level)serverLevel);
+-        if (object == null) {
++        if ($$1 instanceof net.minecraft.world.entity.AgeableMob) {
++            net.minecraft.world.entity.AgeableMob $$6 = ((net.minecraft.world.entity.AgeableMob)$$1).getBreedOffspring($$3, (net.minecraft.world.entity.AgeableMob)$$1);
++        } else {
++            $$7 = (net.minecraft.world.entity.Mob)$$2.create((net.minecraft.world.level.Level)$$3);
++        }
++        if ($$7 == null) {
+             return java.util.Optional.empty();
+         }
+-        object.setBaby(true);
+-        if (!object.isBaby()) {
++        $$7.setBaby(true);
++        if (!$$7.isBaby()) {
+             return java.util.Optional.empty();
+         }
+-        object.moveTo(pos.x(), pos.y(), pos.z(), 0.0f, 0.0f);
+-        serverLevel.addFreshEntityWithPassengers((net.minecraft.world.entity.Entity)object);
+-        if (stack.hasCustomHoverName()) {
+-            object.setCustomName(stack.getHoverName());
++        $$7.moveTo($$4.x(), $$4.y(), $$4.z(), 0.0f, 0.0f);
++        $$3.addFreshEntityWithPassengers((net.minecraft.world.entity.Entity)$$7);
++        if ($$5.hasCustomHoverName()) {
++            $$7.setCustomName($$5.getHoverName());
+         }
+-        if (!player.getAbilities().instabuild) {
+-            stack.shrink(1);
++        if (!$$0.getAbilities().instabuild) {
++            $$5.shrink(1);
+         }
+-        return java.util.Optional.of((java.lang.Object)object);
++        return java.util.Optional.of((java.lang.Object)$$7);
+     }
+ 
+     static {

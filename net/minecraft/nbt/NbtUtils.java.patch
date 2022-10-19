@@ -1,0 +1,321 @@
+--- net/minecraft/nbt/NbtUtils.java
++++ net/minecraft/nbt/NbtUtils.java
+@@ -22,178 +22,183 @@
+     }
+ 
+     @javax.annotation.Nullable
+-    public static com.mojang.authlib.GameProfile readGameProfile(net.minecraft.nbt.CompoundTag tag) {
+-        java.lang.String string = null;
+-        java.util.UUID uUID = null;
+-        if (tag.contains("Name", 8)) {
+-            string = tag.getString("Name");
++    public static com.mojang.authlib.GameProfile readGameProfile(net.minecraft.nbt.CompoundTag $$0) {
++        java.lang.String $$1 = null;
++        java.util.UUID $$2 = null;
++        if ($$0.contains("Name", 8)) {
++            $$1 = $$0.getString("Name");
+         }
+-        if (tag.hasUUID("Id")) {
+-            uUID = tag.getUUID("Id");
++        if ($$0.hasUUID("Id")) {
++            $$2 = $$0.getUUID("Id");
+         }
+         try {
+-            com.mojang.authlib.GameProfile gameProfile = new com.mojang.authlib.GameProfile(uUID, string);
+-            if (tag.contains("Properties", 10)) {
+-                net.minecraft.nbt.CompoundTag compoundTag = tag.getCompound("Properties");
+-                for (java.lang.String string2 : compoundTag.getAllKeys()) {
+-                    net.minecraft.nbt.ListTag listTag = compoundTag.getList(string2, 10);
+-                    for (int i = 0; i < listTag.size(); ++i) {
+-                        net.minecraft.nbt.CompoundTag compoundTag2 = listTag.getCompound(i);
+-                        java.lang.String string3 = compoundTag2.getString("Value");
+-                        if (compoundTag2.contains("Signature", 8)) {
+-                            gameProfile.getProperties().put((java.lang.Object)string2, (java.lang.Object)new com.mojang.authlib.properties.Property(string2, string3, compoundTag2.getString("Signature")));
++            com.mojang.authlib.GameProfile $$3 = new com.mojang.authlib.GameProfile($$2, $$1);
++            if ($$0.contains("Properties", 10)) {
++                net.minecraft.nbt.CompoundTag $$4 = $$0.getCompound("Properties");
++                for (java.lang.String $$5 : $$4.getAllKeys()) {
++                    net.minecraft.nbt.ListTag $$6 = $$4.getList($$5, 10);
++                    for (int $$7 = 0; $$7 < $$6.size(); ++$$7) {
++                        net.minecraft.nbt.CompoundTag $$8 = $$6.getCompound($$7);
++                        java.lang.String $$9 = $$8.getString("Value");
++                        if ($$8.contains("Signature", 8)) {
++                            $$3.getProperties().put((java.lang.Object)$$5, (java.lang.Object)new com.mojang.authlib.properties.Property($$5, $$9, $$8.getString("Signature")));
+                             continue;
+                         }
+-                        gameProfile.getProperties().put((java.lang.Object)string2, (java.lang.Object)new com.mojang.authlib.properties.Property(string2, string3));
++                        $$3.getProperties().put((java.lang.Object)$$5, (java.lang.Object)new com.mojang.authlib.properties.Property($$5, $$9));
+                     }
+                 }
+             }
+-            return gameProfile;
++            return $$3;
+         }
+         catch (java.lang.Throwable throwable) {
+             return null;
+         }
+     }
+ 
+-    public static net.minecraft.nbt.CompoundTag writeGameProfile(net.minecraft.nbt.CompoundTag tag, com.mojang.authlib.GameProfile profile) {
+-        if (!net.minecraft.util.StringUtil.isNullOrEmpty((java.lang.String)profile.getName())) {
+-            tag.putString("Name", profile.getName());
++    public static net.minecraft.nbt.CompoundTag writeGameProfile(net.minecraft.nbt.CompoundTag $$0, com.mojang.authlib.GameProfile $$1) {
++        if (!net.minecraft.util.StringUtil.isNullOrEmpty((java.lang.String)$$1.getName())) {
++            $$0.putString("Name", $$1.getName());
+         }
+-        if (profile.getId() != null) {
+-            tag.putUUID("Id", profile.getId());
++        if ($$1.getId() != null) {
++            $$0.putUUID("Id", $$1.getId());
+         }
+-        if (!profile.getProperties().isEmpty()) {
+-            net.minecraft.nbt.CompoundTag compoundTag = new net.minecraft.nbt.CompoundTag();
+-            for (java.lang.String string : profile.getProperties().keySet()) {
+-                net.minecraft.nbt.ListTag listTag = new net.minecraft.nbt.ListTag();
+-                for (com.mojang.authlib.properties.Property property : profile.getProperties().get((java.lang.Object)string)) {
+-                    net.minecraft.nbt.CompoundTag compoundTag2 = new net.minecraft.nbt.CompoundTag();
+-                    compoundTag2.putString("Value", property.getValue());
+-                    if (property.hasSignature()) {
+-                        compoundTag2.putString("Signature", property.getSignature());
++        if (!$$1.getProperties().isEmpty()) {
++            net.minecraft.nbt.CompoundTag $$2 = new net.minecraft.nbt.CompoundTag();
++            for (java.lang.String $$3 : $$1.getProperties().keySet()) {
++                net.minecraft.nbt.ListTag $$4 = new net.minecraft.nbt.ListTag();
++                for (com.mojang.authlib.properties.Property $$5 : $$1.getProperties().get((java.lang.Object)$$3)) {
++                    net.minecraft.nbt.CompoundTag $$6 = new net.minecraft.nbt.CompoundTag();
++                    $$6.putString("Value", $$5.getValue());
++                    if ($$5.hasSignature()) {
++                        $$6.putString("Signature", $$5.getSignature());
+                     }
+-                    listTag.add((java.lang.Object)compoundTag2);
++                    $$4.add((java.lang.Object)$$6);
+                 }
+-                compoundTag.put(string, (net.minecraft.nbt.Tag)listTag);
++                $$2.put($$3, (net.minecraft.nbt.Tag)$$4);
+             }
+-            tag.put("Properties", (net.minecraft.nbt.Tag)compoundTag);
++            $$0.put("Properties", (net.minecraft.nbt.Tag)$$2);
+         }
+-        return tag;
++        return $$0;
+     }
+ 
+     @com.google.common.annotations.VisibleForTesting
+-    public static boolean compareNbt(@javax.annotation.Nullable net.minecraft.nbt.Tag tag, @javax.annotation.Nullable net.minecraft.nbt.Tag other, boolean compareListTag) {
+-        if (tag == other) {
++    public static boolean compareNbt(@javax.annotation.Nullable net.minecraft.nbt.Tag $$0, @javax.annotation.Nullable net.minecraft.nbt.Tag $$1, boolean $$2) {
++        if ($$0 == $$1) {
+             return true;
+         }
+-        if (tag == null) {
++        if ($$0 == null) {
+             return true;
+         }
+-        if (other == null) {
++        if ($$1 == null) {
+             return false;
+         }
+-        if (!tag.getClass().equals((java.lang.Object)other.getClass())) {
++        if (!$$0.getClass().equals((java.lang.Object)$$1.getClass())) {
+             return false;
+         }
+-        if (tag instanceof net.minecraft.nbt.CompoundTag) {
+-            net.minecraft.nbt.CompoundTag compoundTag = (net.minecraft.nbt.CompoundTag)tag;
+-            net.minecraft.nbt.CompoundTag compoundTag2 = (net.minecraft.nbt.CompoundTag)other;
+-            for (java.lang.String string : compoundTag.getAllKeys()) {
+-                net.minecraft.nbt.Tag tag2 = compoundTag.get(string);
+-                if (net.minecraft.nbt.NbtUtils.compareNbt((net.minecraft.nbt.Tag)tag2, (net.minecraft.nbt.Tag)compoundTag2.get(string), (boolean)compareListTag)) continue;
++        if ($$0 instanceof net.minecraft.nbt.CompoundTag) {
++            net.minecraft.nbt.CompoundTag $$3 = (net.minecraft.nbt.CompoundTag)$$0;
++            net.minecraft.nbt.CompoundTag $$4 = (net.minecraft.nbt.CompoundTag)$$1;
++            for (java.lang.String $$5 : $$3.getAllKeys()) {
++                net.minecraft.nbt.Tag $$6 = $$3.get($$5);
++                if (net.minecraft.nbt.NbtUtils.compareNbt((net.minecraft.nbt.Tag)$$6, (net.minecraft.nbt.Tag)$$4.get($$5), (boolean)$$2)) continue;
+                 return false;
+             }
+             return true;
+         }
+-        if (tag instanceof net.minecraft.nbt.ListTag && compareListTag) {
+-            net.minecraft.nbt.ListTag listTag = (net.minecraft.nbt.ListTag)tag;
+-            net.minecraft.nbt.ListTag listTag2 = (net.minecraft.nbt.ListTag)other;
+-            if (listTag.isEmpty()) {
+-                return listTag2.isEmpty();
++        if ($$0 instanceof net.minecraft.nbt.ListTag && $$2) {
++            net.minecraft.nbt.ListTag $$7 = (net.minecraft.nbt.ListTag)$$0;
++            net.minecraft.nbt.ListTag $$8 = (net.minecraft.nbt.ListTag)$$1;
++            if ($$7.isEmpty()) {
++                return $$8.isEmpty();
+             }
+-            for (int i = 0; i < listTag.size(); ++i) {
+-                net.minecraft.nbt.Tag tag3 = listTag.get(i);
+-                boolean bl = false;
+-                for (int j = 0; j < listTag2.size(); ++j) {
+-                    if (!net.minecraft.nbt.NbtUtils.compareNbt((net.minecraft.nbt.Tag)tag3, (net.minecraft.nbt.Tag)listTag2.get(j), (boolean)compareListTag)) continue;
+-                    bl = true;
++            for (int $$9 = 0; $$9 < $$7.size(); ++$$9) {
++                net.minecraft.nbt.Tag $$10 = $$7.get($$9);
++                boolean $$11 = false;
++                for (int $$12 = 0; $$12 < $$8.size(); ++$$12) {
++                    if (!net.minecraft.nbt.NbtUtils.compareNbt((net.minecraft.nbt.Tag)$$10, (net.minecraft.nbt.Tag)$$8.get($$12), (boolean)$$2)) continue;
++                    $$11 = true;
+                     break;
+                 }
+-                if (bl) continue;
++                if ($$11) continue;
+                 return false;
+             }
+             return true;
+         }
+-        return tag.equals((java.lang.Object)other);
++        return $$0.equals((java.lang.Object)$$1);
+     }
+ 
+-    public static net.minecraft.nbt.IntArrayTag createUUID(java.util.UUID uuid) {
+-        return new net.minecraft.nbt.IntArrayTag(net.minecraft.core.UUIDUtil.uuidToIntArray((java.util.UUID)uuid));
++    public static net.minecraft.nbt.IntArrayTag createUUID(java.util.UUID $$0) {
++        return new net.minecraft.nbt.IntArrayTag(net.minecraft.core.UUIDUtil.uuidToIntArray((java.util.UUID)$$0));
+     }
+ 
+-    public static java.util.UUID loadUUID(net.minecraft.nbt.Tag tag) {
+-        if (tag.getType() != net.minecraft.nbt.IntArrayTag.TYPE) {
+-            throw new java.lang.IllegalArgumentException("Expected UUID-Tag to be of type " + net.minecraft.nbt.IntArrayTag.TYPE.getName() + ", but found " + tag.getType().getName() + ".");
++    public static java.util.UUID loadUUID(net.minecraft.nbt.Tag $$0) {
++        if ($$0.getType() != net.minecraft.nbt.IntArrayTag.TYPE) {
++            throw new java.lang.IllegalArgumentException("Expected UUID-Tag to be of type " + net.minecraft.nbt.IntArrayTag.TYPE.getName() + ", but found " + $$0.getType().getName() + ".");
+         }
+-        int[] nArray = ((net.minecraft.nbt.IntArrayTag)tag).getAsIntArray();
+-        if (nArray.length != 4) {
+-            throw new java.lang.IllegalArgumentException("Expected UUID-Array to be of length 4, but found " + nArray.length + ".");
++        int[] $$1 = ((net.minecraft.nbt.IntArrayTag)$$0).getAsIntArray();
++        if ($$1.length != 4) {
++            throw new java.lang.IllegalArgumentException("Expected UUID-Array to be of length 4, but found " + $$1.length + ".");
+         }
+-        return net.minecraft.core.UUIDUtil.uuidFromIntArray((int[])nArray);
++        return net.minecraft.core.UUIDUtil.uuidFromIntArray((int[])$$1);
+     }
+ 
+-    public static net.minecraft.core.BlockPos readBlockPos(net.minecraft.nbt.CompoundTag tag) {
+-        return new net.minecraft.core.BlockPos(tag.getInt("X"), tag.getInt("Y"), tag.getInt("Z"));
++    public static net.minecraft.core.BlockPos readBlockPos(net.minecraft.nbt.CompoundTag $$0) {
++        return new net.minecraft.core.BlockPos($$0.getInt("X"), $$0.getInt("Y"), $$0.getInt("Z"));
+     }
+ 
+-    public static net.minecraft.nbt.CompoundTag writeBlockPos(net.minecraft.core.BlockPos pos) {
+-        net.minecraft.nbt.CompoundTag compoundTag = new net.minecraft.nbt.CompoundTag();
+-        compoundTag.putInt("X", pos.getX());
+-        compoundTag.putInt("Y", pos.getY());
+-        compoundTag.putInt("Z", pos.getZ());
+-        return compoundTag;
++    public static net.minecraft.nbt.CompoundTag writeBlockPos(net.minecraft.core.BlockPos $$0) {
++        net.minecraft.nbt.CompoundTag $$1 = new net.minecraft.nbt.CompoundTag();
++        $$1.putInt("X", $$0.getX());
++        $$1.putInt("Y", $$0.getY());
++        $$1.putInt("Z", $$0.getZ());
++        return $$1;
+     }
+ 
+-    public static net.minecraft.world.level.block.state.BlockState readBlockState(net.minecraft.nbt.CompoundTag tag) {
+-        if (!tag.contains("Name", 8)) {
++    public static net.minecraft.world.level.block.state.BlockState readBlockState(net.minecraft.core.HolderLookup<net.minecraft.world.level.block.Block> $$0, net.minecraft.nbt.CompoundTag $$1) {
++        if (!$$1.contains("Name", 8)) {
+             return net.minecraft.world.level.block.Blocks.AIR.defaultBlockState();
+         }
+-        net.minecraft.world.level.block.Block block = (net.minecraft.world.level.block.Block)net.minecraft.core.Registry.BLOCK.get(new net.minecraft.resources.ResourceLocation(tag.getString("Name")));
+-        net.minecraft.world.level.block.state.BlockState blockState = block.defaultBlockState();
+-        if (tag.contains("Properties", 10)) {
+-            net.minecraft.nbt.CompoundTag compoundTag = tag.getCompound("Properties");
+-            net.minecraft.world.level.block.state.StateDefinition stateDefinition = block.getStateDefinition();
+-            for (java.lang.String string : compoundTag.getAllKeys()) {
+-                net.minecraft.world.level.block.state.properties.Property property = stateDefinition.getProperty(string);
+-                if (property == null) continue;
+-                blockState = (net.minecraft.world.level.block.state.BlockState)net.minecraft.nbt.NbtUtils.setValueHelper((net.minecraft.world.level.block.state.StateHolder)blockState, (net.minecraft.world.level.block.state.properties.Property)property, (java.lang.String)string, (net.minecraft.nbt.CompoundTag)compoundTag, (net.minecraft.nbt.CompoundTag)tag);
++        net.minecraft.resources.ResourceLocation $$2 = new net.minecraft.resources.ResourceLocation($$1.getString("Name"));
++        java.util.Optional $$3 = $$0.get(net.minecraft.resources.ResourceKey.create((net.minecraft.resources.ResourceKey)net.minecraft.core.Registry.BLOCK_REGISTRY, (net.minecraft.resources.ResourceLocation)$$2));
++        if ($$3.isEmpty()) {
++            return net.minecraft.world.level.block.Blocks.AIR.defaultBlockState();
++        }
++        net.minecraft.world.level.block.Block $$4 = (net.minecraft.world.level.block.Block)((net.minecraft.core.Holder)$$3.get()).value();
++        net.minecraft.world.level.block.state.BlockState $$5 = $$4.defaultBlockState();
++        if ($$1.contains("Properties", 10)) {
++            net.minecraft.nbt.CompoundTag $$6 = $$1.getCompound("Properties");
++            net.minecraft.world.level.block.state.StateDefinition $$7 = $$4.getStateDefinition();
++            for (java.lang.String $$8 : $$6.getAllKeys()) {
++                net.minecraft.world.level.block.state.properties.Property $$9 = $$7.getProperty($$8);
++                if ($$9 == null) continue;
++                $$5 = (net.minecraft.world.level.block.state.BlockState)net.minecraft.nbt.NbtUtils.setValueHelper((net.minecraft.world.level.block.state.StateHolder)$$5, (net.minecraft.world.level.block.state.properties.Property)$$9, (java.lang.String)$$8, (net.minecraft.nbt.CompoundTag)$$6, (net.minecraft.nbt.CompoundTag)$$1);
+             }
+         }
+-        return blockState;
++        return $$5;
+     }
+ 
+-    public static <S extends net.minecraft.world.level.block.state.StateHolder<?, S>, T extends java.lang.Comparable<T>> S setValueHelper(S stateHolder, net.minecraft.world.level.block.state.properties.Property<T> property, java.lang.String propertyName, net.minecraft.nbt.CompoundTag propertiesTag, net.minecraft.nbt.CompoundTag blockStateTag) {
+-        java.util.Optional optional = property.getValue(propertiesTag.getString(propertyName));
+-        if (optional.isPresent()) {
+-            return (S)((net.minecraft.world.level.block.state.StateHolder)stateHolder.setValue(property, (java.lang.Comparable)optional.get()));
++    public static <S extends net.minecraft.world.level.block.state.StateHolder<?, S>, T extends java.lang.Comparable<T>> S setValueHelper(S $$0, net.minecraft.world.level.block.state.properties.Property<T> $$1, java.lang.String $$2, net.minecraft.nbt.CompoundTag $$3, net.minecraft.nbt.CompoundTag $$4) {
++        java.util.Optional $$5 = $$1.getValue($$3.getString($$2));
++        if ($$5.isPresent()) {
++            return (S)((net.minecraft.world.level.block.state.StateHolder)$$0.setValue($$1, (java.lang.Comparable)$$5.get()));
+         }
+-        LOGGER.warn("Unable to read property: {} with value: {} for blockstate: {}", new java.lang.Object[]{propertyName, propertiesTag.getString(propertyName), blockStateTag.toString()});
+-        return stateHolder;
++        LOGGER.warn("Unable to read property: {} with value: {} for blockstate: {}", new java.lang.Object[]{$$2, $$3.getString($$2), $$4.toString()});
++        return $$0;
+     }
+ 
+-    public static net.minecraft.nbt.CompoundTag writeBlockState(net.minecraft.world.level.block.state.BlockState state) {
+-        net.minecraft.nbt.CompoundTag compoundTag = new net.minecraft.nbt.CompoundTag();
+-        compoundTag.putString("Name", net.minecraft.core.Registry.BLOCK.getKey((java.lang.Object)state.getBlock()).toString());
+-        com.google.common.collect.ImmutableMap immutableMap = state.getValues();
+-        if (!immutableMap.isEmpty()) {
+-            net.minecraft.nbt.CompoundTag compoundTag2 = new net.minecraft.nbt.CompoundTag();
+-            for (java.util.Map$Entry entry : immutableMap.entrySet()) {
+-                net.minecraft.world.level.block.state.properties.Property property = (net.minecraft.world.level.block.state.properties.Property)entry.getKey();
+-                compoundTag2.putString(property.getName(), net.minecraft.nbt.NbtUtils.getName((net.minecraft.world.level.block.state.properties.Property)property, (java.lang.Comparable)((java.lang.Comparable)entry.getValue())));
++    public static net.minecraft.nbt.CompoundTag writeBlockState(net.minecraft.world.level.block.state.BlockState $$0) {
++        net.minecraft.nbt.CompoundTag $$1 = new net.minecraft.nbt.CompoundTag();
++        $$1.putString("Name", net.minecraft.core.Registry.BLOCK.getKey((java.lang.Object)$$0.getBlock()).toString());
++        com.google.common.collect.ImmutableMap $$2 = $$0.getValues();
++        if (!$$2.isEmpty()) {
++            net.minecraft.nbt.CompoundTag $$3 = new net.minecraft.nbt.CompoundTag();
++            for (java.util.Map$Entry $$4 : $$2.entrySet()) {
++                net.minecraft.world.level.block.state.properties.Property $$5 = (net.minecraft.world.level.block.state.properties.Property)$$4.getKey();
++                $$3.putString($$5.getName(), net.minecraft.nbt.NbtUtils.getName((net.minecraft.world.level.block.state.properties.Property)$$5, (java.lang.Comparable)((java.lang.Comparable)$$4.getValue())));
+             }
+-            compoundTag.put("Properties", (net.minecraft.nbt.Tag)compoundTag2);
++            $$1.put("Properties", (net.minecraft.nbt.Tag)$$3);
+         }
+-        return compoundTag;
++        return $$1;
+     }
+ 
+     public static net.minecraft.nbt.CompoundTag writeFluidState(net.minecraft.world.level.material.FluidState $$0) {
+@@ -211,8 +216,8 @@
+         return $$1;
+     }
+ 
+-    public static <T extends java.lang.Comparable<T>> java.lang.String getName(net.minecraft.world.level.block.state.properties.Property<T> property, java.lang.Comparable<?> value) {
+-        return property.getName(value);
++    public static <T extends java.lang.Comparable<T>> java.lang.String getName(net.minecraft.world.level.block.state.properties.Property<T> $$0, java.lang.Comparable<?> $$1) {
++        return $$0.getName($$1);
+     }
+ 
+     public static java.lang.String prettyPrint(net.minecraft.nbt.Tag $$0) {
+@@ -393,12 +398,12 @@
+         return $$1;
+     }
+ 
+-    public static net.minecraft.nbt.CompoundTag update(com.mojang.datafixers.DataFixer dataFixer, net.minecraft.util.datafix.DataFixTypes type, net.minecraft.nbt.CompoundTag compoundTag, int version) {
+-        return net.minecraft.nbt.NbtUtils.update((com.mojang.datafixers.DataFixer)dataFixer, (net.minecraft.util.datafix.DataFixTypes)type, (net.minecraft.nbt.CompoundTag)compoundTag, (int)version, (int)net.minecraft.SharedConstants.getCurrentVersion().getWorldVersion());
++    public static net.minecraft.nbt.CompoundTag update(com.mojang.datafixers.DataFixer $$0, net.minecraft.util.datafix.DataFixTypes $$1, net.minecraft.nbt.CompoundTag $$2, int $$3) {
++        return net.minecraft.nbt.NbtUtils.update((com.mojang.datafixers.DataFixer)$$0, (net.minecraft.util.datafix.DataFixTypes)$$1, (net.minecraft.nbt.CompoundTag)$$2, (int)$$3, (int)net.minecraft.SharedConstants.getCurrentVersion().getWorldVersion());
+     }
+ 
+-    public static net.minecraft.nbt.CompoundTag update(com.mojang.datafixers.DataFixer dataFixer, net.minecraft.util.datafix.DataFixTypes type, net.minecraft.nbt.CompoundTag compoundTag, int version, int newVersion) {
+-        return (net.minecraft.nbt.CompoundTag)dataFixer.update(type.getType(), new com.mojang.serialization.Dynamic((com.mojang.serialization.DynamicOps)net.minecraft.nbt.NbtOps.INSTANCE, (java.lang.Object)compoundTag), version, newVersion).getValue();
++    public static net.minecraft.nbt.CompoundTag update(com.mojang.datafixers.DataFixer $$0, net.minecraft.util.datafix.DataFixTypes $$1, net.minecraft.nbt.CompoundTag $$2, int $$3, int $$4) {
++        return (net.minecraft.nbt.CompoundTag)$$0.update($$1.getType(), new com.mojang.serialization.Dynamic((com.mojang.serialization.DynamicOps)net.minecraft.nbt.NbtOps.INSTANCE, (java.lang.Object)$$2), $$3, $$4).getValue();
+     }
+ 
+     public static net.minecraft.network.chat.Component toPrettyComponent(net.minecraft.nbt.Tag $$0) {

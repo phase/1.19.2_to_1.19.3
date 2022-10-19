@@ -1,0 +1,108 @@
+--- net/minecraft/world/level/block/TargetBlock.java
++++ net/minecraft/world/level/block/TargetBlock.java
+@@ -15,39 +15,46 @@
+         this.registerDefaultState((net.minecraft.world.level.block.state.BlockState)((net.minecraft.world.level.block.state.BlockState)this.stateDefinition.any()).setValue((net.minecraft.world.level.block.state.properties.Property)OUTPUT_POWER, (java.lang.Comparable)java.lang.Integer.valueOf((int)0)));
+     }
+ 
+-    public void onProjectileHit(net.minecraft.world.level.Level level, net.minecraft.world.level.block.state.BlockState state, net.minecraft.world.phys.BlockHitResult hit, net.minecraft.world.entity.projectile.Projectile projectile) {
+-        int n = net.minecraft.world.level.block.TargetBlock.updateRedstoneOutput((net.minecraft.world.level.LevelAccessor)level, (net.minecraft.world.level.block.state.BlockState)state, (net.minecraft.world.phys.BlockHitResult)hit, (net.minecraft.world.entity.Entity)projectile);
+-        net.minecraft.world.entity.Entity entity = projectile.getOwner();
+-        if (entity instanceof net.minecraft.server.level.ServerPlayer) {
+-            net.minecraft.server.level.ServerPlayer serverPlayer = (net.minecraft.server.level.ServerPlayer)entity;
+-            serverPlayer.awardStat(net.minecraft.stats.Stats.TARGET_HIT);
+-            net.minecraft.advancements.CriteriaTriggers.TARGET_BLOCK_HIT.trigger(serverPlayer, (net.minecraft.world.entity.Entity)projectile, hit.getLocation(), n);
++    public void onProjectileHit(net.minecraft.world.level.Level $$0, net.minecraft.world.level.block.state.BlockState $$1, net.minecraft.world.phys.BlockHitResult $$2, net.minecraft.world.entity.projectile.Projectile $$3) {
++        int $$4 = net.minecraft.world.level.block.TargetBlock.updateRedstoneOutput((net.minecraft.world.level.LevelAccessor)$$0, (net.minecraft.world.level.block.state.BlockState)$$1, (net.minecraft.world.phys.BlockHitResult)$$2, (net.minecraft.world.entity.Entity)$$3);
++        net.minecraft.world.entity.Entity $$5 = $$3.getOwner();
++        if ($$5 instanceof net.minecraft.server.level.ServerPlayer) {
++            net.minecraft.server.level.ServerPlayer $$6 = (net.minecraft.server.level.ServerPlayer)$$5;
++            $$6.awardStat(net.minecraft.stats.Stats.TARGET_HIT);
++            net.minecraft.advancements.CriteriaTriggers.TARGET_BLOCK_HIT.trigger($$6, (net.minecraft.world.entity.Entity)$$3, $$2.getLocation(), $$4);
+         }
+     }
+ 
+-    public static int updateRedstoneOutput(net.minecraft.world.level.LevelAccessor level, net.minecraft.world.level.block.state.BlockState state, net.minecraft.world.phys.BlockHitResult hit, net.minecraft.world.entity.Entity projectile) {
+-        int n;
+-        int n2 = net.minecraft.world.level.block.TargetBlock.getRedstoneStrength((net.minecraft.world.phys.BlockHitResult)hit, (net.minecraft.world.phys.Vec3)hit.getLocation());
+-        int n3 = n = projectile instanceof net.minecraft.world.entity.projectile.AbstractArrow ? 20 : 8;
+-        if (!level.getBlockTicks().hasScheduledTick(hit.getBlockPos(), (java.lang.Object)state.getBlock())) {
+-            net.minecraft.world.level.block.TargetBlock.setOutputPower((net.minecraft.world.level.LevelAccessor)level, (net.minecraft.world.level.block.state.BlockState)state, (int)n2, (net.minecraft.core.BlockPos)hit.getBlockPos(), (int)n);
++    public static int updateRedstoneOutput(net.minecraft.world.level.LevelAccessor $$0, net.minecraft.world.level.block.state.BlockState $$1, net.minecraft.world.phys.BlockHitResult $$2, net.minecraft.world.entity.Entity $$3) {
++        int $$5;
++        int $$4 = net.minecraft.world.level.block.TargetBlock.getRedstoneStrength((net.minecraft.world.phys.BlockHitResult)$$2, (net.minecraft.world.phys.Vec3)$$2.getLocation());
++        int n = $$5 = $$3 instanceof net.minecraft.world.entity.projectile.AbstractArrow ? 20 : 8;
++        if (!$$0.getBlockTicks().hasScheduledTick($$2.getBlockPos(), (java.lang.Object)$$1.getBlock())) {
++            net.minecraft.world.level.block.TargetBlock.setOutputPower((net.minecraft.world.level.LevelAccessor)$$0, (net.minecraft.world.level.block.state.BlockState)$$1, (int)$$4, (net.minecraft.core.BlockPos)$$2.getBlockPos(), (int)$$5);
+         }
+-        return n2;
++        return $$4;
+     }
+ 
+-    public static int getRedstoneStrength(net.minecraft.world.phys.BlockHitResult hit, net.minecraft.world.phys.Vec3 hitLocation) {
+-        net.minecraft.core.Direction direction = hit.getDirection();
+-        double d = java.lang.Math.abs((double)(net.minecraft.util.Mth.frac((double)hitLocation.x) - 0.5));
+-        double d2 = java.lang.Math.abs((double)(net.minecraft.util.Mth.frac((double)hitLocation.y) - 0.5));
+-        double d3 = java.lang.Math.abs((double)(net.minecraft.util.Mth.frac((double)hitLocation.z) - 0.5));
+-        net.minecraft.core.Direction$Axis axis = direction.getAxis();
+-        double d4 = axis == net.minecraft.core.Direction$Axis.Y ? java.lang.Math.max((double)d, (double)d3) : (axis == net.minecraft.core.Direction$Axis.Z ? java.lang.Math.max((double)d, (double)d2) : java.lang.Math.max((double)d2, (double)d3));
+-        return java.lang.Math.max((int)1, (int)net.minecraft.util.Mth.ceil((double)(15.0 * net.minecraft.util.Mth.clamp((double)((0.5 - d4) / 0.5), (double)0.0, (double)1.0))));
++    public static int getRedstoneStrength(net.minecraft.world.phys.BlockHitResult $$0, net.minecraft.world.phys.Vec3 $$1) {
++        double $$9;
++        net.minecraft.core.Direction $$2 = $$0.getDirection();
++        double $$3 = java.lang.Math.abs((double)(net.minecraft.util.Mth.frac((double)$$1.x) - 0.5));
++        double $$4 = java.lang.Math.abs((double)(net.minecraft.util.Mth.frac((double)$$1.y) - 0.5));
++        double $$5 = java.lang.Math.abs((double)(net.minecraft.util.Mth.frac((double)$$1.z) - 0.5));
++        net.minecraft.core.Direction$Axis $$6 = $$2.getAxis();
++        if ($$6 == net.minecraft.core.Direction$Axis.Y) {
++            double $$7 = java.lang.Math.max((double)$$3, (double)$$5);
++        } else if ($$6 == net.minecraft.core.Direction$Axis.Z) {
++            double $$8 = java.lang.Math.max((double)$$3, (double)$$4);
++        } else {
++            $$9 = java.lang.Math.max((double)$$4, (double)$$5);
++        }
++        return java.lang.Math.max((int)1, (int)net.minecraft.util.Mth.ceil((double)(15.0 * net.minecraft.util.Mth.clamp((double)((0.5 - $$9) / 0.5), (double)0.0, (double)1.0))));
+     }
+ 
+-    public static void setOutputPower(net.minecraft.world.level.LevelAccessor level, net.minecraft.world.level.block.state.BlockState state, int power, net.minecraft.core.BlockPos pos, int waitTime) {
+-        level.setBlock(pos, (net.minecraft.world.level.block.state.BlockState)state.setValue((net.minecraft.world.level.block.state.properties.Property)OUTPUT_POWER, (java.lang.Comparable)java.lang.Integer.valueOf((int)power)), 3);
+-        level.scheduleTick(pos, state.getBlock(), waitTime);
++    public static void setOutputPower(net.minecraft.world.level.LevelAccessor $$0, net.minecraft.world.level.block.state.BlockState $$1, int $$2, net.minecraft.core.BlockPos $$3, int $$4) {
++        $$0.setBlock($$3, (net.minecraft.world.level.block.state.BlockState)$$1.setValue((net.minecraft.world.level.block.state.properties.Property)OUTPUT_POWER, (java.lang.Comparable)java.lang.Integer.valueOf((int)$$2)), 3);
++        $$0.scheduleTick($$3, $$1.getBlock(), $$4);
+     }
+ 
+     public void tick(net.minecraft.world.level.block.state.BlockState $$0, net.minecraft.server.level.ServerLevel $$1, net.minecraft.core.BlockPos $$2, net.minecraft.util.RandomSource $$3) {
+@@ -56,24 +63,24 @@
+         }
+     }
+ 
+-    public int getSignal(net.minecraft.world.level.block.state.BlockState blockState, net.minecraft.world.level.BlockGetter blockAccess, net.minecraft.core.BlockPos pos, net.minecraft.core.Direction side) {
+-        return (java.lang.Integer)blockState.getValue((net.minecraft.world.level.block.state.properties.Property)OUTPUT_POWER);
++    public int getSignal(net.minecraft.world.level.block.state.BlockState $$0, net.minecraft.world.level.BlockGetter $$1, net.minecraft.core.BlockPos $$2, net.minecraft.core.Direction $$3) {
++        return (java.lang.Integer)$$0.getValue((net.minecraft.world.level.block.state.properties.Property)OUTPUT_POWER);
+     }
+ 
+-    public boolean isSignalSource(net.minecraft.world.level.block.state.BlockState state) {
++    public boolean isSignalSource(net.minecraft.world.level.block.state.BlockState $$0) {
+         return true;
+     }
+ 
+-    public void createBlockStateDefinition(net.minecraft.world.level.block.state.StateDefinition$Builder<net.minecraft.world.level.block.Block, net.minecraft.world.level.block.state.BlockState> builder) {
+-        builder.add(new net.minecraft.world.level.block.state.properties.Property[]{OUTPUT_POWER});
++    public void createBlockStateDefinition(net.minecraft.world.level.block.state.StateDefinition$Builder<net.minecraft.world.level.block.Block, net.minecraft.world.level.block.state.BlockState> $$0) {
++        $$0.add(new net.minecraft.world.level.block.state.properties.Property[]{OUTPUT_POWER});
+     }
+ 
+-    public void onPlace(net.minecraft.world.level.block.state.BlockState state, net.minecraft.world.level.Level level, net.minecraft.core.BlockPos pos, net.minecraft.world.level.block.state.BlockState oldState, boolean isMoving) {
+-        if (level.isClientSide() || state.is(oldState.getBlock())) {
++    public void onPlace(net.minecraft.world.level.block.state.BlockState $$0, net.minecraft.world.level.Level $$1, net.minecraft.core.BlockPos $$2, net.minecraft.world.level.block.state.BlockState $$3, boolean $$4) {
++        if ($$1.isClientSide() || $$0.is($$3.getBlock())) {
+             return;
+         }
+-        if ((java.lang.Integer)state.getValue((net.minecraft.world.level.block.state.properties.Property)OUTPUT_POWER) > 0 && !level.getBlockTicks().hasScheduledTick(pos, (java.lang.Object)this)) {
+-            level.setBlock(pos, (net.minecraft.world.level.block.state.BlockState)state.setValue((net.minecraft.world.level.block.state.properties.Property)OUTPUT_POWER, (java.lang.Comparable)java.lang.Integer.valueOf((int)0)), 18);
++        if ((java.lang.Integer)$$0.getValue((net.minecraft.world.level.block.state.properties.Property)OUTPUT_POWER) > 0 && !$$1.getBlockTicks().hasScheduledTick($$2, (java.lang.Object)this)) {
++            $$1.setBlock($$2, (net.minecraft.world.level.block.state.BlockState)$$0.setValue((net.minecraft.world.level.block.state.properties.Property)OUTPUT_POWER, (java.lang.Comparable)java.lang.Integer.valueOf((int)0)), 18);
+         }
+     }
+ 

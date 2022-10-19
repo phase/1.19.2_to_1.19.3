@@ -1,0 +1,79 @@
+--- net/minecraft/commands/arguments/ParticleArgument.java
++++ net/minecraft/commands/arguments/ParticleArgument.java
+@@ -8,51 +8,58 @@
+  {
+     public static java.util.Collection<java.lang.String> EXAMPLES;
+     public static com.mojang.brigadier.exceptions.DynamicCommandExceptionType ERROR_UNKNOWN_PARTICLE;
++    public net.minecraft.core.HolderLookup<net.minecraft.core.particles.ParticleType<?>> particles;
+ 
+-    public net.minecraft.commands.arguments.ParticleArgument() {
++    public net.minecraft.commands.arguments.ParticleArgument(net.minecraft.commands.CommandBuildContext $$0) {
++        this.particles = $$0.holderLookup(net.minecraft.core.Registry.PARTICLE_TYPE_REGISTRY);
+     }
+ 
+-    public static net.minecraft.commands.arguments.ParticleArgument particle() {
+-        return new net.minecraft.commands.arguments.ParticleArgument();
++    public static net.minecraft.commands.arguments.ParticleArgument particle(net.minecraft.commands.CommandBuildContext $$0) {
++        return new net.minecraft.commands.arguments.ParticleArgument($$0);
+     }
+ 
+-    public static net.minecraft.core.particles.ParticleOptions getParticle(com.mojang.brigadier.context.CommandContext<net.minecraft.commands.CommandSourceStack> context, java.lang.String name) {
+-        return (net.minecraft.core.particles.ParticleOptions)context.getArgument(name, net.minecraft.core.particles.ParticleOptions.class);
++    public static net.minecraft.core.particles.ParticleOptions getParticle(com.mojang.brigadier.context.CommandContext<net.minecraft.commands.CommandSourceStack> $$0, java.lang.String $$1) {
++        return (net.minecraft.core.particles.ParticleOptions)$$0.getArgument($$1, net.minecraft.core.particles.ParticleOptions.class);
+     }
+ 
+-    public net.minecraft.core.particles.ParticleOptions parse(com.mojang.brigadier.StringReader reader) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
+-        return net.minecraft.commands.arguments.ParticleArgument.readParticle((com.mojang.brigadier.StringReader)reader);
++    public net.minecraft.core.particles.ParticleOptions parse(com.mojang.brigadier.StringReader $$0) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
++        return net.minecraft.commands.arguments.ParticleArgument.readParticle((com.mojang.brigadier.StringReader)$$0, (net.minecraft.core.HolderLookup)this.particles);
+     }
+ 
+     public java.util.Collection<java.lang.String> getExamples() {
+         return EXAMPLES;
+     }
+ 
+-    public static net.minecraft.core.particles.ParticleOptions readParticle(com.mojang.brigadier.StringReader reader) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
+-        net.minecraft.resources.ResourceLocation resourceLocation = net.minecraft.resources.ResourceLocation.read((com.mojang.brigadier.StringReader)reader);
+-        net.minecraft.core.particles.ParticleType particleType = (net.minecraft.core.particles.ParticleType)net.minecraft.core.Registry.PARTICLE_TYPE.getOptional(resourceLocation).orElseThrow(() -> ERROR_UNKNOWN_PARTICLE.create((java.lang.Object)resourceLocation));
+-        return net.minecraft.commands.arguments.ParticleArgument.readParticle((com.mojang.brigadier.StringReader)reader, (net.minecraft.core.particles.ParticleType)particleType);
++    public static net.minecraft.core.particles.ParticleOptions readParticle(com.mojang.brigadier.StringReader $$0, net.minecraft.core.HolderLookup<net.minecraft.core.particles.ParticleType<?>> $$1) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
++        net.minecraft.core.particles.ParticleType $$2 = net.minecraft.commands.arguments.ParticleArgument.readParticleType((com.mojang.brigadier.StringReader)$$0, $$1);
++        return net.minecraft.commands.arguments.ParticleArgument.readParticle((com.mojang.brigadier.StringReader)$$0, (net.minecraft.core.particles.ParticleType)$$2);
+     }
+ 
+-    public static <T extends net.minecraft.core.particles.ParticleOptions> T readParticle(com.mojang.brigadier.StringReader reader, net.minecraft.core.particles.ParticleType<T> type) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
+-        return (T)type.getDeserializer().fromCommand(type, reader);
++    public static net.minecraft.core.particles.ParticleType<?> readParticleType(com.mojang.brigadier.StringReader $$0, net.minecraft.core.HolderLookup<net.minecraft.core.particles.ParticleType<?>> $$1) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
++        net.minecraft.resources.ResourceLocation $$2 = net.minecraft.resources.ResourceLocation.read((com.mojang.brigadier.StringReader)$$0);
++        net.minecraft.resources.ResourceKey $$3 = net.minecraft.resources.ResourceKey.create((net.minecraft.resources.ResourceKey)net.minecraft.core.Registry.PARTICLE_TYPE_REGISTRY, (net.minecraft.resources.ResourceLocation)$$2);
++        return (net.minecraft.core.particles.ParticleType)((net.minecraft.core.Holder$Reference)$$1.get($$3).orElseThrow(() -> ERROR_UNKNOWN_PARTICLE.create((java.lang.Object)$$2))).value();
+     }
+ 
+-    public <S> java.util.concurrent.CompletableFuture<com.mojang.brigadier.suggestion.Suggestions> listSuggestions(com.mojang.brigadier.context.CommandContext<S> context, com.mojang.brigadier.suggestion.SuggestionsBuilder builder) {
+-        return net.minecraft.commands.SharedSuggestionProvider.suggestResource((java.lang.Iterable)net.minecraft.core.Registry.PARTICLE_TYPE.keySet(), (com.mojang.brigadier.suggestion.SuggestionsBuilder)builder);
++    public static <T extends net.minecraft.core.particles.ParticleOptions> T readParticle(com.mojang.brigadier.StringReader $$0, net.minecraft.core.particles.ParticleType<T> $$1) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
++        return (T)$$1.getDeserializer().fromCommand($$1, $$0);
+     }
+ 
++    public <S> java.util.concurrent.CompletableFuture<com.mojang.brigadier.suggestion.Suggestions> listSuggestions(com.mojang.brigadier.context.CommandContext<S> $$0, com.mojang.brigadier.suggestion.SuggestionsBuilder $$1) {
++        return net.minecraft.commands.SharedSuggestionProvider.suggestResource((java.util.stream.Stream)this.particles.listElements().map(net.minecraft.resources.ResourceKey::location), (com.mojang.brigadier.suggestion.SuggestionsBuilder)$$1);
++    }
++
+     public /* synthetic */ java.lang.Object parse(com.mojang.brigadier.StringReader stringReader) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
+         return this.parse(stringReader);
+     }
+ 
+-    public static /* synthetic */ com.mojang.brigadier.Message lambda$static$0(java.lang.Object particle) {
+-        return net.minecraft.network.chat.Component.translatable((java.lang.String)"particle.notFound", (java.lang.Object[])new java.lang.Object[]{particle});
++    public static /* synthetic */ com.mojang.brigadier.Message lambda$static$0(java.lang.Object $$0) {
++        return net.minecraft.network.chat.Component.translatable((java.lang.String)"particle.notFound", (java.lang.Object[])new java.lang.Object[]{$$0});
+     }
+ 
+     static {
+         EXAMPLES = java.util.Arrays.asList((java.lang.Object[])new java.lang.String[]{"foo", "foo:bar", "particle with options"});
+-        ERROR_UNKNOWN_PARTICLE = new com.mojang.brigadier.exceptions.DynamicCommandExceptionType(particle -> net.minecraft.network.chat.Component.translatable((java.lang.String)"particle.notFound", (java.lang.Object[])new java.lang.Object[]{particle}));
++        ERROR_UNKNOWN_PARTICLE = new com.mojang.brigadier.exceptions.DynamicCommandExceptionType($$0 -> net.minecraft.network.chat.Component.translatable((java.lang.String)"particle.notFound", (java.lang.Object[])new java.lang.Object[]{$$0}));
+     }
+ }
+ 

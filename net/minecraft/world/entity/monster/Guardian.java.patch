@@ -1,0 +1,149 @@
+--- net/minecraft/world/entity/monster/Guardian.java
++++ net/minecraft/world/entity/monster/Guardian.java
+@@ -47,8 +47,8 @@
+         return net.minecraft.world.entity.monster.Monster.createMonsterAttributes().add(net.minecraft.world.entity.ai.attributes.Attributes.ATTACK_DAMAGE, 6.0).add(net.minecraft.world.entity.ai.attributes.Attributes.MOVEMENT_SPEED, 0.5).add(net.minecraft.world.entity.ai.attributes.Attributes.FOLLOW_RANGE, 16.0).add(net.minecraft.world.entity.ai.attributes.Attributes.MAX_HEALTH, 30.0);
+     }
+ 
+-    public net.minecraft.world.entity.ai.navigation.PathNavigation createNavigation(net.minecraft.world.level.Level level) {
+-        return new net.minecraft.world.entity.ai.navigation.WaterBoundPathNavigation((net.minecraft.world.entity.Mob)this, level);
++    public net.minecraft.world.entity.ai.navigation.PathNavigation createNavigation(net.minecraft.world.level.Level $$0) {
++        return new net.minecraft.world.entity.ai.navigation.WaterBoundPathNavigation((net.minecraft.world.entity.Mob)this, $$0);
+     }
+ 
+     public void defineSynchedData() {
+@@ -69,16 +69,16 @@
+         return (java.lang.Boolean)this.entityData.get(DATA_ID_MOVING);
+     }
+ 
+-    public void setMoving(boolean moving) {
+-        this.entityData.set(DATA_ID_MOVING, (java.lang.Object)moving);
++    public void setMoving(boolean $$0) {
++        this.entityData.set(DATA_ID_MOVING, (java.lang.Object)$$0);
+     }
+ 
+     public int getAttackDuration() {
+         return 80;
+     }
+ 
+-    public void setActiveAttackTarget(int activeAttackTargetId) {
+-        this.entityData.set(DATA_ID_ATTACK_TARGET, (java.lang.Object)activeAttackTargetId);
++    public void setActiveAttackTarget(int $$0) {
++        this.entityData.set(DATA_ID_ATTACK_TARGET, (java.lang.Object)$$0);
+     }
+ 
+     public boolean hasActiveAttackTarget() {
+@@ -104,9 +104,9 @@
+         return this.getTarget();
+     }
+ 
+-    public void onSyncedDataUpdated(net.minecraft.network.syncher.EntityDataAccessor<?> key) {
+-        super.onSyncedDataUpdated(key);
+-        if (DATA_ID_ATTACK_TARGET.equals(key)) {
++    public void onSyncedDataUpdated(net.minecraft.network.syncher.EntityDataAccessor<?> $$0) {
++        super.onSyncedDataUpdated($$0);
++        if (DATA_ID_ATTACK_TARGET.equals($$0)) {
+             this.clientSideAttackTime = 0;
+             this.clientSideCachedAttackTarget = null;
+         }
+@@ -120,7 +120,7 @@
+         return this.isInWaterOrBubble() ? net.minecraft.sounds.SoundEvents.GUARDIAN_AMBIENT : net.minecraft.sounds.SoundEvents.GUARDIAN_AMBIENT_LAND;
+     }
+ 
+-    public net.minecraft.sounds.SoundEvent getHurtSound(net.minecraft.world.damagesource.DamageSource damageSource) {
++    public net.minecraft.sounds.SoundEvent getHurtSound(net.minecraft.world.damagesource.DamageSource $$0) {
+         return this.isInWaterOrBubble() ? net.minecraft.sounds.SoundEvents.GUARDIAN_HURT : net.minecraft.sounds.SoundEvents.GUARDIAN_HURT_LAND;
+     }
+ 
+@@ -132,15 +132,15 @@
+         return net.minecraft.world.entity.Entity$MovementEmission.EVENTS;
+     }
+ 
+-    public float getStandingEyeHeight(net.minecraft.world.entity.Pose pose, net.minecraft.world.entity.EntityDimensions size) {
+-        return size.height * 0.5f;
++    public float getStandingEyeHeight(net.minecraft.world.entity.Pose $$0, net.minecraft.world.entity.EntityDimensions $$1) {
++        return $$1.height * 0.5f;
+     }
+ 
+-    public float getWalkTargetValue(net.minecraft.core.BlockPos pos, net.minecraft.world.level.LevelReader level) {
+-        if (level.getFluidState(pos).is(net.minecraft.tags.FluidTags.WATER)) {
+-            return 10.0f + level.getPathfindingCostFromLightLevels(pos);
++    public float getWalkTargetValue(net.minecraft.core.BlockPos $$0, net.minecraft.world.level.LevelReader $$1) {
++        if ($$1.getFluidState($$0).is(net.minecraft.tags.FluidTags.WATER)) {
++            return 10.0f + $$1.getPathfindingCostFromLightLevels($$0);
+         }
+-        return super.getWalkTargetValue(pos, level);
++        return super.getWalkTargetValue($$0, $$1);
+     }
+ 
+     public void aiStep() {
+@@ -208,53 +208,53 @@
+         return net.minecraft.sounds.SoundEvents.GUARDIAN_FLOP;
+     }
+ 
+-    public float getTailAnimation(float partialTick) {
+-        return net.minecraft.util.Mth.lerp((float)partialTick, (float)this.clientSideTailAnimationO, (float)this.clientSideTailAnimation);
++    public float getTailAnimation(float $$0) {
++        return net.minecraft.util.Mth.lerp((float)$$0, (float)this.clientSideTailAnimationO, (float)this.clientSideTailAnimation);
+     }
+ 
+-    public float getSpikesAnimation(float partialTick) {
+-        return net.minecraft.util.Mth.lerp((float)partialTick, (float)this.clientSideSpikesAnimationO, (float)this.clientSideSpikesAnimation);
++    public float getSpikesAnimation(float $$0) {
++        return net.minecraft.util.Mth.lerp((float)$$0, (float)this.clientSideSpikesAnimationO, (float)this.clientSideSpikesAnimation);
+     }
+ 
+-    public float getAttackAnimationScale(float partialTick) {
+-        return ((float)this.clientSideAttackTime + partialTick) / (float)this.getAttackDuration();
++    public float getAttackAnimationScale(float $$0) {
++        return ((float)this.clientSideAttackTime + $$0) / (float)this.getAttackDuration();
+     }
+ 
+-    public boolean checkSpawnObstruction(net.minecraft.world.level.LevelReader level) {
+-        return level.isUnobstructed((net.minecraft.world.entity.Entity)this);
++    public boolean checkSpawnObstruction(net.minecraft.world.level.LevelReader $$0) {
++        return $$0.isUnobstructed((net.minecraft.world.entity.Entity)this);
+     }
+ 
+     public static boolean checkGuardianSpawnRules(net.minecraft.world.entity.EntityType<? extends net.minecraft.world.entity.monster.Guardian> $$0, net.minecraft.world.level.LevelAccessor $$1, net.minecraft.world.entity.MobSpawnType $$2, net.minecraft.core.BlockPos $$3, net.minecraft.util.RandomSource $$4) {
+         return !($$4.nextInt(20) != 0 && $$1.canSeeSkyFromBelowWater($$3) || $$1.getDifficulty() == net.minecraft.world.Difficulty.PEACEFUL || $$2 != net.minecraft.world.entity.MobSpawnType.SPAWNER && !$$1.getFluidState($$3).is(net.minecraft.tags.FluidTags.WATER) || !$$1.getFluidState($$3.below()).is(net.minecraft.tags.FluidTags.WATER));
+     }
+ 
+-    public boolean hurt(net.minecraft.world.damagesource.DamageSource source, float amount) {
+-        if (!this.isMoving() && !source.isMagic() && source.getDirectEntity() instanceof net.minecraft.world.entity.LivingEntity) {
+-            net.minecraft.world.entity.LivingEntity livingEntity = (net.minecraft.world.entity.LivingEntity)source.getDirectEntity();
+-            if (!source.isExplosion()) {
+-                livingEntity.hurt(net.minecraft.world.damagesource.DamageSource.thorns((net.minecraft.world.entity.Entity)this), 2.0f);
++    public boolean hurt(net.minecraft.world.damagesource.DamageSource $$0, float $$1) {
++        if (!this.isMoving() && !$$0.isMagic() && $$0.getDirectEntity() instanceof net.minecraft.world.entity.LivingEntity) {
++            net.minecraft.world.entity.LivingEntity $$2 = (net.minecraft.world.entity.LivingEntity)$$0.getDirectEntity();
++            if (!$$0.isExplosion()) {
++                $$2.hurt(net.minecraft.world.damagesource.DamageSource.thorns((net.minecraft.world.entity.Entity)this), 2.0f);
+             }
+         }
+         if (this.randomStrollGoal != null) {
+             this.randomStrollGoal.trigger();
+         }
+-        return super.hurt(source, amount);
++        return super.hurt($$0, $$1);
+     }
+ 
+     public int getMaxHeadXRot() {
+         return 180;
+     }
+ 
+-    public void travel(net.minecraft.world.phys.Vec3 travelVector) {
++    public void travel(net.minecraft.world.phys.Vec3 $$0) {
+         if (this.isEffectiveAi() && this.isInWater()) {
+-            this.moveRelative(0.1f, travelVector);
++            this.moveRelative(0.1f, $$0);
+             this.move(net.minecraft.world.entity.MoverType.SELF, this.getDeltaMovement());
+             this.setDeltaMovement(this.getDeltaMovement().scale(0.9));
+             if (!this.isMoving() && this.getTarget() == null) {
+                 this.setDeltaMovement(this.getDeltaMovement().add(0.0, -0.005, 0.0));
+             }
+         } else {
+-            super.travel(travelVector);
++            super.travel($$0);
+         }
+     }
+ 

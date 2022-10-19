@@ -1,0 +1,903 @@
+--- net/minecraft/client/gui/screens/inventory/CreativeModeInventoryScreen.java
++++ net/minecraft/client/gui/screens/inventory/CreativeModeInventoryScreen.java
+@@ -30,11 +30,13 @@
+     public boolean ignoreTextInput;
+     public boolean hasClickedOutside;
+     public java.util.Set<net.minecraft.tags.TagKey<net.minecraft.world.item.Item>> visibleTags;
++    public net.minecraft.world.flag.FeatureFlagSet enabledFeatures;
+ 
+-    public net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen(net.minecraft.world.entity.player.Player player) {
+-        super((net.minecraft.world.inventory.AbstractContainerMenu)new net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen$ItemPickerMenu(player), player.getInventory(), net.minecraft.network.chat.CommonComponents.EMPTY);
++    public net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen(net.minecraft.world.entity.player.Player $$0, net.minecraft.world.flag.FeatureFlagSet $$1) {
++        super((net.minecraft.world.inventory.AbstractContainerMenu)new net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen$ItemPickerMenu($$0), $$0.getInventory(), net.minecraft.network.chat.CommonComponents.EMPTY);
+         this.visibleTags = new java.util.HashSet();
+-        player.containerMenu = this.menu;
++        $$0.containerMenu = this.menu;
++        this.enabledFeatures = $$1;
+         this.passEvents = true;
+         this.imageHeight = 136;
+         this.imageWidth = 195;
+@@ -49,134 +51,133 @@
+         }
+     }
+ 
+-    public void slotClicked(@javax.annotation.Nullable net.minecraft.world.inventory.Slot slot, int slotId, int mouseButton, net.minecraft.world.inventory.ClickType type) {
+-        if (this.isCreativeSlot(slot)) {
++    public void slotClicked(@javax.annotation.Nullable net.minecraft.world.inventory.Slot $$0, int $$1, int $$2, net.minecraft.world.inventory.ClickType $$3) {
++        if (this.isCreativeSlot($$0)) {
+             this.searchBox.moveCursorToEnd();
+             this.searchBox.setHighlightPos(0);
+         }
+-        boolean bl = type == net.minecraft.world.inventory.ClickType.QUICK_MOVE;
+-        net.minecraft.world.inventory.ClickType clickType = type = slotId == -999 && type == net.minecraft.world.inventory.ClickType.PICKUP ? net.minecraft.world.inventory.ClickType.THROW : type;
+-        if (slot != null || selectedTab == net.minecraft.world.item.CreativeModeTab.TAB_INVENTORY.getId() || type == net.minecraft.world.inventory.ClickType.QUICK_CRAFT) {
+-            if (slot != null && !slot.mayPickup((net.minecraft.world.entity.player.Player)this.minecraft.player)) {
++        boolean $$4 = $$3 == net.minecraft.world.inventory.ClickType.QUICK_MOVE;
++        net.minecraft.world.inventory.ClickType clickType = $$3 = $$1 == -999 && $$3 == net.minecraft.world.inventory.ClickType.PICKUP ? net.minecraft.world.inventory.ClickType.THROW : $$3;
++        if ($$0 != null || selectedTab == net.minecraft.world.item.CreativeModeTabs.TAB_INVENTORY.getId() || $$3 == net.minecraft.world.inventory.ClickType.QUICK_CRAFT) {
++            if ($$0 != null && !$$0.mayPickup((net.minecraft.world.entity.player.Player)this.minecraft.player)) {
+                 return;
+             }
+-            if (slot == this.destroyItemSlot && bl) {
+-                for (int i = 0; i < this.minecraft.player.inventoryMenu.getItems().size(); ++i) {
+-                    this.minecraft.gameMode.handleCreativeModeItemAdd(net.minecraft.world.item.ItemStack.EMPTY, i);
++            if ($$0 == this.destroyItemSlot && $$4) {
++                for (int $$5 = 0; $$5 < this.minecraft.player.inventoryMenu.getItems().size(); ++$$5) {
++                    this.minecraft.gameMode.handleCreativeModeItemAdd(net.minecraft.world.item.ItemStack.EMPTY, $$5);
+                 }
+-            } else if (selectedTab == net.minecraft.world.item.CreativeModeTab.TAB_INVENTORY.getId()) {
+-                if (slot == this.destroyItemSlot) {
++            } else if (selectedTab == net.minecraft.world.item.CreativeModeTabs.TAB_INVENTORY.getId()) {
++                if ($$0 == this.destroyItemSlot) {
+                     ((net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen$ItemPickerMenu)this.menu).setCarried(net.minecraft.world.item.ItemStack.EMPTY);
+-                } else if (type == net.minecraft.world.inventory.ClickType.THROW && slot != null && slot.hasItem()) {
+-                    net.minecraft.world.item.ItemStack itemStack = slot.remove(mouseButton == 0 ? 1 : slot.getItem().getMaxStackSize());
+-                    net.minecraft.world.item.ItemStack itemStack2 = slot.getItem();
+-                    this.minecraft.player.drop(itemStack, true);
+-                    this.minecraft.gameMode.handleCreativeModeItemDrop(itemStack);
+-                    this.minecraft.gameMode.handleCreativeModeItemAdd(itemStack2, ((net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen$SlotWrapper)slot).target.index);
+-                } else if (type == net.minecraft.world.inventory.ClickType.THROW && !((net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen$ItemPickerMenu)this.menu).getCarried().isEmpty()) {
++                } else if ($$3 == net.minecraft.world.inventory.ClickType.THROW && $$0 != null && $$0.hasItem()) {
++                    net.minecraft.world.item.ItemStack $$6 = $$0.remove($$2 == 0 ? 1 : $$0.getItem().getMaxStackSize());
++                    net.minecraft.world.item.ItemStack $$7 = $$0.getItem();
++                    this.minecraft.player.drop($$6, true);
++                    this.minecraft.gameMode.handleCreativeModeItemDrop($$6);
++                    this.minecraft.gameMode.handleCreativeModeItemAdd($$7, ((net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen$SlotWrapper)$$0).target.index);
++                } else if ($$3 == net.minecraft.world.inventory.ClickType.THROW && !((net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen$ItemPickerMenu)this.menu).getCarried().isEmpty()) {
+                     this.minecraft.player.drop(((net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen$ItemPickerMenu)this.menu).getCarried(), true);
+                     this.minecraft.gameMode.handleCreativeModeItemDrop(((net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen$ItemPickerMenu)this.menu).getCarried());
+                     ((net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen$ItemPickerMenu)this.menu).setCarried(net.minecraft.world.item.ItemStack.EMPTY);
+                 } else {
+-                    this.minecraft.player.inventoryMenu.clicked(slot == null ? slotId : ((net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen$SlotWrapper)slot).target.index, mouseButton, type, (net.minecraft.world.entity.player.Player)this.minecraft.player);
++                    this.minecraft.player.inventoryMenu.clicked($$0 == null ? $$1 : ((net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen$SlotWrapper)$$0).target.index, $$2, $$3, (net.minecraft.world.entity.player.Player)this.minecraft.player);
+                     this.minecraft.player.inventoryMenu.broadcastChanges();
+                 }
+-            } else if (type != net.minecraft.world.inventory.ClickType.QUICK_CRAFT && slot.container == CONTAINER) {
+-                net.minecraft.world.item.ItemStack itemStack = ((net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen$ItemPickerMenu)this.menu).getCarried();
+-                net.minecraft.world.item.ItemStack itemStack3 = slot.getItem();
+-                if (type == net.minecraft.world.inventory.ClickType.SWAP) {
+-                    if (!itemStack3.isEmpty()) {
+-                        net.minecraft.world.item.ItemStack itemStack4 = itemStack3.copy();
+-                        itemStack4.setCount(itemStack4.getMaxStackSize());
+-                        this.minecraft.player.getInventory().setItem(mouseButton, itemStack4);
++            } else if ($$3 != net.minecraft.world.inventory.ClickType.QUICK_CRAFT && $$0.container == CONTAINER) {
++                net.minecraft.world.item.ItemStack $$8 = ((net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen$ItemPickerMenu)this.menu).getCarried();
++                net.minecraft.world.item.ItemStack $$9 = $$0.getItem();
++                if ($$3 == net.minecraft.world.inventory.ClickType.SWAP) {
++                    if (!$$9.isEmpty()) {
++                        net.minecraft.world.item.ItemStack $$10 = $$9.copy();
++                        $$10.setCount($$10.getMaxStackSize());
++                        this.minecraft.player.getInventory().setItem($$2, $$10);
+                         this.minecraft.player.inventoryMenu.broadcastChanges();
+                     }
+                     return;
+                 }
+-                if (type == net.minecraft.world.inventory.ClickType.CLONE) {
+-                    if (((net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen$ItemPickerMenu)this.menu).getCarried().isEmpty() && slot.hasItem()) {
+-                        net.minecraft.world.item.ItemStack itemStack5 = slot.getItem().copy();
+-                        itemStack5.setCount(itemStack5.getMaxStackSize());
+-                        ((net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen$ItemPickerMenu)this.menu).setCarried(itemStack5);
++                if ($$3 == net.minecraft.world.inventory.ClickType.CLONE) {
++                    if (((net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen$ItemPickerMenu)this.menu).getCarried().isEmpty() && $$0.hasItem()) {
++                        net.minecraft.world.item.ItemStack $$11 = $$0.getItem().copy();
++                        $$11.setCount($$11.getMaxStackSize());
++                        ((net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen$ItemPickerMenu)this.menu).setCarried($$11);
+                     }
+                     return;
+                 }
+-                if (type == net.minecraft.world.inventory.ClickType.THROW) {
+-                    if (!itemStack3.isEmpty()) {
+-                        net.minecraft.world.item.ItemStack itemStack6 = itemStack3.copy();
+-                        itemStack6.setCount(mouseButton == 0 ? 1 : itemStack6.getMaxStackSize());
+-                        this.minecraft.player.drop(itemStack6, true);
+-                        this.minecraft.gameMode.handleCreativeModeItemDrop(itemStack6);
++                if ($$3 == net.minecraft.world.inventory.ClickType.THROW) {
++                    if (!$$9.isEmpty()) {
++                        net.minecraft.world.item.ItemStack $$12 = $$9.copy();
++                        $$12.setCount($$2 == 0 ? 1 : $$12.getMaxStackSize());
++                        this.minecraft.player.drop($$12, true);
++                        this.minecraft.gameMode.handleCreativeModeItemDrop($$12);
+                     }
+                     return;
+                 }
+-                if (!itemStack.isEmpty() && !itemStack3.isEmpty() && itemStack.sameItem(itemStack3) && net.minecraft.world.item.ItemStack.tagMatches((net.minecraft.world.item.ItemStack)itemStack, (net.minecraft.world.item.ItemStack)itemStack3)) {
+-                    if (mouseButton == 0) {
+-                        if (bl) {
+-                            itemStack.setCount(itemStack.getMaxStackSize());
+-                        } else if (itemStack.getCount() < itemStack.getMaxStackSize()) {
+-                            itemStack.grow(1);
++                if (!$$8.isEmpty() && !$$9.isEmpty() && $$8.sameItem($$9) && net.minecraft.world.item.ItemStack.tagMatches((net.minecraft.world.item.ItemStack)$$8, (net.minecraft.world.item.ItemStack)$$9)) {
++                    if ($$2 == 0) {
++                        if ($$4) {
++                            $$8.setCount($$8.getMaxStackSize());
++                        } else if ($$8.getCount() < $$8.getMaxStackSize()) {
++                            $$8.grow(1);
+                         }
+                     } else {
+-                        itemStack.shrink(1);
++                        $$8.shrink(1);
+                     }
+-                } else if (itemStack3.isEmpty() || !itemStack.isEmpty()) {
+-                    if (mouseButton == 0) {
++                } else if ($$9.isEmpty() || !$$8.isEmpty()) {
++                    if ($$2 == 0) {
+                         ((net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen$ItemPickerMenu)this.menu).setCarried(net.minecraft.world.item.ItemStack.EMPTY);
+                     } else {
+                         ((net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen$ItemPickerMenu)this.menu).getCarried().shrink(1);
+                     }
+                 } else {
+-                    ((net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen$ItemPickerMenu)this.menu).setCarried(itemStack3.copy());
+-                    itemStack = ((net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen$ItemPickerMenu)this.menu).getCarried();
+-                    if (bl) {
+-                        itemStack.setCount(itemStack.getMaxStackSize());
++                    ((net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen$ItemPickerMenu)this.menu).setCarried($$9.copy());
++                    $$8 = ((net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen$ItemPickerMenu)this.menu).getCarried();
++                    if ($$4) {
++                        $$8.setCount($$8.getMaxStackSize());
+                     }
+                 }
+             } else if (this.menu != null) {
+-                net.minecraft.world.item.ItemStack itemStack = slot == null ? net.minecraft.world.item.ItemStack.EMPTY : ((net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen$ItemPickerMenu)this.menu).getSlot(slot.index).getItem();
+-                ((net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen$ItemPickerMenu)this.menu).clicked(slot == null ? slotId : slot.index, mouseButton, type, (net.minecraft.world.entity.player.Player)this.minecraft.player);
+-                if (net.minecraft.world.inventory.AbstractContainerMenu.getQuickcraftHeader((int)mouseButton) == 2) {
+-                    for (int i = 0; i < 9; ++i) {
+-                        this.minecraft.gameMode.handleCreativeModeItemAdd(((net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen$ItemPickerMenu)this.menu).getSlot(45 + i).getItem(), 36 + i);
++                net.minecraft.world.item.ItemStack $$13 = $$0 == null ? net.minecraft.world.item.ItemStack.EMPTY : ((net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen$ItemPickerMenu)this.menu).getSlot($$0.index).getItem();
++                ((net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen$ItemPickerMenu)this.menu).clicked($$0 == null ? $$1 : $$0.index, $$2, $$3, (net.minecraft.world.entity.player.Player)this.minecraft.player);
++                if (net.minecraft.world.inventory.AbstractContainerMenu.getQuickcraftHeader((int)$$2) == 2) {
++                    for (int $$14 = 0; $$14 < 9; ++$$14) {
++                        this.minecraft.gameMode.handleCreativeModeItemAdd(((net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen$ItemPickerMenu)this.menu).getSlot(45 + $$14).getItem(), 36 + $$14);
+                     }
+-                } else if (slot != null) {
+-                    net.minecraft.world.item.ItemStack itemStack7 = ((net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen$ItemPickerMenu)this.menu).getSlot(slot.index).getItem();
+-                    this.minecraft.gameMode.handleCreativeModeItemAdd(itemStack7, slot.index - ((net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen$ItemPickerMenu)this.menu).slots.size() + 9 + 36);
+-                    int n = 45 + mouseButton;
+-                    if (type == net.minecraft.world.inventory.ClickType.SWAP) {
+-                        this.minecraft.gameMode.handleCreativeModeItemAdd(itemStack, n - ((net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen$ItemPickerMenu)this.menu).slots.size() + 9 + 36);
+-                    } else if (type == net.minecraft.world.inventory.ClickType.THROW && !itemStack.isEmpty()) {
+-                        net.minecraft.world.item.ItemStack itemStack8 = itemStack.copy();
+-                        itemStack8.setCount(mouseButton == 0 ? 1 : itemStack8.getMaxStackSize());
+-                        this.minecraft.player.drop(itemStack8, true);
+-                        this.minecraft.gameMode.handleCreativeModeItemDrop(itemStack8);
++                } else if ($$0 != null) {
++                    net.minecraft.world.item.ItemStack $$15 = ((net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen$ItemPickerMenu)this.menu).getSlot($$0.index).getItem();
++                    this.minecraft.gameMode.handleCreativeModeItemAdd($$15, $$0.index - ((net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen$ItemPickerMenu)this.menu).slots.size() + 9 + 36);
++                    int $$16 = 45 + $$2;
++                    if ($$3 == net.minecraft.world.inventory.ClickType.SWAP) {
++                        this.minecraft.gameMode.handleCreativeModeItemAdd($$13, $$16 - ((net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen$ItemPickerMenu)this.menu).slots.size() + 9 + 36);
++                    } else if ($$3 == net.minecraft.world.inventory.ClickType.THROW && !$$13.isEmpty()) {
++                        net.minecraft.world.item.ItemStack $$17 = $$13.copy();
++                        $$17.setCount($$2 == 0 ? 1 : $$17.getMaxStackSize());
++                        this.minecraft.player.drop($$17, true);
++                        this.minecraft.gameMode.handleCreativeModeItemDrop($$17);
+                     }
+                     this.minecraft.player.inventoryMenu.broadcastChanges();
+                 }
+             }
+         } else if (!((net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen$ItemPickerMenu)this.menu).getCarried().isEmpty() && this.hasClickedOutside) {
+-            if (mouseButton == 0) {
++            if ($$2 == 0) {
+                 this.minecraft.player.drop(((net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen$ItemPickerMenu)this.menu).getCarried(), true);
+                 this.minecraft.gameMode.handleCreativeModeItemDrop(((net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen$ItemPickerMenu)this.menu).getCarried());
+                 ((net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen$ItemPickerMenu)this.menu).setCarried(net.minecraft.world.item.ItemStack.EMPTY);
+             }
+-            if (mouseButton == 1) {
+-                net.minecraft.world.item.ItemStack itemStack = ((net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen$ItemPickerMenu)this.menu).getCarried().split(1);
+-                this.minecraft.player.drop(itemStack, true);
+-                this.minecraft.gameMode.handleCreativeModeItemDrop(itemStack);
++            if ($$2 == 1) {
++                net.minecraft.world.item.ItemStack $$18 = ((net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen$ItemPickerMenu)this.menu).getCarried().split(1);
++                this.minecraft.player.drop($$18, true);
++                this.minecraft.gameMode.handleCreativeModeItemDrop($$18);
+             }
+         }
+     }
+ 
+-    public boolean isCreativeSlot(@javax.annotation.Nullable net.minecraft.world.inventory.Slot slot) {
+-        return slot != null && slot.container == CONTAINER;
++    public boolean isCreativeSlot(@javax.annotation.Nullable net.minecraft.world.inventory.Slot $$0) {
++        return $$0 != null && $$0.container == CONTAINER;
+     }
+ 
+     public void init() {
+         if (this.minecraft.gameMode.hasInfiniteItems()) {
+             super.init();
+-            this.minecraft.keyboardHandler.setSendRepeatsToGui(true);
+             java.util.Objects.requireNonNull((java.lang.Object)this.font);
+             this.searchBox = new net.minecraft.client.gui.components.EditBox(this.font, this.leftPos + 82, this.topPos + 6, 80, 9, (net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"itemGroup.search"));
+             this.searchBox.setMaxLength(50);
+@@ -186,7 +187,7 @@
+             this.addWidget((net.minecraft.client.gui.components.events.GuiEventListener)this.searchBox);
+             int $$0 = selectedTab;
+             selectedTab = -1;
+-            this.selectTab(net.minecraft.world.item.CreativeModeTab.TABS[$$0]);
++            this.selectTab(net.minecraft.world.item.CreativeModeTabs.TABS[$$0]);
+             this.minecraft.player.inventoryMenu.removeSlotListener((net.minecraft.world.inventory.ContainerListener)this.listener);
+             this.listener = new net.minecraft.client.gui.screens.inventory.CreativeInventoryListener(this.minecraft);
+             this.minecraft.player.inventoryMenu.addSlotListener((net.minecraft.world.inventory.ContainerListener)this.listener);
+@@ -195,10 +196,10 @@
+         }
+     }
+ 
+-    public void resize(net.minecraft.client.Minecraft minecraft, int width, int height) {
+-        java.lang.String string = this.searchBox.getValue();
+-        this.init(minecraft, width, height);
+-        this.searchBox.setValue(string);
++    public void resize(net.minecraft.client.Minecraft $$0, int $$1, int $$2) {
++        java.lang.String $$3 = this.searchBox.getValue();
++        this.init($$0, $$1, $$2);
++        this.searchBox.setValue($$3);
+         if (!this.searchBox.getValue().isEmpty()) {
+             this.refreshSearchResults();
+         }
+@@ -209,19 +210,18 @@
+         if (this.minecraft.player != null && this.minecraft.player.getInventory() != null) {
+             this.minecraft.player.inventoryMenu.removeSlotListener((net.minecraft.world.inventory.ContainerListener)this.listener);
+         }
+-        this.minecraft.keyboardHandler.setSendRepeatsToGui(false);
+     }
+ 
+-    public boolean charTyped(char codePoint, int modifiers) {
++    public boolean charTyped(char $$0, int $$1) {
+         if (this.ignoreTextInput) {
+             return false;
+         }
+-        if (selectedTab != net.minecraft.world.item.CreativeModeTab.TAB_SEARCH.getId()) {
++        if (selectedTab != net.minecraft.world.item.CreativeModeTabs.TAB_SEARCH.getId()) {
+             return false;
+         }
+-        java.lang.String string = this.searchBox.getValue();
+-        if (this.searchBox.charTyped(codePoint, modifiers)) {
+-            if (!java.util.Objects.equals((java.lang.Object)string, (java.lang.Object)this.searchBox.getValue())) {
++        java.lang.String $$2 = this.searchBox.getValue();
++        if (this.searchBox.charTyped($$0, $$1)) {
++            if (!java.util.Objects.equals((java.lang.Object)$$2, (java.lang.Object)this.searchBox.getValue())) {
+                 this.refreshSearchResults();
+             }
+             return true;
+@@ -229,38 +229,38 @@
+         return false;
+     }
+ 
+-    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
++    public boolean keyPressed(int $$0, int $$1, int $$2) {
+         this.ignoreTextInput = false;
+-        if (selectedTab != net.minecraft.world.item.CreativeModeTab.TAB_SEARCH.getId()) {
+-            if (this.minecraft.options.keyChat.matches(keyCode, scanCode)) {
++        if (selectedTab != net.minecraft.world.item.CreativeModeTabs.TAB_SEARCH.getId()) {
++            if (this.minecraft.options.keyChat.matches($$0, $$1)) {
+                 this.ignoreTextInput = true;
+-                this.selectTab(net.minecraft.world.item.CreativeModeTab.TAB_SEARCH);
++                this.selectTab(net.minecraft.world.item.CreativeModeTabs.TAB_SEARCH);
+                 return true;
+             }
+-            return super.keyPressed(keyCode, scanCode, modifiers);
++            return super.keyPressed($$0, $$1, $$2);
+         }
+-        boolean bl = !this.isCreativeSlot(this.hoveredSlot) || this.hoveredSlot.hasItem();
+-        boolean bl2 = com.mojang.blaze3d.platform.InputConstants.getKey((int)keyCode, (int)scanCode).getNumericKeyValue().isPresent();
+-        if (bl && bl2 && this.checkHotbarKeyPressed(keyCode, scanCode)) {
++        boolean $$3 = !this.isCreativeSlot(this.hoveredSlot) || this.hoveredSlot.hasItem();
++        boolean $$4 = com.mojang.blaze3d.platform.InputConstants.getKey((int)$$0, (int)$$1).getNumericKeyValue().isPresent();
++        if ($$3 && $$4 && this.checkHotbarKeyPressed($$0, $$1)) {
+             this.ignoreTextInput = true;
+             return true;
+         }
+-        java.lang.String string = this.searchBox.getValue();
+-        if (this.searchBox.keyPressed(keyCode, scanCode, modifiers)) {
+-            if (!java.util.Objects.equals((java.lang.Object)string, (java.lang.Object)this.searchBox.getValue())) {
++        java.lang.String $$5 = this.searchBox.getValue();
++        if (this.searchBox.keyPressed($$0, $$1, $$2)) {
++            if (!java.util.Objects.equals((java.lang.Object)$$5, (java.lang.Object)this.searchBox.getValue())) {
+                 this.refreshSearchResults();
+             }
+             return true;
+         }
+-        if (this.searchBox.isFocused() && this.searchBox.isVisible() && keyCode != 256) {
++        if (this.searchBox.isFocused() && this.searchBox.isVisible() && $$0 != 256) {
+             return true;
+         }
+-        return super.keyPressed(keyCode, scanCode, modifiers);
++        return super.keyPressed($$0, $$1, $$2);
+     }
+ 
+-    public boolean keyReleased(int keyCode, int scanCode, int modifiers) {
++    public boolean keyReleased(int $$0, int $$1, int $$2) {
+         this.ignoreTextInput = false;
+-        return super.keyReleased(keyCode, scanCode, modifiers);
++        return super.keyReleased($$0, $$1, $$2);
+     }
+ 
+     public void refreshSearchResults() {
+@@ -268,159 +268,155 @@
+         this.visibleTags.clear();
+         java.lang.String $$0 = this.searchBox.getValue();
+         if ($$0.isEmpty()) {
+-            for (net.minecraft.world.item.Item $$1 : net.minecraft.core.Registry.ITEM) {
+-                $$1.fillItemCategory(net.minecraft.world.item.CreativeModeTab.TAB_SEARCH, ((net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen$ItemPickerMenu)this.menu).items);
+-            }
++            ((net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen$ItemPickerMenu)this.menu).items.addAll((java.util.Collection)net.minecraft.world.item.CreativeModeTabs.TAB_SEARCH.getDisplayItems(this.enabledFeatures));
+         } else {
+-            net.minecraft.client.searchtree.SearchTree $$3;
++            net.minecraft.client.searchtree.SearchTree $$2;
+             if ($$0.startsWith("#")) {
+                 $$0 = $$0.substring(1);
+-                net.minecraft.client.searchtree.SearchTree $$2 = this.minecraft.getSearchTree(net.minecraft.client.searchtree.SearchRegistry.CREATIVE_TAGS);
++                net.minecraft.client.searchtree.SearchTree $$1 = this.minecraft.getSearchTree(net.minecraft.client.searchtree.SearchRegistry.CREATIVE_TAGS);
+                 this.updateVisibleTags($$0);
+             } else {
+-                $$3 = this.minecraft.getSearchTree(net.minecraft.client.searchtree.SearchRegistry.CREATIVE_NAMES);
++                $$2 = this.minecraft.getSearchTree(net.minecraft.client.searchtree.SearchRegistry.CREATIVE_NAMES);
+             }
+-            ((net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen$ItemPickerMenu)this.menu).items.addAll((java.util.Collection)$$3.search($$0.toLowerCase(java.util.Locale.ROOT)));
++            ((net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen$ItemPickerMenu)this.menu).items.addAll((java.util.Collection)$$2.search($$0.toLowerCase(java.util.Locale.ROOT)));
+         }
+         this.scrollOffs = 0.0f;
+         ((net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen$ItemPickerMenu)this.menu).scrollTo(0.0f);
+     }
+ 
+-    public void updateVisibleTags(java.lang.String search) {
+-        java.util.function.Predicate predicate;
+-        int n = search.indexOf(58);
+-        if (n == -1) {
+-            predicate = $$1 -> $$1.getPath().contains((java.lang.CharSequence)search);
++    public void updateVisibleTags(java.lang.String $$0) {
++        java.util.function.Predicate $$5;
++        int $$12 = $$0.indexOf(58);
++        if ($$12 == -1) {
++            java.util.function.Predicate $$22 = $$1 -> $$1.getPath().contains((java.lang.CharSequence)$$0);
+         } else {
+-            java.lang.String string = search.substring(0, n).trim();
+-            java.lang.String string2 = search.substring(n + 1).trim();
+-            predicate = $$2 -> $$2.getNamespace().contains((java.lang.CharSequence)string) && $$2.getPath().contains((java.lang.CharSequence)string2);
++            java.lang.String $$3 = $$0.substring(0, $$12).trim();
++            java.lang.String $$4 = $$0.substring($$12 + 1).trim();
++            $$5 = $$2 -> $$2.getNamespace().contains((java.lang.CharSequence)$$3) && $$2.getPath().contains((java.lang.CharSequence)$$4);
+         }
+-        net.minecraft.core.Registry.ITEM.getTagNames().filter($$1 -> predicate.test((java.lang.Object)$$1.location())).forEach(arg_0 -> ((java.util.Set)this.visibleTags).add(arg_0));
++        net.minecraft.core.Registry.ITEM.getTagNames().filter($$1 -> $$5.test((java.lang.Object)$$1.location())).forEach(arg_0 -> ((java.util.Set)this.visibleTags).add(arg_0));
+     }
+ 
+-    public void renderLabels(com.mojang.blaze3d.vertex.PoseStack matrixStack, int x, int y) {
+-        net.minecraft.world.item.CreativeModeTab creativeModeTab = net.minecraft.world.item.CreativeModeTab.TABS[selectedTab];
+-        if (creativeModeTab.showTitle()) {
++    public void renderLabels(com.mojang.blaze3d.vertex.PoseStack $$0, int $$1, int $$2) {
++        net.minecraft.world.item.CreativeModeTab $$3 = net.minecraft.world.item.CreativeModeTabs.TABS[selectedTab];
++        if ($$3.showTitle()) {
+             com.mojang.blaze3d.systems.RenderSystem.disableBlend();
+-            this.font.draw(matrixStack, creativeModeTab.getDisplayName(), 8.0f, 6.0f, 0x404040);
++            this.font.draw($$0, $$3.getDisplayName(), 8.0f, 6.0f, 0x404040);
+         }
+     }
+ 
+-    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+-        if (button == 0) {
+-            double d = mouseX - (double)this.leftPos;
+-            double d2 = mouseY - (double)this.topPos;
+-            for (net.minecraft.world.item.CreativeModeTab creativeModeTab : net.minecraft.world.item.CreativeModeTab.TABS) {
+-                if (!this.checkTabClicked(creativeModeTab, d, d2)) continue;
++    public boolean mouseClicked(double $$0, double $$1, int $$2) {
++        if ($$2 == 0) {
++            double $$3 = $$0 - (double)this.leftPos;
++            double $$4 = $$1 - (double)this.topPos;
++            for (net.minecraft.world.item.CreativeModeTab $$5 : net.minecraft.world.item.CreativeModeTabs.TABS) {
++                if (!this.checkTabClicked($$5, $$3, $$4)) continue;
+                 return true;
+             }
+-            if (selectedTab != net.minecraft.world.item.CreativeModeTab.TAB_INVENTORY.getId() && this.insideScrollbar(mouseX, mouseY)) {
++            if (selectedTab != net.minecraft.world.item.CreativeModeTabs.TAB_INVENTORY.getId() && this.insideScrollbar($$0, $$1)) {
+                 this.scrolling = this.canScroll();
+                 return true;
+             }
+         }
+-        return super.mouseClicked(mouseX, mouseY, button);
++        return super.mouseClicked($$0, $$1, $$2);
+     }
+ 
+-    public boolean mouseReleased(double mouseX, double mouseY, int button) {
+-        if (button == 0) {
+-            double d = mouseX - (double)this.leftPos;
+-            double d2 = mouseY - (double)this.topPos;
++    public boolean mouseReleased(double $$0, double $$1, int $$2) {
++        if ($$2 == 0) {
++            double $$3 = $$0 - (double)this.leftPos;
++            double $$4 = $$1 - (double)this.topPos;
+             this.scrolling = false;
+-            for (net.minecraft.world.item.CreativeModeTab creativeModeTab : net.minecraft.world.item.CreativeModeTab.TABS) {
+-                if (!this.checkTabClicked(creativeModeTab, d, d2)) continue;
+-                this.selectTab(creativeModeTab);
++            for (net.minecraft.world.item.CreativeModeTab $$5 : net.minecraft.world.item.CreativeModeTabs.TABS) {
++                if (!this.checkTabClicked($$5, $$3, $$4)) continue;
++                this.selectTab($$5);
+                 return true;
+             }
+         }
+-        return super.mouseReleased(mouseX, mouseY, button);
++        return super.mouseReleased($$0, $$1, $$2);
+     }
+ 
+     public boolean canScroll() {
+-        return selectedTab != net.minecraft.world.item.CreativeModeTab.TAB_INVENTORY.getId() && net.minecraft.world.item.CreativeModeTab.TABS[selectedTab].canScroll() && ((net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen$ItemPickerMenu)this.menu).canScroll();
++        return selectedTab != net.minecraft.world.item.CreativeModeTabs.TAB_INVENTORY.getId() && net.minecraft.world.item.CreativeModeTabs.TABS[selectedTab].canScroll() && ((net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen$ItemPickerMenu)this.menu).canScroll();
+     }
+ 
+-    public void selectTab(net.minecraft.world.item.CreativeModeTab tab) {
+-        net.minecraft.world.item.ItemStack itemStack;
+-        int n;
+-        int n2;
+-        net.minecraft.client.HotbarManager hotbarManager;
+-        int n3 = selectedTab;
+-        selectedTab = tab.getId();
++    public void selectTab(net.minecraft.world.item.CreativeModeTab $$0) {
++        int $$1 = selectedTab;
++        selectedTab = $$0.getId();
+         this.quickCraftSlots.clear();
+         ((net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen$ItemPickerMenu)this.menu).items.clear();
+         this.clearDraggingState();
+-        if (tab == net.minecraft.world.item.CreativeModeTab.TAB_HOTBAR) {
+-            hotbarManager = this.minecraft.getHotbarManager();
+-            for (n2 = 0;
+- n2 < 9; ++n2) {
+-                net.minecraft.client.player.inventory.Hotbar hotbar = hotbarManager.get(n2);
+-                if (hotbar.isEmpty()) {
+-                    for (n = 0;
+- n < 9; ++n) {
+-                        if (n == n2) {
+-                            itemStack = new net.minecraft.world.item.ItemStack((net.minecraft.world.level.ItemLike)net.minecraft.world.item.Items.PAPER);
+-                            itemStack.getOrCreateTagElement("CustomCreativeLock");
+-                            net.minecraft.network.chat.Component component = this.minecraft.options.keyHotbarSlots[n2].getTranslatedKeyMessage();
+-                            net.minecraft.network.chat.Component component2 = this.minecraft.options.keySaveHotbarActivator.getTranslatedKeyMessage();
+-                            itemStack.setHoverName((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"inventory.hotbarInfo", (java.lang.Object[])new java.lang.Object[]{component2, component}));
+-                            ((net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen$ItemPickerMenu)this.menu).items.add((java.lang.Object)itemStack);
++        if ($$0 == net.minecraft.world.item.CreativeModeTabs.TAB_HOTBAR) {
++            net.minecraft.client.HotbarManager $$2 = this.minecraft.getHotbarManager();
++            for (int $$3 = 0; $$3 < 9; ++$$3) {
++                net.minecraft.client.player.inventory.Hotbar $$4 = $$2.get($$3);
++                if ($$4.isEmpty()) {
++                    for (int $$5 = 0; $$5 < 9; ++$$5) {
++                        if ($$5 == $$3) {
++                            net.minecraft.world.item.ItemStack $$6 = new net.minecraft.world.item.ItemStack((net.minecraft.world.level.ItemLike)net.minecraft.world.item.Items.PAPER);
++                            $$6.getOrCreateTagElement("CustomCreativeLock");
++                            net.minecraft.network.chat.Component $$7 = this.minecraft.options.keyHotbarSlots[$$3].getTranslatedKeyMessage();
++                            net.minecraft.network.chat.Component $$8 = this.minecraft.options.keySaveHotbarActivator.getTranslatedKeyMessage();
++                            $$6.setHoverName((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"inventory.hotbarInfo", (java.lang.Object[])new java.lang.Object[]{$$8, $$7}));
++                            ((net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen$ItemPickerMenu)this.menu).items.add((java.lang.Object)$$6);
+                             continue;
+                         }
+                         ((net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen$ItemPickerMenu)this.menu).items.add((java.lang.Object)net.minecraft.world.item.ItemStack.EMPTY);
+                     }
+                     continue;
+                 }
+-                ((net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen$ItemPickerMenu)this.menu).items.addAll((java.util.Collection)hotbar);
++                ((net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen$ItemPickerMenu)this.menu).items.addAll((java.util.Collection)$$4);
+             }
+-        } else if (tab != net.minecraft.world.item.CreativeModeTab.TAB_SEARCH) {
+-            tab.fillItemList(((net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen$ItemPickerMenu)this.menu).items);
++        } else if ($$0 != net.minecraft.world.item.CreativeModeTabs.TAB_SEARCH) {
++            ((net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen$ItemPickerMenu)this.menu).items.addAll((java.util.Collection)$$0.getDisplayItems(this.enabledFeatures));
+         }
+-        if (tab == net.minecraft.world.item.CreativeModeTab.TAB_INVENTORY) {
+-            hotbarManager = this.minecraft.player.inventoryMenu;
++        if ($$0 == net.minecraft.world.item.CreativeModeTabs.TAB_INVENTORY) {
++            net.minecraft.world.inventory.InventoryMenu $$9 = this.minecraft.player.inventoryMenu;
+             if (this.originalSlots == null) {
+                 this.originalSlots = com.google.common.collect.ImmutableList.copyOf((java.util.Collection)((net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen$ItemPickerMenu)this.menu).slots);
+             }
+             ((net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen$ItemPickerMenu)this.menu).slots.clear();
+-            for (n2 = 0;
+- n2 < hotbarManager.slots.size(); ++n2) {
+-                int n4;
+-                if (n2 >= 5 && n2 < 9) {
+-                    int n5 = n2 - 5;
+-                    var8_12 = n5 / 2;
+-                    var9_14 = n5 % 2;
+-                    n4 = 54 + var8_12 * 54;
+-                    n = 6 + var9_14 * 27;
+-                } else if (n2 >= 0 && n2 < 5) {
+-                    n4 = -2000;
+-                    n = -2000;
+-                } else if (n2 == 45) {
+-                    n4 = 35;
+-                    n = 20;
++            for (int $$10 = 0; $$10 < $$9.slots.size(); ++$$10) {
++                int $$25;
++                int $$23;
++                if ($$10 >= 5 && $$10 < 9) {
++                    int $$11 = $$10 - 5;
++                    int $$12 = $$11 / 2;
++                    int $$13 = $$11 % 2;
++                    int $$14 = 54 + $$12 * 54;
++                    int $$15 = 6 + $$13 * 27;
++                } else if ($$10 >= 0 && $$10 < 5) {
++                    int $$16 = -2000;
++                    int $$17 = -2000;
++                } else if ($$10 == 45) {
++                    int $$18 = 35;
++                    int $$19 = 20;
+                 } else {
+-                    int n6 = n2 - 9;
+-                    var8_12 = n6 % 9;
+-                    var9_14 = n6 / 9;
+-                    n4 = 9 + var8_12 * 18;
+-                    n = n2 >= 36 ? 112 : 54 + var9_14 * 18;
++                    int $$20 = $$10 - 9;
++                    int $$21 = $$20 % 9;
++                    int $$22 = $$20 / 9;
++                    $$23 = 9 + $$21 * 18;
++                    if ($$10 >= 36) {
++                        int $$24 = 112;
++                    } else {
++                        $$25 = 54 + $$22 * 18;
++                    }
+                 }
+-                itemStack = new net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen$SlotWrapper((net.minecraft.world.inventory.Slot)hotbarManager.slots.get(n2), n2, n4, n);
+-                ((net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen$ItemPickerMenu)this.menu).slots.add((java.lang.Object)itemStack);
++                net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen$SlotWrapper $$26 = new net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen$SlotWrapper((net.minecraft.world.inventory.Slot)$$9.slots.get($$10), $$10, $$23, $$25);
++                ((net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen$ItemPickerMenu)this.menu).slots.add((java.lang.Object)$$26);
+             }
+             this.destroyItemSlot = new net.minecraft.world.inventory.Slot((net.minecraft.world.Container)CONTAINER, 0, 173, 112);
+             ((net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen$ItemPickerMenu)this.menu).slots.add((java.lang.Object)this.destroyItemSlot);
+-        } else if (n3 == net.minecraft.world.item.CreativeModeTab.TAB_INVENTORY.getId()) {
++        } else if ($$1 == net.minecraft.world.item.CreativeModeTabs.TAB_INVENTORY.getId()) {
+             ((net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen$ItemPickerMenu)this.menu).slots.clear();
+             ((net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen$ItemPickerMenu)this.menu).slots.addAll((java.util.Collection)this.originalSlots);
+             this.originalSlots = null;
+         }
+         if (this.searchBox != null) {
+-            if (tab == net.minecraft.world.item.CreativeModeTab.TAB_SEARCH) {
++            if ($$0 == net.minecraft.world.item.CreativeModeTabs.TAB_SEARCH) {
+                 this.searchBox.setVisible(true);
+                 this.searchBox.setCanLoseFocus(false);
+                 this.searchBox.setFocus(true);
+-                if (n3 != tab.getId()) {
++                if ($$1 != $$0.getId()) {
+                     this.searchBox.setValue("");
+                 }
+                 this.refreshSearchResults();
+@@ -435,170 +431,161 @@
+         ((net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen$ItemPickerMenu)this.menu).scrollTo(0.0f);
+     }
+ 
+-    public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
++    public boolean mouseScrolled(double $$0, double $$1, double $$2) {
+         if (!this.canScroll()) {
+             return false;
+         }
+-        int n = (((net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen$ItemPickerMenu)this.menu).items.size() + 9 - 1) / 9 - 5;
+-        float f = (float)(delta / (double)n);
+-        this.scrollOffs = net.minecraft.util.Mth.clamp((float)(this.scrollOffs - f), (float)0.0f, (float)1.0f);
++        int $$3 = (((net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen$ItemPickerMenu)this.menu).items.size() + 9 - 1) / 9 - 5;
++        float $$4 = (float)($$2 / (double)$$3);
++        this.scrollOffs = net.minecraft.util.Mth.clamp((float)(this.scrollOffs - $$4), (float)0.0f, (float)1.0f);
+         ((net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen$ItemPickerMenu)this.menu).scrollTo(this.scrollOffs);
+         return true;
+     }
+ 
+-    public boolean hasClickedOutside(double mouseX, double mouseY, int guiLeft, int guiTop, int mouseButton) {
+-        boolean bl = mouseX < (double)guiLeft || mouseY < (double)guiTop || mouseX >= (double)(guiLeft + this.imageWidth) || mouseY >= (double)(guiTop + this.imageHeight);
+-        this.hasClickedOutside = bl && !this.checkTabClicked(net.minecraft.world.item.CreativeModeTab.TABS[selectedTab], mouseX, mouseY);
++    public boolean hasClickedOutside(double $$0, double $$1, int $$2, int $$3, int $$4) {
++        boolean $$5 = $$0 < (double)$$2 || $$1 < (double)$$3 || $$0 >= (double)($$2 + this.imageWidth) || $$1 >= (double)($$3 + this.imageHeight);
++        this.hasClickedOutside = $$5 && !this.checkTabClicked(net.minecraft.world.item.CreativeModeTabs.TABS[selectedTab], $$0, $$1);
+         return this.hasClickedOutside;
+     }
+ 
+-    public boolean insideScrollbar(double mouseX, double mouseY) {
+-        int n = this.leftPos;
+-        int n2 = this.topPos;
+-        int n3 = n + 175;
+-        int n4 = n2 + 18;
+-        int n5 = n3 + 14;
+-        int n6 = n4 + 112;
+-        return mouseX >= (double)n3 && mouseY >= (double)n4 && mouseX < (double)n5 && mouseY < (double)n6;
++    public boolean insideScrollbar(double $$0, double $$1) {
++        int $$2 = this.leftPos;
++        int $$3 = this.topPos;
++        int $$4 = $$2 + 175;
++        int $$5 = $$3 + 18;
++        int $$6 = $$4 + 14;
++        int $$7 = $$5 + 112;
++        return $$0 >= (double)$$4 && $$1 >= (double)$$5 && $$0 < (double)$$6 && $$1 < (double)$$7;
+     }
+ 
+-    public boolean mouseDragged(double mouseX, double mouseY, int button, double dragX, double dragY) {
++    public boolean mouseDragged(double $$0, double $$1, int $$2, double $$3, double $$4) {
+         if (this.scrolling) {
+-            int n = this.topPos + 18;
+-            int n2 = n + 112;
+-            this.scrollOffs = ((float)mouseY - (float)n - 7.5f) / ((float)(n2 - n) - 15.0f);
++            int $$5 = this.topPos + 18;
++            int $$6 = $$5 + 112;
++            this.scrollOffs = ((float)$$1 - (float)$$5 - 7.5f) / ((float)($$6 - $$5) - 15.0f);
+             this.scrollOffs = net.minecraft.util.Mth.clamp((float)this.scrollOffs, (float)0.0f, (float)1.0f);
+             ((net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen$ItemPickerMenu)this.menu).scrollTo(this.scrollOffs);
+             return true;
+         }
+-        return super.mouseDragged(mouseX, mouseY, button, dragX, dragY);
++        return super.mouseDragged($$0, $$1, $$2, $$3, $$4);
+     }
+ 
+-    public void render(com.mojang.blaze3d.vertex.PoseStack matrixStack, int mouseX, int mouseY, float partialTicks) {
+-        this.renderBackground(matrixStack);
+-        super.render(matrixStack, mouseX, mouseY, partialTicks);
+-        for (net.minecraft.world.item.CreativeModeTab creativeModeTab : net.minecraft.world.item.CreativeModeTab.TABS) {
+-            if (this.checkTabHovering(matrixStack, creativeModeTab, mouseX, mouseY)) break;
++    public void render(com.mojang.blaze3d.vertex.PoseStack $$0, int $$1, int $$2, float $$3) {
++        this.renderBackground($$0);
++        super.render($$0, $$1, $$2, $$3);
++        for (net.minecraft.world.item.CreativeModeTab $$4 : net.minecraft.world.item.CreativeModeTabs.TABS) {
++            if (this.checkTabHovering($$0, $$4, $$1, $$2)) break;
+         }
+-        if (this.destroyItemSlot != null && selectedTab == net.minecraft.world.item.CreativeModeTab.TAB_INVENTORY.getId() && this.isHovering(this.destroyItemSlot.x, this.destroyItemSlot.y, 16, 16, (double)mouseX, (double)mouseY)) {
+-            this.renderTooltip(matrixStack, TRASH_SLOT_TOOLTIP, mouseX, mouseY);
++        if (this.destroyItemSlot != null && selectedTab == net.minecraft.world.item.CreativeModeTabs.TAB_INVENTORY.getId() && this.isHovering(this.destroyItemSlot.x, this.destroyItemSlot.y, 16, 16, (double)$$1, (double)$$2)) {
++            this.renderTooltip($$0, TRASH_SLOT_TOOLTIP, $$1, $$2);
+         }
+         com.mojang.blaze3d.systems.RenderSystem.setShaderColor((float)1.0f, (float)1.0f, (float)1.0f, (float)1.0f);
+-        this.renderTooltip(matrixStack, mouseX, mouseY);
++        this.renderTooltip($$0, $$1, $$2);
+     }
+ 
+-    public void renderTooltip(com.mojang.blaze3d.vertex.PoseStack matrixStack, net.minecraft.world.item.ItemStack itemStack, int mouseX, int mouseY) {
+-        if (selectedTab == net.minecraft.world.item.CreativeModeTab.TAB_SEARCH.getId()) {
+-            java.util.Map map;
+-            java.util.List list = itemStack.getTooltipLines((net.minecraft.world.entity.player.Player)this.minecraft.player, (net.minecraft.world.item.TooltipFlag)(this.minecraft.options.advancedItemTooltips ? net.minecraft.world.item.TooltipFlag$Default.ADVANCED : net.minecraft.world.item.TooltipFlag$Default.NORMAL));
+-            java.util.ArrayList arrayList = com.google.common.collect.Lists.newArrayList((java.lang.Iterable)list);
+-            net.minecraft.world.item.Item item = itemStack.getItem();
+-            net.minecraft.world.item.CreativeModeTab creativeModeTab = item.getItemCategory();
+-            if (creativeModeTab == null && itemStack.is(net.minecraft.world.item.Items.ENCHANTED_BOOK) && (map = net.minecraft.world.item.enchantment.EnchantmentHelper.getEnchantments((net.minecraft.world.item.ItemStack)itemStack)).size() == 1) {
+-                net.minecraft.world.item.enchantment.Enchantment enchantment = (net.minecraft.world.item.enchantment.Enchantment)map.keySet().iterator().next();
+-                for (net.minecraft.world.item.CreativeModeTab creativeModeTab2 : net.minecraft.world.item.CreativeModeTab.TABS) {
+-                    if (!creativeModeTab2.hasEnchantmentCategory(enchantment.category)) continue;
+-                    creativeModeTab = creativeModeTab2;
+-                    break;
+-                }
++    public void renderTooltip(com.mojang.blaze3d.vertex.PoseStack $$0, net.minecraft.world.item.ItemStack $$1, int $$2, int $$3) {
++        if (selectedTab == net.minecraft.world.item.CreativeModeTabs.TAB_SEARCH.getId()) {
++            java.util.List $$4 = $$1.getTooltipLines((net.minecraft.world.entity.player.Player)this.minecraft.player, (net.minecraft.world.item.TooltipFlag)(this.minecraft.options.advancedItemTooltips ? net.minecraft.world.item.TooltipFlag$Default.ADVANCED : net.minecraft.world.item.TooltipFlag$Default.NORMAL));
++            java.util.ArrayList $$5 = com.google.common.collect.Lists.newArrayList((java.lang.Iterable)$$4);
++            this.visibleTags.forEach(arg_0 -> net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen.lambda$renderTooltip$3($$1, (java.util.List)$$5, arg_0));
++            int $$6 = 1;
++            for (net.minecraft.world.item.CreativeModeTab $$7 : net.minecraft.world.item.CreativeModeTabs.TABS) {
++                if ($$7 == net.minecraft.world.item.CreativeModeTabs.TAB_SEARCH || !$$7.contains(this.enabledFeatures, $$1)) continue;
++                $$5.add($$6++, (java.lang.Object)$$7.getDisplayName().copy().withStyle(net.minecraft.ChatFormatting.BLUE));
+             }
+-            this.visibleTags.forEach(arg_0 -> net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen.lambda$renderTooltip$3(itemStack, (java.util.List)arrayList, arg_0));
+-            if (creativeModeTab != null) {
+-                arrayList.add(1, (java.lang.Object)creativeModeTab.getDisplayName().copy().withStyle(net.minecraft.ChatFormatting.BLUE));
+-            }
+-            this.renderTooltip(matrixStack, (java.util.List)arrayList, itemStack.getTooltipImage(), mouseX, mouseY);
++            this.renderTooltip($$0, (java.util.List)$$5, $$1.getTooltipImage(), $$2, $$3);
+         } else {
+-            super.renderTooltip(matrixStack, itemStack, mouseX, mouseY);
++            super.renderTooltip($$0, $$1, $$2, $$3);
+         }
+     }
+ 
+-    public void renderBg(com.mojang.blaze3d.vertex.PoseStack matrixStack, float partialTicks, int x, int y) {
++    public void renderBg(com.mojang.blaze3d.vertex.PoseStack $$0, float $$1, int $$2, int $$3) {
+         com.mojang.blaze3d.systems.RenderSystem.setShaderColor((float)1.0f, (float)1.0f, (float)1.0f, (float)1.0f);
+-        net.minecraft.world.item.CreativeModeTab creativeModeTab = net.minecraft.world.item.CreativeModeTab.TABS[selectedTab];
+-        for (net.minecraft.world.item.CreativeModeTab creativeModeTab2 : net.minecraft.world.item.CreativeModeTab.TABS) {
++        net.minecraft.world.item.CreativeModeTab $$4 = net.minecraft.world.item.CreativeModeTabs.TABS[selectedTab];
++        for (net.minecraft.world.item.CreativeModeTab $$5 : net.minecraft.world.item.CreativeModeTabs.TABS) {
+             com.mojang.blaze3d.systems.RenderSystem.setShader(net.minecraft.client.renderer.GameRenderer::getPositionTexShader);
+             com.mojang.blaze3d.systems.RenderSystem.setShaderTexture((int)0, (net.minecraft.resources.ResourceLocation)CREATIVE_TABS_LOCATION);
+-            if (creativeModeTab2.getId() == selectedTab) continue;
+-            this.renderTabButton(matrixStack, creativeModeTab2);
++            if ($$5.getId() == selectedTab) continue;
++            this.renderTabButton($$0, $$5);
+         }
+         com.mojang.blaze3d.systems.RenderSystem.setShader(net.minecraft.client.renderer.GameRenderer::getPositionTexShader);
+-        com.mojang.blaze3d.systems.RenderSystem.setShaderTexture((int)0, (net.minecraft.resources.ResourceLocation)new net.minecraft.resources.ResourceLocation("textures/gui/container/creative_inventory/tab_" + creativeModeTab.getBackgroundSuffix()));
+-        this.blit(matrixStack, this.leftPos, this.topPos, 0, 0, this.imageWidth, this.imageHeight);
+-        this.searchBox.render(matrixStack, x, y, partialTicks);
++        com.mojang.blaze3d.systems.RenderSystem.setShaderTexture((int)0, (net.minecraft.resources.ResourceLocation)new net.minecraft.resources.ResourceLocation("textures/gui/container/creative_inventory/tab_" + $$4.getBackgroundSuffix()));
++        this.blit($$0, this.leftPos, this.topPos, 0, 0, this.imageWidth, this.imageHeight);
++        this.searchBox.render($$0, $$2, $$3, $$1);
+         com.mojang.blaze3d.systems.RenderSystem.setShaderColor((float)1.0f, (float)1.0f, (float)1.0f, (float)1.0f);
+-        int n = this.leftPos + 175;
+-        int n2 = this.topPos + 18;
+-        int n3 = n2 + 112;
++        int $$6 = this.leftPos + 175;
++        int $$7 = this.topPos + 18;
++        int $$8 = $$7 + 112;
+         com.mojang.blaze3d.systems.RenderSystem.setShader(net.minecraft.client.renderer.GameRenderer::getPositionTexShader);
+         com.mojang.blaze3d.systems.RenderSystem.setShaderTexture((int)0, (net.minecraft.resources.ResourceLocation)CREATIVE_TABS_LOCATION);
+-        if (creativeModeTab.canScroll()) {
+-            this.blit(matrixStack, n, n2 + (int)((float)(n3 - n2 - 17) * this.scrollOffs), 232 + (this.canScroll() ? 0 : 12), 0, 12, 15);
++        if ($$4.canScroll()) {
++            this.blit($$0, $$6, $$7 + (int)((float)($$8 - $$7 - 17) * this.scrollOffs), 232 + (this.canScroll() ? 0 : 12), 0, 12, 15);
+         }
+-        this.renderTabButton(matrixStack, creativeModeTab);
+-        if (creativeModeTab == net.minecraft.world.item.CreativeModeTab.TAB_INVENTORY) {
+-            net.minecraft.client.gui.screens.inventory.InventoryScreen.renderEntityInInventory((int)(this.leftPos + 88), (int)(this.topPos + 45), (int)20, (float)(this.leftPos + 88 - x), (float)(this.topPos + 45 - 30 - y), (net.minecraft.world.entity.LivingEntity)this.minecraft.player);
++        this.renderTabButton($$0, $$4);
++        if ($$4 == net.minecraft.world.item.CreativeModeTabs.TAB_INVENTORY) {
++            net.minecraft.client.gui.screens.inventory.InventoryScreen.renderEntityInInventory((int)(this.leftPos + 88), (int)(this.topPos + 45), (int)20, (float)(this.leftPos + 88 - $$2), (float)(this.topPos + 45 - 30 - $$3), (net.minecraft.world.entity.LivingEntity)this.minecraft.player);
+         }
+     }
+ 
+-    public boolean checkTabClicked(net.minecraft.world.item.CreativeModeTab creativeModeTab, double relativeMouseX, double relativeMouseY) {
+-        int n = creativeModeTab.getColumn();
+-        int n2 = 28 * n;
+-        int n3 = 0;
+-        if (creativeModeTab.isAlignedRight()) {
+-            n2 = this.imageWidth - 28 * (6 - n) + 2;
+-        } else if (n > 0) {
+-            n2 += n;
++    public boolean checkTabClicked(net.minecraft.world.item.CreativeModeTab $$0, double $$1, double $$2) {
++        int $$3 = $$0.getColumn();
++        int $$4 = 28 * $$3;
++        int $$5 = 0;
++        if ($$0.isAlignedRight()) {
++            $$4 = this.imageWidth - 28 * (6 - $$3) + 2;
++        } else if ($$3 > 0) {
++            $$4 += $$3;
+         }
+-        n3 = creativeModeTab.isTopRow() ? (n3 -= 32) : (n3 += this.imageHeight);
+-        return relativeMouseX >= (double)n2 && relativeMouseX <= (double)(n2 + 28) && relativeMouseY >= (double)n3 && relativeMouseY <= (double)(n3 + 32);
++        $$5 = $$0.isTopRow() ? ($$5 -= 32) : ($$5 += this.imageHeight);
++        return $$1 >= (double)$$4 && $$1 <= (double)($$4 + 28) && $$2 >= (double)$$5 && $$2 <= (double)($$5 + 32);
+     }
+ 
+-    public boolean checkTabHovering(com.mojang.blaze3d.vertex.PoseStack poseStack, net.minecraft.world.item.CreativeModeTab creativeModeTab, int mouseX, int mouseY) {
+-        int n = creativeModeTab.getColumn();
+-        int n2 = 28 * n;
+-        int n3 = 0;
+-        if (creativeModeTab.isAlignedRight()) {
+-            n2 = this.imageWidth - 28 * (6 - n) + 2;
+-        } else if (n > 0) {
+-            n2 += n;
++    public boolean checkTabHovering(com.mojang.blaze3d.vertex.PoseStack $$0, net.minecraft.world.item.CreativeModeTab $$1, int $$2, int $$3) {
++        int $$4 = $$1.getColumn();
++        int $$5 = 28 * $$4;
++        int $$6 = 0;
++        if ($$1.isAlignedRight()) {
++            $$5 = this.imageWidth - 28 * (6 - $$4) + 2;
++        } else if ($$4 > 0) {
++            $$5 += $$4;
+         }
+-        n3 = creativeModeTab.isTopRow() ? (n3 -= 32) : (n3 += this.imageHeight);
+-        if (this.isHovering(n2 + 3, n3 + 3, 23, 27, (double)mouseX, (double)mouseY)) {
+-            this.renderTooltip(poseStack, creativeModeTab.getDisplayName(), mouseX, mouseY);
++        $$6 = $$1.isTopRow() ? ($$6 -= 32) : ($$6 += this.imageHeight);
++        if (this.isHovering($$5 + 3, $$6 + 3, 23, 27, (double)$$2, (double)$$3)) {
++            this.renderTooltip($$0, $$1.getDisplayName(), $$2, $$3);
+             return true;
+         }
+         return false;
+     }
+ 
+-    public void renderTabButton(com.mojang.blaze3d.vertex.PoseStack poseStack, net.minecraft.world.item.CreativeModeTab creativeModeTab) {
+-        boolean bl = creativeModeTab.getId() == selectedTab;
+-        boolean bl2 = creativeModeTab.isTopRow();
+-        int n = creativeModeTab.getColumn();
+-        int n2 = n * 28;
+-        int n3 = 0;
+-        int n4 = this.leftPos + 28 * n;
+-        int n5 = this.topPos;
+-        int n6 = 32;
+-        if (bl) {
+-            n3 += 32;
++    public void renderTabButton(com.mojang.blaze3d.vertex.PoseStack $$0, net.minecraft.world.item.CreativeModeTab $$1) {
++        boolean $$2 = $$1.getId() == selectedTab;
++        boolean $$3 = $$1.isTopRow();
++        int $$4 = $$1.getColumn();
++        int $$5 = $$4 * 28;
++        int $$6 = 0;
++        int $$7 = this.leftPos + 28 * $$4;
++        int $$8 = this.topPos;
++        int $$9 = 32;
++        if ($$2) {
++            $$6 += 32;
+         }
+-        if (creativeModeTab.isAlignedRight()) {
+-            n4 = this.leftPos + this.imageWidth - 28 * (6 - n);
+-        } else if (n > 0) {
+-            n4 += n;
++        if ($$1.isAlignedRight()) {
++            $$7 = this.leftPos + this.imageWidth - 28 * (6 - $$4);
++        } else if ($$4 > 0) {
++            $$7 += $$4;
+         }
+-        if (bl2) {
+-            n5 -= 28;
++        if ($$3) {
++            $$8 -= 28;
+         } else {
+-            n3 += 64;
+-            n5 += this.imageHeight - 4;
++            $$6 += 64;
++            $$8 += this.imageHeight - 4;
+         }
+-        this.blit(poseStack, n4, n5, n2, n3, 28, 32);
++        this.blit($$0, $$7, $$8, $$5, $$6, 28, 32);
+         this.itemRenderer.blitOffset = 100.0f;
+-        int n7 = bl2 ? 1 : -1;
+-        net.minecraft.world.item.ItemStack itemStack = creativeModeTab.getIconItem();
+-        this.itemRenderer.renderAndDecorateItem(itemStack, n4 += 6, n5 += 8 + n7);
+-        this.itemRenderer.renderGuiItemDecorations(this.font, itemStack, n4, n5);
++        int n = $$3 ? 1 : -1;
++        net.minecraft.world.item.ItemStack $$10 = $$1.getIconItem();
++        this.itemRenderer.renderAndDecorateItem($$10, $$7 += 6, $$8 += 8 + n);
++        this.itemRenderer.renderGuiItemDecorations(this.font, $$10, $$7, $$8);
+         this.itemRenderer.blitOffset = 0.0f;
+     }
+ 
+@@ -606,27 +593,27 @@
+         return selectedTab;
+     }
+ 
+-    public static void handleHotbarLoadOrSave(net.minecraft.client.Minecraft client, int index, boolean load, boolean save) {
+-        net.minecraft.client.player.LocalPlayer localPlayer = client.player;
+-        net.minecraft.client.HotbarManager hotbarManager = client.getHotbarManager();
+-        net.minecraft.client.player.inventory.Hotbar hotbar = hotbarManager.get(index);
+-        if (load) {
+-            for (int i = 0; i < net.minecraft.world.entity.player.Inventory.getSelectionSize(); ++i) {
+-                net.minecraft.world.item.ItemStack itemStack = ((net.minecraft.world.item.ItemStack)hotbar.get(i)).copy();
+-                localPlayer.getInventory().setItem(i, itemStack);
+-                client.gameMode.handleCreativeModeItemAdd(itemStack, 36 + i);
++    public static void handleHotbarLoadOrSave(net.minecraft.client.Minecraft $$0, int $$1, boolean $$2, boolean $$3) {
++        net.minecraft.client.player.LocalPlayer $$4 = $$0.player;
++        net.minecraft.client.HotbarManager $$5 = $$0.getHotbarManager();
++        net.minecraft.client.player.inventory.Hotbar $$6 = $$5.get($$1);
++        if ($$2) {
++            for (int $$7 = 0; $$7 < net.minecraft.world.entity.player.Inventory.getSelectionSize(); ++$$7) {
++                net.minecraft.world.item.ItemStack $$8 = ((net.minecraft.world.item.ItemStack)$$6.get($$7)).copy();
++                $$4.getInventory().setItem($$7, $$8);
++                $$0.gameMode.handleCreativeModeItemAdd($$8, 36 + $$7);
+             }
+-            localPlayer.inventoryMenu.broadcastChanges();
+-        } else if (save) {
+-            for (int i = 0; i < net.minecraft.world.entity.player.Inventory.getSelectionSize(); ++i) {
+-                hotbar.set(i, (java.lang.Object)localPlayer.getInventory().getItem(i).copy());
++            $$4.inventoryMenu.broadcastChanges();
++        } else if ($$3) {
++            for (int $$9 = 0; $$9 < net.minecraft.world.entity.player.Inventory.getSelectionSize(); ++$$9) {
++                $$6.set($$9, (java.lang.Object)$$4.getInventory().getItem($$9).copy());
+             }
+-            net.minecraft.network.chat.Component component = client.options.keyHotbarSlots[index].getTranslatedKeyMessage();
+-            net.minecraft.network.chat.Component component2 = client.options.keyLoadHotbarActivator.getTranslatedKeyMessage();
+-            net.minecraft.network.chat.MutableComponent mutableComponent = net.minecraft.network.chat.Component.translatable((java.lang.String)"inventory.hotbarSaved", (java.lang.Object[])new java.lang.Object[]{component2, component});
+-            client.gui.setOverlayMessage((net.minecraft.network.chat.Component)mutableComponent, false);
+-            client.getNarrator().sayNow((net.minecraft.network.chat.Component)mutableComponent);
+-            hotbarManager.save();
++            net.minecraft.network.chat.Component $$10 = $$0.options.keyHotbarSlots[$$1].getTranslatedKeyMessage();
++            net.minecraft.network.chat.Component $$11 = $$0.options.keyLoadHotbarActivator.getTranslatedKeyMessage();
++            net.minecraft.network.chat.MutableComponent $$12 = net.minecraft.network.chat.Component.translatable((java.lang.String)"inventory.hotbarSaved", (java.lang.Object[])new java.lang.Object[]{$$11, $$10});
++            $$0.gui.setOverlayMessage((net.minecraft.network.chat.Component)$$12, false);
++            $$0.getNarrator().sayNow((net.minecraft.network.chat.Component)$$12);
++            $$5.save();
+         }
+     }
+ 
+@@ -640,7 +627,7 @@
+         CREATIVE_TABS_LOCATION = new net.minecraft.resources.ResourceLocation("textures/gui/container/creative_inventory/tabs.png");
+         CONTAINER = new net.minecraft.world.SimpleContainer(45);
+         TRASH_SLOT_TOOLTIP = net.minecraft.network.chat.Component.translatable((java.lang.String)"inventory.binSlot");
+-        selectedTab = net.minecraft.world.item.CreativeModeTab.TAB_BUILDING_BLOCKS.getId();
++        selectedTab = net.minecraft.world.item.CreativeModeTabs.TAB_BUILDING_BLOCKS.getId();
+     }
+ }
+ 

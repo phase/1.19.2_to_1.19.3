@@ -1,0 +1,334 @@
+--- net/minecraft/client/Options.java
++++ net/minecraft/client/Options.java
+@@ -44,6 +44,7 @@
+     public net.minecraft.client.OptionInstance<java.lang.Double> chatOpacity;
+     public net.minecraft.client.OptionInstance<java.lang.Double> chatLineSpacing;
+     public net.minecraft.client.OptionInstance<java.lang.Double> textBackgroundOpacity;
++    public net.minecraft.client.OptionInstance<java.lang.Double> panoramaSpeed;
+     @javax.annotation.Nullable
+     public java.lang.String fullscreenVideoModeString;
+     public boolean hideServerAddress;
+@@ -60,7 +61,6 @@
+     public net.minecraft.client.OptionInstance<java.lang.Double> chatHeightFocused;
+     public net.minecraft.client.OptionInstance<java.lang.Double> chatDelay;
+     public net.minecraft.client.OptionInstance<java.lang.Integer> mipmapLevels;
+-    public it.unimi.dsi.fastutil.objects.Object2FloatMap<net.minecraft.sounds.SoundSource> sourceVolumes;
+     public boolean useNativeTransport;
+     public net.minecraft.client.OptionInstance<net.minecraft.client.AttackIndicatorStatus> attackIndicator;
+     public net.minecraft.client.tutorial.TutorialSteps tutorialStep;
+@@ -84,6 +84,7 @@
+     public static net.minecraft.network.chat.Component ALLOW_SERVER_LISTING_TOOLTIP;
+     public net.minecraft.client.OptionInstance<java.lang.Boolean> allowServerListing;
+     public net.minecraft.client.OptionInstance<java.lang.Boolean> reducedDebugInfo;
++    public java.util.Map<net.minecraft.sounds.SoundSource, net.minecraft.client.OptionInstance<java.lang.Double>> soundSourceVolumes;
+     public net.minecraft.client.OptionInstance<java.lang.Boolean> showSubtitles;
+     public static net.minecraft.network.chat.Component DIRECTIONAL_AUDIO_TOOLTIP_ON;
+     public static net.minecraft.network.chat.Component DIRECTIONAL_AUDIO_TOOLTIP_OFF;
+@@ -101,10 +102,6 @@
+     public static net.minecraft.network.chat.Component CHAT_TOOLTIP_HIDE_MATCHED_NAMES;
+     public net.minecraft.client.OptionInstance<java.lang.Boolean> hideMatchedNames;
+     public net.minecraft.client.OptionInstance<java.lang.Boolean> showAutosaveIndicator;
+-    public static net.minecraft.network.chat.Component CHAT_PREVIEW_OFF_TOOLTIP;
+-    public static net.minecraft.network.chat.Component CHAT_PREVIEW_LIVE_TOOLTIP;
+-    public static net.minecraft.network.chat.Component CHAT_PREVIEW_CONFIRM_TOOLTIP;
+-    public net.minecraft.client.OptionInstance<net.minecraft.client.multiplayer.chat.ChatPreviewStatus> chatPreview;
+     public static net.minecraft.network.chat.Component CHAT_TOOLTIP_ONLY_SHOW_SECURE;
+     public net.minecraft.client.OptionInstance<java.lang.Boolean> onlyShowSecureChat;
+     public net.minecraft.client.KeyMapping keyUp;
+@@ -218,6 +215,10 @@
+         return this.textBackgroundOpacity;
+     }
+ 
++    public net.minecraft.client.OptionInstance<java.lang.Double> panoramaSpeed() {
++        return this.panoramaSpeed;
++    }
++
+     public net.minecraft.client.OptionInstance<net.minecraft.world.entity.HumanoidArm> mainHand() {
+         return this.mainHand;
+     }
+@@ -322,6 +323,23 @@
+         return this.reducedDebugInfo;
+     }
+ 
++    public float getSoundSourceVolume(net.minecraft.sounds.SoundSource $$0) {
++        return ((java.lang.Double)this.getSoundSourceOptionInstance($$0).get()).floatValue();
++    }
++
++    public net.minecraft.client.OptionInstance<java.lang.Double> getSoundSourceOptionInstance(net.minecraft.sounds.SoundSource $$0) {
++        return (net.minecraft.client.OptionInstance)java.util.Objects.requireNonNull((java.lang.Object)((net.minecraft.client.OptionInstance)this.soundSourceVolumes.get((java.lang.Object)$$0)));
++    }
++
++    public net.minecraft.client.OptionInstance<java.lang.Double> createSoundSliderOptionInstance(java.lang.String $$02, net.minecraft.sounds.SoundSource $$12) {
++        return new net.minecraft.client.OptionInstance($$02, net.minecraft.client.OptionInstance.noTooltip(), ($$0, $$1) -> {
++            if ($$1 == 0.0) {
++                return net.minecraft.client.Options.genericValueLabel((net.minecraft.network.chat.Component)$$0, (net.minecraft.network.chat.Component)net.minecraft.network.chat.CommonComponents.OPTION_OFF);
++            }
++            return net.minecraft.client.Options.percentValueLabel((net.minecraft.network.chat.Component)$$0, (double)$$1);
++        }, (net.minecraft.client.OptionInstance$ValueSet)net.minecraft.client.OptionInstance$UnitDouble.INSTANCE, (java.lang.Object)1.0, $$1 -> net.minecraft.client.Minecraft.getInstance().getSoundManager().updateSourceVolume($$12, $$1.floatValue()));
++    }
++
+     public net.minecraft.client.OptionInstance<java.lang.Boolean> showSubtitles() {
+         return this.showSubtitles;
+     }
+@@ -362,10 +380,6 @@
+         return this.showAutosaveIndicator;
+     }
+ 
+-    public net.minecraft.client.OptionInstance<net.minecraft.client.multiplayer.chat.ChatPreviewStatus> chatPreview() {
+-        return this.chatPreview;
+-    }
+-
+     public net.minecraft.client.OptionInstance<java.lang.Boolean> onlyShowSecureChat() {
+         return this.onlyShowSecureChat;
+     }
+@@ -406,7 +420,7 @@
+         return this.soundDevice;
+     }
+ 
+-    public net.minecraft.client.Options(net.minecraft.client.Minecraft minecraft, java.io.File gameDirectory) {
++    public net.minecraft.client.Options(net.minecraft.client.Minecraft $$03, java.io.File $$12) {
+         this.darkMojangStudiosBackground = net.minecraft.client.OptionInstance.createBoolean((java.lang.String)"options.darkMojangStudiosBackgroundColor", (net.minecraft.client.OptionInstance$TooltipSupplierFactory)net.minecraft.client.OptionInstance.cachedConstantTooltip((net.minecraft.network.chat.Component)ACCESSIBILITY_TOOLTIP_DARK_MOJANG_BACKGROUND), (boolean)false);
+         this.hideLightningFlash = net.minecraft.client.OptionInstance.createBoolean((java.lang.String)"options.hideLightningFlashes", (net.minecraft.client.OptionInstance$TooltipSupplierFactory)net.minecraft.client.OptionInstance.cachedConstantTooltip((net.minecraft.network.chat.Component)ACCESSIBILITY_TOOLTIP_HIDE_LIGHTNING_FLASHES), (boolean)false);
+         this.sensitivity = new net.minecraft.client.OptionInstance("options.sensitivity", net.minecraft.client.OptionInstance.noTooltip(), ($$0, $$1) -> {
+@@ -569,6 +583,8 @@
+         this.chatLineSpacing = new net.minecraft.client.OptionInstance("options.chat.line_spacing", net.minecraft.client.OptionInstance.noTooltip(), net.minecraft.client.Options::percentValueLabel, (net.minecraft.client.OptionInstance$ValueSet)net.minecraft.client.OptionInstance$UnitDouble.INSTANCE, (java.lang.Object)0.0, $$0 -> {}
+ );
+         this.textBackgroundOpacity = new net.minecraft.client.OptionInstance("options.accessibility.text_background_opacity", net.minecraft.client.OptionInstance.noTooltip(), net.minecraft.client.Options::percentValueLabel, (net.minecraft.client.OptionInstance$ValueSet)net.minecraft.client.OptionInstance$UnitDouble.INSTANCE, (java.lang.Object)0.5, $$0 -> net.minecraft.client.Minecraft.getInstance().gui.getChat().rescaleChat());
++        this.panoramaSpeed = new net.minecraft.client.OptionInstance("options.accessibility.panorama_speed", net.minecraft.client.OptionInstance.noTooltip(), net.minecraft.client.Options::percentValueLabel, (net.minecraft.client.OptionInstance$ValueSet)net.minecraft.client.OptionInstance$UnitDouble.INSTANCE, (java.lang.Object)1.0, $$0 -> {}
++);
+         this.pauseOnLostFocus = true;
+         this.modelParts = java.util.EnumSet.allOf(net.minecraft.world.entity.player.PlayerModelPart.class);
+         this.mainHand = new net.minecraft.client.OptionInstance("options.mainHand", net.minecraft.client.OptionInstance.noTooltip(), net.minecraft.client.OptionInstance.forOptionEnum(), (net.minecraft.client.OptionInstance$ValueSet)new net.minecraft.client.OptionInstance$Enum(java.util.Arrays.asList((java.lang.Object[])net.minecraft.world.entity.HumanoidArm.values()), com.mojang.serialization.Codec.STRING.xmap($$0 -> "left".equals($$0) ? net.minecraft.world.entity.HumanoidArm.LEFT : net.minecraft.world.entity.HumanoidArm.RIGHT, $$0 -> $$0 == net.minecraft.world.entity.HumanoidArm.LEFT ? "left" : "right")), (java.lang.Object)net.minecraft.world.entity.HumanoidArm.RIGHT, $$0 -> this.broadcastOptions());
+@@ -595,7 +611,6 @@
+             return net.minecraft.client.Options.genericValueLabel((net.minecraft.network.chat.Component)$$0, (int)$$1);
+         }, (net.minecraft.client.OptionInstance$ValueSet)new net.minecraft.client.OptionInstance$IntRange(0, 4), (java.lang.Object)4, $$0 -> {}
+ );
+-        this.sourceVolumes = (it.unimi.dsi.fastutil.objects.Object2FloatMap)net.minecraft.Util.make((java.lang.Object)new it.unimi.dsi.fastutil.objects.Object2FloatOpenHashMap(), $$0 -> $$0.defaultReturnValue(1.0f));
+         this.useNativeTransport = true;
+         this.attackIndicator = new net.minecraft.client.OptionInstance("options.attackIndicator", net.minecraft.client.OptionInstance.noTooltip(), net.minecraft.client.OptionInstance.forOptionEnum(), (net.minecraft.client.OptionInstance$ValueSet)new net.minecraft.client.OptionInstance$Enum(java.util.Arrays.asList((java.lang.Object[])net.minecraft.client.AttackIndicatorStatus.values()), com.mojang.serialization.Codec.INT.xmap(net.minecraft.client.AttackIndicatorStatus::byId, net.minecraft.client.AttackIndicatorStatus::getId)), (java.lang.Object)net.minecraft.client.AttackIndicatorStatus.CROSSHAIR, $$0 -> {}
+ );
+@@ -638,6 +653,11 @@
+         this.realmsNotifications = net.minecraft.client.OptionInstance.createBoolean((java.lang.String)"options.realmsNotifications", (boolean)true);
+         this.allowServerListing = net.minecraft.client.OptionInstance.createBoolean((java.lang.String)"options.allowServerListing", (net.minecraft.client.OptionInstance$TooltipSupplierFactory)net.minecraft.client.OptionInstance.cachedConstantTooltip((net.minecraft.network.chat.Component)ALLOW_SERVER_LISTING_TOOLTIP), (boolean)true, $$0 -> this.broadcastOptions());
+         this.reducedDebugInfo = net.minecraft.client.OptionInstance.createBoolean((java.lang.String)"options.reducedDebugInfo", (boolean)false);
++        this.soundSourceVolumes = (java.util.Map)net.minecraft.Util.make((java.lang.Object)new java.util.EnumMap(net.minecraft.sounds.SoundSource.class), $$0 -> {
++            for (net.minecraft.sounds.SoundSource $$1 : net.minecraft.sounds.SoundSource.values()) {
++                $$0.put((java.lang.Enum)$$1, (java.lang.Object)this.createSoundSliderOptionInstance("soundCategory." + $$1.getName(), $$1));
++            }
++        });
+         this.showSubtitles = net.minecraft.client.OptionInstance.createBoolean((java.lang.String)"options.showSubtitles", (boolean)false);
+         this.directionalAudio = net.minecraft.client.OptionInstance.createBoolean((java.lang.String)"options.directionalAudio", $$0 -> {
+             java.util.List $$1 = net.minecraft.client.OptionInstance.splitTooltip((net.minecraft.client.Minecraft)$$0, (net.minecraft.network.chat.Component)DIRECTIONAL_AUDIO_TOOLTIP_ON);
+@@ -665,13 +685,6 @@
+ );
+         this.hideMatchedNames = net.minecraft.client.OptionInstance.createBoolean((java.lang.String)"options.hideMatchedNames", (net.minecraft.client.OptionInstance$TooltipSupplierFactory)net.minecraft.client.OptionInstance.cachedConstantTooltip((net.minecraft.network.chat.Component)CHAT_TOOLTIP_HIDE_MATCHED_NAMES), (boolean)true);
+         this.showAutosaveIndicator = net.minecraft.client.OptionInstance.createBoolean((java.lang.String)"options.autosaveIndicator", (boolean)true);
+-        this.chatPreview = new net.minecraft.client.OptionInstance("options.chatPreview", $$0 -> $$1 -> switch (net.minecraft.client.Options$4.$SwitchMap$net$minecraft$client$multiplayer$chat$ChatPreviewStatus[$$1.ordinal()]) {
+-            default -> throw new java.lang.IncompatibleClassChangeError();
+-            case 1 -> net.minecraft.client.OptionInstance.splitTooltip((net.minecraft.client.Minecraft)$$0, (net.minecraft.network.chat.Component)CHAT_PREVIEW_OFF_TOOLTIP);
+-            case 2 -> net.minecraft.client.OptionInstance.splitTooltip((net.minecraft.client.Minecraft)$$0, (net.minecraft.network.chat.Component)CHAT_PREVIEW_LIVE_TOOLTIP);
+-            case 3 -> net.minecraft.client.OptionInstance.splitTooltip((net.minecraft.client.Minecraft)$$0, (net.minecraft.network.chat.Component)CHAT_PREVIEW_CONFIRM_TOOLTIP);
+-        }, net.minecraft.client.OptionInstance.forOptionEnum(), (net.minecraft.client.OptionInstance$ValueSet)new net.minecraft.client.OptionInstance$Enum(java.util.Arrays.asList((java.lang.Object[])net.minecraft.client.multiplayer.chat.ChatPreviewStatus.values()), com.mojang.serialization.Codec.INT.xmap(net.minecraft.client.multiplayer.chat.ChatPreviewStatus::byId, net.minecraft.client.multiplayer.chat.ChatPreviewStatus::getId)), (java.lang.Object)net.minecraft.client.multiplayer.chat.ChatPreviewStatus.LIVE, $$0 -> {}
+-);
+         this.onlyShowSecureChat = net.minecraft.client.OptionInstance.createBoolean((java.lang.String)"options.onlyShowSecureChat", (net.minecraft.client.OptionInstance$TooltipSupplierFactory)net.minecraft.client.OptionInstance.cachedConstantTooltip((net.minecraft.network.chat.Component)CHAT_TOOLTIP_ONLY_SHOW_SECURE), (boolean)false);
+         this.keyUp = new net.minecraft.client.KeyMapping("key.forward", 87, "key.categories.movement");
+         this.keyLeft = new net.minecraft.client.KeyMapping("key.left", 65, "key.categories.movement");
+@@ -777,31 +790,31 @@
+             $$1.reload();
+             $$1.play((net.minecraft.client.resources.sounds.SoundInstance)net.minecraft.client.resources.sounds.SimpleSoundInstance.forUI((net.minecraft.sounds.SoundEvent)net.minecraft.sounds.SoundEvents.UI_BUTTON_CLICK, (float)1.0f));
+         });
+-        this.minecraft = minecraft;
+-        this.optionsFile = new java.io.File(gameDirectory, "options.txt");
+-        boolean bl = minecraft.is64Bit();
+-        boolean bl2 = bl && java.lang.Runtime.getRuntime().maxMemory() >= 1000000000L;
+-        this.renderDistance = new net.minecraft.client.OptionInstance("options.renderDistance", net.minecraft.client.OptionInstance.noTooltip(), ($$0, $$1) -> net.minecraft.client.Options.genericValueLabel((net.minecraft.network.chat.Component)$$0, (net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"options.chunks", (java.lang.Object[])new java.lang.Object[]{$$1})), (net.minecraft.client.OptionInstance$ValueSet)new net.minecraft.client.OptionInstance$IntRange(2, bl2 ? 32 : 16), (java.lang.Object)(bl ? 12 : 8), $$0 -> net.minecraft.client.Minecraft.getInstance().levelRenderer.needsUpdate());
+-        this.simulationDistance = new net.minecraft.client.OptionInstance("options.simulationDistance", net.minecraft.client.OptionInstance.noTooltip(), ($$0, $$1) -> net.minecraft.client.Options.genericValueLabel((net.minecraft.network.chat.Component)$$0, (net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"options.chunks", (java.lang.Object[])new java.lang.Object[]{$$1})), (net.minecraft.client.OptionInstance$ValueSet)new net.minecraft.client.OptionInstance$IntRange(5, bl2 ? 32 : 16), (java.lang.Object)(bl ? 12 : 8), $$0 -> {}
++        this.minecraft = $$03;
++        this.optionsFile = new java.io.File($$12, "options.txt");
++        boolean $$2 = $$03.is64Bit();
++        boolean $$3 = $$2 && java.lang.Runtime.getRuntime().maxMemory() >= 1000000000L;
++        this.renderDistance = new net.minecraft.client.OptionInstance("options.renderDistance", net.minecraft.client.OptionInstance.noTooltip(), ($$0, $$1) -> net.minecraft.client.Options.genericValueLabel((net.minecraft.network.chat.Component)$$0, (net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"options.chunks", (java.lang.Object[])new java.lang.Object[]{$$1})), (net.minecraft.client.OptionInstance$ValueSet)new net.minecraft.client.OptionInstance$IntRange(2, $$3 ? 32 : 16), (java.lang.Object)($$2 ? 12 : 8), $$0 -> net.minecraft.client.Minecraft.getInstance().levelRenderer.needsUpdate());
++        this.simulationDistance = new net.minecraft.client.OptionInstance("options.simulationDistance", net.minecraft.client.OptionInstance.noTooltip(), ($$0, $$1) -> net.minecraft.client.Options.genericValueLabel((net.minecraft.network.chat.Component)$$0, (net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"options.chunks", (java.lang.Object[])new java.lang.Object[]{$$1})), (net.minecraft.client.OptionInstance$ValueSet)new net.minecraft.client.OptionInstance$IntRange(5, $$3 ? 32 : 16), (java.lang.Object)($$2 ? 12 : 8), $$0 -> {}
+ );
+         this.syncWrites = net.minecraft.Util.getPlatform() == net.minecraft.Util$OS.WINDOWS;
+         this.load();
+     }
+ 
+-    public float getBackgroundOpacity(float opacity) {
+-        return (java.lang.Boolean)this.backgroundForChatOnly.get() != false ? opacity : ((java.lang.Double)this.textBackgroundOpacity().get()).floatValue();
++    public float getBackgroundOpacity(float $$0) {
++        return (java.lang.Boolean)this.backgroundForChatOnly.get() != false ? $$0 : ((java.lang.Double)this.textBackgroundOpacity().get()).floatValue();
+     }
+ 
+-    public int getBackgroundColor(float opacity) {
+-        return (int)(this.getBackgroundOpacity(opacity) * 255.0f) << 24 & 0xFF000000;
++    public int getBackgroundColor(float $$0) {
++        return (int)(this.getBackgroundOpacity($$0) * 255.0f) << 24 & 0xFF000000;
+     }
+ 
+-    public int getBackgroundColor(int chatColor) {
+-        return (java.lang.Boolean)this.backgroundForChatOnly.get() != false ? chatColor : (int)((java.lang.Double)this.textBackgroundOpacity.get() * 255.0) << 24 & 0xFF000000;
++    public int getBackgroundColor(int $$0) {
++        return (java.lang.Boolean)this.backgroundForChatOnly.get() != false ? $$0 : (int)((java.lang.Double)this.textBackgroundOpacity.get() * 255.0) << 24 & 0xFF000000;
+     }
+ 
+-    public void setKey(net.minecraft.client.KeyMapping keyBinding, com.mojang.blaze3d.platform.InputConstants$Key input) {
+-        keyBinding.setKey(input);
++    public void setKey(net.minecraft.client.KeyMapping $$0, com.mojang.blaze3d.platform.InputConstants$Key $$1) {
++        $$0.setKey($$1);
+         this.save();
+     }
+ 
+@@ -882,16 +895,15 @@
+         this.syncWrites = $$0.process("syncChunkWrites", this.syncWrites);
+         $$0.process("showAutosaveIndicator", this.showAutosaveIndicator);
+         $$0.process("allowServerListing", this.allowServerListing);
+-        $$0.process("chatPreview", this.chatPreview);
+         $$0.process("onlyShowSecureChat", this.onlyShowSecureChat);
+         for (net.minecraft.client.KeyMapping keyMapping : this.keyMappings) {
+             java.lang.String $$3;
+-            java.lang.String $$22 = keyMapping.saveString();
+-            if ($$22.equals((java.lang.Object)($$3 = $$0.process("key_" + keyMapping.getName(), $$22)))) continue;
++            java.lang.String $$2 = keyMapping.saveString();
++            if ($$2.equals((java.lang.Object)($$3 = $$0.process("key_" + keyMapping.getName(), $$2)))) continue;
+             keyMapping.setKey(com.mojang.blaze3d.platform.InputConstants.getKey((java.lang.String)$$3));
+         }
+         for (net.minecraft.client.KeyMapping keyMapping : net.minecraft.sounds.SoundSource.values()) {
+-            this.sourceVolumes.computeFloat((java.lang.Object)keyMapping, ($$1, $$2) -> java.lang.Float.valueOf((float)$$0.process("soundCategory_" + $$1.getName(), $$2 != null ? $$2.floatValue() : 1.0f)));
++            $$0.process("soundCategory_" + keyMapping.getName(), (net.minecraft.client.OptionInstance)this.soundSourceVolumes.get((java.lang.Object)keyMapping));
+         }
+         for (net.minecraft.client.KeyMapping keyMapping : net.minecraft.world.entity.player.PlayerModelPart.values()) {
+             boolean $$6 = this.modelParts.contains((java.lang.Object)keyMapping);
+@@ -906,7 +918,6 @@
+             if (!this.optionsFile.exists()) {
+                 return;
+             }
+-            this.sourceVolumes.clear();
+             net.minecraft.nbt.CompoundTag $$0 = new net.minecraft.nbt.CompoundTag();
+             try (java.io.BufferedReader $$12 = com.google.common.io.Files.newReader((java.io.File)this.optionsFile, (java.nio.charset.Charset)com.google.common.base.Charsets.UTF_8);
+ ){
+@@ -950,15 +961,15 @@
+         return "false".equals((java.lang.Object)$$0);
+     }
+ 
+-    public net.minecraft.nbt.CompoundTag dataFix(net.minecraft.nbt.CompoundTag nbt) {
+-        int n = 0;
++    public net.minecraft.nbt.CompoundTag dataFix(net.minecraft.nbt.CompoundTag $$0) {
++        int $$1 = 0;
+         try {
+-            n = java.lang.Integer.parseInt((java.lang.String)nbt.getString("version"));
++            $$1 = java.lang.Integer.parseInt((java.lang.String)$$0.getString("version"));
+         }
+         catch (java.lang.RuntimeException runtimeException) {
+             // empty catch block
+         }
+-        return net.minecraft.nbt.NbtUtils.update((com.mojang.datafixers.DataFixer)this.minecraft.getFixerUpper(), (net.minecraft.util.datafix.DataFixTypes)net.minecraft.util.datafix.DataFixTypes.OPTIONS, (net.minecraft.nbt.CompoundTag)nbt, (int)n);
++        return net.minecraft.nbt.NbtUtils.update((com.mojang.datafixers.DataFixer)this.minecraft.getFixerUpper(), (net.minecraft.util.datafix.DataFixTypes)net.minecraft.util.datafix.DataFixTypes.OPTIONS, (net.minecraft.nbt.CompoundTag)$$0, (int)$$1);
+     }
+ 
+     public void save() {
+@@ -976,15 +987,6 @@
+         this.broadcastOptions();
+     }
+ 
+-    public float getSoundSourceVolume(net.minecraft.sounds.SoundSource category) {
+-        return this.sourceVolumes.getFloat((java.lang.Object)category);
+-    }
+-
+-    public void setSoundCategoryVolume(net.minecraft.sounds.SoundSource category, float volume) {
+-        this.sourceVolumes.put((java.lang.Object)category, volume);
+-        this.minecraft.getSoundManager().updateSourceVolume(category, volume);
+-    }
+-
+     public void broadcastOptions() {
+         if (this.minecraft.player != null) {
+             int $$0 = 0;
+@@ -995,11 +997,11 @@
+         }
+     }
+ 
+-    public void setModelPart(net.minecraft.world.entity.player.PlayerModelPart modelPart, boolean enable) {
+-        if (enable) {
+-            this.modelParts.add((java.lang.Object)modelPart);
++    public void setModelPart(net.minecraft.world.entity.player.PlayerModelPart $$0, boolean $$1) {
++        if ($$1) {
++            this.modelParts.add((java.lang.Object)$$0);
+         } else {
+-            this.modelParts.remove((java.lang.Object)modelPart);
++            this.modelParts.remove((java.lang.Object)$$0);
+         }
+     }
+ 
+@@ -1023,41 +1025,41 @@
+         return this.useNativeTransport;
+     }
+ 
+-    public void loadSelectedResourcePacks(net.minecraft.server.packs.repository.PackRepository resourcePackList) {
+-        java.util.LinkedHashSet linkedHashSet = com.google.common.collect.Sets.newLinkedHashSet();
+-        java.util.Iterator iterator = this.resourcePacks.iterator();
+-        while (iterator.hasNext()) {
+-            java.lang.String string = (java.lang.String)iterator.next();
+-            net.minecraft.server.packs.repository.Pack pack = resourcePackList.getPack(string);
+-            if (pack == null && !string.startsWith("file/")) {
+-                pack = resourcePackList.getPack("file/" + string);
++    public void loadSelectedResourcePacks(net.minecraft.server.packs.repository.PackRepository $$0) {
++        java.util.LinkedHashSet $$1 = com.google.common.collect.Sets.newLinkedHashSet();
++        java.util.Iterator $$2 = this.resourcePacks.iterator();
++        while ($$2.hasNext()) {
++            java.lang.String $$3 = (java.lang.String)$$2.next();
++            net.minecraft.server.packs.repository.Pack $$4 = $$0.getPack($$3);
++            if ($$4 == null && !$$3.startsWith("file/")) {
++                $$4 = $$0.getPack("file/" + $$3);
+             }
+-            if (pack == null) {
+-                LOGGER.warn("Removed resource pack {} from options because it doesn't seem to exist anymore", (java.lang.Object)string);
+-                iterator.remove();
++            if ($$4 == null) {
++                LOGGER.warn("Removed resource pack {} from options because it doesn't seem to exist anymore", (java.lang.Object)$$3);
++                $$2.remove();
+                 continue;
+             }
+-            if (!pack.getCompatibility().isCompatible() && !this.incompatibleResourcePacks.contains((java.lang.Object)string)) {
+-                LOGGER.warn("Removed resource pack {} from options because it is no longer compatible", (java.lang.Object)string);
+-                iterator.remove();
++            if (!$$4.getCompatibility().isCompatible() && !this.incompatibleResourcePacks.contains((java.lang.Object)$$3)) {
++                LOGGER.warn("Removed resource pack {} from options because it is no longer compatible", (java.lang.Object)$$3);
++                $$2.remove();
+                 continue;
+             }
+-            if (pack.getCompatibility().isCompatible() && this.incompatibleResourcePacks.contains((java.lang.Object)string)) {
+-                LOGGER.info("Removed resource pack {} from incompatibility list because it's now compatible", (java.lang.Object)string);
+-                this.incompatibleResourcePacks.remove((java.lang.Object)string);
++            if ($$4.getCompatibility().isCompatible() && this.incompatibleResourcePacks.contains((java.lang.Object)$$3)) {
++                LOGGER.info("Removed resource pack {} from incompatibility list because it's now compatible", (java.lang.Object)$$3);
++                this.incompatibleResourcePacks.remove((java.lang.Object)$$3);
+                 continue;
+             }
+-            linkedHashSet.add((java.lang.Object)pack.getId());
++            $$1.add((java.lang.Object)$$4.getId());
+         }
+-        resourcePackList.setSelected((java.util.Collection)linkedHashSet);
++        $$0.setSelected((java.util.Collection)$$1);
+     }
+ 
+     public net.minecraft.client.CameraType getCameraType() {
+         return this.cameraType;
+     }
+ 
+-    public void setCameraType(net.minecraft.client.CameraType pointOfView) {
+-        this.cameraType = pointOfView;
++    public void setCameraType(net.minecraft.client.CameraType $$0) {
++        this.cameraType = $$0;
+     }
+ 
+     public static java.util.List<java.lang.String> readPackList(java.lang.String $$0) {
+@@ -1117,9 +1119,6 @@
+         MOVEMENT_TOGGLE = net.minecraft.network.chat.Component.translatable((java.lang.String)"options.key.toggle");
+         MOVEMENT_HOLD = net.minecraft.network.chat.Component.translatable((java.lang.String)"options.key.hold");
+         CHAT_TOOLTIP_HIDE_MATCHED_NAMES = net.minecraft.network.chat.Component.translatable((java.lang.String)"options.hideMatchedNames.tooltip");
+-        CHAT_PREVIEW_OFF_TOOLTIP = net.minecraft.network.chat.Component.translatable((java.lang.String)"options.chatPreview.tooltip.off");
+-        CHAT_PREVIEW_LIVE_TOOLTIP = net.minecraft.network.chat.Component.translatable((java.lang.String)"options.chatPreview.tooltip.live");
+-        CHAT_PREVIEW_CONFIRM_TOOLTIP = net.minecraft.network.chat.Component.translatable((java.lang.String)"options.chatPreview.tooltip.confirm");
+         CHAT_TOOLTIP_ONLY_SHOW_SECURE = net.minecraft.network.chat.Component.translatable((java.lang.String)"options.onlyShowSecureChat.tooltip");
+         ACCESSIBILITY_TOOLTIP_SCREEN_EFFECT = net.minecraft.network.chat.Component.translatable((java.lang.String)"options.screenEffectScale.tooltip");
+         ACCESSIBILITY_TOOLTIP_FOV_EFFECT = net.minecraft.network.chat.Component.translatable((java.lang.String)"options.fovEffectScale.tooltip");

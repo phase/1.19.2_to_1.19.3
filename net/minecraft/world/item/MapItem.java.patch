@@ -1,0 +1,506 @@
+--- net/minecraft/world/item/MapItem.java
++++ net/minecraft/world/item/MapItem.java
+@@ -15,10 +15,10 @@
+         super($$0);
+     }
+ 
+-    public static net.minecraft.world.item.ItemStack create(net.minecraft.world.level.Level level, int levelX, int levelZ, byte scale, boolean trackingPosition, boolean unlimitedTracking) {
+-        net.minecraft.world.item.ItemStack itemStack = new net.minecraft.world.item.ItemStack((net.minecraft.world.level.ItemLike)net.minecraft.world.item.Items.FILLED_MAP);
+-        net.minecraft.world.item.MapItem.createAndStoreSavedData((net.minecraft.world.item.ItemStack)itemStack, (net.minecraft.world.level.Level)level, (int)levelX, (int)levelZ, (int)scale, (boolean)trackingPosition, (boolean)unlimitedTracking, (net.minecraft.resources.ResourceKey)level.dimension());
+-        return itemStack;
++    public static net.minecraft.world.item.ItemStack create(net.minecraft.world.level.Level $$0, int $$1, int $$2, byte $$3, boolean $$4, boolean $$5) {
++        net.minecraft.world.item.ItemStack $$6 = new net.minecraft.world.item.ItemStack((net.minecraft.world.level.ItemLike)net.minecraft.world.item.Items.FILLED_MAP);
++        net.minecraft.world.item.MapItem.createAndStoreSavedData((net.minecraft.world.item.ItemStack)$$6, (net.minecraft.world.level.Level)$$0, (int)$$1, (int)$$2, (int)$$3, (boolean)$$4, (boolean)$$5, (net.minecraft.resources.ResourceKey)$$0.dimension());
++        return $$6;
+     }
+ 
+     @javax.annotation.Nullable
+@@ -27,9 +27,9 @@
+     }
+ 
+     @javax.annotation.Nullable
+-    public static net.minecraft.world.level.saveddata.maps.MapItemSavedData getSavedData(net.minecraft.world.item.ItemStack stack, net.minecraft.world.level.Level level) {
+-        java.lang.Integer n = net.minecraft.world.item.MapItem.getMapId((net.minecraft.world.item.ItemStack)stack);
+-        return net.minecraft.world.item.MapItem.getSavedData((java.lang.Integer)n, (net.minecraft.world.level.Level)level);
++    public static net.minecraft.world.level.saveddata.maps.MapItemSavedData getSavedData(net.minecraft.world.item.ItemStack $$0, net.minecraft.world.level.Level $$1) {
++        java.lang.Integer $$2 = net.minecraft.world.item.MapItem.getMapId((net.minecraft.world.item.ItemStack)$$0);
++        return net.minecraft.world.item.MapItem.getSavedData((java.lang.Integer)$$2, (net.minecraft.world.level.Level)$$1);
+     }
+ 
+     @javax.annotation.Nullable
+@@ -54,278 +54,290 @@
+         net.minecraft.world.item.MapItem.storeMapData((net.minecraft.world.item.ItemStack)$$0, (int)$$8);
+     }
+ 
+-    public static java.lang.String makeKey(int mapId) {
+-        return "map_" + mapId;
++    public static java.lang.String makeKey(int $$0) {
++        return "map_" + $$0;
+     }
+ 
+-    public void update(net.minecraft.world.level.Level level, net.minecraft.world.entity.Entity viewer, net.minecraft.world.level.saveddata.maps.MapItemSavedData data) {
+-        if (level.dimension() != data.dimension || !(viewer instanceof net.minecraft.world.entity.player.Player)) {
++    public void update(net.minecraft.world.level.Level $$0, net.minecraft.world.entity.Entity $$1, net.minecraft.world.level.saveddata.maps.MapItemSavedData $$2) {
++        if ($$0.dimension() != $$2.dimension || !($$1 instanceof net.minecraft.world.entity.player.Player)) {
+             return;
+         }
+-        int n = 1 << data.scale;
+-        int n2 = data.x;
+-        int n3 = data.z;
+-        int n4 = net.minecraft.util.Mth.floor((double)(viewer.getX() - (double)n2)) / n + 64;
+-        int n5 = net.minecraft.util.Mth.floor((double)(viewer.getZ() - (double)n3)) / n + 64;
+-        int n6 = 128 / n;
+-        if (level.dimensionType().hasCeiling()) {
+-            n6 /= 2;
++        int $$3 = 1 << $$2.scale;
++        int $$4 = $$2.x;
++        int $$5 = $$2.z;
++        int $$6 = net.minecraft.util.Mth.floor((double)($$1.getX() - (double)$$4)) / $$3 + 64;
++        int $$7 = net.minecraft.util.Mth.floor((double)($$1.getZ() - (double)$$5)) / $$3 + 64;
++        int $$8 = 128 / $$3;
++        if ($$0.dimensionType().hasCeiling()) {
++            $$8 /= 2;
+         }
+-        net.minecraft.world.level.saveddata.maps.MapItemSavedData$HoldingPlayer holdingPlayer = data.getHoldingPlayer((net.minecraft.world.entity.player.Player)viewer);
+-        ++holdingPlayer.step;
+-        boolean bl = false;
+-        for (int i = n4 - n6 + 1; i < n4 + n6; ++i) {
+-            if ((i & 0xF) != (holdingPlayer.step & 0xF) && !bl) continue;
+-            bl = false;
+-            double d = 0.0;
+-            for (int j = n5 - n6 - 1; j < n5 + n6; ++j) {
+-                double d2;
+-                net.minecraft.core.BlockPos$MutableBlockPos mutableBlockPos;
+-                net.minecraft.core.BlockPos$MutableBlockPos mutableBlockPos2;
+-                if (i < 0 || j < -1 || i >= 128 || j >= 128) continue;
+-                int n7 = i - n4;
+-                int n8 = j - n5;
+-                boolean bl2 = n7 * n7 + n8 * n8 > (n6 - 2) * (n6 - 2);
+-                int n9 = (n2 / n + i - 64) * n;
+-                int n10 = (n3 / n + j - 64) * n;
+-                com.google.common.collect.LinkedHashMultiset linkedHashMultiset = com.google.common.collect.LinkedHashMultiset.create();
+-                net.minecraft.world.level.chunk.LevelChunk levelChunk = level.getChunkAt(new net.minecraft.core.BlockPos(n9, 0, n10));
+-                if (levelChunk.isEmpty()) continue;
+-                net.minecraft.world.level.ChunkPos chunkPos = levelChunk.getPos();
+-                int n11 = n9 & 0xF;
+-                int n12 = n10 & 0xF;
+-                int n13 = 0;
+-                double d3 = 0.0;
+-                if (level.dimensionType().hasCeiling()) {
+-                    int n14 = n9 + n10 * 231871;
+-                    if (((n14 = n14 * n14 * 31287121 + n14 * 11) >> 20 & 1) == 0) {
+-                        linkedHashMultiset.add((java.lang.Object)net.minecraft.world.level.block.Blocks.DIRT.defaultBlockState().getMapColor((net.minecraft.world.level.BlockGetter)level, net.minecraft.core.BlockPos.ZERO), 10);
++        net.minecraft.world.level.saveddata.maps.MapItemSavedData$HoldingPlayer $$9 = $$2.getHoldingPlayer((net.minecraft.world.entity.player.Player)$$1);
++        ++$$9.step;
++        boolean $$10 = false;
++        for (int $$11 = $$6 - $$8 + 1; $$11 < $$6 + $$8; ++$$11) {
++            if (($$11 & 0xF) != ($$9.step & 0xF) && !$$10) continue;
++            $$10 = false;
++            double $$12 = 0.0;
++            for (int $$13 = $$7 - $$8 - 1; $$13 < $$7 + $$8; ++$$13) {
++                net.minecraft.world.level.material.MaterialColor$Brightness $$44;
++                if ($$11 < 0 || $$13 < -1 || $$11 >= 128 || $$13 >= 128) continue;
++                int $$14 = $$11 - $$6;
++                int $$15 = $$13 - $$7;
++                boolean $$16 = $$14 * $$14 + $$15 * $$15 > ($$8 - 2) * ($$8 - 2);
++                int $$17 = ($$4 / $$3 + $$11 - 64) * $$3;
++                int $$18 = ($$5 / $$3 + $$13 - 64) * $$3;
++                com.google.common.collect.LinkedHashMultiset $$19 = com.google.common.collect.LinkedHashMultiset.create();
++                net.minecraft.world.level.chunk.LevelChunk $$20 = $$0.getChunkAt(new net.minecraft.core.BlockPos($$17, 0, $$18));
++                if ($$20.isEmpty()) continue;
++                net.minecraft.world.level.ChunkPos $$21 = $$20.getPos();
++                int $$22 = $$17 & 0xF;
++                int $$23 = $$18 & 0xF;
++                int $$24 = 0;
++                double $$25 = 0.0;
++                if ($$0.dimensionType().hasCeiling()) {
++                    int $$26 = $$17 + $$18 * 231871;
++                    if ((($$26 = $$26 * $$26 * 31287121 + $$26 * 11) >> 20 & 1) == 0) {
++                        $$19.add((java.lang.Object)net.minecraft.world.level.block.Blocks.DIRT.defaultBlockState().getMapColor((net.minecraft.world.level.BlockGetter)$$0, net.minecraft.core.BlockPos.ZERO), 10);
+                     } else {
+-                        linkedHashMultiset.add((java.lang.Object)net.minecraft.world.level.block.Blocks.STONE.defaultBlockState().getMapColor((net.minecraft.world.level.BlockGetter)level, net.minecraft.core.BlockPos.ZERO), 100);
++                        $$19.add((java.lang.Object)net.minecraft.world.level.block.Blocks.STONE.defaultBlockState().getMapColor((net.minecraft.world.level.BlockGetter)$$0, net.minecraft.core.BlockPos.ZERO), 100);
+                     }
+-                    d3 = 100.0;
++                    $$25 = 100.0;
+                 } else {
+-                    mutableBlockPos2 = new net.minecraft.core.BlockPos$MutableBlockPos();
+-                    mutableBlockPos = new net.minecraft.core.BlockPos$MutableBlockPos();
+-                    for (int k = 0; k < n; ++k) {
+-                        for (int i2 = 0; i2 < n; ++i2) {
+-                            net.minecraft.world.level.block.state.BlockState blockState;
+-                            int n15 = levelChunk.getHeight(net.minecraft.world.level.levelgen.Heightmap$Types.WORLD_SURFACE, k + n11, i2 + n12) + 1;
+-                            if (n15 > level.getMinBuildHeight() + 1) {
++                    net.minecraft.core.BlockPos$MutableBlockPos $$27 = new net.minecraft.core.BlockPos$MutableBlockPos();
++                    net.minecraft.core.BlockPos$MutableBlockPos $$28 = new net.minecraft.core.BlockPos$MutableBlockPos();
++                    for (int $$29 = 0; $$29 < $$3; ++$$29) {
++                        for (int $$30 = 0; $$30 < $$3; ++$$30) {
++                            net.minecraft.world.level.block.state.BlockState $$35;
++                            int $$31 = $$20.getHeight(net.minecraft.world.level.levelgen.Heightmap$Types.WORLD_SURFACE, $$29 + $$22, $$30 + $$23) + 1;
++                            if ($$31 > $$0.getMinBuildHeight() + 1) {
++                                net.minecraft.world.level.block.state.BlockState $$32;
+                                 do {
+-                                    mutableBlockPos2.set(chunkPos.getMinBlockX() + k + n11, --n15, chunkPos.getMinBlockZ() + i2 + n12);
+-                                } while ((blockState = levelChunk.getBlockState((net.minecraft.core.BlockPos)mutableBlockPos2)).getMapColor((net.minecraft.world.level.BlockGetter)level, (net.minecraft.core.BlockPos)mutableBlockPos2) == net.minecraft.world.level.material.MaterialColor.NONE && n15 > level.getMinBuildHeight());
+-                                if (n15 > level.getMinBuildHeight() && !blockState.getFluidState().isEmpty()) {
+-                                    net.minecraft.world.level.block.state.BlockState blockState2;
+-                                    int n16 = n15 - 1;
+-                                    mutableBlockPos.set((net.minecraft.core.Vec3i)mutableBlockPos2);
++                                    $$27.set($$21.getMinBlockX() + $$29 + $$22, --$$31, $$21.getMinBlockZ() + $$30 + $$23);
++                                } while (($$32 = $$20.getBlockState((net.minecraft.core.BlockPos)$$27)).getMapColor((net.minecraft.world.level.BlockGetter)$$0, (net.minecraft.core.BlockPos)$$27) == net.minecraft.world.level.material.MaterialColor.NONE && $$31 > $$0.getMinBuildHeight());
++                                if ($$31 > $$0.getMinBuildHeight() && !$$32.getFluidState().isEmpty()) {
++                                    net.minecraft.world.level.block.state.BlockState $$34;
++                                    int $$33 = $$31 - 1;
++                                    $$28.set((net.minecraft.core.Vec3i)$$27);
+                                     do {
+-                                        mutableBlockPos.setY(n16--);
+-                                        blockState2 = levelChunk.getBlockState((net.minecraft.core.BlockPos)mutableBlockPos);
+-                                        ++n13;
+-                                    } while (n16 > level.getMinBuildHeight() && !blockState2.getFluidState().isEmpty());
+-                                    blockState = this.getCorrectStateForFluidBlock(level, blockState, (net.minecraft.core.BlockPos)mutableBlockPos2);
++                                        $$28.setY($$33--);
++                                        $$34 = $$20.getBlockState((net.minecraft.core.BlockPos)$$28);
++                                        ++$$24;
++                                    } while ($$33 > $$0.getMinBuildHeight() && !$$34.getFluidState().isEmpty());
++                                    $$32 = this.getCorrectStateForFluidBlock($$0, $$32, (net.minecraft.core.BlockPos)$$27);
+                                 }
+                             } else {
+-                                blockState = net.minecraft.world.level.block.Blocks.BEDROCK.defaultBlockState();
++                                $$35 = net.minecraft.world.level.block.Blocks.BEDROCK.defaultBlockState();
+                             }
+-                            data.checkBanners((net.minecraft.world.level.BlockGetter)level, chunkPos.getMinBlockX() + k + n11, chunkPos.getMinBlockZ() + i2 + n12);
+-                            d3 += (double)n15 / (double)(n * n);
+-                            linkedHashMultiset.add((java.lang.Object)blockState.getMapColor((net.minecraft.world.level.BlockGetter)level, (net.minecraft.core.BlockPos)mutableBlockPos2));
++                            $$2.checkBanners((net.minecraft.world.level.BlockGetter)$$0, $$21.getMinBlockX() + $$29 + $$22, $$21.getMinBlockZ() + $$30 + $$23);
++                            $$25 += (double)$$31 / (double)($$3 * $$3);
++                            $$19.add((java.lang.Object)$$35.getMapColor((net.minecraft.world.level.BlockGetter)$$0, (net.minecraft.core.BlockPos)$$27));
+                         }
+                     }
+                 }
+-                mutableBlockPos2 = (net.minecraft.world.level.material.MaterialColor)com.google.common.collect.Iterables.getFirst((java.lang.Iterable)com.google.common.collect.Multisets.copyHighestCountFirst((com.google.common.collect.Multiset)linkedHashMultiset), (java.lang.Object)net.minecraft.world.level.material.MaterialColor.NONE);
+-                mutableBlockPos = mutableBlockPos2 == net.minecraft.world.level.material.MaterialColor.WATER ? ((d2 = (double)(n13 /= n * n) * 0.1 + (double)(i + j & 1) * 0.2) < 0.5 ? net.minecraft.world.level.material.MaterialColor$Brightness.HIGH : (d2 > 0.9 ? net.minecraft.world.level.material.MaterialColor$Brightness.LOW : net.minecraft.world.level.material.MaterialColor$Brightness.NORMAL)) : ((d2 = (d3 - d) * 4.0 / (double)(n + 4) + ((double)(i + j & 1) - 0.5) * 0.4) > 0.6 ? net.minecraft.world.level.material.MaterialColor$Brightness.HIGH : (d2 < -0.6 ? net.minecraft.world.level.material.MaterialColor$Brightness.LOW : net.minecraft.world.level.material.MaterialColor$Brightness.NORMAL));
+-                d = d3;
+-                if (j < 0 || n7 * n7 + n8 * n8 >= n6 * n6 || bl2 && (i + j & 1) == 0) continue;
+-                bl |= data.updateColor(i, j, mutableBlockPos2.getPackedId((net.minecraft.world.level.material.MaterialColor$Brightness)mutableBlockPos));
++                $$24 /= $$3 * $$3;
++                net.minecraft.world.level.material.MaterialColor $$36 = (net.minecraft.world.level.material.MaterialColor)com.google.common.collect.Iterables.getFirst((java.lang.Iterable)com.google.common.collect.Multisets.copyHighestCountFirst((com.google.common.collect.Multiset)$$19), (java.lang.Object)net.minecraft.world.level.material.MaterialColor.NONE);
++                if ($$36 == net.minecraft.world.level.material.MaterialColor.WATER) {
++                    double $$37 = (double)$$24 * 0.1 + (double)($$11 + $$13 & 1) * 0.2;
++                    if ($$37 < 0.5) {
++                        net.minecraft.world.level.material.MaterialColor$Brightness $$38 = net.minecraft.world.level.material.MaterialColor$Brightness.HIGH;
++                    } else if ($$37 > 0.9) {
++                        net.minecraft.world.level.material.MaterialColor$Brightness $$39 = net.minecraft.world.level.material.MaterialColor$Brightness.LOW;
++                    } else {
++                        net.minecraft.world.level.material.MaterialColor$Brightness $$40 = net.minecraft.world.level.material.MaterialColor$Brightness.NORMAL;
++                    }
++                } else {
++                    double $$41 = ($$25 - $$12) * 4.0 / (double)($$3 + 4) + ((double)($$11 + $$13 & 1) - 0.5) * 0.4;
++                    if ($$41 > 0.6) {
++                        net.minecraft.world.level.material.MaterialColor$Brightness $$42 = net.minecraft.world.level.material.MaterialColor$Brightness.HIGH;
++                    } else if ($$41 < -0.6) {
++                        net.minecraft.world.level.material.MaterialColor$Brightness $$43 = net.minecraft.world.level.material.MaterialColor$Brightness.LOW;
++                    } else {
++                        $$44 = net.minecraft.world.level.material.MaterialColor$Brightness.NORMAL;
++                    }
++                }
++                $$12 = $$25;
++                if ($$13 < 0 || $$14 * $$14 + $$15 * $$15 >= $$8 * $$8 || $$16 && ($$11 + $$13 & 1) == 0) continue;
++                $$10 |= $$2.updateColor($$11, $$13, $$36.getPackedId($$44));
+             }
+         }
+     }
+ 
+-    public net.minecraft.world.level.block.state.BlockState getCorrectStateForFluidBlock(net.minecraft.world.level.Level level, net.minecraft.world.level.block.state.BlockState state, net.minecraft.core.BlockPos pos) {
+-        net.minecraft.world.level.material.FluidState fluidState = state.getFluidState();
+-        if (!fluidState.isEmpty() && !state.isFaceSturdy((net.minecraft.world.level.BlockGetter)level, pos, net.minecraft.core.Direction.UP)) {
+-            return fluidState.createLegacyBlock();
++    public net.minecraft.world.level.block.state.BlockState getCorrectStateForFluidBlock(net.minecraft.world.level.Level $$0, net.minecraft.world.level.block.state.BlockState $$1, net.minecraft.core.BlockPos $$2) {
++        net.minecraft.world.level.material.FluidState $$3 = $$1.getFluidState();
++        if (!$$3.isEmpty() && !$$1.isFaceSturdy((net.minecraft.world.level.BlockGetter)$$0, $$2, net.minecraft.core.Direction.UP)) {
++            return $$3.createLegacyBlock();
+         }
+-        return state;
++        return $$1;
+     }
+ 
+     public static boolean isBiomeWatery(boolean[] $$0, int $$1, int $$2) {
+         return $$0[$$2 * 128 + $$1];
+     }
+ 
+-    public static void renderBiomePreviewMap(net.minecraft.server.level.ServerLevel serverLevel, net.minecraft.world.item.ItemStack stack) {
+-        int n;
+-        int n2;
+-        net.minecraft.world.level.saveddata.maps.MapItemSavedData mapItemSavedData = net.minecraft.world.item.MapItem.getSavedData((net.minecraft.world.item.ItemStack)stack, (net.minecraft.world.level.Level)serverLevel);
+-        if (mapItemSavedData == null) {
++    public static void renderBiomePreviewMap(net.minecraft.server.level.ServerLevel $$0, net.minecraft.world.item.ItemStack $$1) {
++        net.minecraft.world.level.saveddata.maps.MapItemSavedData $$2 = net.minecraft.world.item.MapItem.getSavedData((net.minecraft.world.item.ItemStack)$$1, (net.minecraft.world.level.Level)$$0);
++        if ($$2 == null) {
+             return;
+         }
+-        if (serverLevel.dimension() != mapItemSavedData.dimension) {
++        if ($$0.dimension() != $$2.dimension) {
+             return;
+         }
+-        int n3 = 1 << mapItemSavedData.scale;
+-        int n4 = mapItemSavedData.x;
+-        int n5 = mapItemSavedData.z;
+-        boolean[] blArray = new boolean[16384];
+-        int n6 = n4 / n3 - 64;
+-        int n7 = n5 / n3 - 64;
+-        net.minecraft.core.BlockPos$MutableBlockPos mutableBlockPos = new net.minecraft.core.BlockPos$MutableBlockPos();
+-        for (n2 = 0;
+- n2 < 128; ++n2) {
+-            for (n = 0;
+- n < 128; ++n) {
+-                net.minecraft.core.Holder holder = serverLevel.getBiome((net.minecraft.core.BlockPos)mutableBlockPos.set((n6 + n) * n3, 0, (n7 + n2) * n3));
+-                blArray[n2 * 128 + n] = holder.is(net.minecraft.tags.BiomeTags.WATER_ON_MAP_OUTLINES);
++        int $$3 = 1 << $$2.scale;
++        int $$4 = $$2.x;
++        int $$5 = $$2.z;
++        boolean[] $$6 = new boolean[16384];
++        int $$7 = $$4 / $$3 - 64;
++        int $$8 = $$5 / $$3 - 64;
++        net.minecraft.core.BlockPos$MutableBlockPos $$9 = new net.minecraft.core.BlockPos$MutableBlockPos();
++        for (int $$10 = 0; $$10 < 128; ++$$10) {
++            for (int $$11 = 0; $$11 < 128; ++$$11) {
++                net.minecraft.core.Holder $$12 = $$0.getBiome((net.minecraft.core.BlockPos)$$9.set(($$7 + $$11) * $$3, 0, ($$8 + $$10) * $$3));
++                $$6[$$10 * 128 + $$11] = $$12.is(net.minecraft.tags.BiomeTags.WATER_ON_MAP_OUTLINES);
+             }
+         }
+-        for (n2 = 1;
+- n2 < 127; ++n2) {
+-            for (n = 1;
+- n < 127; ++n) {
+-                int n8 = 0;
+-                for (int i = -1; i < 2; ++i) {
+-                    for (int j = -1; j < 2; ++j) {
+-                        if (i == 0 && j == 0 || !net.minecraft.world.item.MapItem.isBiomeWatery((boolean[])blArray, (int)(n2 + i), (int)(n + j))) continue;
+-                        ++n8;
++        for (int $$13 = 1; $$13 < 127; ++$$13) {
++            for (int $$14 = 1; $$14 < 127; ++$$14) {
++                int $$15 = 0;
++                for (int $$16 = -1; $$16 < 2; ++$$16) {
++                    for (int $$17 = -1; $$17 < 2; ++$$17) {
++                        if ($$16 == 0 && $$17 == 0 || !net.minecraft.world.item.MapItem.isBiomeWatery((boolean[])$$6, (int)($$13 + $$16), (int)($$14 + $$17))) continue;
++                        ++$$15;
+                     }
+                 }
+-                net.minecraft.world.level.material.MaterialColor$Brightness brightness = net.minecraft.world.level.material.MaterialColor$Brightness.LOWEST;
+-                net.minecraft.world.level.material.MaterialColor materialColor = net.minecraft.world.level.material.MaterialColor.NONE;
+-                if (net.minecraft.world.item.MapItem.isBiomeWatery((boolean[])blArray, (int)n2, (int)n)) {
+-                    materialColor = net.minecraft.world.level.material.MaterialColor.COLOR_ORANGE;
+-                    if (n8 > 7 && n % 2 == 0) {
+-                        switch ((n2 + (int)(net.minecraft.util.Mth.sin((float)((float)n + 0.0f)) * 7.0f)) / 8 % 5) {
++                net.minecraft.world.level.material.MaterialColor$Brightness $$18 = net.minecraft.world.level.material.MaterialColor$Brightness.LOWEST;
++                net.minecraft.world.level.material.MaterialColor $$19 = net.minecraft.world.level.material.MaterialColor.NONE;
++                if (net.minecraft.world.item.MapItem.isBiomeWatery((boolean[])$$6, (int)$$13, (int)$$14)) {
++                    $$19 = net.minecraft.world.level.material.MaterialColor.COLOR_ORANGE;
++                    if ($$15 > 7 && $$14 % 2 == 0) {
++                        switch (($$13 + (int)(net.minecraft.util.Mth.sin((float)((float)$$14 + 0.0f)) * 7.0f)) / 8 % 5) {
+                             case 0: 
+                             case 4: {
+-                                brightness = net.minecraft.world.level.material.MaterialColor$Brightness.LOW;
++                                $$18 = net.minecraft.world.level.material.MaterialColor$Brightness.LOW;
+                                 break;
+                             }
+                             case 1: 
+                             case 3: {
+-                                brightness = net.minecraft.world.level.material.MaterialColor$Brightness.NORMAL;
++                                $$18 = net.minecraft.world.level.material.MaterialColor$Brightness.NORMAL;
+                                 break;
+                             }
+                             case 2: {
+-                                brightness = net.minecraft.world.level.material.MaterialColor$Brightness.HIGH;
++                                $$18 = net.minecraft.world.level.material.MaterialColor$Brightness.HIGH;
+                             }
+                         }
+-                    } else if (n8 > 7) {
+-                        materialColor = net.minecraft.world.level.material.MaterialColor.NONE;
+-                    } else if (n8 > 5) {
+-                        brightness = net.minecraft.world.level.material.MaterialColor$Brightness.NORMAL;
+-                    } else if (n8 > 3) {
+-                        brightness = net.minecraft.world.level.material.MaterialColor$Brightness.LOW;
+-                    } else if (n8 > 1) {
+-                        brightness = net.minecraft.world.level.material.MaterialColor$Brightness.LOW;
++                    } else if ($$15 > 7) {
++                        $$19 = net.minecraft.world.level.material.MaterialColor.NONE;
++                    } else if ($$15 > 5) {
++                        $$18 = net.minecraft.world.level.material.MaterialColor$Brightness.NORMAL;
++                    } else if ($$15 > 3) {
++                        $$18 = net.minecraft.world.level.material.MaterialColor$Brightness.LOW;
++                    } else if ($$15 > 1) {
++                        $$18 = net.minecraft.world.level.material.MaterialColor$Brightness.LOW;
+                     }
+-                } else if (n8 > 0) {
+-                    materialColor = net.minecraft.world.level.material.MaterialColor.COLOR_BROWN;
+-                    brightness = n8 > 3 ? net.minecraft.world.level.material.MaterialColor$Brightness.NORMAL : net.minecraft.world.level.material.MaterialColor$Brightness.LOWEST;
++                } else if ($$15 > 0) {
++                    $$19 = net.minecraft.world.level.material.MaterialColor.COLOR_BROWN;
++                    $$18 = $$15 > 3 ? net.minecraft.world.level.material.MaterialColor$Brightness.NORMAL : net.minecraft.world.level.material.MaterialColor$Brightness.LOWEST;
+                 }
+-                if (materialColor == net.minecraft.world.level.material.MaterialColor.NONE) continue;
+-                mapItemSavedData.setColor(n2, n, materialColor.getPackedId(brightness));
++                if ($$19 == net.minecraft.world.level.material.MaterialColor.NONE) continue;
++                $$2.setColor($$13, $$14, $$19.getPackedId($$18));
+             }
+         }
+     }
+ 
+-    public void inventoryTick(net.minecraft.world.item.ItemStack stack, net.minecraft.world.level.Level level, net.minecraft.world.entity.Entity entity, int itemSlot, boolean isSelected) {
+-        if (level.isClientSide) {
++    public void inventoryTick(net.minecraft.world.item.ItemStack $$0, net.minecraft.world.level.Level $$1, net.minecraft.world.entity.Entity $$2, int $$3, boolean $$4) {
++        if ($$1.isClientSide) {
+             return;
+         }
+-        net.minecraft.world.level.saveddata.maps.MapItemSavedData mapItemSavedData = net.minecraft.world.item.MapItem.getSavedData((net.minecraft.world.item.ItemStack)stack, (net.minecraft.world.level.Level)level);
+-        if (mapItemSavedData == null) {
++        net.minecraft.world.level.saveddata.maps.MapItemSavedData $$5 = net.minecraft.world.item.MapItem.getSavedData((net.minecraft.world.item.ItemStack)$$0, (net.minecraft.world.level.Level)$$1);
++        if ($$5 == null) {
+             return;
+         }
+-        if (entity instanceof net.minecraft.world.entity.player.Player) {
+-            net.minecraft.world.entity.player.Player player = (net.minecraft.world.entity.player.Player)entity;
+-            mapItemSavedData.tickCarriedBy(player, stack);
++        if ($$2 instanceof net.minecraft.world.entity.player.Player) {
++            net.minecraft.world.entity.player.Player $$6 = (net.minecraft.world.entity.player.Player)$$2;
++            $$5.tickCarriedBy($$6, $$0);
+         }
+-        if (!mapItemSavedData.locked && (isSelected || entity instanceof net.minecraft.world.entity.player.Player && ((net.minecraft.world.entity.player.Player)entity).getOffhandItem() == stack)) {
+-            this.update(level, entity, mapItemSavedData);
++        if (!$$5.locked && ($$4 || $$2 instanceof net.minecraft.world.entity.player.Player && ((net.minecraft.world.entity.player.Player)$$2).getOffhandItem() == $$0)) {
++            this.update($$1, $$2, $$5);
+         }
+     }
+ 
+     @javax.annotation.Nullable
+-    public net.minecraft.network.protocol.Packet<?> getUpdatePacket(net.minecraft.world.item.ItemStack stack, net.minecraft.world.level.Level level, net.minecraft.world.entity.player.Player player) {
+-        java.lang.Integer n = net.minecraft.world.item.MapItem.getMapId((net.minecraft.world.item.ItemStack)stack);
+-        net.minecraft.world.level.saveddata.maps.MapItemSavedData mapItemSavedData = net.minecraft.world.item.MapItem.getSavedData((java.lang.Integer)n, (net.minecraft.world.level.Level)level);
+-        if (mapItemSavedData != null) {
+-            return mapItemSavedData.getUpdatePacket(n.intValue(), player);
++    public net.minecraft.network.protocol.Packet<?> getUpdatePacket(net.minecraft.world.item.ItemStack $$0, net.minecraft.world.level.Level $$1, net.minecraft.world.entity.player.Player $$2) {
++        java.lang.Integer $$3 = net.minecraft.world.item.MapItem.getMapId((net.minecraft.world.item.ItemStack)$$0);
++        net.minecraft.world.level.saveddata.maps.MapItemSavedData $$4 = net.minecraft.world.item.MapItem.getSavedData((java.lang.Integer)$$3, (net.minecraft.world.level.Level)$$1);
++        if ($$4 != null) {
++            return $$4.getUpdatePacket($$3.intValue(), $$2);
+         }
+         return null;
+     }
+ 
+-    public void onCraftedBy(net.minecraft.world.item.ItemStack stack, net.minecraft.world.level.Level level, net.minecraft.world.entity.player.Player player) {
+-        net.minecraft.nbt.CompoundTag compoundTag = stack.getTag();
+-        if (compoundTag != null && compoundTag.contains("map_scale_direction", 99)) {
+-            net.minecraft.world.item.MapItem.scaleMap((net.minecraft.world.item.ItemStack)stack, (net.minecraft.world.level.Level)level, (int)compoundTag.getInt("map_scale_direction"));
+-            compoundTag.remove("map_scale_direction");
+-        } else if (compoundTag != null && compoundTag.contains("map_to_lock", 1) && compoundTag.getBoolean("map_to_lock")) {
+-            net.minecraft.world.item.MapItem.lockMap((net.minecraft.world.level.Level)level, (net.minecraft.world.item.ItemStack)stack);
+-            compoundTag.remove("map_to_lock");
++    public void onCraftedBy(net.minecraft.world.item.ItemStack $$0, net.minecraft.world.level.Level $$1, net.minecraft.world.entity.player.Player $$2) {
++        net.minecraft.nbt.CompoundTag $$3 = $$0.getTag();
++        if ($$3 != null && $$3.contains("map_scale_direction", 99)) {
++            net.minecraft.world.item.MapItem.scaleMap((net.minecraft.world.item.ItemStack)$$0, (net.minecraft.world.level.Level)$$1, (int)$$3.getInt("map_scale_direction"));
++            $$3.remove("map_scale_direction");
++        } else if ($$3 != null && $$3.contains("map_to_lock", 1) && $$3.getBoolean("map_to_lock")) {
++            net.minecraft.world.item.MapItem.lockMap((net.minecraft.world.level.Level)$$1, (net.minecraft.world.item.ItemStack)$$0);
++            $$3.remove("map_to_lock");
+         }
+     }
+ 
+-    public static void scaleMap(net.minecraft.world.item.ItemStack stack, net.minecraft.world.level.Level level, int scale) {
+-        net.minecraft.world.level.saveddata.maps.MapItemSavedData mapItemSavedData = net.minecraft.world.item.MapItem.getSavedData((net.minecraft.world.item.ItemStack)stack, (net.minecraft.world.level.Level)level);
+-        if (mapItemSavedData != null) {
+-            int n = level.getFreeMapId();
+-            level.setMapData(net.minecraft.world.item.MapItem.makeKey((int)n), mapItemSavedData.scaled(scale));
+-            net.minecraft.world.item.MapItem.storeMapData((net.minecraft.world.item.ItemStack)stack, (int)n);
++    public static void scaleMap(net.minecraft.world.item.ItemStack $$0, net.minecraft.world.level.Level $$1, int $$2) {
++        net.minecraft.world.level.saveddata.maps.MapItemSavedData $$3 = net.minecraft.world.item.MapItem.getSavedData((net.minecraft.world.item.ItemStack)$$0, (net.minecraft.world.level.Level)$$1);
++        if ($$3 != null) {
++            int $$4 = $$1.getFreeMapId();
++            $$1.setMapData(net.minecraft.world.item.MapItem.makeKey((int)$$4), $$3.scaled($$2));
++            net.minecraft.world.item.MapItem.storeMapData((net.minecraft.world.item.ItemStack)$$0, (int)$$4);
+         }
+     }
+ 
+-    public static void lockMap(net.minecraft.world.level.Level level, net.minecraft.world.item.ItemStack stack) {
+-        net.minecraft.world.level.saveddata.maps.MapItemSavedData mapItemSavedData = net.minecraft.world.item.MapItem.getSavedData((net.minecraft.world.item.ItemStack)stack, (net.minecraft.world.level.Level)level);
+-        if (mapItemSavedData != null) {
+-            int n = level.getFreeMapId();
+-            java.lang.String string = net.minecraft.world.item.MapItem.makeKey((int)n);
+-            net.minecraft.world.level.saveddata.maps.MapItemSavedData mapItemSavedData2 = mapItemSavedData.locked();
+-            level.setMapData(string, mapItemSavedData2);
+-            net.minecraft.world.item.MapItem.storeMapData((net.minecraft.world.item.ItemStack)stack, (int)n);
++    public static void lockMap(net.minecraft.world.level.Level $$0, net.minecraft.world.item.ItemStack $$1) {
++        net.minecraft.world.level.saveddata.maps.MapItemSavedData $$2 = net.minecraft.world.item.MapItem.getSavedData((net.minecraft.world.item.ItemStack)$$1, (net.minecraft.world.level.Level)$$0);
++        if ($$2 != null) {
++            int $$3 = $$0.getFreeMapId();
++            java.lang.String $$4 = net.minecraft.world.item.MapItem.makeKey((int)$$3);
++            net.minecraft.world.level.saveddata.maps.MapItemSavedData $$5 = $$2.locked();
++            $$0.setMapData($$4, $$5);
++            net.minecraft.world.item.MapItem.storeMapData((net.minecraft.world.item.ItemStack)$$1, (int)$$3);
+         }
+     }
+ 
+-    public void appendHoverText(net.minecraft.world.item.ItemStack stack, @javax.annotation.Nullable net.minecraft.world.level.Level level, java.util.List<net.minecraft.network.chat.Component> tooltip, net.minecraft.world.item.TooltipFlag flag) {
+-        net.minecraft.world.level.saveddata.maps.MapItemSavedData mapItemSavedData;
+-        java.lang.Integer n = net.minecraft.world.item.MapItem.getMapId((net.minecraft.world.item.ItemStack)stack);
+-        net.minecraft.world.level.saveddata.maps.MapItemSavedData mapItemSavedData2 = mapItemSavedData = level == null ? null : net.minecraft.world.item.MapItem.getSavedData((java.lang.Integer)n, (net.minecraft.world.level.Level)level);
+-        if (mapItemSavedData != null && mapItemSavedData.locked) {
+-            tooltip.add((java.lang.Object)net.minecraft.network.chat.Component.translatable((java.lang.String)"filled_map.locked", (java.lang.Object[])new java.lang.Object[]{n}).withStyle(net.minecraft.ChatFormatting.GRAY));
++    public void appendHoverText(net.minecraft.world.item.ItemStack $$0, @javax.annotation.Nullable net.minecraft.world.level.Level $$1, java.util.List<net.minecraft.network.chat.Component> $$2, net.minecraft.world.item.TooltipFlag $$3) {
++        net.minecraft.world.level.saveddata.maps.MapItemSavedData $$5;
++        java.lang.Integer $$4 = net.minecraft.world.item.MapItem.getMapId((net.minecraft.world.item.ItemStack)$$0);
++        net.minecraft.world.level.saveddata.maps.MapItemSavedData mapItemSavedData = $$5 = $$1 == null ? null : net.minecraft.world.item.MapItem.getSavedData((java.lang.Integer)$$4, (net.minecraft.world.level.Level)$$1);
++        if ($$5 != null && $$5.locked) {
++            $$2.add((java.lang.Object)net.minecraft.network.chat.Component.translatable((java.lang.String)"filled_map.locked", (java.lang.Object[])new java.lang.Object[]{$$4}).withStyle(net.minecraft.ChatFormatting.GRAY));
+         }
+-        if (flag.isAdvanced()) {
+-            if (mapItemSavedData != null) {
+-                tooltip.add((java.lang.Object)net.minecraft.network.chat.Component.translatable((java.lang.String)"filled_map.id", (java.lang.Object[])new java.lang.Object[]{n}).withStyle(net.minecraft.ChatFormatting.GRAY));
+-                tooltip.add((java.lang.Object)net.minecraft.network.chat.Component.translatable((java.lang.String)"filled_map.scale", (java.lang.Object[])new java.lang.Object[]{1 << mapItemSavedData.scale}).withStyle(net.minecraft.ChatFormatting.GRAY));
+-                tooltip.add((java.lang.Object)net.minecraft.network.chat.Component.translatable((java.lang.String)"filled_map.level", (java.lang.Object[])new java.lang.Object[]{mapItemSavedData.scale, 4}).withStyle(net.minecraft.ChatFormatting.GRAY));
++        if ($$3.isAdvanced()) {
++            if ($$5 != null) {
++                $$2.add((java.lang.Object)net.minecraft.network.chat.Component.translatable((java.lang.String)"filled_map.id", (java.lang.Object[])new java.lang.Object[]{$$4}).withStyle(net.minecraft.ChatFormatting.GRAY));
++                $$2.add((java.lang.Object)net.minecraft.network.chat.Component.translatable((java.lang.String)"filled_map.scale", (java.lang.Object[])new java.lang.Object[]{1 << $$5.scale}).withStyle(net.minecraft.ChatFormatting.GRAY));
++                $$2.add((java.lang.Object)net.minecraft.network.chat.Component.translatable((java.lang.String)"filled_map.level", (java.lang.Object[])new java.lang.Object[]{$$5.scale, 4}).withStyle(net.minecraft.ChatFormatting.GRAY));
+             } else {
+-                tooltip.add((java.lang.Object)net.minecraft.network.chat.Component.translatable((java.lang.String)"filled_map.unknown").withStyle(net.minecraft.ChatFormatting.GRAY));
++                $$2.add((java.lang.Object)net.minecraft.network.chat.Component.translatable((java.lang.String)"filled_map.unknown").withStyle(net.minecraft.ChatFormatting.GRAY));
+             }
+         }
+     }
+ 
+-    public static int getColor(net.minecraft.world.item.ItemStack stack) {
+-        net.minecraft.nbt.CompoundTag compoundTag = stack.getTagElement("display");
+-        if (compoundTag != null && compoundTag.contains("MapColor", 99)) {
+-            int n = compoundTag.getInt("MapColor");
+-            return 0xFF000000 | n & 0xFFFFFF;
++    public static int getColor(net.minecraft.world.item.ItemStack $$0) {
++        net.minecraft.nbt.CompoundTag $$1 = $$0.getTagElement("display");
++        if ($$1 != null && $$1.contains("MapColor", 99)) {
++            int $$2 = $$1.getInt("MapColor");
++            return 0xFF000000 | $$2 & 0xFFFFFF;
+         }
+         return -12173266;
+     }
+ 
+-    public net.minecraft.world.InteractionResult useOn(net.minecraft.world.item.context.UseOnContext context) {
+-        net.minecraft.world.level.block.state.BlockState blockState = context.getLevel().getBlockState(context.getClickedPos());
+-        if (blockState.is(net.minecraft.tags.BlockTags.BANNERS)) {
+-            net.minecraft.world.level.saveddata.maps.MapItemSavedData mapItemSavedData;
+-            if (!context.getLevel().isClientSide && (mapItemSavedData = net.minecraft.world.item.MapItem.getSavedData((net.minecraft.world.item.ItemStack)context.getItemInHand(), (net.minecraft.world.level.Level)context.getLevel())) != null && !mapItemSavedData.toggleBanner((net.minecraft.world.level.LevelAccessor)context.getLevel(), context.getClickedPos())) {
++    public net.minecraft.world.InteractionResult useOn(net.minecraft.world.item.context.UseOnContext $$0) {
++        net.minecraft.world.level.block.state.BlockState $$1 = $$0.getLevel().getBlockState($$0.getClickedPos());
++        if ($$1.is(net.minecraft.tags.BlockTags.BANNERS)) {
++            net.minecraft.world.level.saveddata.maps.MapItemSavedData $$2;
++            if (!$$0.getLevel().isClientSide && ($$2 = net.minecraft.world.item.MapItem.getSavedData((net.minecraft.world.item.ItemStack)$$0.getItemInHand(), (net.minecraft.world.level.Level)$$0.getLevel())) != null && !$$2.toggleBanner((net.minecraft.world.level.LevelAccessor)$$0.getLevel(), $$0.getClickedPos())) {
+                 return net.minecraft.world.InteractionResult.FAIL;
+             }
+-            return net.minecraft.world.InteractionResult.sidedSuccess((boolean)context.getLevel().isClientSide);
++            return net.minecraft.world.InteractionResult.sidedSuccess((boolean)$$0.getLevel().isClientSide);
+         }
+-        return super.useOn(context);
++        return super.useOn($$0);
+     }
+ }
+ 

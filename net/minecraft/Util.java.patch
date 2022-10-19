@@ -1,0 +1,460 @@
+--- net/minecraft/Util.java
++++ net/minecraft/Util.java
+@@ -26,15 +26,15 @@
+         return java.util.stream.Collectors.toMap(java.util.Map$Entry::getKey, java.util.Map$Entry::getValue);
+     }
+ 
+-    public static <T extends java.lang.Comparable<T>> java.lang.String getPropertyName(net.minecraft.world.level.block.state.properties.Property<T> property, java.lang.Object value) {
+-        return property.getName((java.lang.Comparable)value);
++    public static <T extends java.lang.Comparable<T>> java.lang.String getPropertyName(net.minecraft.world.level.block.state.properties.Property<T> $$0, java.lang.Object $$1) {
++        return $$0.getName((java.lang.Comparable)$$1);
+     }
+ 
+-    public static java.lang.String makeDescriptionId(java.lang.String type, @javax.annotation.Nullable net.minecraft.resources.ResourceLocation id) {
+-        if (id == null) {
+-            return type + ".unregistered_sadface";
++    public static java.lang.String makeDescriptionId(java.lang.String $$0, @javax.annotation.Nullable net.minecraft.resources.ResourceLocation $$1) {
++        if ($$1 == null) {
++            return $$0 + ".unregistered_sadface";
+         }
+-        return type + "." + id.getNamespace() + "." + id.getPath().replace('/', '.');
++        return $$0 + "." + $$1.getNamespace() + "." + $$1.getPath().replace('/', '.');
+     }
+ 
+     public static long getMillis() {
+@@ -53,14 +53,19 @@
+         return FILENAME_DATE_TIME_FORMATTER.format((java.time.temporal.TemporalAccessor)java.time.ZonedDateTime.now());
+     }
+ 
+-    public static java.util.concurrent.ExecutorService makeExecutor(java.lang.String serviceName) {
+-        int n = net.minecraft.util.Mth.clamp((int)(java.lang.Runtime.getRuntime().availableProcessors() - 1), (int)1, (int)net.minecraft.Util.getMaxThreads());
+-        java.lang.Object object = n <= 0 ? com.google.common.util.concurrent.MoreExecutors.newDirectExecutorService() : new java.util.concurrent.ForkJoinPool(n, $$1 -> {
+-            net.minecraft.Util$4 $$2 = new /* Unavailable Anonymous Inner Class!! */;
+-            $$2.setName("Worker-" + serviceName + "-" + WORKER_COUNT.getAndIncrement());
+-            return $$2;
+-        }, net.minecraft.Util::onThreadException, true);
+-        return object;
++    public static java.util.concurrent.ExecutorService makeExecutor(java.lang.String $$0) {
++        java.util.concurrent.ForkJoinPool $$3;
++        int $$12 = net.minecraft.util.Mth.clamp((int)(java.lang.Runtime.getRuntime().availableProcessors() - 1), (int)1, (int)net.minecraft.Util.getMaxThreads());
++        if ($$12 <= 0) {
++            com.google.common.util.concurrent.ListeningExecutorService $$2 = com.google.common.util.concurrent.MoreExecutors.newDirectExecutorService();
++        } else {
++            $$3 = new java.util.concurrent.ForkJoinPool($$12, $$1 -> {
++                net.minecraft.Util$4 $$2 = new /* Unavailable Anonymous Inner Class!! */;
++                $$2.setName("Worker-" + $$0 + "-" + WORKER_COUNT.getAndIncrement());
++                return $$2;
++            }, net.minecraft.Util::onThreadException, true);
++        }
++        return $$3;
+     }
+ 
+     public static int getMaxThreads() {
+@@ -97,17 +102,17 @@
+         net.minecraft.Util.shutdownExecutor((java.util.concurrent.ExecutorService)IO_POOL);
+     }
+ 
+-    public static void shutdownExecutor(java.util.concurrent.ExecutorService service) {
+-        boolean bl;
+-        service.shutdown();
++    public static void shutdownExecutor(java.util.concurrent.ExecutorService $$0) {
++        boolean $$3;
++        $$0.shutdown();
+         try {
+-            bl = service.awaitTermination(3L, java.util.concurrent.TimeUnit.SECONDS);
++            boolean $$1 = $$0.awaitTermination(3L, java.util.concurrent.TimeUnit.SECONDS);
+         }
+-        catch (java.lang.InterruptedException interruptedException) {
+-            bl = false;
++        catch (java.lang.InterruptedException $$2) {
++            $$3 = false;
+         }
+-        if (!bl) {
+-            service.shutdownNow();
++        if (!$$3) {
++            $$0.shutdownNow();
+         }
+     }
+ 
+@@ -120,51 +125,45 @@
+         });
+     }
+ 
+-    public static <T> java.util.concurrent.CompletableFuture<T> failedFuture(java.lang.Throwable throwable) {
+-        java.util.concurrent.CompletableFuture completableFuture = new java.util.concurrent.CompletableFuture();
+-        completableFuture.completeExceptionally(throwable);
+-        return completableFuture;
++    public static void throwAsRuntime(java.lang.Throwable $$0) {
++        throw $$0 instanceof java.lang.RuntimeException ? (java.lang.RuntimeException)$$0 : new java.lang.RuntimeException($$0);
+     }
+ 
+-    public static void throwAsRuntime(java.lang.Throwable throwable) {
+-        throw throwable instanceof java.lang.RuntimeException ? (java.lang.RuntimeException)throwable : new java.lang.RuntimeException(throwable);
+-    }
+-
+-    public static void onThreadException(java.lang.Thread thread, java.lang.Throwable throwable) {
+-        net.minecraft.Util.pauseInIde((java.lang.Throwable)throwable);
+-        if (throwable instanceof java.util.concurrent.CompletionException) {
+-            throwable = throwable.getCause();
++    public static void onThreadException(java.lang.Thread $$0, java.lang.Throwable $$1) {
++        net.minecraft.Util.pauseInIde((java.lang.Throwable)$$1);
++        if ($$1 instanceof java.util.concurrent.CompletionException) {
++            $$1 = $$1.getCause();
+         }
+-        if (throwable instanceof net.minecraft.ReportedException) {
+-            net.minecraft.server.Bootstrap.realStdoutPrintln((java.lang.String)((net.minecraft.ReportedException)throwable).getReport().getFriendlyReport());
++        if ($$1 instanceof net.minecraft.ReportedException) {
++            net.minecraft.server.Bootstrap.realStdoutPrintln((java.lang.String)((net.minecraft.ReportedException)$$1).getReport().getFriendlyReport());
+             java.lang.System.exit((int)-1);
+         }
+-        LOGGER.error(java.lang.String.format((java.util.Locale)java.util.Locale.ROOT, (java.lang.String)"Caught exception in thread %s", (java.lang.Object[])new java.lang.Object[]{thread}), throwable);
++        LOGGER.error(java.lang.String.format((java.util.Locale)java.util.Locale.ROOT, (java.lang.String)"Caught exception in thread %s", (java.lang.Object[])new java.lang.Object[]{$$0}), $$1);
+     }
+ 
+     @javax.annotation.Nullable
+-    public static com.mojang.datafixers.types.Type<?> fetchChoiceType(com.mojang.datafixers.DSL$TypeReference type, java.lang.String choiceName) {
++    public static com.mojang.datafixers.types.Type<?> fetchChoiceType(com.mojang.datafixers.DSL$TypeReference $$0, java.lang.String $$1) {
+         if (!net.minecraft.SharedConstants.CHECK_DATA_FIXER_SCHEMA) {
+             return null;
+         }
+-        return net.minecraft.Util.doFetchChoiceType((com.mojang.datafixers.DSL$TypeReference)type, (java.lang.String)choiceName);
++        return net.minecraft.Util.doFetchChoiceType((com.mojang.datafixers.DSL$TypeReference)$$0, (java.lang.String)$$1);
+     }
+ 
+     @javax.annotation.Nullable
+-    public static com.mojang.datafixers.types.Type<?> doFetchChoiceType(com.mojang.datafixers.DSL$TypeReference type, java.lang.String choiceName) {
+-        com.mojang.datafixers.types.Type type2;
++    public static com.mojang.datafixers.types.Type<?> doFetchChoiceType(com.mojang.datafixers.DSL$TypeReference $$0, java.lang.String $$1) {
++        com.mojang.datafixers.types.Type $$2;
+ block2:        {
+-            type2 = null;
++            $$2 = null;
+             try {
+-                type2 = net.minecraft.util.datafix.DataFixers.getDataFixer().getSchema(com.mojang.datafixers.DataFixUtils.makeKey((int)net.minecraft.SharedConstants.getCurrentVersion().getWorldVersion())).getChoiceType(type, choiceName);
++                $$2 = net.minecraft.util.datafix.DataFixers.getDataFixer().getSchema(com.mojang.datafixers.DataFixUtils.makeKey((int)net.minecraft.SharedConstants.getCurrentVersion().getWorldVersion())).getChoiceType($$0, $$1);
+             }
+-            catch (java.lang.IllegalArgumentException illegalArgumentException) {
+-                LOGGER.error("No data fixer registered for {}", (java.lang.Object)choiceName);
++            catch (java.lang.IllegalArgumentException $$3) {
++                LOGGER.error("No data fixer registered for {}", (java.lang.Object)$$1);
+                 if (!net.minecraft.SharedConstants.IS_RUNNING_IN_IDE) break block2;
+-                throw illegalArgumentException;
++                throw $$3;
+             }
+         }
+-        return type2;
++        return $$2;
+     }
+ 
+     public static java.lang.Runnable wrapThreadWithTaskName(java.lang.String $$0, java.lang.Runnable $$1) {
+@@ -230,49 +229,49 @@
+         return $$02.getInputArguments().stream().filter($$0 -> $$0.startsWith("-X"));
+     }
+ 
+-    public static <T> T lastOf(java.util.List<T> list) {
+-        return (T)list.get(list.size() - 1);
++    public static <T> T lastOf(java.util.List<T> $$0) {
++        return (T)$$0.get($$0.size() - 1);
+     }
+ 
+-    public static <T> T findNextInIterable(java.lang.Iterable<T> iterable, @javax.annotation.Nullable T element) {
+-        java.util.Iterator iterator = iterable.iterator();
+-        java.lang.Object object = iterator.next();
+-        if (element != null) {
+-            java.lang.Object object2 = object;
++    public static <T> T findNextInIterable(java.lang.Iterable<T> $$0, @javax.annotation.Nullable T $$1) {
++        java.util.Iterator $$2 = $$0.iterator();
++        java.lang.Object $$3 = $$2.next();
++        if ($$1 != null) {
++            java.lang.Object $$4 = $$3;
+             while (true) {
+-                if (object2 == element) {
+-                    if (!iterator.hasNext()) break;
+-                    return (T)iterator.next();
++                if ($$4 == $$1) {
++                    if (!$$2.hasNext()) break;
++                    return (T)$$2.next();
+                 }
+-                if (!iterator.hasNext()) continue;
+-                object2 = iterator.next();
++                if (!$$2.hasNext()) continue;
++                $$4 = $$2.next();
+             }
+         }
+-        return (T)object;
++        return (T)$$3;
+     }
+ 
+-    public static <T> T findPreviousInIterable(java.lang.Iterable<T> iterable, @javax.annotation.Nullable T current) {
+-        java.util.Iterator iterator = iterable.iterator();
+-        java.lang.Object object = null;
+-        while (iterator.hasNext()) {
+-            java.lang.Object object2 = iterator.next();
+-            if (object2 == current) {
+-                if (object != null) break;
+-                object = iterator.hasNext() ? com.google.common.collect.Iterators.getLast((java.util.Iterator)iterator) : current;
++    public static <T> T findPreviousInIterable(java.lang.Iterable<T> $$0, @javax.annotation.Nullable T $$1) {
++        java.util.Iterator $$2 = $$0.iterator();
++        java.lang.Object $$3 = null;
++        while ($$2.hasNext()) {
++            java.lang.Object $$4 = $$2.next();
++            if ($$4 == $$1) {
++                if ($$3 != null) break;
++                $$3 = $$2.hasNext() ? com.google.common.collect.Iterators.getLast((java.util.Iterator)$$2) : $$1;
+                 break;
+             }
+-            object = object2;
++            $$3 = $$4;
+         }
+-        return (T)object;
++        return (T)$$3;
+     }
+ 
+-    public static <T> T make(java.util.function.Supplier<T> supplier) {
+-        return (T)supplier.get();
++    public static <T> T make(java.util.function.Supplier<T> $$0) {
++        return (T)$$0.get();
+     }
+ 
+-    public static <T> T make(T object, java.util.function.Consumer<T> consumer) {
+-        consumer.accept(object);
+-        return object;
++    public static <T> T make(T $$0, java.util.function.Consumer<T> $$1) {
++        $$1.accept($$0);
++        return $$0;
+     }
+ 
+     @javax.annotation.Nullable
+@@ -294,15 +293,15 @@
+         return net.minecraft.Util$IdentityStrategy.INSTANCE;
+     }
+ 
+-    public static <V> java.util.concurrent.CompletableFuture<java.util.List<V>> sequence(java.util.List<? extends java.util.concurrent.CompletableFuture<V>> futures) {
+-        if (futures.isEmpty()) {
++    public static <V> java.util.concurrent.CompletableFuture<java.util.List<V>> sequence(java.util.List<? extends java.util.concurrent.CompletableFuture<V>> $$0) {
++        if ($$0.isEmpty()) {
+             return java.util.concurrent.CompletableFuture.completedFuture((java.lang.Object)java.util.List.of());
+         }
+-        if (futures.size() == 1) {
+-            return ((java.util.concurrent.CompletableFuture)futures.get(0)).thenApply(java.util.List::of);
++        if ($$0.size() == 1) {
++            return ((java.util.concurrent.CompletableFuture)$$0.get(0)).thenApply(java.util.List::of);
+         }
+-        java.util.concurrent.CompletableFuture completableFuture = java.util.concurrent.CompletableFuture.allOf((java.util.concurrent.CompletableFuture[])((java.util.concurrent.CompletableFuture[])futures.toArray((java.lang.Object[])new java.util.concurrent.CompletableFuture[0])));
+-        return completableFuture.thenApply($$1 -> futures.stream().map(java.util.concurrent.CompletableFuture::join).toList());
++        java.util.concurrent.CompletableFuture $$12 = java.util.concurrent.CompletableFuture.allOf((java.util.concurrent.CompletableFuture[])((java.util.concurrent.CompletableFuture[])$$0.toArray((java.lang.Object[])new java.util.concurrent.CompletableFuture[0])));
++        return $$12.thenApply($$1 -> $$0.stream().map(java.util.concurrent.CompletableFuture::join).toList());
+     }
+ 
+     public static <V> java.util.concurrent.CompletableFuture<java.util.List<V>> sequenceFailFast(java.util.List<? extends java.util.concurrent.CompletableFuture<? extends V>> $$0) {
+@@ -327,21 +326,21 @@
+         return java.util.concurrent.CompletableFuture.allOf((java.util.concurrent.CompletableFuture[])$$3).thenApply(arg_0 -> net.minecraft.Util.lambda$fallibleSequence$12((java.util.List)$$2, arg_0));
+     }
+ 
+-    public static <T> java.util.Optional<T> ifElse(java.util.Optional<T> opt, java.util.function.Consumer<T> consumer, java.lang.Runnable orElse) {
+-        if (opt.isPresent()) {
+-            consumer.accept(opt.get());
++    public static <T> java.util.Optional<T> ifElse(java.util.Optional<T> $$0, java.util.function.Consumer<T> $$1, java.lang.Runnable $$2) {
++        if ($$0.isPresent()) {
++            $$1.accept($$0.get());
+         } else {
+-            orElse.run();
++            $$2.run();
+         }
+-        return opt;
++        return $$0;
+     }
+ 
+     public static <T> java.util.function.Supplier<T> name(java.util.function.Supplier<T> $$0, java.util.function.Supplier<java.lang.String> $$1) {
+         return $$0;
+     }
+ 
+-    public static java.lang.Runnable name(java.lang.Runnable runnable, java.util.function.Supplier<java.lang.String> supplier) {
+-        return runnable;
++    public static java.lang.Runnable name(java.lang.Runnable $$0, java.util.function.Supplier<java.lang.String> $$1) {
++        return $$0;
+     }
+ 
+     public static void logAndPauseIfInIde(java.lang.String $$0) {
+@@ -358,12 +357,12 @@
+         }
+     }
+ 
+-    public static <T extends java.lang.Throwable> T pauseInIde(T throwable) {
++    public static <T extends java.lang.Throwable> T pauseInIde(T $$0) {
+         if (net.minecraft.SharedConstants.IS_RUNNING_IN_IDE) {
+-            LOGGER.error("Trying to throw a fatal exception, pausing in IDE", throwable);
+-            net.minecraft.Util.doPause((java.lang.String)throwable.getMessage());
++            LOGGER.error("Trying to throw a fatal exception, pausing in IDE", $$0);
++            net.minecraft.Util.doPause((java.lang.String)$$0.getMessage());
+         }
+-        return throwable;
++        return $$0;
+     }
+ 
+     public static void setPause(java.util.function.Consumer<java.lang.String> $$0) {
+@@ -380,14 +379,14 @@
+         }
+     }
+ 
+-    public static java.lang.String describeError(java.lang.Throwable throwable) {
+-        if (throwable.getCause() != null) {
+-            return net.minecraft.Util.describeError((java.lang.Throwable)throwable.getCause());
++    public static java.lang.String describeError(java.lang.Throwable $$0) {
++        if ($$0.getCause() != null) {
++            return net.minecraft.Util.describeError((java.lang.Throwable)$$0.getCause());
+         }
+-        if (throwable.getMessage() != null) {
+-            return throwable.getMessage();
++        if ($$0.getMessage() != null) {
++            return $$0.getMessage();
+         }
+-        return throwable.toString();
++        return $$0.toString();
+     }
+ 
+     public static <T> T getRandom(T[] $$0, net.minecraft.util.RandomSource $$1) {
+@@ -409,48 +408,48 @@
+         return java.util.Optional.of((java.lang.Object)net.minecraft.Util.getRandom($$0, (net.minecraft.util.RandomSource)$$1));
+     }
+ 
+-    public static java.util.function.BooleanSupplier createRenamer(java.nio.file.Path filePath, java.nio.file.Path newName) {
++    public static java.util.function.BooleanSupplier createRenamer(java.nio.file.Path $$0, java.nio.file.Path $$1) {
+         return new /* Unavailable Anonymous Inner Class!! */;
+     }
+ 
+-    public static java.util.function.BooleanSupplier createDeleter(java.nio.file.Path filePath) {
++    public static java.util.function.BooleanSupplier createDeleter(java.nio.file.Path $$0) {
+         return new /* Unavailable Anonymous Inner Class!! */;
+     }
+ 
+-    public static java.util.function.BooleanSupplier createFileDeletedCheck(java.nio.file.Path filePath) {
++    public static java.util.function.BooleanSupplier createFileDeletedCheck(java.nio.file.Path $$0) {
+         return new /* Unavailable Anonymous Inner Class!! */;
+     }
+ 
+-    public static java.util.function.BooleanSupplier createFileCreatedCheck(java.nio.file.Path filePath) {
++    public static java.util.function.BooleanSupplier createFileCreatedCheck(java.nio.file.Path $$0) {
+         return new /* Unavailable Anonymous Inner Class!! */;
+     }
+ 
+-    public static boolean executeInSequence(java.util.function.BooleanSupplier ... suppliers) {
+-        for (java.util.function.BooleanSupplier booleanSupplier : suppliers) {
+-            if (booleanSupplier.getAsBoolean()) continue;
+-            LOGGER.warn("Failed to execute {}", (java.lang.Object)booleanSupplier);
++    public static boolean executeInSequence(java.util.function.BooleanSupplier ... $$0) {
++        for (java.util.function.BooleanSupplier $$1 : $$0) {
++            if ($$1.getAsBoolean()) continue;
++            LOGGER.warn("Failed to execute {}", (java.lang.Object)$$1);
+             return false;
+         }
+         return true;
+     }
+ 
+-    public static boolean runWithRetries(int maxTries, java.lang.String actionName, java.util.function.BooleanSupplier ... suppliers) {
+-        for (int i = 0; i < maxTries; ++i) {
+-            if (net.minecraft.Util.executeInSequence((java.util.function.BooleanSupplier[])suppliers)) {
++    public static boolean runWithRetries(int $$0, java.lang.String $$1, java.util.function.BooleanSupplier ... $$2) {
++        for (int $$3 = 0; $$3 < $$0; ++$$3) {
++            if (net.minecraft.Util.executeInSequence((java.util.function.BooleanSupplier[])$$2)) {
+                 return true;
+             }
+-            LOGGER.error("Failed to {}, retrying {}/{}", new java.lang.Object[]{actionName, i, maxTries});
++            LOGGER.error("Failed to {}, retrying {}/{}", new java.lang.Object[]{$$1, $$3, $$0});
+         }
+-        LOGGER.error("Failed to {}, aborting, progress might be lost", (java.lang.Object)actionName);
++        LOGGER.error("Failed to {}, aborting, progress might be lost", (java.lang.Object)$$1);
+         return false;
+     }
+ 
+-    public static void safeReplaceFile(java.io.File current, java.io.File latest, java.io.File oldBackup) {
+-        net.minecraft.Util.safeReplaceFile((java.nio.file.Path)current.toPath(), (java.nio.file.Path)latest.toPath(), (java.nio.file.Path)oldBackup.toPath());
++    public static void safeReplaceFile(java.io.File $$0, java.io.File $$1, java.io.File $$2) {
++        net.minecraft.Util.safeReplaceFile((java.nio.file.Path)$$0.toPath(), (java.nio.file.Path)$$1.toPath(), (java.nio.file.Path)$$2.toPath());
+     }
+ 
+-    public static void safeReplaceFile(java.nio.file.Path current, java.nio.file.Path latest, java.nio.file.Path oldBackup) {
+-        net.minecraft.Util.safeReplaceOrMoveFile((java.nio.file.Path)current, (java.nio.file.Path)latest, (java.nio.file.Path)oldBackup, (boolean)false);
++    public static void safeReplaceFile(java.nio.file.Path $$0, java.nio.file.Path $$1, java.nio.file.Path $$2) {
++        net.minecraft.Util.safeReplaceOrMoveFile((java.nio.file.Path)$$0, (java.nio.file.Path)$$1, (java.nio.file.Path)$$2, (boolean)false);
+     }
+ 
+     public static void safeReplaceOrMoveFile(java.io.File $$0, java.io.File $$1, java.io.File $$2, boolean $$3) {
+@@ -470,36 +469,36 @@
+         }
+     }
+ 
+-    public static int offsetByCodepoints(java.lang.String text, int cursorPos, int direction) {
+-        int n = text.length();
+-        if (direction >= 0) {
+-            for (int i = 0; cursorPos < n && i < direction; ++i) {
+-                if (!java.lang.Character.isHighSurrogate((char)text.charAt(cursorPos++)) || cursorPos >= n || !java.lang.Character.isLowSurrogate((char)text.charAt(cursorPos))) continue;
+-                ++cursorPos;
++    public static int offsetByCodepoints(java.lang.String $$0, int $$1, int $$2) {
++        int $$3 = $$0.length();
++        if ($$2 >= 0) {
++            for (int $$4 = 0; $$1 < $$3 && $$4 < $$2; ++$$4) {
++                if (!java.lang.Character.isHighSurrogate((char)$$0.charAt($$1++)) || $$1 >= $$3 || !java.lang.Character.isLowSurrogate((char)$$0.charAt($$1))) continue;
++                ++$$1;
+             }
+         } else {
+-            for (int i = direction; cursorPos > 0 && i < 0; ++i) {
+-                if (!java.lang.Character.isLowSurrogate((char)text.charAt(--cursorPos)) || cursorPos <= 0 || !java.lang.Character.isHighSurrogate((char)text.charAt(cursorPos - 1))) continue;
+-                --cursorPos;
++            for (int $$5 = $$2; $$1 > 0 && $$5 < 0; ++$$5) {
++                if (!java.lang.Character.isLowSurrogate((char)$$0.charAt(--$$1)) || $$1 <= 0 || !java.lang.Character.isHighSurrogate((char)$$0.charAt($$1 - 1))) continue;
++                --$$1;
+             }
+         }
+-        return cursorPos;
++        return $$1;
+     }
+ 
+-    public static java.util.function.Consumer<java.lang.String> prefix(java.lang.String prefix, java.util.function.Consumer<java.lang.String> consumer) {
+-        return $$2 -> consumer.accept((java.lang.Object)(prefix + $$2));
++    public static java.util.function.Consumer<java.lang.String> prefix(java.lang.String $$0, java.util.function.Consumer<java.lang.String> $$1) {
++        return $$2 -> $$1.accept((java.lang.Object)($$0 + $$2));
+     }
+ 
+-    public static com.mojang.serialization.DataResult<int[]> fixedSize(java.util.stream.IntStream stream, int size) {
+-        int[] nArray = stream.limit((long)(size + 1)).toArray();
+-        if (nArray.length != size) {
+-            java.lang.String string = "Input is not a list of " + size + " ints";
+-            if (nArray.length >= size) {
+-                return com.mojang.serialization.DataResult.error((java.lang.String)string, (java.lang.Object)java.util.Arrays.copyOf((int[])nArray, (int)size));
++    public static com.mojang.serialization.DataResult<int[]> fixedSize(java.util.stream.IntStream $$0, int $$1) {
++        int[] $$2 = $$0.limit((long)($$1 + 1)).toArray();
++        if ($$2.length != $$1) {
++            java.lang.String $$3 = "Input is not a list of " + $$1 + " ints";
++            if ($$2.length >= $$1) {
++                return com.mojang.serialization.DataResult.error((java.lang.String)$$3, (java.lang.Object)java.util.Arrays.copyOf((int[])$$2, (int)$$1));
+             }
+-            return com.mojang.serialization.DataResult.error((java.lang.String)string);
++            return com.mojang.serialization.DataResult.error((java.lang.String)$$3);
+         }
+-        return com.mojang.serialization.DataResult.success((java.lang.Object)nArray);
++        return com.mojang.serialization.DataResult.success((java.lang.Object)$$2);
+     }
+ 
+     public static <T> com.mojang.serialization.DataResult<java.util.List<T>> fixedSize(java.util.List<T> $$0, int $$1) {
+@@ -520,14 +519,14 @@
+         $$0.start();
+     }
+ 
+-    public static void copyBetweenDirs(java.nio.file.Path fromDirectory, java.nio.file.Path toDirectory, java.nio.file.Path filePath) throws java.io.IOException {
+-        java.nio.file.Path path = fromDirectory.relativize(filePath);
+-        java.nio.file.Path path2 = toDirectory.resolve(path);
+-        java.nio.file.Files.copy((java.nio.file.Path)filePath, (java.nio.file.Path)path2, (java.nio.file.CopyOption[])new java.nio.file.CopyOption[0]);
++    public static void copyBetweenDirs(java.nio.file.Path $$0, java.nio.file.Path $$1, java.nio.file.Path $$2) throws java.io.IOException {
++        java.nio.file.Path $$3 = $$0.relativize($$2);
++        java.nio.file.Path $$4 = $$1.resolve($$3);
++        java.nio.file.Files.copy((java.nio.file.Path)$$2, (java.nio.file.Path)$$4, (java.nio.file.CopyOption[])new java.nio.file.CopyOption[0]);
+     }
+ 
+-    public static java.lang.String sanitizeName(java.lang.String fileName, net.minecraft.CharPredicate characterValidator) {
+-        return (java.lang.String)fileName.toLowerCase(java.util.Locale.ROOT).chars().mapToObj($$1 -> characterValidator.test((char)$$1) ? java.lang.Character.toString((char)((char)$$1)) : "_").collect(java.util.stream.Collectors.joining());
++    public static java.lang.String sanitizeName(java.lang.String $$0, net.minecraft.CharPredicate $$12) {
++        return (java.lang.String)$$0.toLowerCase(java.util.Locale.ROOT).chars().mapToObj($$1 -> $$12.test((char)$$1) ? java.lang.Character.toString((char)((char)$$1)) : "_").collect(java.util.stream.Collectors.joining());
+     }
+ 
+     public static <T, R> java.util.function.Function<T, R> memoize(java.util.function.Function<T, R> $$0) {

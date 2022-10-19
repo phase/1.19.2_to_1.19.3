@@ -1,0 +1,89 @@
+--- net/minecraft/world/entity/projectile/ThrownEnderpearl.java
++++ net/minecraft/world/entity/projectile/ThrownEnderpearl.java
+@@ -10,45 +10,45 @@
+         super($$0, $$1);
+     }
+ 
+-    public net.minecraft.world.entity.projectile.ThrownEnderpearl(net.minecraft.world.level.Level level, net.minecraft.world.entity.LivingEntity shooter) {
+-        super(net.minecraft.world.entity.EntityType.ENDER_PEARL, shooter, level);
++    public net.minecraft.world.entity.projectile.ThrownEnderpearl(net.minecraft.world.level.Level $$0, net.minecraft.world.entity.LivingEntity $$1) {
++        super(net.minecraft.world.entity.EntityType.ENDER_PEARL, $$1, $$0);
+     }
+ 
+     public net.minecraft.world.item.Item getDefaultItem() {
+         return net.minecraft.world.item.Items.ENDER_PEARL;
+     }
+ 
+-    public void onHitEntity(net.minecraft.world.phys.EntityHitResult result) {
+-        super.onHitEntity(result);
+-        result.getEntity().hurt(net.minecraft.world.damagesource.DamageSource.thrown((net.minecraft.world.entity.Entity)this, (net.minecraft.world.entity.Entity)this.getOwner()), 0.0f);
++    public void onHitEntity(net.minecraft.world.phys.EntityHitResult $$0) {
++        super.onHitEntity($$0);
++        $$0.getEntity().hurt(net.minecraft.world.damagesource.DamageSource.thrown((net.minecraft.world.entity.Entity)this, (net.minecraft.world.entity.Entity)this.getOwner()), 0.0f);
+     }
+ 
+-    public void onHit(net.minecraft.world.phys.HitResult result) {
+-        super.onHit(result);
+-        for (int i = 0; i < 32; ++i) {
++    public void onHit(net.minecraft.world.phys.HitResult $$0) {
++        super.onHit($$0);
++        for (int $$1 = 0; $$1 < 32; ++$$1) {
+             this.level.addParticle((net.minecraft.core.particles.ParticleOptions)net.minecraft.core.particles.ParticleTypes.PORTAL, this.getX(), this.getY() + this.random.nextDouble() * 2.0, this.getZ(), this.random.nextGaussian(), 0.0, this.random.nextGaussian());
+         }
+         if (!this.level.isClientSide && !this.isRemoved()) {
+-            net.minecraft.world.entity.Entity entity = this.getOwner();
+-            if (entity instanceof net.minecraft.server.level.ServerPlayer) {
+-                net.minecraft.server.level.ServerPlayer serverPlayer = (net.minecraft.server.level.ServerPlayer)entity;
+-                if (serverPlayer.connection.getConnection().isConnected() && serverPlayer.level == this.level && !serverPlayer.isSleeping()) {
+-                    if (this.random.nextFloat() < 0.05f && this.level.getGameRules().getBoolean(net.minecraft.world.level.GameRules.RULE_DOMOBSPAWNING)) {
+-                        net.minecraft.world.entity.monster.Endermite endermite = (net.minecraft.world.entity.monster.Endermite)net.minecraft.world.entity.EntityType.ENDERMITE.create(this.level);
+-                        endermite.moveTo(entity.getX(), entity.getY(), entity.getZ(), entity.getYRot(), entity.getXRot());
+-                        this.level.addFreshEntity((net.minecraft.world.entity.Entity)endermite);
++            net.minecraft.world.entity.Entity $$2 = this.getOwner();
++            if ($$2 instanceof net.minecraft.server.level.ServerPlayer) {
++                net.minecraft.server.level.ServerPlayer $$3 = (net.minecraft.server.level.ServerPlayer)$$2;
++                if ($$3.connection.getConnection().isConnected() && $$3.level == this.level && !$$3.isSleeping()) {
++                    net.minecraft.world.entity.monster.Endermite $$4;
++                    if (this.random.nextFloat() < 0.05f && this.level.getGameRules().getBoolean(net.minecraft.world.level.GameRules.RULE_DOMOBSPAWNING) && ($$4 = (net.minecraft.world.entity.monster.Endermite)net.minecraft.world.entity.EntityType.ENDERMITE.create(this.level)) != null) {
++                        $$4.moveTo($$2.getX(), $$2.getY(), $$2.getZ(), $$2.getYRot(), $$2.getXRot());
++                        this.level.addFreshEntity((net.minecraft.world.entity.Entity)$$4);
+                     }
+-                    if (entity.isPassenger()) {
+-                        serverPlayer.dismountTo(this.getX(), this.getY(), this.getZ());
++                    if ($$2.isPassenger()) {
++                        $$3.dismountTo(this.getX(), this.getY(), this.getZ());
+                     } else {
+-                        entity.teleportTo(this.getX(), this.getY(), this.getZ());
++                        $$2.teleportTo(this.getX(), this.getY(), this.getZ());
+                     }
+-                    entity.resetFallDistance();
+-                    entity.hurt(net.minecraft.world.damagesource.DamageSource.FALL, 5.0f);
++                    $$2.resetFallDistance();
++                    $$2.hurt(net.minecraft.world.damagesource.DamageSource.FALL, 5.0f);
+                 }
+-            } else if (entity != null) {
+-                entity.teleportTo(this.getX(), this.getY(), this.getZ());
+-                entity.resetFallDistance();
++            } else if ($$2 != null) {
++                $$2.teleportTo(this.getX(), this.getY(), this.getZ());
++                $$2.resetFallDistance();
+             }
+             this.discard();
+         }
+@@ -64,12 +64,12 @@
+     }
+ 
+     @javax.annotation.Nullable
+-    public net.minecraft.world.entity.Entity changeDimension(net.minecraft.server.level.ServerLevel server) {
+-        net.minecraft.world.entity.Entity entity = this.getOwner();
+-        if (entity != null && entity.level.dimension() != server.dimension()) {
++    public net.minecraft.world.entity.Entity changeDimension(net.minecraft.server.level.ServerLevel $$0) {
++        net.minecraft.world.entity.Entity $$1 = this.getOwner();
++        if ($$1 != null && $$1.level.dimension() != $$0.dimension()) {
+             this.setOwner(null);
+         }
+-        return super.changeDimension(server);
++        return super.changeDimension($$0);
+     }
+ }
+ 

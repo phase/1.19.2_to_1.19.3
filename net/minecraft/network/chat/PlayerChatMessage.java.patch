@@ -1,0 +1,198 @@
+--- net/minecraft/network/chat/PlayerChatMessage.java
++++ net/minecraft/network/chat/PlayerChatMessage.java
+@@ -6,52 +6,43 @@
+ public class net.minecraft.network.chat.PlayerChatMessage
+ extends java.lang.Record
+  {
+-    public net.minecraft.network.chat.SignedMessageHeader signedHeader;
+-    public net.minecraft.network.chat.MessageSignature headerSignature;
++    public net.minecraft.network.chat.SignedMessageLink link;
++    @javax.annotation.Nullable
++    public net.minecraft.network.chat.MessageSignature signature;
+     public net.minecraft.network.chat.SignedMessageBody signedBody;
+-    public java.util.Optional<net.minecraft.network.chat.Component> unsignedContent;
++    @javax.annotation.Nullable
++    public net.minecraft.network.chat.Component unsignedContent;
+     public net.minecraft.network.chat.FilterMask filterMask;
++    public static java.util.UUID SYSTEM_SENDER;
+     public static java.time.Duration MESSAGE_EXPIRES_AFTER_SERVER;
+     public static java.time.Duration MESSAGE_EXPIRES_AFTER_CLIENT;
+ 
+-    public net.minecraft.network.chat.PlayerChatMessage(net.minecraft.network.FriendlyByteBuf $$0) {
+-        this(new net.minecraft.network.chat.SignedMessageHeader($$0), new net.minecraft.network.chat.MessageSignature($$0), new net.minecraft.network.chat.SignedMessageBody($$0), $$0.readOptional(net.minecraft.network.FriendlyByteBuf::readComponent), net.minecraft.network.chat.FilterMask.read((net.minecraft.network.FriendlyByteBuf)$$0));
+-    }
+-
+-    public net.minecraft.network.chat.PlayerChatMessage(net.minecraft.network.chat.SignedMessageHeader $$0, net.minecraft.network.chat.MessageSignature $$1, net.minecraft.network.chat.SignedMessageBody $$2, java.util.Optional<net.minecraft.network.chat.Component> $$3, net.minecraft.network.chat.FilterMask $$4) {
+-        this.signedHeader = $$0;
+-        this.headerSignature = $$1;
++    public net.minecraft.network.chat.PlayerChatMessage(net.minecraft.network.chat.SignedMessageLink $$0, @javax.annotation.Nullable net.minecraft.network.chat.MessageSignature $$1, net.minecraft.network.chat.SignedMessageBody $$2, @javax.annotation.Nullable net.minecraft.network.chat.Component $$3, net.minecraft.network.chat.FilterMask $$4) {
++        this.link = $$0;
++        this.signature = $$1;
+         this.signedBody = $$2;
+         this.unsignedContent = $$3;
+         this.filterMask = $$4;
+     }
+ 
+-    public static net.minecraft.network.chat.PlayerChatMessage system(net.minecraft.network.chat.ChatMessageContent $$0) {
+-        return net.minecraft.network.chat.PlayerChatMessage.unsigned((net.minecraft.network.chat.MessageSigner)net.minecraft.network.chat.MessageSigner.system(), (net.minecraft.network.chat.ChatMessageContent)$$0);
++    public static net.minecraft.network.chat.PlayerChatMessage system(java.lang.String $$0) {
++        return net.minecraft.network.chat.PlayerChatMessage.unsigned((java.util.UUID)SYSTEM_SENDER, (java.lang.String)$$0);
+     }
+ 
+-    public static net.minecraft.network.chat.PlayerChatMessage unsigned(net.minecraft.network.chat.MessageSigner $$0, net.minecraft.network.chat.ChatMessageContent $$1) {
+-        net.minecraft.network.chat.SignedMessageBody $$2 = new net.minecraft.network.chat.SignedMessageBody($$1, $$0.timeStamp(), $$0.salt(), net.minecraft.network.chat.LastSeenMessages.EMPTY);
+-        net.minecraft.network.chat.SignedMessageHeader $$3 = new net.minecraft.network.chat.SignedMessageHeader(null, $$0.profileId());
+-        return new net.minecraft.network.chat.PlayerChatMessage($$3, net.minecraft.network.chat.MessageSignature.EMPTY, $$2, java.util.Optional.empty(), net.minecraft.network.chat.FilterMask.PASS_THROUGH);
++    public static net.minecraft.network.chat.PlayerChatMessage unsigned(java.util.UUID $$0, java.lang.String $$1) {
++        net.minecraft.network.chat.SignedMessageBody $$2 = net.minecraft.network.chat.SignedMessageBody.unsigned((java.lang.String)$$1);
++        net.minecraft.network.chat.SignedMessageLink $$3 = net.minecraft.network.chat.SignedMessageLink.unsigned((java.util.UUID)$$0);
++        return new net.minecraft.network.chat.PlayerChatMessage($$3, null, $$2, null, net.minecraft.network.chat.FilterMask.PASS_THROUGH);
+     }
+ 
+-    public void write(net.minecraft.network.FriendlyByteBuf $$0) {
+-        this.signedHeader.write($$0);
+-        this.headerSignature.write($$0);
+-        this.signedBody.write($$0);
+-        $$0.writeOptional(this.unsignedContent, net.minecraft.network.FriendlyByteBuf::writeComponent);
+-        net.minecraft.network.chat.FilterMask.write((net.minecraft.network.FriendlyByteBuf)$$0, (net.minecraft.network.chat.FilterMask)this.filterMask);
+-    }
+-
+     public net.minecraft.network.chat.PlayerChatMessage withUnsignedContent(net.minecraft.network.chat.Component $$0) {
+-        java.util.Optional $$1 = !this.signedContent().decorated().equals((java.lang.Object)$$0) ? java.util.Optional.of((java.lang.Object)$$0) : java.util.Optional.empty();
+-        return new net.minecraft.network.chat.PlayerChatMessage(this.signedHeader, this.headerSignature, this.signedBody, $$1, this.filterMask);
++        net.minecraft.network.chat.Component $$1 = !$$0.equals((java.lang.Object)net.minecraft.network.chat.Component.literal((java.lang.String)this.signedContent())) ? $$0 : null;
++        return new net.minecraft.network.chat.PlayerChatMessage(this.link, this.signature, this.signedBody, $$1, this.filterMask);
+     }
+ 
+     public net.minecraft.network.chat.PlayerChatMessage removeUnsignedContent() {
+-        if (this.unsignedContent.isPresent()) {
+-            return new net.minecraft.network.chat.PlayerChatMessage(this.signedHeader, this.headerSignature, this.signedBody, java.util.Optional.empty(), this.filterMask);
++        if (this.unsignedContent != null) {
++            return new net.minecraft.network.chat.PlayerChatMessage(this.link, this.signature, this.signedBody, null, this.filterMask);
+         }
+         return this;
+     }
+@@ -60,33 +51,29 @@
+         if (this.filterMask.equals((java.lang.Object)$$0)) {
+             return this;
+         }
+-        return new net.minecraft.network.chat.PlayerChatMessage(this.signedHeader, this.headerSignature, this.signedBody, this.unsignedContent, $$0);
++        return new net.minecraft.network.chat.PlayerChatMessage(this.link, this.signature, this.signedBody, this.unsignedContent, $$0);
+     }
+ 
+     public net.minecraft.network.chat.PlayerChatMessage filter(boolean $$0) {
+         return this.filter($$0 ? this.filterMask : net.minecraft.network.chat.FilterMask.PASS_THROUGH);
+     }
+ 
+-    public boolean verify(net.minecraft.util.SignatureValidator $$0) {
+-        return this.headerSignature.verify($$0, this.signedHeader, this.signedBody);
++    public static void updateSignature(net.minecraft.util.SignatureUpdater$Output $$0, net.minecraft.network.chat.SignedMessageLink $$1, net.minecraft.network.chat.SignedMessageBody $$2) throws java.security.SignatureException {
++        $$0.update(com.google.common.primitives.Ints.toByteArray((int)1));
++        $$1.updateSignature($$0);
++        $$2.updateSignature($$0);
+     }
+ 
+-    public boolean verify(net.minecraft.world.entity.player.ProfilePublicKey $$0) {
+-        net.minecraft.util.SignatureValidator $$1 = $$0.createSignatureValidator();
+-        return this.verify($$1);
++    public boolean verify(net.minecraft.util.SignatureValidator $$02) {
++        return this.signature != null && this.signature.verify($$02, $$0 -> net.minecraft.network.chat.PlayerChatMessage.updateSignature((net.minecraft.util.SignatureUpdater$Output)$$0, (net.minecraft.network.chat.SignedMessageLink)this.link, (net.minecraft.network.chat.SignedMessageBody)this.signedBody));
+     }
+ 
+-    public boolean verify(net.minecraft.network.chat.ChatSender $$0) {
+-        net.minecraft.world.entity.player.ProfilePublicKey $$1 = $$0.profilePublicKey();
+-        return $$1 != null && this.verify($$1);
+-    }
+-
+-    public net.minecraft.network.chat.ChatMessageContent signedContent() {
++    public java.lang.String signedContent() {
+         return this.signedBody.content();
+     }
+ 
+-    public net.minecraft.network.chat.Component serverContent() {
+-        return (net.minecraft.network.chat.Component)this.unsignedContent().orElse((java.lang.Object)this.signedContent().decorated());
++    public net.minecraft.network.chat.Component decoratedContent() {
++        return (net.minecraft.network.chat.Component)java.util.Objects.requireNonNullElseGet((java.lang.Object)this.unsignedContent, () -> net.minecraft.network.chat.Component.literal((java.lang.String)this.signedContent()));
+     }
+ 
+     public java.time.Instant timeStamp() {
+@@ -105,21 +92,20 @@
+         return $$0.isAfter(this.timeStamp().plus((java.time.temporal.TemporalAmount)MESSAGE_EXPIRES_AFTER_CLIENT));
+     }
+ 
+-    public net.minecraft.network.chat.MessageSigner signer() {
+-        return new net.minecraft.network.chat.MessageSigner(this.signedHeader.sender(), this.timeStamp(), this.salt());
++    public java.util.UUID sender() {
++        return this.link.sender();
+     }
+ 
+-    @javax.annotation.Nullable
+-    public net.minecraft.network.chat.LastSeenMessages$Entry toLastSeenEntry() {
+-        net.minecraft.network.chat.MessageSigner $$0 = this.signer();
+-        if (!this.headerSignature.isEmpty() && !$$0.isSystem()) {
+-            return new net.minecraft.network.chat.LastSeenMessages$Entry($$0.profileId(), this.headerSignature);
+-        }
+-        return null;
++    public boolean isSystem() {
++        return this.sender().equals((java.lang.Object)SYSTEM_SENDER);
+     }
+ 
++    public boolean hasSignature() {
++        return this.signature != null;
++    }
++
+     public boolean hasSignatureFrom(java.util.UUID $$0) {
+-        return !this.headerSignature.isEmpty() && this.signedHeader.sender().equals((java.lang.Object)$$0);
++        return this.hasSignature() && this.link.sender().equals((java.lang.Object)$$0);
+     }
+ 
+     public boolean isFullyFiltered() {
+@@ -127,30 +113,32 @@
+     }
+ 
+     public java.lang.String toString() {
+-        return java.lang.runtime.ObjectMethods.bootstrap("toString", new java.lang.invoke.MethodHandle[]{net.minecraft.network.chat.PlayerChatMessage.class, "signedHeader;headerSignature;signedBody;unsignedContent;filterMask", "signedHeader", "headerSignature", "signedBody", "unsignedContent", "filterMask"}, this);
++        return java.lang.runtime.ObjectMethods.bootstrap("toString", new java.lang.invoke.MethodHandle[]{net.minecraft.network.chat.PlayerChatMessage.class, "link;signature;signedBody;unsignedContent;filterMask", "link", "signature", "signedBody", "unsignedContent", "filterMask"}, this);
+     }
+ 
+     public int hashCode() {
+-        return (int)java.lang.runtime.ObjectMethods.bootstrap("hashCode", new java.lang.invoke.MethodHandle[]{net.minecraft.network.chat.PlayerChatMessage.class, "signedHeader;headerSignature;signedBody;unsignedContent;filterMask", "signedHeader", "headerSignature", "signedBody", "unsignedContent", "filterMask"}, this);
++        return (int)java.lang.runtime.ObjectMethods.bootstrap("hashCode", new java.lang.invoke.MethodHandle[]{net.minecraft.network.chat.PlayerChatMessage.class, "link;signature;signedBody;unsignedContent;filterMask", "link", "signature", "signedBody", "unsignedContent", "filterMask"}, this);
+     }
+ 
+     public boolean equals(java.lang.Object $$0) {
+-        return (boolean)java.lang.runtime.ObjectMethods.bootstrap("equals", new java.lang.invoke.MethodHandle[]{net.minecraft.network.chat.PlayerChatMessage.class, "signedHeader;headerSignature;signedBody;unsignedContent;filterMask", "signedHeader", "headerSignature", "signedBody", "unsignedContent", "filterMask"}, this, $$0);
++        return (boolean)java.lang.runtime.ObjectMethods.bootstrap("equals", new java.lang.invoke.MethodHandle[]{net.minecraft.network.chat.PlayerChatMessage.class, "link;signature;signedBody;unsignedContent;filterMask", "link", "signature", "signedBody", "unsignedContent", "filterMask"}, this, $$0);
+     }
+ 
+-    public net.minecraft.network.chat.SignedMessageHeader signedHeader() {
+-        return this.signedHeader;
++    public net.minecraft.network.chat.SignedMessageLink link() {
++        return this.link;
+     }
+ 
+-    public net.minecraft.network.chat.MessageSignature headerSignature() {
+-        return this.headerSignature;
++    @javax.annotation.Nullable
++    public net.minecraft.network.chat.MessageSignature signature() {
++        return this.signature;
+     }
+ 
+     public net.minecraft.network.chat.SignedMessageBody signedBody() {
+         return this.signedBody;
+     }
+ 
+-    public java.util.Optional<net.minecraft.network.chat.Component> unsignedContent() {
++    @javax.annotation.Nullable
++    public net.minecraft.network.chat.Component unsignedContent() {
+         return this.unsignedContent;
+     }
+ 
+@@ -159,6 +147,7 @@
+     }
+ 
+     static {
++        SYSTEM_SENDER = net.minecraft.Util.NIL_UUID;
+         MESSAGE_EXPIRES_AFTER_SERVER = java.time.Duration.ofMinutes((long)5L);
+         MESSAGE_EXPIRES_AFTER_CLIENT = MESSAGE_EXPIRES_AFTER_SERVER.plus(java.time.Duration.ofMinutes((long)2L));
+     }

@@ -1,0 +1,70 @@
+--- net/minecraft/world/item/crafting/SimpleCookingSerializer.java
++++ net/minecraft/world/item/crafting/SimpleCookingSerializer.java
+@@ -9,38 +9,41 @@
+     public int defaultCookingTime;
+     public net.minecraft.world.item.crafting.SimpleCookingSerializer$CookieBaker<T> factory;
+ 
+-    public net.minecraft.world.item.crafting.SimpleCookingSerializer(net.minecraft.world.item.crafting.SimpleCookingSerializer$CookieBaker<T> factory, int defaultCookingTime) {
+-        this.defaultCookingTime = defaultCookingTime;
+-        this.factory = factory;
++    public net.minecraft.world.item.crafting.SimpleCookingSerializer(net.minecraft.world.item.crafting.SimpleCookingSerializer$CookieBaker<T> $$0, int $$1) {
++        this.defaultCookingTime = $$1;
++        this.factory = $$0;
+     }
+ 
+-    public T fromJson(net.minecraft.resources.ResourceLocation recipeId, com.google.gson.JsonObject json) {
+-        java.lang.String string = net.minecraft.util.GsonHelper.getAsString((com.google.gson.JsonObject)json, (java.lang.String)"group", (java.lang.String)"");
+-        com.google.gson.JsonArray jsonArray = net.minecraft.util.GsonHelper.isArrayNode((com.google.gson.JsonObject)json, (java.lang.String)"ingredient") ? net.minecraft.util.GsonHelper.getAsJsonArray((com.google.gson.JsonObject)json, (java.lang.String)"ingredient") : net.minecraft.util.GsonHelper.getAsJsonObject((com.google.gson.JsonObject)json, (java.lang.String)"ingredient");
+-        net.minecraft.world.item.crafting.Ingredient ingredient = net.minecraft.world.item.crafting.Ingredient.fromJson((com.google.gson.JsonElement)jsonArray);
+-        java.lang.String string2 = net.minecraft.util.GsonHelper.getAsString((com.google.gson.JsonObject)json, (java.lang.String)"result");
+-        net.minecraft.resources.ResourceLocation resourceLocation = new net.minecraft.resources.ResourceLocation(string2);
+-        net.minecraft.world.item.ItemStack itemStack = new net.minecraft.world.item.ItemStack((net.minecraft.world.level.ItemLike)net.minecraft.core.Registry.ITEM.getOptional(resourceLocation).orElseThrow(() -> new java.lang.IllegalStateException("Item: " + string2 + " does not exist")));
+-        float f = net.minecraft.util.GsonHelper.getAsFloat((com.google.gson.JsonObject)json, (java.lang.String)"experience", (float)0.0f);
+-        int n = net.minecraft.util.GsonHelper.getAsInt((com.google.gson.JsonObject)json, (java.lang.String)"cookingtime", (int)this.defaultCookingTime);
+-        return (T)this.factory.create(recipeId, string, ingredient, itemStack, f, n);
++    public T fromJson(net.minecraft.resources.ResourceLocation $$0, com.google.gson.JsonObject $$1) {
++        java.lang.String $$2 = net.minecraft.util.GsonHelper.getAsString((com.google.gson.JsonObject)$$1, (java.lang.String)"group", (java.lang.String)"");
++        net.minecraft.world.item.crafting.CookingBookCategory $$3 = (net.minecraft.world.item.crafting.CookingBookCategory)java.util.Objects.requireNonNullElse((java.lang.Object)((net.minecraft.world.item.crafting.CookingBookCategory)net.minecraft.world.item.crafting.CookingBookCategory.CODEC.byName(net.minecraft.util.GsonHelper.getAsString((com.google.gson.JsonObject)$$1, (java.lang.String)"category", null))), (java.lang.Object)net.minecraft.world.item.crafting.CookingBookCategory.MISC);
++        com.google.gson.JsonArray $$4 = net.minecraft.util.GsonHelper.isArrayNode((com.google.gson.JsonObject)$$1, (java.lang.String)"ingredient") ? net.minecraft.util.GsonHelper.getAsJsonArray((com.google.gson.JsonObject)$$1, (java.lang.String)"ingredient") : net.minecraft.util.GsonHelper.getAsJsonObject((com.google.gson.JsonObject)$$1, (java.lang.String)"ingredient");
++        net.minecraft.world.item.crafting.Ingredient $$5 = net.minecraft.world.item.crafting.Ingredient.fromJson((com.google.gson.JsonElement)$$4);
++        java.lang.String $$6 = net.minecraft.util.GsonHelper.getAsString((com.google.gson.JsonObject)$$1, (java.lang.String)"result");
++        net.minecraft.resources.ResourceLocation $$7 = new net.minecraft.resources.ResourceLocation($$6);
++        net.minecraft.world.item.ItemStack $$8 = new net.minecraft.world.item.ItemStack((net.minecraft.world.level.ItemLike)net.minecraft.core.Registry.ITEM.getOptional($$7).orElseThrow(() -> new java.lang.IllegalStateException("Item: " + $$6 + " does not exist")));
++        float $$9 = net.minecraft.util.GsonHelper.getAsFloat((com.google.gson.JsonObject)$$1, (java.lang.String)"experience", (float)0.0f);
++        int $$10 = net.minecraft.util.GsonHelper.getAsInt((com.google.gson.JsonObject)$$1, (java.lang.String)"cookingtime", (int)this.defaultCookingTime);
++        return (T)this.factory.create($$0, $$2, $$3, $$5, $$8, $$9, $$10);
+     }
+ 
+-    public T fromNetwork(net.minecraft.resources.ResourceLocation recipeId, net.minecraft.network.FriendlyByteBuf buffer) {
+-        java.lang.String string = buffer.readUtf();
+-        net.minecraft.world.item.crafting.Ingredient ingredient = net.minecraft.world.item.crafting.Ingredient.fromNetwork((net.minecraft.network.FriendlyByteBuf)buffer);
+-        net.minecraft.world.item.ItemStack itemStack = buffer.readItem();
+-        float f = buffer.readFloat();
+-        int n = buffer.readVarInt();
+-        return (T)this.factory.create(recipeId, string, ingredient, itemStack, f, n);
++    public T fromNetwork(net.minecraft.resources.ResourceLocation $$0, net.minecraft.network.FriendlyByteBuf $$1) {
++        java.lang.String $$2 = $$1.readUtf();
++        net.minecraft.world.item.crafting.CookingBookCategory $$3 = (net.minecraft.world.item.crafting.CookingBookCategory)$$1.readEnum(net.minecraft.world.item.crafting.CookingBookCategory.class);
++        net.minecraft.world.item.crafting.Ingredient $$4 = net.minecraft.world.item.crafting.Ingredient.fromNetwork((net.minecraft.network.FriendlyByteBuf)$$1);
++        net.minecraft.world.item.ItemStack $$5 = $$1.readItem();
++        float $$6 = $$1.readFloat();
++        int $$7 = $$1.readVarInt();
++        return (T)this.factory.create($$0, $$2, $$3, $$4, $$5, $$6, $$7);
+     }
+ 
+-    public void toNetwork(net.minecraft.network.FriendlyByteBuf buffer, T recipe) {
+-        buffer.writeUtf(((net.minecraft.world.item.crafting.AbstractCookingRecipe)recipe).group);
+-        ((net.minecraft.world.item.crafting.AbstractCookingRecipe)recipe).ingredient.toNetwork(buffer);
+-        buffer.writeItem(((net.minecraft.world.item.crafting.AbstractCookingRecipe)recipe).result);
+-        buffer.writeFloat(((net.minecraft.world.item.crafting.AbstractCookingRecipe)recipe).experience);
+-        buffer.writeVarInt(((net.minecraft.world.item.crafting.AbstractCookingRecipe)recipe).cookingTime);
++    public void toNetwork(net.minecraft.network.FriendlyByteBuf $$0, T $$1) {
++        $$0.writeUtf(((net.minecraft.world.item.crafting.AbstractCookingRecipe)$$1).group);
++        $$0.writeEnum((java.lang.Enum)$$1.category());
++        ((net.minecraft.world.item.crafting.AbstractCookingRecipe)$$1).ingredient.toNetwork($$0);
++        $$0.writeItem(((net.minecraft.world.item.crafting.AbstractCookingRecipe)$$1).result);
++        $$0.writeFloat(((net.minecraft.world.item.crafting.AbstractCookingRecipe)$$1).experience);
++        $$0.writeVarInt(((net.minecraft.world.item.crafting.AbstractCookingRecipe)$$1).cookingTime);
+     }
+ 
+     public /* synthetic */ net.minecraft.world.item.crafting.Recipe fromNetwork(net.minecraft.resources.ResourceLocation resourceLocation, net.minecraft.network.FriendlyByteBuf friendlyByteBuf) {

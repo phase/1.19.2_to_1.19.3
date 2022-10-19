@@ -1,0 +1,64 @@
+--- net/minecraft/advancements/critereon/FluidPredicate.java
++++ net/minecraft/advancements/critereon/FluidPredicate.java
+@@ -18,42 +18,40 @@
+         this.properties = $$2;
+     }
+ 
+-    public boolean matches(net.minecraft.server.level.ServerLevel level, net.minecraft.core.BlockPos pos) {
++    public boolean matches(net.minecraft.server.level.ServerLevel $$0, net.minecraft.core.BlockPos $$1) {
+         if (this == ANY) {
+             return true;
+         }
+-        if (!level.isLoaded(pos)) {
++        if (!$$0.isLoaded($$1)) {
+             return false;
+         }
+-        net.minecraft.world.level.material.FluidState fluidState = level.getFluidState(pos);
+-        if (this.tag != null && !fluidState.is(this.tag)) {
++        net.minecraft.world.level.material.FluidState $$2 = $$0.getFluidState($$1);
++        if (this.tag != null && !$$2.is(this.tag)) {
+             return false;
+         }
+-        if (this.fluid != null && !fluidState.is(this.fluid)) {
++        if (this.fluid != null && !$$2.is(this.fluid)) {
+             return false;
+         }
+-        return this.properties.matches(fluidState);
++        return this.properties.matches($$2);
+     }
+ 
+-    public static net.minecraft.advancements.critereon.FluidPredicate fromJson(@javax.annotation.Nullable com.google.gson.JsonElement element) {
+-        net.minecraft.advancements.critereon.StatePropertiesPredicate statePropertiesPredicate;
+-        net.minecraft.resources.ResourceLocation resourceLocation;
+-        if (element == null || element.isJsonNull()) {
++    public static net.minecraft.advancements.critereon.FluidPredicate fromJson(@javax.annotation.Nullable com.google.gson.JsonElement $$0) {
++        if ($$0 == null || $$0.isJsonNull()) {
+             return ANY;
+         }
+-        com.google.gson.JsonObject jsonObject = net.minecraft.util.GsonHelper.convertToJsonObject((com.google.gson.JsonElement)element, (java.lang.String)"fluid");
+-        net.minecraft.world.level.material.Fluid fluid = null;
+-        if (jsonObject.has("fluid")) {
+-            resourceLocation = new net.minecraft.resources.ResourceLocation(net.minecraft.util.GsonHelper.getAsString((com.google.gson.JsonObject)jsonObject, (java.lang.String)"fluid"));
+-            fluid = (net.minecraft.world.level.material.Fluid)net.minecraft.core.Registry.FLUID.get(resourceLocation);
++        com.google.gson.JsonObject $$1 = net.minecraft.util.GsonHelper.convertToJsonObject((com.google.gson.JsonElement)$$0, (java.lang.String)"fluid");
++        net.minecraft.world.level.material.Fluid $$2 = null;
++        if ($$1.has("fluid")) {
++            net.minecraft.resources.ResourceLocation $$3 = new net.minecraft.resources.ResourceLocation(net.minecraft.util.GsonHelper.getAsString((com.google.gson.JsonObject)$$1, (java.lang.String)"fluid"));
++            $$2 = (net.minecraft.world.level.material.Fluid)net.minecraft.core.Registry.FLUID.get($$3);
+         }
+-        resourceLocation = null;
+-        if (jsonObject.has("tag")) {
+-            statePropertiesPredicate = new net.minecraft.resources.ResourceLocation(net.minecraft.util.GsonHelper.getAsString((com.google.gson.JsonObject)jsonObject, (java.lang.String)"tag"));
+-            resourceLocation = net.minecraft.tags.TagKey.create((net.minecraft.resources.ResourceKey)net.minecraft.core.Registry.FLUID_REGISTRY, (net.minecraft.resources.ResourceLocation)statePropertiesPredicate);
++        net.minecraft.tags.TagKey $$4 = null;
++        if ($$1.has("tag")) {
++            net.minecraft.resources.ResourceLocation $$5 = new net.minecraft.resources.ResourceLocation(net.minecraft.util.GsonHelper.getAsString((com.google.gson.JsonObject)$$1, (java.lang.String)"tag"));
++            $$4 = net.minecraft.tags.TagKey.create((net.minecraft.resources.ResourceKey)net.minecraft.core.Registry.FLUID_REGISTRY, (net.minecraft.resources.ResourceLocation)$$5);
+         }
+-        statePropertiesPredicate = net.minecraft.advancements.critereon.StatePropertiesPredicate.fromJson((com.google.gson.JsonElement)jsonObject.get("state"));
+-        return new net.minecraft.advancements.critereon.FluidPredicate((net.minecraft.tags.TagKey)resourceLocation, fluid, statePropertiesPredicate);
++        net.minecraft.advancements.critereon.StatePropertiesPredicate $$6 = net.minecraft.advancements.critereon.StatePropertiesPredicate.fromJson((com.google.gson.JsonElement)$$1.get("state"));
++        return new net.minecraft.advancements.critereon.FluidPredicate($$4, $$2, $$6);
+     }
+ 
+     public com.google.gson.JsonElement serializeToJson() {

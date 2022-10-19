@@ -1,0 +1,79 @@
+--- net/minecraft/network/chat/SignedMessageBody.java
++++ net/minecraft/network/chat/SignedMessageBody.java
+@@ -6,54 +6,33 @@
+ public class net.minecraft.network.chat.SignedMessageBody
+ extends java.lang.Record
+  {
+-    public net.minecraft.network.chat.ChatMessageContent content;
++    public java.lang.String content;
+     public java.time.Instant timeStamp;
+     public long salt;
+     public net.minecraft.network.chat.LastSeenMessages lastSeen;
+-    public static byte HASH_SEPARATOR_BYTE = 70;
+ 
+-    public net.minecraft.network.chat.SignedMessageBody(net.minecraft.network.FriendlyByteBuf $$0) {
+-        this(net.minecraft.network.chat.ChatMessageContent.read((net.minecraft.network.FriendlyByteBuf)$$0), $$0.readInstant(), $$0.readLong(), new net.minecraft.network.chat.LastSeenMessages($$0));
+-    }
+-
+-    public net.minecraft.network.chat.SignedMessageBody(net.minecraft.network.chat.ChatMessageContent $$0, java.time.Instant $$1, long $$2, net.minecraft.network.chat.LastSeenMessages $$3) {
++    public net.minecraft.network.chat.SignedMessageBody(java.lang.String $$0, java.time.Instant $$1, long $$2, net.minecraft.network.chat.LastSeenMessages $$3) {
+         this.content = $$0;
+         this.timeStamp = $$1;
+         this.salt = $$2;
+         this.lastSeen = $$3;
+     }
+ 
+-    public void write(net.minecraft.network.FriendlyByteBuf $$0) {
+-        net.minecraft.network.chat.ChatMessageContent.write((net.minecraft.network.FriendlyByteBuf)$$0, (net.minecraft.network.chat.ChatMessageContent)this.content);
+-        $$0.writeInstant(this.timeStamp);
+-        $$0.writeLong(this.salt);
+-        this.lastSeen.write($$0);
++    public static net.minecraft.network.chat.SignedMessageBody unsigned(java.lang.String $$0) {
++        return new net.minecraft.network.chat.SignedMessageBody($$0, java.time.Instant.now(), 0L, net.minecraft.network.chat.LastSeenMessages.EMPTY);
+     }
+ 
+-    public com.google.common.hash.HashCode hash() {
+-        com.google.common.hash.HashingOutputStream $$0 = new com.google.common.hash.HashingOutputStream(com.google.common.hash.Hashing.sha256(), java.io.OutputStream.nullOutputStream());
+-        try {
+-            java.io.DataOutputStream $$1 = new java.io.DataOutputStream((java.io.OutputStream)$$0);
+-            $$1.writeLong(this.salt);
+-            $$1.writeLong(this.timeStamp.getEpochSecond());
+-            java.io.OutputStreamWriter $$2 = new java.io.OutputStreamWriter((java.io.OutputStream)$$1, java.nio.charset.StandardCharsets.UTF_8);
+-            $$2.write(this.content.plain());
+-            $$2.flush();
+-            $$1.write(70);
+-            if (this.content.isDecorated()) {
+-                $$2.write(net.minecraft.network.chat.Component$Serializer.toStableJson((net.minecraft.network.chat.Component)this.content.decorated()));
+-                $$2.flush();
+-            }
+-            this.lastSeen.updateHash((java.io.DataOutput)$$1);
+-        }
+-        catch (java.io.IOException iOException) {
+-            // empty catch block
+-        }
+-        return $$0.hash();
++    public void updateSignature(net.minecraft.util.SignatureUpdater$Output $$0) throws java.security.SignatureException {
++        $$0.update(com.google.common.primitives.Longs.toByteArray((long)this.salt));
++        $$0.update(com.google.common.primitives.Longs.toByteArray((long)this.timeStamp.getEpochSecond()));
++        byte[] $$1 = this.content.getBytes(java.nio.charset.StandardCharsets.UTF_8);
++        $$0.update(com.google.common.primitives.Ints.toByteArray((int)$$1.length));
++        $$0.update($$1);
++        this.lastSeen.updateSignature($$0);
+     }
+ 
+-    public net.minecraft.network.chat.SignedMessageBody withContent(net.minecraft.network.chat.ChatMessageContent $$0) {
+-        return new net.minecraft.network.chat.SignedMessageBody($$0, this.timeStamp, this.salt, this.lastSeen);
++    public net.minecraft.network.chat.SignedMessageBody$Packed pack(net.minecraft.network.chat.MessageSignature$Packer $$0) {
++        return new net.minecraft.network.chat.SignedMessageBody$Packed(this.content, this.timeStamp, this.salt, this.lastSeen.pack($$0));
+     }
+ 
+     public java.lang.String toString() {
+@@ -68,7 +47,7 @@
+         return (boolean)java.lang.runtime.ObjectMethods.bootstrap("equals", new java.lang.invoke.MethodHandle[]{net.minecraft.network.chat.SignedMessageBody.class, "content;timeStamp;salt;lastSeen", "content", "timeStamp", "salt", "lastSeen"}, this, $$0);
+     }
+ 
+-    public net.minecraft.network.chat.ChatMessageContent content() {
++    public java.lang.String content() {
+         return this.content;
+     }
+ 

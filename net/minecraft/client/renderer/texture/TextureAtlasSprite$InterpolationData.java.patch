@@ -1,0 +1,65 @@
+--- net/minecraft/client/renderer/texture/TextureAtlasSprite$InterpolationData.java
++++ net/minecraft/client/renderer/texture/TextureAtlasSprite$InterpolationData.java
+@@ -1,62 +1,0 @@
+-/*
+- * Decompiled with CFR 0.151.
+- */
+-package net.minecraft.client.renderer.texture;
+-
+-public class net.minecraft.client.renderer.texture.TextureAtlasSprite$InterpolationData
+-implements java.lang.AutoCloseable
+- {
+-    public com.mojang.blaze3d.platform.NativeImage[] activeFrame;
+-    public /* synthetic */ net.minecraft.client.renderer.texture.TextureAtlasSprite this$0;
+-
+-    public net.minecraft.client.renderer.texture.TextureAtlasSprite$InterpolationData(net.minecraft.client.renderer.texture.TextureAtlasSprite textureAtlasSprite, net.minecraft.client.renderer.texture.TextureAtlasSprite$Info $$0, int $$1) {
+-        this.this$0 = textureAtlasSprite;
+-        this.activeFrame = new com.mojang.blaze3d.platform.NativeImage[$$1 + 1];
+-        for (int $$2 = 0; $$2 < this.activeFrame.length; ++$$2) {
+-            int $$3 = $$0.width >> $$2;
+-            int $$4 = $$0.height >> $$2;
+-            if (this.activeFrame[$$2] != null) continue;
+-            this.activeFrame[$$2] = new com.mojang.blaze3d.platform.NativeImage($$3, $$4, false);
+-        }
+-    }
+-
+-    public void uploadInterpolatedFrame(net.minecraft.client.renderer.texture.TextureAtlasSprite$AnimatedTexture $$0) {
+-        net.minecraft.client.renderer.texture.TextureAtlasSprite$FrameInfo $$1 = (net.minecraft.client.renderer.texture.TextureAtlasSprite$FrameInfo)$$0.frames.get($$0.frame);
+-        double $$2 = 1.0 - (double)$$0.subFrame / (double)$$1.time;
+-        int $$3 = $$1.index;
+-        int $$4 = ((net.minecraft.client.renderer.texture.TextureAtlasSprite$FrameInfo)$$0.frames.get((int)(($$0.frame + 1) % $$0.frames.size()))).index;
+-        if ($$3 != $$4) {
+-            for (int $$5 = 0; $$5 < this.activeFrame.length; ++$$5) {
+-                int $$6 = this.this$0.width >> $$5;
+-                int $$7 = this.this$0.height >> $$5;
+-                for (int $$8 = 0; $$8 < $$7; ++$$8) {
+-                    for (int $$9 = 0; $$9 < $$6; ++$$9) {
+-                        int $$10 = this.getPixel($$0, $$3, $$5, $$9, $$8);
+-                        int $$11 = this.getPixel($$0, $$4, $$5, $$9, $$8);
+-                        int $$12 = this.mix($$2, $$10 >> 16 & 0xFF, $$11 >> 16 & 0xFF);
+-                        int $$13 = this.mix($$2, $$10 >> 8 & 0xFF, $$11 >> 8 & 0xFF);
+-                        int $$14 = this.mix($$2, $$10 & 0xFF, $$11 & 0xFF);
+-                        this.activeFrame[$$5].setPixelRGBA($$9, $$8, $$10 & 0xFF000000 | $$12 << 16 | $$13 << 8 | $$14);
+-                    }
+-                }
+-            }
+-            this.this$0.upload(0, 0, this.activeFrame);
+-        }
+-    }
+-
+-    public int getPixel(net.minecraft.client.renderer.texture.TextureAtlasSprite$AnimatedTexture $$0, int $$1, int $$2, int $$3, int $$4) {
+-        return this.this$0.mainImage[$$2].getPixelRGBA($$3 + ($$0.getFrameX($$1) * this.this$0.width >> $$2), $$4 + ($$0.getFrameY($$1) * this.this$0.height >> $$2));
+-    }
+-
+-    public int mix(double ratio, int val1, int val2) {
+-        return (int)(ratio * (double)val1 + (1.0 - ratio) * (double)val2);
+-    }
+-
+-    public void close() {
+-        for (com.mojang.blaze3d.platform.NativeImage $$0 : this.activeFrame) {
+-            if ($$0 == null) continue;
+-            $$0.close();
+-        }
+-    }
+-}
+-

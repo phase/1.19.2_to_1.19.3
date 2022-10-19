@@ -1,0 +1,74 @@
+--- net/minecraft/network/protocol/game/ClientboundSectionBlocksUpdatePacket.java
++++ net/minecraft/network/protocol/game/ClientboundSectionBlocksUpdatePacket.java
+@@ -12,19 +12,19 @@
+     public net.minecraft.world.level.block.state.BlockState[] states;
+     public boolean suppressLightUpdates;
+ 
+-    public net.minecraft.network.protocol.game.ClientboundSectionBlocksUpdatePacket(net.minecraft.core.SectionPos sectionPos, it.unimi.dsi.fastutil.shorts.ShortSet changedBlocks, net.minecraft.world.level.chunk.LevelChunkSection levelChunkSection, boolean suppressLightUpdates) {
+-        this.sectionPos = sectionPos;
+-        this.suppressLightUpdates = suppressLightUpdates;
+-        int n = changedBlocks.size();
+-        this.positions = new short[n];
+-        this.states = new net.minecraft.world.level.block.state.BlockState[n];
+-        int n2 = 0;
+-        it.unimi.dsi.fastutil.shorts.ShortIterator shortIterator = changedBlocks.iterator();
++    public net.minecraft.network.protocol.game.ClientboundSectionBlocksUpdatePacket(net.minecraft.core.SectionPos $$0, it.unimi.dsi.fastutil.shorts.ShortSet $$1, net.minecraft.world.level.chunk.LevelChunkSection $$2, boolean $$3) {
++        this.sectionPos = $$0;
++        this.suppressLightUpdates = $$3;
++        int $$4 = $$1.size();
++        this.positions = new short[$$4];
++        this.states = new net.minecraft.world.level.block.state.BlockState[$$4];
++        int $$5 = 0;
++        it.unimi.dsi.fastutil.shorts.ShortIterator shortIterator = $$1.iterator();
+         while (shortIterator.hasNext()) {
+-            short s;
+-            this.positions[n2] = s = ((java.lang.Short)shortIterator.next()).shortValue();
+-            this.states[n2] = levelChunkSection.getBlockState(net.minecraft.core.SectionPos.sectionRelativeX((short)s), net.minecraft.core.SectionPos.sectionRelativeY((short)s), net.minecraft.core.SectionPos.sectionRelativeZ((short)s));
+-            ++n2;
++            short $$6;
++            this.positions[$$5] = $$6 = ((java.lang.Short)shortIterator.next()).shortValue();
++            this.states[$$5] = $$2.getBlockState(net.minecraft.core.SectionPos.sectionRelativeX((short)$$6), net.minecraft.core.SectionPos.sectionRelativeY((short)$$6), net.minecraft.core.SectionPos.sectionRelativeZ((short)$$6));
++            ++$$5;
+         }
+     }
+ 
+@@ -41,25 +41,25 @@
+         }
+     }
+ 
+-    public void write(net.minecraft.network.FriendlyByteBuf buffer) {
+-        buffer.writeLong(this.sectionPos.asLong());
+-        buffer.writeBoolean(this.suppressLightUpdates);
+-        buffer.writeVarInt(this.positions.length);
+-        for (int i = 0; i < this.positions.length; ++i) {
+-            buffer.writeVarLong((long)(net.minecraft.world.level.block.Block.getId((net.minecraft.world.level.block.state.BlockState)this.states[i]) << 12 | this.positions[i]));
++    public void write(net.minecraft.network.FriendlyByteBuf $$0) {
++        $$0.writeLong(this.sectionPos.asLong());
++        $$0.writeBoolean(this.suppressLightUpdates);
++        $$0.writeVarInt(this.positions.length);
++        for (int $$1 = 0; $$1 < this.positions.length; ++$$1) {
++            $$0.writeVarLong((long)(net.minecraft.world.level.block.Block.getId((net.minecraft.world.level.block.state.BlockState)this.states[$$1]) << 12 | this.positions[$$1]));
+         }
+     }
+ 
+-    public void handle(net.minecraft.network.protocol.game.ClientGamePacketListener handler) {
+-        handler.handleChunkBlocksUpdate(this);
++    public void handle(net.minecraft.network.protocol.game.ClientGamePacketListener $$0) {
++        $$0.handleChunkBlocksUpdate(this);
+     }
+ 
+-    public void runUpdates(java.util.function.BiConsumer<net.minecraft.core.BlockPos, net.minecraft.world.level.block.state.BlockState> consumer) {
+-        net.minecraft.core.BlockPos$MutableBlockPos mutableBlockPos = new net.minecraft.core.BlockPos$MutableBlockPos();
+-        for (int i = 0; i < this.positions.length; ++i) {
+-            short s = this.positions[i];
+-            mutableBlockPos.set(this.sectionPos.relativeToBlockX(s), this.sectionPos.relativeToBlockY(s), this.sectionPos.relativeToBlockZ(s));
+-            consumer.accept((java.lang.Object)mutableBlockPos, (java.lang.Object)this.states[i]);
++    public void runUpdates(java.util.function.BiConsumer<net.minecraft.core.BlockPos, net.minecraft.world.level.block.state.BlockState> $$0) {
++        net.minecraft.core.BlockPos$MutableBlockPos $$1 = new net.minecraft.core.BlockPos$MutableBlockPos();
++        for (int $$2 = 0; $$2 < this.positions.length; ++$$2) {
++            short $$3 = this.positions[$$2];
++            $$1.set(this.sectionPos.relativeToBlockX($$3), this.sectionPos.relativeToBlockY($$3), this.sectionPos.relativeToBlockZ($$3));
++            $$0.accept((java.lang.Object)$$1, (java.lang.Object)this.states[$$2]);
+         }
+     }
+ 

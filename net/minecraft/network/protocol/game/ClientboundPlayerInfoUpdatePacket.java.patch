@@ -1,0 +1,71 @@
+--- net/minecraft/network/protocol/game/ClientboundPlayerInfoUpdatePacket.java
++++ net/minecraft/network/protocol/game/ClientboundPlayerInfoUpdatePacket.java
+@@ -1,0 +1,68 @@
++/*
++ * Decompiled with CFR 0.151.
++ */
++package net.minecraft.network.protocol.game;
++
++public class net.minecraft.network.protocol.game.ClientboundPlayerInfoUpdatePacket
++implements net.minecraft.network.protocol.Packet<net.minecraft.network.protocol.game.ClientGamePacketListener>
++ {
++    public java.util.EnumSet<net.minecraft.network.protocol.game.ClientboundPlayerInfoUpdatePacket$Action> actions;
++    public java.util.List<net.minecraft.network.protocol.game.ClientboundPlayerInfoUpdatePacket$Entry> entries;
++
++    public net.minecraft.network.protocol.game.ClientboundPlayerInfoUpdatePacket(java.util.EnumSet<net.minecraft.network.protocol.game.ClientboundPlayerInfoUpdatePacket$Action> $$0, java.util.Collection<net.minecraft.server.level.ServerPlayer> $$1) {
++        this.actions = $$0;
++        this.entries = $$1.stream().map(net.minecraft.network.protocol.game.ClientboundPlayerInfoUpdatePacket$Entry::new).toList();
++    }
++
++    public net.minecraft.network.protocol.game.ClientboundPlayerInfoUpdatePacket(net.minecraft.network.protocol.game.ClientboundPlayerInfoUpdatePacket$Action $$0, net.minecraft.server.level.ServerPlayer $$1) {
++        this.actions = java.util.EnumSet.of((java.lang.Enum)$$0);
++        this.entries = java.util.List.of((java.lang.Object)new net.minecraft.network.protocol.game.ClientboundPlayerInfoUpdatePacket$Entry($$1));
++    }
++
++    public static net.minecraft.network.protocol.game.ClientboundPlayerInfoUpdatePacket createPlayerInitializing(java.util.Collection<net.minecraft.server.level.ServerPlayer> $$0) {
++        java.util.EnumSet $$1 = java.util.EnumSet.of((java.lang.Enum)net.minecraft.network.protocol.game.ClientboundPlayerInfoUpdatePacket$Action.ADD_PLAYER, (java.lang.Enum[])new net.minecraft.network.protocol.game.ClientboundPlayerInfoUpdatePacket$Action[]{net.minecraft.network.protocol.game.ClientboundPlayerInfoUpdatePacket$Action.INITIALIZE_CHAT, net.minecraft.network.protocol.game.ClientboundPlayerInfoUpdatePacket$Action.UPDATE_GAME_MODE, net.minecraft.network.protocol.game.ClientboundPlayerInfoUpdatePacket$Action.UPDATE_LISTED, net.minecraft.network.protocol.game.ClientboundPlayerInfoUpdatePacket$Action.UPDATE_LATENCY, net.minecraft.network.protocol.game.ClientboundPlayerInfoUpdatePacket$Action.UPDATE_DISPLAY_NAME});
++        return new net.minecraft.network.protocol.game.ClientboundPlayerInfoUpdatePacket($$1, $$0);
++    }
++
++    public net.minecraft.network.protocol.game.ClientboundPlayerInfoUpdatePacket(net.minecraft.network.FriendlyByteBuf $$02) {
++        this.actions = $$02.readEnumSet(net.minecraft.network.protocol.game.ClientboundPlayerInfoUpdatePacket$Action.class);
++        this.entries = $$02.readList($$0 -> {
++            net.minecraft.network.protocol.game.ClientboundPlayerInfoUpdatePacket$EntryBuilder $$1 = new net.minecraft.network.protocol.game.ClientboundPlayerInfoUpdatePacket$EntryBuilder($$0.readUUID());
++            for (net.minecraft.network.protocol.game.ClientboundPlayerInfoUpdatePacket$Action $$2 : this.actions) {
++                $$2.reader.read($$1, $$0);
++            }
++            return $$1.build();
++        });
++    }
++
++    public void write(net.minecraft.network.FriendlyByteBuf $$02) {
++        $$02.writeEnumSet(this.actions, net.minecraft.network.protocol.game.ClientboundPlayerInfoUpdatePacket$Action.class);
++        $$02.writeCollection((java.util.Collection)this.entries, ($$0, $$1) -> {
++            $$0.writeUUID($$1.profileId());
++            for (net.minecraft.network.protocol.game.ClientboundPlayerInfoUpdatePacket$Action $$2 : this.actions) {
++                $$2.writer.write($$0, $$1);
++            }
++        });
++    }
++
++    public void handle(net.minecraft.network.protocol.game.ClientGamePacketListener $$0) {
++        $$0.handlePlayerInfoUpdate(this);
++    }
++
++    public java.util.EnumSet<net.minecraft.network.protocol.game.ClientboundPlayerInfoUpdatePacket$Action> actions() {
++        return this.actions;
++    }
++
++    public java.util.List<net.minecraft.network.protocol.game.ClientboundPlayerInfoUpdatePacket$Entry> entries() {
++        return this.entries;
++    }
++
++    public java.util.List<net.minecraft.network.protocol.game.ClientboundPlayerInfoUpdatePacket$Entry> newEntries() {
++        return this.actions.contains((java.lang.Object)net.minecraft.network.protocol.game.ClientboundPlayerInfoUpdatePacket$Action.ADD_PLAYER) ? this.entries : java.util.List.of();
++    }
++
++    public java.lang.String toString() {
++        return com.google.common.base.MoreObjects.toStringHelper((java.lang.Object)this).add("actions", (java.lang.Object)this.actions).add("entries", (java.lang.Object)this.entries).toString();
++    }
++}
++

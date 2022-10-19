@@ -1,0 +1,207 @@
+--- net/minecraft/client/sounds/SoundManager.java
++++ net/minecraft/client/sounds/SoundManager.java
+@@ -13,59 +13,64 @@
+     public static com.google.gson.reflect.TypeToken<java.util.Map<java.lang.String, net.minecraft.client.resources.sounds.SoundEventRegistration>> SOUND_EVENT_REGISTRATION_TYPE;
+     public java.util.Map<net.minecraft.resources.ResourceLocation, net.minecraft.client.sounds.WeighedSoundEvents> registry;
+     public net.minecraft.client.sounds.SoundEngine soundEngine;
++    public java.util.Map<net.minecraft.resources.ResourceLocation, net.minecraft.server.packs.resources.Resource> soundCache;
+ 
+-    public net.minecraft.client.sounds.SoundManager(net.minecraft.server.packs.resources.ResourceManager resourceManager, net.minecraft.client.Options options) {
++    public net.minecraft.client.sounds.SoundManager(net.minecraft.client.Options $$0) {
+         this.registry = com.google.common.collect.Maps.newHashMap();
+-        this.soundEngine = new net.minecraft.client.sounds.SoundEngine(this, options, resourceManager);
++        this.soundCache = new java.util.HashMap();
++        this.soundEngine = new net.minecraft.client.sounds.SoundEngine(this, $$0, net.minecraft.server.packs.resources.ResourceProvider.fromMap((java.util.Map)this.soundCache));
+     }
+ 
+-    public net.minecraft.client.sounds.SoundManager$Preparations prepare(net.minecraft.server.packs.resources.ResourceManager resourceManager, net.minecraft.util.profiling.ProfilerFiller profiler) {
+-        net.minecraft.client.sounds.SoundManager$Preparations preparations = new net.minecraft.client.sounds.SoundManager$Preparations();
+-        profiler.startTick();
+-        for (java.lang.String string : resourceManager.getNamespaces()) {
+-            profiler.push(string);
++    public net.minecraft.client.sounds.SoundManager$Preparations prepare(net.minecraft.server.packs.resources.ResourceManager $$0, net.minecraft.util.profiling.ProfilerFiller $$1) {
++        net.minecraft.client.sounds.SoundManager$Preparations $$2 = new net.minecraft.client.sounds.SoundManager$Preparations();
++        $$1.startTick();
++        $$1.push("list");
++        $$2.listResources($$0);
++        $$1.pop();
++        for (java.lang.String $$3 : $$0.getNamespaces()) {
++            $$1.push($$3);
+             try {
+-                java.util.List list = resourceManager.getResourceStack(new net.minecraft.resources.ResourceLocation(string, "sounds.json"));
+-                for (net.minecraft.server.packs.resources.Resource resource : list) {
+-                    profiler.push(resource.sourcePackId());
+-                    try (java.io.BufferedReader bufferedReader = resource.openAsReader();
++                java.util.List $$4 = $$0.getResourceStack(new net.minecraft.resources.ResourceLocation($$3, "sounds.json"));
++                for (net.minecraft.server.packs.resources.Resource $$5 : $$4) {
++                    $$1.push($$5.sourcePackId());
++                    try (java.io.BufferedReader $$6 = $$5.openAsReader();
+ ){
+-                        profiler.push("parse");
+-                        java.util.Map map = (java.util.Map)net.minecraft.util.GsonHelper.fromJson((com.google.gson.Gson)GSON, (java.io.Reader)bufferedReader, (com.google.gson.reflect.TypeToken)SOUND_EVENT_REGISTRATION_TYPE);
+-                        profiler.popPush("register");
+-                        for (java.util.Map$Entry entry : map.entrySet()) {
+-                            preparations.handleRegistration(new net.minecraft.resources.ResourceLocation(string, (java.lang.String)entry.getKey()), (net.minecraft.client.resources.sounds.SoundEventRegistration)entry.getValue(), resourceManager);
++                        $$1.push("parse");
++                        java.util.Map $$7 = (java.util.Map)net.minecraft.util.GsonHelper.fromJson((com.google.gson.Gson)GSON, (java.io.Reader)$$6, (com.google.gson.reflect.TypeToken)SOUND_EVENT_REGISTRATION_TYPE);
++                        $$1.popPush("register");
++                        for (java.util.Map$Entry $$8 : $$7.entrySet()) {
++                            $$2.handleRegistration(new net.minecraft.resources.ResourceLocation($$3, (java.lang.String)$$8.getKey()), (net.minecraft.client.resources.sounds.SoundEventRegistration)$$8.getValue());
+                         }
+-                        profiler.pop();
++                        $$1.pop();
+                     }
+-                    catch (java.lang.RuntimeException runtimeException) {
+-                        LOGGER.warn("Invalid {} in resourcepack: '{}'", new java.lang.Object[]{"sounds.json", resource.sourcePackId(), runtimeException});
++                    catch (java.lang.RuntimeException $$9) {
++                        LOGGER.warn("Invalid {} in resourcepack: '{}'", new java.lang.Object[]{"sounds.json", $$5.sourcePackId(), $$9});
+                     }
+-                    profiler.pop();
++                    $$1.pop();
+                 }
+             }
+             catch (java.io.IOException iOException) {
+                 // empty catch block
+             }
+-            profiler.pop();
++            $$1.pop();
+         }
+-        profiler.endTick();
+-        return preparations;
++        $$1.endTick();
++        return $$2;
+     }
+ 
+-    public void apply(net.minecraft.client.sounds.SoundManager$Preparations object, net.minecraft.server.packs.resources.ResourceManager resourceManager, net.minecraft.util.profiling.ProfilerFiller profiler) {
+-        object.apply(this.registry, this.soundEngine);
++    public void apply(net.minecraft.client.sounds.SoundManager$Preparations $$0, net.minecraft.server.packs.resources.ResourceManager $$1, net.minecraft.util.profiling.ProfilerFiller $$2) {
++        $$0.apply(this.registry, this.soundCache, this.soundEngine);
+         if (net.minecraft.SharedConstants.IS_RUNNING_IN_IDE) {
+-            for (net.minecraft.resources.ResourceLocation resourceLocation : this.registry.keySet()) {
+-                net.minecraft.client.sounds.WeighedSoundEvents weighedSoundEvents = (net.minecraft.client.sounds.WeighedSoundEvents)this.registry.get((java.lang.Object)resourceLocation);
+-                if (net.minecraft.network.chat.ComponentUtils.isTranslationResolvable((net.minecraft.network.chat.Component)weighedSoundEvents.getSubtitle()) || !net.minecraft.core.Registry.SOUND_EVENT.containsKey(resourceLocation)) continue;
+-                LOGGER.error("Missing subtitle {} for sound event: {}", (java.lang.Object)weighedSoundEvents.getSubtitle(), (java.lang.Object)resourceLocation);
++            for (net.minecraft.resources.ResourceLocation $$3 : this.registry.keySet()) {
++                net.minecraft.client.sounds.WeighedSoundEvents $$4 = (net.minecraft.client.sounds.WeighedSoundEvents)this.registry.get((java.lang.Object)$$3);
++                if (net.minecraft.network.chat.ComponentUtils.isTranslationResolvable((net.minecraft.network.chat.Component)$$4.getSubtitle()) || !net.minecraft.core.Registry.SOUND_EVENT.containsKey($$3)) continue;
++                LOGGER.error("Missing subtitle {} for sound event: {}", (java.lang.Object)$$4.getSubtitle(), (java.lang.Object)$$3);
+             }
+         }
+         if (LOGGER.isDebugEnabled()) {
+-            for (net.minecraft.resources.ResourceLocation resourceLocation : this.registry.keySet()) {
+-                if (net.minecraft.core.Registry.SOUND_EVENT.containsKey(resourceLocation)) continue;
+-                LOGGER.debug("Not having sound event for: {}", (java.lang.Object)resourceLocation);
++            for (net.minecraft.resources.ResourceLocation $$5 : this.registry.keySet()) {
++                if (net.minecraft.core.Registry.SOUND_EVENT.containsKey($$5)) continue;
++                LOGGER.debug("Not having sound event for: {}", (java.lang.Object)$$5);
+             }
+         }
+         this.soundEngine.reload();
+@@ -75,38 +80,38 @@
+         return this.soundEngine.getAvailableSoundDevices();
+     }
+ 
+-    public static boolean validateSoundResource(net.minecraft.client.resources.sounds.Sound sound, net.minecraft.resources.ResourceLocation soundLocation, net.minecraft.server.packs.resources.ResourceManager resourceManager) {
+-        net.minecraft.resources.ResourceLocation resourceLocation = sound.getPath();
+-        if (resourceManager.getResource(resourceLocation).isEmpty()) {
+-            LOGGER.warn("File {} does not exist, cannot add it to event {}", (java.lang.Object)resourceLocation, (java.lang.Object)soundLocation);
++    public static boolean validateSoundResource(net.minecraft.client.resources.sounds.Sound $$0, net.minecraft.resources.ResourceLocation $$1, net.minecraft.server.packs.resources.ResourceProvider $$2) {
++        net.minecraft.resources.ResourceLocation $$3 = $$0.getPath();
++        if ($$2.getResource($$3).isEmpty()) {
++            LOGGER.warn("File {} does not exist, cannot add it to event {}", (java.lang.Object)$$3, (java.lang.Object)$$1);
+             return false;
+         }
+         return true;
+     }
+ 
+     @javax.annotation.Nullable
+-    public net.minecraft.client.sounds.WeighedSoundEvents getSoundEvent(net.minecraft.resources.ResourceLocation location) {
+-        return (net.minecraft.client.sounds.WeighedSoundEvents)this.registry.get((java.lang.Object)location);
++    public net.minecraft.client.sounds.WeighedSoundEvents getSoundEvent(net.minecraft.resources.ResourceLocation $$0) {
++        return (net.minecraft.client.sounds.WeighedSoundEvents)this.registry.get((java.lang.Object)$$0);
+     }
+ 
+     public java.util.Collection<net.minecraft.resources.ResourceLocation> getAvailableSounds() {
+         return this.registry.keySet();
+     }
+ 
+-    public void queueTickingSound(net.minecraft.client.resources.sounds.TickableSoundInstance tickableSound) {
+-        this.soundEngine.queueTickingSound(tickableSound);
++    public void queueTickingSound(net.minecraft.client.resources.sounds.TickableSoundInstance $$0) {
++        this.soundEngine.queueTickingSound($$0);
+     }
+ 
+-    public void play(net.minecraft.client.resources.sounds.SoundInstance sound) {
+-        this.soundEngine.play(sound);
++    public void play(net.minecraft.client.resources.sounds.SoundInstance $$0) {
++        this.soundEngine.play($$0);
+     }
+ 
+-    public void playDelayed(net.minecraft.client.resources.sounds.SoundInstance sound, int delay) {
+-        this.soundEngine.playDelayed(sound, delay);
++    public void playDelayed(net.minecraft.client.resources.sounds.SoundInstance $$0, int $$1) {
++        this.soundEngine.playDelayed($$0, $$1);
+     }
+ 
+-    public void updateSource(net.minecraft.client.Camera activeRenderInfo) {
+-        this.soundEngine.updateSource(activeRenderInfo);
++    public void updateSource(net.minecraft.client.Camera $$0) {
++        this.soundEngine.updateSource($$0);
+     }
+ 
+     public void pause() {
+@@ -121,39 +126,39 @@
+         this.soundEngine.destroy();
+     }
+ 
+-    public void tick(boolean isGamePaused) {
+-        this.soundEngine.tick(isGamePaused);
++    public void tick(boolean $$0) {
++        this.soundEngine.tick($$0);
+     }
+ 
+     public void resume() {
+         this.soundEngine.resume();
+     }
+ 
+-    public void updateSourceVolume(net.minecraft.sounds.SoundSource category, float volume) {
+-        if (category == net.minecraft.sounds.SoundSource.MASTER && volume <= 0.0f) {
++    public void updateSourceVolume(net.minecraft.sounds.SoundSource $$0, float $$1) {
++        if ($$0 == net.minecraft.sounds.SoundSource.MASTER && $$1 <= 0.0f) {
+             this.stop();
+         }
+-        this.soundEngine.updateCategoryVolume(category, volume);
++        this.soundEngine.updateCategoryVolume($$0, $$1);
+     }
+ 
+-    public void stop(net.minecraft.client.resources.sounds.SoundInstance sound) {
+-        this.soundEngine.stop(sound);
++    public void stop(net.minecraft.client.resources.sounds.SoundInstance $$0) {
++        this.soundEngine.stop($$0);
+     }
+ 
+-    public boolean isActive(net.minecraft.client.resources.sounds.SoundInstance sound) {
+-        return this.soundEngine.isActive(sound);
++    public boolean isActive(net.minecraft.client.resources.sounds.SoundInstance $$0) {
++        return this.soundEngine.isActive($$0);
+     }
+ 
+-    public void addListener(net.minecraft.client.sounds.SoundEventListener listener) {
+-        this.soundEngine.addEventListener(listener);
++    public void addListener(net.minecraft.client.sounds.SoundEventListener $$0) {
++        this.soundEngine.addEventListener($$0);
+     }
+ 
+-    public void removeListener(net.minecraft.client.sounds.SoundEventListener listener) {
+-        this.soundEngine.removeEventListener(listener);
++    public void removeListener(net.minecraft.client.sounds.SoundEventListener $$0) {
++        this.soundEngine.removeEventListener($$0);
+     }
+ 
+-    public void stop(@javax.annotation.Nullable net.minecraft.resources.ResourceLocation id, @javax.annotation.Nullable net.minecraft.sounds.SoundSource category) {
+-        this.soundEngine.stop(id, category);
++    public void stop(@javax.annotation.Nullable net.minecraft.resources.ResourceLocation $$0, @javax.annotation.Nullable net.minecraft.sounds.SoundSource $$1) {
++        this.soundEngine.stop($$0, $$1);
+     }
+ 
+     public java.lang.String getDebugString() {

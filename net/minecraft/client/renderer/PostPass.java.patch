@@ -1,0 +1,101 @@
+--- net/minecraft/client/renderer/PostPass.java
++++ net/minecraft/client/renderer/PostPass.java
+@@ -15,14 +15,14 @@
+     public java.util.List<java.lang.Integer> auxHeights;
+     public com.mojang.math.Matrix4f shaderOrthoMatrix;
+ 
+-    public net.minecraft.client.renderer.PostPass(net.minecraft.server.packs.resources.ResourceManager resourceManager, java.lang.String name, com.mojang.blaze3d.pipeline.RenderTarget inTarget, com.mojang.blaze3d.pipeline.RenderTarget outTarget) throws java.io.IOException {
++    public net.minecraft.client.renderer.PostPass(net.minecraft.server.packs.resources.ResourceManager $$0, java.lang.String $$1, com.mojang.blaze3d.pipeline.RenderTarget $$2, com.mojang.blaze3d.pipeline.RenderTarget $$3) throws java.io.IOException {
+         this.auxAssets = com.google.common.collect.Lists.newArrayList();
+         this.auxNames = com.google.common.collect.Lists.newArrayList();
+         this.auxWidths = com.google.common.collect.Lists.newArrayList();
+         this.auxHeights = com.google.common.collect.Lists.newArrayList();
+-        this.effect = new net.minecraft.client.renderer.EffectInstance(resourceManager, name);
+-        this.inTarget = inTarget;
+-        this.outTarget = outTarget;
++        this.effect = new net.minecraft.client.renderer.EffectInstance($$0, $$1);
++        this.inTarget = $$2;
++        this.outTarget = $$3;
+     }
+ 
+     public void close() {
+@@ -33,51 +33,51 @@
+         return this.effect.getName();
+     }
+ 
+-    public void addAuxAsset(java.lang.String auxName, java.util.function.IntSupplier auxFramebuffer, int width, int height) {
+-        this.auxNames.add(this.auxNames.size(), (java.lang.Object)auxName);
+-        this.auxAssets.add(this.auxAssets.size(), (java.lang.Object)auxFramebuffer);
+-        this.auxWidths.add(this.auxWidths.size(), (java.lang.Object)width);
+-        this.auxHeights.add(this.auxHeights.size(), (java.lang.Object)height);
++    public void addAuxAsset(java.lang.String $$0, java.util.function.IntSupplier $$1, int $$2, int $$3) {
++        this.auxNames.add(this.auxNames.size(), (java.lang.Object)$$0);
++        this.auxAssets.add(this.auxAssets.size(), (java.lang.Object)$$1);
++        this.auxWidths.add(this.auxWidths.size(), (java.lang.Object)$$2);
++        this.auxHeights.add(this.auxHeights.size(), (java.lang.Object)$$3);
+     }
+ 
+-    public void setOrthoMatrix(com.mojang.math.Matrix4f projectionMatrix) {
+-        this.shaderOrthoMatrix = projectionMatrix;
++    public void setOrthoMatrix(com.mojang.math.Matrix4f $$0) {
++        this.shaderOrthoMatrix = $$0;
+     }
+ 
+-    public void process(float partialTicks) {
++    public void process(float $$0) {
+         this.inTarget.unbindWrite();
+-        float f = this.outTarget.width;
+-        float f2 = this.outTarget.height;
+-        com.mojang.blaze3d.systems.RenderSystem.viewport((int)0, (int)0, (int)((int)f), (int)((int)f2));
++        float $$1 = this.outTarget.width;
++        float $$2 = this.outTarget.height;
++        com.mojang.blaze3d.systems.RenderSystem.viewport((int)0, (int)0, (int)((int)$$1), (int)((int)$$2));
+         this.effect.setSampler("DiffuseSampler", () -> ((com.mojang.blaze3d.pipeline.RenderTarget)this.inTarget).getColorTextureId());
+-        for (int i = 0; i < this.auxAssets.size(); ++i) {
+-            this.effect.setSampler((java.lang.String)this.auxNames.get(i), (java.util.function.IntSupplier)this.auxAssets.get(i));
+-            this.effect.safeGetUniform("AuxSize" + i).set((float)((java.lang.Integer)this.auxWidths.get(i)).intValue(), (float)((java.lang.Integer)this.auxHeights.get(i)).intValue());
++        for (int $$3 = 0; $$3 < this.auxAssets.size(); ++$$3) {
++            this.effect.setSampler((java.lang.String)this.auxNames.get($$3), (java.util.function.IntSupplier)this.auxAssets.get($$3));
++            this.effect.safeGetUniform("AuxSize" + $$3).set((float)((java.lang.Integer)this.auxWidths.get($$3)).intValue(), (float)((java.lang.Integer)this.auxHeights.get($$3)).intValue());
+         }
+         this.effect.safeGetUniform("ProjMat").set(this.shaderOrthoMatrix);
+         this.effect.safeGetUniform("InSize").set((float)this.inTarget.width, (float)this.inTarget.height);
+-        this.effect.safeGetUniform("OutSize").set(f, f2);
+-        this.effect.safeGetUniform("Time").set(partialTicks);
+-        net.minecraft.client.Minecraft minecraft = net.minecraft.client.Minecraft.getInstance();
+-        this.effect.safeGetUniform("ScreenSize").set((float)minecraft.getWindow().getWidth(), (float)minecraft.getWindow().getHeight());
++        this.effect.safeGetUniform("OutSize").set($$1, $$2);
++        this.effect.safeGetUniform("Time").set($$0);
++        net.minecraft.client.Minecraft $$4 = net.minecraft.client.Minecraft.getInstance();
++        this.effect.safeGetUniform("ScreenSize").set((float)$$4.getWindow().getWidth(), (float)$$4.getWindow().getHeight());
+         this.effect.apply();
+         this.outTarget.clear(net.minecraft.client.Minecraft.ON_OSX);
+         this.outTarget.bindWrite(false);
+         com.mojang.blaze3d.systems.RenderSystem.depthFunc((int)519);
+-        com.mojang.blaze3d.vertex.BufferBuilder bufferBuilder = com.mojang.blaze3d.vertex.Tesselator.getInstance().getBuilder();
+-        bufferBuilder.begin(com.mojang.blaze3d.vertex.VertexFormat$Mode.QUADS, com.mojang.blaze3d.vertex.DefaultVertexFormat.POSITION);
+-        bufferBuilder.vertex(0.0, 0.0, 500.0).endVertex();
+-        bufferBuilder.vertex((double)f, 0.0, 500.0).endVertex();
+-        bufferBuilder.vertex((double)f, (double)f2, 500.0).endVertex();
+-        bufferBuilder.vertex(0.0, (double)f2, 500.0).endVertex();
+-        com.mojang.blaze3d.vertex.BufferUploader.draw((com.mojang.blaze3d.vertex.BufferBuilder$RenderedBuffer)bufferBuilder.end());
++        com.mojang.blaze3d.vertex.BufferBuilder $$5 = com.mojang.blaze3d.vertex.Tesselator.getInstance().getBuilder();
++        $$5.begin(com.mojang.blaze3d.vertex.VertexFormat$Mode.QUADS, com.mojang.blaze3d.vertex.DefaultVertexFormat.POSITION);
++        $$5.vertex(0.0, 0.0, 500.0).endVertex();
++        $$5.vertex((double)$$1, 0.0, 500.0).endVertex();
++        $$5.vertex((double)$$1, (double)$$2, 500.0).endVertex();
++        $$5.vertex(0.0, (double)$$2, 500.0).endVertex();
++        com.mojang.blaze3d.vertex.BufferUploader.draw((com.mojang.blaze3d.vertex.BufferBuilder$RenderedBuffer)$$5.end());
+         com.mojang.blaze3d.systems.RenderSystem.depthFunc((int)515);
+         this.effect.clear();
+         this.outTarget.unbindWrite();
+         this.inTarget.unbindRead();
+-        for (java.lang.Object object : this.auxAssets) {
+-            if (!(object instanceof com.mojang.blaze3d.pipeline.RenderTarget)) continue;
+-            ((com.mojang.blaze3d.pipeline.RenderTarget)object).unbindRead();
++        for (java.lang.Object $$6 : this.auxAssets) {
++            if (!($$6 instanceof com.mojang.blaze3d.pipeline.RenderTarget)) continue;
++            ((com.mojang.blaze3d.pipeline.RenderTarget)$$6).unbindRead();
+         }
+     }
+ 

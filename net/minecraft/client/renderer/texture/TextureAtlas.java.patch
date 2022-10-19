@@ -1,0 +1,299 @@
+--- net/minecraft/client/renderer/texture/TextureAtlas.java
++++ net/minecraft/client/renderer/texture/TextureAtlas.java
+@@ -12,161 +12,74 @@
+     public static net.minecraft.resources.ResourceLocation LOCATION_BLOCKS;
+     @java.lang.Deprecated
+     public static net.minecraft.resources.ResourceLocation LOCATION_PARTICLES;
+-    public static java.lang.String FILE_EXTENSION = ".png";
+-    public java.util.List<net.minecraft.client.renderer.texture.Tickable> animatedTextures;
+-    public java.util.Set<net.minecraft.resources.ResourceLocation> sprites;
++    public java.util.List<net.minecraft.client.renderer.texture.SpriteContents> sprites;
++    public java.util.List<net.minecraft.client.renderer.texture.TextureAtlasSprite$Ticker> animatedTextures;
+     public java.util.Map<net.minecraft.resources.ResourceLocation, net.minecraft.client.renderer.texture.TextureAtlasSprite> texturesByName;
+     public net.minecraft.resources.ResourceLocation location;
+     public int maxSupportedTextureSize;
+ 
+-    public net.minecraft.client.renderer.texture.TextureAtlas(net.minecraft.resources.ResourceLocation location) {
+-        this.animatedTextures = com.google.common.collect.Lists.newArrayList();
+-        this.sprites = com.google.common.collect.Sets.newHashSet();
+-        this.texturesByName = com.google.common.collect.Maps.newHashMap();
+-        this.location = location;
++    public net.minecraft.client.renderer.texture.TextureAtlas(net.minecraft.resources.ResourceLocation $$0) {
++        this.sprites = java.util.List.of();
++        this.animatedTextures = java.util.List.of();
++        this.texturesByName = java.util.Map.of();
++        this.location = $$0;
+         this.maxSupportedTextureSize = com.mojang.blaze3d.systems.RenderSystem.maxSupportedTextureSize();
+     }
+ 
+-    public void load(net.minecraft.server.packs.resources.ResourceManager manager) {
++    public void load(net.minecraft.server.packs.resources.ResourceManager $$0) {
+     }
+ 
+-    public void reload(net.minecraft.client.renderer.texture.TextureAtlas$Preparations sheetData) {
+-        this.sprites.clear();
+-        this.sprites.addAll((java.util.Collection)sheetData.sprites);
+-        LOGGER.info("Created: {}x{}x{} {}-atlas", new java.lang.Object[]{sheetData.width, sheetData.height, sheetData.mipLevel, this.location});
+-        com.mojang.blaze3d.platform.TextureUtil.prepareImage((int)this.getId(), (int)sheetData.mipLevel, (int)sheetData.width, (int)sheetData.height);
++    public void upload(net.minecraft.client.renderer.texture.SpriteLoader$Preparations $$0) {
++        LOGGER.info("Created: {}x{}x{} {}-atlas", new java.lang.Object[]{$$0.width(), $$0.height(), $$0.mipLevel(), this.location});
++        com.mojang.blaze3d.platform.TextureUtil.prepareImage((int)this.getId(), (int)$$0.mipLevel(), (int)$$0.width(), (int)$$0.height());
+         this.clearTextureData();
+-        for (net.minecraft.client.renderer.texture.TextureAtlasSprite textureAtlasSprite : sheetData.regions) {
+-            this.texturesByName.put((java.lang.Object)textureAtlasSprite.getName(), (java.lang.Object)textureAtlasSprite);
++        this.texturesByName = java.util.Map.copyOf((java.util.Map)$$0.regions());
++        java.util.ArrayList $$1 = new java.util.ArrayList();
++        java.util.ArrayList $$2 = new java.util.ArrayList();
++        for (net.minecraft.client.renderer.texture.TextureAtlasSprite $$3 : $$0.regions().values()) {
++            $$1.add((java.lang.Object)$$3.contents());
+             try {
+-                textureAtlasSprite.uploadFirstFrame();
++                $$3.uploadFirstFrame();
+             }
+-            catch (java.lang.Throwable throwable) {
+-                net.minecraft.CrashReport crashReport = net.minecraft.CrashReport.forThrowable((java.lang.Throwable)throwable, (java.lang.String)"Stitching texture atlas");
+-                net.minecraft.CrashReportCategory crashReportCategory = crashReport.addCategory("Texture being stitched together");
+-                crashReportCategory.setDetail("Atlas path", (java.lang.Object)this.location);
+-                crashReportCategory.setDetail("Sprite", (java.lang.Object)textureAtlasSprite);
+-                throw new net.minecraft.ReportedException(crashReport);
++            catch (java.lang.Throwable $$4) {
++                net.minecraft.CrashReport $$5 = net.minecraft.CrashReport.forThrowable((java.lang.Throwable)$$4, (java.lang.String)"Stitching texture atlas");
++                net.minecraft.CrashReportCategory $$6 = $$5.addCategory("Texture being stitched together");
++                $$6.setDetail("Atlas path", (java.lang.Object)this.location);
++                $$6.setDetail("Sprite", (java.lang.Object)$$3);
++                throw new net.minecraft.ReportedException($$5);
+             }
+-            net.minecraft.client.renderer.texture.Tickable tickable = textureAtlasSprite.getAnimationTicker();
+-            if (tickable == null) continue;
+-            this.animatedTextures.add((java.lang.Object)tickable);
++            net.minecraft.client.renderer.texture.TextureAtlasSprite$Ticker $$7 = $$3.createTicker();
++            if ($$7 == null) continue;
++            $$2.add((java.lang.Object)$$7);
+         }
++        this.sprites = java.util.List.copyOf((java.util.Collection)$$1);
++        this.animatedTextures = java.util.List.copyOf((java.util.Collection)$$2);
+     }
+ 
+-    public net.minecraft.client.renderer.texture.TextureAtlas$Preparations prepareToStitch(net.minecraft.server.packs.resources.ResourceManager resourceManager, java.util.stream.Stream<net.minecraft.resources.ResourceLocation> resourceLocations, net.minecraft.util.profiling.ProfilerFiller profiler, int maxMipmapLevel) {
+-        int n;
+-        profiler.push("preparing");
+-        java.util.Set set = (java.util.Set)resourceLocations.peek(location -> {
+-            if (location == null) {
+-                throw new java.lang.IllegalArgumentException("Location cannot be null!");
+-            }
+-        }).collect(java.util.stream.Collectors.toSet());
+-        int n2 = this.maxSupportedTextureSize;
+-        net.minecraft.client.renderer.texture.Stitcher stitcher = new net.minecraft.client.renderer.texture.Stitcher(n2, n2, maxMipmapLevel);
+-        int n3 = java.lang.Integer.MAX_VALUE;
+-        int n4 = 1 << maxMipmapLevel;
+-        profiler.popPush("extracting_frames");
+-        for (net.minecraft.client.renderer.texture.TextureAtlasSprite$Info info : this.getBasicSpriteInfos(resourceManager, set)) {
+-            n3 = java.lang.Math.min((int)n3, (int)java.lang.Math.min((int)info.width(), (int)info.height()));
+-            n = java.lang.Math.min((int)java.lang.Integer.lowestOneBit((int)info.width()), (int)java.lang.Integer.lowestOneBit((int)info.height()));
+-            if (n < n4) {
+-                LOGGER.warn("Texture {} with size {}x{} limits mip level from {} to {}", new java.lang.Object[]{info.name(), info.width(), info.height(), net.minecraft.util.Mth.log2((int)n4), net.minecraft.util.Mth.log2((int)n)});
+-                n4 = n;
+-            }
+-            stitcher.registerSprite(info);
+-        }
+-        int n5 = java.lang.Math.min((int)n3, (int)n4);
+-        int n6 = net.minecraft.util.Mth.log2((int)n5);
+-        if (n6 < maxMipmapLevel) {
+-            LOGGER.warn("{}: dropping miplevel from {} to {}, because of minimum power of two: {}", new java.lang.Object[]{this.location, maxMipmapLevel, n6, n5});
+-            n = n6;
+-        } else {
+-            n = maxMipmapLevel;
+-        }
+-        profiler.popPush("register");
+-        stitcher.registerSprite(net.minecraft.client.renderer.texture.MissingTextureAtlasSprite.info());
+-        profiler.popPush("stitching");
+-        try {
+-            stitcher.stitch();
+-        }
+-        catch (net.minecraft.client.renderer.texture.StitcherException stitcherException) {
+-            net.minecraft.CrashReport crashReport = net.minecraft.CrashReport.forThrowable((java.lang.Throwable)stitcherException, (java.lang.String)"Stitching");
+-            net.minecraft.CrashReportCategory crashReportCategory = crashReport.addCategory("Stitcher");
+-            crashReportCategory.setDetail("Sprites", stitcherException.getAllSprites().stream().map($$0 -> java.lang.String.format((java.util.Locale)java.util.Locale.ROOT, (java.lang.String)"%s[%dx%d]", (java.lang.Object[])new java.lang.Object[]{$$0.name(), $$0.width(), $$0.height()})).collect(java.util.stream.Collectors.joining((java.lang.CharSequence)",")));
+-            crashReportCategory.setDetail("Max Texture Size", (java.lang.Object)n2);
+-            throw new net.minecraft.ReportedException(crashReport);
+-        }
+-        profiler.popPush("loading");
+-        java.util.List list = this.getLoadedSprites(resourceManager, stitcher, n);
+-        profiler.pop();
+-        return new net.minecraft.client.renderer.texture.TextureAtlas$Preparations(set, stitcher.getWidth(), stitcher.getHeight(), n, list);
++    public void dumpContents(int $$0, int $$1, int $$2) {
++        java.lang.String $$3 = this.location.toDebugFileName();
++        com.mojang.blaze3d.platform.TextureUtil.writeAsPNG((java.lang.String)$$3, (int)this.getId(), (int)$$0, (int)$$1, (int)$$2);
++        net.minecraft.client.renderer.texture.TextureAtlas.dumpSpriteNames((java.lang.String)$$3, (java.util.Map)this.texturesByName);
+     }
+ 
+-    public java.util.Collection<net.minecraft.client.renderer.texture.TextureAtlasSprite$Info> getBasicSpriteInfos(net.minecraft.server.packs.resources.ResourceManager resourceManager, java.util.Set<net.minecraft.resources.ResourceLocation> spriteLocations) {
+-        java.util.ArrayList arrayList = com.google.common.collect.Lists.newArrayList();
+-        java.util.concurrent.ConcurrentLinkedQueue concurrentLinkedQueue = new java.util.concurrent.ConcurrentLinkedQueue();
+-        for (net.minecraft.resources.ResourceLocation resourceLocation : spriteLocations) {
+-            if (net.minecraft.client.renderer.texture.MissingTextureAtlasSprite.getLocation().equals((java.lang.Object)resourceLocation)) continue;
+-            arrayList.add((java.lang.Object)java.util.concurrent.CompletableFuture.runAsync(() -> this.lambda$getBasicSpriteInfos$2(resourceLocation, resourceManager, (java.util.Queue)concurrentLinkedQueue), (java.util.concurrent.Executor)net.minecraft.Util.backgroundExecutor()));
+-        }
+-        java.util.concurrent.CompletableFuture.allOf((java.util.concurrent.CompletableFuture[])((java.util.concurrent.CompletableFuture[])arrayList.toArray((java.lang.Object[])new java.util.concurrent.CompletableFuture[0]))).join();
+-        return concurrentLinkedQueue;
+-    }
+-
+-    public java.util.List<net.minecraft.client.renderer.texture.TextureAtlasSprite> getLoadedSprites(net.minecraft.server.packs.resources.ResourceManager resourceManager, net.minecraft.client.renderer.texture.Stitcher stitcher, int mipmapLevel) {
+-        java.util.concurrent.ConcurrentLinkedQueue concurrentLinkedQueue = new java.util.concurrent.ConcurrentLinkedQueue();
+-        java.util.ArrayList arrayList = com.google.common.collect.Lists.newArrayList();
+-        stitcher.gatherSprites((arg_0, arg_1, arg_2, arg_3, arg_4) -> this.lambda$getLoadedSprites$4(mipmapLevel, (java.util.Queue)concurrentLinkedQueue, (java.util.List)arrayList, resourceManager, arg_0, arg_1, arg_2, arg_3, arg_4));
+-        java.util.concurrent.CompletableFuture.allOf((java.util.concurrent.CompletableFuture[])((java.util.concurrent.CompletableFuture[])arrayList.toArray((java.lang.Object[])new java.util.concurrent.CompletableFuture[0]))).join();
+-        return com.google.common.collect.Lists.newArrayList((java.lang.Iterable)concurrentLinkedQueue);
+-    }
+-
+-    @javax.annotation.Nullable
+-    public net.minecraft.client.renderer.texture.TextureAtlasSprite load(net.minecraft.server.packs.resources.ResourceManager resourceManager, net.minecraft.client.renderer.texture.TextureAtlasSprite$Info spriteInfo, int width, int height, int mipmapLevel, int originX, int originY) {
+-        net.minecraft.client.renderer.texture.TextureAtlasSprite textureAtlasSprite;
+-block9:        {
+-            net.minecraft.resources.ResourceLocation resourceLocation = this.getResourceLocation(spriteInfo.name());
+-            java.io.InputStream inputStream = resourceManager.open(resourceLocation);
+-            try {
+-                com.mojang.blaze3d.platform.NativeImage nativeImage = com.mojang.blaze3d.platform.NativeImage.read((java.io.InputStream)inputStream);
+-                textureAtlasSprite = new net.minecraft.client.renderer.texture.TextureAtlasSprite(this, spriteInfo, mipmapLevel, width, height, originX, originY, nativeImage);
+-                if (inputStream == null) break block9;
++    public static void dumpSpriteNames(java.lang.String $$0, java.util.Map<net.minecraft.resources.ResourceLocation, net.minecraft.client.renderer.texture.TextureAtlasSprite> $$1) {
++        java.nio.file.Path $$2 = java.nio.file.Path.of((java.lang.String)($$0 + ".txt"), (java.lang.String[])new java.lang.String[0]);
++        try (java.io.BufferedWriter $$3 = java.nio.file.Files.newBufferedWriter((java.nio.file.Path)$$2, (java.nio.file.OpenOption[])new java.nio.file.OpenOption[0]);
++){
++            for (java.util.Map$Entry $$4 : $$1.entrySet().stream().sorted(java.util.Map$Entry.comparingByKey()).toList()) {
++                net.minecraft.client.renderer.texture.TextureAtlasSprite $$5 = (net.minecraft.client.renderer.texture.TextureAtlasSprite)$$4.getValue();
++                $$3.write(java.lang.String.format((java.lang.String)"%s\tx=%d\ty=%d\tw=%d\th=%d%n", (java.lang.Object[])new java.lang.Object[]{$$4.getKey(), $$5.getX(), $$5.getY(), $$5.contents().width(), $$5.contents().height()}));
+             }
+-            catch (java.lang.Throwable throwable) {
+-                try {
+-                    if (inputStream != null) {
+-                        try {
+-                            inputStream.close();
+-                        }
+-                        catch (java.lang.Throwable throwable2) {
+-                            throwable.addSuppressed(throwable2);
+-                        }
+-                    }
+-                    throw throwable;
+-                }
+-                catch (java.lang.RuntimeException runtimeException) {
+-                    LOGGER.error("Unable to parse metadata from {}", (java.lang.Object)resourceLocation, (java.lang.Object)((java.lang.Object)runtimeException));
+-                    return null;
+-                }
+-                catch (java.io.IOException iOException) {
+-                    LOGGER.error("Using missing texture, unable to load {}", (java.lang.Object)resourceLocation, (java.lang.Object)((java.lang.Object)iOException));
+-                    return null;
+-                }
+-            }
+-            inputStream.close();
+         }
+-        return textureAtlasSprite;
++        catch (java.io.IOException $$6) {
++            LOGGER.warn("Failed to write file {}", (java.lang.Object)$$2, (java.lang.Object)((java.lang.Object)$$6));
++        }
+     }
+ 
+-    public net.minecraft.resources.ResourceLocation getResourceLocation(net.minecraft.resources.ResourceLocation location) {
+-        return new net.minecraft.resources.ResourceLocation(location.getNamespace(), java.lang.String.format((java.util.Locale)java.util.Locale.ROOT, (java.lang.String)"textures/%s%s", (java.lang.Object[])new java.lang.Object[]{location.getPath(), ".png"}));
+-    }
+-
+     public void cycleAnimationFrames() {
+         this.bind();
+-        for (net.minecraft.client.renderer.texture.Tickable $$0 : this.animatedTextures) {
+-            $$0.tick();
++        for (net.minecraft.client.renderer.texture.TextureAtlasSprite$Ticker $$0 : this.animatedTextures) {
++            $$0.tickAndUpload();
+         }
+     }
+ 
+@@ -178,77 +91,34 @@
+         }
+     }
+ 
+-    public net.minecraft.client.renderer.texture.TextureAtlasSprite getSprite(net.minecraft.resources.ResourceLocation location) {
+-        net.minecraft.client.renderer.texture.TextureAtlasSprite textureAtlasSprite = (net.minecraft.client.renderer.texture.TextureAtlasSprite)this.texturesByName.get((java.lang.Object)location);
+-        if (textureAtlasSprite == null) {
++    public net.minecraft.client.renderer.texture.TextureAtlasSprite getSprite(net.minecraft.resources.ResourceLocation $$0) {
++        net.minecraft.client.renderer.texture.TextureAtlasSprite $$1 = (net.minecraft.client.renderer.texture.TextureAtlasSprite)this.texturesByName.get((java.lang.Object)$$0);
++        if ($$1 == null) {
+             return (net.minecraft.client.renderer.texture.TextureAtlasSprite)this.texturesByName.get((java.lang.Object)net.minecraft.client.renderer.texture.MissingTextureAtlasSprite.getLocation());
+         }
+-        return textureAtlasSprite;
++        return $$1;
+     }
+ 
+     public void clearTextureData() {
+-        for (net.minecraft.client.renderer.texture.TextureAtlasSprite $$0 : this.texturesByName.values()) {
+-            $$0.close();
+-        }
+-        this.texturesByName.clear();
+-        this.animatedTextures.clear();
++        this.sprites.forEach(net.minecraft.client.renderer.texture.SpriteContents::close);
++        this.animatedTextures.forEach(net.minecraft.client.renderer.texture.TextureAtlasSprite$Ticker::close);
++        this.sprites = java.util.List.of();
++        this.animatedTextures = java.util.List.of();
++        this.texturesByName = java.util.Map.of();
+     }
+ 
+     public net.minecraft.resources.ResourceLocation location() {
+         return this.location;
+     }
+ 
+-    public void updateFilter(net.minecraft.client.renderer.texture.TextureAtlas$Preparations sheetData) {
+-        this.setFilter(false, sheetData.mipLevel > 0);
++    public int maxSupportedTextureSize() {
++        return this.maxSupportedTextureSize;
+     }
+ 
+-    public /* synthetic */ void lambda$getLoadedSprites$4(int $$0, java.util.Queue $$1, java.util.List $$2, net.minecraft.server.packs.resources.ResourceManager $$3, net.minecraft.client.renderer.texture.TextureAtlasSprite$Info $$4, int $$5, int $$6, int $$7, int $$8) {
+-        if ($$4 == net.minecraft.client.renderer.texture.MissingTextureAtlasSprite.info()) {
+-            net.minecraft.client.renderer.texture.MissingTextureAtlasSprite $$9 = net.minecraft.client.renderer.texture.MissingTextureAtlasSprite.newInstance((net.minecraft.client.renderer.texture.TextureAtlas)this, (int)$$0, (int)$$5, (int)$$6, (int)$$7, (int)$$8);
+-            $$1.add((java.lang.Object)$$9);
+-        } else {
+-            $$2.add((java.lang.Object)java.util.concurrent.CompletableFuture.runAsync(() -> {
+-                net.minecraft.client.renderer.texture.TextureAtlasSprite $$8 = this.load($$3, $$4, $$5, $$6, $$0, $$7, $$8);
+-                if ($$8 != null) {
+-                    $$1.add((java.lang.Object)$$8);
+-                }
+-            }, (java.util.concurrent.Executor)net.minecraft.Util.backgroundExecutor()));
+-        }
++    public void updateFilter(net.minecraft.client.renderer.texture.SpriteLoader$Preparations $$0) {
++        this.setFilter(false, $$0.mipLevel() > 0);
+     }
+ 
+-    /*
+-     * WARNING - void declaration
+-     */
+-    public /* synthetic */ void lambda$getBasicSpriteInfos$2(net.minecraft.resources.ResourceLocation $$0, net.minecraft.server.packs.resources.ResourceManager $$1, java.util.Queue $$2) {
+-        void $$10;
+-        void $$13;
+-        net.minecraft.resources.ResourceLocation $$3 = this.getResourceLocation($$0);
+-        java.util.Optional $$4 = $$1.getResource($$3);
+-        if ($$4.isEmpty()) {
+-            LOGGER.error("Using missing texture, file {} not found", (java.lang.Object)$$3);
+-            return;
+-        }
+-        net.minecraft.server.packs.resources.Resource $$5 = (net.minecraft.server.packs.resources.Resource)$$4.get();
+-        try (java.io.InputStream $$6 = $$5.open();
+-){
+-            com.mojang.blaze3d.platform.PngInfo $$7 = new com.mojang.blaze3d.platform.PngInfo(() -> ((net.minecraft.resources.ResourceLocation)$$3).toString(), $$6);
+-        }
+-        catch (java.io.IOException $$9) {
+-            LOGGER.error("Using missing texture, unable to load {} : {}", (java.lang.Object)$$3, (java.lang.Object)((java.lang.Object)$$9));
+-            return;
+-        }
+-        try {
+-            net.minecraft.client.resources.metadata.animation.AnimationMetadataSection $$11 = (net.minecraft.client.resources.metadata.animation.AnimationMetadataSection)$$5.metadata().getSection((net.minecraft.server.packs.metadata.MetadataSectionSerializer)net.minecraft.client.resources.metadata.animation.AnimationMetadataSection.SERIALIZER).orElse((java.lang.Object)net.minecraft.client.resources.metadata.animation.AnimationMetadataSection.EMPTY);
+-        }
+-        catch (java.lang.Exception $$12) {
+-            LOGGER.error("Unable to parse metadata from {} : {}", (java.lang.Object)$$3, (java.lang.Object)((java.lang.Object)$$12));
+-            return;
+-        }
+-        com.mojang.datafixers.util.Pair $$14 = $$13.getFrameSize($$10.width, $$10.height);
+-        net.minecraft.client.renderer.texture.TextureAtlasSprite$Info $$15 = new net.minecraft.client.renderer.texture.TextureAtlasSprite$Info($$0, ((java.lang.Integer)$$14.getFirst()).intValue(), ((java.lang.Integer)$$14.getSecond()).intValue(), (net.minecraft.client.resources.metadata.animation.AnimationMetadataSection)$$13);
+-        $$2.add((java.lang.Object)$$15);
+-    }
+-
+     static {
+         LOGGER = com.mojang.logging.LogUtils.getLogger();
+         LOCATION_BLOCKS = net.minecraft.world.inventory.InventoryMenu.BLOCK_ATLAS;

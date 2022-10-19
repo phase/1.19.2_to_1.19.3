@@ -1,0 +1,343 @@
+--- net/minecraft/world/level/block/Block.java
++++ net/minecraft/world/level/block/Block.java
+@@ -34,22 +34,22 @@
+     public static int CACHE_SIZE = 2048;
+     public static java.lang.ThreadLocal<it.unimi.dsi.fastutil.objects.Object2ByteLinkedOpenHashMap<net.minecraft.world.level.block.Block$BlockStatePairKey>> OCCLUSION_CACHE;
+ 
+-    public static int getId(@javax.annotation.Nullable net.minecraft.world.level.block.state.BlockState state) {
+-        if (state == null) {
++    public static int getId(@javax.annotation.Nullable net.minecraft.world.level.block.state.BlockState $$0) {
++        if ($$0 == null) {
+             return 0;
+         }
+-        int n = BLOCK_STATE_REGISTRY.getId((java.lang.Object)state);
+-        return n == -1 ? 0 : n;
++        int $$1 = BLOCK_STATE_REGISTRY.getId((java.lang.Object)$$0);
++        return $$1 == -1 ? 0 : $$1;
+     }
+ 
+-    public static net.minecraft.world.level.block.state.BlockState stateById(int id) {
+-        net.minecraft.world.level.block.state.BlockState blockState = (net.minecraft.world.level.block.state.BlockState)BLOCK_STATE_REGISTRY.byId(id);
+-        return blockState == null ? net.minecraft.world.level.block.Blocks.AIR.defaultBlockState() : blockState;
++    public static net.minecraft.world.level.block.state.BlockState stateById(int $$0) {
++        net.minecraft.world.level.block.state.BlockState $$1 = (net.minecraft.world.level.block.state.BlockState)BLOCK_STATE_REGISTRY.byId($$0);
++        return $$1 == null ? net.minecraft.world.level.block.Blocks.AIR.defaultBlockState() : $$1;
+     }
+ 
+-    public static net.minecraft.world.level.block.Block byItem(@javax.annotation.Nullable net.minecraft.world.item.Item item) {
+-        if (item instanceof net.minecraft.world.item.BlockItem) {
+-            return ((net.minecraft.world.item.BlockItem)item).getBlock();
++    public static net.minecraft.world.level.block.Block byItem(@javax.annotation.Nullable net.minecraft.world.item.Item $$0) {
++        if ($$0 instanceof net.minecraft.world.item.BlockItem) {
++            return ((net.minecraft.world.item.BlockItem)$$0).getBlock();
+         }
+         return net.minecraft.world.level.block.Blocks.AIR;
+     }
+@@ -62,37 +62,37 @@
+         java.util.List $$5 = $$2.getEntities(null, $$4.bounds());
+         for (net.minecraft.world.entity.Entity $$6 : $$5) {
+             double $$7 = net.minecraft.world.phys.shapes.Shapes.collide((net.minecraft.core.Direction$Axis)net.minecraft.core.Direction$Axis.Y, (net.minecraft.world.phys.AABB)$$6.getBoundingBox().move(0.0, 1.0, 0.0), (java.lang.Iterable)java.util.List.of((java.lang.Object)$$4), (double)-1.0);
+-            $$6.teleportTo($$6.getX(), $$6.getY() + 1.0 + $$7, $$6.getZ());
++            $$6.teleportRelative(0.0, 1.0 + $$7, 0.0);
+         }
+         return $$1;
+     }
+ 
+-    public static net.minecraft.world.phys.shapes.VoxelShape box(double x1, double y1, double z1, double x2, double y2, double z2) {
+-        return net.minecraft.world.phys.shapes.Shapes.box((double)(x1 / 16.0), (double)(y1 / 16.0), (double)(z1 / 16.0), (double)(x2 / 16.0), (double)(y2 / 16.0), (double)(z2 / 16.0));
++    public static net.minecraft.world.phys.shapes.VoxelShape box(double $$0, double $$1, double $$2, double $$3, double $$4, double $$5) {
++        return net.minecraft.world.phys.shapes.Shapes.box((double)($$0 / 16.0), (double)($$1 / 16.0), (double)($$2 / 16.0), (double)($$3 / 16.0), (double)($$4 / 16.0), (double)($$5 / 16.0));
+     }
+ 
+-    public static net.minecraft.world.level.block.state.BlockState updateFromNeighbourShapes(net.minecraft.world.level.block.state.BlockState currentState, net.minecraft.world.level.LevelAccessor level, net.minecraft.core.BlockPos pos) {
+-        net.minecraft.world.level.block.state.BlockState blockState = currentState;
+-        net.minecraft.core.BlockPos$MutableBlockPos mutableBlockPos = new net.minecraft.core.BlockPos$MutableBlockPos();
+-        for (net.minecraft.core.Direction direction : UPDATE_SHAPE_ORDER) {
+-            mutableBlockPos.setWithOffset((net.minecraft.core.Vec3i)pos, direction);
+-            blockState = blockState.updateShape(direction, level.getBlockState((net.minecraft.core.BlockPos)mutableBlockPos), level, pos, (net.minecraft.core.BlockPos)mutableBlockPos);
++    public static net.minecraft.world.level.block.state.BlockState updateFromNeighbourShapes(net.minecraft.world.level.block.state.BlockState $$0, net.minecraft.world.level.LevelAccessor $$1, net.minecraft.core.BlockPos $$2) {
++        net.minecraft.world.level.block.state.BlockState $$3 = $$0;
++        net.minecraft.core.BlockPos$MutableBlockPos $$4 = new net.minecraft.core.BlockPos$MutableBlockPos();
++        for (net.minecraft.core.Direction $$5 : UPDATE_SHAPE_ORDER) {
++            $$4.setWithOffset((net.minecraft.core.Vec3i)$$2, $$5);
++            $$3 = $$3.updateShape($$5, $$1.getBlockState((net.minecraft.core.BlockPos)$$4), $$1, $$2, (net.minecraft.core.BlockPos)$$4);
+         }
+-        return blockState;
++        return $$3;
+     }
+ 
+-    public static void updateOrDestroy(net.minecraft.world.level.block.state.BlockState oldState, net.minecraft.world.level.block.state.BlockState newState, net.minecraft.world.level.LevelAccessor level, net.minecraft.core.BlockPos pos, int flags) {
+-        net.minecraft.world.level.block.Block.updateOrDestroy((net.minecraft.world.level.block.state.BlockState)oldState, (net.minecraft.world.level.block.state.BlockState)newState, (net.minecraft.world.level.LevelAccessor)level, (net.minecraft.core.BlockPos)pos, (int)flags, (int)512);
++    public static void updateOrDestroy(net.minecraft.world.level.block.state.BlockState $$0, net.minecraft.world.level.block.state.BlockState $$1, net.minecraft.world.level.LevelAccessor $$2, net.minecraft.core.BlockPos $$3, int $$4) {
++        net.minecraft.world.level.block.Block.updateOrDestroy((net.minecraft.world.level.block.state.BlockState)$$0, (net.minecraft.world.level.block.state.BlockState)$$1, (net.minecraft.world.level.LevelAccessor)$$2, (net.minecraft.core.BlockPos)$$3, (int)$$4, (int)512);
+     }
+ 
+-    public static void updateOrDestroy(net.minecraft.world.level.block.state.BlockState oldState, net.minecraft.world.level.block.state.BlockState newState, net.minecraft.world.level.LevelAccessor level, net.minecraft.core.BlockPos pos, int flags, int recursionLeft) {
+-        if (newState != oldState) {
+-            if (newState.isAir()) {
+-                if (!level.isClientSide()) {
+-                    level.destroyBlock(pos, (flags & 0x20) == 0, null, recursionLeft);
++    public static void updateOrDestroy(net.minecraft.world.level.block.state.BlockState $$0, net.minecraft.world.level.block.state.BlockState $$1, net.minecraft.world.level.LevelAccessor $$2, net.minecraft.core.BlockPos $$3, int $$4, int $$5) {
++        if ($$1 != $$0) {
++            if ($$1.isAir()) {
++                if (!$$2.isClientSide()) {
++                    $$2.destroyBlock($$3, ($$4 & 0x20) == 0, null, $$5);
+                 }
+             } else {
+-                level.setBlock(pos, newState, flags & 0xFFFFFFDF, recursionLeft);
++                $$2.setBlock($$3, $$1, $$4 & 0xFFFFFFDF, $$5);
+             }
+         }
+     }
+@@ -114,7 +114,7 @@
+         return $$0.getBlock() instanceof net.minecraft.world.level.block.LeavesBlock || $$0.is(net.minecraft.world.level.block.Blocks.BARRIER) || $$0.is(net.minecraft.world.level.block.Blocks.CARVED_PUMPKIN) || $$0.is(net.minecraft.world.level.block.Blocks.JACK_O_LANTERN) || $$0.is(net.minecraft.world.level.block.Blocks.MELON) || $$0.is(net.minecraft.world.level.block.Blocks.PUMPKIN) || $$0.is(net.minecraft.tags.BlockTags.SHULKER_BOXES);
+     }
+ 
+-    public boolean isRandomlyTicking(net.minecraft.world.level.block.state.BlockState state) {
++    public boolean isRandomlyTicking(net.minecraft.world.level.block.state.BlockState $$0) {
+         return this.isRandomlyTicking;
+     }
+ 
+@@ -145,45 +145,45 @@
+         return true;
+     }
+ 
+-    public static boolean canSupportRigidBlock(net.minecraft.world.level.BlockGetter level, net.minecraft.core.BlockPos pos) {
+-        return level.getBlockState(pos).isFaceSturdy(level, pos, net.minecraft.core.Direction.UP, net.minecraft.world.level.block.SupportType.RIGID);
++    public static boolean canSupportRigidBlock(net.minecraft.world.level.BlockGetter $$0, net.minecraft.core.BlockPos $$1) {
++        return $$0.getBlockState($$1).isFaceSturdy($$0, $$1, net.minecraft.core.Direction.UP, net.minecraft.world.level.block.SupportType.RIGID);
+     }
+ 
+-    public static boolean canSupportCenter(net.minecraft.world.level.LevelReader level, net.minecraft.core.BlockPos pos, net.minecraft.core.Direction direction) {
+-        net.minecraft.world.level.block.state.BlockState blockState = level.getBlockState(pos);
+-        if (direction == net.minecraft.core.Direction.DOWN && blockState.is(net.minecraft.tags.BlockTags.UNSTABLE_BOTTOM_CENTER)) {
++    public static boolean canSupportCenter(net.minecraft.world.level.LevelReader $$0, net.minecraft.core.BlockPos $$1, net.minecraft.core.Direction $$2) {
++        net.minecraft.world.level.block.state.BlockState $$3 = $$0.getBlockState($$1);
++        if ($$2 == net.minecraft.core.Direction.DOWN && $$3.is(net.minecraft.tags.BlockTags.UNSTABLE_BOTTOM_CENTER)) {
+             return false;
+         }
+-        return blockState.isFaceSturdy((net.minecraft.world.level.BlockGetter)level, pos, direction, net.minecraft.world.level.block.SupportType.CENTER);
++        return $$3.isFaceSturdy((net.minecraft.world.level.BlockGetter)$$0, $$1, $$2, net.minecraft.world.level.block.SupportType.CENTER);
+     }
+ 
+-    public static boolean isFaceFull(net.minecraft.world.phys.shapes.VoxelShape shape, net.minecraft.core.Direction face) {
+-        net.minecraft.world.phys.shapes.VoxelShape voxelShape = shape.getFaceShape(face);
+-        return net.minecraft.world.level.block.Block.isShapeFullBlock((net.minecraft.world.phys.shapes.VoxelShape)voxelShape);
++    public static boolean isFaceFull(net.minecraft.world.phys.shapes.VoxelShape $$0, net.minecraft.core.Direction $$1) {
++        net.minecraft.world.phys.shapes.VoxelShape $$2 = $$0.getFaceShape($$1);
++        return net.minecraft.world.level.block.Block.isShapeFullBlock((net.minecraft.world.phys.shapes.VoxelShape)$$2);
+     }
+ 
+-    public static boolean isShapeFullBlock(net.minecraft.world.phys.shapes.VoxelShape shape) {
+-        return (java.lang.Boolean)SHAPE_FULL_BLOCK_CACHE.getUnchecked((java.lang.Object)shape);
++    public static boolean isShapeFullBlock(net.minecraft.world.phys.shapes.VoxelShape $$0) {
++        return (java.lang.Boolean)SHAPE_FULL_BLOCK_CACHE.getUnchecked((java.lang.Object)$$0);
+     }
+ 
+-    public boolean propagatesSkylightDown(net.minecraft.world.level.block.state.BlockState state, net.minecraft.world.level.BlockGetter level, net.minecraft.core.BlockPos pos) {
+-        return !net.minecraft.world.level.block.Block.isShapeFullBlock((net.minecraft.world.phys.shapes.VoxelShape)state.getShape(level, pos)) && state.getFluidState().isEmpty();
++    public boolean propagatesSkylightDown(net.minecraft.world.level.block.state.BlockState $$0, net.minecraft.world.level.BlockGetter $$1, net.minecraft.core.BlockPos $$2) {
++        return !net.minecraft.world.level.block.Block.isShapeFullBlock((net.minecraft.world.phys.shapes.VoxelShape)$$0.getShape($$1, $$2)) && $$0.getFluidState().isEmpty();
+     }
+ 
+     public void animateTick(net.minecraft.world.level.block.state.BlockState $$0, net.minecraft.world.level.Level $$1, net.minecraft.core.BlockPos $$2, net.minecraft.util.RandomSource $$3) {
+     }
+ 
+-    public void destroy(net.minecraft.world.level.LevelAccessor level, net.minecraft.core.BlockPos pos, net.minecraft.world.level.block.state.BlockState state) {
++    public void destroy(net.minecraft.world.level.LevelAccessor $$0, net.minecraft.core.BlockPos $$1, net.minecraft.world.level.block.state.BlockState $$2) {
+     }
+ 
+-    public static java.util.List<net.minecraft.world.item.ItemStack> getDrops(net.minecraft.world.level.block.state.BlockState state, net.minecraft.server.level.ServerLevel level, net.minecraft.core.BlockPos pos, @javax.annotation.Nullable net.minecraft.world.level.block.entity.BlockEntity blockEntity) {
+-        net.minecraft.world.level.storage.loot.LootContext$Builder builder = new net.minecraft.world.level.storage.loot.LootContext$Builder(level).withRandom(level.random).withParameter(net.minecraft.world.level.storage.loot.parameters.LootContextParams.ORIGIN, (java.lang.Object)net.minecraft.world.phys.Vec3.atCenterOf((net.minecraft.core.Vec3i)pos)).withParameter(net.minecraft.world.level.storage.loot.parameters.LootContextParams.TOOL, (java.lang.Object)net.minecraft.world.item.ItemStack.EMPTY).withOptionalParameter(net.minecraft.world.level.storage.loot.parameters.LootContextParams.BLOCK_ENTITY, (java.lang.Object)blockEntity);
+-        return state.getDrops(builder);
++    public static java.util.List<net.minecraft.world.item.ItemStack> getDrops(net.minecraft.world.level.block.state.BlockState $$0, net.minecraft.server.level.ServerLevel $$1, net.minecraft.core.BlockPos $$2, @javax.annotation.Nullable net.minecraft.world.level.block.entity.BlockEntity $$3) {
++        net.minecraft.world.level.storage.loot.LootContext$Builder $$4 = new net.minecraft.world.level.storage.loot.LootContext$Builder($$1).withRandom($$1.random).withParameter(net.minecraft.world.level.storage.loot.parameters.LootContextParams.ORIGIN, (java.lang.Object)net.minecraft.world.phys.Vec3.atCenterOf((net.minecraft.core.Vec3i)$$2)).withParameter(net.minecraft.world.level.storage.loot.parameters.LootContextParams.TOOL, (java.lang.Object)net.minecraft.world.item.ItemStack.EMPTY).withOptionalParameter(net.minecraft.world.level.storage.loot.parameters.LootContextParams.BLOCK_ENTITY, (java.lang.Object)$$3);
++        return $$0.getDrops($$4);
+     }
+ 
+-    public static java.util.List<net.minecraft.world.item.ItemStack> getDrops(net.minecraft.world.level.block.state.BlockState state, net.minecraft.server.level.ServerLevel level, net.minecraft.core.BlockPos pos, @javax.annotation.Nullable net.minecraft.world.level.block.entity.BlockEntity blockEntity, @javax.annotation.Nullable net.minecraft.world.entity.Entity entity, net.minecraft.world.item.ItemStack tool) {
+-        net.minecraft.world.level.storage.loot.LootContext$Builder builder = new net.minecraft.world.level.storage.loot.LootContext$Builder(level).withRandom(level.random).withParameter(net.minecraft.world.level.storage.loot.parameters.LootContextParams.ORIGIN, (java.lang.Object)net.minecraft.world.phys.Vec3.atCenterOf((net.minecraft.core.Vec3i)pos)).withParameter(net.minecraft.world.level.storage.loot.parameters.LootContextParams.TOOL, (java.lang.Object)tool).withOptionalParameter(net.minecraft.world.level.storage.loot.parameters.LootContextParams.THIS_ENTITY, (java.lang.Object)entity).withOptionalParameter(net.minecraft.world.level.storage.loot.parameters.LootContextParams.BLOCK_ENTITY, (java.lang.Object)blockEntity);
+-        return state.getDrops(builder);
++    public static java.util.List<net.minecraft.world.item.ItemStack> getDrops(net.minecraft.world.level.block.state.BlockState $$0, net.minecraft.server.level.ServerLevel $$1, net.minecraft.core.BlockPos $$2, @javax.annotation.Nullable net.minecraft.world.level.block.entity.BlockEntity $$3, @javax.annotation.Nullable net.minecraft.world.entity.Entity $$4, net.minecraft.world.item.ItemStack $$5) {
++        net.minecraft.world.level.storage.loot.LootContext$Builder $$6 = new net.minecraft.world.level.storage.loot.LootContext$Builder($$1).withRandom($$1.random).withParameter(net.minecraft.world.level.storage.loot.parameters.LootContextParams.ORIGIN, (java.lang.Object)net.minecraft.world.phys.Vec3.atCenterOf((net.minecraft.core.Vec3i)$$2)).withParameter(net.minecraft.world.level.storage.loot.parameters.LootContextParams.TOOL, (java.lang.Object)$$5).withOptionalParameter(net.minecraft.world.level.storage.loot.parameters.LootContextParams.THIS_ENTITY, (java.lang.Object)$$4).withOptionalParameter(net.minecraft.world.level.storage.loot.parameters.LootContextParams.BLOCK_ENTITY, (java.lang.Object)$$3);
++        return $$0.getDrops($$6);
+     }
+ 
+     public static void dropResources(net.minecraft.world.level.block.state.BlockState $$0, net.minecraft.world.level.storage.loot.LootContext$Builder $$1) {
+@@ -193,33 +193,33 @@
+         $$0.spawnAfterBreak($$22, $$3, net.minecraft.world.item.ItemStack.EMPTY, true);
+     }
+ 
+-    public static void dropResources(net.minecraft.world.level.block.state.BlockState state, net.minecraft.world.level.Level level, net.minecraft.core.BlockPos pos) {
+-        if (level instanceof net.minecraft.server.level.ServerLevel) {
+-            net.minecraft.world.level.block.Block.getDrops((net.minecraft.world.level.block.state.BlockState)state, (net.minecraft.server.level.ServerLevel)((net.minecraft.server.level.ServerLevel)level), (net.minecraft.core.BlockPos)pos, null).forEach(stack -> net.minecraft.world.level.block.Block.popResource((net.minecraft.world.level.Level)level, (net.minecraft.core.BlockPos)pos, (net.minecraft.world.item.ItemStack)stack));
+-            state.spawnAfterBreak((net.minecraft.server.level.ServerLevel)level, pos, net.minecraft.world.item.ItemStack.EMPTY, true);
++    public static void dropResources(net.minecraft.world.level.block.state.BlockState $$0, net.minecraft.world.level.Level $$1, net.minecraft.core.BlockPos $$22) {
++        if ($$1 instanceof net.minecraft.server.level.ServerLevel) {
++            net.minecraft.world.level.block.Block.getDrops((net.minecraft.world.level.block.state.BlockState)$$0, (net.minecraft.server.level.ServerLevel)((net.minecraft.server.level.ServerLevel)$$1), (net.minecraft.core.BlockPos)$$22, null).forEach($$2 -> net.minecraft.world.level.block.Block.popResource((net.minecraft.world.level.Level)$$1, (net.minecraft.core.BlockPos)$$22, (net.minecraft.world.item.ItemStack)$$2));
++            $$0.spawnAfterBreak((net.minecraft.server.level.ServerLevel)$$1, $$22, net.minecraft.world.item.ItemStack.EMPTY, true);
+         }
+     }
+ 
+-    public static void dropResources(net.minecraft.world.level.block.state.BlockState state, net.minecraft.world.level.LevelAccessor level, net.minecraft.core.BlockPos pos, @javax.annotation.Nullable net.minecraft.world.level.block.entity.BlockEntity blockEntity) {
+-        if (level instanceof net.minecraft.server.level.ServerLevel) {
+-            net.minecraft.world.level.block.Block.getDrops((net.minecraft.world.level.block.state.BlockState)state, (net.minecraft.server.level.ServerLevel)((net.minecraft.server.level.ServerLevel)level), (net.minecraft.core.BlockPos)pos, (net.minecraft.world.level.block.entity.BlockEntity)blockEntity).forEach(stack -> net.minecraft.world.level.block.Block.popResource((net.minecraft.world.level.Level)((net.minecraft.server.level.ServerLevel)level), (net.minecraft.core.BlockPos)pos, (net.minecraft.world.item.ItemStack)stack));
+-            state.spawnAfterBreak((net.minecraft.server.level.ServerLevel)level, pos, net.minecraft.world.item.ItemStack.EMPTY, true);
++    public static void dropResources(net.minecraft.world.level.block.state.BlockState $$0, net.minecraft.world.level.LevelAccessor $$1, net.minecraft.core.BlockPos $$22, @javax.annotation.Nullable net.minecraft.world.level.block.entity.BlockEntity $$3) {
++        if ($$1 instanceof net.minecraft.server.level.ServerLevel) {
++            net.minecraft.world.level.block.Block.getDrops((net.minecraft.world.level.block.state.BlockState)$$0, (net.minecraft.server.level.ServerLevel)((net.minecraft.server.level.ServerLevel)$$1), (net.minecraft.core.BlockPos)$$22, (net.minecraft.world.level.block.entity.BlockEntity)$$3).forEach($$2 -> net.minecraft.world.level.block.Block.popResource((net.minecraft.world.level.Level)((net.minecraft.server.level.ServerLevel)$$1), (net.minecraft.core.BlockPos)$$22, (net.minecraft.world.item.ItemStack)$$2));
++            $$0.spawnAfterBreak((net.minecraft.server.level.ServerLevel)$$1, $$22, net.minecraft.world.item.ItemStack.EMPTY, true);
+         }
+     }
+ 
+-    public static void dropResources(net.minecraft.world.level.block.state.BlockState state, net.minecraft.world.level.Level level, net.minecraft.core.BlockPos pos, @javax.annotation.Nullable net.minecraft.world.level.block.entity.BlockEntity blockEntity, net.minecraft.world.entity.Entity entity, net.minecraft.world.item.ItemStack tool) {
+-        if (level instanceof net.minecraft.server.level.ServerLevel) {
+-            net.minecraft.world.level.block.Block.getDrops((net.minecraft.world.level.block.state.BlockState)state, (net.minecraft.server.level.ServerLevel)((net.minecraft.server.level.ServerLevel)level), (net.minecraft.core.BlockPos)pos, (net.minecraft.world.level.block.entity.BlockEntity)blockEntity, (net.minecraft.world.entity.Entity)entity, (net.minecraft.world.item.ItemStack)tool).forEach(stack -> net.minecraft.world.level.block.Block.popResource((net.minecraft.world.level.Level)level, (net.minecraft.core.BlockPos)pos, (net.minecraft.world.item.ItemStack)stack));
+-            state.spawnAfterBreak((net.minecraft.server.level.ServerLevel)level, pos, tool, true);
++    public static void dropResources(net.minecraft.world.level.block.state.BlockState $$0, net.minecraft.world.level.Level $$1, net.minecraft.core.BlockPos $$22, @javax.annotation.Nullable net.minecraft.world.level.block.entity.BlockEntity $$3, net.minecraft.world.entity.Entity $$4, net.minecraft.world.item.ItemStack $$5) {
++        if ($$1 instanceof net.minecraft.server.level.ServerLevel) {
++            net.minecraft.world.level.block.Block.getDrops((net.minecraft.world.level.block.state.BlockState)$$0, (net.minecraft.server.level.ServerLevel)((net.minecraft.server.level.ServerLevel)$$1), (net.minecraft.core.BlockPos)$$22, (net.minecraft.world.level.block.entity.BlockEntity)$$3, (net.minecraft.world.entity.Entity)$$4, (net.minecraft.world.item.ItemStack)$$5).forEach($$2 -> net.minecraft.world.level.block.Block.popResource((net.minecraft.world.level.Level)$$1, (net.minecraft.core.BlockPos)$$22, (net.minecraft.world.item.ItemStack)$$2));
++            $$0.spawnAfterBreak((net.minecraft.server.level.ServerLevel)$$1, $$22, $$5, true);
+         }
+     }
+ 
+-    public static void popResource(net.minecraft.world.level.Level level, net.minecraft.core.BlockPos pos, net.minecraft.world.item.ItemStack stack) {
+-        float f = net.minecraft.world.entity.EntityType.ITEM.getHeight() / 2.0f;
+-        double d = (double)((float)pos.getX() + 0.5f) + net.minecraft.util.Mth.nextDouble((net.minecraft.util.RandomSource)level.random, (double)-0.25, (double)0.25);
+-        double d2 = (double)((float)pos.getY() + 0.5f) + net.minecraft.util.Mth.nextDouble((net.minecraft.util.RandomSource)level.random, (double)-0.25, (double)0.25) - (double)f;
+-        double d3 = (double)((float)pos.getZ() + 0.5f) + net.minecraft.util.Mth.nextDouble((net.minecraft.util.RandomSource)level.random, (double)-0.25, (double)0.25);
+-        net.minecraft.world.level.block.Block.popResource((net.minecraft.world.level.Level)level, () -> new net.minecraft.world.entity.item.ItemEntity(level, d, d2, d3, stack), (net.minecraft.world.item.ItemStack)stack);
++    public static void popResource(net.minecraft.world.level.Level $$0, net.minecraft.core.BlockPos $$1, net.minecraft.world.item.ItemStack $$2) {
++        float $$3 = net.minecraft.world.entity.EntityType.ITEM.getHeight() / 2.0f;
++        double $$4 = (double)((float)$$1.getX() + 0.5f) + net.minecraft.util.Mth.nextDouble((net.minecraft.util.RandomSource)$$0.random, (double)-0.25, (double)0.25);
++        double $$5 = (double)((float)$$1.getY() + 0.5f) + net.minecraft.util.Mth.nextDouble((net.minecraft.util.RandomSource)$$0.random, (double)-0.25, (double)0.25) - (double)$$3;
++        double $$6 = (double)((float)$$1.getZ() + 0.5f) + net.minecraft.util.Mth.nextDouble((net.minecraft.util.RandomSource)$$0.random, (double)-0.25, (double)0.25);
++        net.minecraft.world.level.block.Block.popResource((net.minecraft.world.level.Level)$$0, () -> new net.minecraft.world.entity.item.ItemEntity($$0, $$4, $$5, $$6, $$2), (net.minecraft.world.item.ItemStack)$$2);
+     }
+ 
+     public static void popResourceFromFace(net.minecraft.world.level.Level $$0, net.minecraft.core.BlockPos $$1, net.minecraft.core.Direction $$2, net.minecraft.world.item.ItemStack $$3) {
+@@ -246,9 +246,9 @@
+         $$0.addFreshEntity((net.minecraft.world.entity.Entity)$$3);
+     }
+ 
+-    public void popExperience(net.minecraft.server.level.ServerLevel level, net.minecraft.core.BlockPos pos, int amount) {
+-        if (level.getGameRules().getBoolean(net.minecraft.world.level.GameRules.RULE_DOBLOCKDROPS)) {
+-            net.minecraft.world.entity.ExperienceOrb.award((net.minecraft.server.level.ServerLevel)level, (net.minecraft.world.phys.Vec3)net.minecraft.world.phys.Vec3.atCenterOf((net.minecraft.core.Vec3i)pos), (int)amount);
++    public void popExperience(net.minecraft.server.level.ServerLevel $$0, net.minecraft.core.BlockPos $$1, int $$2) {
++        if ($$0.getGameRules().getBoolean(net.minecraft.world.level.GameRules.RULE_DOBLOCKDROPS)) {
++            net.minecraft.world.entity.ExperienceOrb.award((net.minecraft.server.level.ServerLevel)$$0, (net.minecraft.world.phys.Vec3)net.minecraft.world.phys.Vec3.atCenterOf((net.minecraft.core.Vec3i)$$1), (int)$$2);
+         }
+     }
+ 
+@@ -256,24 +256,24 @@
+         return this.explosionResistance;
+     }
+ 
+-    public void wasExploded(net.minecraft.world.level.Level level, net.minecraft.core.BlockPos pos, net.minecraft.world.level.Explosion explosion) {
++    public void wasExploded(net.minecraft.world.level.Level $$0, net.minecraft.core.BlockPos $$1, net.minecraft.world.level.Explosion $$2) {
+     }
+ 
+     public void stepOn(net.minecraft.world.level.Level $$0, net.minecraft.core.BlockPos $$1, net.minecraft.world.level.block.state.BlockState $$2, net.minecraft.world.entity.Entity $$3) {
+     }
+ 
+     @javax.annotation.Nullable
+-    public net.minecraft.world.level.block.state.BlockState getStateForPlacement(net.minecraft.world.item.context.BlockPlaceContext context) {
++    public net.minecraft.world.level.block.state.BlockState getStateForPlacement(net.minecraft.world.item.context.BlockPlaceContext $$0) {
+         return this.defaultBlockState();
+     }
+ 
+-    public void playerDestroy(net.minecraft.world.level.Level level, net.minecraft.world.entity.player.Player player, net.minecraft.core.BlockPos pos, net.minecraft.world.level.block.state.BlockState state, @javax.annotation.Nullable net.minecraft.world.level.block.entity.BlockEntity blockEntity, net.minecraft.world.item.ItemStack tool) {
+-        player.awardStat(net.minecraft.stats.Stats.BLOCK_MINED.get((java.lang.Object)this));
+-        player.causeFoodExhaustion(0.005f);
+-        net.minecraft.world.level.block.Block.dropResources((net.minecraft.world.level.block.state.BlockState)state, (net.minecraft.world.level.Level)level, (net.minecraft.core.BlockPos)pos, (net.minecraft.world.level.block.entity.BlockEntity)blockEntity, (net.minecraft.world.entity.Entity)player, (net.minecraft.world.item.ItemStack)tool);
++    public void playerDestroy(net.minecraft.world.level.Level $$0, net.minecraft.world.entity.player.Player $$1, net.minecraft.core.BlockPos $$2, net.minecraft.world.level.block.state.BlockState $$3, @javax.annotation.Nullable net.minecraft.world.level.block.entity.BlockEntity $$4, net.minecraft.world.item.ItemStack $$5) {
++        $$1.awardStat(net.minecraft.stats.Stats.BLOCK_MINED.get((java.lang.Object)this));
++        $$1.causeFoodExhaustion(0.005f);
++        net.minecraft.world.level.block.Block.dropResources((net.minecraft.world.level.block.state.BlockState)$$3, (net.minecraft.world.level.Level)$$0, (net.minecraft.core.BlockPos)$$2, (net.minecraft.world.level.block.entity.BlockEntity)$$4, (net.minecraft.world.entity.Entity)$$1, (net.minecraft.world.item.ItemStack)$$5);
+     }
+ 
+-    public void setPlacedBy(net.minecraft.world.level.Level level, net.minecraft.core.BlockPos pos, net.minecraft.world.level.block.state.BlockState state, @javax.annotation.Nullable net.minecraft.world.entity.LivingEntity placer, net.minecraft.world.item.ItemStack stack) {
++    public void setPlacedBy(net.minecraft.world.level.Level $$0, net.minecraft.core.BlockPos $$1, net.minecraft.world.level.block.state.BlockState $$2, @javax.annotation.Nullable net.minecraft.world.entity.LivingEntity $$3, net.minecraft.world.item.ItemStack $$4) {
+     }
+ 
+     public boolean isPossibleToRespawnInThis() {
+@@ -295,16 +295,16 @@
+         $$3.causeFallDamage($$4, 1.0f, net.minecraft.world.damagesource.DamageSource.FALL);
+     }
+ 
+-    public void updateEntityAfterFallOn(net.minecraft.world.level.BlockGetter level, net.minecraft.world.entity.Entity entity) {
+-        entity.setDeltaMovement(entity.getDeltaMovement().multiply(1.0, 0.0, 1.0));
++    public void updateEntityAfterFallOn(net.minecraft.world.level.BlockGetter $$0, net.minecraft.world.entity.Entity $$1) {
++        $$1.setDeltaMovement($$1.getDeltaMovement().multiply(1.0, 0.0, 1.0));
+     }
+ 
+-    public net.minecraft.world.item.ItemStack getCloneItemStack(net.minecraft.world.level.BlockGetter level, net.minecraft.core.BlockPos pos, net.minecraft.world.level.block.state.BlockState state) {
++    public net.minecraft.world.item.ItemStack getCloneItemStack(net.minecraft.world.level.BlockGetter $$0, net.minecraft.core.BlockPos $$1, net.minecraft.world.level.block.state.BlockState $$2) {
+         return new net.minecraft.world.item.ItemStack((net.minecraft.world.level.ItemLike)this);
+     }
+ 
+-    public void fillItemCategory(net.minecraft.world.item.CreativeModeTab tab, net.minecraft.core.NonNullList<net.minecraft.world.item.ItemStack> items) {
+-        items.add((java.lang.Object)new net.minecraft.world.item.ItemStack((net.minecraft.world.level.ItemLike)this));
++    public void fillItemCategory(net.minecraft.world.item.CreativeModeTab $$0, net.minecraft.core.NonNullList<net.minecraft.world.item.ItemStack> $$1) {
++        $$1.add((java.lang.Object)new net.minecraft.world.item.ItemStack((net.minecraft.world.level.ItemLike)this));
+     }
+ 
+     public float getFriction() {
+@@ -323,30 +323,30 @@
+         $$0.levelEvent($$1, 2001, $$2, net.minecraft.world.level.block.Block.getId((net.minecraft.world.level.block.state.BlockState)$$3));
+     }
+ 
+-    public void playerWillDestroy(net.minecraft.world.level.Level level, net.minecraft.core.BlockPos pos, net.minecraft.world.level.block.state.BlockState state, net.minecraft.world.entity.player.Player player) {
+-        this.spawnDestroyParticles(level, player, pos, state);
+-        if (state.is(net.minecraft.tags.BlockTags.GUARDED_BY_PIGLINS)) {
+-            net.minecraft.world.entity.monster.piglin.PiglinAi.angerNearbyPiglins((net.minecraft.world.entity.player.Player)player, (boolean)false);
++    public void playerWillDestroy(net.minecraft.world.level.Level $$0, net.minecraft.core.BlockPos $$1, net.minecraft.world.level.block.state.BlockState $$2, net.minecraft.world.entity.player.Player $$3) {
++        this.spawnDestroyParticles($$0, $$3, $$1, $$2);
++        if ($$2.is(net.minecraft.tags.BlockTags.GUARDED_BY_PIGLINS)) {
++            net.minecraft.world.entity.monster.piglin.PiglinAi.angerNearbyPiglins((net.minecraft.world.entity.player.Player)$$3, (boolean)false);
+         }
+-        level.gameEvent(net.minecraft.world.level.gameevent.GameEvent.BLOCK_DESTROY, pos, net.minecraft.world.level.gameevent.GameEvent$Context.of((net.minecraft.world.entity.Entity)player, (net.minecraft.world.level.block.state.BlockState)state));
++        $$0.gameEvent(net.minecraft.world.level.gameevent.GameEvent.BLOCK_DESTROY, $$1, net.minecraft.world.level.gameevent.GameEvent$Context.of((net.minecraft.world.entity.Entity)$$3, (net.minecraft.world.level.block.state.BlockState)$$2));
+     }
+ 
+     public void handlePrecipitation(net.minecraft.world.level.block.state.BlockState $$0, net.minecraft.world.level.Level $$1, net.minecraft.core.BlockPos $$2, net.minecraft.world.level.biome.Biome$Precipitation $$3) {
+     }
+ 
+-    public boolean dropFromExplosion(net.minecraft.world.level.Explosion explosion) {
++    public boolean dropFromExplosion(net.minecraft.world.level.Explosion $$0) {
+         return true;
+     }
+ 
+-    public void createBlockStateDefinition(net.minecraft.world.level.block.state.StateDefinition$Builder<net.minecraft.world.level.block.Block, net.minecraft.world.level.block.state.BlockState> builder) {
++    public void createBlockStateDefinition(net.minecraft.world.level.block.state.StateDefinition$Builder<net.minecraft.world.level.block.Block, net.minecraft.world.level.block.state.BlockState> $$0) {
+     }
+ 
+     public net.minecraft.world.level.block.state.StateDefinition<net.minecraft.world.level.block.Block, net.minecraft.world.level.block.state.BlockState> getStateDefinition() {
+         return this.stateDefinition;
+     }
+ 
+-    public void registerDefaultState(net.minecraft.world.level.block.state.BlockState state) {
+-        this.defaultBlockState = state;
++    public void registerDefaultState(net.minecraft.world.level.block.state.BlockState $$0) {
++        this.defaultBlockState = $$0;
+     }
+ 
+     public net.minecraft.world.level.block.state.BlockState defaultBlockState() {
+@@ -366,7 +366,7 @@
+         return (net.minecraft.world.level.block.state.BlockState)$$1.setValue($$2, $$0.getValue($$2));
+     }
+ 
+-    public net.minecraft.world.level.block.SoundType getSoundType(net.minecraft.world.level.block.state.BlockState state) {
++    public net.minecraft.world.level.block.SoundType getSoundType(net.minecraft.world.level.block.state.BlockState $$0) {
+         return this.soundType;
+     }
+ 
+@@ -385,7 +385,7 @@
+         return "Block{" + net.minecraft.core.Registry.BLOCK.getKey((java.lang.Object)this) + "}";
+     }
+ 
+-    public void appendHoverText(net.minecraft.world.item.ItemStack stack, @javax.annotation.Nullable net.minecraft.world.level.BlockGetter level, java.util.List<net.minecraft.network.chat.Component> tooltip, net.minecraft.world.item.TooltipFlag flag) {
++    public void appendHoverText(net.minecraft.world.item.ItemStack $$0, @javax.annotation.Nullable net.minecraft.world.level.BlockGetter $$1, java.util.List<net.minecraft.network.chat.Component> $$2, net.minecraft.world.item.TooltipFlag $$3) {
+     }
+ 
+     public net.minecraft.world.level.block.Block asBlock() {

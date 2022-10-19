@@ -1,0 +1,34 @@
+--- net/minecraft/world/level/block/entity/CampfireBlockEntity.java
++++ net/minecraft/world/level/block/entity/CampfireBlockEntity.java
+@@ -25,14 +25,14 @@
+     public static void cookTick(net.minecraft.world.level.Level $$0, net.minecraft.core.BlockPos $$1, net.minecraft.world.level.block.state.BlockState $$2, net.minecraft.world.level.block.entity.CampfireBlockEntity $$3) {
+         boolean $$4 = false;
+         for (int $$5 = 0; $$5 < $$3.items.size(); ++$$5) {
++            net.minecraft.world.SimpleContainer $$7;
++            net.minecraft.world.item.ItemStack $$8;
+             net.minecraft.world.item.ItemStack $$6 = (net.minecraft.world.item.ItemStack)$$3.items.get($$5);
+             if ($$6.isEmpty()) continue;
+             $$4 = true;
+             int n = $$5;
+             $$3.cookingProgress[n] = $$3.cookingProgress[n] + 1;
+-            if ($$3.cookingProgress[$$5] < $$3.cookingTime[$$5]) continue;
+-            net.minecraft.world.SimpleContainer $$7 = new net.minecraft.world.SimpleContainer(new net.minecraft.world.item.ItemStack[]{$$6});
+-            net.minecraft.world.item.ItemStack $$8 = (net.minecraft.world.item.ItemStack)$$3.quickCheck.getRecipeFor((net.minecraft.world.Container)$$7, $$0).map(arg_0 -> net.minecraft.world.level.block.entity.CampfireBlockEntity.lambda$cookTick$0((net.minecraft.world.Container)$$7, arg_0)).orElse((java.lang.Object)$$6);
++            if ($$3.cookingProgress[$$5] < $$3.cookingTime[$$5] || !($$8 = (net.minecraft.world.item.ItemStack)$$3.quickCheck.getRecipeFor((net.minecraft.world.Container)($$7 = new net.minecraft.world.SimpleContainer(new net.minecraft.world.item.ItemStack[]{$$6})), $$0).map(arg_0 -> net.minecraft.world.level.block.entity.CampfireBlockEntity.lambda$cookTick$0((net.minecraft.world.Container)$$7, arg_0)).orElse((java.lang.Object)$$6)).isItemEnabled($$0.enabledFeatures())) continue;
+             net.minecraft.world.Containers.dropItemStack((net.minecraft.world.level.Level)$$0, (double)$$1.getX(), (double)$$1.getY(), (double)$$1.getZ(), (net.minecraft.world.item.ItemStack)$$8);
+             $$3.items.set($$5, (java.lang.Object)net.minecraft.world.item.ItemStack.EMPTY);
+             $$0.sendBlockUpdated($$1, $$2, $$2, 3);
+@@ -111,11 +111,11 @@
+         return $$0;
+     }
+ 
+-    public java.util.Optional<net.minecraft.world.item.crafting.CampfireCookingRecipe> getCookableRecipe(net.minecraft.world.item.ItemStack stack) {
++    public java.util.Optional<net.minecraft.world.item.crafting.CampfireCookingRecipe> getCookableRecipe(net.minecraft.world.item.ItemStack $$0) {
+         if (this.items.stream().noneMatch(net.minecraft.world.item.ItemStack::isEmpty)) {
+             return java.util.Optional.empty();
+         }
+-        return this.quickCheck.getRecipeFor((net.minecraft.world.Container)new net.minecraft.world.SimpleContainer(new net.minecraft.world.item.ItemStack[]{stack}), this.level);
++        return this.quickCheck.getRecipeFor((net.minecraft.world.Container)new net.minecraft.world.SimpleContainer(new net.minecraft.world.item.ItemStack[]{$$0}), this.level);
+     }
+ 
+     public boolean placeFood(@javax.annotation.Nullable net.minecraft.world.entity.Entity $$0, net.minecraft.world.item.ItemStack $$1, int $$2) {

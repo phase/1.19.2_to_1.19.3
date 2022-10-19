@@ -1,0 +1,70 @@
+--- net/minecraft/world/item/ScaffoldingBlockItem.java
++++ net/minecraft/world/item/ScaffoldingBlockItem.java
+@@ -11,38 +11,43 @@
+     }
+ 
+     @javax.annotation.Nullable
+-    public net.minecraft.world.item.context.BlockPlaceContext updatePlacementContext(net.minecraft.world.item.context.BlockPlaceContext context) {
+-        net.minecraft.world.level.block.Block block;
+-        net.minecraft.core.BlockPos blockPos = context.getClickedPos();
+-        net.minecraft.world.level.Level level = context.getLevel();
+-        net.minecraft.world.level.block.state.BlockState blockState = level.getBlockState(blockPos);
+-        if (blockState.is(block = this.getBlock())) {
+-            net.minecraft.core.Direction direction = context.isSecondaryUseActive() ? (context.isInside() ? context.getClickedFace().getOpposite() : context.getClickedFace()) : (context.getClickedFace() == net.minecraft.core.Direction.UP ? context.getHorizontalDirection() : net.minecraft.core.Direction.UP);
+-            int n = 0;
+-            net.minecraft.core.BlockPos$MutableBlockPos mutableBlockPos = blockPos.mutable().move(direction);
+-            while (n < 7) {
+-                if (!level.isClientSide && !level.isInWorldBounds((net.minecraft.core.BlockPos)mutableBlockPos)) {
+-                    net.minecraft.world.entity.player.Player player = context.getPlayer();
+-                    int n2 = level.getMaxBuildHeight();
+-                    if (!(player instanceof net.minecraft.server.level.ServerPlayer) || mutableBlockPos.getY() < n2) break;
+-                    ((net.minecraft.server.level.ServerPlayer)player).sendSystemMessage((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"build.tooHigh", (java.lang.Object[])new java.lang.Object[]{n2 - 1}).withStyle(net.minecraft.ChatFormatting.RED), true);
++    public net.minecraft.world.item.context.BlockPlaceContext updatePlacementContext(net.minecraft.world.item.context.BlockPlaceContext $$0) {
++        net.minecraft.world.level.block.Block $$4;
++        net.minecraft.core.BlockPos $$1 = $$0.getClickedPos();
++        net.minecraft.world.level.Level $$2 = $$0.getLevel();
++        net.minecraft.world.level.block.state.BlockState $$3 = $$2.getBlockState($$1);
++        if ($$3.is($$4 = this.getBlock())) {
++            net.minecraft.core.Direction $$6;
++            if ($$0.isSecondaryUseActive()) {
++                net.minecraft.core.Direction $$5 = $$0.isInside() ? $$0.getClickedFace().getOpposite() : $$0.getClickedFace();
++            } else {
++                $$6 = $$0.getClickedFace() == net.minecraft.core.Direction.UP ? $$0.getHorizontalDirection() : net.minecraft.core.Direction.UP;
++            }
++            int $$7 = 0;
++            net.minecraft.core.BlockPos$MutableBlockPos $$8 = $$1.mutable().move($$6);
++            while ($$7 < 7) {
++                if (!$$2.isClientSide && !$$2.isInWorldBounds((net.minecraft.core.BlockPos)$$8)) {
++                    net.minecraft.world.entity.player.Player $$9 = $$0.getPlayer();
++                    int $$10 = $$2.getMaxBuildHeight();
++                    if (!($$9 instanceof net.minecraft.server.level.ServerPlayer) || $$8.getY() < $$10) break;
++                    ((net.minecraft.server.level.ServerPlayer)$$9).sendSystemMessage((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"build.tooHigh", (java.lang.Object[])new java.lang.Object[]{$$10 - 1}).withStyle(net.minecraft.ChatFormatting.RED), true);
+                     break;
+                 }
+-                blockState = level.getBlockState((net.minecraft.core.BlockPos)mutableBlockPos);
+-                if (!blockState.is(this.getBlock())) {
+-                    if (!blockState.canBeReplaced(context)) break;
+-                    return net.minecraft.world.item.context.BlockPlaceContext.at((net.minecraft.world.item.context.BlockPlaceContext)context, (net.minecraft.core.BlockPos)mutableBlockPos, (net.minecraft.core.Direction)direction);
++                $$3 = $$2.getBlockState((net.minecraft.core.BlockPos)$$8);
++                if (!$$3.is(this.getBlock())) {
++                    if (!$$3.canBeReplaced($$0)) break;
++                    return net.minecraft.world.item.context.BlockPlaceContext.at((net.minecraft.world.item.context.BlockPlaceContext)$$0, (net.minecraft.core.BlockPos)$$8, (net.minecraft.core.Direction)$$6);
+                 }
+-                mutableBlockPos.move(direction);
+-                if (!direction.getAxis().isHorizontal()) continue;
+-                ++n;
++                $$8.move($$6);
++                if (!$$6.getAxis().isHorizontal()) continue;
++                ++$$7;
+             }
+             return null;
+         }
+-        if (net.minecraft.world.level.block.ScaffoldingBlock.getDistance((net.minecraft.world.level.BlockGetter)level, (net.minecraft.core.BlockPos)blockPos) == 7) {
++        if (net.minecraft.world.level.block.ScaffoldingBlock.getDistance((net.minecraft.world.level.BlockGetter)$$2, (net.minecraft.core.BlockPos)$$1) == 7) {
+             return null;
+         }
+-        return context;
++        return $$0;
+     }
+ 
+     public boolean mustSurvive() {

@@ -1,0 +1,64 @@
+--- net/minecraft/world/entity/ai/behavior/TradeWithVillager.java
++++ net/minecraft/world/entity/ai/behavior/TradeWithVillager.java
+@@ -15,40 +15,40 @@
+         this.trades = com.google.common.collect.ImmutableSet.of();
+     }
+ 
+-    public boolean checkExtraStartConditions(net.minecraft.server.level.ServerLevel level, net.minecraft.world.entity.npc.Villager owner) {
+-        return net.minecraft.world.entity.ai.behavior.BehaviorUtils.targetIsValid((net.minecraft.world.entity.ai.Brain)owner.getBrain(), (net.minecraft.world.entity.ai.memory.MemoryModuleType)net.minecraft.world.entity.ai.memory.MemoryModuleType.INTERACTION_TARGET, (net.minecraft.world.entity.EntityType)net.minecraft.world.entity.EntityType.VILLAGER);
++    public boolean checkExtraStartConditions(net.minecraft.server.level.ServerLevel $$0, net.minecraft.world.entity.npc.Villager $$1) {
++        return net.minecraft.world.entity.ai.behavior.BehaviorUtils.targetIsValid((net.minecraft.world.entity.ai.Brain)$$1.getBrain(), (net.minecraft.world.entity.ai.memory.MemoryModuleType)net.minecraft.world.entity.ai.memory.MemoryModuleType.INTERACTION_TARGET, (net.minecraft.world.entity.EntityType)net.minecraft.world.entity.EntityType.VILLAGER);
+     }
+ 
+-    public boolean canStillUse(net.minecraft.server.level.ServerLevel level, net.minecraft.world.entity.npc.Villager entity, long gameTime) {
+-        return this.checkExtraStartConditions(level, entity);
++    public boolean canStillUse(net.minecraft.server.level.ServerLevel $$0, net.minecraft.world.entity.npc.Villager $$1, long $$2) {
++        return this.checkExtraStartConditions($$0, $$1);
+     }
+ 
+-    public void start(net.minecraft.server.level.ServerLevel level, net.minecraft.world.entity.npc.Villager entity, long gameTime) {
+-        net.minecraft.world.entity.npc.Villager villager = (net.minecraft.world.entity.npc.Villager)entity.getBrain().getMemory(net.minecraft.world.entity.ai.memory.MemoryModuleType.INTERACTION_TARGET).get();
+-        net.minecraft.world.entity.ai.behavior.BehaviorUtils.lockGazeAndWalkToEachOther((net.minecraft.world.entity.LivingEntity)entity, (net.minecraft.world.entity.LivingEntity)villager, (float)0.5f);
+-        this.trades = net.minecraft.world.entity.ai.behavior.TradeWithVillager.figureOutWhatIAmWillingToTrade((net.minecraft.world.entity.npc.Villager)entity, (net.minecraft.world.entity.npc.Villager)villager);
++    public void start(net.minecraft.server.level.ServerLevel $$0, net.minecraft.world.entity.npc.Villager $$1, long $$2) {
++        net.minecraft.world.entity.npc.Villager $$3 = (net.minecraft.world.entity.npc.Villager)$$1.getBrain().getMemory(net.minecraft.world.entity.ai.memory.MemoryModuleType.INTERACTION_TARGET).get();
++        net.minecraft.world.entity.ai.behavior.BehaviorUtils.lockGazeAndWalkToEachOther((net.minecraft.world.entity.LivingEntity)$$1, (net.minecraft.world.entity.LivingEntity)$$3, (float)0.5f);
++        this.trades = net.minecraft.world.entity.ai.behavior.TradeWithVillager.figureOutWhatIAmWillingToTrade((net.minecraft.world.entity.npc.Villager)$$1, (net.minecraft.world.entity.npc.Villager)$$3);
+     }
+ 
+-    public void tick(net.minecraft.server.level.ServerLevel level, net.minecraft.world.entity.npc.Villager owner, long gameTime) {
+-        net.minecraft.world.entity.npc.Villager villager = (net.minecraft.world.entity.npc.Villager)owner.getBrain().getMemory(net.minecraft.world.entity.ai.memory.MemoryModuleType.INTERACTION_TARGET).get();
+-        if (owner.distanceToSqr((net.minecraft.world.entity.Entity)villager) > 5.0) {
++    public void tick(net.minecraft.server.level.ServerLevel $$0, net.minecraft.world.entity.npc.Villager $$1, long $$2) {
++        net.minecraft.world.entity.npc.Villager $$3 = (net.minecraft.world.entity.npc.Villager)$$1.getBrain().getMemory(net.minecraft.world.entity.ai.memory.MemoryModuleType.INTERACTION_TARGET).get();
++        if ($$1.distanceToSqr((net.minecraft.world.entity.Entity)$$3) > 5.0) {
+             return;
+         }
+-        net.minecraft.world.entity.ai.behavior.BehaviorUtils.lockGazeAndWalkToEachOther((net.minecraft.world.entity.LivingEntity)owner, (net.minecraft.world.entity.LivingEntity)villager, (float)0.5f);
+-        owner.gossip(level, villager, gameTime);
+-        if (owner.hasExcessFood() && (owner.getVillagerData().getProfession() == net.minecraft.world.entity.npc.VillagerProfession.FARMER || villager.wantsMoreFood())) {
+-            net.minecraft.world.entity.ai.behavior.TradeWithVillager.throwHalfStack((net.minecraft.world.entity.npc.Villager)owner, (java.util.Set)net.minecraft.world.entity.npc.Villager.FOOD_POINTS.keySet(), (net.minecraft.world.entity.LivingEntity)villager);
++        net.minecraft.world.entity.ai.behavior.BehaviorUtils.lockGazeAndWalkToEachOther((net.minecraft.world.entity.LivingEntity)$$1, (net.minecraft.world.entity.LivingEntity)$$3, (float)0.5f);
++        $$1.gossip($$0, $$3, $$2);
++        if ($$1.hasExcessFood() && ($$1.getVillagerData().getProfession() == net.minecraft.world.entity.npc.VillagerProfession.FARMER || $$3.wantsMoreFood())) {
++            net.minecraft.world.entity.ai.behavior.TradeWithVillager.throwHalfStack((net.minecraft.world.entity.npc.Villager)$$1, (java.util.Set)net.minecraft.world.entity.npc.Villager.FOOD_POINTS.keySet(), (net.minecraft.world.entity.LivingEntity)$$3);
+         }
+-        if (villager.getVillagerData().getProfession() == net.minecraft.world.entity.npc.VillagerProfession.FARMER && owner.getInventory().countItem(net.minecraft.world.item.Items.WHEAT) > net.minecraft.world.item.Items.WHEAT.getMaxStackSize() / 2) {
+-            net.minecraft.world.entity.ai.behavior.TradeWithVillager.throwHalfStack((net.minecraft.world.entity.npc.Villager)owner, (java.util.Set)com.google.common.collect.ImmutableSet.of((java.lang.Object)net.minecraft.world.item.Items.WHEAT), (net.minecraft.world.entity.LivingEntity)villager);
++        if ($$3.getVillagerData().getProfession() == net.minecraft.world.entity.npc.VillagerProfession.FARMER && $$1.getInventory().countItem(net.minecraft.world.item.Items.WHEAT) > net.minecraft.world.item.Items.WHEAT.getMaxStackSize() / 2) {
++            net.minecraft.world.entity.ai.behavior.TradeWithVillager.throwHalfStack((net.minecraft.world.entity.npc.Villager)$$1, (java.util.Set)com.google.common.collect.ImmutableSet.of((java.lang.Object)net.minecraft.world.item.Items.WHEAT), (net.minecraft.world.entity.LivingEntity)$$3);
+         }
+-        if (!this.trades.isEmpty() && owner.getInventory().hasAnyOf(this.trades)) {
+-            net.minecraft.world.entity.ai.behavior.TradeWithVillager.throwHalfStack((net.minecraft.world.entity.npc.Villager)owner, (java.util.Set)this.trades, (net.minecraft.world.entity.LivingEntity)villager);
++        if (!this.trades.isEmpty() && $$1.getInventory().hasAnyOf(this.trades)) {
++            net.minecraft.world.entity.ai.behavior.TradeWithVillager.throwHalfStack((net.minecraft.world.entity.npc.Villager)$$1, (java.util.Set)this.trades, (net.minecraft.world.entity.LivingEntity)$$3);
+         }
+     }
+ 
+-    public void stop(net.minecraft.server.level.ServerLevel level, net.minecraft.world.entity.npc.Villager entity, long gameTime) {
+-        entity.getBrain().eraseMemory(net.minecraft.world.entity.ai.memory.MemoryModuleType.INTERACTION_TARGET);
++    public void stop(net.minecraft.server.level.ServerLevel $$0, net.minecraft.world.entity.npc.Villager $$1, long $$2) {
++        $$1.getBrain().eraseMemory(net.minecraft.world.entity.ai.memory.MemoryModuleType.INTERACTION_TARGET);
+     }
+ 
+     public static java.util.Set<net.minecraft.world.item.Item> figureOutWhatIAmWillingToTrade(net.minecraft.world.entity.npc.Villager $$0, net.minecraft.world.entity.npc.Villager $$12) {

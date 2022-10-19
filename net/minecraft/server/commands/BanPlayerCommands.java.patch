@@ -1,0 +1,46 @@
+--- net/minecraft/server/commands/BanPlayerCommands.java
++++ net/minecraft/server/commands/BanPlayerCommands.java
+@@ -10,27 +10,27 @@
+     public net.minecraft.server.commands.BanPlayerCommands() {
+     }
+ 
+-    public static void register(com.mojang.brigadier.CommandDispatcher<net.minecraft.commands.CommandSourceStack> dispatcher) {
+-        dispatcher.register((com.mojang.brigadier.builder.LiteralArgumentBuilder)((com.mojang.brigadier.builder.LiteralArgumentBuilder)net.minecraft.commands.Commands.literal((java.lang.String)"ban").requires($$0 -> $$0.hasPermission(3))).then(((com.mojang.brigadier.builder.RequiredArgumentBuilder)net.minecraft.commands.Commands.argument((java.lang.String)"targets", (com.mojang.brigadier.arguments.ArgumentType)net.minecraft.commands.arguments.GameProfileArgument.gameProfile()).executes($$0 -> net.minecraft.server.commands.BanPlayerCommands.banPlayers((net.minecraft.commands.CommandSourceStack)((net.minecraft.commands.CommandSourceStack)$$0.getSource()), (java.util.Collection)net.minecraft.commands.arguments.GameProfileArgument.getGameProfiles((com.mojang.brigadier.context.CommandContext)$$0, (java.lang.String)"targets"), null))).then(net.minecraft.commands.Commands.argument((java.lang.String)"reason", (com.mojang.brigadier.arguments.ArgumentType)net.minecraft.commands.arguments.MessageArgument.message()).executes($$0 -> net.minecraft.server.commands.BanPlayerCommands.banPlayers((net.minecraft.commands.CommandSourceStack)((net.minecraft.commands.CommandSourceStack)$$0.getSource()), (java.util.Collection)net.minecraft.commands.arguments.GameProfileArgument.getGameProfiles((com.mojang.brigadier.context.CommandContext)$$0, (java.lang.String)"targets"), (net.minecraft.network.chat.Component)net.minecraft.commands.arguments.MessageArgument.getMessage((com.mojang.brigadier.context.CommandContext)$$0, (java.lang.String)"reason"))))));
++    public static void register(com.mojang.brigadier.CommandDispatcher<net.minecraft.commands.CommandSourceStack> $$02) {
++        $$02.register((com.mojang.brigadier.builder.LiteralArgumentBuilder)((com.mojang.brigadier.builder.LiteralArgumentBuilder)net.minecraft.commands.Commands.literal((java.lang.String)"ban").requires($$0 -> $$0.hasPermission(3))).then(((com.mojang.brigadier.builder.RequiredArgumentBuilder)net.minecraft.commands.Commands.argument((java.lang.String)"targets", (com.mojang.brigadier.arguments.ArgumentType)net.minecraft.commands.arguments.GameProfileArgument.gameProfile()).executes($$0 -> net.minecraft.server.commands.BanPlayerCommands.banPlayers((net.minecraft.commands.CommandSourceStack)((net.minecraft.commands.CommandSourceStack)$$0.getSource()), (java.util.Collection)net.minecraft.commands.arguments.GameProfileArgument.getGameProfiles((com.mojang.brigadier.context.CommandContext)$$0, (java.lang.String)"targets"), null))).then(net.minecraft.commands.Commands.argument((java.lang.String)"reason", (com.mojang.brigadier.arguments.ArgumentType)net.minecraft.commands.arguments.MessageArgument.message()).executes($$0 -> net.minecraft.server.commands.BanPlayerCommands.banPlayers((net.minecraft.commands.CommandSourceStack)((net.minecraft.commands.CommandSourceStack)$$0.getSource()), (java.util.Collection)net.minecraft.commands.arguments.GameProfileArgument.getGameProfiles((com.mojang.brigadier.context.CommandContext)$$0, (java.lang.String)"targets"), (net.minecraft.network.chat.Component)net.minecraft.commands.arguments.MessageArgument.getMessage((com.mojang.brigadier.context.CommandContext)$$0, (java.lang.String)"reason"))))));
+     }
+ 
+-    public static int banPlayers(net.minecraft.commands.CommandSourceStack source, java.util.Collection<com.mojang.authlib.GameProfile> gameProfiles, @javax.annotation.Nullable net.minecraft.network.chat.Component reason) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
+-        net.minecraft.server.players.UserBanList userBanList = source.getServer().getPlayerList().getBans();
+-        int n = 0;
+-        for (com.mojang.authlib.GameProfile gameProfile : gameProfiles) {
+-            if (userBanList.isBanned(gameProfile)) continue;
+-            net.minecraft.server.players.UserBanListEntry userBanListEntry = new net.minecraft.server.players.UserBanListEntry(gameProfile, null, source.getTextName(), null, reason == null ? null : reason.getString());
+-            userBanList.add((net.minecraft.server.players.StoredUserEntry)userBanListEntry);
+-            ++n;
+-            source.sendSuccess((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"commands.ban.success", (java.lang.Object[])new java.lang.Object[]{net.minecraft.network.chat.ComponentUtils.getDisplayName((com.mojang.authlib.GameProfile)gameProfile), userBanListEntry.getReason()}), true);
+-            net.minecraft.server.level.ServerPlayer serverPlayer = source.getServer().getPlayerList().getPlayer(gameProfile.getId());
+-            if (serverPlayer == null) continue;
+-            serverPlayer.connection.disconnect((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"multiplayer.disconnect.banned"));
++    public static int banPlayers(net.minecraft.commands.CommandSourceStack $$0, java.util.Collection<com.mojang.authlib.GameProfile> $$1, @javax.annotation.Nullable net.minecraft.network.chat.Component $$2) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
++        net.minecraft.server.players.UserBanList $$3 = $$0.getServer().getPlayerList().getBans();
++        int $$4 = 0;
++        for (com.mojang.authlib.GameProfile $$5 : $$1) {
++            if ($$3.isBanned($$5)) continue;
++            net.minecraft.server.players.UserBanListEntry $$6 = new net.minecraft.server.players.UserBanListEntry($$5, null, $$0.getTextName(), null, $$2 == null ? null : $$2.getString());
++            $$3.add((net.minecraft.server.players.StoredUserEntry)$$6);
++            ++$$4;
++            $$0.sendSuccess((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"commands.ban.success", (java.lang.Object[])new java.lang.Object[]{net.minecraft.network.chat.ComponentUtils.getDisplayName((com.mojang.authlib.GameProfile)$$5), $$6.getReason()}), true);
++            net.minecraft.server.level.ServerPlayer $$7 = $$0.getServer().getPlayerList().getPlayer($$5.getId());
++            if ($$7 == null) continue;
++            $$7.connection.disconnect((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"multiplayer.disconnect.banned"));
+         }
+-        if (n == 0) {
++        if ($$4 == 0) {
+             throw ERROR_ALREADY_BANNED.create();
+         }
+-        return n;
++        return $$4;
+     }
+ 
+     static {

@@ -1,0 +1,225 @@
+--- net/minecraft/client/gui/screens/inventory/InventoryScreen.java
++++ net/minecraft/client/gui/screens/inventory/InventoryScreen.java
+@@ -15,8 +15,8 @@
+     public boolean widthTooNarrow;
+     public boolean buttonClicked;
+ 
+-    public net.minecraft.client.gui.screens.inventory.InventoryScreen(net.minecraft.world.entity.player.Player player) {
+-        super((net.minecraft.world.inventory.AbstractContainerMenu)player.inventoryMenu, player.getInventory(), (net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"container.crafting"));
++    public net.minecraft.client.gui.screens.inventory.InventoryScreen(net.minecraft.world.entity.player.Player $$0) {
++        super((net.minecraft.world.inventory.AbstractContainerMenu)$$0.inventoryMenu, $$0.getInventory(), (net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"container.crafting"));
+         this.recipeBookComponent = new net.minecraft.client.gui.screens.recipebook.RecipeBookComponent();
+         this.passEvents = true;
+         this.titleLabelX = 97;
+@@ -24,7 +24,7 @@
+ 
+     public void containerTick() {
+         if (this.minecraft.gameMode.hasInfiniteItems()) {
+-            this.minecraft.setScreen((net.minecraft.client.gui.screens.Screen)new net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen((net.minecraft.world.entity.player.Player)this.minecraft.player));
++            this.minecraft.setScreen((net.minecraft.client.gui.screens.Screen)new net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen((net.minecraft.world.entity.player.Player)this.minecraft.player, this.minecraft.player.connection.enabledFeatures()));
+             return;
+         }
+         this.recipeBookComponent.tick();
+@@ -32,7 +32,7 @@
+ 
+     public void init() {
+         if (this.minecraft.gameMode.hasInfiniteItems()) {
+-            this.minecraft.setScreen((net.minecraft.client.gui.screens.Screen)new net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen((net.minecraft.world.entity.player.Player)this.minecraft.player));
++            this.minecraft.setScreen((net.minecraft.client.gui.screens.Screen)new net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen((net.minecraft.world.entity.player.Player)this.minecraft.player, this.minecraft.player.connection.enabledFeatures()));
+             return;
+         }
+         super.init();
+@@ -50,124 +50,117 @@
+         this.setInitialFocus((net.minecraft.client.gui.components.events.GuiEventListener)this.recipeBookComponent);
+     }
+ 
+-    public void renderLabels(com.mojang.blaze3d.vertex.PoseStack matrixStack, int x, int y) {
+-        this.font.draw(matrixStack, this.title, (float)this.titleLabelX, (float)this.titleLabelY, 0x404040);
++    public void renderLabels(com.mojang.blaze3d.vertex.PoseStack $$0, int $$1, int $$2) {
++        this.font.draw($$0, this.title, (float)this.titleLabelX, (float)this.titleLabelY, 0x404040);
+     }
+ 
+-    public void render(com.mojang.blaze3d.vertex.PoseStack matrixStack, int mouseX, int mouseY, float partialTicks) {
+-        this.renderBackground(matrixStack);
++    public void render(com.mojang.blaze3d.vertex.PoseStack $$0, int $$1, int $$2, float $$3) {
++        this.renderBackground($$0);
+         if (this.recipeBookComponent.isVisible() && this.widthTooNarrow) {
+-            this.renderBg(matrixStack, partialTicks, mouseX, mouseY);
+-            this.recipeBookComponent.render(matrixStack, mouseX, mouseY, partialTicks);
++            this.renderBg($$0, $$3, $$1, $$2);
++            this.recipeBookComponent.render($$0, $$1, $$2, $$3);
+         } else {
+-            this.recipeBookComponent.render(matrixStack, mouseX, mouseY, partialTicks);
+-            super.render(matrixStack, mouseX, mouseY, partialTicks);
+-            this.recipeBookComponent.renderGhostRecipe(matrixStack, this.leftPos, this.topPos, false, partialTicks);
++            this.recipeBookComponent.render($$0, $$1, $$2, $$3);
++            super.render($$0, $$1, $$2, $$3);
++            this.recipeBookComponent.renderGhostRecipe($$0, this.leftPos, this.topPos, false, $$3);
+         }
+-        this.renderTooltip(matrixStack, mouseX, mouseY);
+-        this.recipeBookComponent.renderTooltip(matrixStack, this.leftPos, this.topPos, mouseX, mouseY);
+-        this.xMouse = mouseX;
+-        this.yMouse = mouseY;
++        this.renderTooltip($$0, $$1, $$2);
++        this.recipeBookComponent.renderTooltip($$0, this.leftPos, this.topPos, $$1, $$2);
++        this.xMouse = $$1;
++        this.yMouse = $$2;
+     }
+ 
+-    public void renderBg(com.mojang.blaze3d.vertex.PoseStack matrixStack, float partialTicks, int x, int y) {
++    public void renderBg(com.mojang.blaze3d.vertex.PoseStack $$0, float $$1, int $$2, int $$3) {
+         com.mojang.blaze3d.systems.RenderSystem.setShader(net.minecraft.client.renderer.GameRenderer::getPositionTexShader);
+         com.mojang.blaze3d.systems.RenderSystem.setShaderColor((float)1.0f, (float)1.0f, (float)1.0f, (float)1.0f);
+         com.mojang.blaze3d.systems.RenderSystem.setShaderTexture((int)0, (net.minecraft.resources.ResourceLocation)INVENTORY_LOCATION);
+-        int n = this.leftPos;
+-        int n2 = this.topPos;
+-        this.blit(matrixStack, n, n2, 0, 0, this.imageWidth, this.imageHeight);
+-        net.minecraft.client.gui.screens.inventory.InventoryScreen.renderEntityInInventory((int)(n + 51), (int)(n2 + 75), (int)30, (float)((float)(n + 51) - this.xMouse), (float)((float)(n2 + 75 - 50) - this.yMouse), (net.minecraft.world.entity.LivingEntity)this.minecraft.player);
++        int $$4 = this.leftPos;
++        int $$5 = this.topPos;
++        this.blit($$0, $$4, $$5, 0, 0, this.imageWidth, this.imageHeight);
++        net.minecraft.client.gui.screens.inventory.InventoryScreen.renderEntityInInventory((int)($$4 + 51), (int)($$5 + 75), (int)30, (float)((float)($$4 + 51) - this.xMouse), (float)((float)($$5 + 75 - 50) - this.yMouse), (net.minecraft.world.entity.LivingEntity)this.minecraft.player);
+     }
+ 
+-    public static void renderEntityInInventory(int posX, int posY, int scale, float mouseX, float mouseY, net.minecraft.world.entity.LivingEntity livingEntity) {
+-        float f = (float)java.lang.Math.atan((double)(mouseX / 40.0f));
+-        float f2 = (float)java.lang.Math.atan((double)(mouseY / 40.0f));
+-        com.mojang.blaze3d.vertex.PoseStack poseStack = com.mojang.blaze3d.systems.RenderSystem.getModelViewStack();
+-        poseStack.pushPose();
+-        poseStack.translate((double)posX, (double)posY, 1050.0);
+-        poseStack.scale(1.0f, 1.0f, -1.0f);
++    public static void renderEntityInInventory(int $$0, int $$1, int $$2, float $$3, float $$4, net.minecraft.world.entity.LivingEntity $$5) {
++        float $$6 = (float)java.lang.Math.atan((double)($$3 / 40.0f));
++        float $$7 = (float)java.lang.Math.atan((double)($$4 / 40.0f));
++        com.mojang.blaze3d.vertex.PoseStack $$8 = com.mojang.blaze3d.systems.RenderSystem.getModelViewStack();
++        $$8.pushPose();
++        $$8.translate((double)$$0, (double)$$1, 1050.0);
++        $$8.scale(1.0f, 1.0f, -1.0f);
+         com.mojang.blaze3d.systems.RenderSystem.applyModelViewMatrix();
+-        com.mojang.blaze3d.vertex.PoseStack poseStack2 = new com.mojang.blaze3d.vertex.PoseStack();
+-        poseStack2.translate(0.0, 0.0, 1000.0);
+-        poseStack2.scale((float)scale, (float)scale, (float)scale);
+-        com.mojang.math.Quaternion quaternion = com.mojang.math.Vector3f.ZP.rotationDegrees(180.0f);
+-        com.mojang.math.Quaternion quaternion2 = com.mojang.math.Vector3f.XP.rotationDegrees(f2 * 20.0f);
+-        quaternion.mul(quaternion2);
+-        poseStack2.mulPose(quaternion);
+-        float f3 = livingEntity.yBodyRot;
+-        float f4 = livingEntity.getYRot();
+-        float f5 = livingEntity.getXRot();
+-        float f6 = livingEntity.yHeadRotO;
+-        float f7 = livingEntity.yHeadRot;
+-        livingEntity.yBodyRot = 180.0f + f * 20.0f;
+-        livingEntity.setYRot(180.0f + f * 40.0f);
+-        livingEntity.setXRot(-f2 * 20.0f);
+-        livingEntity.yHeadRot = livingEntity.getYRot();
+-        livingEntity.yHeadRotO = livingEntity.getYRot();
++        com.mojang.blaze3d.vertex.PoseStack $$9 = new com.mojang.blaze3d.vertex.PoseStack();
++        $$9.translate(0.0, 0.0, 1000.0);
++        $$9.scale((float)$$2, (float)$$2, (float)$$2);
++        com.mojang.math.Quaternion $$10 = com.mojang.math.Vector3f.ZP.rotationDegrees(180.0f);
++        com.mojang.math.Quaternion $$11 = com.mojang.math.Vector3f.XP.rotationDegrees($$7 * 20.0f);
++        $$10.mul($$11);
++        $$9.mulPose($$10);
++        float $$12 = $$5.yBodyRot;
++        float $$13 = $$5.getYRot();
++        float $$14 = $$5.getXRot();
++        float $$15 = $$5.yHeadRotO;
++        float $$16 = $$5.yHeadRot;
++        $$5.yBodyRot = 180.0f + $$6 * 20.0f;
++        $$5.setYRot(180.0f + $$6 * 40.0f);
++        $$5.setXRot(-$$7 * 20.0f);
++        $$5.yHeadRot = $$5.getYRot();
++        $$5.yHeadRotO = $$5.getYRot();
+         com.mojang.blaze3d.platform.Lighting.setupForEntityInInventory();
+-        net.minecraft.client.renderer.entity.EntityRenderDispatcher entityRenderDispatcher = net.minecraft.client.Minecraft.getInstance().getEntityRenderDispatcher();
+-        quaternion2.conj();
+-        entityRenderDispatcher.overrideCameraOrientation(quaternion2);
+-        entityRenderDispatcher.setRenderShadow(false);
+-        net.minecraft.client.renderer.MultiBufferSource$BufferSource bufferSource = net.minecraft.client.Minecraft.getInstance().renderBuffers().bufferSource();
+-        com.mojang.blaze3d.systems.RenderSystem.runAsFancy(() -> entityRenderDispatcher.render((net.minecraft.world.entity.Entity)livingEntity, 0.0, 0.0, 0.0, 0.0f, 1.0f, poseStack2, (net.minecraft.client.renderer.MultiBufferSource)bufferSource, 0xF000F0));
+-        bufferSource.endBatch();
+-        entityRenderDispatcher.setRenderShadow(true);
+-        livingEntity.yBodyRot = f3;
+-        livingEntity.setYRot(f4);
+-        livingEntity.setXRot(f5);
+-        livingEntity.yHeadRotO = f6;
+-        livingEntity.yHeadRot = f7;
+-        poseStack.popPose();
++        net.minecraft.client.renderer.entity.EntityRenderDispatcher $$17 = net.minecraft.client.Minecraft.getInstance().getEntityRenderDispatcher();
++        $$11.conj();
++        $$17.overrideCameraOrientation($$11);
++        $$17.setRenderShadow(false);
++        net.minecraft.client.renderer.MultiBufferSource$BufferSource $$18 = net.minecraft.client.Minecraft.getInstance().renderBuffers().bufferSource();
++        com.mojang.blaze3d.systems.RenderSystem.runAsFancy(() -> $$17.render((net.minecraft.world.entity.Entity)$$5, 0.0, 0.0, 0.0, 0.0f, 1.0f, $$9, (net.minecraft.client.renderer.MultiBufferSource)$$18, 0xF000F0));
++        $$18.endBatch();
++        $$17.setRenderShadow(true);
++        $$5.yBodyRot = $$12;
++        $$5.setYRot($$13);
++        $$5.setXRot($$14);
++        $$5.yHeadRotO = $$15;
++        $$5.yHeadRot = $$16;
++        $$8.popPose();
+         com.mojang.blaze3d.systems.RenderSystem.applyModelViewMatrix();
+         com.mojang.blaze3d.platform.Lighting.setupFor3DItems();
+     }
+ 
+-    public boolean isHovering(int x, int y, int width, int height, double mouseX, double mouseY) {
+-        return (!this.widthTooNarrow || !this.recipeBookComponent.isVisible()) && super.isHovering(x, y, width, height, mouseX, mouseY);
++    public boolean isHovering(int $$0, int $$1, int $$2, int $$3, double $$4, double $$5) {
++        return (!this.widthTooNarrow || !this.recipeBookComponent.isVisible()) && super.isHovering($$0, $$1, $$2, $$3, $$4, $$5);
+     }
+ 
+-    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+-        if (this.recipeBookComponent.mouseClicked(mouseX, mouseY, button)) {
++    public boolean mouseClicked(double $$0, double $$1, int $$2) {
++        if (this.recipeBookComponent.mouseClicked($$0, $$1, $$2)) {
+             this.setFocused((net.minecraft.client.gui.components.events.GuiEventListener)this.recipeBookComponent);
+             return true;
+         }
+         if (this.widthTooNarrow && this.recipeBookComponent.isVisible()) {
+             return false;
+         }
+-        return super.mouseClicked(mouseX, mouseY, button);
++        return super.mouseClicked($$0, $$1, $$2);
+     }
+ 
+-    public boolean mouseReleased(double mouseX, double mouseY, int button) {
++    public boolean mouseReleased(double $$0, double $$1, int $$2) {
+         if (this.buttonClicked) {
+             this.buttonClicked = false;
+             return true;
+         }
+-        return super.mouseReleased(mouseX, mouseY, button);
++        return super.mouseReleased($$0, $$1, $$2);
+     }
+ 
+-    public boolean hasClickedOutside(double mouseX, double mouseY, int guiLeft, int guiTop, int mouseButton) {
+-        boolean bl = mouseX < (double)guiLeft || mouseY < (double)guiTop || mouseX >= (double)(guiLeft + this.imageWidth) || mouseY >= (double)(guiTop + this.imageHeight);
+-        return this.recipeBookComponent.hasClickedOutside(mouseX, mouseY, this.leftPos, this.topPos, this.imageWidth, this.imageHeight, mouseButton) && bl;
++    public boolean hasClickedOutside(double $$0, double $$1, int $$2, int $$3, int $$4) {
++        boolean $$5 = $$0 < (double)$$2 || $$1 < (double)$$3 || $$0 >= (double)($$2 + this.imageWidth) || $$1 >= (double)($$3 + this.imageHeight);
++        return this.recipeBookComponent.hasClickedOutside($$0, $$1, this.leftPos, this.topPos, this.imageWidth, this.imageHeight, $$4) && $$5;
+     }
+ 
+-    public void slotClicked(net.minecraft.world.inventory.Slot slot, int slotId, int mouseButton, net.minecraft.world.inventory.ClickType type) {
+-        super.slotClicked(slot, slotId, mouseButton, type);
+-        this.recipeBookComponent.slotClicked(slot);
++    public void slotClicked(net.minecraft.world.inventory.Slot $$0, int $$1, int $$2, net.minecraft.world.inventory.ClickType $$3) {
++        super.slotClicked($$0, $$1, $$2, $$3);
++        this.recipeBookComponent.slotClicked($$0);
+     }
+ 
+     public void recipesUpdated() {
+         this.recipeBookComponent.recipesUpdated();
+     }
+ 
+-    public void removed() {
+-        if (this.recipeBookComponentInitialized) {
+-            this.recipeBookComponent.removed();
+-        }
+-        super.removed();
+-    }
+-
+     public net.minecraft.client.gui.screens.recipebook.RecipeBookComponent getRecipeBookComponent() {
+         return this.recipeBookComponent;
+     }

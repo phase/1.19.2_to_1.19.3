@@ -1,0 +1,741 @@
+--- net/minecraft/client/player/LocalPlayer.java
++++ net/minecraft/client/player/LocalPlayer.java
+@@ -54,37 +54,37 @@
+     public int waterVisionTime;
+     public boolean showDeathScreen;
+ 
+-    public net.minecraft.client.player.LocalPlayer(net.minecraft.client.Minecraft minecraft, net.minecraft.client.multiplayer.ClientLevel level, net.minecraft.client.multiplayer.ClientPacketListener connection, net.minecraft.stats.StatsCounter stats, net.minecraft.client.ClientRecipeBook recipeBook, boolean wasShiftKeyDown, boolean wasSprinting) {
+-        super(level, connection.getLocalGameProfile(), (net.minecraft.world.entity.player.ProfilePublicKey)minecraft.getProfileKeyPairManager().profilePublicKey().orElse(null));
++    public net.minecraft.client.player.LocalPlayer(net.minecraft.client.Minecraft $$0, net.minecraft.client.multiplayer.ClientLevel $$1, net.minecraft.client.multiplayer.ClientPacketListener $$2, net.minecraft.stats.StatsCounter $$3, net.minecraft.client.ClientRecipeBook $$4, boolean $$5, boolean $$6) {
++        super($$1, $$2.getLocalGameProfile());
+         this.ambientSoundHandlers = com.google.common.collect.Lists.newArrayList();
+         this.permissionLevel = 0;
+         this.autoJumpEnabled = true;
+         this.showDeathScreen = true;
+-        this.minecraft = minecraft;
+-        this.connection = connection;
+-        this.stats = stats;
+-        this.recipeBook = recipeBook;
+-        this.wasShiftKeyDown = wasShiftKeyDown;
+-        this.wasSprinting = wasSprinting;
+-        this.ambientSoundHandlers.add((java.lang.Object)new net.minecraft.client.resources.sounds.UnderwaterAmbientSoundHandler(this, minecraft.getSoundManager()));
++        this.minecraft = $$0;
++        this.connection = $$2;
++        this.stats = $$3;
++        this.recipeBook = $$4;
++        this.wasShiftKeyDown = $$5;
++        this.wasSprinting = $$6;
++        this.ambientSoundHandlers.add((java.lang.Object)new net.minecraft.client.resources.sounds.UnderwaterAmbientSoundHandler(this, $$0.getSoundManager()));
+         this.ambientSoundHandlers.add((java.lang.Object)new net.minecraft.client.resources.sounds.BubbleColumnAmbientSoundHandler(this));
+-        this.ambientSoundHandlers.add((java.lang.Object)new net.minecraft.client.resources.sounds.BiomeAmbientSoundsHandler(this, minecraft.getSoundManager(), level.getBiomeManager()));
++        this.ambientSoundHandlers.add((java.lang.Object)new net.minecraft.client.resources.sounds.BiomeAmbientSoundsHandler(this, $$0.getSoundManager(), $$1.getBiomeManager()));
+     }
+ 
+-    public boolean hurt(net.minecraft.world.damagesource.DamageSource source, float amount) {
++    public boolean hurt(net.minecraft.world.damagesource.DamageSource $$0, float $$1) {
+         return false;
+     }
+ 
+-    public void heal(float healAmount) {
++    public void heal(float $$0) {
+     }
+ 
+-    public boolean startRiding(net.minecraft.world.entity.Entity entity, boolean force) {
+-        if (!super.startRiding(entity, force)) {
++    public boolean startRiding(net.minecraft.world.entity.Entity $$0, boolean $$1) {
++        if (!super.startRiding($$0, $$1)) {
+             return false;
+         }
+-        if (entity instanceof net.minecraft.world.entity.vehicle.AbstractMinecart) {
+-            this.minecraft.getSoundManager().play((net.minecraft.client.resources.sounds.SoundInstance)new net.minecraft.client.resources.sounds.RidingMinecartSoundInstance((net.minecraft.world.entity.player.Player)this, (net.minecraft.world.entity.vehicle.AbstractMinecart)entity, true));
+-            this.minecraft.getSoundManager().play((net.minecraft.client.resources.sounds.SoundInstance)new net.minecraft.client.resources.sounds.RidingMinecartSoundInstance((net.minecraft.world.entity.player.Player)this, (net.minecraft.world.entity.vehicle.AbstractMinecart)entity, false));
++        if ($$0 instanceof net.minecraft.world.entity.vehicle.AbstractMinecart) {
++            this.minecraft.getSoundManager().play((net.minecraft.client.resources.sounds.SoundInstance)new net.minecraft.client.resources.sounds.RidingMinecartSoundInstance((net.minecraft.world.entity.player.Player)this, (net.minecraft.world.entity.vehicle.AbstractMinecart)$$0, true));
++            this.minecraft.getSoundManager().play((net.minecraft.client.resources.sounds.SoundInstance)new net.minecraft.client.resources.sounds.RidingMinecartSoundInstance((net.minecraft.world.entity.player.Player)this, (net.minecraft.world.entity.vehicle.AbstractMinecart)$$0, false));
+         }
+         return true;
+     }
+@@ -94,13 +94,13 @@
+         this.handsBusy = false;
+     }
+ 
+-    public float getViewXRot(float partialTicks) {
++    public float getViewXRot(float $$0) {
+         return this.getXRot();
+     }
+ 
+-    public float getViewYRot(float partialTicks) {
++    public float getViewYRot(float $$0) {
+         if (this.isPassenger()) {
+-            return super.getViewYRot(partialTicks);
++            return super.getViewYRot($$0);
+         }
+         return this.getYRot();
+     }
+@@ -184,107 +184,27 @@
+         }
+     }
+ 
+-    public boolean drop(boolean hasControlDown) {
+-        net.minecraft.network.protocol.game.ServerboundPlayerActionPacket$Action action = hasControlDown ? net.minecraft.network.protocol.game.ServerboundPlayerActionPacket$Action.DROP_ALL_ITEMS : net.minecraft.network.protocol.game.ServerboundPlayerActionPacket$Action.DROP_ITEM;
+-        net.minecraft.world.item.ItemStack itemStack = this.getInventory().removeFromSelected(hasControlDown);
+-        this.connection.send((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ServerboundPlayerActionPacket(action, net.minecraft.core.BlockPos.ZERO, net.minecraft.core.Direction.DOWN));
+-        return !itemStack.isEmpty();
++    public boolean drop(boolean $$0) {
++        net.minecraft.network.protocol.game.ServerboundPlayerActionPacket$Action $$1 = $$0 ? net.minecraft.network.protocol.game.ServerboundPlayerActionPacket$Action.DROP_ALL_ITEMS : net.minecraft.network.protocol.game.ServerboundPlayerActionPacket$Action.DROP_ITEM;
++        net.minecraft.world.item.ItemStack $$2 = this.getInventory().removeFromSelected($$0);
++        this.connection.send((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ServerboundPlayerActionPacket($$1, net.minecraft.core.BlockPos.ZERO, net.minecraft.core.Direction.DOWN));
++        return !$$2.isEmpty();
+     }
+ 
+-    public void chatSigned(java.lang.String $$0, @javax.annotation.Nullable net.minecraft.network.chat.Component $$1) {
+-        this.sendChat($$0, $$1);
++    public void swing(net.minecraft.world.InteractionHand $$0) {
++        super.swing($$0);
++        this.connection.send((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ServerboundSwingPacket($$0));
+     }
+ 
+-    public boolean commandHasSignableArguments(java.lang.String $$0) {
+-        com.mojang.brigadier.ParseResults $$1 = this.connection.getCommands().parse($$0, (java.lang.Object)this.connection.getSuggestionsProvider());
+-        return net.minecraft.commands.arguments.ArgumentSignatures.hasSignableArguments((net.minecraft.network.chat.PreviewableCommand)net.minecraft.network.chat.PreviewableCommand.of((com.mojang.brigadier.ParseResults)$$1));
+-    }
+-
+-    public boolean commandUnsigned(java.lang.String $$0) {
+-        if (!this.commandHasSignableArguments($$0)) {
+-            net.minecraft.network.chat.LastSeenMessages$Update $$1 = this.connection.generateMessageAcknowledgements();
+-            this.connection.send((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ServerboundChatCommandPacket($$0, java.time.Instant.now(), 0L, net.minecraft.commands.arguments.ArgumentSignatures.EMPTY, false, $$1));
+-            return true;
+-        }
+-        return false;
+-    }
+-
+-    public void commandSigned(java.lang.String $$0, @javax.annotation.Nullable net.minecraft.network.chat.Component $$1) {
+-        this.sendCommand($$0, $$1);
+-    }
+-
+-    public void sendChat(java.lang.String $$0, @javax.annotation.Nullable net.minecraft.network.chat.Component $$1) {
+-        net.minecraft.network.chat.ChatMessageContent $$2 = this.buildSignedContent($$0, $$1);
+-        net.minecraft.network.chat.MessageSigner $$3 = this.createMessageSigner();
+-        net.minecraft.network.chat.LastSeenMessages$Update $$4 = this.connection.generateMessageAcknowledgements();
+-        net.minecraft.network.chat.MessageSignature $$5 = this.signMessage($$3, $$2, $$4.lastSeen());
+-        this.connection.send((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ServerboundChatPacket($$2.plain(), $$3.timeStamp(), $$3.salt(), $$5, $$2.isDecorated(), $$4));
+-    }
+-
+-    public net.minecraft.network.chat.MessageSignature signMessage(net.minecraft.network.chat.MessageSigner $$0, net.minecraft.network.chat.ChatMessageContent $$1, net.minecraft.network.chat.LastSeenMessages $$2) {
+-        try {
+-            net.minecraft.util.Signer $$3 = this.minecraft.getProfileKeyPairManager().signer();
+-            if ($$3 != null) {
+-                return this.connection.signedMessageEncoder().pack($$3, $$0, $$1, $$2).signature();
+-            }
+-        }
+-        catch (java.lang.Exception $$4) {
+-            LOGGER.error("Failed to sign chat message: '{}'", (java.lang.Object)$$1.plain(), (java.lang.Object)((java.lang.Object)$$4));
+-        }
+-        return net.minecraft.network.chat.MessageSignature.EMPTY;
+-    }
+-
+-    public void sendCommand(java.lang.String $$0, @javax.annotation.Nullable net.minecraft.network.chat.Component $$1) {
+-        com.mojang.brigadier.ParseResults $$2 = this.connection.getCommands().parse($$0, (java.lang.Object)this.connection.getSuggestionsProvider());
+-        net.minecraft.network.chat.MessageSigner $$3 = this.createMessageSigner();
+-        net.minecraft.network.chat.LastSeenMessages$Update $$4 = this.connection.generateMessageAcknowledgements();
+-        net.minecraft.commands.arguments.ArgumentSignatures $$5 = this.signCommandArguments($$3, $$2, $$1, $$4.lastSeen());
+-        this.connection.send((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ServerboundChatCommandPacket($$0, $$3.timeStamp(), $$3.salt(), $$5, $$1 != null, $$4));
+-    }
+-
+-    public net.minecraft.commands.arguments.ArgumentSignatures signCommandArguments(net.minecraft.network.chat.MessageSigner $$0, com.mojang.brigadier.ParseResults<net.minecraft.commands.SharedSuggestionProvider> $$1, @javax.annotation.Nullable net.minecraft.network.chat.Component $$2, net.minecraft.network.chat.LastSeenMessages $$3) {
+-        net.minecraft.util.Signer $$42 = this.minecraft.getProfileKeyPairManager().signer();
+-        if ($$42 == null) {
+-            return net.minecraft.commands.arguments.ArgumentSignatures.EMPTY;
+-        }
+-        try {
+-            return net.minecraft.commands.arguments.ArgumentSignatures.signCommand((net.minecraft.network.chat.PreviewableCommand)net.minecraft.network.chat.PreviewableCommand.of($$1), ($$4, $$5) -> {
+-                net.minecraft.network.chat.ChatMessageContent $$6 = this.buildSignedContent($$5, $$2);
+-                return this.connection.signedMessageEncoder().pack($$42, $$0, $$6, $$3).signature();
+-            });
+-        }
+-        catch (java.lang.Exception $$52) {
+-            LOGGER.error("Failed to sign command arguments", (java.lang.Throwable)$$52);
+-            return net.minecraft.commands.arguments.ArgumentSignatures.EMPTY;
+-        }
+-    }
+-
+-    public net.minecraft.network.chat.ChatMessageContent buildSignedContent(java.lang.String $$0, @javax.annotation.Nullable net.minecraft.network.chat.Component $$1) {
+-        java.lang.String $$2 = net.minecraft.util.StringUtil.trimChatMessage((java.lang.String)$$0);
+-        if ($$1 != null) {
+-            return new net.minecraft.network.chat.ChatMessageContent($$2, $$1);
+-        }
+-        return new net.minecraft.network.chat.ChatMessageContent($$2);
+-    }
+-
+-    public net.minecraft.network.chat.MessageSigner createMessageSigner() {
+-        return net.minecraft.network.chat.MessageSigner.create((java.util.UUID)this.getUUID());
+-    }
+-
+-    public void swing(net.minecraft.world.InteractionHand hand) {
+-        super.swing(hand);
+-        this.connection.send((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ServerboundSwingPacket(hand));
+-    }
+-
+     public void respawn() {
+         this.connection.send((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ServerboundClientCommandPacket(net.minecraft.network.protocol.game.ServerboundClientCommandPacket$Action.PERFORM_RESPAWN));
+     }
+ 
+-    public void actuallyHurt(net.minecraft.world.damagesource.DamageSource damageSrc, float damageAmount) {
+-        if (this.isInvulnerableTo(damageSrc)) {
++    public void actuallyHurt(net.minecraft.world.damagesource.DamageSource $$0, float $$1) {
++        if (this.isInvulnerableTo($$0)) {
+             return;
+         }
+-        this.setHealth(this.getHealth() - damageAmount);
++        this.setHealth(this.getHealth() - $$1);
+     }
+ 
+     public void closeContainer() {
+@@ -297,22 +217,22 @@
+         this.minecraft.setScreen(null);
+     }
+ 
+-    public void hurtTo(float health) {
++    public void hurtTo(float $$0) {
+         if (this.flashOnSetHealth) {
+-            float f = this.getHealth() - health;
+-            if (f <= 0.0f) {
+-                this.setHealth(health);
+-                if (f < 0.0f) {
++            float $$1 = this.getHealth() - $$0;
++            if ($$1 <= 0.0f) {
++                this.setHealth($$0);
++                if ($$1 < 0.0f) {
+                     this.invulnerableTime = 10;
+                 }
+             } else {
+-                this.lastHurt = f;
++                this.lastHurt = $$1;
+                 this.invulnerableTime = 20;
+-                this.setHealth(health);
++                this.setHealth($$0);
+                 this.hurtTime = this.hurtDuration = 10;
+             }
+         } else {
+-            this.setHealth(health);
++            this.setHealth($$0);
+             this.flashOnSetHealth = true;
+         }
+     }
+@@ -345,8 +265,8 @@
+         this.connection.send((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ServerboundPlayerCommandPacket((net.minecraft.world.entity.Entity)this, net.minecraft.network.protocol.game.ServerboundPlayerCommandPacket$Action.OPEN_INVENTORY));
+     }
+ 
+-    public void setServerBrand(@javax.annotation.Nullable java.lang.String brand) {
+-        this.serverBrand = brand;
++    public void setServerBrand(@javax.annotation.Nullable java.lang.String $$0) {
++        this.serverBrand = $$0;
+     }
+ 
+     @javax.annotation.Nullable
+@@ -362,10 +282,10 @@
+         return this.recipeBook;
+     }
+ 
+-    public void removeRecipeHighlight(net.minecraft.world.item.crafting.Recipe<?> recipe) {
+-        if (this.recipeBook.willHighlight(recipe)) {
+-            this.recipeBook.removeHighlight(recipe);
+-            this.connection.send((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ServerboundRecipeBookSeenRecipePacket(recipe));
++    public void removeRecipeHighlight(net.minecraft.world.item.crafting.Recipe<?> $$0) {
++        if (this.recipeBook.willHighlight($$0)) {
++            this.recipeBook.removeHighlight($$0);
++            this.connection.send((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ServerboundRecipeBookSeenRecipePacket($$0));
+         }
+     }
+ 
+@@ -373,99 +293,99 @@
+         return this.permissionLevel;
+     }
+ 
+-    public void setPermissionLevel(int permissionLevel) {
+-        this.permissionLevel = permissionLevel;
++    public void setPermissionLevel(int $$0) {
++        this.permissionLevel = $$0;
+     }
+ 
+-    public void displayClientMessage(net.minecraft.network.chat.Component chatComponent, boolean actionBar) {
+-        this.minecraft.getChatListener().handleSystemMessage(chatComponent, actionBar);
++    public void displayClientMessage(net.minecraft.network.chat.Component $$0, boolean $$1) {
++        this.minecraft.getChatListener().handleSystemMessage($$0, $$1);
+     }
+ 
+-    public void moveTowardsClosestSpace(double x, double z) {
+-        net.minecraft.world.phys.Vec3 vec3;
+-        net.minecraft.core.BlockPos blockPos = new net.minecraft.core.BlockPos(x, this.getY(), z);
+-        if (!this.suffocatesAt(blockPos)) {
++    public void moveTowardsClosestSpace(double $$0, double $$1) {
++        net.minecraft.core.Direction[] $$7;
++        net.minecraft.core.BlockPos $$2 = new net.minecraft.core.BlockPos($$0, this.getY(), $$1);
++        if (!this.suffocatesAt($$2)) {
+             return;
+         }
+-        double d = x - (double)blockPos.getX();
+-        double d2 = z - (double)blockPos.getZ();
+-        net.minecraft.core.Direction direction = null;
+-        double d3 = java.lang.Double.MAX_VALUE;
+-        for (net.minecraft.core.Direction direction2 : vec3 = new net.minecraft.world.phys.Vec3[]{net.minecraft.core.Direction.WEST, net.minecraft.core.Direction.EAST, net.minecraft.core.Direction.NORTH, net.minecraft.core.Direction.SOUTH}) {
+-            double d4;
+-            double d5 = direction2.getAxis().choose(d, 0.0, d2);
+-            double d6 = d4 = direction2.getAxisDirection() == net.minecraft.core.Direction$AxisDirection.POSITIVE ? 1.0 - d5 : d5;
+-            if (!(d4 < d3) || this.suffocatesAt(blockPos.relative(direction2))) continue;
+-            d3 = d4;
+-            direction = direction2;
++        double $$3 = $$0 - (double)$$2.getX();
++        double $$4 = $$1 - (double)$$2.getZ();
++        net.minecraft.core.Direction $$5 = null;
++        double $$6 = java.lang.Double.MAX_VALUE;
++        for (net.minecraft.core.Direction $$8 : $$7 = new net.minecraft.core.Direction[]{net.minecraft.core.Direction.WEST, net.minecraft.core.Direction.EAST, net.minecraft.core.Direction.NORTH, net.minecraft.core.Direction.SOUTH}) {
++            double $$10;
++            double $$9 = $$8.getAxis().choose($$3, 0.0, $$4);
++            double d = $$10 = $$8.getAxisDirection() == net.minecraft.core.Direction$AxisDirection.POSITIVE ? 1.0 - $$9 : $$9;
++            if (!($$10 < $$6) || this.suffocatesAt($$2.relative($$8))) continue;
++            $$6 = $$10;
++            $$5 = $$8;
+         }
+-        if (direction != null) {
+-            net.minecraft.world.phys.Vec3 vec32 = this.getDeltaMovement();
+-            if (direction.getAxis() == net.minecraft.core.Direction$Axis.X) {
+-                this.setDeltaMovement(0.1 * (double)direction.getStepX(), vec32.y, vec32.z);
++        if ($$5 != null) {
++            net.minecraft.world.phys.Vec3 $$11 = this.getDeltaMovement();
++            if ($$5.getAxis() == net.minecraft.core.Direction$Axis.X) {
++                this.setDeltaMovement(0.1 * (double)$$5.getStepX(), $$11.y, $$11.z);
+             } else {
+-                this.setDeltaMovement(vec32.x, vec32.y, 0.1 * (double)direction.getStepZ());
++                this.setDeltaMovement($$11.x, $$11.y, 0.1 * (double)$$5.getStepZ());
+             }
+         }
+     }
+ 
+-    public boolean suffocatesAt(net.minecraft.core.BlockPos pos) {
+-        net.minecraft.world.phys.AABB aABB = this.getBoundingBox();
+-        net.minecraft.world.phys.AABB aABB2 = new net.minecraft.world.phys.AABB((double)pos.getX(), aABB.minY, (double)pos.getZ(), (double)pos.getX() + 1.0, aABB.maxY, (double)pos.getZ() + 1.0).deflate(1.0E-7);
+-        return this.level.collidesWithSuffocatingBlock((net.minecraft.world.entity.Entity)this, aABB2);
++    public boolean suffocatesAt(net.minecraft.core.BlockPos $$0) {
++        net.minecraft.world.phys.AABB $$1 = this.getBoundingBox();
++        net.minecraft.world.phys.AABB $$2 = new net.minecraft.world.phys.AABB((double)$$0.getX(), $$1.minY, (double)$$0.getZ(), (double)$$0.getX() + 1.0, $$1.maxY, (double)$$0.getZ() + 1.0).deflate(1.0E-7);
++        return this.level.collidesWithSuffocatingBlock((net.minecraft.world.entity.Entity)this, $$2);
+     }
+ 
+-    public void setSprinting(boolean sprinting) {
+-        super.setSprinting(sprinting);
++    public void setSprinting(boolean $$0) {
++        super.setSprinting($$0);
+         this.sprintTime = 0;
+     }
+ 
+-    public void setExperienceValues(float currentXP, int maxXP, int level) {
+-        this.experienceProgress = currentXP;
+-        this.totalExperience = maxXP;
+-        this.experienceLevel = level;
++    public void setExperienceValues(float $$0, int $$1, int $$2) {
++        this.experienceProgress = $$0;
++        this.totalExperience = $$1;
++        this.experienceLevel = $$2;
+     }
+ 
+     public void sendSystemMessage(net.minecraft.network.chat.Component $$0) {
+         this.minecraft.gui.getChat().addMessage($$0);
+     }
+ 
+-    public void handleEntityEvent(byte id) {
+-        if (id >= 24 && id <= 28) {
+-            this.setPermissionLevel(id - 24);
++    public void handleEntityEvent(byte $$0) {
++        if ($$0 >= 24 && $$0 <= 28) {
++            this.setPermissionLevel($$0 - 24);
+         } else {
+-            super.handleEntityEvent(id);
++            super.handleEntityEvent($$0);
+         }
+     }
+ 
+-    public void setShowDeathScreen(boolean show) {
+-        this.showDeathScreen = show;
++    public void setShowDeathScreen(boolean $$0) {
++        this.showDeathScreen = $$0;
+     }
+ 
+     public boolean shouldShowDeathScreen() {
+         return this.showDeathScreen;
+     }
+ 
+-    public void playSound(net.minecraft.sounds.SoundEvent sound, float volume, float pitch) {
+-        this.level.playLocalSound(this.getX(), this.getY(), this.getZ(), sound, this.getSoundSource(), volume, pitch, false);
++    public void playSound(net.minecraft.sounds.SoundEvent $$0, float $$1, float $$2) {
++        this.level.playLocalSound(this.getX(), this.getY(), this.getZ(), $$0, this.getSoundSource(), $$1, $$2, false);
+     }
+ 
+-    public void playNotifySound(net.minecraft.sounds.SoundEvent sound, net.minecraft.sounds.SoundSource source, float volume, float pitch) {
+-        this.level.playLocalSound(this.getX(), this.getY(), this.getZ(), sound, source, volume, pitch, false);
++    public void playNotifySound(net.minecraft.sounds.SoundEvent $$0, net.minecraft.sounds.SoundSource $$1, float $$2, float $$3) {
++        this.level.playLocalSound(this.getX(), this.getY(), this.getZ(), $$0, $$1, $$2, $$3, false);
+     }
+ 
+     public boolean isEffectiveAi() {
+         return true;
+     }
+ 
+-    public void startUsingItem(net.minecraft.world.InteractionHand hand) {
+-        net.minecraft.world.item.ItemStack itemStack = this.getItemInHand(hand);
+-        if (itemStack.isEmpty() || this.isUsingItem()) {
++    public void startUsingItem(net.minecraft.world.InteractionHand $$0) {
++        net.minecraft.world.item.ItemStack $$1 = this.getItemInHand($$0);
++        if ($$1.isEmpty() || this.isUsingItem()) {
+             return;
+         }
+-        super.startUsingItem(hand);
++        super.startUsingItem($$0);
+         this.startedUsingItem = true;
+-        this.usingItemHand = hand;
++        this.usingItemHand = $$0;
+     }
+ 
+     public boolean isUsingItem() {
+@@ -481,64 +401,75 @@
+         return (net.minecraft.world.InteractionHand)java.util.Objects.requireNonNullElse((java.lang.Object)this.usingItemHand, (java.lang.Object)net.minecraft.world.InteractionHand.MAIN_HAND);
+     }
+ 
+-    public void onSyncedDataUpdated(net.minecraft.network.syncher.EntityDataAccessor<?> key) {
+-        super.onSyncedDataUpdated(key);
+-        if (DATA_LIVING_ENTITY_FLAGS.equals(key)) {
+-            net.minecraft.world.InteractionHand interactionHand;
+-            boolean bl = ((java.lang.Byte)this.entityData.get(DATA_LIVING_ENTITY_FLAGS) & 1) > 0;
+-            net.minecraft.world.InteractionHand interactionHand2 = interactionHand = ((java.lang.Byte)this.entityData.get(DATA_LIVING_ENTITY_FLAGS) & 2) > 0 ? net.minecraft.world.InteractionHand.OFF_HAND : net.minecraft.world.InteractionHand.MAIN_HAND;
+-            if (bl && !this.startedUsingItem) {
+-                this.startUsingItem(interactionHand);
+-            } else if (!bl && this.startedUsingItem) {
++    public void onSyncedDataUpdated(net.minecraft.network.syncher.EntityDataAccessor<?> $$0) {
++        super.onSyncedDataUpdated($$0);
++        if (DATA_LIVING_ENTITY_FLAGS.equals($$0)) {
++            net.minecraft.world.InteractionHand $$2;
++            boolean $$1 = ((java.lang.Byte)this.entityData.get(DATA_LIVING_ENTITY_FLAGS) & 1) > 0;
++            net.minecraft.world.InteractionHand interactionHand = $$2 = ((java.lang.Byte)this.entityData.get(DATA_LIVING_ENTITY_FLAGS) & 2) > 0 ? net.minecraft.world.InteractionHand.OFF_HAND : net.minecraft.world.InteractionHand.MAIN_HAND;
++            if ($$1 && !this.startedUsingItem) {
++                this.startUsingItem($$2);
++            } else if (!$$1 && this.startedUsingItem) {
+                 this.stopUsingItem();
+             }
+         }
+-        if (DATA_SHARED_FLAGS_ID.equals(key) && this.isFallFlying() && !this.wasFallFlying) {
++        if (DATA_SHARED_FLAGS_ID.equals($$0) && this.isFallFlying() && !this.wasFallFlying) {
+             this.minecraft.getSoundManager().play((net.minecraft.client.resources.sounds.SoundInstance)new net.minecraft.client.resources.sounds.ElytraOnPlayerSoundInstance(this));
+         }
+     }
+ 
+-    public boolean isRidingJumpable() {
+-        net.minecraft.world.entity.Entity $$0 = this.getVehicle();
+-        return this.isPassenger() && $$0 instanceof net.minecraft.world.entity.PlayerRideableJumping && ((net.minecraft.world.entity.PlayerRideableJumping)$$0).canJump();
++    @javax.annotation.Nullable
++    public net.minecraft.world.entity.PlayerRideableJumping jumpableVehicle() {
++        net.minecraft.world.entity.PlayerRideableJumping $$0;
++        net.minecraft.world.entity.Entity entity = this.getVehicle();
++        return entity instanceof net.minecraft.world.entity.PlayerRideableJumping && ($$0 = (net.minecraft.world.entity.PlayerRideableJumping)entity).canJump() ? $$0 : null;
+     }
+ 
+     public float getJumpRidingScale() {
+         return this.jumpRidingScale;
+     }
+ 
+-    public void openTextEdit(net.minecraft.world.level.block.entity.SignBlockEntity signTile) {
+-        this.minecraft.setScreen((net.minecraft.client.gui.screens.Screen)new net.minecraft.client.gui.screens.inventory.SignEditScreen(signTile, this.minecraft.isTextFilteringEnabled()));
++    public boolean isTextFilteringEnabled() {
++        return this.minecraft.isTextFilteringEnabled();
+     }
+ 
+-    public void openMinecartCommandBlock(net.minecraft.world.level.BaseCommandBlock commandBlock) {
+-        this.minecraft.setScreen((net.minecraft.client.gui.screens.Screen)new net.minecraft.client.gui.screens.inventory.MinecartCommandBlockEditScreen(commandBlock));
++    public void openTextEdit(net.minecraft.world.level.block.entity.SignBlockEntity $$0) {
++        if ($$0 instanceof net.minecraft.world.level.block.entity.HangingSignBlockEntity) {
++            net.minecraft.world.level.block.entity.HangingSignBlockEntity $$1 = (net.minecraft.world.level.block.entity.HangingSignBlockEntity)$$0;
++            this.minecraft.setScreen((net.minecraft.client.gui.screens.Screen)new net.minecraft.client.gui.screens.inventory.HangingSignEditScreen((net.minecraft.world.level.block.entity.SignBlockEntity)$$1, this.minecraft.isTextFilteringEnabled()));
++        } else {
++            this.minecraft.setScreen((net.minecraft.client.gui.screens.Screen)new net.minecraft.client.gui.screens.inventory.SignEditScreen($$0, this.minecraft.isTextFilteringEnabled()));
++        }
+     }
+ 
+-    public void openCommandBlock(net.minecraft.world.level.block.entity.CommandBlockEntity commandBlock) {
+-        this.minecraft.setScreen((net.minecraft.client.gui.screens.Screen)new net.minecraft.client.gui.screens.inventory.CommandBlockEditScreen(commandBlock));
++    public void openMinecartCommandBlock(net.minecraft.world.level.BaseCommandBlock $$0) {
++        this.minecraft.setScreen((net.minecraft.client.gui.screens.Screen)new net.minecraft.client.gui.screens.inventory.MinecartCommandBlockEditScreen($$0));
+     }
+ 
+-    public void openStructureBlock(net.minecraft.world.level.block.entity.StructureBlockEntity structure) {
+-        this.minecraft.setScreen((net.minecraft.client.gui.screens.Screen)new net.minecraft.client.gui.screens.inventory.StructureBlockEditScreen(structure));
++    public void openCommandBlock(net.minecraft.world.level.block.entity.CommandBlockEntity $$0) {
++        this.minecraft.setScreen((net.minecraft.client.gui.screens.Screen)new net.minecraft.client.gui.screens.inventory.CommandBlockEditScreen($$0));
+     }
+ 
+-    public void openJigsawBlock(net.minecraft.world.level.block.entity.JigsawBlockEntity jigsawBlockEntity) {
+-        this.minecraft.setScreen((net.minecraft.client.gui.screens.Screen)new net.minecraft.client.gui.screens.inventory.JigsawBlockEditScreen(jigsawBlockEntity));
++    public void openStructureBlock(net.minecraft.world.level.block.entity.StructureBlockEntity $$0) {
++        this.minecraft.setScreen((net.minecraft.client.gui.screens.Screen)new net.minecraft.client.gui.screens.inventory.StructureBlockEditScreen($$0));
+     }
+ 
+-    public void openItemGui(net.minecraft.world.item.ItemStack stack, net.minecraft.world.InteractionHand hand) {
+-        if (stack.is(net.minecraft.world.item.Items.WRITABLE_BOOK)) {
+-            this.minecraft.setScreen((net.minecraft.client.gui.screens.Screen)new net.minecraft.client.gui.screens.inventory.BookEditScreen((net.minecraft.world.entity.player.Player)this, stack, hand));
++    public void openJigsawBlock(net.minecraft.world.level.block.entity.JigsawBlockEntity $$0) {
++        this.minecraft.setScreen((net.minecraft.client.gui.screens.Screen)new net.minecraft.client.gui.screens.inventory.JigsawBlockEditScreen($$0));
++    }
++
++    public void openItemGui(net.minecraft.world.item.ItemStack $$0, net.minecraft.world.InteractionHand $$1) {
++        if ($$0.is(net.minecraft.world.item.Items.WRITABLE_BOOK)) {
++            this.minecraft.setScreen((net.minecraft.client.gui.screens.Screen)new net.minecraft.client.gui.screens.inventory.BookEditScreen((net.minecraft.world.entity.player.Player)this, $$0, $$1));
+         }
+     }
+ 
+-    public void crit(net.minecraft.world.entity.Entity entityHit) {
+-        this.minecraft.particleEngine.createTrackingEmitter(entityHit, (net.minecraft.core.particles.ParticleOptions)net.minecraft.core.particles.ParticleTypes.CRIT);
++    public void crit(net.minecraft.world.entity.Entity $$0) {
++        this.minecraft.particleEngine.createTrackingEmitter($$0, (net.minecraft.core.particles.ParticleOptions)net.minecraft.core.particles.ParticleTypes.CRIT);
+     }
+ 
+-    public void magicCrit(net.minecraft.world.entity.Entity entityHit) {
+-        this.minecraft.particleEngine.createTrackingEmitter(entityHit, (net.minecraft.core.particles.ParticleOptions)net.minecraft.core.particles.ParticleTypes.ENCHANTED_HIT);
++    public void magicCrit(net.minecraft.world.entity.Entity $$0) {
++        this.minecraft.particleEngine.createTrackingEmitter($$0, (net.minecraft.core.particles.ParticleOptions)net.minecraft.core.particles.ParticleTypes.ENCHANTED_HIT);
+     }
+ 
+     public boolean isShiftKeyDown() {
+@@ -585,6 +516,7 @@
+     }
+ 
+     public void aiStep() {
++        net.minecraft.world.entity.PlayerRideableJumping $$12;
+         net.minecraft.world.item.ItemStack $$9;
+         boolean $$5;
+         ++this.sprintTime;
+@@ -620,7 +552,7 @@
+             this.sprintTriggerTime = 0;
+         }
+         boolean bl = $$5 = (float)this.getFoodData().getFoodLevel() > 6.0f || this.getAbilities().mayfly;
+-        if (!(!this.onGround && !this.isUnderWater() || $$1 || $$2 || !this.hasEnoughImpulseToStartSprinting() || this.isSprinting() || !$$5 || this.isUsingItem() || this.hasEffect(net.minecraft.world.effect.MobEffects.BLINDNESS))) {
++        if ((this.onGround || this.isUnderWater() || this.isPassenger() && this.getVehicle().isOnGround()) && !$$1 && !$$2 && this.hasEnoughImpulseToStartSprinting() && !this.isSprinting() && $$5 && !this.isUsingItem() && !this.hasEffect(net.minecraft.world.effect.MobEffects.BLINDNESS)) {
+             if (this.sprintTriggerTime > 0 || this.minecraft.options.keySprint.isDown()) {
+                 this.setSprinting(true);
+             } else {
+@@ -687,8 +619,7 @@
+                 this.setDeltaMovement(this.getDeltaMovement().add(0.0, (double)((float)$$11 * this.getAbilities().getFlyingSpeed() * 3.0f), 0.0));
+             }
+         }
+-        if (this.isRidingJumpable()) {
+-            net.minecraft.world.entity.PlayerRideableJumping $$12 = (net.minecraft.world.entity.PlayerRideableJumping)this.getVehicle();
++        if (($$12 = this.jumpableVehicle()) != null && $$12.getJumpCooldown() == 0) {
+             if (this.jumpRidingTicks < 0) {
+                 ++this.jumpRidingTicks;
+                 if (this.jumpRidingTicks == 0) {
+@@ -771,113 +702,112 @@
+     }
+ 
+     @javax.annotation.Nullable
+-    public net.minecraft.world.effect.MobEffectInstance removeEffectNoUpdate(@javax.annotation.Nullable net.minecraft.world.effect.MobEffect potioneffectin) {
+-        if (potioneffectin == net.minecraft.world.effect.MobEffects.CONFUSION) {
++    public net.minecraft.world.effect.MobEffectInstance removeEffectNoUpdate(@javax.annotation.Nullable net.minecraft.world.effect.MobEffect $$0) {
++        if ($$0 == net.minecraft.world.effect.MobEffects.CONFUSION) {
+             this.oPortalTime = 0.0f;
+             this.portalTime = 0.0f;
+         }
+-        return super.removeEffectNoUpdate(potioneffectin);
++        return super.removeEffectNoUpdate($$0);
+     }
+ 
+-    public void move(net.minecraft.world.entity.MoverType type, net.minecraft.world.phys.Vec3 pos) {
+-        double d = this.getX();
+-        double d2 = this.getZ();
+-        super.move(type, pos);
+-        this.updateAutoJump((float)(this.getX() - d), (float)(this.getZ() - d2));
++    public void move(net.minecraft.world.entity.MoverType $$0, net.minecraft.world.phys.Vec3 $$1) {
++        double $$2 = this.getX();
++        double $$3 = this.getZ();
++        super.move($$0, $$1);
++        this.updateAutoJump((float)(this.getX() - $$2), (float)(this.getZ() - $$3));
+     }
+ 
+     public boolean isAutoJumpEnabled() {
+         return this.autoJumpEnabled;
+     }
+ 
+-    public void updateAutoJump(float movementX, float movementZ) {
+-        float f;
++    public void updateAutoJump(float $$02, float $$1) {
+         if (!this.canAutoJump()) {
+             return;
+         }
+-        net.minecraft.world.phys.Vec3 vec3 = this.position();
+-        net.minecraft.world.phys.Vec3 vec32 = vec3.add((double)movementX, 0.0, (double)movementZ);
+-        net.minecraft.world.phys.Vec3 vec33 = new net.minecraft.world.phys.Vec3((double)movementX, 0.0, (double)movementZ);
+-        float f2 = this.getSpeed();
+-        float f3 = (float)vec33.lengthSqr();
+-        if (f3 <= 0.001f) {
+-            net.minecraft.world.phys.Vec2 vec2 = this.input.getMoveVector();
+-            float f4 = f2 * vec2.x;
+-            float f5 = f2 * vec2.y;
+-            f = net.minecraft.util.Mth.sin((float)(this.getYRot() * ((float)java.lang.Math.PI / 180)));
+-            float f6 = net.minecraft.util.Mth.cos((float)(this.getYRot() * ((float)java.lang.Math.PI / 180)));
+-            vec33 = new net.minecraft.world.phys.Vec3((double)(f4 * f6 - f5 * f), vec33.y, (double)(f5 * f6 + f4 * f));
+-            f3 = (float)vec33.lengthSqr();
+-            if (f3 <= 0.001f) {
++        net.minecraft.world.phys.Vec3 $$2 = this.position();
++        net.minecraft.world.phys.Vec3 $$3 = $$2.add((double)$$02, 0.0, (double)$$1);
++        net.minecraft.world.phys.Vec3 $$4 = new net.minecraft.world.phys.Vec3((double)$$02, 0.0, (double)$$1);
++        float $$5 = this.getSpeed();
++        float $$6 = (float)$$4.lengthSqr();
++        if ($$6 <= 0.001f) {
++            net.minecraft.world.phys.Vec2 $$7 = this.input.getMoveVector();
++            float $$8 = $$5 * $$7.x;
++            float $$9 = $$5 * $$7.y;
++            float $$10 = net.minecraft.util.Mth.sin((float)(this.getYRot() * ((float)java.lang.Math.PI / 180)));
++            float $$11 = net.minecraft.util.Mth.cos((float)(this.getYRot() * ((float)java.lang.Math.PI / 180)));
++            $$4 = new net.minecraft.world.phys.Vec3((double)($$8 * $$11 - $$9 * $$10), $$4.y, (double)($$9 * $$11 + $$8 * $$10));
++            $$6 = (float)$$4.lengthSqr();
++            if ($$6 <= 0.001f) {
+                 return;
+             }
+         }
+-        float f7 = net.minecraft.util.Mth.fastInvSqrt((float)f3);
+-        net.minecraft.world.phys.Vec3 vec34 = vec33.scale((double)f7);
+-        net.minecraft.world.phys.Vec3 vec35 = this.getForward();
+-        f = (float)(vec35.x * vec34.x + vec35.z * vec34.z);
+-        if (f < -0.15f) {
++        float $$12 = net.minecraft.util.Mth.fastInvSqrt((float)$$6);
++        net.minecraft.world.phys.Vec3 $$13 = $$4.scale((double)$$12);
++        net.minecraft.world.phys.Vec3 $$14 = this.getForward();
++        float $$15 = (float)($$14.x * $$13.x + $$14.z * $$13.z);
++        if ($$15 < -0.15f) {
+             return;
+         }
+-        net.minecraft.world.phys.shapes.CollisionContext collisionContext = net.minecraft.world.phys.shapes.CollisionContext.of((net.minecraft.world.entity.Entity)this);
+-        net.minecraft.core.BlockPos blockPos = new net.minecraft.core.BlockPos(this.getX(), this.getBoundingBox().maxY, this.getZ());
+-        net.minecraft.world.level.block.state.BlockState blockState = this.level.getBlockState(blockPos);
+-        if (!blockState.getCollisionShape((net.minecraft.world.level.BlockGetter)this.level, blockPos, collisionContext).isEmpty()) {
++        net.minecraft.world.phys.shapes.CollisionContext $$16 = net.minecraft.world.phys.shapes.CollisionContext.of((net.minecraft.world.entity.Entity)this);
++        net.minecraft.core.BlockPos $$17 = new net.minecraft.core.BlockPos(this.getX(), this.getBoundingBox().maxY, this.getZ());
++        net.minecraft.world.level.block.state.BlockState $$18 = this.level.getBlockState($$17);
++        if (!$$18.getCollisionShape((net.minecraft.world.level.BlockGetter)this.level, $$17, $$16).isEmpty()) {
+             return;
+         }
+-        net.minecraft.world.level.block.state.BlockState blockState2 = this.level.getBlockState(blockPos = blockPos.above());
+-        if (!blockState2.getCollisionShape((net.minecraft.world.level.BlockGetter)this.level, blockPos, collisionContext).isEmpty()) {
++        net.minecraft.world.level.block.state.BlockState $$19 = this.level.getBlockState($$17 = $$17.above());
++        if (!$$19.getCollisionShape((net.minecraft.world.level.BlockGetter)this.level, $$17, $$16).isEmpty()) {
+             return;
+         }
+-        float f8 = 7.0f;
+-        float f9 = 1.2f;
++        float $$20 = 7.0f;
++        float $$21 = 1.2f;
+         if (this.hasEffect(net.minecraft.world.effect.MobEffects.JUMP)) {
+-            f9 += (float)(this.getEffect(net.minecraft.world.effect.MobEffects.JUMP).getAmplifier() + 1) * 0.75f;
++            $$21 += (float)(this.getEffect(net.minecraft.world.effect.MobEffects.JUMP).getAmplifier() + 1) * 0.75f;
+         }
+-        float f10 = java.lang.Math.max((float)(f2 * 7.0f), (float)(1.0f / f7));
+-        net.minecraft.world.phys.Vec3 vec36 = vec3;
+-        net.minecraft.world.phys.Vec3 vec37 = vec32.add(vec34.scale((double)f10));
+-        float f11 = this.getBbWidth();
+-        float f12 = this.getBbHeight();
+-        net.minecraft.world.phys.AABB aABB = new net.minecraft.world.phys.AABB(vec36, vec37.add(0.0, (double)f12, 0.0)).inflate((double)f11, 0.0, (double)f11);
+-        vec36 = vec36.add(0.0, (double)0.51f, 0.0);
+-        vec37 = vec37.add(0.0, (double)0.51f, 0.0);
+-        net.minecraft.world.phys.Vec3 vec38 = vec34.cross(new net.minecraft.world.phys.Vec3(0.0, 1.0, 0.0));
+-        net.minecraft.world.phys.Vec3 vec39 = vec38.scale((double)(f11 * 0.5f));
+-        net.minecraft.world.phys.Vec3 vec310 = vec36.subtract(vec39);
+-        net.minecraft.world.phys.Vec3 vec311 = vec37.subtract(vec39);
+-        net.minecraft.world.phys.Vec3 vec312 = vec36.add(vec39);
+-        net.minecraft.world.phys.Vec3 vec313 = vec37.add(vec39);
+-        java.lang.Iterable iterable = this.level.getCollisions((net.minecraft.world.entity.Entity)this, aABB);
+-        java.util.Iterator iterator = java.util.stream.StreamSupport.stream((java.util.Spliterator)iterable.spliterator(), (boolean)false).flatMap($$0 -> $$0.toAabbs().stream()).iterator();
+-        float f13 = java.lang.Float.MIN_VALUE;
+-        while (iterator.hasNext()) {
+-            net.minecraft.world.phys.AABB aABB2 = (net.minecraft.world.phys.AABB)iterator.next();
+-            if (!aABB2.intersects(vec310, vec311) && !aABB2.intersects(vec312, vec313)) continue;
+-            f13 = (float)aABB2.maxY;
+-            net.minecraft.world.phys.Vec3 vec314 = aABB2.getCenter();
+-            net.minecraft.core.BlockPos blockPos2 = new net.minecraft.core.BlockPos(vec314);
+-            int n = 1;
+-            while ((float)n < f9) {
+-                net.minecraft.world.level.block.state.BlockState blockState3;
+-                net.minecraft.core.BlockPos blockPos3 = blockPos2.above(n);
+-                net.minecraft.world.level.block.state.BlockState blockState4 = this.level.getBlockState(blockPos3);
+-                net.minecraft.world.phys.shapes.VoxelShape voxelShape = blockState4.getCollisionShape((net.minecraft.world.level.BlockGetter)this.level, blockPos3, collisionContext);
+-                if (!voxelShape.isEmpty() && (double)(f13 = (float)voxelShape.max(net.minecraft.core.Direction$Axis.Y) + (float)blockPos3.getY()) - this.getY() > (double)f9) {
++        float $$22 = java.lang.Math.max((float)($$5 * 7.0f), (float)(1.0f / $$12));
++        net.minecraft.world.phys.Vec3 $$23 = $$2;
++        net.minecraft.world.phys.Vec3 $$24 = $$3.add($$13.scale((double)$$22));
++        float $$25 = this.getBbWidth();
++        float $$26 = this.getBbHeight();
++        net.minecraft.world.phys.AABB $$27 = new net.minecraft.world.phys.AABB($$23, $$24.add(0.0, (double)$$26, 0.0)).inflate((double)$$25, 0.0, (double)$$25);
++        $$23 = $$23.add(0.0, (double)0.51f, 0.0);
++        $$24 = $$24.add(0.0, (double)0.51f, 0.0);
++        net.minecraft.world.phys.Vec3 $$28 = $$13.cross(new net.minecraft.world.phys.Vec3(0.0, 1.0, 0.0));
++        net.minecraft.world.phys.Vec3 $$29 = $$28.scale((double)($$25 * 0.5f));
++        net.minecraft.world.phys.Vec3 $$30 = $$23.subtract($$29);
++        net.minecraft.world.phys.Vec3 $$31 = $$24.subtract($$29);
++        net.minecraft.world.phys.Vec3 $$32 = $$23.add($$29);
++        net.minecraft.world.phys.Vec3 $$33 = $$24.add($$29);
++        java.lang.Iterable $$34 = this.level.getCollisions((net.minecraft.world.entity.Entity)this, $$27);
++        java.util.Iterator $$35 = java.util.stream.StreamSupport.stream((java.util.Spliterator)$$34.spliterator(), (boolean)false).flatMap($$0 -> $$0.toAabbs().stream()).iterator();
++        float $$36 = java.lang.Float.MIN_VALUE;
++        while ($$35.hasNext()) {
++            net.minecraft.world.phys.AABB $$37 = (net.minecraft.world.phys.AABB)$$35.next();
++            if (!$$37.intersects($$30, $$31) && !$$37.intersects($$32, $$33)) continue;
++            $$36 = (float)$$37.maxY;
++            net.minecraft.world.phys.Vec3 $$38 = $$37.getCenter();
++            net.minecraft.core.BlockPos $$39 = new net.minecraft.core.BlockPos($$38);
++            int $$40 = 1;
++            while ((float)$$40 < $$21) {
++                net.minecraft.world.level.block.state.BlockState $$44;
++                net.minecraft.core.BlockPos $$41 = $$39.above($$40);
++                net.minecraft.world.level.block.state.BlockState $$42 = this.level.getBlockState($$41);
++                net.minecraft.world.phys.shapes.VoxelShape $$43 = $$42.getCollisionShape((net.minecraft.world.level.BlockGetter)this.level, $$41, $$16);
++                if (!$$43.isEmpty() && (double)($$36 = (float)$$43.max(net.minecraft.core.Direction$Axis.Y) + (float)$$41.getY()) - this.getY() > (double)$$21) {
+                     return;
+                 }
+-                if (n > 1 && !(blockState3 = this.level.getBlockState(blockPos = blockPos.above())).getCollisionShape((net.minecraft.world.level.BlockGetter)this.level, blockPos, collisionContext).isEmpty()) {
++                if ($$40 > 1 && !($$44 = this.level.getBlockState($$17 = $$17.above())).getCollisionShape((net.minecraft.world.level.BlockGetter)this.level, $$17, $$16).isEmpty()) {
+                     return;
+                 }
+-                ++n;
++                ++$$40;
+             }
+             break block0;
+         }
+-        if (f13 == java.lang.Float.MIN_VALUE) {
++        if ($$36 == java.lang.Float.MIN_VALUE) {
+             return;
+         }
+-        float f14 = (float)((double)f13 - this.getY());
+-        if (f14 <= 0.5f || f14 > f9) {
++        float $$45 = (float)((double)$$36 - this.getY());
++        if ($$45 <= 0.5f || $$45 > $$21) {
+             return;
+         }
+         this.autoJumpTime = 1;
+@@ -947,15 +877,15 @@
+         return this.wasUnderwater;
+     }
+ 
+-    public net.minecraft.world.phys.Vec3 getRopeHoldPosition(float partialTicks) {
++    public net.minecraft.world.phys.Vec3 getRopeHoldPosition(float $$0) {
+         if (this.minecraft.options.getCameraType().isFirstPerson()) {
+-            float f = net.minecraft.util.Mth.lerp((float)(partialTicks * 0.5f), (float)this.getYRot(), (float)this.yRotO) * ((float)java.lang.Math.PI / 180);
+-            float f2 = net.minecraft.util.Mth.lerp((float)(partialTicks * 0.5f), (float)this.getXRot(), (float)this.xRotO) * ((float)java.lang.Math.PI / 180);
+-            double d = this.getMainArm() == net.minecraft.world.entity.HumanoidArm.RIGHT ? -1.0 : 1.0;
+-            net.minecraft.world.phys.Vec3 vec3 = new net.minecraft.world.phys.Vec3(0.39 * d, -0.6, 0.3);
+-            return vec3.xRot(-f2).yRot(-f).add(this.getEyePosition(partialTicks));
++            float $$1 = net.minecraft.util.Mth.lerp((float)($$0 * 0.5f), (float)this.getYRot(), (float)this.yRotO) * ((float)java.lang.Math.PI / 180);
++            float $$2 = net.minecraft.util.Mth.lerp((float)($$0 * 0.5f), (float)this.getXRot(), (float)this.xRotO) * ((float)java.lang.Math.PI / 180);
++            double $$3 = this.getMainArm() == net.minecraft.world.entity.HumanoidArm.RIGHT ? -1.0 : 1.0;
++            net.minecraft.world.phys.Vec3 $$4 = new net.minecraft.world.phys.Vec3(0.39 * $$3, -0.6, 0.3);
++            return $$4.xRot(-$$2).yRot(-$$1).add(this.getEyePosition($$0));
+         }
+-        return super.getRopeHoldPosition(partialTicks);
++        return super.getRopeHoldPosition($$0);
+     }
+ 
+     public void updateTutorialInventoryAction(net.minecraft.world.item.ItemStack $$0, net.minecraft.world.item.ItemStack $$1, net.minecraft.world.inventory.ClickAction $$2) {

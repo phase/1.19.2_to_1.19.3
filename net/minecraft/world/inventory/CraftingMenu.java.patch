@@ -1,0 +1,167 @@
+--- net/minecraft/world/inventory/CraftingMenu.java
++++ net/minecraft/world/inventory/CraftingMenu.java
+@@ -18,40 +18,34 @@
+     public net.minecraft.world.inventory.ContainerLevelAccess access;
+     public net.minecraft.world.entity.player.Player player;
+ 
+-    public net.minecraft.world.inventory.CraftingMenu(int containerId, net.minecraft.world.entity.player.Inventory playerInventory) {
+-        this(containerId, playerInventory, net.minecraft.world.inventory.ContainerLevelAccess.NULL);
++    public net.minecraft.world.inventory.CraftingMenu(int $$0, net.minecraft.world.entity.player.Inventory $$1) {
++        this($$0, $$1, net.minecraft.world.inventory.ContainerLevelAccess.NULL);
+     }
+ 
+-    public net.minecraft.world.inventory.CraftingMenu(int containerId, net.minecraft.world.entity.player.Inventory playerInventory, net.minecraft.world.inventory.ContainerLevelAccess access) {
+-        super(net.minecraft.world.inventory.MenuType.CRAFTING, containerId);
+-        int n;
+-        int n2;
++    public net.minecraft.world.inventory.CraftingMenu(int $$0, net.minecraft.world.entity.player.Inventory $$1, net.minecraft.world.inventory.ContainerLevelAccess $$2) {
++        super(net.minecraft.world.inventory.MenuType.CRAFTING, $$0);
+         this.craftSlots = new net.minecraft.world.inventory.CraftingContainer((net.minecraft.world.inventory.AbstractContainerMenu)this, 3, 3);
+         this.resultSlots = new net.minecraft.world.inventory.ResultContainer();
+-        this.access = access;
+-        this.player = playerInventory.player;
+-        this.addSlot((net.minecraft.world.inventory.Slot)new net.minecraft.world.inventory.ResultSlot(playerInventory.player, this.craftSlots, (net.minecraft.world.Container)this.resultSlots, 0, 124, 35));
+-        for (n2 = 0;
+- n2 < 3; ++n2) {
+-            for (n = 0;
+- n < 3; ++n) {
+-                this.addSlot(new net.minecraft.world.inventory.Slot((net.minecraft.world.Container)this.craftSlots, n + n2 * 3, 30 + n * 18, 17 + n2 * 18));
++        this.access = $$2;
++        this.player = $$1.player;
++        this.addSlot((net.minecraft.world.inventory.Slot)new net.minecraft.world.inventory.ResultSlot($$1.player, this.craftSlots, (net.minecraft.world.Container)this.resultSlots, 0, 124, 35));
++        for (int $$3 = 0; $$3 < 3; ++$$3) {
++            for (int $$4 = 0; $$4 < 3; ++$$4) {
++                this.addSlot(new net.minecraft.world.inventory.Slot((net.minecraft.world.Container)this.craftSlots, $$4 + $$3 * 3, 30 + $$4 * 18, 17 + $$3 * 18));
+             }
+         }
+-        for (n2 = 0;
+- n2 < 3; ++n2) {
+-            for (n = 0;
+- n < 9; ++n) {
+-                this.addSlot(new net.minecraft.world.inventory.Slot((net.minecraft.world.Container)playerInventory, n + n2 * 9 + 9, 8 + n * 18, 84 + n2 * 18));
++        for (int $$5 = 0; $$5 < 3; ++$$5) {
++            for (int $$6 = 0; $$6 < 9; ++$$6) {
++                this.addSlot(new net.minecraft.world.inventory.Slot((net.minecraft.world.Container)$$1, $$6 + $$5 * 9 + 9, 8 + $$6 * 18, 84 + $$5 * 18));
+             }
+         }
+-        for (n2 = 0;
+- n2 < 9; ++n2) {
+-            this.addSlot(new net.minecraft.world.inventory.Slot((net.minecraft.world.Container)playerInventory, n2, 8 + n2 * 18, 142));
++        for (int $$7 = 0; $$7 < 9; ++$$7) {
++            this.addSlot(new net.minecraft.world.inventory.Slot((net.minecraft.world.Container)$$1, $$7, 8 + $$7 * 18, 142));
+         }
+     }
+ 
+     public static void slotChangedCraftingGrid(net.minecraft.world.inventory.AbstractContainerMenu $$0, net.minecraft.world.level.Level $$1, net.minecraft.world.entity.player.Player $$2, net.minecraft.world.inventory.CraftingContainer $$3, net.minecraft.world.inventory.ResultContainer $$4) {
++        net.minecraft.world.item.ItemStack $$9;
+         net.minecraft.world.item.crafting.CraftingRecipe $$8;
+         if ($$1.isClientSide) {
+             return;
+@@ -59,20 +53,20 @@
+         net.minecraft.server.level.ServerPlayer $$5 = (net.minecraft.server.level.ServerPlayer)$$2;
+         net.minecraft.world.item.ItemStack $$6 = net.minecraft.world.item.ItemStack.EMPTY;
+         java.util.Optional $$7 = $$1.getServer().getRecipeManager().getRecipeFor(net.minecraft.world.item.crafting.RecipeType.CRAFTING, (net.minecraft.world.Container)$$3, $$1);
+-        if ($$7.isPresent() && $$4.setRecipeUsed($$1, $$5, (net.minecraft.world.item.crafting.Recipe)($$8 = (net.minecraft.world.item.crafting.CraftingRecipe)$$7.get()))) {
+-            $$6 = $$8.assemble((net.minecraft.world.Container)$$3);
++        if ($$7.isPresent() && $$4.setRecipeUsed($$1, $$5, (net.minecraft.world.item.crafting.Recipe)($$8 = (net.minecraft.world.item.crafting.CraftingRecipe)$$7.get())) && ($$9 = $$8.assemble((net.minecraft.world.Container)$$3)).isItemEnabled($$1.enabledFeatures())) {
++            $$6 = $$9;
+         }
+         $$4.setItem(0, $$6);
+         $$0.setRemoteSlot(0, $$6);
+         $$5.connection.send((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ClientboundContainerSetSlotPacket($$0.containerId, $$0.incrementStateId(), 0, $$6));
+     }
+ 
+-    public void slotsChanged(net.minecraft.world.Container inventory) {
+-        this.access.execute((level, blockPos) -> net.minecraft.world.inventory.CraftingMenu.slotChangedCraftingGrid((net.minecraft.world.inventory.AbstractContainerMenu)this, (net.minecraft.world.level.Level)level, (net.minecraft.world.entity.player.Player)this.player, (net.minecraft.world.inventory.CraftingContainer)this.craftSlots, (net.minecraft.world.inventory.ResultContainer)this.resultSlots));
++    public void slotsChanged(net.minecraft.world.Container $$02) {
++        this.access.execute(($$0, $$1) -> net.minecraft.world.inventory.CraftingMenu.slotChangedCraftingGrid((net.minecraft.world.inventory.AbstractContainerMenu)this, (net.minecraft.world.level.Level)$$0, (net.minecraft.world.entity.player.Player)this.player, (net.minecraft.world.inventory.CraftingContainer)this.craftSlots, (net.minecraft.world.inventory.ResultContainer)this.resultSlots));
+     }
+ 
+-    public void fillCraftSlotsStackedContents(net.minecraft.world.entity.player.StackedContents itemHelper) {
+-        this.craftSlots.fillStackedContents(itemHelper);
++    public void fillCraftSlotsStackedContents(net.minecraft.world.entity.player.StackedContents $$0) {
++        this.craftSlots.fillStackedContents($$0);
+     }
+ 
+     public void clearCraftingContent() {
+@@ -80,52 +74,52 @@
+         this.resultSlots.clearContent();
+     }
+ 
+-    public boolean recipeMatches(net.minecraft.world.item.crafting.Recipe<? super net.minecraft.world.inventory.CraftingContainer> recipe) {
+-        return recipe.matches((net.minecraft.world.Container)this.craftSlots, this.player.level);
++    public boolean recipeMatches(net.minecraft.world.item.crafting.Recipe<? super net.minecraft.world.inventory.CraftingContainer> $$0) {
++        return $$0.matches((net.minecraft.world.Container)this.craftSlots, this.player.level);
+     }
+ 
+-    public void removed(net.minecraft.world.entity.player.Player player) {
+-        super.removed(player);
+-        this.access.execute((level, blockPos) -> this.clearContainer(player, (net.minecraft.world.Container)this.craftSlots));
++    public void removed(net.minecraft.world.entity.player.Player $$0) {
++        super.removed($$0);
++        this.access.execute(($$1, $$2) -> this.clearContainer($$0, (net.minecraft.world.Container)this.craftSlots));
+     }
+ 
+-    public boolean stillValid(net.minecraft.world.entity.player.Player player) {
+-        return net.minecraft.world.inventory.CraftingMenu.stillValid((net.minecraft.world.inventory.ContainerLevelAccess)this.access, (net.minecraft.world.entity.player.Player)player, (net.minecraft.world.level.block.Block)net.minecraft.world.level.block.Blocks.CRAFTING_TABLE);
++    public boolean stillValid(net.minecraft.world.entity.player.Player $$0) {
++        return net.minecraft.world.inventory.CraftingMenu.stillValid((net.minecraft.world.inventory.ContainerLevelAccess)this.access, (net.minecraft.world.entity.player.Player)$$0, (net.minecraft.world.level.block.Block)net.minecraft.world.level.block.Blocks.CRAFTING_TABLE);
+     }
+ 
+-    public net.minecraft.world.item.ItemStack quickMoveStack(net.minecraft.world.entity.player.Player player, int index) {
+-        net.minecraft.world.item.ItemStack itemStack = net.minecraft.world.item.ItemStack.EMPTY;
+-        net.minecraft.world.inventory.Slot slot = (net.minecraft.world.inventory.Slot)this.slots.get(index);
+-        if (slot != null && slot.hasItem()) {
+-            net.minecraft.world.item.ItemStack itemStack2 = slot.getItem();
+-            itemStack = itemStack2.copy();
+-            if (index == 0) {
+-                this.access.execute((level, blockPos) -> itemStack2.getItem().onCraftedBy(itemStack2, level, player));
+-                if (!this.moveItemStackTo(itemStack2, 10, 46, true)) {
++    public net.minecraft.world.item.ItemStack quickMoveStack(net.minecraft.world.entity.player.Player $$0, int $$1) {
++        net.minecraft.world.item.ItemStack $$22 = net.minecraft.world.item.ItemStack.EMPTY;
++        net.minecraft.world.inventory.Slot $$32 = (net.minecraft.world.inventory.Slot)this.slots.get($$1);
++        if ($$32 != null && $$32.hasItem()) {
++            net.minecraft.world.item.ItemStack $$4 = $$32.getItem();
++            $$22 = $$4.copy();
++            if ($$1 == 0) {
++                this.access.execute(($$2, $$3) -> $$4.getItem().onCraftedBy($$4, $$2, $$0));
++                if (!this.moveItemStackTo($$4, 10, 46, true)) {
+                     return net.minecraft.world.item.ItemStack.EMPTY;
+                 }
+-                slot.onQuickCraft(itemStack2, itemStack);
+-            } else if (index >= 10 && index < 46 ? !this.moveItemStackTo(itemStack2, 1, 10, false) && (index < 37 ? !this.moveItemStackTo(itemStack2, 37, 46, false) : !this.moveItemStackTo(itemStack2, 10, 37, false)) : !this.moveItemStackTo(itemStack2, 10, 46, false)) {
++                $$32.onQuickCraft($$4, $$22);
++            } else if ($$1 >= 10 && $$1 < 46 ? !this.moveItemStackTo($$4, 1, 10, false) && ($$1 < 37 ? !this.moveItemStackTo($$4, 37, 46, false) : !this.moveItemStackTo($$4, 10, 37, false)) : !this.moveItemStackTo($$4, 10, 46, false)) {
+                 return net.minecraft.world.item.ItemStack.EMPTY;
+             }
+-            if (itemStack2.isEmpty()) {
+-                slot.set(net.minecraft.world.item.ItemStack.EMPTY);
++            if ($$4.isEmpty()) {
++                $$32.set(net.minecraft.world.item.ItemStack.EMPTY);
+             } else {
+-                slot.setChanged();
++                $$32.setChanged();
+             }
+-            if (itemStack2.getCount() == itemStack.getCount()) {
++            if ($$4.getCount() == $$22.getCount()) {
+                 return net.minecraft.world.item.ItemStack.EMPTY;
+             }
+-            slot.onTake(player, itemStack2);
+-            if (index == 0) {
+-                player.drop(itemStack2, false);
++            $$32.onTake($$0, $$4);
++            if ($$1 == 0) {
++                $$0.drop($$4, false);
+             }
+         }
+-        return itemStack;
++        return $$22;
+     }
+ 
+-    public boolean canTakeItemForPickAll(net.minecraft.world.item.ItemStack stack, net.minecraft.world.inventory.Slot slot) {
+-        return slot.container != this.resultSlots && super.canTakeItemForPickAll(stack, slot);
++    public boolean canTakeItemForPickAll(net.minecraft.world.item.ItemStack $$0, net.minecraft.world.inventory.Slot $$1) {
++        return $$1.container != this.resultSlots && super.canTakeItemForPickAll($$0, $$1);
+     }
+ 
+     public int getResultSlotIndex() {

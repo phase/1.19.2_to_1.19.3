@@ -1,0 +1,46 @@
+--- net/minecraft/resources/RegistryResourceAccess$InMemoryStorage.java
++++ net/minecraft/resources/RegistryResourceAccess$InMemoryStorage.java
+@@ -1,43 +1,0 @@
+-/*
+- * Decompiled with CFR 0.151.
+- */
+-package net.minecraft.resources;
+-
+-public class net.minecraft.resources.RegistryResourceAccess$InMemoryStorage
+-implements net.minecraft.resources.RegistryResourceAccess
+- {
+-    public static org.slf4j.Logger LOGGER;
+-    public java.util.Map<net.minecraft.resources.ResourceKey<?>, net.minecraft.resources.RegistryResourceAccess$InMemoryStorage$Entry> entries;
+-
+-    public net.minecraft.resources.RegistryResourceAccess$InMemoryStorage() {
+-        this.entries = com.google.common.collect.Maps.newIdentityHashMap();
+-    }
+-
+-    public <E> void add(net.minecraft.core.RegistryAccess $$0, net.minecraft.resources.ResourceKey<E> $$1, com.mojang.serialization.Encoder<E> $$2, int $$3, E $$4, com.mojang.serialization.Lifecycle $$5) {
+-        com.mojang.serialization.DataResult $$6 = $$2.encodeStart((com.mojang.serialization.DynamicOps)net.minecraft.resources.RegistryOps.create((com.mojang.serialization.DynamicOps)com.mojang.serialization.JsonOps.INSTANCE, (net.minecraft.core.RegistryAccess)$$0), $$4);
+-        java.util.Optional $$7 = $$6.error();
+-        if ($$7.isPresent()) {
+-            LOGGER.error("Error adding element: {}", (java.lang.Object)((com.mojang.serialization.DataResult$PartialResult)$$7.get()).message());
+-        } else {
+-            this.entries.put($$1, (java.lang.Object)new net.minecraft.resources.RegistryResourceAccess$InMemoryStorage$Entry((com.google.gson.JsonElement)$$6.result().get(), $$3, $$5));
+-        }
+-    }
+-
+-    public <E> java.util.Map<net.minecraft.resources.ResourceKey<E>, net.minecraft.resources.RegistryResourceAccess$EntryThunk<E>> listResources(net.minecraft.resources.ResourceKey<? extends net.minecraft.core.Registry<E>> $$02) {
+-        return (java.util.Map)this.entries.entrySet().stream().filter($$1 -> ((net.minecraft.resources.ResourceKey)$$1.getKey()).isFor($$02)).collect(java.util.stream.Collectors.toMap($$0 -> (net.minecraft.resources.ResourceKey)$$0.getKey(), $$0 -> (arg_0, arg_1) -> ((net.minecraft.resources.RegistryResourceAccess$InMemoryStorage$Entry)((net.minecraft.resources.RegistryResourceAccess$InMemoryStorage$Entry)$$0.getValue())).parse(arg_0, arg_1)));
+-    }
+-
+-    public <E> java.util.Optional<net.minecraft.resources.RegistryResourceAccess$EntryThunk<E>> getResource(net.minecraft.resources.ResourceKey<E> $$0) {
+-        net.minecraft.resources.RegistryResourceAccess$InMemoryStorage$Entry $$12 = (net.minecraft.resources.RegistryResourceAccess$InMemoryStorage$Entry)this.entries.get($$0);
+-        if ($$12 == null) {
+-            com.mojang.serialization.DataResult $$22 = com.mojang.serialization.DataResult.error((java.lang.String)("Unknown element: " + $$0));
+-            return java.util.Optional.of(($$1, $$2) -> $$22);
+-        }
+-        return java.util.Optional.of((arg_0, arg_1) -> ((net.minecraft.resources.RegistryResourceAccess$InMemoryStorage$Entry)$$12).parse(arg_0, arg_1));
+-    }
+-
+-    static {
+-        LOGGER = com.mojang.logging.LogUtils.getLogger();
+-    }
+-}
+-

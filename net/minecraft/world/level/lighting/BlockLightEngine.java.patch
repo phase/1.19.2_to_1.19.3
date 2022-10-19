@@ -1,0 +1,147 @@
+--- net/minecraft/world/level/lighting/BlockLightEngine.java
++++ net/minecraft/world/level/lighting/BlockLightEngine.java
+@@ -14,84 +14,90 @@
+         this.pos = new net.minecraft.core.BlockPos$MutableBlockPos();
+     }
+ 
+-    public int getLightEmission(long levelPos) {
+-        int n = net.minecraft.core.BlockPos.getX((long)levelPos);
+-        int n2 = net.minecraft.core.BlockPos.getY((long)levelPos);
+-        int n3 = net.minecraft.core.BlockPos.getZ((long)levelPos);
+-        net.minecraft.world.level.BlockGetter blockGetter = this.chunkSource.getChunkForLighting(net.minecraft.core.SectionPos.blockToSectionCoord((int)n), net.minecraft.core.SectionPos.blockToSectionCoord((int)n3));
+-        if (blockGetter != null) {
+-            return blockGetter.getLightEmission((net.minecraft.core.BlockPos)this.pos.set(n, n2, n3));
++    public int getLightEmission(long $$0) {
++        int $$1 = net.minecraft.core.BlockPos.getX((long)$$0);
++        int $$2 = net.minecraft.core.BlockPos.getY((long)$$0);
++        int $$3 = net.minecraft.core.BlockPos.getZ((long)$$0);
++        net.minecraft.world.level.BlockGetter $$4 = this.chunkSource.getChunkForLighting(net.minecraft.core.SectionPos.blockToSectionCoord((int)$$1), net.minecraft.core.SectionPos.blockToSectionCoord((int)$$3));
++        if ($$4 != null) {
++            return $$4.getLightEmission((net.minecraft.core.BlockPos)this.pos.set($$1, $$2, $$3));
+         }
+         return 0;
+     }
+ 
+-    public int computeLevelFromNeighbor(long startPos, long endPos, int startLevel) {
+-        net.minecraft.world.phys.shapes.VoxelShape voxelShape;
+-        int n;
+-        int n2;
+-        if (endPos == java.lang.Long.MAX_VALUE) {
++    public int computeLevelFromNeighbor(long $$0, long $$1, int $$2) {
++        net.minecraft.world.phys.shapes.VoxelShape $$11;
++        int $$5;
++        int $$4;
++        if ($$1 == java.lang.Long.MAX_VALUE) {
+             return 15;
+         }
+-        if (startPos == java.lang.Long.MAX_VALUE) {
+-            return startLevel + 15 - this.getLightEmission(endPos);
++        if ($$0 == java.lang.Long.MAX_VALUE) {
++            return $$2 + 15 - this.getLightEmission($$1);
+         }
+-        if (startLevel >= 15) {
+-            return startLevel;
++        if ($$2 >= 15) {
++            return $$2;
+         }
+-        int n3 = java.lang.Integer.signum((int)(net.minecraft.core.BlockPos.getX((long)endPos) - net.minecraft.core.BlockPos.getX((long)startPos)));
+-        net.minecraft.core.Direction direction = net.minecraft.core.Direction.fromNormal((int)n3, (int)(n2 = java.lang.Integer.signum((int)(net.minecraft.core.BlockPos.getY((long)endPos) - net.minecraft.core.BlockPos.getY((long)startPos)))), (int)(n = java.lang.Integer.signum((int)(net.minecraft.core.BlockPos.getZ((long)endPos) - net.minecraft.core.BlockPos.getZ((long)startPos)))));
+-        if (direction == null) {
++        int $$3 = java.lang.Integer.signum((int)(net.minecraft.core.BlockPos.getX((long)$$1) - net.minecraft.core.BlockPos.getX((long)$$0)));
++        net.minecraft.core.Direction $$6 = net.minecraft.core.Direction.fromNormal((int)$$3, (int)($$4 = java.lang.Integer.signum((int)(net.minecraft.core.BlockPos.getY((long)$$1) - net.minecraft.core.BlockPos.getY((long)$$0)))), (int)($$5 = java.lang.Integer.signum((int)(net.minecraft.core.BlockPos.getZ((long)$$1) - net.minecraft.core.BlockPos.getZ((long)$$0)))));
++        if ($$6 == null) {
+             return 15;
+         }
+-        org.apache.commons.lang3.mutable.MutableInt mutableInt = new org.apache.commons.lang3.mutable.MutableInt();
+-        net.minecraft.world.level.block.state.BlockState blockState = this.getStateAndOpacity(endPos, mutableInt);
+-        if (mutableInt.getValue() >= 15) {
++        org.apache.commons.lang3.mutable.MutableInt $$7 = new org.apache.commons.lang3.mutable.MutableInt();
++        net.minecraft.world.level.block.state.BlockState $$8 = this.getStateAndOpacity($$1, $$7);
++        if ($$7.getValue() >= 15) {
+             return 15;
+         }
+-        net.minecraft.world.level.block.state.BlockState blockState2 = this.getStateAndOpacity(startPos, null);
+-        net.minecraft.world.phys.shapes.VoxelShape voxelShape2 = this.getShape(blockState2, startPos, direction);
+-        if (net.minecraft.world.phys.shapes.Shapes.faceShapeOccludes((net.minecraft.world.phys.shapes.VoxelShape)voxelShape2, (net.minecraft.world.phys.shapes.VoxelShape)(voxelShape = this.getShape(blockState, endPos, direction.getOpposite())))) {
++        net.minecraft.world.level.block.state.BlockState $$9 = this.getStateAndOpacity($$0, null);
++        net.minecraft.world.phys.shapes.VoxelShape $$10 = this.getShape($$9, $$0, $$6);
++        if (net.minecraft.world.phys.shapes.Shapes.faceShapeOccludes((net.minecraft.world.phys.shapes.VoxelShape)$$10, (net.minecraft.world.phys.shapes.VoxelShape)($$11 = this.getShape($$8, $$1, $$6.getOpposite())))) {
+             return 15;
+         }
+-        return startLevel + java.lang.Math.max((int)1, (int)mutableInt.getValue());
++        return $$2 + java.lang.Math.max((int)1, (int)$$7.getValue());
+     }
+ 
+-    public void checkNeighborsAfterUpdate(long pos, int level, boolean isDecreasing) {
+-        long l = net.minecraft.core.SectionPos.blockToSection((long)pos);
+-        for (net.minecraft.core.Direction direction : DIRECTIONS) {
+-            long l2 = net.minecraft.core.BlockPos.offset((long)pos, (net.minecraft.core.Direction)direction);
+-            long l3 = net.minecraft.core.SectionPos.blockToSection((long)l2);
+-            if (l != l3 && !((net.minecraft.world.level.lighting.BlockLightSectionStorage)this.storage).storingLightForSection(l3)) continue;
+-            this.checkNeighbor(pos, l2, level, isDecreasing);
++    public void checkNeighborsAfterUpdate(long $$0, int $$1, boolean $$2) {
++        long $$3 = net.minecraft.core.SectionPos.blockToSection((long)$$0);
++        for (net.minecraft.core.Direction $$4 : DIRECTIONS) {
++            long $$5 = net.minecraft.core.BlockPos.offset((long)$$0, (net.minecraft.core.Direction)$$4);
++            long $$6 = net.minecraft.core.SectionPos.blockToSection((long)$$5);
++            if ($$3 != $$6 && !((net.minecraft.world.level.lighting.BlockLightSectionStorage)this.storage).storingLightForSection($$6)) continue;
++            this.checkNeighbor($$0, $$5, $$1, $$2);
+         }
+     }
+ 
+-    public int getComputedLevel(long pos, long excludedSourcePos, int level) {
+-        int n = level;
+-        if (java.lang.Long.MAX_VALUE != excludedSourcePos) {
+-            int n2 = this.computeLevelFromNeighbor(java.lang.Long.MAX_VALUE, pos, 0);
+-            if (n > n2) {
+-                n = n2;
++    public int getComputedLevel(long $$0, long $$1, int $$2) {
++        int $$3 = $$2;
++        if (java.lang.Long.MAX_VALUE != $$1) {
++            int $$4 = this.computeLevelFromNeighbor(java.lang.Long.MAX_VALUE, $$0, 0);
++            if ($$3 > $$4) {
++                $$3 = $$4;
+             }
+-            if (n == 0) {
+-                return n;
++            if ($$3 == 0) {
++                return $$3;
+             }
+         }
+-        long l = net.minecraft.core.SectionPos.blockToSection((long)pos);
+-        net.minecraft.world.level.chunk.DataLayer dataLayer = ((net.minecraft.world.level.lighting.BlockLightSectionStorage)this.storage).getDataLayer(l, true);
+-        for (net.minecraft.core.Direction direction : DIRECTIONS) {
+-            long l2;
+-            net.minecraft.world.level.chunk.DataLayer dataLayer2;
+-            long l3 = net.minecraft.core.BlockPos.offset((long)pos, (net.minecraft.core.Direction)direction);
+-            if (l3 == excludedSourcePos || (dataLayer2 = l == (l2 = net.minecraft.core.SectionPos.blockToSection((long)l3)) ? dataLayer : ((net.minecraft.world.level.lighting.BlockLightSectionStorage)this.storage).getDataLayer(l2, true)) == null) continue;
+-            int n3 = this.computeLevelFromNeighbor(l3, pos, this.getLevel(dataLayer2, l3));
+-            if (n > n3) {
+-                n = n3;
++        long $$5 = net.minecraft.core.SectionPos.blockToSection((long)$$0);
++        net.minecraft.world.level.chunk.DataLayer $$6 = ((net.minecraft.world.level.lighting.BlockLightSectionStorage)this.storage).getDataLayer($$5, true);
++        for (net.minecraft.core.Direction $$7 : DIRECTIONS) {
++            net.minecraft.world.level.chunk.DataLayer $$11;
++            long $$8 = net.minecraft.core.BlockPos.offset((long)$$0, (net.minecraft.core.Direction)$$7);
++            if ($$8 == $$1) continue;
++            long $$9 = net.minecraft.core.SectionPos.blockToSection((long)$$8);
++            if ($$5 == $$9) {
++                net.minecraft.world.level.chunk.DataLayer $$10 = $$6;
++            } else {
++                $$11 = ((net.minecraft.world.level.lighting.BlockLightSectionStorage)this.storage).getDataLayer($$9, true);
+             }
+-            if (n != 0) continue;
+-            return n;
++            if ($$11 == null) continue;
++            int $$12 = this.computeLevelFromNeighbor($$8, $$0, this.getLevel($$11, $$8));
++            if ($$3 > $$12) {
++                $$3 = $$12;
++            }
++            if ($$3 != 0) continue;
++            return $$3;
+         }
+-        return n;
++        return $$3;
+     }
+ 
+     public void onBlockEmissionIncrease(net.minecraft.core.BlockPos $$0, int $$1) {

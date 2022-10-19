@@ -1,0 +1,44 @@
+--- net/minecraft/world/level/storage/LevelSummary.java
++++ net/minecraft/world/level/storage/LevelSummary.java
+@@ -11,16 +11,18 @@
+     public java.lang.String levelId;
+     public boolean requiresManualConversion;
+     public boolean locked;
++    public boolean experimental;
+     public java.nio.file.Path icon;
+     @javax.annotation.Nullable
+     public net.minecraft.network.chat.Component info;
+ 
+-    public net.minecraft.world.level.storage.LevelSummary(net.minecraft.world.level.LevelSettings $$0, net.minecraft.world.level.storage.LevelVersion $$1, java.lang.String $$2, boolean $$3, boolean $$4, java.nio.file.Path $$5) {
++    public net.minecraft.world.level.storage.LevelSummary(net.minecraft.world.level.LevelSettings $$0, net.minecraft.world.level.storage.LevelVersion $$1, java.lang.String $$2, boolean $$3, boolean $$4, boolean $$5, java.nio.file.Path $$6) {
+         this.settings = $$0;
+         this.levelVersion = $$1;
+         this.levelId = $$2;
+         this.locked = $$4;
+-        this.icon = $$5;
++        this.experimental = $$5;
++        this.icon = $$6;
+         this.requiresManualConversion = $$3;
+     }
+ 
+@@ -40,6 +42,10 @@
+         return this.requiresManualConversion;
+     }
+ 
++    public boolean isExperimental() {
++        return this.experimental;
++    }
++
+     public long getLastPlayed() {
+         return this.levelVersion.lastPlayed();
+     }
+@@ -139,6 +145,9 @@
+         if (this.hasCheats()) {
+             $$0.append(", ").append((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"selectWorld.cheats"));
+         }
++        if (this.isExperimental()) {
++            $$0.append(", ").append((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"selectWorld.experimental").withStyle(net.minecraft.ChatFormatting.YELLOW));
++        }
+         net.minecraft.network.chat.MutableComponent $$1 = this.getWorldVersionName();
+         net.minecraft.network.chat.MutableComponent $$2 = net.minecraft.network.chat.Component.literal((java.lang.String)", ").append((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"selectWorld.version")).append(" ");
+         if (this.markVersionInList()) {

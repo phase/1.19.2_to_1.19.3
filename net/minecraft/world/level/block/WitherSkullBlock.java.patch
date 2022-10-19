@@ -1,0 +1,85 @@
+--- net/minecraft/world/level/block/WitherSkullBlock.java
++++ net/minecraft/world/level/block/WitherSkullBlock.java
+@@ -15,55 +15,46 @@
+         super((net.minecraft.world.level.block.SkullBlock$Type)net.minecraft.world.level.block.SkullBlock$Types.WITHER_SKELETON, $$0);
+     }
+ 
+-    public void setPlacedBy(net.minecraft.world.level.Level level, net.minecraft.core.BlockPos pos, net.minecraft.world.level.block.state.BlockState state, @javax.annotation.Nullable net.minecraft.world.entity.LivingEntity placer, net.minecraft.world.item.ItemStack stack) {
+-        super.setPlacedBy(level, pos, state, placer, stack);
+-        net.minecraft.world.level.block.entity.BlockEntity blockEntity = level.getBlockEntity(pos);
+-        if (blockEntity instanceof net.minecraft.world.level.block.entity.SkullBlockEntity) {
+-            net.minecraft.world.level.block.WitherSkullBlock.checkSpawn((net.minecraft.world.level.Level)level, (net.minecraft.core.BlockPos)pos, (net.minecraft.world.level.block.entity.SkullBlockEntity)((net.minecraft.world.level.block.entity.SkullBlockEntity)blockEntity));
++    public void setPlacedBy(net.minecraft.world.level.Level $$0, net.minecraft.core.BlockPos $$1, net.minecraft.world.level.block.state.BlockState $$2, @javax.annotation.Nullable net.minecraft.world.entity.LivingEntity $$3, net.minecraft.world.item.ItemStack $$4) {
++        super.setPlacedBy($$0, $$1, $$2, $$3, $$4);
++        net.minecraft.world.level.block.entity.BlockEntity $$5 = $$0.getBlockEntity($$1);
++        if ($$5 instanceof net.minecraft.world.level.block.entity.SkullBlockEntity) {
++            net.minecraft.world.level.block.WitherSkullBlock.checkSpawn((net.minecraft.world.level.Level)$$0, (net.minecraft.core.BlockPos)$$1, (net.minecraft.world.level.block.entity.SkullBlockEntity)((net.minecraft.world.level.block.entity.SkullBlockEntity)$$5));
+         }
+     }
+ 
+-    public static void checkSpawn(net.minecraft.world.level.Level level, net.minecraft.core.BlockPos pos, net.minecraft.world.level.block.entity.SkullBlockEntity blockEntity) {
+-        boolean bl;
+-        if (level.isClientSide) {
++    public static void checkSpawn(net.minecraft.world.level.Level $$0, net.minecraft.core.BlockPos $$1, net.minecraft.world.level.block.entity.SkullBlockEntity $$2) {
++        boolean $$4;
++        if ($$0.isClientSide) {
+             return;
+         }
+-        net.minecraft.world.level.block.state.BlockState blockState = blockEntity.getBlockState();
+-        boolean bl2 = bl = blockState.is(net.minecraft.world.level.block.Blocks.WITHER_SKELETON_SKULL) || blockState.is(net.minecraft.world.level.block.Blocks.WITHER_SKELETON_WALL_SKULL);
+-        if (!bl || pos.getY() < level.getMinBuildHeight() || level.getDifficulty() == net.minecraft.world.Difficulty.PEACEFUL) {
++        net.minecraft.world.level.block.state.BlockState $$3 = $$2.getBlockState();
++        boolean bl = $$4 = $$3.is(net.minecraft.world.level.block.Blocks.WITHER_SKELETON_SKULL) || $$3.is(net.minecraft.world.level.block.Blocks.WITHER_SKELETON_WALL_SKULL);
++        if (!$$4 || $$1.getY() < $$0.getMinBuildHeight() || $$0.getDifficulty() == net.minecraft.world.Difficulty.PEACEFUL) {
+             return;
+         }
+-        net.minecraft.world.level.block.state.pattern.BlockPattern blockPattern = net.minecraft.world.level.block.WitherSkullBlock.getOrCreateWitherFull();
+-        net.minecraft.world.level.block.state.pattern.BlockPattern$BlockPatternMatch blockPatternMatch = blockPattern.find((net.minecraft.world.level.LevelReader)level, pos);
+-        if (blockPatternMatch == null) {
++        net.minecraft.world.level.block.state.pattern.BlockPattern$BlockPatternMatch $$5 = net.minecraft.world.level.block.WitherSkullBlock.getOrCreateWitherFull().find((net.minecraft.world.level.LevelReader)$$0, $$1);
++        if ($$5 == null) {
+             return;
+         }
+-        for (int i = 0; i < blockPattern.getWidth(); ++i) {
+-            for (int j = 0; j < blockPattern.getHeight(); ++j) {
+-                net.minecraft.world.level.block.state.pattern.BlockInWorld blockInWorld = blockPatternMatch.getBlock(i, j, 0);
+-                level.setBlock(blockInWorld.getPos(), net.minecraft.world.level.block.Blocks.AIR.defaultBlockState(), 2);
+-                level.levelEvent(2001, blockInWorld.getPos(), net.minecraft.world.level.block.Block.getId((net.minecraft.world.level.block.state.BlockState)blockInWorld.getState()));
++        net.minecraft.world.entity.boss.wither.WitherBoss $$6 = (net.minecraft.world.entity.boss.wither.WitherBoss)net.minecraft.world.entity.EntityType.WITHER.create($$0);
++        if ($$6 != null) {
++            net.minecraft.world.level.block.CarvedPumpkinBlock.clearPatternBlocks((net.minecraft.world.level.Level)$$0, (net.minecraft.world.level.block.state.pattern.BlockPattern$BlockPatternMatch)$$5);
++            net.minecraft.core.BlockPos $$7 = $$5.getBlock(1, 2, 0).getPos();
++            $$6.moveTo((double)$$7.getX() + 0.5, (double)$$7.getY() + 0.55, (double)$$7.getZ() + 0.5, $$5.getForwards().getAxis() == net.minecraft.core.Direction$Axis.X ? 0.0f : 90.0f, 0.0f);
++            $$6.yBodyRot = $$5.getForwards().getAxis() == net.minecraft.core.Direction$Axis.X ? 0.0f : 90.0f;
++            $$6.makeInvulnerable();
++            for (net.minecraft.server.level.ServerPlayer $$8 : $$0.getEntitiesOfClass(net.minecraft.server.level.ServerPlayer.class, $$6.getBoundingBox().inflate(50.0))) {
++                net.minecraft.advancements.CriteriaTriggers.SUMMONED_ENTITY.trigger($$8, (net.minecraft.world.entity.Entity)$$6);
+             }
++            $$0.addFreshEntity((net.minecraft.world.entity.Entity)$$6);
++            net.minecraft.world.level.block.CarvedPumpkinBlock.updatePatternBlocks((net.minecraft.world.level.Level)$$0, (net.minecraft.world.level.block.state.pattern.BlockPattern$BlockPatternMatch)$$5);
+         }
+-        net.minecraft.world.entity.boss.wither.WitherBoss witherBoss = (net.minecraft.world.entity.boss.wither.WitherBoss)net.minecraft.world.entity.EntityType.WITHER.create(level);
+-        net.minecraft.core.BlockPos blockPos = blockPatternMatch.getBlock(1, 2, 0).getPos();
+-        witherBoss.moveTo((double)blockPos.getX() + 0.5, (double)blockPos.getY() + 0.55, (double)blockPos.getZ() + 0.5, blockPatternMatch.getForwards().getAxis() == net.minecraft.core.Direction$Axis.X ? 0.0f : 90.0f, 0.0f);
+-        witherBoss.yBodyRot = blockPatternMatch.getForwards().getAxis() == net.minecraft.core.Direction$Axis.X ? 0.0f : 90.0f;
+-        witherBoss.makeInvulnerable();
+-        for (net.minecraft.server.level.ServerPlayer serverPlayer : level.getEntitiesOfClass(net.minecraft.server.level.ServerPlayer.class, witherBoss.getBoundingBox().inflate(50.0))) {
+-            net.minecraft.advancements.CriteriaTriggers.SUMMONED_ENTITY.trigger(serverPlayer, (net.minecraft.world.entity.Entity)witherBoss);
+-        }
+-        level.addFreshEntity((net.minecraft.world.entity.Entity)witherBoss);
+-        for (int i = 0; i < blockPattern.getWidth(); ++i) {
+-            for (int j = 0; j < blockPattern.getHeight(); ++j) {
+-                level.blockUpdated(blockPatternMatch.getBlock(i, j, 0).getPos(), net.minecraft.world.level.block.Blocks.AIR);
+-            }
+-        }
+     }
+ 
+-    public static boolean canSpawnMob(net.minecraft.world.level.Level level, net.minecraft.core.BlockPos pos, net.minecraft.world.item.ItemStack stack) {
+-        if (stack.is(net.minecraft.world.item.Items.WITHER_SKELETON_SKULL) && pos.getY() >= level.getMinBuildHeight() + 2 && level.getDifficulty() != net.minecraft.world.Difficulty.PEACEFUL && !level.isClientSide) {
+-            return net.minecraft.world.level.block.WitherSkullBlock.getOrCreateWitherBase().find((net.minecraft.world.level.LevelReader)level, pos) != null;
++    public static boolean canSpawnMob(net.minecraft.world.level.Level $$0, net.minecraft.core.BlockPos $$1, net.minecraft.world.item.ItemStack $$2) {
++        if ($$2.is(net.minecraft.world.item.Items.WITHER_SKELETON_SKULL) && $$1.getY() >= $$0.getMinBuildHeight() + 2 && $$0.getDifficulty() != net.minecraft.world.Difficulty.PEACEFUL && !$$0.isClientSide) {
++            return net.minecraft.world.level.block.WitherSkullBlock.getOrCreateWitherBase().find((net.minecraft.world.level.LevelReader)$$0, $$1) != null;
+         }
+         return false;
+     }

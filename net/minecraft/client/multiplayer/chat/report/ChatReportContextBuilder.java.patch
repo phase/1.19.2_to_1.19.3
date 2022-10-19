@@ -1,0 +1,57 @@
+--- net/minecraft/client/multiplayer/chat/report/ChatReportContextBuilder.java
++++ net/minecraft/client/multiplayer/chat/report/ChatReportContextBuilder.java
+@@ -1,0 +1,54 @@
++/*
++ * Decompiled with CFR 0.151.
++ */
++package net.minecraft.client.multiplayer.chat.report;
++
++public class net.minecraft.client.multiplayer.chat.report.ChatReportContextBuilder
++ {
++    public int leadingCount;
++    public java.util.List<net.minecraft.client.multiplayer.chat.report.ChatReportContextBuilder$Collector> activeCollectors;
++
++    public net.minecraft.client.multiplayer.chat.report.ChatReportContextBuilder(int $$0) {
++        this.activeCollectors = new java.util.ArrayList();
++        this.leadingCount = $$0;
++    }
++
++    public void collectAllContext(net.minecraft.client.multiplayer.chat.ChatLog $$0, it.unimi.dsi.fastutil.ints.IntCollection $$1, net.minecraft.client.multiplayer.chat.report.ChatReportContextBuilder$Handler $$2) {
++        it.unimi.dsi.fastutil.ints.IntRBTreeSet $$3 = new it.unimi.dsi.fastutil.ints.IntRBTreeSet($$1);
++        for (int $$4 = $$3.lastInt(); $$4 >= $$0.start() && (this.isActive() || !$$3.isEmpty()); --$$4) {
++            net.minecraft.client.multiplayer.chat.LoggedChatEvent loggedChatEvent = $$0.lookup($$4);
++            if (!(loggedChatEvent instanceof net.minecraft.client.multiplayer.chat.LoggedChatMessage$Player)) continue;
++            net.minecraft.client.multiplayer.chat.LoggedChatMessage$Player $$5 = (net.minecraft.client.multiplayer.chat.LoggedChatMessage$Player)loggedChatEvent;
++            boolean $$6 = this.acceptContext($$5.message());
++            if ($$3.remove($$4)) {
++                this.trackContext($$5.message());
++                $$2.accept($$4, $$5);
++                continue;
++            }
++            if (!$$6) continue;
++            $$2.accept($$4, $$5);
++        }
++    }
++
++    public void trackContext(net.minecraft.network.chat.PlayerChatMessage $$0) {
++        this.activeCollectors.add((java.lang.Object)new net.minecraft.client.multiplayer.chat.report.ChatReportContextBuilder$Collector(this, $$0));
++    }
++
++    public boolean acceptContext(net.minecraft.network.chat.PlayerChatMessage $$0) {
++        boolean $$1 = false;
++        java.util.Iterator $$2 = this.activeCollectors.iterator();
++        while ($$2.hasNext()) {
++            net.minecraft.client.multiplayer.chat.report.ChatReportContextBuilder$Collector $$3 = (net.minecraft.client.multiplayer.chat.report.ChatReportContextBuilder$Collector)$$2.next();
++            if (!$$3.accept($$0)) continue;
++            $$1 = true;
++            if (!$$3.isComplete()) continue;
++            $$2.remove();
++        }
++        return $$1;
++    }
++
++    public boolean isActive() {
++        return !this.activeCollectors.isEmpty();
++    }
++}
++

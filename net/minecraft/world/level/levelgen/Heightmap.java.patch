@@ -1,0 +1,139 @@
+--- net/minecraft/world/level/levelgen/Heightmap.java
++++ net/minecraft/world/level/levelgen/Heightmap.java
+@@ -12,80 +12,79 @@
+     public java.util.function.Predicate<net.minecraft.world.level.block.state.BlockState> isOpaque;
+     public net.minecraft.world.level.chunk.ChunkAccess chunk;
+ 
+-    public net.minecraft.world.level.levelgen.Heightmap(net.minecraft.world.level.chunk.ChunkAccess chunk, net.minecraft.world.level.levelgen.Heightmap$Types type) {
+-        this.isOpaque = type.isOpaque();
+-        this.chunk = chunk;
+-        int n = net.minecraft.util.Mth.ceillog2((int)(chunk.getHeight() + 1));
+-        this.data = new net.minecraft.util.SimpleBitStorage(n, 256);
++    public net.minecraft.world.level.levelgen.Heightmap(net.minecraft.world.level.chunk.ChunkAccess $$0, net.minecraft.world.level.levelgen.Heightmap$Types $$1) {
++        this.isOpaque = $$1.isOpaque();
++        this.chunk = $$0;
++        int $$2 = net.minecraft.util.Mth.ceillog2((int)($$0.getHeight() + 1));
++        this.data = new net.minecraft.util.SimpleBitStorage($$2, 256);
+     }
+ 
+-    public static void primeHeightmaps(net.minecraft.world.level.chunk.ChunkAccess chunk, java.util.Set<net.minecraft.world.level.levelgen.Heightmap$Types> types) {
+-        int n = types.size();
+-        it.unimi.dsi.fastutil.objects.ObjectArrayList objectArrayList = new it.unimi.dsi.fastutil.objects.ObjectArrayList(n);
+-        it.unimi.dsi.fastutil.objects.ObjectListIterator objectListIterator = objectArrayList.iterator();
+-        int n2 = chunk.getHighestSectionPosition() + 16;
+-        net.minecraft.core.BlockPos$MutableBlockPos mutableBlockPos = new net.minecraft.core.BlockPos$MutableBlockPos();
+-        for (int i = 0; i < 16; ++i) {
+-block1:            for (int j = 0; j < 16; ++j) {
+-                for (net.minecraft.world.level.levelgen.Heightmap$Types types2 : types) {
+-                    objectArrayList.add((java.lang.Object)chunk.getOrCreateHeightmapUnprimed(types2));
++    public static void primeHeightmaps(net.minecraft.world.level.chunk.ChunkAccess $$0, java.util.Set<net.minecraft.world.level.levelgen.Heightmap$Types> $$1) {
++        int $$2 = $$1.size();
++        it.unimi.dsi.fastutil.objects.ObjectArrayList $$3 = new it.unimi.dsi.fastutil.objects.ObjectArrayList($$2);
++        it.unimi.dsi.fastutil.objects.ObjectListIterator $$4 = $$3.iterator();
++        int $$5 = $$0.getHighestSectionPosition() + 16;
++        net.minecraft.core.BlockPos$MutableBlockPos $$6 = new net.minecraft.core.BlockPos$MutableBlockPos();
++        for (int $$7 = 0; $$7 < 16; ++$$7) {
++block1:            for (int $$8 = 0; $$8 < 16; ++$$8) {
++                for (net.minecraft.world.level.levelgen.Heightmap$Types $$9 : $$1) {
++                    $$3.add((java.lang.Object)$$0.getOrCreateHeightmapUnprimed($$9));
+                 }
+-                for (int k = n2 - 1; k >= chunk.getMinBuildHeight(); --k) {
+-                    net.minecraft.world.level.levelgen.Heightmap$Types types2;
+-                    mutableBlockPos.set(i, k, j);
+-                    types2 = chunk.getBlockState((net.minecraft.core.BlockPos)mutableBlockPos);
+-                    if (types2.is(net.minecraft.world.level.block.Blocks.AIR)) continue;
+-                    while (objectListIterator.hasNext()) {
+-                        net.minecraft.world.level.levelgen.Heightmap heightmap = (net.minecraft.world.level.levelgen.Heightmap)objectListIterator.next();
+-                        if (!heightmap.isOpaque.test((java.lang.Object)types2)) continue;
+-                        heightmap.setHeight(i, j, k + 1);
+-                        objectListIterator.remove();
++                for (int $$10 = $$5 - 1; $$10 >= $$0.getMinBuildHeight(); --$$10) {
++                    $$6.set($$7, $$10, $$8);
++                    net.minecraft.world.level.block.state.BlockState $$11 = $$0.getBlockState((net.minecraft.core.BlockPos)$$6);
++                    if ($$11.is(net.minecraft.world.level.block.Blocks.AIR)) continue;
++                    while ($$4.hasNext()) {
++                        net.minecraft.world.level.levelgen.Heightmap $$12 = (net.minecraft.world.level.levelgen.Heightmap)$$4.next();
++                        if (!$$12.isOpaque.test((java.lang.Object)$$11)) continue;
++                        $$12.setHeight($$7, $$8, $$10 + 1);
++                        $$4.remove();
+                     }
+-                    if (objectArrayList.isEmpty()) continue block1;
+-                    objectListIterator.back(n);
++                    if ($$3.isEmpty()) continue block1;
++                    $$4.back($$2);
+                 }
+             }
+         }
+     }
+ 
+-    public boolean update(int x, int y, int z, net.minecraft.world.level.block.state.BlockState state) {
+-        int n = this.getFirstAvailable(x, z);
+-        if (y <= n - 2) {
++    public boolean update(int $$0, int $$1, int $$2, net.minecraft.world.level.block.state.BlockState $$3) {
++        int $$4 = this.getFirstAvailable($$0, $$2);
++        if ($$1 <= $$4 - 2) {
+             return false;
+         }
+-        if (this.isOpaque.test((java.lang.Object)state)) {
+-            if (y >= n) {
+-                this.setHeight(x, z, y + 1);
++        if (this.isOpaque.test((java.lang.Object)$$3)) {
++            if ($$1 >= $$4) {
++                this.setHeight($$0, $$2, $$1 + 1);
+                 return true;
+             }
+-        } else if (n - 1 == y) {
+-            net.minecraft.core.BlockPos$MutableBlockPos mutableBlockPos = new net.minecraft.core.BlockPos$MutableBlockPos();
+-            for (int i = y - 1; i >= this.chunk.getMinBuildHeight(); --i) {
+-                mutableBlockPos.set(x, i, z);
+-                if (!this.isOpaque.test((java.lang.Object)this.chunk.getBlockState((net.minecraft.core.BlockPos)mutableBlockPos))) continue;
+-                this.setHeight(x, z, i + 1);
++        } else if ($$4 - 1 == $$1) {
++            net.minecraft.core.BlockPos$MutableBlockPos $$5 = new net.minecraft.core.BlockPos$MutableBlockPos();
++            for (int $$6 = $$1 - 1; $$6 >= this.chunk.getMinBuildHeight(); --$$6) {
++                $$5.set($$0, $$6, $$2);
++                if (!this.isOpaque.test((java.lang.Object)this.chunk.getBlockState((net.minecraft.core.BlockPos)$$5))) continue;
++                this.setHeight($$0, $$2, $$6 + 1);
+                 return true;
+             }
+-            this.setHeight(x, z, this.chunk.getMinBuildHeight());
++            this.setHeight($$0, $$2, this.chunk.getMinBuildHeight());
+             return true;
+         }
+         return false;
+     }
+ 
+-    public int getFirstAvailable(int x, int z) {
+-        return this.getFirstAvailable(net.minecraft.world.level.levelgen.Heightmap.getIndex((int)x, (int)z));
++    public int getFirstAvailable(int $$0, int $$1) {
++        return this.getFirstAvailable(net.minecraft.world.level.levelgen.Heightmap.getIndex((int)$$0, (int)$$1));
+     }
+ 
+     public int getHighestTaken(int $$0, int $$1) {
+         return this.getFirstAvailable(net.minecraft.world.level.levelgen.Heightmap.getIndex((int)$$0, (int)$$1)) - 1;
+     }
+ 
+-    public int getFirstAvailable(int dataArrayIndex) {
+-        return this.data.get(dataArrayIndex) + this.chunk.getMinBuildHeight();
++    public int getFirstAvailable(int $$0) {
++        return this.data.get($$0) + this.chunk.getMinBuildHeight();
+     }
+ 
+-    public void setHeight(int x, int z, int value) {
+-        this.data.set(net.minecraft.world.level.levelgen.Heightmap.getIndex((int)x, (int)z), value - this.chunk.getMinBuildHeight());
++    public void setHeight(int $$0, int $$1, int $$2) {
++        this.data.set(net.minecraft.world.level.levelgen.Heightmap.getIndex((int)$$0, (int)$$1), $$2 - this.chunk.getMinBuildHeight());
+     }
+ 
+     public void setRawData(net.minecraft.world.level.chunk.ChunkAccess $$0, net.minecraft.world.level.levelgen.Heightmap$Types $$1, long[] $$2) {
+@@ -102,8 +101,8 @@
+         return this.data.getRaw();
+     }
+ 
+-    public static int getIndex(int x, int z) {
+-        return x + z * 16;
++    public static int getIndex(int $$0, int $$1) {
++        return $$0 + $$1 * 16;
+     }
+ 
+     public static /* synthetic */ boolean lambda$static$1(net.minecraft.world.level.block.state.BlockState $$0) {

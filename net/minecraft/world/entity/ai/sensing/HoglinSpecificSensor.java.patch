@@ -1,0 +1,59 @@
+--- net/minecraft/world/entity/ai/sensing/HoglinSpecificSensor.java
++++ net/minecraft/world/entity/ai/sensing/HoglinSpecificSensor.java
+@@ -13,34 +13,33 @@
+         return com.google.common.collect.ImmutableSet.of((java.lang.Object)net.minecraft.world.entity.ai.memory.MemoryModuleType.NEAREST_VISIBLE_LIVING_ENTITIES, (java.lang.Object)net.minecraft.world.entity.ai.memory.MemoryModuleType.NEAREST_REPELLENT, (java.lang.Object)net.minecraft.world.entity.ai.memory.MemoryModuleType.NEAREST_VISIBLE_ADULT_PIGLIN, (java.lang.Object)net.minecraft.world.entity.ai.memory.MemoryModuleType.NEAREST_VISIBLE_ADULT_HOGLINS, (java.lang.Object)net.minecraft.world.entity.ai.memory.MemoryModuleType.VISIBLE_ADULT_PIGLIN_COUNT, (java.lang.Object)net.minecraft.world.entity.ai.memory.MemoryModuleType.VISIBLE_ADULT_HOGLIN_COUNT, (java.lang.Object[])new net.minecraft.world.entity.ai.memory.MemoryModuleType[0]);
+     }
+ 
+-    public void doTick(net.minecraft.server.level.ServerLevel level, net.minecraft.world.entity.monster.hoglin.Hoglin entity) {
+-        net.minecraft.world.entity.ai.Brain brain = entity.getBrain();
+-        brain.setMemory(net.minecraft.world.entity.ai.memory.MemoryModuleType.NEAREST_REPELLENT, this.findNearestRepellent(level, entity));
+-        java.util.Optional optional = java.util.Optional.empty();
+-        int n = 0;
+-        java.util.ArrayList arrayList = com.google.common.collect.Lists.newArrayList();
+-        net.minecraft.world.entity.ai.memory.NearestVisibleLivingEntities nearestVisibleLivingEntities = (net.minecraft.world.entity.ai.memory.NearestVisibleLivingEntities)brain.getMemory(net.minecraft.world.entity.ai.memory.MemoryModuleType.NEAREST_VISIBLE_LIVING_ENTITIES).orElse((java.lang.Object)net.minecraft.world.entity.ai.memory.NearestVisibleLivingEntities.empty());
+-        for (net.minecraft.world.entity.LivingEntity livingEntity : nearestVisibleLivingEntities.findAll($$0 -> !$$0.isBaby() && ($$0 instanceof net.minecraft.world.entity.monster.piglin.Piglin || $$0 instanceof net.minecraft.world.entity.monster.hoglin.Hoglin))) {
+-            net.minecraft.world.entity.monster.piglin.Piglin piglin;
+-            if (livingEntity instanceof net.minecraft.world.entity.monster.piglin.Piglin) {
+-                piglin = (net.minecraft.world.entity.monster.piglin.Piglin)livingEntity;
+-                ++n;
+-                if (optional.isEmpty()) {
+-                    optional = java.util.Optional.of((java.lang.Object)piglin);
++    public void doTick(net.minecraft.server.level.ServerLevel $$02, net.minecraft.world.entity.monster.hoglin.Hoglin $$1) {
++        net.minecraft.world.entity.ai.Brain $$2 = $$1.getBrain();
++        $$2.setMemory(net.minecraft.world.entity.ai.memory.MemoryModuleType.NEAREST_REPELLENT, this.findNearestRepellent($$02, $$1));
++        java.util.Optional $$3 = java.util.Optional.empty();
++        int $$4 = 0;
++        java.util.ArrayList $$5 = com.google.common.collect.Lists.newArrayList();
++        net.minecraft.world.entity.ai.memory.NearestVisibleLivingEntities $$6 = (net.minecraft.world.entity.ai.memory.NearestVisibleLivingEntities)$$2.getMemory(net.minecraft.world.entity.ai.memory.MemoryModuleType.NEAREST_VISIBLE_LIVING_ENTITIES).orElse((java.lang.Object)net.minecraft.world.entity.ai.memory.NearestVisibleLivingEntities.empty());
++        for (net.minecraft.world.entity.LivingEntity $$7 : $$6.findAll($$0 -> !$$0.isBaby() && ($$0 instanceof net.minecraft.world.entity.monster.piglin.Piglin || $$0 instanceof net.minecraft.world.entity.monster.hoglin.Hoglin))) {
++            if ($$7 instanceof net.minecraft.world.entity.monster.piglin.Piglin) {
++                net.minecraft.world.entity.monster.piglin.Piglin $$8 = (net.minecraft.world.entity.monster.piglin.Piglin)$$7;
++                ++$$4;
++                if ($$3.isEmpty()) {
++                    $$3 = java.util.Optional.of((java.lang.Object)$$8);
+                 }
+             }
+-            if (!(livingEntity instanceof net.minecraft.world.entity.monster.hoglin.Hoglin)) continue;
+-            piglin = (net.minecraft.world.entity.monster.hoglin.Hoglin)livingEntity;
+-            arrayList.add((java.lang.Object)piglin);
++            if (!($$7 instanceof net.minecraft.world.entity.monster.hoglin.Hoglin)) continue;
++            net.minecraft.world.entity.monster.hoglin.Hoglin $$9 = (net.minecraft.world.entity.monster.hoglin.Hoglin)$$7;
++            $$5.add((java.lang.Object)$$9);
+         }
+-        brain.setMemory(net.minecraft.world.entity.ai.memory.MemoryModuleType.NEAREST_VISIBLE_ADULT_PIGLIN, optional);
+-        brain.setMemory(net.minecraft.world.entity.ai.memory.MemoryModuleType.NEAREST_VISIBLE_ADULT_HOGLINS, (java.lang.Object)arrayList);
+-        brain.setMemory(net.minecraft.world.entity.ai.memory.MemoryModuleType.VISIBLE_ADULT_PIGLIN_COUNT, (java.lang.Object)n);
+-        brain.setMemory(net.minecraft.world.entity.ai.memory.MemoryModuleType.VISIBLE_ADULT_HOGLIN_COUNT, (java.lang.Object)arrayList.size());
++        $$2.setMemory(net.minecraft.world.entity.ai.memory.MemoryModuleType.NEAREST_VISIBLE_ADULT_PIGLIN, $$3);
++        $$2.setMemory(net.minecraft.world.entity.ai.memory.MemoryModuleType.NEAREST_VISIBLE_ADULT_HOGLINS, (java.lang.Object)$$5);
++        $$2.setMemory(net.minecraft.world.entity.ai.memory.MemoryModuleType.VISIBLE_ADULT_PIGLIN_COUNT, (java.lang.Object)$$4);
++        $$2.setMemory(net.minecraft.world.entity.ai.memory.MemoryModuleType.VISIBLE_ADULT_HOGLIN_COUNT, (java.lang.Object)$$5.size());
+     }
+ 
+-    public java.util.Optional<net.minecraft.core.BlockPos> findNearestRepellent(net.minecraft.server.level.ServerLevel level, net.minecraft.world.entity.monster.hoglin.Hoglin hoglin) {
+-        return net.minecraft.core.BlockPos.findClosestMatch((net.minecraft.core.BlockPos)hoglin.blockPosition(), (int)8, (int)4, $$1 -> level.getBlockState($$1).is(net.minecraft.tags.BlockTags.HOGLIN_REPELLENTS));
++    public java.util.Optional<net.minecraft.core.BlockPos> findNearestRepellent(net.minecraft.server.level.ServerLevel $$0, net.minecraft.world.entity.monster.hoglin.Hoglin $$12) {
++        return net.minecraft.core.BlockPos.findClosestMatch((net.minecraft.core.BlockPos)$$12.blockPosition(), (int)8, (int)4, $$1 -> $$0.getBlockState($$1).is(net.minecraft.tags.BlockTags.HOGLIN_REPELLENTS));
+     }
+ }
+ 

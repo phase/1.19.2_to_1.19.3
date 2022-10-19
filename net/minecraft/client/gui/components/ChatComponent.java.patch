@@ -1,0 +1,414 @@
+--- net/minecraft/client/gui/components/ChatComponent.java
++++ net/minecraft/client/gui/components/ChatComponent.java
+@@ -11,106 +11,116 @@
+     public static int MESSAGE_NOT_FOUND = -1;
+     public static int MESSAGE_INDENT = 4;
+     public static int MESSAGE_TAG_MARGIN_LEFT = 4;
++    public static int BOTTOM_MARGIN = 40;
++    public static int TIME_BEFORE_MESSAGE_DELETION = 60;
++    public static net.minecraft.network.chat.Component DELETED_CHAT_MESSAGE;
+     public net.minecraft.client.Minecraft minecraft;
+     public java.util.List<java.lang.String> recentChat;
+     public java.util.List<net.minecraft.client.GuiMessage> allMessages;
+     public java.util.List<net.minecraft.client.GuiMessage$Line> trimmedMessages;
+     public int chatScrollbarPos;
+     public boolean newMessageSinceScroll;
++    public java.util.List<net.minecraft.client.gui.components.ChatComponent$DelayedMessageDeletion> messageDeletionQueue;
+ 
+-    public net.minecraft.client.gui.components.ChatComponent(net.minecraft.client.Minecraft minecraft) {
++    public net.minecraft.client.gui.components.ChatComponent(net.minecraft.client.Minecraft $$0) {
+         this.recentChat = com.google.common.collect.Lists.newArrayList();
+         this.allMessages = com.google.common.collect.Lists.newArrayList();
+         this.trimmedMessages = com.google.common.collect.Lists.newArrayList();
+-        this.minecraft = minecraft;
++        this.messageDeletionQueue = new java.util.ArrayList();
++        this.minecraft = $$0;
+     }
+ 
+-    public void render(com.mojang.blaze3d.vertex.PoseStack poseStack, int n) {
+-        int n2;
+-        int n3;
+-        int n4;
+-        int n5;
+-        int n6;
+-        int n7;
++    public void tick() {
++        if (!this.messageDeletionQueue.isEmpty()) {
++            this.processMessageDeletionQueue();
++        }
++    }
++
++    public void render(com.mojang.blaze3d.vertex.PoseStack $$0, int $$1, int $$2, int $$3) {
+         if (this.isChatHidden()) {
+             return;
+         }
+-        int n8 = this.getLinesPerPage();
+-        int n9 = this.trimmedMessages.size();
+-        if (n9 <= 0) {
++        int $$4 = this.getLinesPerPage();
++        int $$5 = this.trimmedMessages.size();
++        if ($$5 <= 0) {
+             return;
+         }
+-        boolean bl = this.isChatFocused();
+-        float f = (float)this.getScale();
+-        int n10 = net.minecraft.util.Mth.ceil((float)((float)this.getWidth() / f));
+-        poseStack.pushPose();
+-        poseStack.translate(4.0, 8.0, 0.0);
+-        poseStack.scale(f, f, 1.0f);
+-        double d = (java.lang.Double)this.minecraft.options.chatOpacity().get() * (double)0.9f + (double)0.1f;
+-        double d2 = (java.lang.Double)this.minecraft.options.textBackgroundOpacity().get();
+-        double d3 = (java.lang.Double)this.minecraft.options.chatLineSpacing().get();
+-        int n11 = this.getLineHeight();
+-        double d4 = -8.0 * (d3 + 1.0) + 4.0 * d3;
+-        int n12 = 0;
+-        for (int i = 0; i + this.chatScrollbarPos < this.trimmedMessages.size() && i < n8; ++i) {
+-            net.minecraft.client.GuiMessage$Line line = (net.minecraft.client.GuiMessage$Line)this.trimmedMessages.get(i + this.chatScrollbarPos);
+-            if (line == null || (n7 = n - line.addedTime()) >= 200 && !bl) continue;
+-            double d5 = bl ? 1.0 : net.minecraft.client.gui.components.ChatComponent.getTimeFactor((int)n7);
+-            n6 = (int)(255.0 * d5 * d);
+-            n5 = (int)(255.0 * d5 * d2);
+-            ++n12;
+-            if (n6 <= 3) continue;
+-            n4 = 0;
+-            n3 = -i * n11;
+-            n2 = (int)((double)n3 + d4);
+-            poseStack.pushPose();
+-            poseStack.translate(0.0, 0.0, 50.0);
+-            net.minecraft.client.gui.components.ChatComponent.fill((com.mojang.blaze3d.vertex.PoseStack)poseStack, (int)-4, (int)(n3 - n11), (int)(0 + n10 + 4 + 4), (int)n3, (int)(n5 << 24));
+-            net.minecraft.client.GuiMessageTag guiMessageTag = line.tag();
+-            if (guiMessageTag != null) {
+-                int n13 = guiMessageTag.indicatorColor() | n6 << 24;
+-                net.minecraft.client.gui.components.ChatComponent.fill((com.mojang.blaze3d.vertex.PoseStack)poseStack, (int)-4, (int)(n3 - n11), (int)-2, (int)n3, (int)n13);
+-                if (bl && line.endOfEntry() && guiMessageTag.icon() != null) {
+-                    int n14 = this.getTagIconLeft(line);
++        boolean $$6 = this.isChatFocused();
++        float $$7 = (float)this.getScale();
++        int $$8 = net.minecraft.util.Mth.ceil((float)((float)this.getWidth() / $$7));
++        int $$9 = this.minecraft.getWindow().getGuiScaledHeight();
++        $$0.pushPose();
++        $$0.translate(4.0, 0.0, 0.0);
++        $$0.scale($$7, $$7, 1.0f);
++        int $$10 = net.minecraft.util.Mth.floor((float)((float)($$9 - 40) / $$7));
++        int $$11 = this.getMessageEndIndexAt(this.screenToChatX((double)$$2), this.screenToChatY((double)$$3));
++        double $$12 = (java.lang.Double)this.minecraft.options.chatOpacity().get() * (double)0.9f + (double)0.1f;
++        double $$13 = (java.lang.Double)this.minecraft.options.textBackgroundOpacity().get();
++        double $$14 = (java.lang.Double)this.minecraft.options.chatLineSpacing().get();
++        int $$15 = this.getLineHeight();
++        double $$16 = -8.0 * ($$14 + 1.0) + 4.0 * $$14;
++        int $$17 = 0;
++        for (int $$18 = 0; $$18 + this.chatScrollbarPos < this.trimmedMessages.size() && $$18 < $$4; ++$$18) {
++            int $$21;
++            int $$19 = $$18 + this.chatScrollbarPos;
++            net.minecraft.client.GuiMessage$Line $$20 = (net.minecraft.client.GuiMessage$Line)this.trimmedMessages.get($$19);
++            if ($$20 == null || ($$21 = $$1 - $$20.addedTime()) >= 200 && !$$6) continue;
++            double $$22 = $$6 ? 1.0 : net.minecraft.client.gui.components.ChatComponent.getTimeFactor((int)$$21);
++            int $$23 = (int)(255.0 * $$22 * $$12);
++            int $$24 = (int)(255.0 * $$22 * $$13);
++            ++$$17;
++            if ($$23 <= 3) continue;
++            boolean $$25 = false;
++            int $$26 = $$10 - $$18 * $$15;
++            int $$27 = (int)((double)$$26 + $$16);
++            $$0.pushPose();
++            $$0.translate(0.0, 0.0, 50.0);
++            net.minecraft.client.gui.components.ChatComponent.fill((com.mojang.blaze3d.vertex.PoseStack)$$0, (int)-4, (int)($$26 - $$15), (int)(0 + $$8 + 4 + 4), (int)$$26, (int)($$24 << 24));
++            net.minecraft.client.GuiMessageTag $$28 = $$20.tag();
++            if ($$28 != null) {
++                int $$29 = $$28.indicatorColor() | $$23 << 24;
++                net.minecraft.client.gui.components.ChatComponent.fill((com.mojang.blaze3d.vertex.PoseStack)$$0, (int)-4, (int)($$26 - $$15), (int)-2, (int)$$26, (int)$$29);
++                if ($$19 == $$11 && $$28.icon() != null) {
++                    int $$30 = this.getTagIconLeft($$20);
+                     java.util.Objects.requireNonNull((java.lang.Object)this.minecraft.font);
+-                    int n15 = n2 + 9;
+-                    this.drawTagIcon(poseStack, n14, n15, guiMessageTag.icon());
++                    int $$31 = $$27 + 9;
++                    this.drawTagIcon($$0, $$30, $$31, $$28.icon());
+                 }
+             }
+             com.mojang.blaze3d.systems.RenderSystem.enableBlend();
+-            poseStack.translate(0.0, 0.0, 50.0);
+-            this.minecraft.font.drawShadow(poseStack, line.content(), 0.0f, (float)n2, 0xFFFFFF + (n6 << 24));
++            $$0.translate(0.0, 0.0, 50.0);
++            this.minecraft.font.drawShadow($$0, $$20.content(), 0.0f, (float)$$27, 0xFFFFFF + ($$23 << 24));
+             com.mojang.blaze3d.systems.RenderSystem.disableBlend();
+-            poseStack.popPose();
++            $$0.popPose();
+         }
+-        long l = this.minecraft.getChatListener().queueSize();
+-        if (l > 0L) {
+-            n7 = (int)(128.0 * d);
+-            int n16 = (int)(255.0 * d2);
+-            poseStack.pushPose();
+-            poseStack.translate(0.0, 0.0, 50.0);
+-            net.minecraft.client.gui.components.ChatComponent.fill((com.mojang.blaze3d.vertex.PoseStack)poseStack, (int)-2, (int)0, (int)(n10 + 4), (int)9, (int)(n16 << 24));
++        long $$32 = this.minecraft.getChatListener().queueSize();
++        if ($$32 > 0L) {
++            int $$33 = (int)(128.0 * $$12);
++            int $$34 = (int)(255.0 * $$13);
++            $$0.pushPose();
++            $$0.translate(0.0, (double)$$10, 50.0);
++            net.minecraft.client.gui.components.ChatComponent.fill((com.mojang.blaze3d.vertex.PoseStack)$$0, (int)-2, (int)0, (int)($$8 + 4), (int)9, (int)($$34 << 24));
+             com.mojang.blaze3d.systems.RenderSystem.enableBlend();
+-            poseStack.translate(0.0, 0.0, 50.0);
+-            this.minecraft.font.drawShadow(poseStack, (net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"chat.queue", (java.lang.Object[])new java.lang.Object[]{l}), 0.0f, 1.0f, 0xFFFFFF + (n7 << 24));
+-            poseStack.popPose();
++            $$0.translate(0.0, 0.0, 50.0);
++            this.minecraft.font.drawShadow($$0, (net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"chat.queue", (java.lang.Object[])new java.lang.Object[]{$$32}), 0.0f, 1.0f, 0xFFFFFF + ($$33 << 24));
++            $$0.popPose();
+             com.mojang.blaze3d.systems.RenderSystem.disableBlend();
+         }
+-        if (bl) {
+-            n7 = this.getLineHeight();
+-            int n17 = n9 * n7;
+-            int n18 = n12 * n7;
+-            n6 = this.chatScrollbarPos * n18 / n9;
+-            n5 = n18 * n18 / n17;
+-            if (n17 != n18) {
+-                n4 = n6 > 0 ? 170 : 96;
+-                n3 = this.newMessageSinceScroll ? 0xCC3333 : 0x3333AA;
+-                n2 = n10 + 4;
+-                net.minecraft.client.gui.components.ChatComponent.fill((com.mojang.blaze3d.vertex.PoseStack)poseStack, (int)n2, (int)(-n6), (int)(n2 + 2), (int)(-n6 - n5), (int)(n3 + (n4 << 24)));
+-                net.minecraft.client.gui.components.ChatComponent.fill((com.mojang.blaze3d.vertex.PoseStack)poseStack, (int)(n2 + 2), (int)(-n6), (int)(n2 + 1), (int)(-n6 - n5), (int)(0xCCCCCC + (n4 << 24)));
++        if ($$6) {
++            int $$35 = this.getLineHeight();
++            int $$36 = $$5 * $$35;
++            int $$37 = $$17 * $$35;
++            int $$38 = this.chatScrollbarPos * $$37 / $$5 - $$10;
++            int $$39 = $$37 * $$37 / $$36;
++            if ($$36 != $$37) {
++                int $$40 = $$38 > 0 ? 170 : 96;
++                int $$41 = this.newMessageSinceScroll ? 0xCC3333 : 0x3333AA;
++                int $$42 = $$8 + 4;
++                net.minecraft.client.gui.components.ChatComponent.fill((com.mojang.blaze3d.vertex.PoseStack)$$0, (int)$$42, (int)(-$$38), (int)($$42 + 2), (int)(-$$38 - $$39), (int)($$41 + ($$40 << 24)));
++                net.minecraft.client.gui.components.ChatComponent.fill((com.mojang.blaze3d.vertex.PoseStack)$$0, (int)($$42 + 2), (int)(-$$38), (int)($$42 + 1), (int)(-$$38 - $$39), (int)(0xCCCCCC + ($$40 << 24)));
+             }
+         }
+-        poseStack.popPose();
++        $$0.popPose();
+     }
+ 
+     public void drawTagIcon(com.mojang.blaze3d.vertex.PoseStack $$0, int $$1, int $$2, net.minecraft.client.GuiMessageTag$Icon $$3) {
+@@ -126,29 +136,31 @@
+         return this.minecraft.options.chatVisibility().get() == net.minecraft.world.entity.player.ChatVisiblity.HIDDEN;
+     }
+ 
+-    public static double getTimeFactor(int counter) {
+-        double d = (double)counter / 200.0;
+-        d = 1.0 - d;
+-        d *= 10.0;
+-        d = net.minecraft.util.Mth.clamp((double)d, (double)0.0, (double)1.0);
+-        d *= d;
+-        return d;
++    public static double getTimeFactor(int $$0) {
++        double $$1 = (double)$$0 / 200.0;
++        $$1 = 1.0 - $$1;
++        $$1 *= 10.0;
++        $$1 = net.minecraft.util.Mth.clamp((double)$$1, (double)0.0, (double)1.0);
++        $$1 *= $$1;
++        return $$1;
+     }
+ 
+-    public void clearMessages(boolean clearSentMsgHistory) {
++    public void clearMessages(boolean $$0) {
+         this.minecraft.getChatListener().clearQueue();
++        this.messageDeletionQueue.clear();
+         this.trimmedMessages.clear();
+         this.allMessages.clear();
+-        if (clearSentMsgHistory) {
++        if ($$0) {
+             this.recentChat.clear();
+         }
+     }
+ 
+-    public void addMessage(net.minecraft.network.chat.Component chatComponent) {
+-        this.addMessage(chatComponent, null, net.minecraft.client.GuiMessageTag.system());
++    public void addMessage(net.minecraft.network.chat.Component $$0) {
++        this.addMessage($$0, null, net.minecraft.client.GuiMessageTag.system());
+     }
+ 
+     public void addMessage(net.minecraft.network.chat.Component $$0, @javax.annotation.Nullable net.minecraft.network.chat.MessageSignature $$1, @javax.annotation.Nullable net.minecraft.client.GuiMessageTag $$2) {
++        this.logChatMessage($$0, $$2);
+         this.addMessage($$0, $$1, this.minecraft.gui.getGuiTicks(), $$2, false);
+     }
+ 
+@@ -163,7 +175,6 @@
+     }
+ 
+     public void addMessage(net.minecraft.network.chat.Component $$0, @javax.annotation.Nullable net.minecraft.network.chat.MessageSignature $$1, int $$2, @javax.annotation.Nullable net.minecraft.client.GuiMessageTag $$3, boolean $$4) {
+-        this.logChatMessage($$0, $$3);
+         int $$5 = net.minecraft.util.Mth.floor((double)((double)this.getWidth() / this.getScale()));
+         if ($$3 != null && $$3.icon() != null) {
+             $$5 -= $$3.icon().width + 4 + 2;
+@@ -190,17 +201,45 @@
+         }
+     }
+ 
++    public void processMessageDeletionQueue() {
++        int $$0 = this.minecraft.gui.getGuiTicks();
++        this.messageDeletionQueue.removeIf($$1 -> {
++            if ($$0 >= $$1.deletableAfter()) {
++                return this.deleteMessageOrDelay($$1.signature()) == null;
++            }
++            return false;
++        });
++    }
++
+     public void deleteMessage(net.minecraft.network.chat.MessageSignature $$0) {
+-        java.util.Iterator $$1 = this.allMessages.iterator();
+-        while ($$1.hasNext()) {
+-            net.minecraft.network.chat.MessageSignature $$2 = ((net.minecraft.client.GuiMessage)$$1.next()).headerSignature();
+-            if ($$2 == null || !$$2.equals((java.lang.Object)$$0)) continue;
+-            $$1.remove();
+-            break;
++        net.minecraft.client.gui.components.ChatComponent$DelayedMessageDeletion $$1 = this.deleteMessageOrDelay($$0);
++        if ($$1 != null) {
++            this.messageDeletionQueue.add((java.lang.Object)$$1);
+         }
+-        this.refreshTrimmedMessage();
+     }
+ 
++    @javax.annotation.Nullable
++    public net.minecraft.client.gui.components.ChatComponent$DelayedMessageDeletion deleteMessageOrDelay(net.minecraft.network.chat.MessageSignature $$0) {
++        int $$1 = this.minecraft.gui.getGuiTicks();
++        java.util.ListIterator $$2 = this.allMessages.listIterator();
++        while ($$2.hasNext()) {
++            net.minecraft.client.GuiMessage $$3 = (net.minecraft.client.GuiMessage)$$2.next();
++            if (!$$0.equals((java.lang.Object)$$3.signature())) continue;
++            int $$4 = $$3.addedTime() + 60;
++            if ($$1 >= $$4) {
++                $$2.set((java.lang.Object)this.createDeletedMarker($$3));
++                this.refreshTrimmedMessage();
++                return null;
++            }
++            return new net.minecraft.client.gui.components.ChatComponent$DelayedMessageDeletion($$0, $$4);
++        }
++        return null;
++    }
++
++    public net.minecraft.client.GuiMessage createDeletedMarker(net.minecraft.client.GuiMessage $$0) {
++        return new net.minecraft.client.GuiMessage($$0.addedTime(), DELETED_CHAT_MESSAGE, null, net.minecraft.client.GuiMessageTag.system());
++    }
++
+     public void rescaleChat() {
+         this.resetChatScroll();
+         this.refreshTrimmedMessage();
+@@ -210,7 +249,7 @@
+         this.trimmedMessages.clear();
+         for (int $$0 = this.allMessages.size() - 1; $$0 >= 0; --$$0) {
+             net.minecraft.client.GuiMessage $$1 = (net.minecraft.client.GuiMessage)this.allMessages.get($$0);
+-            this.addMessage($$1.content(), $$1.headerSignature(), $$1.addedTime(), $$1.tag(), true);
++            this.addMessage($$1.content(), $$1.signature(), $$1.addedTime(), $$1.tag(), true);
+         }
+     }
+ 
+@@ -218,9 +257,9 @@
+         return this.recentChat;
+     }
+ 
+-    public void addRecentChat(java.lang.String message) {
+-        if (this.recentChat.isEmpty() || !((java.lang.String)this.recentChat.get(this.recentChat.size() - 1)).equals((java.lang.Object)message)) {
+-            this.recentChat.add((java.lang.Object)message);
++    public void addRecentChat(java.lang.String $$0) {
++        if (this.recentChat.isEmpty() || !((java.lang.String)this.recentChat.get(this.recentChat.size() - 1)).equals((java.lang.Object)$$0)) {
++            this.recentChat.add((java.lang.Object)$$0);
+         }
+     }
+ 
+@@ -260,12 +299,9 @@
+ 
+     @javax.annotation.Nullable
+     public net.minecraft.network.chat.Style getClickedComponentStyleAt(double $$0, double $$1) {
++        double $$3;
+         double $$2 = this.screenToChatX($$0);
+-        if ($$2 < 0.0 || $$2 > (double)net.minecraft.util.Mth.floor((double)((double)this.getWidth() / this.getScale()))) {
+-            return null;
+-        }
+-        double $$3 = this.screenToChatY($$1);
+-        int $$4 = this.getMessageIndexAt($$3);
++        int $$4 = this.getMessageLineIndexAt($$2, $$3 = this.screenToChatY($$1));
+         if ($$4 >= 0 && $$4 < this.trimmedMessages.size()) {
+             net.minecraft.client.GuiMessage$Line $$5 = (net.minecraft.client.GuiMessage$Line)this.trimmedMessages.get($$4);
+             return this.minecraft.font.getSplitter().componentStyleAtWidth($$5.content(), net.minecraft.util.Mth.floor((double)$$2));
+@@ -277,9 +313,9 @@
+     public net.minecraft.client.GuiMessageTag getMessageTagAt(double $$0, double $$1) {
+         net.minecraft.client.GuiMessage$Line $$5;
+         net.minecraft.client.GuiMessageTag $$6;
++        double $$3;
+         double $$2 = this.screenToChatX($$0);
+-        double $$3 = this.screenToChatY($$1);
+-        int $$4 = this.getMessageIndexAt($$3);
++        int $$4 = this.getMessageEndIndexAt($$2, $$3 = this.screenToChatY($$1));
+         if ($$4 >= 0 && $$4 < this.trimmedMessages.size() && ($$6 = ($$5 = (net.minecraft.client.GuiMessage$Line)this.trimmedMessages.get($$4)).tag()) != null && this.hasSelectedMessageTag($$2, $$5, $$6)) {
+             return $$6;
+         }
+@@ -308,36 +344,43 @@
+         return $$1 / (this.getScale() * ((java.lang.Double)this.minecraft.options.chatLineSpacing().get() + 1.0));
+     }
+ 
+-    public int getMessageIndexAt(double $$0) {
++    public int getMessageEndIndexAt(double $$0, double $$1) {
++        int $$2 = this.getMessageLineIndexAt($$0, $$1);
++        if ($$2 == -1) {
++            return -1;
++        }
++        while ($$2 >= 0) {
++            if (((net.minecraft.client.GuiMessage$Line)this.trimmedMessages.get($$2)).endOfEntry()) {
++                return $$2;
++            }
++            --$$2;
++        }
++        return $$2;
++    }
++
++    public int getMessageLineIndexAt(double $$0, double $$1) {
+         if (!this.isChatFocused() || this.minecraft.options.hideGui || this.isChatHidden()) {
+             return -1;
+         }
+-        int $$1 = java.lang.Math.min((int)this.getLinesPerPage(), (int)this.trimmedMessages.size());
+-        if ($$0 >= 0.0) {
++        if ($$0 < -4.0 || $$0 > (double)net.minecraft.util.Mth.floor((double)((double)this.getWidth() / this.getScale()))) {
++            return -1;
++        }
++        int $$2 = java.lang.Math.min((int)this.getLinesPerPage(), (int)this.trimmedMessages.size());
++        if ($$1 >= 0.0) {
+             java.util.Objects.requireNonNull((java.lang.Object)this.minecraft.font);
+-            if ($$0 < (double)(9 * $$1 + $$1)) {
++            if ($$1 < (double)(9 * $$2 + $$2)) {
+                 java.util.Objects.requireNonNull((java.lang.Object)this.minecraft.font);
+-                int $$2 = net.minecraft.util.Mth.floor((double)($$0 / 9.0 + (double)this.chatScrollbarPos));
+-                if ($$2 >= 0 && $$2 < this.trimmedMessages.size()) {
+-                    return $$2;
++                int $$3 = net.minecraft.util.Mth.floor((double)($$1 / 9.0 + (double)this.chatScrollbarPos));
++                if ($$3 >= 0 && $$3 < this.trimmedMessages.size()) {
++                    return $$3;
+                 }
+             }
+         }
+         return -1;
+     }
+ 
+-    @javax.annotation.Nullable
+-    public net.minecraft.client.gui.screens.ChatScreen getFocusedChat() {
+-        net.minecraft.client.gui.screens.Screen screen = this.minecraft.screen;
+-        if (screen instanceof net.minecraft.client.gui.screens.ChatScreen) {
+-            net.minecraft.client.gui.screens.ChatScreen $$0 = (net.minecraft.client.gui.screens.ChatScreen)screen;
+-            return $$0;
+-        }
+-        return null;
+-    }
+-
+     public boolean isChatFocused() {
+-        return this.getFocusedChat() != null;
++        return this.minecraft.screen instanceof net.minecraft.client.gui.screens.ChatScreen;
+     }
+ 
+     public int getWidth() {
+@@ -381,6 +424,7 @@
+ 
+     static {
+         LOGGER = com.mojang.logging.LogUtils.getLogger();
++        DELETED_CHAT_MESSAGE = net.minecraft.network.chat.Component.translatable((java.lang.String)"chat.deleted_marker").withStyle(new net.minecraft.ChatFormatting[]{net.minecraft.ChatFormatting.GRAY, net.minecraft.ChatFormatting.ITALIC});
+     }
+ }
+ 

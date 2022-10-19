@@ -1,0 +1,1279 @@
+--- net/minecraft/client/Minecraft.java
++++ net/minecraft/client/Minecraft.java
+@@ -18,7 +18,7 @@
+     public static java.util.concurrent.CompletableFuture<net.minecraft.util.Unit> RESOURCE_RELOAD_INITIAL_TASK;
+     public static net.minecraft.network.chat.Component SOCIAL_INTERACTIONS_NOT_AVAILABLE;
+     public static java.lang.String UPDATE_DRIVERS_ADVICE = "Please make sure you have up-to-date drivers (see aka.ms/mcdriver for instructions).";
+-    public java.io.File resourcePackDirectory;
++    public java.nio.file.Path resourcePackDirectory;
+     public com.mojang.authlib.properties.PropertyMap profileProperties;
+     public net.minecraft.client.renderer.texture.TextureManager textureManager;
+     public com.mojang.datafixers.DataFixer fixerUpper;
+@@ -53,7 +53,8 @@
+     public boolean allowsMultiplayer;
+     public boolean allowsChat;
+     public net.minecraft.server.packs.resources.ReloadableResourceManager resourceManager;
+-    public net.minecraft.client.resources.ClientPackSource clientPackSource;
++    public net.minecraft.server.packs.VanillaPackResources vanillaPackResources;
++    public net.minecraft.client.resources.DownloadedPackSource downloadedPackSource;
+     public net.minecraft.server.packs.repository.PackRepository resourcePackRepository;
+     public net.minecraft.client.resources.language.LanguageManager languageManager;
+     public net.minecraft.client.color.block.BlockColors blockColors;
+@@ -92,8 +93,6 @@
+     @javax.annotation.Nullable
+     public net.minecraft.client.server.IntegratedServer singleplayerServer;
+     @javax.annotation.Nullable
+-    public net.minecraft.client.multiplayer.ServerData currentServer;
+-    @javax.annotation.Nullable
+     public net.minecraft.network.Connection pendingConnection;
+     public boolean isLocalServer;
+     @javax.annotation.Nullable
+@@ -148,12 +147,11 @@
+     public net.minecraft.client.multiplayer.chat.report.ReportingContext reportingContext;
+     public java.lang.String debugPath;
+ 
+-    public net.minecraft.client.Minecraft(net.minecraft.client.main.GameConfig gameConfig) {
++    public net.minecraft.client.Minecraft(net.minecraft.client.main.GameConfig $$02) {
+         super("Client");
+-        java.io.InputStream inputStream;
+-        java.io.InputStream inputStream2;
+-        int n;
+-        java.lang.String string;
++        com.mojang.blaze3d.platform.DisplayData $$9;
++        int $$7;
++        java.lang.String $$6;
+         this.timer = new net.minecraft.client.Timer(20.0f, 0L);
+         this.searchRegistry = new net.minecraft.client.searchtree.SearchRegistry();
+         this.progressListener = new java.util.concurrent.atomic.AtomicReference();
+@@ -171,33 +169,36 @@
+         this.reloadStateTracker = new net.minecraft.client.ResourceLoadStateTracker();
+         this.debugPath = "root";
+         instance = this;
+-        this.gameDirectory = gameConfig.location.gameDirectory;
+-        java.io.File file = gameConfig.location.assetDirectory;
+-        this.resourcePackDirectory = gameConfig.location.resourcePackDirectory;
+-        this.launchedVersion = gameConfig.game.launchVersion;
+-        this.versionType = gameConfig.game.versionType;
+-        this.profileProperties = gameConfig.user.profileProperties;
+-        this.clientPackSource = new net.minecraft.client.resources.ClientPackSource(new java.io.File(this.gameDirectory, "server-resource-packs"), gameConfig.location.getAssetIndex());
+-        this.resourcePackRepository = new net.minecraft.server.packs.repository.PackRepository(net.minecraft.client.Minecraft::createClientPackAdapter, new net.minecraft.server.packs.repository.RepositorySource[]{this.clientPackSource, new net.minecraft.server.packs.repository.FolderRepositorySource(this.resourcePackDirectory, net.minecraft.server.packs.repository.PackSource.DEFAULT)});
+-        this.proxy = gameConfig.user.proxy;
++        this.gameDirectory = $$02.location.gameDirectory;
++        java.io.File $$1 = $$02.location.assetDirectory;
++        this.resourcePackDirectory = $$02.location.resourcePackDirectory.toPath();
++        this.launchedVersion = $$02.game.launchVersion;
++        this.versionType = $$02.game.versionType;
++        this.profileProperties = $$02.user.profileProperties;
++        net.minecraft.client.resources.ClientPackSource $$2 = new net.minecraft.client.resources.ClientPackSource($$02.location.getExternalAssetSource());
++        this.downloadedPackSource = new net.minecraft.client.resources.DownloadedPackSource(new java.io.File(this.gameDirectory, "server-resource-packs"));
++        net.minecraft.server.packs.repository.FolderRepositorySource $$3 = new net.minecraft.server.packs.repository.FolderRepositorySource(this.resourcePackDirectory, net.minecraft.server.packs.PackType.CLIENT_RESOURCES, net.minecraft.server.packs.repository.PackSource.DEFAULT);
++        this.resourcePackRepository = new net.minecraft.server.packs.repository.PackRepository(new net.minecraft.server.packs.repository.RepositorySource[]{$$2, this.downloadedPackSource, $$3});
++        this.vanillaPackResources = $$2.getVanillaPack();
++        this.proxy = $$02.user.proxy;
+         this.authenticationService = new com.mojang.authlib.yggdrasil.YggdrasilAuthenticationService(this.proxy);
+         this.minecraftSessionService = this.authenticationService.createMinecraftSessionService();
+-        this.userApiService = this.createUserApiService(this.authenticationService, gameConfig);
++        this.userApiService = this.createUserApiService(this.authenticationService, $$02);
+         this.serviceSignatureValidator = net.minecraft.util.SignatureValidator.from((com.mojang.authlib.yggdrasil.ServicesKeyInfo)this.authenticationService.getServicesKey());
+-        this.user = gameConfig.user.user;
++        this.user = $$02.user.user;
+         LOGGER.info("Setting user: {}", (java.lang.Object)this.user.getName());
+         LOGGER.debug("(Session ID is {})", (java.lang.Object)this.user.getSessionId());
+-        this.demo = gameConfig.game.demo;
+-        this.allowsMultiplayer = !gameConfig.game.disableMultiplayer;
+-        this.allowsChat = !gameConfig.game.disableChat;
++        this.demo = $$02.game.demo;
++        this.allowsMultiplayer = !$$02.game.disableMultiplayer;
++        this.allowsChat = !$$02.game.disableChat;
+         this.is64bit = net.minecraft.client.Minecraft.checkIs64Bit();
+         this.singleplayerServer = null;
+-        if (this.allowsMultiplayer() && gameConfig.server.hostname != null) {
+-            string = gameConfig.server.hostname;
+-            n = gameConfig.server.port;
++        if (this.allowsMultiplayer() && $$02.server.hostname != null) {
++            java.lang.String $$4 = $$02.server.hostname;
++            int $$5 = $$02.server.port;
+         } else {
+-            string = null;
+-            n = 0;
++            $$6 = null;
++            $$7 = 0;
+         }
+         net.minecraft.network.chat.contents.KeybindResolver.setKeyResolver(net.minecraft.client.KeyMapping::createNameSupplier);
+         this.fixerUpper = net.minecraft.util.datafix.DataFixers.getDataFixer();
+@@ -208,23 +209,24 @@
+         this.tutorial = new net.minecraft.client.tutorial.Tutorial(this, this.options);
+         this.hotbarManager = new net.minecraft.client.HotbarManager(this.gameDirectory, this.fixerUpper);
+         LOGGER.info("Backend library: {}", (java.lang.Object)com.mojang.blaze3d.systems.RenderSystem.getBackendDescription());
+-        com.mojang.blaze3d.platform.DisplayData displayData = this.options.overrideHeight > 0 && this.options.overrideWidth > 0 ? new com.mojang.blaze3d.platform.DisplayData(this.options.overrideWidth, this.options.overrideHeight, gameConfig.display.fullscreenWidth, gameConfig.display.fullscreenHeight, gameConfig.display.isFullscreen) : gameConfig.display;
++        if (this.options.overrideHeight > 0 && this.options.overrideWidth > 0) {
++            com.mojang.blaze3d.platform.DisplayData $$8 = new com.mojang.blaze3d.platform.DisplayData(this.options.overrideWidth, this.options.overrideHeight, $$02.display.fullscreenWidth, $$02.display.fullscreenHeight, $$02.display.isFullscreen);
++        } else {
++            $$9 = $$02.display;
++        }
+         net.minecraft.Util.timeSource = com.mojang.blaze3d.systems.RenderSystem.initBackendSystem();
+         this.virtualScreen = new net.minecraft.client.renderer.VirtualScreen(this);
+-        this.window = this.virtualScreen.newWindow(displayData, this.options.fullscreenVideoModeString, this.createTitle());
++        this.window = this.virtualScreen.newWindow($$9, this.options.fullscreenVideoModeString, this.createTitle());
+         this.setWindowActive(true);
+         try {
+             if (ON_OSX) {
+-                inputStream2 = this.getClientPackSource().getVanillaPack().getResource(net.minecraft.server.packs.PackType.CLIENT_RESOURCES, new net.minecraft.resources.ResourceLocation("icons/minecraft.icns"));
+-                com.mojang.blaze3d.platform.MacosUtil.loadIcon((java.io.InputStream)inputStream2);
++                com.mojang.blaze3d.platform.MacosUtil.loadIcon((net.minecraft.server.packs.resources.IoSupplier)this.getIconFile(new java.lang.String[]{"icons", "minecraft.icns"}));
+             } else {
+-                inputStream2 = this.getClientPackSource().getVanillaPack().getResource(net.minecraft.server.packs.PackType.CLIENT_RESOURCES, new net.minecraft.resources.ResourceLocation("icons/icon_16x16.png"));
+-                inputStream = this.getClientPackSource().getVanillaPack().getResource(net.minecraft.server.packs.PackType.CLIENT_RESOURCES, new net.minecraft.resources.ResourceLocation("icons/icon_32x32.png"));
+-                this.window.setIcon(inputStream2, inputStream);
++                this.window.setIcon(this.getIconFile(new java.lang.String[]{"icons", "icon_16x16.png"}), this.getIconFile(new java.lang.String[]{"icons", "icon_32x32.png"}));
+             }
+         }
+-        catch (java.io.IOException iOException) {
+-            LOGGER.error("Couldn't set icon", (java.lang.Throwable)iOException);
++        catch (java.io.IOException $$10) {
++            LOGGER.error("Couldn't set icon", (java.lang.Throwable)$$10);
+         }
+         this.window.setFramerateLimit(((java.lang.Integer)this.options.framerateLimit().get()).intValue());
+         this.mouseHandler = new net.minecraft.client.MouseHandler(this);
+@@ -242,9 +244,9 @@
+         this.resourceManager.registerReloadListener((net.minecraft.server.packs.resources.PreparableReloadListener)this.languageManager);
+         this.textureManager = new net.minecraft.client.renderer.texture.TextureManager((net.minecraft.server.packs.resources.ResourceManager)this.resourceManager);
+         this.resourceManager.registerReloadListener((net.minecraft.server.packs.resources.PreparableReloadListener)this.textureManager);
+-        this.skinManager = new net.minecraft.client.resources.SkinManager(this.textureManager, new java.io.File(file, "skins"), this.minecraftSessionService);
++        this.skinManager = new net.minecraft.client.resources.SkinManager(this.textureManager, new java.io.File($$1, "skins"), this.minecraftSessionService);
+         this.levelSource = new net.minecraft.world.level.storage.LevelStorageSource(this.gameDirectory.toPath().resolve("saves"), this.gameDirectory.toPath().resolve("backups"), this.fixerUpper);
+-        this.soundManager = new net.minecraft.client.sounds.SoundManager((net.minecraft.server.packs.resources.ResourceManager)this.resourceManager, this.options);
++        this.soundManager = new net.minecraft.client.sounds.SoundManager(this.options);
+         this.resourceManager.registerReloadListener((net.minecraft.server.packs.resources.PreparableReloadListener)this.soundManager);
+         this.splashManager = new net.minecraft.client.resources.SplashManager(this.user);
+         this.resourceManager.registerReloadListener((net.minecraft.server.packs.resources.PreparableReloadListener)this.splashManager);
+@@ -267,18 +269,18 @@
+         this.resourceManager.registerReloadListener((net.minecraft.server.packs.resources.PreparableReloadListener)this.entityModels);
+         this.blockEntityRenderDispatcher = new net.minecraft.client.renderer.blockentity.BlockEntityRenderDispatcher(this.font, this.entityModels, () -> this.getBlockRenderer(), () -> this.getItemRenderer(), () -> this.getEntityRenderDispatcher());
+         this.resourceManager.registerReloadListener((net.minecraft.server.packs.resources.PreparableReloadListener)this.blockEntityRenderDispatcher);
+-        inputStream2 = new net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer(this.blockEntityRenderDispatcher, this.entityModels);
+-        this.resourceManager.registerReloadListener((net.minecraft.server.packs.resources.PreparableReloadListener)inputStream2);
+-        this.itemRenderer = new net.minecraft.client.renderer.entity.ItemRenderer(this.textureManager, this.modelManager, this.itemColors, (net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer)inputStream2);
++        net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer $$11 = new net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer(this.blockEntityRenderDispatcher, this.entityModels);
++        this.resourceManager.registerReloadListener((net.minecraft.server.packs.resources.PreparableReloadListener)$$11);
++        this.itemRenderer = new net.minecraft.client.renderer.entity.ItemRenderer(this.textureManager, this.modelManager, this.itemColors, $$11);
+         this.resourceManager.registerReloadListener((net.minecraft.server.packs.resources.PreparableReloadListener)this.itemRenderer);
+         this.renderBuffers = new net.minecraft.client.renderer.RenderBuffers();
+         this.playerSocialManager = new net.minecraft.client.gui.screens.social.PlayerSocialManager(this, this.userApiService);
+-        this.blockRenderer = new net.minecraft.client.renderer.block.BlockRenderDispatcher(this.modelManager.getBlockModelShaper(), (net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer)inputStream2, this.blockColors);
++        this.blockRenderer = new net.minecraft.client.renderer.block.BlockRenderDispatcher(this.modelManager.getBlockModelShaper(), $$11, this.blockColors);
+         this.resourceManager.registerReloadListener((net.minecraft.server.packs.resources.PreparableReloadListener)this.blockRenderer);
+         this.entityRenderDispatcher = new net.minecraft.client.renderer.entity.EntityRenderDispatcher(this, this.textureManager, this.itemRenderer, this.blockRenderer, this.font, this.options, this.entityModels);
+         this.resourceManager.registerReloadListener((net.minecraft.server.packs.resources.PreparableReloadListener)this.entityRenderDispatcher);
+         this.gameRenderer = new net.minecraft.client.renderer.GameRenderer(this, this.entityRenderDispatcher.getItemInHandRenderer(), (net.minecraft.server.packs.resources.ResourceManager)this.resourceManager, this.renderBuffers);
+-        this.resourceManager.registerReloadListener((net.minecraft.server.packs.resources.PreparableReloadListener)this.gameRenderer);
++        this.resourceManager.registerReloadListener(this.gameRenderer.createReloadListener());
+         this.levelRenderer = new net.minecraft.client.renderer.LevelRenderer(this, this.entityRenderDispatcher, this.blockEntityRenderDispatcher, this.renderBuffers);
+         this.resourceManager.registerReloadListener((net.minecraft.server.packs.resources.PreparableReloadListener)this.levelRenderer);
+         this.createSearchTrees();
+@@ -297,12 +299,12 @@
+         this.realmsDataFetcher = new com.mojang.realmsclient.gui.RealmsDataFetcher(com.mojang.realmsclient.client.RealmsClient.create((net.minecraft.client.Minecraft)this));
+         com.mojang.blaze3d.systems.RenderSystem.setErrorCallback((arg_0, arg_1) -> this.onFullscreenError(arg_0, arg_1));
+         if (this.mainRenderTarget.width != this.window.getWidth() || this.mainRenderTarget.height != this.window.getHeight()) {
+-            inputStream = new java.lang.StringBuilder("Recovering from unsupported resolution (" + this.window.getWidth() + "x" + this.window.getHeight() + ").\nPlease make sure you have up-to-date drivers (see aka.ms/mcdriver for instructions).");
++            java.lang.StringBuilder $$12 = new java.lang.StringBuilder("Recovering from unsupported resolution (" + this.window.getWidth() + "x" + this.window.getHeight() + ").\nPlease make sure you have up-to-date drivers (see aka.ms/mcdriver for instructions).");
+             if (com.mojang.blaze3d.platform.GlDebug.isDebugEnabled()) {
+-                inputStream.append("\n\nReported GL debug messages:\n").append(java.lang.String.join((java.lang.CharSequence)"\n", (java.lang.Iterable)com.mojang.blaze3d.platform.GlDebug.getLastOpenGlDebugMessages()));
++                $$12.append("\n\nReported GL debug messages:\n").append(java.lang.String.join((java.lang.CharSequence)"\n", (java.lang.Iterable)com.mojang.blaze3d.platform.GlDebug.getLastOpenGlDebugMessages()));
+             }
+             this.window.setWindowed(this.mainRenderTarget.width, this.mainRenderTarget.height);
+-            org.lwjgl.util.tinyfd.TinyFileDialogs.tinyfd_messageBox((java.lang.CharSequence)"Minecraft", (java.lang.CharSequence)inputStream.toString(), (java.lang.CharSequence)"ok", (java.lang.CharSequence)"error", (boolean)false);
++            org.lwjgl.util.tinyfd.TinyFileDialogs.tinyfd_messageBox((java.lang.CharSequence)"Minecraft", (java.lang.CharSequence)$$12.toString(), (java.lang.CharSequence)"ok", (java.lang.CharSequence)"error", (boolean)false);
+         } else if (((java.lang.Boolean)this.options.fullscreen().get()).booleanValue() && !this.window.isFullscreen()) {
+             this.window.toggleFullScreen();
+             this.options.fullscreen().set((java.lang.Object)this.window.isFullscreen());
+@@ -311,7 +313,7 @@
+         this.window.updateRawMouseInput(((java.lang.Boolean)this.options.rawMouseInput().get()).booleanValue());
+         this.window.setDefaultErrorCallback();
+         this.resizeDisplay();
+-        this.gameRenderer.preloadUiShader(this.getClientPackSource().getVanillaPack().asProvider());
++        this.gameRenderer.preloadUiShader(this.vanillaPackResources.asProvider());
+         this.profileKeyPairManager = new net.minecraft.client.multiplayer.ProfileKeyPairManager(this.userApiService, this.user.getGameProfile().getId(), this.gameDirectory.toPath());
+         this.realms32BitWarningStatus = new net.minecraft.client.Realms32BitWarningStatus(this);
+         this.narrator = new net.minecraft.client.GameNarrator(this);
+@@ -319,17 +321,17 @@
+         this.chatListener.setMessageDelay(((java.lang.Double)this.options.chatDelay().get()).doubleValue());
+         this.reportingContext = net.minecraft.client.multiplayer.chat.report.ReportingContext.create((net.minecraft.client.multiplayer.chat.report.ReportEnvironment)net.minecraft.client.multiplayer.chat.report.ReportEnvironment.local(), (com.mojang.authlib.minecraft.UserApiService)this.userApiService);
+         net.minecraft.client.gui.screens.LoadingOverlay.registerTextures((net.minecraft.client.Minecraft)this);
+-        inputStream = this.resourcePackRepository.openAllSelected();
+-        this.reloadStateTracker.startReload(net.minecraft.client.ResourceLoadStateTracker$ReloadReason.INITIAL, (java.util.List)inputStream);
+-        net.minecraft.server.packs.resources.ReloadInstance reloadInstance = this.resourceManager.createReload((java.util.concurrent.Executor)net.minecraft.Util.backgroundExecutor(), (java.util.concurrent.Executor)this, RESOURCE_RELOAD_INITIAL_TASK, (java.util.List)inputStream);
+-        this.setOverlay((net.minecraft.client.gui.screens.Overlay)new net.minecraft.client.gui.screens.LoadingOverlay(this, reloadInstance, $$0 -> net.minecraft.Util.ifElse((java.util.Optional)$$0, arg_0 -> this.rollbackResourcePacks(arg_0), () -> {
++        java.util.List $$13 = this.resourcePackRepository.openAllSelected();
++        this.reloadStateTracker.startReload(net.minecraft.client.ResourceLoadStateTracker$ReloadReason.INITIAL, $$13);
++        net.minecraft.server.packs.resources.ReloadInstance $$14 = this.resourceManager.createReload((java.util.concurrent.Executor)net.minecraft.Util.backgroundExecutor(), (java.util.concurrent.Executor)this, RESOURCE_RELOAD_INITIAL_TASK, $$13);
++        this.setOverlay((net.minecraft.client.gui.screens.Overlay)new net.minecraft.client.gui.screens.LoadingOverlay(this, $$14, $$0 -> net.minecraft.Util.ifElse((java.util.Optional)$$0, arg_0 -> this.rollbackResourcePacks(arg_0), () -> {
+             if (net.minecraft.SharedConstants.IS_RUNNING_IN_IDE) {
+                 this.selfTest();
+             }
+             this.reloadStateTracker.finishReload();
+         }), false));
+-        if (string != null) {
+-            reloadInstance.done().thenRunAsync(() -> net.minecraft.client.gui.screens.ConnectScreen.startConnecting((net.minecraft.client.gui.screens.Screen)new net.minecraft.client.gui.screens.TitleScreen(), (net.minecraft.client.Minecraft)this, (net.minecraft.client.multiplayer.resolver.ServerAddress)new net.minecraft.client.multiplayer.resolver.ServerAddress(string, n), null), (java.util.concurrent.Executor)this);
++        if ($$6 != null) {
++            $$14.done().thenRunAsync(() -> net.minecraft.client.gui.screens.ConnectScreen.startConnecting((net.minecraft.client.gui.screens.Screen)new net.minecraft.client.gui.screens.TitleScreen(), (net.minecraft.client.Minecraft)this, (net.minecraft.client.multiplayer.resolver.ServerAddress)new net.minecraft.client.multiplayer.resolver.ServerAddress($$6, $$7), null), (java.util.concurrent.Executor)this);
+         } else if (this.shouldShowBanNotice()) {
+             this.setScreen((net.minecraft.client.gui.screens.Screen)net.minecraft.client.gui.screens.BanNoticeScreen.create($$0 -> {
+                 if ($$0) {
+@@ -342,6 +344,14 @@
+         }
+     }
+ 
++    public net.minecraft.server.packs.resources.IoSupplier<java.io.InputStream> getIconFile(java.lang.String ... $$0) throws java.io.IOException {
++        net.minecraft.server.packs.resources.IoSupplier $$1 = this.vanillaPackResources.getRootResource($$0);
++        if ($$1 == null) {
++            throw new java.io.FileNotFoundException(java.lang.String.join((java.lang.CharSequence)"/", (java.lang.CharSequence[])$$0));
++        }
++        return $$1;
++    }
++
+     public static boolean countryEqualsISO3(java.lang.Object $$0) {
+         try {
+             return java.util.Locale.getDefault().getISO3Country().equals($$0);
+@@ -369,7 +379,7 @@
+                 $$0.append(net.minecraft.client.resources.language.I18n.get((java.lang.String)"title.singleplayer", (java.lang.Object[])new java.lang.Object[0]));
+             } else if (this.isConnectedToRealms()) {
+                 $$0.append(net.minecraft.client.resources.language.I18n.get((java.lang.String)"title.multiplayer.realms", (java.lang.Object[])new java.lang.Object[0]));
+-            } else if (this.singleplayerServer != null || this.currentServer != null && this.currentServer.isLan()) {
++            } else if (this.singleplayerServer != null || this.getCurrentServer() != null && this.getCurrentServer().isLan()) {
+                 $$0.append(net.minecraft.client.resources.language.I18n.get((java.lang.String)"title.multiplayer.lan", (java.lang.Object[])new java.lang.Object[0]));
+             } else {
+                 $$0.append(net.minecraft.client.resources.language.I18n.get((java.lang.String)"title.multiplayer.other", (java.lang.Object[])new java.lang.Object[0]));
+@@ -392,24 +402,24 @@
+         return net.minecraft.util.ModCheck.identify((java.lang.String)"vanilla", net.minecraft.client.ClientBrandRetriever::getClientModName, (java.lang.String)"Client", net.minecraft.client.Minecraft.class);
+     }
+ 
+-    public void rollbackResourcePacks(java.lang.Throwable throwable) {
++    public void rollbackResourcePacks(java.lang.Throwable $$0) {
+         if (this.resourcePackRepository.getSelectedIds().size() > 1) {
+-            this.clearResourcePacksOnError(throwable, null);
++            this.clearResourcePacksOnError($$0, null);
+         } else {
+-            net.minecraft.Util.throwAsRuntime((java.lang.Throwable)throwable);
++            net.minecraft.Util.throwAsRuntime((java.lang.Throwable)$$0);
+         }
+     }
+ 
+-    public void clearResourcePacksOnError(java.lang.Throwable throwable, @javax.annotation.Nullable net.minecraft.network.chat.Component errorMessage) {
+-        LOGGER.info("Caught error loading resourcepacks, removing all selected resourcepacks", throwable);
+-        this.reloadStateTracker.startRecovery(throwable);
++    public void clearResourcePacksOnError(java.lang.Throwable $$0, @javax.annotation.Nullable net.minecraft.network.chat.Component $$1) {
++        LOGGER.info("Caught error loading resourcepacks, removing all selected resourcepacks", $$0);
++        this.reloadStateTracker.startRecovery($$0);
+         this.resourcePackRepository.setSelected((java.util.Collection)java.util.Collections.emptyList());
+         this.options.resourcePacks.clear();
+         this.options.incompatibleResourcePacks.clear();
+         this.options.save();
+         this.reloadResourcePacks(true).thenRun(() -> {
+             net.minecraft.client.gui.components.toasts.ToastComponent $$1 = this.getToasts();
+-            net.minecraft.client.gui.components.toasts.SystemToast.addOrUpdate((net.minecraft.client.gui.components.toasts.ToastComponent)$$1, (net.minecraft.client.gui.components.toasts.SystemToast$SystemToastIds)net.minecraft.client.gui.components.toasts.SystemToast$SystemToastIds.PACK_LOAD_FAILURE, (net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"resourcePack.load_fail"), (net.minecraft.network.chat.Component)errorMessage);
++            net.minecraft.client.gui.components.toasts.SystemToast.addOrUpdate((net.minecraft.client.gui.components.toasts.ToastComponent)$$1, (net.minecraft.client.gui.components.toasts.SystemToast$SystemToastIds)net.minecraft.client.gui.components.toasts.SystemToast$SystemToastIds.PACK_LOAD_FAILURE, (net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"resourcePack.load_fail"), (net.minecraft.network.chat.Component)$$1);
+         });
+     }
+ 
+@@ -462,8 +472,8 @@
+         }
+     }
+ 
+-    public void selectMainFont(boolean forced) {
+-        this.fontManager.setRenames((java.util.Map)(forced ? com.google.common.collect.ImmutableMap.of((java.lang.Object)DEFAULT_FONT, (java.lang.Object)UNIFORM_FONT) : com.google.common.collect.ImmutableMap.of()));
++    public void selectMainFont(boolean $$0) {
++        this.fontManager.setRenames((java.util.Map)($$0 ? com.google.common.collect.ImmutableMap.of((java.lang.Object)DEFAULT_FONT, (java.lang.Object)UNIFORM_FONT) : com.google.common.collect.ImmutableMap.of()));
+     }
+ 
+     public void createSearchTrees() {
+@@ -472,7 +482,7 @@
+         this.searchRegistry.register(net.minecraft.client.searchtree.SearchRegistry.RECIPE_COLLECTIONS, $$0 -> new net.minecraft.client.searchtree.FullTextSearchTree($$02 -> $$02.getRecipes().stream().flatMap($$0 -> $$0.getResultItem().getTooltipLines(null, (net.minecraft.world.item.TooltipFlag)net.minecraft.world.item.TooltipFlag$Default.NORMAL).stream()).map($$0 -> net.minecraft.ChatFormatting.stripFormatting((java.lang.String)$$0.getString()).trim()).filter($$0 -> !$$0.isEmpty()), $$02 -> $$02.getRecipes().stream().map($$0 -> net.minecraft.core.Registry.ITEM.getKey((java.lang.Object)$$0.getResultItem().getItem())), $$0));
+     }
+ 
+-    public void onFullscreenError(int error, long description) {
++    public void onFullscreenError(int $$0, long $$1) {
+         this.options.enableVsync().set((java.lang.Object)false);
+         this.options.save();
+     }
+@@ -499,23 +509,23 @@
+         return this.versionType;
+     }
+ 
+-    public void delayCrash(net.minecraft.CrashReport crash) {
+-        this.delayedCrash = () -> this.fillReport(crash);
++    public void delayCrash(net.minecraft.CrashReport $$0) {
++        this.delayedCrash = () -> this.fillReport($$0);
+     }
+ 
+     public void delayCrashRaw(net.minecraft.CrashReport $$0) {
+         this.delayedCrash = () -> $$0;
+     }
+ 
+-    public static void crash(net.minecraft.CrashReport report) {
+-        java.io.File file = new java.io.File(net.minecraft.client.Minecraft.getInstance().gameDirectory, "crash-reports");
+-        java.io.File file2 = new java.io.File(file, "crash-" + net.minecraft.Util.getFilenameFormattedDateTime() + "-client.txt");
+-        net.minecraft.server.Bootstrap.realStdoutPrintln((java.lang.String)report.getFriendlyReport());
+-        if (report.getSaveFile() != null) {
+-            net.minecraft.server.Bootstrap.realStdoutPrintln((java.lang.String)("#@!@# Game crashed! Crash report saved to: #@!@# " + report.getSaveFile()));
++    public static void crash(net.minecraft.CrashReport $$0) {
++        java.io.File $$1 = new java.io.File(net.minecraft.client.Minecraft.getInstance().gameDirectory, "crash-reports");
++        java.io.File $$2 = new java.io.File($$1, "crash-" + net.minecraft.Util.getFilenameFormattedDateTime() + "-client.txt");
++        net.minecraft.server.Bootstrap.realStdoutPrintln((java.lang.String)$$0.getFriendlyReport());
++        if ($$0.getSaveFile() != null) {
++            net.minecraft.server.Bootstrap.realStdoutPrintln((java.lang.String)("#@!@# Game crashed! Crash report saved to: #@!@# " + $$0.getSaveFile()));
+             java.lang.System.exit((int)-1);
+-        } else if (report.saveToFile(file2)) {
+-            net.minecraft.server.Bootstrap.realStdoutPrintln((java.lang.String)("#@!@# Game crashed! Crash report saved to: #@!@# " + file2.getAbsolutePath()));
++        } else if ($$0.saveToFile($$2)) {
++            net.minecraft.server.Bootstrap.realStdoutPrintln((java.lang.String)("#@!@# Game crashed! Crash report saved to: #@!@# " + $$2.getAbsolutePath()));
+             java.lang.System.exit((int)-1);
+         } else {
+             net.minecraft.server.Bootstrap.realStdoutPrintln((java.lang.String)"#@?@# Game crashed! Crash report could not be saved. #@?@#");
+@@ -574,16 +584,11 @@
+                 $$0 = true;
+             }
+         }
+-        net.minecraft.core.NonNullList $$10 = net.minecraft.core.NonNullList.create();
+-        for (net.minecraft.world.item.Item $$11 : net.minecraft.core.Registry.ITEM) {
+-            $$10.clear();
+-            $$11.fillItemCategory(net.minecraft.world.item.CreativeModeTab.TAB_SEARCH, $$10);
+-            for (net.minecraft.world.item.ItemStack $$12 : $$10) {
+-                java.lang.String $$13 = $$12.getDescriptionId();
+-                java.lang.String $$14 = net.minecraft.network.chat.Component.translatable((java.lang.String)$$13).getString();
+-                if (!$$14.toLowerCase(java.util.Locale.ROOT).equals((java.lang.Object)$$11.getDescriptionId())) continue;
+-                LOGGER.debug("Missing translation for: {} {} {}", new java.lang.Object[]{$$12, $$13, $$12.getItem()});
+-            }
++        for (net.minecraft.world.item.ItemStack $$10 : net.minecraft.world.item.CreativeModeTabs.TAB_SEARCH.getDisplayItems(net.minecraft.world.flag.FeatureFlags.REGISTRY.allFlags())) {
++            java.lang.String $$11 = $$10.getDescriptionId();
++            java.lang.String $$12 = net.minecraft.network.chat.Component.translatable((java.lang.String)$$11).getString();
++            if (!$$12.toLowerCase(java.util.Locale.ROOT).equals((java.lang.Object)$$10.getItem().getDescriptionId())) continue;
++            LOGGER.debug("Missing translation for: {} {} {}", new java.lang.Object[]{$$10, $$11, $$10.getItem()});
+         }
+         $$0 |= net.minecraft.client.gui.screens.MenuScreens.selfTest();
+         if ($$0 |= net.minecraft.client.renderer.entity.EntityRenderers.validateRegistrations()) {
+@@ -595,9 +600,9 @@
+         return this.levelSource;
+     }
+ 
+-    public void openChatScreen(java.lang.String defaultText) {
+-        net.minecraft.client.Minecraft$ChatStatus chatStatus = this.getChatStatus();
+-        if (!chatStatus.isChatAllowed(this.isLocalServer())) {
++    public void openChatScreen(java.lang.String $$02) {
++        net.minecraft.client.Minecraft$ChatStatus $$1 = this.getChatStatus();
++        if (!$$1.isChatAllowed(this.isLocalServer())) {
+             if (this.gui.isShowingChatDisabledByPlayer()) {
+                 this.gui.setChatDisabledByPlayerShown(false);
+                 this.setScreen((net.minecraft.client.gui.screens.Screen)new net.minecraft.client.gui.screens.ConfirmLinkScreen($$0 -> {
+@@ -607,38 +612,38 @@
+                     this.setScreen(null);
+                 }, net.minecraft.client.Minecraft$ChatStatus.INFO_DISABLED_BY_PROFILE, "https://aka.ms/JavaAccountSettings", true));
+             } else {
+-                net.minecraft.network.chat.Component component = chatStatus.getMessage();
+-                this.gui.setOverlayMessage(component, false);
+-                this.narrator.sayNow(component);
+-                this.gui.setChatDisabledByPlayerShown(chatStatus == net.minecraft.client.Minecraft$ChatStatus.DISABLED_BY_PROFILE);
++                net.minecraft.network.chat.Component $$2 = $$1.getMessage();
++                this.gui.setOverlayMessage($$2, false);
++                this.narrator.sayNow($$2);
++                this.gui.setChatDisabledByPlayerShown($$1 == net.minecraft.client.Minecraft$ChatStatus.DISABLED_BY_PROFILE);
+             }
+         } else {
+-            this.setScreen((net.minecraft.client.gui.screens.Screen)new net.minecraft.client.gui.screens.ChatScreen(defaultText));
++            this.setScreen((net.minecraft.client.gui.screens.Screen)new net.minecraft.client.gui.screens.ChatScreen($$02));
+         }
+     }
+ 
+-    public void setScreen(@javax.annotation.Nullable net.minecraft.client.gui.screens.Screen guiScreen) {
++    public void setScreen(@javax.annotation.Nullable net.minecraft.client.gui.screens.Screen $$0) {
+         if (net.minecraft.SharedConstants.IS_RUNNING_IN_IDE && java.lang.Thread.currentThread() != this.gameThread) {
+             LOGGER.error("setScreen called from non-game thread");
+         }
+         if (this.screen != null) {
+             this.screen.removed();
+         }
+-        if (guiScreen == null && this.level == null) {
+-            guiScreen = new net.minecraft.client.gui.screens.TitleScreen();
+-        } else if (guiScreen == null && this.player.isDeadOrDying()) {
++        if ($$0 == null && this.level == null) {
++            $$0 = new net.minecraft.client.gui.screens.TitleScreen();
++        } else if ($$0 == null && this.player.isDeadOrDying()) {
+             if (this.player.shouldShowDeathScreen()) {
+-                guiScreen = new net.minecraft.client.gui.screens.DeathScreen(null, this.level.getLevelData().isHardcore());
++                $$0 = new net.minecraft.client.gui.screens.DeathScreen(null, this.level.getLevelData().isHardcore());
+             } else {
+                 this.player.respawn();
+             }
+         }
+-        this.screen = guiScreen;
++        this.screen = $$0;
+         com.mojang.blaze3d.vertex.BufferUploader.reset();
+-        if (guiScreen != null) {
++        if ($$0 != null) {
+             this.mouseHandler.releaseMouse();
+             net.minecraft.client.KeyMapping.releaseAll();
+-            guiScreen.init(this, this.window.getGuiScaledWidth(), this.window.getGuiScaledHeight());
++            $$0.init(this, this.window.getGuiScaledWidth(), this.window.getGuiScaledHeight());
+             this.noRender = false;
+         } else {
+             this.soundManager.resume();
+@@ -647,8 +652,8 @@
+         this.updateTitle();
+     }
+ 
+-    public void setOverlay(@javax.annotation.Nullable net.minecraft.client.gui.screens.Overlay loadingGui) {
+-        this.overlay = loadingGui;
++    public void setOverlay(@javax.annotation.Nullable net.minecraft.client.gui.screens.Overlay $$0) {
++        this.overlay = $$0;
+     }
+ 
+     public void destroy() {
+@@ -710,30 +715,30 @@
+         }
+     }
+ 
+-    public void runTick(boolean renderLevel) {
+-        boolean bl;
+-        int n;
+-        java.lang.Runnable runnable;
++    public void runTick(boolean $$02) {
++        boolean $$10;
++        boolean $$7;
++        java.lang.Runnable $$3;
+         this.window.setErrorSection("Pre render");
+-        long l = net.minecraft.Util.getNanos();
++        long $$1 = net.minecraft.Util.getNanos();
+         if (this.window.shouldClose()) {
+             this.stop();
+         }
+         if (this.pendingReload != null && !(this.overlay instanceof net.minecraft.client.gui.screens.LoadingOverlay)) {
+-            runnable = this.pendingReload;
++            java.util.concurrent.CompletableFuture $$2 = this.pendingReload;
+             this.pendingReload = null;
+-            this.reloadResourcePacks().thenRun(() -> net.minecraft.client.Minecraft.lambda$runTick$25((java.util.concurrent.CompletableFuture)runnable));
++            this.reloadResourcePacks().thenRun(() -> $$2.complete(null));
+         }
+-        while ((runnable = (java.lang.Runnable)this.progressTasks.poll()) != null) {
+-            runnable.run();
++        while (($$3 = (java.lang.Runnable)this.progressTasks.poll()) != null) {
++            $$3.run();
+         }
+-        if (renderLevel) {
+-            n = this.timer.advanceTime(net.minecraft.Util.getMillis());
++        if ($$02) {
++            int $$4 = this.timer.advanceTime(net.minecraft.Util.getMillis());
+             this.profiler.push("scheduledExecutables");
+             this.runAllTasks();
+             this.profiler.pop();
+             this.profiler.push("tick");
+-            for (int i = 0; i < java.lang.Math.min((int)10, (int)n); ++i) {
++            for (int $$5 = 0; $$5 < java.lang.Math.min((int)10, (int)$$4); ++$$5) {
+                 this.profiler.incrementCounter("clientTick");
+                 this.tick();
+             }
+@@ -746,16 +751,17 @@
+         this.profiler.pop();
+         this.profiler.push("render");
+         if (this.options.renderDebug || this.metricsRecorder.isRecording()) {
+-            int n2 = n = this.currentFrameProfile == null || this.currentFrameProfile.isDone() ? 1 : 0;
+-            if (n != 0) {
++            boolean $$6;
++            boolean bl = $$6 = this.currentFrameProfile == null || this.currentFrameProfile.isDone();
++            if ($$6) {
+                 com.mojang.blaze3d.systems.TimerQuery.getInstance().ifPresent(com.mojang.blaze3d.systems.TimerQuery::beginProfile);
+             }
+         } else {
+-            n = 0;
++            $$7 = false;
+             this.gpuUtilization = 0.0;
+         }
+-        com.mojang.blaze3d.vertex.PoseStack poseStack = com.mojang.blaze3d.systems.RenderSystem.getModelViewStack();
+-        poseStack.pushPose();
++        com.mojang.blaze3d.vertex.PoseStack $$8 = com.mojang.blaze3d.systems.RenderSystem.getModelViewStack();
++        $$8.pushPose();
+         com.mojang.blaze3d.systems.RenderSystem.applyModelViewMatrix();
+         com.mojang.blaze3d.systems.RenderSystem.clear((int)16640, (boolean)ON_OSX);
+         this.mainRenderTarget.bindWrite(true);
+@@ -766,7 +772,7 @@
+         this.profiler.pop();
+         if (!this.noRender) {
+             this.profiler.popPush("gameRenderer");
+-            this.gameRenderer.render(this.pause ? this.pausePartialTick : this.timer.partialTick, l, renderLevel);
++            this.gameRenderer.render(this.pause ? this.pausePartialTick : this.timer.partialTick, $$1, $$02);
+             this.profiler.popPush("toasts");
+             this.toast.render(new com.mojang.blaze3d.vertex.PoseStack());
+             this.profiler.pop();
+@@ -778,52 +784,57 @@
+         }
+         this.profiler.push("blit");
+         this.mainRenderTarget.unbindWrite();
+-        poseStack.popPose();
+-        poseStack.pushPose();
++        $$8.popPose();
++        $$8.pushPose();
+         com.mojang.blaze3d.systems.RenderSystem.applyModelViewMatrix();
+         this.mainRenderTarget.blitToScreen(this.window.getWidth(), this.window.getHeight());
+-        if (n != 0) {
++        if ($$7) {
+             com.mojang.blaze3d.systems.TimerQuery.getInstance().ifPresent($$0 -> {
+                 this.currentFrameProfile = $$0.endProfile();
+             });
+         }
+-        poseStack.popPose();
++        $$8.popPose();
+         com.mojang.blaze3d.systems.RenderSystem.applyModelViewMatrix();
+         this.profiler.popPush("updateDisplay");
+         this.window.updateDisplay();
+-        int n3 = this.getFramerateLimit();
+-        if (n3 < 260) {
+-            com.mojang.blaze3d.systems.RenderSystem.limitDisplayFPS((int)n3);
++        int $$9 = this.getFramerateLimit();
++        if ($$9 < 260) {
++            com.mojang.blaze3d.systems.RenderSystem.limitDisplayFPS((int)$$9);
+         }
+         this.profiler.popPush("yield");
+         java.lang.Thread.yield();
+         this.profiler.pop();
+         this.window.setErrorSection("Post render");
+         ++this.frames;
+-        boolean bl2 = bl = this.hasSingleplayerServer() && (this.screen != null && this.screen.isPauseScreen() || this.overlay != null && this.overlay.isPauseScreen()) && !this.singleplayerServer.isPublished();
+-        if (this.pause != bl) {
++        boolean bl = $$10 = this.hasSingleplayerServer() && (this.screen != null && this.screen.isPauseScreen() || this.overlay != null && this.overlay.isPauseScreen()) && !this.singleplayerServer.isPublished();
++        if (this.pause != $$10) {
+             if (this.pause) {
+                 this.pausePartialTick = this.timer.partialTick;
+             } else {
+                 this.timer.partialTick = this.pausePartialTick;
+             }
+-            this.pause = bl;
++            this.pause = $$10;
+         }
+-        long l2 = net.minecraft.Util.getNanos();
+-        long l3 = l2 - this.lastNanoTime;
+-        if (n != 0) {
+-            this.savedCpuDuration = l3;
++        long $$11 = net.minecraft.Util.getNanos();
++        long $$12 = $$11 - this.lastNanoTime;
++        if ($$7) {
++            this.savedCpuDuration = $$12;
+         }
+-        this.frameTimer.logFrameDuration(l3);
+-        this.lastNanoTime = l2;
++        this.frameTimer.logFrameDuration($$12);
++        this.lastNanoTime = $$11;
+         this.profiler.push("fpsUpdate");
+         if (this.currentFrameProfile != null && this.currentFrameProfile.isDone()) {
+             this.gpuUtilization = (double)this.currentFrameProfile.get() * 100.0 / (double)this.savedCpuDuration;
+         }
+         while (net.minecraft.Util.getMillis() >= this.lastTime + 1000L) {
+-            java.lang.String string = this.gpuUtilization > 0.0 ? " GPU: " + (this.gpuUtilization > 100.0 ? net.minecraft.ChatFormatting.RED + "100%" : java.lang.Math.round((double)this.gpuUtilization) + "%") : "";
++            java.lang.String $$14;
++            if (this.gpuUtilization > 0.0) {
++                java.lang.String $$13 = " GPU: " + (this.gpuUtilization > 100.0 ? net.minecraft.ChatFormatting.RED + "100%" : java.lang.Math.round((double)this.gpuUtilization) + "%");
++            } else {
++                $$14 = "";
++            }
+             fps = this.frames;
+-            this.fpsString = java.lang.String.format((java.util.Locale)java.util.Locale.ROOT, (java.lang.String)"%d fps T: %s%s%s%s B: %d%s", (java.lang.Object[])new java.lang.Object[]{fps, n3 == 260 ? "inf" : java.lang.Integer.valueOf((int)n3), (java.lang.Boolean)this.options.enableVsync().get() != false ? " vsync" : "", this.options.graphicsMode().get(), this.options.cloudStatus().get() == net.minecraft.client.CloudStatus.OFF ? "" : (this.options.cloudStatus().get() == net.minecraft.client.CloudStatus.FAST ? " fast-clouds" : " fancy-clouds"), this.options.biomeBlendRadius().get(), string});
++            this.fpsString = java.lang.String.format((java.util.Locale)java.util.Locale.ROOT, (java.lang.String)"%d fps T: %s%s%s%s B: %d%s", (java.lang.Object[])new java.lang.Object[]{fps, $$9 == 260 ? "inf" : java.lang.Integer.valueOf((int)$$9), (java.lang.Boolean)this.options.enableVsync().get() != false ? " vsync" : "", this.options.graphicsMode().get(), this.options.cloudStatus().get() == net.minecraft.client.CloudStatus.OFF ? "" : (this.options.cloudStatus().get() == net.minecraft.client.CloudStatus.FAST ? " fast-clouds" : " fancy-clouds"), this.options.biomeBlendRadius().get(), $$14});
+             this.lastTime += 1000L;
+             this.frames = 0;
+         }
+@@ -970,151 +981,144 @@
+      * WARNING - void declaration
+      */
+     public java.nio.file.Path archiveProfilingReport(net.minecraft.SystemReport $$0, java.util.List<java.nio.file.Path> $$1) {
+-        void $$8;
+-        java.lang.String $$3;
++        void $$9;
++        java.lang.String $$4;
+         if (this.isLocalServer()) {
+             java.lang.String $$2 = this.getSingleplayerServer().getWorldData().getLevelName();
+         } else {
+-            $$3 = this.getCurrentServer().name;
++            net.minecraft.client.multiplayer.ServerData $$3 = this.getCurrentServer();
++            $$4 = $$3 != null ? $$3.name : "unknown";
+         }
+         try {
+-            java.lang.String $$4 = java.lang.String.format((java.util.Locale)java.util.Locale.ROOT, (java.lang.String)"%s-%s-%s", (java.lang.Object[])new java.lang.Object[]{net.minecraft.Util.getFilenameFormattedDateTime(), $$3, net.minecraft.SharedConstants.getCurrentVersion().getId()});
+-            java.lang.String $$5 = net.minecraft.FileUtil.findAvailableName((java.nio.file.Path)net.minecraft.util.profiling.metrics.storage.MetricsPersister.PROFILING_RESULTS_DIR, (java.lang.String)$$4, (java.lang.String)".zip");
+-            java.nio.file.Path $$6 = net.minecraft.util.profiling.metrics.storage.MetricsPersister.PROFILING_RESULTS_DIR.resolve($$5);
++            java.lang.String $$5 = java.lang.String.format((java.util.Locale)java.util.Locale.ROOT, (java.lang.String)"%s-%s-%s", (java.lang.Object[])new java.lang.Object[]{net.minecraft.Util.getFilenameFormattedDateTime(), $$4, net.minecraft.SharedConstants.getCurrentVersion().getId()});
++            java.lang.String $$6 = net.minecraft.FileUtil.findAvailableName((java.nio.file.Path)net.minecraft.util.profiling.metrics.storage.MetricsPersister.PROFILING_RESULTS_DIR, (java.lang.String)$$5, (java.lang.String)".zip");
++            java.nio.file.Path $$7 = net.minecraft.util.profiling.metrics.storage.MetricsPersister.PROFILING_RESULTS_DIR.resolve($$6);
+         }
+-        catch (java.io.IOException $$7) {
+-            throw new java.io.UncheckedIOException($$7);
++        catch (java.io.IOException $$8) {
++            throw new java.io.UncheckedIOException($$8);
+         }
+-        try (net.minecraft.util.FileZipper $$9 = new net.minecraft.util.FileZipper((java.nio.file.Path)$$8);
++        try (net.minecraft.util.FileZipper $$10 = new net.minecraft.util.FileZipper((java.nio.file.Path)$$9);
+ ){
+-            $$9.add(java.nio.file.Paths.get((java.lang.String)"system.txt", (java.lang.String[])new java.lang.String[0]), $$0.toLineSeparatedString());
+-            $$9.add(java.nio.file.Paths.get((java.lang.String)"client", (java.lang.String[])new java.lang.String[0]).resolve(this.options.getFile().getName()), this.options.dumpOptionsForReport());
+-            $$1.forEach(arg_0 -> ((net.minecraft.util.FileZipper)$$9).add(arg_0));
++            $$10.add(java.nio.file.Paths.get((java.lang.String)"system.txt", (java.lang.String[])new java.lang.String[0]), $$0.toLineSeparatedString());
++            $$10.add(java.nio.file.Paths.get((java.lang.String)"client", (java.lang.String[])new java.lang.String[0]).resolve(this.options.getFile().getName()), this.options.dumpOptionsForReport());
++            $$1.forEach(arg_0 -> ((net.minecraft.util.FileZipper)$$10).add(arg_0));
+         }
+         finally {
+-            for (java.nio.file.Path $$10 : $$1) {
++            for (java.nio.file.Path $$11 : $$1) {
+                 try {
+-                    org.apache.commons.io.FileUtils.forceDelete((java.io.File)$$10.toFile());
++                    org.apache.commons.io.FileUtils.forceDelete((java.io.File)$$11.toFile());
+                 }
+-                catch (java.io.IOException $$11) {
+-                    LOGGER.warn("Failed to delete temporary profiling result {}", (java.lang.Object)$$10, (java.lang.Object)((java.lang.Object)$$11));
++                catch (java.io.IOException $$12) {
++                    LOGGER.warn("Failed to delete temporary profiling result {}", (java.lang.Object)$$11, (java.lang.Object)((java.lang.Object)$$12));
+                 }
+             }
+         }
+-        return $$8;
++        return $$9;
+     }
+ 
+-    public void debugFpsMeterKeyPress(int keyCount) {
++    public void debugFpsMeterKeyPress(int $$0) {
+         if (this.fpsPieResults == null) {
+             return;
+         }
+-        java.util.List list = this.fpsPieResults.getTimes(this.debugPath);
+-        if (list.isEmpty()) {
++        java.util.List $$1 = this.fpsPieResults.getTimes(this.debugPath);
++        if ($$1.isEmpty()) {
+             return;
+         }
+-        net.minecraft.util.profiling.ResultField resultField = (net.minecraft.util.profiling.ResultField)list.remove(0);
+-        if (keyCount == 0) {
+-            int n;
+-            if (!resultField.name.isEmpty() && (n = this.debugPath.lastIndexOf(30)) >= 0) {
+-                this.debugPath = this.debugPath.substring(0, n);
++        net.minecraft.util.profiling.ResultField $$2 = (net.minecraft.util.profiling.ResultField)$$1.remove(0);
++        if ($$0 == 0) {
++            int $$3;
++            if (!$$2.name.isEmpty() && ($$3 = this.debugPath.lastIndexOf(30)) >= 0) {
++                this.debugPath = this.debugPath.substring(0, $$3);
+             }
+-        } else if (--keyCount < list.size() && !"unspecified".equals((java.lang.Object)((net.minecraft.util.profiling.ResultField)list.get((int)keyCount)).name)) {
++        } else if (--$$0 < $$1.size() && !"unspecified".equals((java.lang.Object)((net.minecraft.util.profiling.ResultField)$$1.get((int)$$0)).name)) {
+             if (!this.debugPath.isEmpty()) {
+                 this.debugPath = this.debugPath + "";
+             }
+-            this.debugPath = this.debugPath + ((net.minecraft.util.profiling.ResultField)list.get((int)keyCount)).name;
++            this.debugPath = this.debugPath + ((net.minecraft.util.profiling.ResultField)$$1.get((int)$$0)).name;
+         }
+     }
+ 
+-    public void renderFpsMeter(com.mojang.blaze3d.vertex.PoseStack matrixStack, net.minecraft.util.profiling.ProfileResults profilerResult) {
+-        int n;
+-        java.lang.Object object2;
+-        java.util.List list = profilerResult.getTimes(this.debugPath);
+-        net.minecraft.util.profiling.ResultField resultField = (net.minecraft.util.profiling.ResultField)list.remove(0);
++    public void renderFpsMeter(com.mojang.blaze3d.vertex.PoseStack $$0, net.minecraft.util.profiling.ProfileResults $$1) {
++        java.util.List $$2 = $$1.getTimes(this.debugPath);
++        net.minecraft.util.profiling.ResultField $$3 = (net.minecraft.util.profiling.ResultField)$$2.remove(0);
+         com.mojang.blaze3d.systems.RenderSystem.clear((int)256, (boolean)ON_OSX);
+         com.mojang.blaze3d.systems.RenderSystem.setShader(net.minecraft.client.renderer.GameRenderer::getPositionColorShader);
+-        com.mojang.math.Matrix4f matrix4f = com.mojang.math.Matrix4f.orthographic((float)0.0f, (float)this.window.getWidth(), (float)0.0f, (float)this.window.getHeight(), (float)1000.0f, (float)3000.0f);
+-        com.mojang.blaze3d.systems.RenderSystem.setProjectionMatrix((com.mojang.math.Matrix4f)matrix4f);
+-        com.mojang.blaze3d.vertex.PoseStack poseStack = com.mojang.blaze3d.systems.RenderSystem.getModelViewStack();
+-        poseStack.setIdentity();
+-        poseStack.translate(0.0, 0.0, -2000.0);
++        com.mojang.math.Matrix4f $$4 = com.mojang.math.Matrix4f.orthographic((float)0.0f, (float)this.window.getWidth(), (float)0.0f, (float)this.window.getHeight(), (float)1000.0f, (float)3000.0f);
++        com.mojang.blaze3d.systems.RenderSystem.setProjectionMatrix((com.mojang.math.Matrix4f)$$4);
++        com.mojang.blaze3d.vertex.PoseStack $$5 = com.mojang.blaze3d.systems.RenderSystem.getModelViewStack();
++        $$5.setIdentity();
++        $$5.translate(0.0, 0.0, -2000.0);
+         com.mojang.blaze3d.systems.RenderSystem.applyModelViewMatrix();
+         com.mojang.blaze3d.systems.RenderSystem.lineWidth((float)1.0f);
+         com.mojang.blaze3d.systems.RenderSystem.disableTexture();
+-        com.mojang.blaze3d.vertex.Tesselator tesselator = com.mojang.blaze3d.vertex.Tesselator.getInstance();
+-        com.mojang.blaze3d.vertex.BufferBuilder bufferBuilder = tesselator.getBuilder();
+-        int n2 = 160;
+-        int n3 = this.window.getWidth() - 160 - 10;
+-        int n4 = this.window.getHeight() - 320;
++        com.mojang.blaze3d.vertex.Tesselator $$6 = com.mojang.blaze3d.vertex.Tesselator.getInstance();
++        com.mojang.blaze3d.vertex.BufferBuilder $$7 = $$6.getBuilder();
++        int $$8 = 160;
++        int $$9 = this.window.getWidth() - 160 - 10;
++        int $$10 = this.window.getHeight() - 320;
+         com.mojang.blaze3d.systems.RenderSystem.enableBlend();
+-        bufferBuilder.begin(com.mojang.blaze3d.vertex.VertexFormat$Mode.QUADS, com.mojang.blaze3d.vertex.DefaultVertexFormat.POSITION_COLOR);
+-        bufferBuilder.vertex((double)((float)n3 - 176.0f), (double)((float)n4 - 96.0f - 16.0f), 0.0).color(200, 0, 0, 0).endVertex();
+-        bufferBuilder.vertex((double)((float)n3 - 176.0f), (double)(n4 + 320), 0.0).color(200, 0, 0, 0).endVertex();
+-        bufferBuilder.vertex((double)((float)n3 + 176.0f), (double)(n4 + 320), 0.0).color(200, 0, 0, 0).endVertex();
+-        bufferBuilder.vertex((double)((float)n3 + 176.0f), (double)((float)n4 - 96.0f - 16.0f), 0.0).color(200, 0, 0, 0).endVertex();
+-        tesselator.end();
++        $$7.begin(com.mojang.blaze3d.vertex.VertexFormat$Mode.QUADS, com.mojang.blaze3d.vertex.DefaultVertexFormat.POSITION_COLOR);
++        $$7.vertex((double)((float)$$9 - 176.0f), (double)((float)$$10 - 96.0f - 16.0f), 0.0).color(200, 0, 0, 0).endVertex();
++        $$7.vertex((double)((float)$$9 - 176.0f), (double)($$10 + 320), 0.0).color(200, 0, 0, 0).endVertex();
++        $$7.vertex((double)((float)$$9 + 176.0f), (double)($$10 + 320), 0.0).color(200, 0, 0, 0).endVertex();
++        $$7.vertex((double)((float)$$9 + 176.0f), (double)((float)$$10 - 96.0f - 16.0f), 0.0).color(200, 0, 0, 0).endVertex();
++        $$6.end();
+         com.mojang.blaze3d.systems.RenderSystem.disableBlend();
+-        double d = 0.0;
+-        for (java.lang.Object object2 : list) {
+-            float f;
+-            float f2;
+-            float f3;
+-            int n5;
+-            int n6 = net.minecraft.util.Mth.floor((double)(object2.percentage / 4.0)) + 1;
+-            bufferBuilder.begin(com.mojang.blaze3d.vertex.VertexFormat$Mode.TRIANGLE_FAN, com.mojang.blaze3d.vertex.DefaultVertexFormat.POSITION_COLOR);
+-            n = object2.getColor();
+-            int n7 = n >> 16 & 0xFF;
+-            int n8 = n >> 8 & 0xFF;
+-            int n9 = n & 0xFF;
+-            bufferBuilder.vertex((double)n3, (double)n4, 0.0).color(n7, n8, n9, 255).endVertex();
+-            for (n5 = n6;
+- n5 >= 0; --n5) {
+-                f3 = (float)((d + object2.percentage * (double)n5 / (double)n6) * 6.2831854820251465 / 100.0);
+-                f2 = net.minecraft.util.Mth.sin((float)f3) * 160.0f;
+-                f = net.minecraft.util.Mth.cos((float)f3) * 160.0f * 0.5f;
+-                bufferBuilder.vertex((double)((float)n3 + f2), (double)((float)n4 - f), 0.0).color(n7, n8, n9, 255).endVertex();
++        double $$11 = 0.0;
++        for (net.minecraft.util.profiling.ResultField $$12 : $$2) {
++            int $$13 = net.minecraft.util.Mth.floor((double)($$12.percentage / 4.0)) + 1;
++            $$7.begin(com.mojang.blaze3d.vertex.VertexFormat$Mode.TRIANGLE_FAN, com.mojang.blaze3d.vertex.DefaultVertexFormat.POSITION_COLOR);
++            int $$14 = $$12.getColor();
++            int $$15 = $$14 >> 16 & 0xFF;
++            int $$16 = $$14 >> 8 & 0xFF;
++            int $$17 = $$14 & 0xFF;
++            $$7.vertex((double)$$9, (double)$$10, 0.0).color($$15, $$16, $$17, 255).endVertex();
++            for (int $$18 = $$13; $$18 >= 0; --$$18) {
++                float $$19 = (float)(($$11 + $$12.percentage * (double)$$18 / (double)$$13) * 6.2831854820251465 / 100.0);
++                float $$20 = net.minecraft.util.Mth.sin((float)$$19) * 160.0f;
++                float $$21 = net.minecraft.util.Mth.cos((float)$$19) * 160.0f * 0.5f;
++                $$7.vertex((double)((float)$$9 + $$20), (double)((float)$$10 - $$21), 0.0).color($$15, $$16, $$17, 255).endVertex();
+             }
+-            tesselator.end();
+-            bufferBuilder.begin(com.mojang.blaze3d.vertex.VertexFormat$Mode.TRIANGLE_STRIP, com.mojang.blaze3d.vertex.DefaultVertexFormat.POSITION_COLOR);
+-            for (n5 = n6;
+- n5 >= 0; --n5) {
+-                f3 = (float)((d + object2.percentage * (double)n5 / (double)n6) * 6.2831854820251465 / 100.0);
+-                f2 = net.minecraft.util.Mth.sin((float)f3) * 160.0f;
+-                f = net.minecraft.util.Mth.cos((float)f3) * 160.0f * 0.5f;
+-                if (f > 0.0f) continue;
+-                bufferBuilder.vertex((double)((float)n3 + f2), (double)((float)n4 - f), 0.0).color(n7 >> 1, n8 >> 1, n9 >> 1, 255).endVertex();
+-                bufferBuilder.vertex((double)((float)n3 + f2), (double)((float)n4 - f + 10.0f), 0.0).color(n7 >> 1, n8 >> 1, n9 >> 1, 255).endVertex();
++            $$6.end();
++            $$7.begin(com.mojang.blaze3d.vertex.VertexFormat$Mode.TRIANGLE_STRIP, com.mojang.blaze3d.vertex.DefaultVertexFormat.POSITION_COLOR);
++            for (int $$22 = $$13; $$22 >= 0; --$$22) {
++                float $$23 = (float)(($$11 + $$12.percentage * (double)$$22 / (double)$$13) * 6.2831854820251465 / 100.0);
++                float $$24 = net.minecraft.util.Mth.sin((float)$$23) * 160.0f;
++                float $$25 = net.minecraft.util.Mth.cos((float)$$23) * 160.0f * 0.5f;
++                if ($$25 > 0.0f) continue;
++                $$7.vertex((double)((float)$$9 + $$24), (double)((float)$$10 - $$25), 0.0).color($$15 >> 1, $$16 >> 1, $$17 >> 1, 255).endVertex();
++                $$7.vertex((double)((float)$$9 + $$24), (double)((float)$$10 - $$25 + 10.0f), 0.0).color($$15 >> 1, $$16 >> 1, $$17 >> 1, 255).endVertex();
+             }
+-            tesselator.end();
+-            d += object2.percentage;
++            $$6.end();
++            $$11 += $$12.percentage;
+         }
+-        java.util.Iterator iterator = new java.text.DecimalFormat("##0.00");
+-        iterator.setDecimalFormatSymbols(java.text.DecimalFormatSymbols.getInstance((java.util.Locale)java.util.Locale.ROOT));
++        java.text.DecimalFormat $$26 = new java.text.DecimalFormat("##0.00");
++        $$26.setDecimalFormatSymbols(java.text.DecimalFormatSymbols.getInstance((java.util.Locale)java.util.Locale.ROOT));
+         com.mojang.blaze3d.systems.RenderSystem.enableTexture();
+-        object2 = net.minecraft.util.profiling.ProfileResults.demanglePath((java.lang.String)resultField.name);
+-        java.lang.String string = "";
+-        if (!"unspecified".equals(object2)) {
+-            string = string + "[0] ";
++        java.lang.String $$27 = net.minecraft.util.profiling.ProfileResults.demanglePath((java.lang.String)$$3.name);
++        java.lang.String $$28 = "";
++        if (!"unspecified".equals((java.lang.Object)$$27)) {
++            $$28 = $$28 + "[0] ";
+         }
+-        string = object2.isEmpty() ? string + "ROOT " : string + (java.lang.String)object2 + " ";
+-        n = 0xFFFFFF;
+-        this.font.drawShadow(matrixStack, string, (float)(n3 - 160), (float)(n4 - 80 - 16), 0xFFFFFF);
+-        string = iterator.format(resultField.globalPercentage) + "%";
+-        this.font.drawShadow(matrixStack, string, (float)(n3 + 160 - this.font.width(string)), (float)(n4 - 80 - 16), 0xFFFFFF);
+-        for (int i = 0; i < list.size(); ++i) {
+-            string = (net.minecraft.util.profiling.ResultField)list.get(i);
+-            java.lang.StringBuilder stringBuilder = new java.lang.StringBuilder();
+-            if ("unspecified".equals((java.lang.Object)((net.minecraft.util.profiling.ResultField)string).name)) {
+-                stringBuilder.append("[?] ");
++        $$28 = $$27.isEmpty() ? $$28 + "ROOT " : $$28 + $$27 + " ";
++        int $$29 = 0xFFFFFF;
++        this.font.drawShadow($$0, $$28, (float)($$9 - 160), (float)($$10 - 80 - 16), 0xFFFFFF);
++        $$28 = $$26.format($$3.globalPercentage) + "%";
++        this.font.drawShadow($$0, $$28, (float)($$9 + 160 - this.font.width($$28)), (float)($$10 - 80 - 16), 0xFFFFFF);
++        for (int $$30 = 0; $$30 < $$2.size(); ++$$30) {
++            net.minecraft.util.profiling.ResultField $$31 = (net.minecraft.util.profiling.ResultField)$$2.get($$30);
++            java.lang.StringBuilder $$32 = new java.lang.StringBuilder();
++            if ("unspecified".equals((java.lang.Object)$$31.name)) {
++                $$32.append("[?] ");
+             } else {
+-                stringBuilder.append("[").append(i + 1).append("] ");
++                $$32.append("[").append($$30 + 1).append("] ");
+             }
+-            java.lang.String string2 = stringBuilder.append(((net.minecraft.util.profiling.ResultField)string).name).toString();
+-            this.font.drawShadow(matrixStack, string2, (float)(n3 - 160), (float)(n4 + 80 + i * 8 + 20), string.getColor());
+-            string2 = iterator.format(((net.minecraft.util.profiling.ResultField)string).percentage) + "%";
+-            this.font.drawShadow(matrixStack, string2, (float)(n3 + 160 - 50 - this.font.width(string2)), (float)(n4 + 80 + i * 8 + 20), string.getColor());
+-            string2 = iterator.format(((net.minecraft.util.profiling.ResultField)string).globalPercentage) + "%";
+-            this.font.drawShadow(matrixStack, string2, (float)(n3 + 160 - this.font.width(string2)), (float)(n4 + 80 + i * 8 + 20), string.getColor());
++            java.lang.String $$33 = $$32.append($$31.name).toString();
++            this.font.drawShadow($$0, $$33, (float)($$9 - 160), (float)($$10 + 80 + $$30 * 8 + 20), $$31.getColor());
++            $$33 = $$26.format($$31.percentage) + "%";
++            this.font.drawShadow($$0, $$33, (float)($$9 + 160 - 50 - this.font.width($$33)), (float)($$10 + 80 + $$30 * 8 + 20), $$31.getColor());
++            $$33 = $$26.format($$31.globalPercentage) + "%";
++            this.font.drawShadow($$0, $$33, (float)($$9 + 160 - this.font.width($$33)), (float)($$10 + 80 + $$30 * 8 + 20), $$31.getColor());
+         }
+     }
+ 
+@@ -1126,33 +1130,33 @@
+         return this.running;
+     }
+ 
+-    public void pauseGame(boolean pauseOnly) {
+-        boolean bl;
++    public void pauseGame(boolean $$0) {
++        boolean $$1;
+         if (this.screen != null) {
+             return;
+         }
+-        boolean bl2 = bl = this.hasSingleplayerServer() && !this.singleplayerServer.isPublished();
+-        if (bl) {
+-            this.setScreen((net.minecraft.client.gui.screens.Screen)new net.minecraft.client.gui.screens.PauseScreen(!pauseOnly));
++        boolean bl = $$1 = this.hasSingleplayerServer() && !this.singleplayerServer.isPublished();
++        if ($$1) {
++            this.setScreen((net.minecraft.client.gui.screens.Screen)new net.minecraft.client.gui.screens.PauseScreen(!$$0));
+             this.soundManager.pause();
+         } else {
+             this.setScreen((net.minecraft.client.gui.screens.Screen)new net.minecraft.client.gui.screens.PauseScreen(true));
+         }
+     }
+ 
+-    public void continueAttack(boolean leftClick) {
+-        if (!leftClick) {
++    public void continueAttack(boolean $$0) {
++        if (!$$0) {
+             this.missTime = 0;
+         }
+         if (this.missTime > 0 || this.player.isUsingItem()) {
+             return;
+         }
+-        if (leftClick && this.hitResult != null && this.hitResult.getType() == net.minecraft.world.phys.HitResult$Type.BLOCK) {
+-            net.minecraft.core.Direction direction;
+-            net.minecraft.world.phys.BlockHitResult blockHitResult = (net.minecraft.world.phys.BlockHitResult)this.hitResult;
+-            net.minecraft.core.BlockPos blockPos = blockHitResult.getBlockPos();
+-            if (!this.level.getBlockState(blockPos).isAir() && this.gameMode.continueDestroyBlock(blockPos, direction = blockHitResult.getDirection())) {
+-                this.particleEngine.crack(blockPos, direction);
++        if ($$0 && this.hitResult != null && this.hitResult.getType() == net.minecraft.world.phys.HitResult$Type.BLOCK) {
++            net.minecraft.core.Direction $$3;
++            net.minecraft.world.phys.BlockHitResult $$1 = (net.minecraft.world.phys.BlockHitResult)this.hitResult;
++            net.minecraft.core.BlockPos $$2 = $$1.getBlockPos();
++            if (!this.level.getBlockState($$2).isAir() && this.gameMode.continueDestroyBlock($$2, $$3 = $$1.getDirection())) {
++                this.particleEngine.crack($$2, $$3);
+                 this.player.swing(net.minecraft.world.InteractionHand.MAIN_HAND);
+             }
+             return;
+@@ -1174,19 +1178,23 @@
+         if (this.player.isHandsBusy()) {
+             return false;
+         }
+-        boolean $$0 = false;
++        net.minecraft.world.item.ItemStack $$0 = this.player.getItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND);
++        if (!$$0.isItemEnabled(this.level.enabledFeatures())) {
++            return false;
++        }
++        boolean $$1 = false;
+         switch (net.minecraft.client.Minecraft$1.$SwitchMap$net$minecraft$world$phys$HitResult$Type[this.hitResult.getType().ordinal()]) {
+             case 1: {
+                 this.gameMode.attack((net.minecraft.world.entity.player.Player)this.player, ((net.minecraft.world.phys.EntityHitResult)this.hitResult).getEntity());
+                 break;
+             }
+             case 2: {
+-                net.minecraft.world.phys.BlockHitResult $$1 = (net.minecraft.world.phys.BlockHitResult)this.hitResult;
+-                net.minecraft.core.BlockPos $$2 = $$1.getBlockPos();
+-                if (!this.level.getBlockState($$2).isAir()) {
+-                    this.gameMode.startDestroyBlock($$2, $$1.getDirection());
+-                    if (!this.level.getBlockState($$2).isAir()) break;
+-                    $$0 = true;
++                net.minecraft.world.phys.BlockHitResult $$2 = (net.minecraft.world.phys.BlockHitResult)this.hitResult;
++                net.minecraft.core.BlockPos $$3 = $$2.getBlockPos();
++                if (!this.level.getBlockState($$3).isAir()) {
++                    this.gameMode.startDestroyBlock($$3, $$2.getDirection());
++                    if (!this.level.getBlockState($$3).isAir()) break;
++                    $$1 = true;
+                     break;
+                 }
+             }
+@@ -1198,7 +1206,7 @@
+             }
+         }
+         this.player.swing(net.minecraft.world.InteractionHand.MAIN_HAND);
+-        return $$0;
++        return $$1;
+     }
+ 
+     public void startUseItem() {
+@@ -1215,6 +1223,9 @@
+         for (net.minecraft.world.InteractionHand $$0 : net.minecraft.world.InteractionHand.values()) {
+             net.minecraft.world.InteractionResult $$8;
+             net.minecraft.world.item.ItemStack $$1 = this.player.getItemInHand($$0);
++            if (!$$1.isItemEnabled(this.level.enabledFeatures())) {
++                return;
++            }
+             if (this.hitResult != null) {
+                 switch (net.minecraft.client.Minecraft$1.$SwitchMap$net$minecraft$world$phys$HitResult$Type[this.hitResult.getType().ordinal()]) {
+                     case 1: {
+@@ -1490,11 +1501,11 @@
+     }
+ 
+     public void doWorldLoad(java.lang.String $$02, net.minecraft.world.level.storage.LevelStorageSource$LevelStorageAccess $$1, net.minecraft.server.packs.repository.PackRepository $$2, net.minecraft.server.WorldStem $$3) {
+-        java.util.concurrent.CompletableFuture $$42 = this.profileKeyPairManager.preparePublicKey();
++        java.util.concurrent.CompletableFuture $$42 = this.profileKeyPairManager.prepareChatSession();
+         this.clearLevel();
+         this.progressListener.set(null);
+         try {
+-            $$1.saveDataTag((net.minecraft.core.RegistryAccess)$$3.registryAccess(), $$3.worldData());
++            $$1.saveDataTag((net.minecraft.core.RegistryAccess)$$3.registries().compositeAccess(), $$3.worldData());
+             net.minecraft.server.Services $$5 = net.minecraft.server.Services.create((com.mojang.authlib.yggdrasil.YggdrasilAuthenticationService)this.authenticationService, (java.io.File)this.gameDirectory);
+             $$5.profileCache().setExecutor((java.util.concurrent.Executor)this);
+             net.minecraft.world.level.block.entity.SkullBlockEntity.setup((net.minecraft.server.Services)$$5, (java.util.concurrent.Executor)this);
+@@ -1536,23 +1547,24 @@
+         this.profiler.pop();
+         java.net.SocketAddress $$10 = this.singleplayerServer.getConnection().startMemoryChannel();
+         net.minecraft.network.Connection $$11 = net.minecraft.network.Connection.connectToLocalServer((java.net.SocketAddress)$$10);
+-        $$11.setListener((net.minecraft.network.PacketListener)new net.minecraft.client.multiplayer.ClientHandshakePacketListenerImpl($$11, this, null, $$0 -> {}
++        net.minecraft.network.chat.LocalChatSession $$12 = (net.minecraft.network.chat.LocalChatSession)$$42.join();
++        $$11.setListener((net.minecraft.network.PacketListener)new net.minecraft.client.multiplayer.ClientHandshakePacketListenerImpl($$11, this, $$12, null, null, $$0 -> {}
+ ));
+         $$11.send((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.handshake.ClientIntentionPacket($$10.toString(), 0, net.minecraft.network.ConnectionProtocol.LOGIN));
+-        $$11.send((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.login.ServerboundHelloPacket(this.getUser().getName(), (java.util.Optional)$$42.join(), java.util.Optional.ofNullable((java.lang.Object)this.getUser().getProfileId())));
++        $$11.send((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.login.ServerboundHelloPacket(this.getUser().getName(), $$12.asRemote().asData(), java.util.Optional.ofNullable((java.lang.Object)this.getUser().getProfileId())));
+         this.pendingConnection = $$11;
+     }
+ 
+-    public void setLevel(net.minecraft.client.multiplayer.ClientLevel levelClient) {
+-        net.minecraft.client.gui.screens.ProgressScreen progressScreen = new net.minecraft.client.gui.screens.ProgressScreen(true);
+-        progressScreen.progressStartNoAbort((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"connect.joining"));
+-        this.updateScreenAndTick((net.minecraft.client.gui.screens.Screen)progressScreen);
+-        this.level = levelClient;
+-        this.updateLevelInEngines(levelClient);
++    public void setLevel(net.minecraft.client.multiplayer.ClientLevel $$0) {
++        net.minecraft.client.gui.screens.ProgressScreen $$1 = new net.minecraft.client.gui.screens.ProgressScreen(true);
++        $$1.progressStartNoAbort((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"connect.joining"));
++        this.updateScreenAndTick((net.minecraft.client.gui.screens.Screen)$$1);
++        this.level = $$0;
++        this.updateLevelInEngines($$0);
+         if (!this.isLocalServer) {
+-            net.minecraft.server.Services services = net.minecraft.server.Services.create((com.mojang.authlib.yggdrasil.YggdrasilAuthenticationService)this.authenticationService, (java.io.File)this.gameDirectory);
+-            services.profileCache().setExecutor((java.util.concurrent.Executor)this);
+-            net.minecraft.world.level.block.entity.SkullBlockEntity.setup((net.minecraft.server.Services)services, (java.util.concurrent.Executor)this);
++            net.minecraft.server.Services $$2 = net.minecraft.server.Services.create((com.mojang.authlib.yggdrasil.YggdrasilAuthenticationService)this.authenticationService, (java.io.File)this.gameDirectory);
++            $$2.profileCache().setExecutor((java.util.concurrent.Executor)this);
++            net.minecraft.world.level.block.entity.SkullBlockEntity.setup((net.minecraft.server.Services)$$2, (java.util.concurrent.Executor)this);
+             net.minecraft.server.players.GameProfileCache.setUsesAuthentication((boolean)false);
+         }
+     }
+@@ -1561,33 +1573,32 @@
+         this.clearLevel((net.minecraft.client.gui.screens.Screen)new net.minecraft.client.gui.screens.ProgressScreen(true));
+     }
+ 
+-    public void clearLevel(net.minecraft.client.gui.screens.Screen screen) {
+-        net.minecraft.client.multiplayer.ClientPacketListener clientPacketListener = this.getConnection();
+-        if (clientPacketListener != null) {
++    public void clearLevel(net.minecraft.client.gui.screens.Screen $$0) {
++        net.minecraft.client.multiplayer.ClientPacketListener $$1 = this.getConnection();
++        if ($$1 != null) {
+             this.dropAllTasks();
+-            clientPacketListener.cleanup();
++            $$1.cleanup();
+         }
+         this.playerSocialManager.stopOnlineMode();
+         if (this.metricsRecorder.isRecording()) {
+             this.debugClientMetricsCancel();
+         }
+-        net.minecraft.client.server.IntegratedServer integratedServer = this.singleplayerServer;
++        net.minecraft.client.server.IntegratedServer $$2 = this.singleplayerServer;
+         this.singleplayerServer = null;
+         this.gameRenderer.resetData();
+         this.gameMode = null;
+         this.narrator.clear();
+-        this.updateScreenAndTick(screen);
++        this.updateScreenAndTick($$0);
+         if (this.level != null) {
+-            if (integratedServer != null) {
++            if ($$2 != null) {
+                 this.profiler.push("waitForServer");
+-                while (!integratedServer.isShutdown()) {
++                while (!$$2.isShutdown()) {
+                     this.runTick(false);
+                 }
+                 this.profiler.pop();
+             }
+-            this.clientPackSource.clearServerPack();
++            this.downloadedPackSource.clearServerPack();
+             this.gui.onDisconnected();
+-            this.currentServer = null;
+             this.isLocalServer = false;
+             this.game.onLeaveGameSession();
+         }
+@@ -1597,27 +1608,27 @@
+         net.minecraft.world.level.block.entity.SkullBlockEntity.clear();
+     }
+ 
+-    public void updateScreenAndTick(net.minecraft.client.gui.screens.Screen screen) {
++    public void updateScreenAndTick(net.minecraft.client.gui.screens.Screen $$0) {
+         this.profiler.push("forcedTick");
+         this.soundManager.stop();
+         this.cameraEntity = null;
+         this.pendingConnection = null;
+-        this.setScreen(screen);
++        this.setScreen($$0);
+         this.runTick(false);
+         this.profiler.pop();
+     }
+ 
+-    public void forceSetScreen(net.minecraft.client.gui.screens.Screen screen) {
++    public void forceSetScreen(net.minecraft.client.gui.screens.Screen $$0) {
+         this.profiler.push("forcedTick");
+-        this.setScreen(screen);
++        this.setScreen($$0);
+         this.runTick(false);
+         this.profiler.pop();
+     }
+ 
+-    public void updateLevelInEngines(@javax.annotation.Nullable net.minecraft.client.multiplayer.ClientLevel level) {
+-        this.levelRenderer.setLevel(level);
+-        this.particleEngine.setLevel(level);
+-        this.blockEntityRenderDispatcher.setLevel((net.minecraft.world.level.Level)level);
++    public void updateLevelInEngines(@javax.annotation.Nullable net.minecraft.client.multiplayer.ClientLevel $$0) {
++        this.levelRenderer.setLevel($$0);
++        this.particleEngine.setLevel($$0);
++        this.blockEntityRenderDispatcher.setLevel((net.minecraft.world.level.Level)$$0);
+         this.updateTitle();
+     }
+ 
+@@ -1638,11 +1649,11 @@
+         return (com.mojang.authlib.minecraft.BanDetails)this.userApiService.properties().bannedScopes().get((java.lang.Object)"MULTIPLAYER");
+     }
+ 
+-    public boolean isBlocked(java.util.UUID playerUUID) {
++    public boolean isBlocked(java.util.UUID $$0) {
+         if (!this.getChatStatus().isChatAllowed(false)) {
+-            return (this.player == null || !playerUUID.equals((java.lang.Object)this.player.getUUID())) && !playerUUID.equals((java.lang.Object)net.minecraft.Util.NIL_UUID);
++            return (this.player == null || !$$0.equals((java.lang.Object)this.player.getUUID())) && !$$0.equals((java.lang.Object)net.minecraft.Util.NIL_UUID);
+         }
+-        return this.playerSocialManager.shouldHideMessageFrom(playerUUID);
++        return this.playerSocialManager.shouldHideMessageFrom($$0);
+     }
+ 
+     public net.minecraft.client.Minecraft$ChatStatus getChatStatus() {
+@@ -1744,33 +1755,33 @@
+         }
+     }
+ 
+-    public net.minecraft.world.item.ItemStack addCustomNbtData(net.minecraft.world.item.ItemStack stack, net.minecraft.world.level.block.entity.BlockEntity te) {
+-        net.minecraft.nbt.CompoundTag compoundTag = te.saveWithFullMetadata();
+-        if (stack.getItem() instanceof net.minecraft.world.item.PlayerHeadItem && compoundTag.contains("SkullOwner")) {
+-            net.minecraft.nbt.CompoundTag compoundTag2 = compoundTag.getCompound("SkullOwner");
+-            stack.getOrCreateTag().put("SkullOwner", (net.minecraft.nbt.Tag)compoundTag2);
+-            return stack;
++    public net.minecraft.world.item.ItemStack addCustomNbtData(net.minecraft.world.item.ItemStack $$0, net.minecraft.world.level.block.entity.BlockEntity $$1) {
++        net.minecraft.nbt.CompoundTag $$2 = $$1.saveWithFullMetadata();
++        if ($$0.getItem() instanceof net.minecraft.world.item.PlayerHeadItem && $$2.contains("SkullOwner")) {
++            net.minecraft.nbt.CompoundTag $$3 = $$2.getCompound("SkullOwner");
++            $$0.getOrCreateTag().put("SkullOwner", (net.minecraft.nbt.Tag)$$3);
++            return $$0;
+         }
+-        net.minecraft.world.item.BlockItem.setBlockEntityData((net.minecraft.world.item.ItemStack)stack, (net.minecraft.world.level.block.entity.BlockEntityType)te.getType(), (net.minecraft.nbt.CompoundTag)compoundTag);
+-        net.minecraft.nbt.CompoundTag compoundTag3 = new net.minecraft.nbt.CompoundTag();
+-        net.minecraft.nbt.ListTag listTag = new net.minecraft.nbt.ListTag();
+-        listTag.add((java.lang.Object)net.minecraft.nbt.StringTag.valueOf((java.lang.String)"\"(+NBT)\""));
+-        compoundTag3.put("Lore", (net.minecraft.nbt.Tag)listTag);
+-        stack.addTagElement("display", (net.minecraft.nbt.Tag)compoundTag3);
+-        return stack;
++        net.minecraft.world.item.BlockItem.setBlockEntityData((net.minecraft.world.item.ItemStack)$$0, (net.minecraft.world.level.block.entity.BlockEntityType)$$1.getType(), (net.minecraft.nbt.CompoundTag)$$2);
++        net.minecraft.nbt.CompoundTag $$4 = new net.minecraft.nbt.CompoundTag();
++        net.minecraft.nbt.ListTag $$5 = new net.minecraft.nbt.ListTag();
++        $$5.add((java.lang.Object)net.minecraft.nbt.StringTag.valueOf((java.lang.String)"\"(+NBT)\""));
++        $$4.put("Lore", (net.minecraft.nbt.Tag)$$5);
++        $$0.addTagElement("display", (net.minecraft.nbt.Tag)$$4);
++        return $$0;
+     }
+ 
+-    public net.minecraft.CrashReport fillReport(net.minecraft.CrashReport theCrash) {
+-        net.minecraft.SystemReport systemReport = theCrash.getSystemReport();
+-        net.minecraft.client.Minecraft.fillSystemReport((net.minecraft.SystemReport)systemReport, (net.minecraft.client.Minecraft)this, (net.minecraft.client.resources.language.LanguageManager)this.languageManager, (java.lang.String)this.launchedVersion, (net.minecraft.client.Options)this.options);
++    public net.minecraft.CrashReport fillReport(net.minecraft.CrashReport $$0) {
++        net.minecraft.SystemReport $$1 = $$0.getSystemReport();
++        net.minecraft.client.Minecraft.fillSystemReport((net.minecraft.SystemReport)$$1, (net.minecraft.client.Minecraft)this, (net.minecraft.client.resources.language.LanguageManager)this.languageManager, (java.lang.String)this.launchedVersion, (net.minecraft.client.Options)this.options);
+         if (this.level != null) {
+-            this.level.fillReportDetails(theCrash);
++            this.level.fillReportDetails($$0);
+         }
+         if (this.singleplayerServer != null) {
+-            this.singleplayerServer.fillSystemReport(systemReport);
++            this.singleplayerServer.fillSystemReport($$1);
+         }
+-        this.reloadStateTracker.fillCrashReport(theCrash);
+-        return theCrash;
++        this.reloadStateTracker.fillCrashReport($$0);
++        return $$0;
+     }
+ 
+     public static void fillReport(@javax.annotation.Nullable net.minecraft.client.Minecraft $$0, @javax.annotation.Nullable net.minecraft.client.resources.language.LanguageManager $$1, java.lang.String $$2, @javax.annotation.Nullable net.minecraft.client.Options $$3, net.minecraft.CrashReport $$4) {
+@@ -1822,17 +1833,6 @@
+         return this.submit(() -> this.reloadResourcePacks()).thenCompose($$0 -> $$0);
+     }
+ 
+-    public void setCurrentServer(@javax.annotation.Nullable net.minecraft.client.multiplayer.ServerData serverData) {
+-        this.currentServer = serverData;
+-        net.minecraft.client.multiplayer.chat.report.ReportEnvironment reportEnvironment = serverData != null ? net.minecraft.client.multiplayer.chat.report.ReportEnvironment.thirdParty((java.lang.String)serverData.ip) : net.minecraft.client.multiplayer.chat.report.ReportEnvironment.local();
+-        this.updateReportEnvironment(reportEnvironment);
+-    }
+-
+-    public void setCurrentServer(com.mojang.realmsclient.dto.RealmsServer $$0, java.lang.String $$1) {
+-        this.currentServer = $$0.toServerData($$1);
+-        this.updateReportEnvironment(net.minecraft.client.multiplayer.chat.report.ReportEnvironment.realm((com.mojang.realmsclient.dto.RealmsServer)$$0));
+-    }
+-
+     public void updateReportEnvironment(net.minecraft.client.multiplayer.chat.report.ReportEnvironment $$0) {
+         if (!this.reportingContext.matches($$0)) {
+             this.reportingContext = net.minecraft.client.multiplayer.chat.report.ReportingContext.create((net.minecraft.client.multiplayer.chat.report.ReportEnvironment)$$0, (com.mojang.authlib.minecraft.UserApiService)this.userApiService);
+@@ -1841,7 +1841,7 @@
+ 
+     @javax.annotation.Nullable
+     public net.minecraft.client.multiplayer.ServerData getCurrentServer() {
+-        return this.currentServer;
++        return (net.minecraft.client.multiplayer.ServerData)net.minecraft.Util.mapNullable((java.lang.Object)this.getConnection(), net.minecraft.client.multiplayer.ClientPacketListener::getServerData);
+     }
+ 
+     public boolean isLocalServer() {
+@@ -1885,11 +1885,15 @@
+         return this.resourcePackRepository;
+     }
+ 
+-    public net.minecraft.client.resources.ClientPackSource getClientPackSource() {
+-        return this.clientPackSource;
++    public net.minecraft.server.packs.VanillaPackResources getVanillaPackResources() {
++        return this.vanillaPackResources;
+     }
+ 
+-    public java.io.File getResourcePackDirectory() {
++    public net.minecraft.client.resources.DownloadedPackSource getDownloadedPackSource() {
++        return this.downloadedPackSource;
++    }
++
++    public java.nio.file.Path getResourcePackDirectory() {
+         return this.resourcePackDirectory;
+     }
+ 
+@@ -1897,8 +1901,8 @@
+         return this.languageManager;
+     }
+ 
+-    public java.util.function.Function<net.minecraft.resources.ResourceLocation, net.minecraft.client.renderer.texture.TextureAtlasSprite> getTextureAtlas(net.minecraft.resources.ResourceLocation location) {
+-        return arg_0 -> ((net.minecraft.client.renderer.texture.TextureAtlas)this.modelManager.getAtlas(location)).getSprite(arg_0);
++    public java.util.function.Function<net.minecraft.resources.ResourceLocation, net.minecraft.client.renderer.texture.TextureAtlasSprite> getTextureAtlas(net.minecraft.resources.ResourceLocation $$0) {
++        return arg_0 -> ((net.minecraft.client.renderer.texture.TextureAtlas)this.modelManager.getAtlas($$0)).getSprite(arg_0);
+     }
+ 
+     public boolean is64Bit() {
+@@ -1953,24 +1957,24 @@
+         return this.cameraEntity;
+     }
+ 
+-    public void setCameraEntity(net.minecraft.world.entity.Entity viewingEntity) {
+-        this.cameraEntity = viewingEntity;
+-        this.gameRenderer.checkEntityPostEffect(viewingEntity);
++    public void setCameraEntity(net.minecraft.world.entity.Entity $$0) {
++        this.cameraEntity = $$0;
++        this.gameRenderer.checkEntityPostEffect($$0);
+     }
+ 
+-    public boolean shouldEntityAppearGlowing(net.minecraft.world.entity.Entity entity) {
+-        return entity.isCurrentlyGlowing() || this.player != null && this.player.isSpectator() && this.options.keySpectatorOutlines.isDown() && entity.getType() == net.minecraft.world.entity.EntityType.PLAYER;
++    public boolean shouldEntityAppearGlowing(net.minecraft.world.entity.Entity $$0) {
++        return $$0.isCurrentlyGlowing() || this.player != null && this.player.isSpectator() && this.options.keySpectatorOutlines.isDown() && $$0.getType() == net.minecraft.world.entity.EntityType.PLAYER;
+     }
+ 
+     public java.lang.Thread getRunningThread() {
+         return this.gameThread;
+     }
+ 
+-    public java.lang.Runnable wrapRunnable(java.lang.Runnable runnable) {
+-        return runnable;
++    public java.lang.Runnable wrapRunnable(java.lang.Runnable $$0) {
++        return $$0;
+     }
+ 
+-    public boolean shouldRun(java.lang.Runnable runnable) {
++    public boolean shouldRun(java.lang.Runnable $$0) {
+         return true;
+     }
+ 
+@@ -2006,8 +2010,8 @@
+         return this.connectedToRealms;
+     }
+ 
+-    public void setConnectedToRealms(boolean isConnected) {
+-        this.connectedToRealms = isConnected;
++    public void setConnectedToRealms(boolean $$0) {
++        this.connectedToRealms = $$0;
+     }
+ 
+     public com.mojang.datafixers.DataFixer getFixerUpper() {
+@@ -2058,8 +2062,8 @@
+         return this.mobEffectTextures;
+     }
+ 
+-    public void setWindowActive(boolean focused) {
+-        this.windowActive = focused;
++    public void setWindowActive(boolean $$0) {
++        this.windowActive = $$0;
+     }
+ 
+     /*
+@@ -2218,30 +2222,10 @@
+         return this.renderBuffers;
+     }
+ 
+-    public static net.minecraft.server.packs.repository.Pack createClientPackAdapter(java.lang.String $$0, net.minecraft.network.chat.Component $$1, boolean $$2, java.util.function.Supplier<net.minecraft.server.packs.PackResources> $$3, net.minecraft.server.packs.metadata.pack.PackMetadataSection $$4, net.minecraft.server.packs.repository.Pack$Position $$5, net.minecraft.server.packs.repository.PackSource $$6) {
+-        int $$7 = $$4.getPackFormat();
+-        java.util.function.Supplier $$8 = $$3;
+-        if ($$7 <= 3) {
+-            $$8 = net.minecraft.client.Minecraft.adaptV3($$8);
+-        }
+-        if ($$7 <= 4) {
+-            $$8 = net.minecraft.client.Minecraft.adaptV4((java.util.function.Supplier)$$8);
+-        }
+-        return new net.minecraft.server.packs.repository.Pack($$0, $$1, $$2, $$8, $$4, net.minecraft.server.packs.PackType.CLIENT_RESOURCES, $$5, $$6);
++    public void updateMaxMipLevel(int $$0) {
++        this.modelManager.updateMaxMipLevel($$0);
+     }
+ 
+-    public static java.util.function.Supplier<net.minecraft.server.packs.PackResources> adaptV3(java.util.function.Supplier<net.minecraft.server.packs.PackResources> resourcePackSupplier) {
+-        return () -> new net.minecraft.client.resources.LegacyPackResourcesAdapter((net.minecraft.server.packs.PackResources)resourcePackSupplier.get(), net.minecraft.client.resources.LegacyPackResourcesAdapter.V3);
+-    }
+-
+-    public static java.util.function.Supplier<net.minecraft.server.packs.PackResources> adaptV4(java.util.function.Supplier<net.minecraft.server.packs.PackResources> resourcePackSupplier) {
+-        return () -> new net.minecraft.client.resources.PackResourcesAdapterV4((net.minecraft.server.packs.PackResources)resourcePackSupplier.get());
+-    }
+-
+-    public void updateMaxMipLevel(int mipMapLevel) {
+-        this.modelManager.updateMaxMipLevel(mipMapLevel);
+-    }
+-
+     public net.minecraft.client.model.geom.EntityModelSet getEntityModels() {
+         return this.entityModels;
+     }
+@@ -2282,10 +2266,6 @@
+         $$0.accept((java.lang.Object)net.minecraft.network.chat.Component.translatable((java.lang.String)"debug.profiling.stop", (java.lang.Object[])new java.lang.Object[]{$$1}));
+     }
+ 
+-    public static /* synthetic */ void lambda$runTick$25(java.util.concurrent.CompletableFuture $$0) {
+-        $$0.complete(null);
+-    }
+-
+     static {
+         LOGGER = com.mojang.logging.LogUtils.getLogger();
+         ON_OSX = net.minecraft.Util.getPlatform() == net.minecraft.Util$OS.OSX;

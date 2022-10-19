@@ -1,0 +1,94 @@
+--- net/minecraft/world/level/storage/loot/functions/SetLoreFunction.java
++++ net/minecraft/world/level/storage/loot/functions/SetLoreFunction.java
+@@ -11,11 +11,11 @@
+     @javax.annotation.Nullable
+     public net.minecraft.world.level.storage.loot.LootContext$EntityTarget resolutionContext;
+ 
+-    public net.minecraft.world.level.storage.loot.functions.SetLoreFunction(net.minecraft.world.level.storage.loot.predicates.LootItemCondition[] conditions, boolean replace, java.util.List<net.minecraft.network.chat.Component> lore, @javax.annotation.Nullable net.minecraft.world.level.storage.loot.LootContext$EntityTarget resolutionContext) {
+-        super(conditions);
+-        this.replace = replace;
+-        this.lore = com.google.common.collect.ImmutableList.copyOf(lore);
+-        this.resolutionContext = resolutionContext;
++    public net.minecraft.world.level.storage.loot.functions.SetLoreFunction(net.minecraft.world.level.storage.loot.predicates.LootItemCondition[] $$0, boolean $$1, java.util.List<net.minecraft.network.chat.Component> $$2, @javax.annotation.Nullable net.minecraft.world.level.storage.loot.LootContext$EntityTarget $$3) {
++        super($$0);
++        this.replace = $$1;
++        this.lore = com.google.common.collect.ImmutableList.copyOf($$2);
++        this.resolutionContext = $$3;
+     }
+ 
+     public net.minecraft.world.level.storage.loot.functions.LootItemFunctionType getType() {
+@@ -26,45 +26,48 @@
+         return this.resolutionContext != null ? com.google.common.collect.ImmutableSet.of((java.lang.Object)this.resolutionContext.getParam()) : com.google.common.collect.ImmutableSet.of();
+     }
+ 
+-    public net.minecraft.world.item.ItemStack run(net.minecraft.world.item.ItemStack stack, net.minecraft.world.level.storage.loot.LootContext context) {
+-        net.minecraft.nbt.ListTag listTag = this.getLoreTag(stack, !this.lore.isEmpty());
+-        if (listTag != null) {
++    public net.minecraft.world.item.ItemStack run(net.minecraft.world.item.ItemStack $$0, net.minecraft.world.level.storage.loot.LootContext $$1) {
++        net.minecraft.nbt.ListTag $$2 = this.getLoreTag($$0, !this.lore.isEmpty());
++        if ($$2 != null) {
+             if (this.replace) {
+-                listTag.clear();
++                $$2.clear();
+             }
+-            java.util.function.UnaryOperator unaryOperator = net.minecraft.world.level.storage.loot.functions.SetNameFunction.createResolver((net.minecraft.world.level.storage.loot.LootContext)context, (net.minecraft.world.level.storage.loot.LootContext$EntityTarget)this.resolutionContext);
+-            this.lore.stream().map((java.util.function.Function)unaryOperator).map(net.minecraft.network.chat.Component$Serializer::toJson).map(net.minecraft.nbt.StringTag::valueOf).forEach(arg_0 -> ((net.minecraft.nbt.ListTag)listTag).add(arg_0));
++            java.util.function.UnaryOperator $$3 = net.minecraft.world.level.storage.loot.functions.SetNameFunction.createResolver((net.minecraft.world.level.storage.loot.LootContext)$$1, (net.minecraft.world.level.storage.loot.LootContext$EntityTarget)this.resolutionContext);
++            this.lore.stream().map((java.util.function.Function)$$3).map(net.minecraft.network.chat.Component$Serializer::toJson).map(net.minecraft.nbt.StringTag::valueOf).forEach(arg_0 -> ((net.minecraft.nbt.ListTag)$$2).add(arg_0));
+         }
+-        return stack;
++        return $$0;
+     }
+ 
++    /*
++     * WARNING - void declaration
++     */
+     @javax.annotation.Nullable
+-    public net.minecraft.nbt.ListTag getLoreTag(net.minecraft.world.item.ItemStack stack, boolean createIfMissing) {
+-        net.minecraft.nbt.CompoundTag compoundTag;
+-        net.minecraft.nbt.CompoundTag compoundTag2;
+-        if (stack.hasTag()) {
+-            compoundTag2 = stack.getTag();
+-        } else if (createIfMissing) {
+-            compoundTag2 = new net.minecraft.nbt.CompoundTag();
+-            stack.setTag(compoundTag2);
++    public net.minecraft.nbt.ListTag getLoreTag(net.minecraft.world.item.ItemStack $$0, boolean $$1) {
++        void $$7;
++        void $$4;
++        if ($$0.hasTag()) {
++            net.minecraft.nbt.CompoundTag $$2 = $$0.getTag();
++        } else if ($$1) {
++            net.minecraft.nbt.CompoundTag $$3 = new net.minecraft.nbt.CompoundTag();
++            $$0.setTag($$3);
+         } else {
+             return null;
+         }
+-        if (compoundTag2.contains("display", 10)) {
+-            compoundTag = compoundTag2.getCompound("display");
+-        } else if (createIfMissing) {
+-            compoundTag = new net.minecraft.nbt.CompoundTag();
+-            compoundTag2.put("display", (net.minecraft.nbt.Tag)compoundTag);
++        if ($$4.contains("display", 10)) {
++            net.minecraft.nbt.CompoundTag $$5 = $$4.getCompound("display");
++        } else if ($$1) {
++            net.minecraft.nbt.CompoundTag $$6 = new net.minecraft.nbt.CompoundTag();
++            $$4.put("display", (net.minecraft.nbt.Tag)$$6);
+         } else {
+             return null;
+         }
+-        if (compoundTag.contains("Lore", 9)) {
+-            return compoundTag.getList("Lore", 8);
++        if ($$7.contains("Lore", 9)) {
++            return $$7.getList("Lore", 8);
+         }
+-        if (createIfMissing) {
+-            net.minecraft.nbt.ListTag listTag = new net.minecraft.nbt.ListTag();
+-            compoundTag.put("Lore", (net.minecraft.nbt.Tag)listTag);
+-            return listTag;
++        if ($$1) {
++            net.minecraft.nbt.ListTag $$8 = new net.minecraft.nbt.ListTag();
++            $$7.put("Lore", (net.minecraft.nbt.Tag)$$8);
++            return $$8;
+         }
+         return null;
+     }

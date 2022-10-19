@@ -1,0 +1,63 @@
+--- net/minecraft/commands/arguments/coordinates/Vec3Argument.java
++++ net/minecraft/commands/arguments/coordinates/Vec3Argument.java
+@@ -11,38 +11,43 @@
+     public static com.mojang.brigadier.exceptions.SimpleCommandExceptionType ERROR_MIXED_TYPE;
+     public boolean centerCorrect;
+ 
+-    public net.minecraft.commands.arguments.coordinates.Vec3Argument(boolean centerCorrect) {
+-        this.centerCorrect = centerCorrect;
++    public net.minecraft.commands.arguments.coordinates.Vec3Argument(boolean $$0) {
++        this.centerCorrect = $$0;
+     }
+ 
+     public static net.minecraft.commands.arguments.coordinates.Vec3Argument vec3() {
+         return new net.minecraft.commands.arguments.coordinates.Vec3Argument(true);
+     }
+ 
+-    public static net.minecraft.commands.arguments.coordinates.Vec3Argument vec3(boolean centerCorrect) {
+-        return new net.minecraft.commands.arguments.coordinates.Vec3Argument(centerCorrect);
++    public static net.minecraft.commands.arguments.coordinates.Vec3Argument vec3(boolean $$0) {
++        return new net.minecraft.commands.arguments.coordinates.Vec3Argument($$0);
+     }
+ 
+-    public static net.minecraft.world.phys.Vec3 getVec3(com.mojang.brigadier.context.CommandContext<net.minecraft.commands.CommandSourceStack> context, java.lang.String name) {
+-        return ((net.minecraft.commands.arguments.coordinates.Coordinates)context.getArgument(name, net.minecraft.commands.arguments.coordinates.Coordinates.class)).getPosition((net.minecraft.commands.CommandSourceStack)context.getSource());
++    public static net.minecraft.world.phys.Vec3 getVec3(com.mojang.brigadier.context.CommandContext<net.minecraft.commands.CommandSourceStack> $$0, java.lang.String $$1) {
++        return ((net.minecraft.commands.arguments.coordinates.Coordinates)$$0.getArgument($$1, net.minecraft.commands.arguments.coordinates.Coordinates.class)).getPosition((net.minecraft.commands.CommandSourceStack)$$0.getSource());
+     }
+ 
+-    public static net.minecraft.commands.arguments.coordinates.Coordinates getCoordinates(com.mojang.brigadier.context.CommandContext<net.minecraft.commands.CommandSourceStack> context, java.lang.String name) {
+-        return (net.minecraft.commands.arguments.coordinates.Coordinates)context.getArgument(name, net.minecraft.commands.arguments.coordinates.Coordinates.class);
++    public static net.minecraft.commands.arguments.coordinates.Coordinates getCoordinates(com.mojang.brigadier.context.CommandContext<net.minecraft.commands.CommandSourceStack> $$0, java.lang.String $$1) {
++        return (net.minecraft.commands.arguments.coordinates.Coordinates)$$0.getArgument($$1, net.minecraft.commands.arguments.coordinates.Coordinates.class);
+     }
+ 
+-    public net.minecraft.commands.arguments.coordinates.Coordinates parse(com.mojang.brigadier.StringReader reader) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
+-        if (reader.canRead() && reader.peek() == '^') {
+-            return net.minecraft.commands.arguments.coordinates.LocalCoordinates.parse((com.mojang.brigadier.StringReader)reader);
++    public net.minecraft.commands.arguments.coordinates.Coordinates parse(com.mojang.brigadier.StringReader $$0) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
++        if ($$0.canRead() && $$0.peek() == '^') {
++            return net.minecraft.commands.arguments.coordinates.LocalCoordinates.parse((com.mojang.brigadier.StringReader)$$0);
+         }
+-        return net.minecraft.commands.arguments.coordinates.WorldCoordinates.parseDouble((com.mojang.brigadier.StringReader)reader, (boolean)this.centerCorrect);
++        return net.minecraft.commands.arguments.coordinates.WorldCoordinates.parseDouble((com.mojang.brigadier.StringReader)$$0, (boolean)this.centerCorrect);
+     }
+ 
+-    public <S> java.util.concurrent.CompletableFuture<com.mojang.brigadier.suggestion.Suggestions> listSuggestions(com.mojang.brigadier.context.CommandContext<S> context, com.mojang.brigadier.suggestion.SuggestionsBuilder builder) {
+-        if (context.getSource() instanceof net.minecraft.commands.SharedSuggestionProvider) {
+-            java.lang.String string = builder.getRemaining();
+-            java.lang.Object object = !string.isEmpty() && string.charAt(0) == '^' ? java.util.Collections.singleton((java.lang.Object)net.minecraft.commands.SharedSuggestionProvider$TextCoordinates.DEFAULT_LOCAL) : ((net.minecraft.commands.SharedSuggestionProvider)context.getSource()).getAbsoluteCoordinates();
+-            return net.minecraft.commands.SharedSuggestionProvider.suggestCoordinates((java.lang.String)string, (java.util.Collection)object, (com.mojang.brigadier.suggestion.SuggestionsBuilder)builder, (java.util.function.Predicate)net.minecraft.commands.Commands.createValidator(arg_0 -> this.parse(arg_0)));
++    public <S> java.util.concurrent.CompletableFuture<com.mojang.brigadier.suggestion.Suggestions> listSuggestions(com.mojang.brigadier.context.CommandContext<S> $$0, com.mojang.brigadier.suggestion.SuggestionsBuilder $$1) {
++        if ($$0.getSource() instanceof net.minecraft.commands.SharedSuggestionProvider) {
++            java.util.Collection $$4;
++            java.lang.String $$2 = $$1.getRemaining();
++            if (!$$2.isEmpty() && $$2.charAt(0) == '^') {
++                java.util.Set $$3 = java.util.Collections.singleton((java.lang.Object)net.minecraft.commands.SharedSuggestionProvider$TextCoordinates.DEFAULT_LOCAL);
++            } else {
++                $$4 = ((net.minecraft.commands.SharedSuggestionProvider)$$0.getSource()).getAbsoluteCoordinates();
++            }
++            return net.minecraft.commands.SharedSuggestionProvider.suggestCoordinates((java.lang.String)$$2, (java.util.Collection)$$4, (com.mojang.brigadier.suggestion.SuggestionsBuilder)$$1, (java.util.function.Predicate)net.minecraft.commands.Commands.createValidator(arg_0 -> this.parse(arg_0)));
+         }
+         return com.mojang.brigadier.suggestion.Suggestions.empty();
+     }

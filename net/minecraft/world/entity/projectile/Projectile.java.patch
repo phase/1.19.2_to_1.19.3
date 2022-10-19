@@ -1,0 +1,193 @@
+--- net/minecraft/world/entity/projectile/Projectile.java
++++ net/minecraft/world/entity/projectile/Projectile.java
+@@ -17,10 +17,10 @@
+         super($$0, $$1);
+     }
+ 
+-    public void setOwner(@javax.annotation.Nullable net.minecraft.world.entity.Entity owner) {
+-        if (owner != null) {
+-            this.ownerUUID = owner.getUUID();
+-            this.cachedOwner = owner;
++    public void setOwner(@javax.annotation.Nullable net.minecraft.world.entity.Entity $$0) {
++        if ($$0 != null) {
++            this.ownerUUID = $$0.getUUID();
++            this.cachedOwner = $$0;
+         }
+     }
+ 
+@@ -40,26 +40,26 @@
+         return (net.minecraft.world.entity.Entity)com.google.common.base.MoreObjects.firstNonNull((java.lang.Object)this.getOwner(), (java.lang.Object)this);
+     }
+ 
+-    public void addAdditionalSaveData(net.minecraft.nbt.CompoundTag compound) {
++    public void addAdditionalSaveData(net.minecraft.nbt.CompoundTag $$0) {
+         if (this.ownerUUID != null) {
+-            compound.putUUID("Owner", this.ownerUUID);
++            $$0.putUUID("Owner", this.ownerUUID);
+         }
+         if (this.leftOwner) {
+-            compound.putBoolean("LeftOwner", true);
++            $$0.putBoolean("LeftOwner", true);
+         }
+-        compound.putBoolean("HasBeenShot", this.hasBeenShot);
++        $$0.putBoolean("HasBeenShot", this.hasBeenShot);
+     }
+ 
+     public boolean ownedBy(net.minecraft.world.entity.Entity $$0) {
+         return $$0.getUUID().equals((java.lang.Object)this.ownerUUID);
+     }
+ 
+-    public void readAdditionalSaveData(net.minecraft.nbt.CompoundTag compound) {
+-        if (compound.hasUUID("Owner")) {
+-            this.ownerUUID = compound.getUUID("Owner");
++    public void readAdditionalSaveData(net.minecraft.nbt.CompoundTag $$0) {
++        if ($$0.hasUUID("Owner")) {
++            this.ownerUUID = $$0.getUUID("Owner");
+         }
+-        this.leftOwner = compound.getBoolean("LeftOwner");
+-        this.hasBeenShot = compound.getBoolean("HasBeenShot");
++        this.leftOwner = $$0.getBoolean("LeftOwner");
++        this.hasBeenShot = $$0.getBoolean("HasBeenShot");
+     }
+ 
+     public void tick() {
+@@ -74,74 +74,74 @@
+     }
+ 
+     public boolean checkLeftOwner() {
+-        net.minecraft.world.entity.Entity $$0 = this.getOwner();
+-        if ($$0 != null) {
+-            for (net.minecraft.world.entity.Entity $$1 : this.level.getEntities((net.minecraft.world.entity.Entity)this, this.getBoundingBox().expandTowards(this.getDeltaMovement()).inflate(1.0), entity -> !entity.isSpectator() && entity.isPickable())) {
+-                if ($$1.getRootVehicle() != $$0.getRootVehicle()) continue;
++        net.minecraft.world.entity.Entity $$02 = this.getOwner();
++        if ($$02 != null) {
++            for (net.minecraft.world.entity.Entity $$1 : this.level.getEntities((net.minecraft.world.entity.Entity)this, this.getBoundingBox().expandTowards(this.getDeltaMovement()).inflate(1.0), $$0 -> !$$0.isSpectator() && $$0.isPickable())) {
++                if ($$1.getRootVehicle() != $$02.getRootVehicle()) continue;
+                 return false;
+             }
+         }
+         return true;
+     }
+ 
+-    public void shoot(double x, double y, double z, float velocity, float inaccuracy) {
+-        net.minecraft.world.phys.Vec3 vec3 = new net.minecraft.world.phys.Vec3(x, y, z).normalize().add(this.random.triangle(0.0, 0.0172275 * (double)inaccuracy), this.random.triangle(0.0, 0.0172275 * (double)inaccuracy), this.random.triangle(0.0, 0.0172275 * (double)inaccuracy)).scale((double)velocity);
+-        this.setDeltaMovement(vec3);
+-        double d = vec3.horizontalDistance();
+-        this.setYRot((float)(net.minecraft.util.Mth.atan2((double)vec3.x, (double)vec3.z) * 57.2957763671875));
+-        this.setXRot((float)(net.minecraft.util.Mth.atan2((double)vec3.y, (double)d) * 57.2957763671875));
++    public void shoot(double $$0, double $$1, double $$2, float $$3, float $$4) {
++        net.minecraft.world.phys.Vec3 $$5 = new net.minecraft.world.phys.Vec3($$0, $$1, $$2).normalize().add(this.random.triangle(0.0, 0.0172275 * (double)$$4), this.random.triangle(0.0, 0.0172275 * (double)$$4), this.random.triangle(0.0, 0.0172275 * (double)$$4)).scale((double)$$3);
++        this.setDeltaMovement($$5);
++        double $$6 = $$5.horizontalDistance();
++        this.setYRot((float)(net.minecraft.util.Mth.atan2((double)$$5.x, (double)$$5.z) * 57.2957763671875));
++        this.setXRot((float)(net.minecraft.util.Mth.atan2((double)$$5.y, (double)$$6) * 57.2957763671875));
+         this.yRotO = this.getYRot();
+         this.xRotO = this.getXRot();
+     }
+ 
+-    public void shootFromRotation(net.minecraft.world.entity.Entity shooter, float x, float y, float z, float velocity, float inaccuracy) {
+-        float f = -net.minecraft.util.Mth.sin((float)(y * ((float)java.lang.Math.PI / 180))) * net.minecraft.util.Mth.cos((float)(x * ((float)java.lang.Math.PI / 180)));
+-        float f2 = -net.minecraft.util.Mth.sin((float)((x + z) * ((float)java.lang.Math.PI / 180)));
+-        float f3 = net.minecraft.util.Mth.cos((float)(y * ((float)java.lang.Math.PI / 180))) * net.minecraft.util.Mth.cos((float)(x * ((float)java.lang.Math.PI / 180)));
+-        this.shoot((double)f, (double)f2, (double)f3, velocity, inaccuracy);
+-        net.minecraft.world.phys.Vec3 vec3 = shooter.getDeltaMovement();
+-        this.setDeltaMovement(this.getDeltaMovement().add(vec3.x, shooter.isOnGround() ? 0.0 : vec3.y, vec3.z));
++    public void shootFromRotation(net.minecraft.world.entity.Entity $$0, float $$1, float $$2, float $$3, float $$4, float $$5) {
++        float $$6 = -net.minecraft.util.Mth.sin((float)($$2 * ((float)java.lang.Math.PI / 180))) * net.minecraft.util.Mth.cos((float)($$1 * ((float)java.lang.Math.PI / 180)));
++        float $$7 = -net.minecraft.util.Mth.sin((float)(($$1 + $$3) * ((float)java.lang.Math.PI / 180)));
++        float $$8 = net.minecraft.util.Mth.cos((float)($$2 * ((float)java.lang.Math.PI / 180))) * net.minecraft.util.Mth.cos((float)($$1 * ((float)java.lang.Math.PI / 180)));
++        this.shoot((double)$$6, (double)$$7, (double)$$8, $$4, $$5);
++        net.minecraft.world.phys.Vec3 $$9 = $$0.getDeltaMovement();
++        this.setDeltaMovement(this.getDeltaMovement().add($$9.x, $$0.isOnGround() ? 0.0 : $$9.y, $$9.z));
+     }
+ 
+-    public void onHit(net.minecraft.world.phys.HitResult result) {
+-        net.minecraft.world.phys.HitResult$Type type = result.getType();
+-        if (type == net.minecraft.world.phys.HitResult$Type.ENTITY) {
+-            this.onHitEntity((net.minecraft.world.phys.EntityHitResult)result);
+-            this.level.gameEvent(net.minecraft.world.level.gameevent.GameEvent.PROJECTILE_LAND, result.getLocation(), net.minecraft.world.level.gameevent.GameEvent$Context.of((net.minecraft.world.entity.Entity)this, null));
+-        } else if (type == net.minecraft.world.phys.HitResult$Type.BLOCK) {
+-            net.minecraft.world.phys.BlockHitResult blockHitResult = (net.minecraft.world.phys.BlockHitResult)result;
+-            this.onHitBlock(blockHitResult);
+-            net.minecraft.core.BlockPos blockPos = blockHitResult.getBlockPos();
+-            this.level.gameEvent(net.minecraft.world.level.gameevent.GameEvent.PROJECTILE_LAND, blockPos, net.minecraft.world.level.gameevent.GameEvent$Context.of((net.minecraft.world.entity.Entity)this, (net.minecraft.world.level.block.state.BlockState)this.level.getBlockState(blockPos)));
++    public void onHit(net.minecraft.world.phys.HitResult $$0) {
++        net.minecraft.world.phys.HitResult$Type $$1 = $$0.getType();
++        if ($$1 == net.minecraft.world.phys.HitResult$Type.ENTITY) {
++            this.onHitEntity((net.minecraft.world.phys.EntityHitResult)$$0);
++            this.level.gameEvent(net.minecraft.world.level.gameevent.GameEvent.PROJECTILE_LAND, $$0.getLocation(), net.minecraft.world.level.gameevent.GameEvent$Context.of((net.minecraft.world.entity.Entity)this, null));
++        } else if ($$1 == net.minecraft.world.phys.HitResult$Type.BLOCK) {
++            net.minecraft.world.phys.BlockHitResult $$2 = (net.minecraft.world.phys.BlockHitResult)$$0;
++            this.onHitBlock($$2);
++            net.minecraft.core.BlockPos $$3 = $$2.getBlockPos();
++            this.level.gameEvent(net.minecraft.world.level.gameevent.GameEvent.PROJECTILE_LAND, $$3, net.minecraft.world.level.gameevent.GameEvent$Context.of((net.minecraft.world.entity.Entity)this, (net.minecraft.world.level.block.state.BlockState)this.level.getBlockState($$3)));
+         }
+     }
+ 
+-    public void onHitEntity(net.minecraft.world.phys.EntityHitResult result) {
++    public void onHitEntity(net.minecraft.world.phys.EntityHitResult $$0) {
+     }
+ 
+-    public void onHitBlock(net.minecraft.world.phys.BlockHitResult result) {
+-        net.minecraft.world.level.block.state.BlockState blockState = this.level.getBlockState(result.getBlockPos());
+-        blockState.onProjectileHit(this.level, blockState, result, this);
++    public void onHitBlock(net.minecraft.world.phys.BlockHitResult $$0) {
++        net.minecraft.world.level.block.state.BlockState $$1 = this.level.getBlockState($$0.getBlockPos());
++        $$1.onProjectileHit(this.level, $$1, $$0, this);
+     }
+ 
+-    public void lerpMotion(double x, double y, double z) {
+-        this.setDeltaMovement(x, y, z);
++    public void lerpMotion(double $$0, double $$1, double $$2) {
++        this.setDeltaMovement($$0, $$1, $$2);
+         if (this.xRotO == 0.0f && this.yRotO == 0.0f) {
+-            double d = java.lang.Math.sqrt((double)(x * x + z * z));
+-            this.setXRot((float)(net.minecraft.util.Mth.atan2((double)y, (double)d) * 57.2957763671875));
+-            this.setYRot((float)(net.minecraft.util.Mth.atan2((double)x, (double)z) * 57.2957763671875));
++            double $$3 = java.lang.Math.sqrt((double)($$0 * $$0 + $$2 * $$2));
++            this.setXRot((float)(net.minecraft.util.Mth.atan2((double)$$1, (double)$$3) * 57.2957763671875));
++            this.setYRot((float)(net.minecraft.util.Mth.atan2((double)$$0, (double)$$2) * 57.2957763671875));
+             this.xRotO = this.getXRot();
+             this.yRotO = this.getYRot();
+             this.moveTo(this.getX(), this.getY(), this.getZ(), this.getYRot(), this.getXRot());
+         }
+     }
+ 
+-    public boolean canHitEntity(net.minecraft.world.entity.Entity target) {
+-        if (target.isSpectator() || !target.isAlive() || !target.isPickable()) {
++    public boolean canHitEntity(net.minecraft.world.entity.Entity $$0) {
++        if ($$0.isSpectator() || !$$0.isAlive() || !$$0.isPickable()) {
+             return false;
+         }
+-        net.minecraft.world.entity.Entity entity = this.getOwner();
+-        return entity == null || this.leftOwner || !entity.isPassengerOfSameVehicle(target);
++        net.minecraft.world.entity.Entity $$1 = this.getOwner();
++        return $$1 == null || this.leftOwner || !$$1.isPassengerOfSameVehicle($$0);
+     }
+ 
+     public void updateRotation() {
+@@ -151,17 +151,17 @@
+         this.setYRot(net.minecraft.world.entity.projectile.Projectile.lerpRotation((float)this.yRotO, (float)((float)(net.minecraft.util.Mth.atan2((double)$$0.x, (double)$$0.z) * 57.2957763671875))));
+     }
+ 
+-    public static float lerpRotation(float currentRotation, float targetRotation) {
+-        while (targetRotation - currentRotation < -180.0f) {
+-            currentRotation -= 360.0f;
++    public static float lerpRotation(float $$0, float $$1) {
++        while ($$1 - $$0 < -180.0f) {
++            $$0 -= 360.0f;
+         }
+-        while (targetRotation - currentRotation >= 180.0f) {
+-            currentRotation += 360.0f;
++        while ($$1 - $$0 >= 180.0f) {
++            $$0 += 360.0f;
+         }
+-        return net.minecraft.util.Mth.lerp((float)0.2f, (float)currentRotation, (float)targetRotation);
++        return net.minecraft.util.Mth.lerp((float)0.2f, (float)$$0, (float)$$1);
+     }
+ 
+-    public net.minecraft.network.protocol.Packet<?> getAddEntityPacket() {
++    public net.minecraft.network.protocol.Packet<net.minecraft.network.protocol.game.ClientGamePacketListener> getAddEntityPacket() {
+         net.minecraft.world.entity.Entity $$0 = this.getOwner();
+         return new net.minecraft.network.protocol.game.ClientboundAddEntityPacket((net.minecraft.world.entity.Entity)this, $$0 == null ? 0 : $$0.getId());
+     }

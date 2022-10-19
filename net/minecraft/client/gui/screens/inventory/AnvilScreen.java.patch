@@ -1,0 +1,138 @@
+--- net/minecraft/client/gui/screens/inventory/AnvilScreen.java
++++ net/minecraft/client/gui/screens/inventory/AnvilScreen.java
+@@ -11,9 +11,9 @@
+     public net.minecraft.client.gui.components.EditBox name;
+     public net.minecraft.world.entity.player.Player player;
+ 
+-    public net.minecraft.client.gui.screens.inventory.AnvilScreen(net.minecraft.world.inventory.AnvilMenu anvilMenu, net.minecraft.world.entity.player.Inventory playerInventory, net.minecraft.network.chat.Component title) {
+-        super((net.minecraft.world.inventory.ItemCombinerMenu)anvilMenu, playerInventory, title, ANVIL_LOCATION);
+-        this.player = playerInventory.player;
++    public net.minecraft.client.gui.screens.inventory.AnvilScreen(net.minecraft.world.inventory.AnvilMenu $$0, net.minecraft.world.entity.player.Inventory $$1, net.minecraft.network.chat.Component $$2) {
++        super((net.minecraft.world.inventory.ItemCombinerMenu)$$0, $$1, $$2, ANVIL_LOCATION);
++        this.player = $$1.player;
+         this.titleLabelX = 60;
+     }
+ 
+@@ -23,7 +23,6 @@
+     }
+ 
+     public void subInit() {
+-        this.minecraft.keyboardHandler.setSendRepeatsToGui(true);
+         int $$0 = (this.width - this.imageWidth) / 2;
+         int $$1 = (this.height - this.imageHeight) / 2;
+         this.name = new net.minecraft.client.gui.components.EditBox(this.font, $$0 + 62, $$1 + 24, 103, 12, (net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"container.repair"));
+@@ -39,75 +38,70 @@
+         this.name.setEditable(false);
+     }
+ 
+-    public void resize(net.minecraft.client.Minecraft minecraft, int width, int height) {
+-        java.lang.String string = this.name.getValue();
+-        this.init(minecraft, width, height);
+-        this.name.setValue(string);
++    public void resize(net.minecraft.client.Minecraft $$0, int $$1, int $$2) {
++        java.lang.String $$3 = this.name.getValue();
++        this.init($$0, $$1, $$2);
++        this.name.setValue($$3);
+     }
+ 
+-    public void removed() {
+-        super.removed();
+-        this.minecraft.keyboardHandler.setSendRepeatsToGui(false);
+-    }
+-
+-    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+-        if (keyCode == 256) {
++    public boolean keyPressed(int $$0, int $$1, int $$2) {
++        if ($$0 == 256) {
+             this.minecraft.player.closeContainer();
+         }
+-        if (this.name.keyPressed(keyCode, scanCode, modifiers) || this.name.canConsumeInput()) {
++        if (this.name.keyPressed($$0, $$1, $$2) || this.name.canConsumeInput()) {
+             return true;
+         }
+-        return super.keyPressed(keyCode, scanCode, modifiers);
++        return super.keyPressed($$0, $$1, $$2);
+     }
+ 
+-    public void onNameChanged(java.lang.String name) {
+-        if (name.isEmpty()) {
++    public void onNameChanged(java.lang.String $$0) {
++        if ($$0.isEmpty()) {
+             return;
+         }
+-        java.lang.String string = name;
+-        net.minecraft.world.inventory.Slot slot = ((net.minecraft.world.inventory.AnvilMenu)this.menu).getSlot(0);
+-        if (slot != null && slot.hasItem() && !slot.getItem().hasCustomHoverName() && string.equals((java.lang.Object)slot.getItem().getHoverName().getString())) {
+-            string = "";
++        java.lang.String $$1 = $$0;
++        net.minecraft.world.inventory.Slot $$2 = ((net.minecraft.world.inventory.AnvilMenu)this.menu).getSlot(0);
++        if ($$2 != null && $$2.hasItem() && !$$2.getItem().hasCustomHoverName() && $$1.equals((java.lang.Object)$$2.getItem().getHoverName().getString())) {
++            $$1 = "";
+         }
+-        ((net.minecraft.world.inventory.AnvilMenu)this.menu).setItemName(string);
+-        this.minecraft.player.connection.send((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ServerboundRenameItemPacket(string));
++        ((net.minecraft.world.inventory.AnvilMenu)this.menu).setItemName($$1);
++        this.minecraft.player.connection.send((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ServerboundRenameItemPacket($$1));
+     }
+ 
+-    public void renderLabels(com.mojang.blaze3d.vertex.PoseStack matrixStack, int x, int y) {
++    public void renderLabels(com.mojang.blaze3d.vertex.PoseStack $$0, int $$1, int $$2) {
+         com.mojang.blaze3d.systems.RenderSystem.disableBlend();
+-        super.renderLabels(matrixStack, x, y);
+-        int n = ((net.minecraft.world.inventory.AnvilMenu)this.menu).getCost();
+-        if (n > 0) {
+-            net.minecraft.network.chat.Component component;
+-            int n2 = 8453920;
+-            if (n >= 40 && !this.minecraft.player.getAbilities().instabuild) {
+-                component = TOO_EXPENSIVE_TEXT;
+-                n2 = 0xFF6060;
++        super.renderLabels($$0, $$1, $$2);
++        int $$3 = ((net.minecraft.world.inventory.AnvilMenu)this.menu).getCost();
++        if ($$3 > 0) {
++            net.minecraft.network.chat.MutableComponent $$7;
++            int $$4 = 8453920;
++            if ($$3 >= 40 && !this.minecraft.player.getAbilities().instabuild) {
++                net.minecraft.network.chat.Component $$5 = TOO_EXPENSIVE_TEXT;
++                $$4 = 0xFF6060;
+             } else if (!((net.minecraft.world.inventory.AnvilMenu)this.menu).getSlot(2).hasItem()) {
+-                component = null;
++                java.lang.Object $$6 = null;
+             } else {
+-                component = net.minecraft.network.chat.Component.translatable((java.lang.String)"container.repair.cost", (java.lang.Object[])new java.lang.Object[]{n});
++                $$7 = net.minecraft.network.chat.Component.translatable((java.lang.String)"container.repair.cost", (java.lang.Object[])new java.lang.Object[]{$$3});
+                 if (!((net.minecraft.world.inventory.AnvilMenu)this.menu).getSlot(2).mayPickup(this.player)) {
+-                    n2 = 0xFF6060;
++                    $$4 = 0xFF6060;
+                 }
+             }
+-            if (component != null) {
+-                int n3 = this.imageWidth - 8 - this.font.width((net.minecraft.network.chat.FormattedText)component) - 2;
+-                int n4 = 69;
+-                net.minecraft.client.gui.screens.inventory.AnvilScreen.fill((com.mojang.blaze3d.vertex.PoseStack)matrixStack, (int)(n3 - 2), (int)67, (int)(this.imageWidth - 8), (int)79, (int)0x4F000000);
+-                this.font.drawShadow(matrixStack, component, (float)n3, 69.0f, n2);
++            if ($$7 != null) {
++                int $$8 = this.imageWidth - 8 - this.font.width((net.minecraft.network.chat.FormattedText)$$7) - 2;
++                int $$9 = 69;
++                net.minecraft.client.gui.screens.inventory.AnvilScreen.fill((com.mojang.blaze3d.vertex.PoseStack)$$0, (int)($$8 - 2), (int)67, (int)(this.imageWidth - 8), (int)79, (int)0x4F000000);
++                this.font.drawShadow($$0, (net.minecraft.network.chat.Component)$$7, (float)$$8, 69.0f, $$4);
+             }
+         }
+     }
+ 
+-    public void renderFg(com.mojang.blaze3d.vertex.PoseStack matrixStack, int mouseX, int mouseY, float partialTicks) {
+-        this.name.render(matrixStack, mouseX, mouseY, partialTicks);
++    public void renderFg(com.mojang.blaze3d.vertex.PoseStack $$0, int $$1, int $$2, float $$3) {
++        this.name.render($$0, $$1, $$2, $$3);
+     }
+ 
+-    public void slotChanged(net.minecraft.world.inventory.AbstractContainerMenu containerToSend, int slotInd, net.minecraft.world.item.ItemStack stack) {
+-        if (slotInd == 0) {
+-            this.name.setValue(stack.isEmpty() ? "" : stack.getHoverName().getString());
+-            this.name.setEditable(!stack.isEmpty());
++    public void slotChanged(net.minecraft.world.inventory.AbstractContainerMenu $$0, int $$1, net.minecraft.world.item.ItemStack $$2) {
++        if ($$1 == 0) {
++            this.name.setValue($$2.isEmpty() ? "" : $$2.getHoverName().getString());
++            this.name.setEditable(!$$2.isEmpty());
+             this.setFocused((net.minecraft.client.gui.components.events.GuiEventListener)this.name);
+         }
+     }

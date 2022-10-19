@@ -1,0 +1,79 @@
+--- net/minecraft/client/renderer/blockentity/HangingSignRenderer.java
++++ net/minecraft/client/renderer/blockentity/HangingSignRenderer.java
+@@ -1,0 +1,76 @@
++/*
++ * Decompiled with CFR 0.151.
++ */
++package net.minecraft.client.renderer.blockentity;
++
++public class net.minecraft.client.renderer.blockentity.HangingSignRenderer
++extends net.minecraft.client.renderer.blockentity.SignRenderer
++ {
++    public static java.lang.String PLANK = "plank";
++    public static java.lang.String V_CHAINS = "vChains";
++    public static java.lang.String NORMAL_CHAINS = "normalChains";
++    public static java.lang.String CHAIN_L_1 = "chainL1";
++    public static java.lang.String CHAIN_L_2 = "chainL2";
++    public static java.lang.String CHAIN_R_1 = "chainR1";
++    public static java.lang.String CHAIN_R_2 = "chainR2";
++    public static java.lang.String BOARD = "board";
++    public java.util.Map<net.minecraft.world.level.block.state.properties.WoodType, net.minecraft.client.renderer.blockentity.HangingSignRenderer$HangingSignModel> hangingSignModels;
++
++    public net.minecraft.client.renderer.blockentity.HangingSignRenderer(net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider$Context $$02) {
++        super($$02);
++        this.hangingSignModels = (java.util.Map)net.minecraft.world.level.block.state.properties.WoodType.values().collect(com.google.common.collect.ImmutableMap.toImmutableMap($$0 -> $$0, $$1 -> new net.minecraft.client.renderer.blockentity.HangingSignRenderer$HangingSignModel($$02.bakeLayer(net.minecraft.client.model.geom.ModelLayers.createHangingSignModelName((net.minecraft.world.level.block.state.properties.WoodType)$$1)))));
++    }
++
++    public void render(net.minecraft.world.level.block.entity.SignBlockEntity $$0, float $$1, com.mojang.blaze3d.vertex.PoseStack $$2, net.minecraft.client.renderer.MultiBufferSource $$3, int $$4, int $$5) {
++        net.minecraft.world.level.block.state.BlockState $$6 = $$0.getBlockState();
++        $$2.pushPose();
++        net.minecraft.world.level.block.state.properties.WoodType $$7 = net.minecraft.world.level.block.SignBlock.getWoodType((net.minecraft.world.level.block.Block)$$6.getBlock());
++        net.minecraft.client.renderer.blockentity.HangingSignRenderer$HangingSignModel $$8 = (net.minecraft.client.renderer.blockentity.HangingSignRenderer$HangingSignModel)this.hangingSignModels.get((java.lang.Object)$$7);
++        boolean $$9 = !($$6.getBlock() instanceof net.minecraft.world.level.block.CeilingHangingSignBlock);
++        boolean $$10 = $$6.hasProperty((net.minecraft.world.level.block.state.properties.Property)net.minecraft.world.level.block.state.properties.BlockStateProperties.ATTACHED) && (java.lang.Boolean)$$6.getValue((net.minecraft.world.level.block.state.properties.Property)net.minecraft.world.level.block.state.properties.BlockStateProperties.ATTACHED) != false;
++        $$2.translate(0.5, 0.9375, 0.5);
++        if ($$10) {
++            float $$11 = -net.minecraft.world.level.block.state.properties.RotationSegment.convertToDegrees((int)((java.lang.Integer)$$6.getValue((net.minecraft.world.level.block.state.properties.Property)net.minecraft.world.level.block.CeilingHangingSignBlock.ROTATION)));
++            $$2.mulPose(com.mojang.math.Vector3f.YP.rotationDegrees($$11));
++        } else {
++            $$2.mulPose(com.mojang.math.Vector3f.YP.rotationDegrees(this.getSignAngle($$6, $$9)));
++        }
++        $$2.translate(0.0, -0.3125, 0.0);
++        $$8.evaluateVisibleParts($$6);
++        float $$12 = 1.0f;
++        this.renderSign($$2, $$3, $$4, $$5, 1.0f, $$7, (net.minecraft.client.model.Model)$$8);
++        this.renderSignText($$0, $$2, $$3, $$4, 1.0f);
++    }
++
++    public float getSignAngle(net.minecraft.world.level.block.state.BlockState $$0, boolean $$1) {
++        return $$1 ? -((net.minecraft.core.Direction)$$0.getValue((net.minecraft.world.level.block.state.properties.Property)net.minecraft.world.level.block.WallSignBlock.FACING)).toYRot() : -((float)((java.lang.Integer)$$0.getValue((net.minecraft.world.level.block.state.properties.Property)net.minecraft.world.level.block.CeilingHangingSignBlock.ROTATION) * 360) / 16.0f);
++    }
++
++    public net.minecraft.client.resources.model.Material getSignMaterial(net.minecraft.world.level.block.state.properties.WoodType $$0) {
++        return net.minecraft.client.renderer.Sheets.getHangingSignMaterial((net.minecraft.world.level.block.state.properties.WoodType)$$0);
++    }
++
++    public void renderSignModel(com.mojang.blaze3d.vertex.PoseStack $$0, int $$1, int $$2, net.minecraft.client.model.Model $$3, com.mojang.blaze3d.vertex.VertexConsumer $$4) {
++        net.minecraft.client.renderer.blockentity.HangingSignRenderer$HangingSignModel $$5 = (net.minecraft.client.renderer.blockentity.HangingSignRenderer$HangingSignModel)$$3;
++        $$5.root.render($$0, $$4, $$1, $$2);
++    }
++
++    public net.minecraft.world.phys.Vec3 getTextOffset(float $$0) {
++        return new net.minecraft.world.phys.Vec3(0.0, (double)(-0.32f * $$0), (double)(0.063f * $$0));
++    }
++
++    public static net.minecraft.client.model.geom.builders.LayerDefinition createHangingSignLayer() {
++        net.minecraft.client.model.geom.builders.MeshDefinition $$0 = new net.minecraft.client.model.geom.builders.MeshDefinition();
++        net.minecraft.client.model.geom.builders.PartDefinition $$1 = $$0.getRoot();
++        $$1.addOrReplaceChild("board", net.minecraft.client.model.geom.builders.CubeListBuilder.create().texOffs(0, 12).addBox(-7.0f, 0.0f, -1.0f, 14.0f, 10.0f, 2.0f), net.minecraft.client.model.geom.PartPose.ZERO);
++        $$1.addOrReplaceChild("plank", net.minecraft.client.model.geom.builders.CubeListBuilder.create().texOffs(0, 0).addBox(-8.0f, -6.0f, -2.0f, 16.0f, 2.0f, 4.0f), net.minecraft.client.model.geom.PartPose.ZERO);
++        net.minecraft.client.model.geom.builders.PartDefinition $$2 = $$1.addOrReplaceChild("normalChains", net.minecraft.client.model.geom.builders.CubeListBuilder.create(), net.minecraft.client.model.geom.PartPose.ZERO);
++        $$2.addOrReplaceChild("chainL1", net.minecraft.client.model.geom.builders.CubeListBuilder.create().texOffs(0, 6).addBox(-1.5f, 0.0f, 0.0f, 3.0f, 6.0f, 0.0f), net.minecraft.client.model.geom.PartPose.offsetAndRotation((float)-5.0f, (float)-6.0f, (float)0.0f, (float)0.0f, (float)-0.7853982f, (float)0.0f));
++        $$2.addOrReplaceChild("chainL2", net.minecraft.client.model.geom.builders.CubeListBuilder.create().texOffs(6, 6).addBox(-1.5f, 0.0f, 0.0f, 3.0f, 6.0f, 0.0f), net.minecraft.client.model.geom.PartPose.offsetAndRotation((float)-5.0f, (float)-6.0f, (float)0.0f, (float)0.0f, (float)0.7853982f, (float)0.0f));
++        $$2.addOrReplaceChild("chainR1", net.minecraft.client.model.geom.builders.CubeListBuilder.create().texOffs(0, 6).addBox(-1.5f, 0.0f, 0.0f, 3.0f, 6.0f, 0.0f), net.minecraft.client.model.geom.PartPose.offsetAndRotation((float)5.0f, (float)-6.0f, (float)0.0f, (float)0.0f, (float)-0.7853982f, (float)0.0f));
++        $$2.addOrReplaceChild("chainR2", net.minecraft.client.model.geom.builders.CubeListBuilder.create().texOffs(6, 6).addBox(-1.5f, 0.0f, 0.0f, 3.0f, 6.0f, 0.0f), net.minecraft.client.model.geom.PartPose.offsetAndRotation((float)5.0f, (float)-6.0f, (float)0.0f, (float)0.0f, (float)0.7853982f, (float)0.0f));
++        $$1.addOrReplaceChild("vChains", net.minecraft.client.model.geom.builders.CubeListBuilder.create().texOffs(14, 6).addBox(-6.0f, -6.0f, 0.0f, 12.0f, 6.0f, 0.0f), net.minecraft.client.model.geom.PartPose.ZERO);
++        return net.minecraft.client.model.geom.builders.LayerDefinition.create((net.minecraft.client.model.geom.builders.MeshDefinition)$$0, (int)64, (int)32);
++    }
++}
++

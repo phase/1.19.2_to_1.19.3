@@ -1,0 +1,467 @@
+--- net/minecraft/network/FriendlyByteBuf.java
++++ net/minecraft/network/FriendlyByteBuf.java
+@@ -20,10 +20,10 @@
+         this.source = $$0;
+     }
+ 
+-    public static int getVarIntSize(int input) {
+-        for (int i = 1; i < 5; ++i) {
+-            if ((input & -1 << i * 7) != 0) continue;
+-            return i;
++    public static int getVarIntSize(int $$0) {
++        for (int $$1 = 1; $$1 < 5; ++$$1) {
++            if (($$0 & -1 << $$1 * 7) != 0) continue;
++            return $$1;
+         }
+         return 5;
+     }
+@@ -36,13 +36,13 @@
+         return 10;
+     }
+ 
+-    public <T> T readWithCodec(com.mojang.serialization.Codec<T> codec) {
+-        net.minecraft.nbt.CompoundTag compoundTag = this.readAnySizeNbt();
+-        com.mojang.serialization.DataResult dataResult = codec.parse((com.mojang.serialization.DynamicOps)net.minecraft.nbt.NbtOps.INSTANCE, (java.lang.Object)compoundTag);
+-        dataResult.error().ifPresent($$1 -> {
+-            throw new io.netty.handler.codec.EncoderException("Failed to decode: " + $$1.message() + " " + compoundTag);
++    public <T> T readWithCodec(com.mojang.serialization.Codec<T> $$0) {
++        net.minecraft.nbt.CompoundTag $$12 = this.readAnySizeNbt();
++        com.mojang.serialization.DataResult $$2 = $$0.parse((com.mojang.serialization.DynamicOps)net.minecraft.nbt.NbtOps.INSTANCE, (java.lang.Object)$$12);
++        $$2.error().ifPresent($$1 -> {
++            throw new io.netty.handler.codec.EncoderException("Failed to decode: " + $$1.message() + " " + $$12);
+         });
+-        return (T)dataResult.result().get();
++        return (T)$$2.result().get();
+     }
+ 
+     public <T> void writeWithCodec(com.mojang.serialization.Codec<T> $$0, T $$12) {
+@@ -140,6 +140,26 @@
+         }
+     }
+ 
++    public <E extends java.lang.Enum<E>> void writeEnumSet(java.util.EnumSet<E> $$0, java.lang.Class<E> $$1) {
++        java.lang.Enum[] $$2 = (java.lang.Enum[])$$1.getEnumConstants();
++        java.util.BitSet $$3 = new java.util.BitSet($$2.length);
++        for (int $$4 = 0; $$4 < $$2.length; ++$$4) {
++            $$3.set($$4, $$0.contains((java.lang.Object)$$2[$$4]));
++        }
++        this.writeFixedBitSet($$3, $$2.length);
++    }
++
++    public <E extends java.lang.Enum<E>> java.util.EnumSet<E> readEnumSet(java.lang.Class<E> $$0) {
++        java.lang.Enum[] $$1 = (java.lang.Enum[])$$0.getEnumConstants();
++        java.util.BitSet $$2 = this.readFixedBitSet($$1.length);
++        java.util.EnumSet $$3 = java.util.EnumSet.noneOf($$0);
++        for (int $$4 = 0; $$4 < $$1.length; ++$$4) {
++            if (!$$2.get($$4)) continue;
++            $$3.add((java.lang.Object)$$1[$$4]);
++        }
++        return $$3;
++    }
++
+     public <T> void writeOptional(java.util.Optional<T> $$0, net.minecraft.network.FriendlyByteBuf$Writer<T> $$1) {
+         if ($$0.isPresent()) {
+             this.writeBoolean(true);
+@@ -194,26 +214,26 @@
+         return this.readByteArray(this.readableBytes());
+     }
+ 
+-    public net.minecraft.network.FriendlyByteBuf writeByteArray(byte[] array) {
+-        this.writeVarInt(array.length);
+-        this.writeBytes(array);
++    public net.minecraft.network.FriendlyByteBuf writeByteArray(byte[] $$0) {
++        this.writeVarInt($$0.length);
++        this.writeBytes($$0);
+         return this;
+     }
+ 
+-    public byte[] readByteArray(int maxLength) {
+-        int n = this.readVarInt();
+-        if (n > maxLength) {
+-            throw new io.netty.handler.codec.DecoderException("ByteArray with size " + n + " is bigger than allowed " + maxLength);
++    public byte[] readByteArray(int $$0) {
++        int $$1 = this.readVarInt();
++        if ($$1 > $$0) {
++            throw new io.netty.handler.codec.DecoderException("ByteArray with size " + $$1 + " is bigger than allowed " + $$0);
+         }
+-        byte[] byArray = new byte[n];
+-        this.readBytes(byArray);
+-        return byArray;
++        byte[] $$2 = new byte[$$1];
++        this.readBytes($$2);
++        return $$2;
+     }
+ 
+-    public net.minecraft.network.FriendlyByteBuf writeVarIntArray(int[] array) {
+-        this.writeVarInt(array.length);
+-        for (int n : array) {
+-            this.writeVarInt(n);
++    public net.minecraft.network.FriendlyByteBuf writeVarIntArray(int[] $$0) {
++        this.writeVarInt($$0.length);
++        for (int $$1 : $$0) {
++            this.writeVarInt($$1);
+         }
+         return this;
+     }
+@@ -222,22 +242,22 @@
+         return this.readVarIntArray(this.readableBytes());
+     }
+ 
+-    public int[] readVarIntArray(int maxLength) {
+-        int n = this.readVarInt();
+-        if (n > maxLength) {
+-            throw new io.netty.handler.codec.DecoderException("VarIntArray with size " + n + " is bigger than allowed " + maxLength);
++    public int[] readVarIntArray(int $$0) {
++        int $$1 = this.readVarInt();
++        if ($$1 > $$0) {
++            throw new io.netty.handler.codec.DecoderException("VarIntArray with size " + $$1 + " is bigger than allowed " + $$0);
+         }
+-        int[] nArray = new int[n];
+-        for (int i = 0; i < nArray.length; ++i) {
+-            nArray[i] = this.readVarInt();
++        int[] $$2 = new int[$$1];
++        for (int $$3 = 0; $$3 < $$2.length; ++$$3) {
++            $$2[$$3] = this.readVarInt();
+         }
+-        return nArray;
++        return $$2;
+     }
+ 
+-    public net.minecraft.network.FriendlyByteBuf writeLongArray(long[] array) {
+-        this.writeVarInt(array.length);
+-        for (long l : array) {
+-            this.writeLong(l);
++    public net.minecraft.network.FriendlyByteBuf writeLongArray(long[] $$0) {
++        this.writeVarInt($$0.length);
++        for (long $$1 : $$0) {
++            this.writeLong($$1);
+         }
+         return this;
+     }
+@@ -246,22 +266,22 @@
+         return this.readLongArray(null);
+     }
+ 
+-    public long[] readLongArray(@javax.annotation.Nullable long[] array) {
+-        return this.readLongArray(array, this.readableBytes() / 8);
++    public long[] readLongArray(@javax.annotation.Nullable long[] $$0) {
++        return this.readLongArray($$0, this.readableBytes() / 8);
+     }
+ 
+-    public long[] readLongArray(@javax.annotation.Nullable long[] array, int maxLength) {
+-        int n = this.readVarInt();
+-        if (array == null || array.length != n) {
+-            if (n > maxLength) {
+-                throw new io.netty.handler.codec.DecoderException("LongArray with size " + n + " is bigger than allowed " + maxLength);
++    public long[] readLongArray(@javax.annotation.Nullable long[] $$0, int $$1) {
++        int $$2 = this.readVarInt();
++        if ($$0 == null || $$0.length != $$2) {
++            if ($$2 > $$1) {
++                throw new io.netty.handler.codec.DecoderException("LongArray with size " + $$2 + " is bigger than allowed " + $$1);
+             }
+-            array = new long[n];
++            $$0 = new long[$$2];
+         }
+-        for (int i = 0; i < array.length; ++i) {
+-            array[i] = this.readLong();
++        for (int $$3 = 0; $$3 < $$0.length; ++$$3) {
++            $$0[$$3] = this.readLong();
+         }
+-        return array;
++        return $$0;
+     }
+ 
+     @com.google.common.annotations.VisibleForTesting
+@@ -276,8 +296,8 @@
+         return net.minecraft.core.BlockPos.of((long)this.readLong());
+     }
+ 
+-    public net.minecraft.network.FriendlyByteBuf writeBlockPos(net.minecraft.core.BlockPos pos) {
+-        this.writeLong(pos.asLong());
++    public net.minecraft.network.FriendlyByteBuf writeBlockPos(net.minecraft.core.BlockPos $$0) {
++        this.writeLong($$0.asLong());
+         return this;
+     }
+ 
+@@ -318,16 +338,16 @@
+         return $$0;
+     }
+ 
+-    public net.minecraft.network.FriendlyByteBuf writeComponent(net.minecraft.network.chat.Component component) {
+-        return this.writeUtf(net.minecraft.network.chat.Component$Serializer.toJson((net.minecraft.network.chat.Component)component), 262144);
++    public net.minecraft.network.FriendlyByteBuf writeComponent(net.minecraft.network.chat.Component $$0) {
++        return this.writeUtf(net.minecraft.network.chat.Component$Serializer.toJson((net.minecraft.network.chat.Component)$$0), 262144);
+     }
+ 
+-    public <T extends java.lang.Enum<T>> T readEnum(java.lang.Class<T> enumClass) {
+-        return (T)((java.lang.Enum[])enumClass.getEnumConstants())[this.readVarInt()];
++    public <T extends java.lang.Enum<T>> T readEnum(java.lang.Class<T> $$0) {
++        return (T)((java.lang.Enum[])$$0.getEnumConstants())[this.readVarInt()];
+     }
+ 
+-    public net.minecraft.network.FriendlyByteBuf writeEnum(java.lang.Enum<?> value) {
+-        return this.writeVarInt(value.ordinal());
++    public net.minecraft.network.FriendlyByteBuf writeEnum(java.lang.Enum<?> $$0) {
++        return this.writeVarInt($$0.ordinal());
+     }
+ 
+     public int readVarInt() {
+@@ -356,9 +376,9 @@
+         return $$0;
+     }
+ 
+-    public net.minecraft.network.FriendlyByteBuf writeUUID(java.util.UUID uuid) {
+-        this.writeLong(uuid.getMostSignificantBits());
+-        this.writeLong(uuid.getLeastSignificantBits());
++    public net.minecraft.network.FriendlyByteBuf writeUUID(java.util.UUID $$0) {
++        this.writeLong($$0.getMostSignificantBits());
++        this.writeLong($$0.getLeastSignificantBits());
+         return this;
+     }
+ 
+@@ -366,37 +386,37 @@
+         return new java.util.UUID(this.readLong(), this.readLong());
+     }
+ 
+-    public net.minecraft.network.FriendlyByteBuf writeVarInt(int input) {
++    public net.minecraft.network.FriendlyByteBuf writeVarInt(int $$0) {
+         while (true) {
+-            if ((input & 0xFFFFFF80) == 0) {
+-                this.writeByte(input);
++            if (($$0 & 0xFFFFFF80) == 0) {
++                this.writeByte($$0);
+                 return this;
+             }
+-            this.writeByte(input & 0x7F | 0x80);
+-            input >>>= 7;
++            this.writeByte($$0 & 0x7F | 0x80);
++            $$0 >>>= 7;
+         }
+     }
+ 
+-    public net.minecraft.network.FriendlyByteBuf writeVarLong(long value) {
++    public net.minecraft.network.FriendlyByteBuf writeVarLong(long $$0) {
+         while (true) {
+-            if ((value & 0xFFFFFFFFFFFFFF80L) == 0L) {
+-                this.writeByte((int)value);
++            if (($$0 & 0xFFFFFFFFFFFFFF80L) == 0L) {
++                this.writeByte((int)$$0);
+                 return this;
+             }
+-            this.writeByte((int)(value & 0x7FL) | 0x80);
+-            value >>>= 7;
++            this.writeByte((int)($$0 & 0x7FL) | 0x80);
++            $$0 >>>= 7;
+         }
+     }
+ 
+-    public net.minecraft.network.FriendlyByteBuf writeNbt(@javax.annotation.Nullable net.minecraft.nbt.CompoundTag nbt) {
+-        if (nbt == null) {
++    public net.minecraft.network.FriendlyByteBuf writeNbt(@javax.annotation.Nullable net.minecraft.nbt.CompoundTag $$0) {
++        if ($$0 == null) {
+             this.writeByte(0);
+         } else {
+             try {
+-                net.minecraft.nbt.NbtIo.write((net.minecraft.nbt.CompoundTag)nbt, (java.io.DataOutput)new io.netty.buffer.ByteBufOutputStream((io.netty.buffer.ByteBuf)this));
++                net.minecraft.nbt.NbtIo.write((net.minecraft.nbt.CompoundTag)$$0, (java.io.DataOutput)new io.netty.buffer.ByteBufOutputStream((io.netty.buffer.ByteBuf)this));
+             }
+-            catch (java.io.IOException iOException) {
+-                throw new io.netty.handler.codec.EncoderException((java.lang.Throwable)iOException);
++            catch (java.io.IOException $$1) {
++                throw new io.netty.handler.codec.EncoderException((java.lang.Throwable)$$1);
+             }
+         }
+         return this;
+@@ -428,19 +448,19 @@
+         }
+     }
+ 
+-    public net.minecraft.network.FriendlyByteBuf writeItem(net.minecraft.world.item.ItemStack stack) {
+-        if (stack.isEmpty()) {
++    public net.minecraft.network.FriendlyByteBuf writeItem(net.minecraft.world.item.ItemStack $$0) {
++        if ($$0.isEmpty()) {
+             this.writeBoolean(false);
+         } else {
+             this.writeBoolean(true);
+-            net.minecraft.world.item.Item item = stack.getItem();
+-            this.writeId((net.minecraft.core.IdMap)net.minecraft.core.Registry.ITEM, (java.lang.Object)item);
+-            this.writeByte(stack.getCount());
+-            net.minecraft.nbt.CompoundTag compoundTag = null;
+-            if (item.canBeDepleted() || item.shouldOverrideMultiplayerNbt()) {
+-                compoundTag = stack.getTag();
++            net.minecraft.world.item.Item $$1 = $$0.getItem();
++            this.writeId((net.minecraft.core.IdMap)net.minecraft.core.Registry.ITEM, (java.lang.Object)$$1);
++            this.writeByte($$0.getCount());
++            net.minecraft.nbt.CompoundTag $$2 = null;
++            if ($$1.canBeDepleted() || $$1.shouldOverrideMultiplayerNbt()) {
++                $$2 = $$0.getTag();
+             }
+-            this.writeNbt(compoundTag);
++            this.writeNbt($$2);
+         }
+         return this;
+     }
+@@ -460,38 +480,38 @@
+         return this.readUtf(java.lang.Short.MAX_VALUE);
+     }
+ 
+-    public java.lang.String readUtf(int maxLength) {
+-        int n = net.minecraft.network.FriendlyByteBuf.getMaxEncodedUtfLength((int)maxLength);
+-        int n2 = this.readVarInt();
+-        if (n2 > n) {
+-            throw new io.netty.handler.codec.DecoderException("The received encoded string buffer length is longer than maximum allowed (" + n2 + " > " + n + ")");
++    public java.lang.String readUtf(int $$0) {
++        int $$1 = net.minecraft.network.FriendlyByteBuf.getMaxEncodedUtfLength((int)$$0);
++        int $$2 = this.readVarInt();
++        if ($$2 > $$1) {
++            throw new io.netty.handler.codec.DecoderException("The received encoded string buffer length is longer than maximum allowed (" + $$2 + " > " + $$1 + ")");
+         }
+-        if (n2 < 0) {
++        if ($$2 < 0) {
+             throw new io.netty.handler.codec.DecoderException("The received encoded string buffer length is less than zero! Weird string!");
+         }
+-        java.lang.String string = this.toString(this.readerIndex(), n2, java.nio.charset.StandardCharsets.UTF_8);
+-        this.readerIndex(this.readerIndex() + n2);
+-        if (string.length() > maxLength) {
+-            throw new io.netty.handler.codec.DecoderException("The received string length is longer than maximum allowed (" + string.length() + " > " + maxLength + ")");
++        java.lang.String $$3 = this.toString(this.readerIndex(), $$2, java.nio.charset.StandardCharsets.UTF_8);
++        this.readerIndex(this.readerIndex() + $$2);
++        if ($$3.length() > $$0) {
++            throw new io.netty.handler.codec.DecoderException("The received string length is longer than maximum allowed (" + $$3.length() + " > " + $$0 + ")");
+         }
+-        return string;
++        return $$3;
+     }
+ 
+-    public net.minecraft.network.FriendlyByteBuf writeUtf(java.lang.String string) {
+-        return this.writeUtf(string, java.lang.Short.MAX_VALUE);
++    public net.minecraft.network.FriendlyByteBuf writeUtf(java.lang.String $$0) {
++        return this.writeUtf($$0, java.lang.Short.MAX_VALUE);
+     }
+ 
+-    public net.minecraft.network.FriendlyByteBuf writeUtf(java.lang.String string, int maxLength) {
+-        int n;
+-        if (string.length() > maxLength) {
+-            throw new io.netty.handler.codec.EncoderException("String too big (was " + string.length() + " characters, max " + maxLength + ")");
++    public net.minecraft.network.FriendlyByteBuf writeUtf(java.lang.String $$0, int $$1) {
++        int $$3;
++        if ($$0.length() > $$1) {
++            throw new io.netty.handler.codec.EncoderException("String too big (was " + $$0.length() + " characters, max " + $$1 + ")");
+         }
+-        byte[] byArray = string.getBytes(java.nio.charset.StandardCharsets.UTF_8);
+-        if (byArray.length > (n = net.minecraft.network.FriendlyByteBuf.getMaxEncodedUtfLength((int)maxLength))) {
+-            throw new io.netty.handler.codec.EncoderException("String too big (was " + byArray.length + " bytes encoded, max " + n + ")");
++        byte[] $$2 = $$0.getBytes(java.nio.charset.StandardCharsets.UTF_8);
++        if ($$2.length > ($$3 = net.minecraft.network.FriendlyByteBuf.getMaxEncodedUtfLength((int)$$1))) {
++            throw new io.netty.handler.codec.EncoderException("String too big (was " + $$2.length + " bytes encoded, max " + $$3 + ")");
+         }
+-        this.writeVarInt(byArray.length);
+-        this.writeBytes(byArray);
++        this.writeVarInt($$2.length);
++        this.writeBytes($$2);
+         return this;
+     }
+ 
+@@ -503,8 +523,8 @@
+         return new net.minecraft.resources.ResourceLocation(this.readUtf(java.lang.Short.MAX_VALUE));
+     }
+ 
+-    public net.minecraft.network.FriendlyByteBuf writeResourceLocation(net.minecraft.resources.ResourceLocation resourceLocation) {
+-        this.writeUtf(resourceLocation.toString());
++    public net.minecraft.network.FriendlyByteBuf writeResourceLocation(net.minecraft.resources.ResourceLocation $$0) {
++        this.writeUtf($$0.toString());
+         return this;
+     }
+ 
+@@ -521,8 +541,8 @@
+         return new java.util.Date(this.readLong());
+     }
+ 
+-    public net.minecraft.network.FriendlyByteBuf writeDate(java.util.Date time) {
+-        this.writeLong(time.getTime());
++    public net.minecraft.network.FriendlyByteBuf writeDate(java.util.Date $$0) {
++        this.writeLong($$0.getTime());
+         return this;
+     }
+ 
+@@ -558,15 +578,15 @@
+         return new net.minecraft.world.phys.BlockHitResult(new net.minecraft.world.phys.Vec3((double)$$0.getX() + (double)$$2, (double)$$0.getY() + (double)$$3, (double)$$0.getZ() + (double)$$4), $$1, $$0, $$5);
+     }
+ 
+-    public void writeBlockHitResult(net.minecraft.world.phys.BlockHitResult result) {
+-        net.minecraft.core.BlockPos blockPos = result.getBlockPos();
+-        this.writeBlockPos(blockPos);
+-        this.writeEnum((java.lang.Enum)result.getDirection());
+-        net.minecraft.world.phys.Vec3 vec3 = result.getLocation();
+-        this.writeFloat((float)(vec3.x - (double)blockPos.getX()));
+-        this.writeFloat((float)(vec3.y - (double)blockPos.getY()));
+-        this.writeFloat((float)(vec3.z - (double)blockPos.getZ()));
+-        this.writeBoolean(result.isInside());
++    public void writeBlockHitResult(net.minecraft.world.phys.BlockHitResult $$0) {
++        net.minecraft.core.BlockPos $$1 = $$0.getBlockPos();
++        this.writeBlockPos($$1);
++        this.writeEnum((java.lang.Enum)$$0.getDirection());
++        net.minecraft.world.phys.Vec3 $$2 = $$0.getLocation();
++        this.writeFloat((float)($$2.x - (double)$$1.getX()));
++        this.writeFloat((float)($$2.y - (double)$$1.getY()));
++        this.writeFloat((float)($$2.z - (double)$$1.getZ()));
++        this.writeBoolean($$0.isInside());
+     }
+ 
+     public java.util.BitSet readBitSet() {
+@@ -577,24 +597,47 @@
+         this.writeLongArray($$0.toLongArray());
+     }
+ 
++    public java.util.BitSet readFixedBitSet(int $$0) {
++        byte[] $$1 = new byte[net.minecraft.util.Mth.positiveCeilDiv((int)$$0, (int)8)];
++        this.readBytes($$1);
++        return java.util.BitSet.valueOf((byte[])$$1);
++    }
++
++    public void writeFixedBitSet(java.util.BitSet $$0, int $$1) {
++        if ($$0.length() > $$1) {
++            throw new io.netty.handler.codec.EncoderException("BitSet is larger than expected size (" + $$0.length() + ">" + $$1 + ")");
++        }
++        byte[] $$2 = $$0.toByteArray();
++        this.writeBytes(java.util.Arrays.copyOf((byte[])$$2, (int)net.minecraft.util.Mth.positiveCeilDiv((int)$$1, (int)8)));
++    }
++
+     public com.mojang.authlib.GameProfile readGameProfile() {
+         java.util.UUID $$0 = this.readUUID();
+-        java.lang.String $$12 = this.readUtf(16);
+-        com.mojang.authlib.GameProfile $$2 = new com.mojang.authlib.GameProfile($$0, $$12);
+-        com.mojang.authlib.properties.PropertyMap $$3 = $$2.getProperties();
+-        this.readWithCount($$1 -> {
+-            com.mojang.authlib.properties.Property $$2 = this.readProperty();
+-            $$3.put((java.lang.Object)$$2.getName(), (java.lang.Object)$$2);
+-        });
++        java.lang.String $$1 = this.readUtf(16);
++        com.mojang.authlib.GameProfile $$2 = new com.mojang.authlib.GameProfile($$0, $$1);
++        $$2.getProperties().putAll((com.google.common.collect.Multimap)this.readGameProfileProperties());
+         return $$2;
+     }
+ 
+     public void writeGameProfile(com.mojang.authlib.GameProfile $$0) {
+         this.writeUUID($$0.getId());
+         this.writeUtf($$0.getName());
+-        this.writeCollection($$0.getProperties().values(), net.minecraft.network.FriendlyByteBuf::writeProperty);
++        this.writeGameProfileProperties($$0.getProperties());
+     }
+ 
++    public com.mojang.authlib.properties.PropertyMap readGameProfileProperties() {
++        com.mojang.authlib.properties.PropertyMap $$0 = new com.mojang.authlib.properties.PropertyMap();
++        this.readWithCount($$1 -> {
++            com.mojang.authlib.properties.Property $$2 = this.readProperty();
++            $$0.put((java.lang.Object)$$2.getName(), (java.lang.Object)$$2);
++        });
++        return $$0;
++    }
++
++    public void writeGameProfileProperties(com.mojang.authlib.properties.PropertyMap $$0) {
++        this.writeCollection($$0.values(), net.minecraft.network.FriendlyByteBuf::writeProperty);
++    }
++
+     public com.mojang.authlib.properties.Property readProperty() {
+         java.lang.String $$0 = this.readUtf();
+         java.lang.String $$1 = this.readUtf();

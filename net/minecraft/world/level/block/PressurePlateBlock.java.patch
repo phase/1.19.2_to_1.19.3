@@ -1,0 +1,95 @@
+--- net/minecraft/world/level/block/PressurePlateBlock.java
++++ net/minecraft/world/level/block/PressurePlateBlock.java
+@@ -8,64 +8,63 @@
+  {
+     public static net.minecraft.world.level.block.state.properties.BooleanProperty POWERED;
+     public net.minecraft.world.level.block.PressurePlateBlock$Sensitivity sensitivity;
++    public net.minecraft.sounds.SoundEvent soundOff;
++    public net.minecraft.sounds.SoundEvent soundOn;
+ 
+-    public net.minecraft.world.level.block.PressurePlateBlock(net.minecraft.world.level.block.PressurePlateBlock$Sensitivity sensitivity, net.minecraft.world.level.block.state.BlockBehaviour$Properties properties) {
+-        super(properties);
++    public net.minecraft.world.level.block.PressurePlateBlock(net.minecraft.world.level.block.PressurePlateBlock$Sensitivity $$0, net.minecraft.world.level.block.state.BlockBehaviour$Properties $$1, net.minecraft.sounds.SoundEvent $$2, net.minecraft.sounds.SoundEvent $$3) {
++        super($$1);
+         this.registerDefaultState((net.minecraft.world.level.block.state.BlockState)((net.minecraft.world.level.block.state.BlockState)this.stateDefinition.any()).setValue((net.minecraft.world.level.block.state.properties.Property)POWERED, (java.lang.Comparable)java.lang.Boolean.valueOf((boolean)false)));
+-        this.sensitivity = sensitivity;
++        this.sensitivity = $$0;
++        this.soundOff = $$2;
++        this.soundOn = $$3;
+     }
+ 
+-    public int getSignalForState(net.minecraft.world.level.block.state.BlockState state) {
+-        return (java.lang.Boolean)state.getValue((net.minecraft.world.level.block.state.properties.Property)POWERED) != false ? 15 : 0;
++    public int getSignalForState(net.minecraft.world.level.block.state.BlockState $$0) {
++        return (java.lang.Boolean)$$0.getValue((net.minecraft.world.level.block.state.properties.Property)POWERED) != false ? 15 : 0;
+     }
+ 
+-    public net.minecraft.world.level.block.state.BlockState setSignalForState(net.minecraft.world.level.block.state.BlockState state, int strength) {
+-        return (net.minecraft.world.level.block.state.BlockState)state.setValue((net.minecraft.world.level.block.state.properties.Property)POWERED, (java.lang.Comparable)java.lang.Boolean.valueOf((strength > 0 ? 1 : 0) != 0));
++    public net.minecraft.world.level.block.state.BlockState setSignalForState(net.minecraft.world.level.block.state.BlockState $$0, int $$1) {
++        return (net.minecraft.world.level.block.state.BlockState)$$0.setValue((net.minecraft.world.level.block.state.properties.Property)POWERED, (java.lang.Comparable)java.lang.Boolean.valueOf(($$1 > 0 ? 1 : 0) != 0));
+     }
+ 
+-    public void playOnSound(net.minecraft.world.level.LevelAccessor level, net.minecraft.core.BlockPos pos) {
+-        if (this.material == net.minecraft.world.level.material.Material.WOOD || this.material == net.minecraft.world.level.material.Material.NETHER_WOOD) {
+-            level.playSound(null, pos, net.minecraft.sounds.SoundEvents.WOODEN_PRESSURE_PLATE_CLICK_ON, net.minecraft.sounds.SoundSource.BLOCKS, 0.3f, 0.8f);
+-        } else {
+-            level.playSound(null, pos, net.minecraft.sounds.SoundEvents.STONE_PRESSURE_PLATE_CLICK_ON, net.minecraft.sounds.SoundSource.BLOCKS, 0.3f, 0.6f);
+-        }
++    public void playOnSound(net.minecraft.world.level.LevelAccessor $$0, net.minecraft.core.BlockPos $$1) {
++        $$0.playSound(null, $$1, this.soundOn, net.minecraft.sounds.SoundSource.BLOCKS);
+     }
+ 
+-    public void playOffSound(net.minecraft.world.level.LevelAccessor level, net.minecraft.core.BlockPos pos) {
+-        if (this.material == net.minecraft.world.level.material.Material.WOOD || this.material == net.minecraft.world.level.material.Material.NETHER_WOOD) {
+-            level.playSound(null, pos, net.minecraft.sounds.SoundEvents.WOODEN_PRESSURE_PLATE_CLICK_OFF, net.minecraft.sounds.SoundSource.BLOCKS, 0.3f, 0.7f);
+-        } else {
+-            level.playSound(null, pos, net.minecraft.sounds.SoundEvents.STONE_PRESSURE_PLATE_CLICK_OFF, net.minecraft.sounds.SoundSource.BLOCKS, 0.3f, 0.5f);
+-        }
++    public void playOffSound(net.minecraft.world.level.LevelAccessor $$0, net.minecraft.core.BlockPos $$1) {
++        $$0.playSound(null, $$1, this.soundOff, net.minecraft.sounds.SoundSource.BLOCKS);
+     }
+ 
+-    public int getSignalStrength(net.minecraft.world.level.Level level, net.minecraft.core.BlockPos pos) {
+-        java.util.List list;
+-        net.minecraft.world.phys.AABB aABB = TOUCH_AABB.move(pos);
++    /*
++     * WARNING - void declaration
++     */
++    public int getSignalStrength(net.minecraft.world.level.Level $$0, net.minecraft.core.BlockPos $$1) {
++        void $$5;
++        net.minecraft.world.phys.AABB $$2 = TOUCH_AABB.move($$1);
+         switch (net.minecraft.world.level.block.PressurePlateBlock$1.$SwitchMap$net$minecraft$world$level$block$PressurePlateBlock$Sensitivity[this.sensitivity.ordinal()]) {
+             case 1: {
+-                list = level.getEntities(null, aABB);
++                java.util.List $$3 = $$0.getEntities(null, $$2);
+                 break;
+             }
+             case 2: {
+-                list = level.getEntitiesOfClass(net.minecraft.world.entity.LivingEntity.class, aABB);
++                java.util.List $$4 = $$0.getEntitiesOfClass(net.minecraft.world.entity.LivingEntity.class, $$2);
+                 break;
+             }
+             default: {
+                 return 0;
+             }
+         }
+-        if (!list.isEmpty()) {
+-            for (net.minecraft.world.entity.Entity entity : list) {
+-                if (entity.isIgnoringBlockTriggers()) continue;
++        if (!$$5.isEmpty()) {
++            for (net.minecraft.world.entity.Entity $$6 : $$5) {
++                if ($$6.isIgnoringBlockTriggers()) continue;
+                 return 15;
+             }
+         }
+         return 0;
+     }
+ 
+-    public void createBlockStateDefinition(net.minecraft.world.level.block.state.StateDefinition$Builder<net.minecraft.world.level.block.Block, net.minecraft.world.level.block.state.BlockState> builder) {
+-        builder.add(new net.minecraft.world.level.block.state.properties.Property[]{POWERED});
++    public void createBlockStateDefinition(net.minecraft.world.level.block.state.StateDefinition$Builder<net.minecraft.world.level.block.Block, net.minecraft.world.level.block.state.BlockState> $$0) {
++        $$0.add(new net.minecraft.world.level.block.state.properties.Property[]{POWERED});
+     }
+ 
+     static {

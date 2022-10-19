@@ -1,0 +1,57 @@
+--- net/minecraft/client/server/LanServerDetection$LanServerList.java
++++ net/minecraft/client/server/LanServerDetection$LanServerList.java
+@@ -12,34 +12,32 @@
+         this.servers = com.google.common.collect.Lists.newArrayList();
+     }
+ 
+-    public synchronized boolean isDirty() {
+-        return this.isDirty;
++    @javax.annotation.Nullable
++    public synchronized java.util.List<net.minecraft.client.server.LanServer> takeDirtyServers() {
++        if (this.isDirty) {
++            java.util.List $$0 = java.util.List.copyOf((java.util.Collection)this.servers);
++            this.isDirty = false;
++            return $$0;
++        }
++        return null;
+     }
+ 
+-    public synchronized void markClean() {
+-        this.isDirty = false;
+-    }
+-
+-    public synchronized java.util.List<net.minecraft.client.server.LanServer> getServers() {
+-        return java.util.Collections.unmodifiableList((java.util.List)this.servers);
+-    }
+-
+-    public synchronized void addServer(java.lang.String pingResponse, java.net.InetAddress ipAddress) {
+-        java.lang.String string = net.minecraft.client.server.LanServerPinger.parseMotd((java.lang.String)pingResponse);
+-        java.lang.String string2 = net.minecraft.client.server.LanServerPinger.parseAddress((java.lang.String)pingResponse);
+-        if (string2 == null) {
++    public synchronized void addServer(java.lang.String $$0, java.net.InetAddress $$1) {
++        java.lang.String $$2 = net.minecraft.client.server.LanServerPinger.parseMotd((java.lang.String)$$0);
++        java.lang.String $$3 = net.minecraft.client.server.LanServerPinger.parseAddress((java.lang.String)$$0);
++        if ($$3 == null) {
+             return;
+         }
+-        string2 = ipAddress.getHostAddress() + ":" + string2;
+-        boolean bl = false;
+-        for (net.minecraft.client.server.LanServer lanServer : this.servers) {
+-            if (!lanServer.getAddress().equals((java.lang.Object)string2)) continue;
+-            lanServer.updatePingTime();
+-            bl = true;
++        $$3 = $$1.getHostAddress() + ":" + $$3;
++        boolean $$4 = false;
++        for (net.minecraft.client.server.LanServer $$5 : this.servers) {
++            if (!$$5.getAddress().equals((java.lang.Object)$$3)) continue;
++            $$5.updatePingTime();
++            $$4 = true;
+             break;
+         }
+-        if (!bl) {
+-            this.servers.add((java.lang.Object)new net.minecraft.client.server.LanServer(string, string2));
++        if (!$$4) {
++            this.servers.add((java.lang.Object)new net.minecraft.client.server.LanServer($$2, $$3));
+             this.isDirty = true;
+         }
+     }

@@ -1,0 +1,46 @@
+--- net/minecraft/world/level/storage/loot/PredicateManager.java
++++ net/minecraft/world/level/storage/loot/PredicateManager.java
+@@ -16,31 +16,31 @@
+     }
+ 
+     @javax.annotation.Nullable
+-    public net.minecraft.world.level.storage.loot.predicates.LootItemCondition get(net.minecraft.resources.ResourceLocation id) {
+-        return (net.minecraft.world.level.storage.loot.predicates.LootItemCondition)this.conditions.get((java.lang.Object)id);
++    public net.minecraft.world.level.storage.loot.predicates.LootItemCondition get(net.minecraft.resources.ResourceLocation $$0) {
++        return (net.minecraft.world.level.storage.loot.predicates.LootItemCondition)this.conditions.get((java.lang.Object)$$0);
+     }
+ 
+-    public void apply(java.util.Map<net.minecraft.resources.ResourceLocation, com.google.gson.JsonElement> object, net.minecraft.server.packs.resources.ResourceManager resourceManager, net.minecraft.util.profiling.ProfilerFiller profiler) {
+-        com.google.common.collect.ImmutableMap$Builder builder = com.google.common.collect.ImmutableMap.builder();
+-        object.forEach(($$1, $$2) -> {
++    public void apply(java.util.Map<net.minecraft.resources.ResourceLocation, com.google.gson.JsonElement> $$02, net.minecraft.server.packs.resources.ResourceManager $$12, net.minecraft.util.profiling.ProfilerFiller $$22) {
++        com.google.common.collect.ImmutableMap$Builder $$3 = com.google.common.collect.ImmutableMap.builder();
++        $$02.forEach(($$1, $$2) -> {
+             try {
+                 if ($$2.isJsonArray()) {
+                     net.minecraft.world.level.storage.loot.predicates.LootItemCondition[] $$3 = (net.minecraft.world.level.storage.loot.predicates.LootItemCondition[])GSON.fromJson($$2, net.minecraft.world.level.storage.loot.predicates.LootItemCondition[].class);
+-                    builder.put($$1, (java.lang.Object)new net.minecraft.world.level.storage.loot.PredicateManager$CompositePredicate($$3));
++                    $$3.put($$1, (java.lang.Object)new net.minecraft.world.level.storage.loot.PredicateManager$CompositePredicate($$3));
+                 } else {
+                     net.minecraft.world.level.storage.loot.predicates.LootItemCondition $$4 = (net.minecraft.world.level.storage.loot.predicates.LootItemCondition)GSON.fromJson($$2, net.minecraft.world.level.storage.loot.predicates.LootItemCondition.class);
+-                    builder.put($$1, (java.lang.Object)$$4);
++                    $$3.put($$1, (java.lang.Object)$$4);
+                 }
+             }
+             catch (java.lang.Exception $$5) {
+                 LOGGER.error("Couldn't parse loot table {}", $$1, (java.lang.Object)((java.lang.Object)$$5));
+             }
+         });
+-        com.google.common.collect.ImmutableMap immutableMap = builder.build();
+-        net.minecraft.world.level.storage.loot.ValidationContext validationContext = new net.minecraft.world.level.storage.loot.ValidationContext(net.minecraft.world.level.storage.loot.parameters.LootContextParamSets.ALL_PARAMS, arg_0 -> ((java.util.Map)immutableMap).get(arg_0), $$0 -> null);
+-        immutableMap.forEach(($$1, $$2) -> $$2.validate(validationContext.enterCondition("{" + $$1 + "}", $$1)));
+-        validationContext.getProblems().forEach(($$0, $$1) -> LOGGER.warn("Found validation problem in {}: {}", $$0, $$1));
+-        this.conditions = immutableMap;
++        com.google.common.collect.ImmutableMap $$4 = $$3.build();
++        net.minecraft.world.level.storage.loot.ValidationContext $$5 = new net.minecraft.world.level.storage.loot.ValidationContext(net.minecraft.world.level.storage.loot.parameters.LootContextParamSets.ALL_PARAMS, arg_0 -> ((java.util.Map)$$4).get(arg_0), $$0 -> null);
++        $$4.forEach(($$1, $$2) -> $$2.validate($$5.enterCondition("{" + $$1 + "}", $$1)));
++        $$5.getProblems().forEach(($$0, $$1) -> LOGGER.warn("Found validation problem in {}: {}", $$0, $$1));
++        this.conditions = $$4;
+     }
+ 
+     public java.util.Set<net.minecraft.resources.ResourceLocation> getKeys() {

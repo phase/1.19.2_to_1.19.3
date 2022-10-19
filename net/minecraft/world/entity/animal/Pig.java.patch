@@ -1,0 +1,214 @@
+--- net/minecraft/world/entity/animal/Pig.java
++++ net/minecraft/world/entity/animal/Pig.java
+@@ -48,11 +48,11 @@
+         return false;
+     }
+ 
+-    public void onSyncedDataUpdated(net.minecraft.network.syncher.EntityDataAccessor<?> key) {
+-        if (DATA_BOOST_TIME.equals(key) && this.level.isClientSide) {
++    public void onSyncedDataUpdated(net.minecraft.network.syncher.EntityDataAccessor<?> $$0) {
++        if (DATA_BOOST_TIME.equals($$0) && this.level.isClientSide) {
+             this.steering.onSynced();
+         }
+-        super.onSyncedDataUpdated(key);
++        super.onSyncedDataUpdated($$0);
+     }
+ 
+     public void defineSynchedData() {
+@@ -61,21 +61,21 @@
+         this.entityData.define(DATA_BOOST_TIME, (java.lang.Object)0);
+     }
+ 
+-    public void addAdditionalSaveData(net.minecraft.nbt.CompoundTag compound) {
+-        super.addAdditionalSaveData(compound);
+-        this.steering.addAdditionalSaveData(compound);
++    public void addAdditionalSaveData(net.minecraft.nbt.CompoundTag $$0) {
++        super.addAdditionalSaveData($$0);
++        this.steering.addAdditionalSaveData($$0);
+     }
+ 
+-    public void readAdditionalSaveData(net.minecraft.nbt.CompoundTag compound) {
+-        super.readAdditionalSaveData(compound);
+-        this.steering.readAdditionalSaveData(compound);
++    public void readAdditionalSaveData(net.minecraft.nbt.CompoundTag $$0) {
++        super.readAdditionalSaveData($$0);
++        this.steering.readAdditionalSaveData($$0);
+     }
+ 
+     public net.minecraft.sounds.SoundEvent getAmbientSound() {
+         return net.minecraft.sounds.SoundEvents.PIG_AMBIENT;
+     }
+ 
+-    public net.minecraft.sounds.SoundEvent getHurtSound(net.minecraft.world.damagesource.DamageSource damageSource) {
++    public net.minecraft.sounds.SoundEvent getHurtSound(net.minecraft.world.damagesource.DamageSource $$0) {
+         return net.minecraft.sounds.SoundEvents.PIG_HURT;
+     }
+ 
+@@ -83,27 +83,27 @@
+         return net.minecraft.sounds.SoundEvents.PIG_DEATH;
+     }
+ 
+-    public void playStepSound(net.minecraft.core.BlockPos pos, net.minecraft.world.level.block.state.BlockState block) {
++    public void playStepSound(net.minecraft.core.BlockPos $$0, net.minecraft.world.level.block.state.BlockState $$1) {
+         this.playSound(net.minecraft.sounds.SoundEvents.PIG_STEP, 0.15f, 1.0f);
+     }
+ 
+-    public net.minecraft.world.InteractionResult mobInteract(net.minecraft.world.entity.player.Player player, net.minecraft.world.InteractionHand hand) {
+-        boolean bl = this.isFood(player.getItemInHand(hand));
+-        if (!bl && this.isSaddled() && !this.isVehicle() && !player.isSecondaryUseActive()) {
++    public net.minecraft.world.InteractionResult mobInteract(net.minecraft.world.entity.player.Player $$0, net.minecraft.world.InteractionHand $$1) {
++        boolean $$2 = this.isFood($$0.getItemInHand($$1));
++        if (!$$2 && this.isSaddled() && !this.isVehicle() && !$$0.isSecondaryUseActive()) {
+             if (!this.level.isClientSide) {
+-                player.startRiding((net.minecraft.world.entity.Entity)this);
++                $$0.startRiding((net.minecraft.world.entity.Entity)this);
+             }
+             return net.minecraft.world.InteractionResult.sidedSuccess((boolean)this.level.isClientSide);
+         }
+-        net.minecraft.world.InteractionResult interactionResult = super.mobInteract(player, hand);
+-        if (!interactionResult.consumesAction()) {
+-            net.minecraft.world.item.ItemStack itemStack = player.getItemInHand(hand);
+-            if (itemStack.is(net.minecraft.world.item.Items.SADDLE)) {
+-                return itemStack.interactLivingEntity(player, (net.minecraft.world.entity.LivingEntity)this, hand);
++        net.minecraft.world.InteractionResult $$3 = super.mobInteract($$0, $$1);
++        if (!$$3.consumesAction()) {
++            net.minecraft.world.item.ItemStack $$4 = $$0.getItemInHand($$1);
++            if ($$4.is(net.minecraft.world.item.Items.SADDLE)) {
++                return $$4.interactLivingEntity($$0, (net.minecraft.world.entity.LivingEntity)this, $$1);
+             }
+             return net.minecraft.world.InteractionResult.PASS;
+         }
+-        return interactionResult;
++        return $$3;
+     }
+ 
+     public boolean isSaddleable() {
+@@ -121,82 +121,88 @@
+         return this.steering.hasSaddle();
+     }
+ 
+-    public void equipSaddle(@javax.annotation.Nullable net.minecraft.sounds.SoundSource source) {
++    public void equipSaddle(@javax.annotation.Nullable net.minecraft.sounds.SoundSource $$0) {
+         this.steering.setSaddle(true);
+-        if (source != null) {
+-            this.level.playSound(null, (net.minecraft.world.entity.Entity)this, net.minecraft.sounds.SoundEvents.PIG_SADDLE, source, 0.5f, 1.0f);
++        if ($$0 != null) {
++            this.level.playSound(null, (net.minecraft.world.entity.Entity)this, net.minecraft.sounds.SoundEvents.PIG_SADDLE, $$0, 0.5f, 1.0f);
+         }
+     }
+ 
+-    public net.minecraft.world.phys.Vec3 getDismountLocationForPassenger(net.minecraft.world.entity.LivingEntity livingEntity) {
+-        net.minecraft.core.Direction direction = this.getMotionDirection();
+-        if (direction.getAxis() == net.minecraft.core.Direction$Axis.Y) {
+-            return super.getDismountLocationForPassenger(livingEntity);
++    public net.minecraft.world.phys.Vec3 getDismountLocationForPassenger(net.minecraft.world.entity.LivingEntity $$0) {
++        net.minecraft.core.Direction $$1 = this.getMotionDirection();
++        if ($$1.getAxis() == net.minecraft.core.Direction$Axis.Y) {
++            return super.getDismountLocationForPassenger($$0);
+         }
+-        int[][] nArray = net.minecraft.world.entity.vehicle.DismountHelper.offsetsForDirection((net.minecraft.core.Direction)direction);
+-        net.minecraft.core.BlockPos blockPos = this.blockPosition();
+-        net.minecraft.core.BlockPos$MutableBlockPos mutableBlockPos = new net.minecraft.core.BlockPos$MutableBlockPos();
+-        for (net.minecraft.world.entity.Pose pose : livingEntity.getDismountPoses()) {
+-            net.minecraft.world.phys.AABB aABB = livingEntity.getLocalBoundsForPose(pose);
+-            for (int[] nArray2 : nArray) {
+-                net.minecraft.world.phys.Vec3 vec3;
+-                mutableBlockPos.set(blockPos.getX() + nArray2[0], blockPos.getY(), blockPos.getZ() + nArray2[1]);
+-                double d = this.level.getBlockFloorHeight((net.minecraft.core.BlockPos)mutableBlockPos);
+-                if (!net.minecraft.world.entity.vehicle.DismountHelper.isBlockFloorValid((double)d) || !net.minecraft.world.entity.vehicle.DismountHelper.canDismountTo((net.minecraft.world.level.CollisionGetter)this.level, (net.minecraft.world.entity.LivingEntity)livingEntity, (net.minecraft.world.phys.AABB)aABB.move(vec3 = net.minecraft.world.phys.Vec3.upFromBottomCenterOf((net.minecraft.core.Vec3i)mutableBlockPos, (double)d)))) continue;
+-                livingEntity.setPose(pose);
+-                return vec3;
++        int[][] $$2 = net.minecraft.world.entity.vehicle.DismountHelper.offsetsForDirection((net.minecraft.core.Direction)$$1);
++        net.minecraft.core.BlockPos $$3 = this.blockPosition();
++        net.minecraft.core.BlockPos$MutableBlockPos $$4 = new net.minecraft.core.BlockPos$MutableBlockPos();
++        for (net.minecraft.world.entity.Pose $$5 : $$0.getDismountPoses()) {
++            net.minecraft.world.phys.AABB $$6 = $$0.getLocalBoundsForPose($$5);
++            for (int[] $$7 : $$2) {
++                net.minecraft.world.phys.Vec3 $$9;
++                $$4.set($$3.getX() + $$7[0], $$3.getY(), $$3.getZ() + $$7[1]);
++                double $$8 = this.level.getBlockFloorHeight((net.minecraft.core.BlockPos)$$4);
++                if (!net.minecraft.world.entity.vehicle.DismountHelper.isBlockFloorValid((double)$$8) || !net.minecraft.world.entity.vehicle.DismountHelper.canDismountTo((net.minecraft.world.level.CollisionGetter)this.level, (net.minecraft.world.entity.LivingEntity)$$0, (net.minecraft.world.phys.AABB)$$6.move($$9 = net.minecraft.world.phys.Vec3.upFromBottomCenterOf((net.minecraft.core.Vec3i)$$4, (double)$$8)))) continue;
++                $$0.setPose($$5);
++                return $$9;
+             }
+         }
+-        return super.getDismountLocationForPassenger(livingEntity);
++        return super.getDismountLocationForPassenger($$0);
+     }
+ 
+-    public void thunderHit(net.minecraft.server.level.ServerLevel level, net.minecraft.world.entity.LightningBolt lightning) {
+-        if (level.getDifficulty() != net.minecraft.world.Difficulty.PEACEFUL) {
+-            net.minecraft.world.entity.monster.ZombifiedPiglin zombifiedPiglin = (net.minecraft.world.entity.monster.ZombifiedPiglin)net.minecraft.world.entity.EntityType.ZOMBIFIED_PIGLIN.create((net.minecraft.world.level.Level)level);
+-            zombifiedPiglin.setItemSlot(net.minecraft.world.entity.EquipmentSlot.MAINHAND, new net.minecraft.world.item.ItemStack((net.minecraft.world.level.ItemLike)net.minecraft.world.item.Items.GOLDEN_SWORD));
+-            zombifiedPiglin.moveTo(this.getX(), this.getY(), this.getZ(), this.getYRot(), this.getXRot());
+-            zombifiedPiglin.setNoAi(this.isNoAi());
+-            zombifiedPiglin.setBaby(this.isBaby());
+-            if (this.hasCustomName()) {
+-                zombifiedPiglin.setCustomName(this.getCustomName());
+-                zombifiedPiglin.setCustomNameVisible(this.isCustomNameVisible());
++    public void thunderHit(net.minecraft.server.level.ServerLevel $$0, net.minecraft.world.entity.LightningBolt $$1) {
++        if ($$0.getDifficulty() != net.minecraft.world.Difficulty.PEACEFUL) {
++            net.minecraft.world.entity.monster.ZombifiedPiglin $$2 = (net.minecraft.world.entity.monster.ZombifiedPiglin)net.minecraft.world.entity.EntityType.ZOMBIFIED_PIGLIN.create((net.minecraft.world.level.Level)$$0);
++            if ($$2 != null) {
++                $$2.setItemSlot(net.minecraft.world.entity.EquipmentSlot.MAINHAND, new net.minecraft.world.item.ItemStack((net.minecraft.world.level.ItemLike)net.minecraft.world.item.Items.GOLDEN_SWORD));
++                $$2.moveTo(this.getX(), this.getY(), this.getZ(), this.getYRot(), this.getXRot());
++                $$2.setNoAi(this.isNoAi());
++                $$2.setBaby(this.isBaby());
++                if (this.hasCustomName()) {
++                    $$2.setCustomName(this.getCustomName());
++                    $$2.setCustomNameVisible(this.isCustomNameVisible());
++                }
++                $$2.setPersistenceRequired();
++                $$0.addFreshEntity((net.minecraft.world.entity.Entity)$$2);
++                this.discard();
++            } else {
++                super.thunderHit($$0, $$1);
+             }
+-            zombifiedPiglin.setPersistenceRequired();
+-            level.addFreshEntity((net.minecraft.world.entity.Entity)zombifiedPiglin);
+-            this.discard();
+         } else {
+-            super.thunderHit(level, lightning);
++            super.thunderHit($$0, $$1);
+         }
+     }
+ 
+-    public void travel(net.minecraft.world.phys.Vec3 travelVector) {
+-        this.travel((net.minecraft.world.entity.Mob)this, this.steering, travelVector);
++    public void travel(net.minecraft.world.phys.Vec3 $$0) {
++        this.travel((net.minecraft.world.entity.Mob)this, this.steering, $$0);
+     }
+ 
+     public float getSteeringSpeed() {
+         return (float)this.getAttributeValue(net.minecraft.world.entity.ai.attributes.Attributes.MOVEMENT_SPEED) * 0.225f;
+     }
+ 
+-    public void travelWithInput(net.minecraft.world.phys.Vec3 travelVec) {
+-        super.travel(travelVec);
++    public void travelWithInput(net.minecraft.world.phys.Vec3 $$0) {
++        super.travel($$0);
+     }
+ 
+     public boolean boost() {
+         return this.steering.boost(this.getRandom());
+     }
+ 
++    @javax.annotation.Nullable
+     public net.minecraft.world.entity.animal.Pig getBreedOffspring(net.minecraft.server.level.ServerLevel $$0, net.minecraft.world.entity.AgeableMob $$1) {
+         return (net.minecraft.world.entity.animal.Pig)net.minecraft.world.entity.EntityType.PIG.create((net.minecraft.world.level.Level)$$0);
+     }
+ 
+-    public boolean isFood(net.minecraft.world.item.ItemStack stack) {
+-        return FOOD_ITEMS.test(stack);
++    public boolean isFood(net.minecraft.world.item.ItemStack $$0) {
++        return FOOD_ITEMS.test($$0);
+     }
+ 
+     public net.minecraft.world.phys.Vec3 getLeashOffset() {
+         return new net.minecraft.world.phys.Vec3(0.0, (double)(0.6f * this.getEyeHeight()), (double)(this.getBbWidth() * 0.4f));
+     }
+ 
++    @javax.annotation.Nullable
+     public /* synthetic */ net.minecraft.world.entity.AgeableMob getBreedOffspring(net.minecraft.server.level.ServerLevel serverLevel, net.minecraft.world.entity.AgeableMob ageableMob) {
+         return this.getBreedOffspring(serverLevel, ageableMob);
+     }

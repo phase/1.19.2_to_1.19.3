@@ -1,0 +1,47 @@
+--- net/minecraft/client/multiplayer/chat/report/ChatReportContextBuilder$Collector.java
++++ net/minecraft/client/multiplayer/chat/report/ChatReportContextBuilder$Collector.java
+@@ -1,0 +1,44 @@
++/*
++ * Decompiled with CFR 0.151.
++ */
++package net.minecraft.client.multiplayer.chat.report;
++
++public class net.minecraft.client.multiplayer.chat.report.ChatReportContextBuilder$Collector
++ {
++    public java.util.Set<net.minecraft.network.chat.MessageSignature> lastSeenSignatures;
++    public net.minecraft.network.chat.PlayerChatMessage lastChainMessage;
++    public boolean collectingChain;
++    public int count;
++    public /* synthetic */ net.minecraft.client.multiplayer.chat.report.ChatReportContextBuilder this$0;
++
++    public net.minecraft.client.multiplayer.chat.report.ChatReportContextBuilder$Collector(net.minecraft.client.multiplayer.chat.report.ChatReportContextBuilder chatReportContextBuilder, net.minecraft.network.chat.PlayerChatMessage $$0) {
++        this.this$0 = chatReportContextBuilder;
++        this.collectingChain = true;
++        this.lastSeenSignatures = new it.unimi.dsi.fastutil.objects.ObjectOpenHashSet((java.util.Collection)$$0.signedBody().lastSeen().entries());
++        this.lastChainMessage = $$0;
++    }
++
++    public boolean accept(net.minecraft.network.chat.PlayerChatMessage $$0) {
++        if ($$0.equals((java.lang.Object)this.lastChainMessage)) {
++            return false;
++        }
++        boolean $$1 = this.lastSeenSignatures.remove((java.lang.Object)$$0.signature());
++        if (this.collectingChain && this.lastChainMessage.sender().equals((java.lang.Object)$$0.sender())) {
++            if (this.lastChainMessage.link().isDescendantOf($$0.link())) {
++                $$1 = true;
++                this.lastChainMessage = $$0;
++            } else {
++                this.collectingChain = false;
++            }
++        }
++        if ($$1) {
++            ++this.count;
++        }
++        return $$1;
++    }
++
++    public boolean isComplete() {
++        return this.count >= this.this$0.leadingCount || !this.collectingChain && this.lastSeenSignatures.isEmpty();
++    }
++}
++

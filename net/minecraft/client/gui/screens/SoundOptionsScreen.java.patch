@@ -1,0 +1,68 @@
+--- net/minecraft/client/gui/screens/SoundOptionsScreen.java
++++ net/minecraft/client/gui/screens/SoundOptionsScreen.java
+@@ -6,42 +6,35 @@
+ public class net.minecraft.client.gui.screens.SoundOptionsScreen
+ extends net.minecraft.client.gui.screens.OptionsSubScreen
+  {
+-    @javax.annotation.Nullable
+-    public net.minecraft.client.gui.components.AbstractWidget directionalAudioButton;
++    public net.minecraft.client.gui.components.OptionsList list;
+ 
+-    public net.minecraft.client.gui.screens.SoundOptionsScreen(net.minecraft.client.gui.screens.Screen lastScreen, net.minecraft.client.Options options) {
+-        super(lastScreen, options, (net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"options.sounds.title"));
++    public static net.minecraft.client.OptionInstance<?>[] buttonOptions(net.minecraft.client.Options $$0) {
++        return new net.minecraft.client.OptionInstance[]{$$0.showSubtitles(), $$0.directionalAudio()};
+     }
+ 
++    public net.minecraft.client.gui.screens.SoundOptionsScreen(net.minecraft.client.gui.screens.Screen $$0, net.minecraft.client.Options $$1) {
++        super($$0, $$1, (net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"options.sounds.title"));
++    }
++
+     public void init() {
+-        int $$02 = this.height / 6 - 12;
+-        int $$1 = 22;
+-        int $$2 = 0;
+-        this.addRenderableWidget((net.minecraft.client.gui.components.events.GuiEventListener)new net.minecraft.client.gui.components.VolumeSlider(this.minecraft, this.width / 2 - 155 + $$2 % 2 * 160, $$02 + 22 * ($$2 >> 1), net.minecraft.sounds.SoundSource.MASTER, 310));
+-        $$2 += 2;
+-        for (net.minecraft.sounds.SoundSource $$3 : net.minecraft.sounds.SoundSource.values()) {
+-            if ($$3 == net.minecraft.sounds.SoundSource.MASTER) continue;
+-            this.addRenderableWidget((net.minecraft.client.gui.components.events.GuiEventListener)new net.minecraft.client.gui.components.VolumeSlider(this.minecraft, this.width / 2 - 155 + $$2 % 2 * 160, $$02 + 22 * ($$2 >> 1), $$3, 150));
+-            ++$$2;
+-        }
+-        if ($$2 % 2 == 1) {
+-            ++$$2;
+-        }
+-        this.addRenderableWidget((net.minecraft.client.gui.components.events.GuiEventListener)this.options.soundDevice().createButton(this.options, this.width / 2 - 155, $$02 + 22 * ($$2 >> 1), 310));
+-        this.addRenderableWidget((net.minecraft.client.gui.components.events.GuiEventListener)this.options.showSubtitles().createButton(this.options, this.width / 2 - 155, $$02 + 22 * (($$2 += 2) >> 1), 150));
+-        this.directionalAudioButton = this.options.directionalAudio().createButton(this.options, this.width / 2 + 5, $$02 + 22 * ($$2 >> 1), 150);
+-        this.addRenderableWidget((net.minecraft.client.gui.components.events.GuiEventListener)this.directionalAudioButton);
+-        this.addRenderableWidget((net.minecraft.client.gui.components.events.GuiEventListener)new net.minecraft.client.gui.components.Button(this.width / 2 - 100, $$02 + 22 * (($$2 += 2) >> 1), 200, 20, net.minecraft.network.chat.CommonComponents.GUI_DONE, $$0 -> this.minecraft.setScreen(this.lastScreen)));
++        this.list = new net.minecraft.client.gui.components.OptionsList(this.minecraft, this.width, this.height, 32, this.height - 32, 25);
++        this.list.addBig(this.options.getSoundSourceOptionInstance(net.minecraft.sounds.SoundSource.MASTER));
++        this.list.addSmall(this.getAllSoundOptionsExceptMaster());
++        this.list.addBig(this.options.soundDevice());
++        this.list.addSmall(net.minecraft.client.gui.screens.SoundOptionsScreen.buttonOptions((net.minecraft.client.Options)this.options));
++        this.addWidget((net.minecraft.client.gui.components.events.GuiEventListener)this.list);
++        this.addRenderableWidget((net.minecraft.client.gui.components.events.GuiEventListener)new net.minecraft.client.gui.components.Button(this.width / 2 - 100, this.height - 27, 200, 20, net.minecraft.network.chat.CommonComponents.GUI_DONE, $$0 -> {
++            this.minecraft.options.save();
++            this.minecraft.setScreen(this.lastScreen);
++        }));
+     }
+ 
+-    public void render(com.mojang.blaze3d.vertex.PoseStack matrixStack, int mouseX, int mouseY, float partialTicks) {
+-        this.renderBackground(matrixStack);
+-        net.minecraft.client.gui.screens.SoundOptionsScreen.drawCenteredString((com.mojang.blaze3d.vertex.PoseStack)matrixStack, (net.minecraft.client.gui.Font)this.font, (net.minecraft.network.chat.Component)this.title, (int)(this.width / 2), (int)15, (int)0xFFFFFF);
+-        super.render(matrixStack, mouseX, mouseY, partialTicks);
+-        if (this.directionalAudioButton != null && this.directionalAudioButton.isMouseOver((double)mouseX, (double)mouseY)) {
+-            java.util.List list = ((net.minecraft.client.gui.components.TooltipAccessor)this.directionalAudioButton).getTooltip();
+-            this.renderTooltip(matrixStack, list, mouseX, mouseY);
+-        }
++    public net.minecraft.client.OptionInstance<?>[] getAllSoundOptionsExceptMaster() {
++        return (net.minecraft.client.OptionInstance[])java.util.Arrays.stream((java.lang.Object[])net.minecraft.sounds.SoundSource.values()).filter($$0 -> $$0 != net.minecraft.sounds.SoundSource.MASTER).map($$0 -> this.options.getSoundSourceOptionInstance($$0)).toArray(net.minecraft.client.OptionInstance[]::new);
+     }
++
++    public void render(com.mojang.blaze3d.vertex.PoseStack $$0, int $$1, int $$2, float $$3) {
++        this.basicListRender($$0, this.list, $$1, $$2, $$3);
++    }
+ }
+ 

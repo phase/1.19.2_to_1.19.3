@@ -1,0 +1,91 @@
+--- net/minecraft/world/entity/ai/behavior/CelebrateVillagersSurvivedRaid.java
++++ net/minecraft/world/entity/ai/behavior/CelebrateVillagersSurvivedRaid.java
+@@ -13,54 +13,54 @@
+         super((java.util.Map)com.google.common.collect.ImmutableMap.of(), $$0, $$1);
+     }
+ 
+-    public boolean checkExtraStartConditions(net.minecraft.server.level.ServerLevel level, net.minecraft.world.entity.npc.Villager owner) {
+-        net.minecraft.core.BlockPos blockPos = owner.blockPosition();
+-        this.currentRaid = level.getRaidAt(blockPos);
+-        return this.currentRaid != null && this.currentRaid.isVictory() && net.minecraft.world.entity.ai.behavior.MoveToSkySeeingSpot.hasNoBlocksAbove((net.minecraft.server.level.ServerLevel)level, (net.minecraft.world.entity.LivingEntity)owner, (net.minecraft.core.BlockPos)blockPos);
++    public boolean checkExtraStartConditions(net.minecraft.server.level.ServerLevel $$0, net.minecraft.world.entity.npc.Villager $$1) {
++        net.minecraft.core.BlockPos $$2 = $$1.blockPosition();
++        this.currentRaid = $$0.getRaidAt($$2);
++        return this.currentRaid != null && this.currentRaid.isVictory() && net.minecraft.world.entity.ai.behavior.MoveToSkySeeingSpot.hasNoBlocksAbove((net.minecraft.server.level.ServerLevel)$$0, (net.minecraft.world.entity.LivingEntity)$$1, (net.minecraft.core.BlockPos)$$2);
+     }
+ 
+-    public boolean canStillUse(net.minecraft.server.level.ServerLevel level, net.minecraft.world.entity.npc.Villager entity, long gameTime) {
++    public boolean canStillUse(net.minecraft.server.level.ServerLevel $$0, net.minecraft.world.entity.npc.Villager $$1, long $$2) {
+         return this.currentRaid != null && !this.currentRaid.isStopped();
+     }
+ 
+-    public void stop(net.minecraft.server.level.ServerLevel level, net.minecraft.world.entity.npc.Villager entity, long gameTime) {
++    public void stop(net.minecraft.server.level.ServerLevel $$0, net.minecraft.world.entity.npc.Villager $$1, long $$2) {
+         this.currentRaid = null;
+-        entity.getBrain().updateActivityFromSchedule(level.getDayTime(), level.getGameTime());
++        $$1.getBrain().updateActivityFromSchedule($$0.getDayTime(), $$0.getGameTime());
+     }
+ 
+-    public void tick(net.minecraft.server.level.ServerLevel level, net.minecraft.world.entity.npc.Villager owner, long gameTime) {
+-        net.minecraft.util.RandomSource randomSource = owner.getRandom();
+-        if (randomSource.nextInt(100) == 0) {
+-            owner.playCelebrateSound();
++    public void tick(net.minecraft.server.level.ServerLevel $$0, net.minecraft.world.entity.npc.Villager $$1, long $$2) {
++        net.minecraft.util.RandomSource $$3 = $$1.getRandom();
++        if ($$3.nextInt(100) == 0) {
++            $$1.playCelebrateSound();
+         }
+-        if (randomSource.nextInt(200) == 0 && net.minecraft.world.entity.ai.behavior.MoveToSkySeeingSpot.hasNoBlocksAbove((net.minecraft.server.level.ServerLevel)level, (net.minecraft.world.entity.LivingEntity)owner, (net.minecraft.core.BlockPos)owner.blockPosition())) {
+-            net.minecraft.world.item.DyeColor dyeColor = (net.minecraft.world.item.DyeColor)net.minecraft.Util.getRandom((java.lang.Object[])net.minecraft.world.item.DyeColor.values(), (net.minecraft.util.RandomSource)randomSource);
+-            int n = randomSource.nextInt(3);
+-            net.minecraft.world.item.ItemStack itemStack = this.getFirework(dyeColor, n);
+-            net.minecraft.world.entity.projectile.FireworkRocketEntity fireworkRocketEntity = new net.minecraft.world.entity.projectile.FireworkRocketEntity(owner.level, (net.minecraft.world.entity.Entity)owner, owner.getX(), owner.getEyeY(), owner.getZ(), itemStack);
+-            owner.level.addFreshEntity((net.minecraft.world.entity.Entity)fireworkRocketEntity);
++        if ($$3.nextInt(200) == 0 && net.minecraft.world.entity.ai.behavior.MoveToSkySeeingSpot.hasNoBlocksAbove((net.minecraft.server.level.ServerLevel)$$0, (net.minecraft.world.entity.LivingEntity)$$1, (net.minecraft.core.BlockPos)$$1.blockPosition())) {
++            net.minecraft.world.item.DyeColor $$4 = (net.minecraft.world.item.DyeColor)net.minecraft.Util.getRandom((java.lang.Object[])net.minecraft.world.item.DyeColor.values(), (net.minecraft.util.RandomSource)$$3);
++            int $$5 = $$3.nextInt(3);
++            net.minecraft.world.item.ItemStack $$6 = this.getFirework($$4, $$5);
++            net.minecraft.world.entity.projectile.FireworkRocketEntity $$7 = new net.minecraft.world.entity.projectile.FireworkRocketEntity($$1.level, (net.minecraft.world.entity.Entity)$$1, $$1.getX(), $$1.getEyeY(), $$1.getZ(), $$6);
++            $$1.level.addFreshEntity((net.minecraft.world.entity.Entity)$$7);
+         }
+     }
+ 
+-    public net.minecraft.world.item.ItemStack getFirework(net.minecraft.world.item.DyeColor color, int flightTime) {
+-        net.minecraft.world.item.ItemStack itemStack = new net.minecraft.world.item.ItemStack((net.minecraft.world.level.ItemLike)net.minecraft.world.item.Items.FIREWORK_ROCKET, 1);
+-        net.minecraft.world.item.ItemStack itemStack2 = new net.minecraft.world.item.ItemStack((net.minecraft.world.level.ItemLike)net.minecraft.world.item.Items.FIREWORK_STAR);
+-        net.minecraft.nbt.CompoundTag compoundTag = itemStack2.getOrCreateTagElement("Explosion");
+-        java.util.ArrayList arrayList = com.google.common.collect.Lists.newArrayList();
+-        arrayList.add((java.lang.Object)color.getFireworkColor());
+-        compoundTag.putIntArray("Colors", (java.util.List)arrayList);
+-        compoundTag.putByte("Type", (byte)net.minecraft.world.item.FireworkRocketItem$Shape.BURST.getId());
+-        net.minecraft.nbt.CompoundTag compoundTag2 = itemStack.getOrCreateTagElement("Fireworks");
+-        net.minecraft.nbt.ListTag listTag = new net.minecraft.nbt.ListTag();
+-        net.minecraft.nbt.CompoundTag compoundTag3 = itemStack2.getTagElement("Explosion");
+-        if (compoundTag3 != null) {
+-            listTag.add((java.lang.Object)compoundTag3);
++    public net.minecraft.world.item.ItemStack getFirework(net.minecraft.world.item.DyeColor $$0, int $$1) {
++        net.minecraft.world.item.ItemStack $$2 = new net.minecraft.world.item.ItemStack((net.minecraft.world.level.ItemLike)net.minecraft.world.item.Items.FIREWORK_ROCKET, 1);
++        net.minecraft.world.item.ItemStack $$3 = new net.minecraft.world.item.ItemStack((net.minecraft.world.level.ItemLike)net.minecraft.world.item.Items.FIREWORK_STAR);
++        net.minecraft.nbt.CompoundTag $$4 = $$3.getOrCreateTagElement("Explosion");
++        java.util.ArrayList $$5 = com.google.common.collect.Lists.newArrayList();
++        $$5.add((java.lang.Object)$$0.getFireworkColor());
++        $$4.putIntArray("Colors", (java.util.List)$$5);
++        $$4.putByte("Type", (byte)net.minecraft.world.item.FireworkRocketItem$Shape.BURST.getId());
++        net.minecraft.nbt.CompoundTag $$6 = $$2.getOrCreateTagElement("Fireworks");
++        net.minecraft.nbt.ListTag $$7 = new net.minecraft.nbt.ListTag();
++        net.minecraft.nbt.CompoundTag $$8 = $$3.getTagElement("Explosion");
++        if ($$8 != null) {
++            $$7.add((java.lang.Object)$$8);
+         }
+-        compoundTag2.putByte("Flight", (byte)flightTime);
+-        if (!listTag.isEmpty()) {
+-            compoundTag2.put("Explosions", (net.minecraft.nbt.Tag)listTag);
++        $$6.putByte("Flight", (byte)$$1);
++        if (!$$7.isEmpty()) {
++            $$6.put("Explosions", (net.minecraft.nbt.Tag)$$7);
+         }
+-        return itemStack;
++        return $$2;
+     }
+ 
+     public /* synthetic */ boolean canStillUse(net.minecraft.server.level.ServerLevel serverLevel, net.minecraft.world.entity.LivingEntity livingEntity, long l) {

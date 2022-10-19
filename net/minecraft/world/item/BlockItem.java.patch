@@ -1,0 +1,252 @@
+--- net/minecraft/world/item/BlockItem.java
++++ net/minecraft/world/item/BlockItem.java
+@@ -11,130 +11,133 @@
+     @java.lang.Deprecated
+     public net.minecraft.world.level.block.Block block;
+ 
+-    public net.minecraft.world.item.BlockItem(net.minecraft.world.level.block.Block block, net.minecraft.world.item.Item$Properties properties) {
+-        super(properties);
+-        this.block = block;
++    public net.minecraft.world.item.BlockItem(net.minecraft.world.level.block.Block $$0, net.minecraft.world.item.Item$Properties $$1) {
++        super($$1);
++        this.block = $$0;
+     }
+ 
+-    public net.minecraft.world.InteractionResult useOn(net.minecraft.world.item.context.UseOnContext context) {
+-        net.minecraft.world.InteractionResult interactionResult = this.place(new net.minecraft.world.item.context.BlockPlaceContext(context));
+-        if (!interactionResult.consumesAction() && this.isEdible()) {
+-            net.minecraft.world.InteractionResult interactionResult2 = this.use(context.getLevel(), context.getPlayer(), context.getHand()).getResult();
+-            return interactionResult2 == net.minecraft.world.InteractionResult.CONSUME ? net.minecraft.world.InteractionResult.CONSUME_PARTIAL : interactionResult2;
++    public net.minecraft.world.InteractionResult useOn(net.minecraft.world.item.context.UseOnContext $$0) {
++        net.minecraft.world.InteractionResult $$1 = this.place(new net.minecraft.world.item.context.BlockPlaceContext($$0));
++        if (!$$1.consumesAction() && this.isEdible()) {
++            net.minecraft.world.InteractionResult $$2 = this.use($$0.getLevel(), $$0.getPlayer(), $$0.getHand()).getResult();
++            return $$2 == net.minecraft.world.InteractionResult.CONSUME ? net.minecraft.world.InteractionResult.CONSUME_PARTIAL : $$2;
+         }
+-        return interactionResult;
++        return $$1;
+     }
+ 
+-    public net.minecraft.world.InteractionResult place(net.minecraft.world.item.context.BlockPlaceContext context) {
+-        if (!context.canPlace()) {
++    public net.minecraft.world.InteractionResult place(net.minecraft.world.item.context.BlockPlaceContext $$0) {
++        if (!this.getBlock().isEnabled($$0.getLevel().enabledFeatures())) {
+             return net.minecraft.world.InteractionResult.FAIL;
+         }
+-        net.minecraft.world.item.context.BlockPlaceContext blockPlaceContext = this.updatePlacementContext(context);
+-        if (blockPlaceContext == null) {
++        if (!$$0.canPlace()) {
+             return net.minecraft.world.InteractionResult.FAIL;
+         }
+-        net.minecraft.world.level.block.state.BlockState blockState = this.getPlacementState(blockPlaceContext);
+-        if (blockState == null) {
++        net.minecraft.world.item.context.BlockPlaceContext $$1 = this.updatePlacementContext($$0);
++        if ($$1 == null) {
+             return net.minecraft.world.InteractionResult.FAIL;
+         }
+-        if (!this.placeBlock(blockPlaceContext, blockState)) {
++        net.minecraft.world.level.block.state.BlockState $$2 = this.getPlacementState($$1);
++        if ($$2 == null) {
+             return net.minecraft.world.InteractionResult.FAIL;
+         }
+-        net.minecraft.core.BlockPos blockPos = blockPlaceContext.getClickedPos();
+-        net.minecraft.world.level.Level level = blockPlaceContext.getLevel();
+-        net.minecraft.world.entity.player.Player player = blockPlaceContext.getPlayer();
+-        net.minecraft.world.item.ItemStack itemStack = blockPlaceContext.getItemInHand();
+-        net.minecraft.world.level.block.state.BlockState blockState2 = level.getBlockState(blockPos);
+-        if (blockState2.is(blockState.getBlock())) {
+-            blockState2 = this.updateBlockStateFromTag(blockPos, level, itemStack, blockState2);
+-            this.updateCustomBlockEntityTag(blockPos, level, player, itemStack, blockState2);
+-            blockState2.getBlock().setPlacedBy(level, blockPos, blockState2, (net.minecraft.world.entity.LivingEntity)player, itemStack);
+-            if (player instanceof net.minecraft.server.level.ServerPlayer) {
+-                net.minecraft.advancements.CriteriaTriggers.PLACED_BLOCK.trigger((net.minecraft.server.level.ServerPlayer)player, blockPos, itemStack);
++        if (!this.placeBlock($$1, $$2)) {
++            return net.minecraft.world.InteractionResult.FAIL;
++        }
++        net.minecraft.core.BlockPos $$3 = $$1.getClickedPos();
++        net.minecraft.world.level.Level $$4 = $$1.getLevel();
++        net.minecraft.world.entity.player.Player $$5 = $$1.getPlayer();
++        net.minecraft.world.item.ItemStack $$6 = $$1.getItemInHand();
++        net.minecraft.world.level.block.state.BlockState $$7 = $$4.getBlockState($$3);
++        if ($$7.is($$2.getBlock())) {
++            $$7 = this.updateBlockStateFromTag($$3, $$4, $$6, $$7);
++            this.updateCustomBlockEntityTag($$3, $$4, $$5, $$6, $$7);
++            $$7.getBlock().setPlacedBy($$4, $$3, $$7, (net.minecraft.world.entity.LivingEntity)$$5, $$6);
++            if ($$5 instanceof net.minecraft.server.level.ServerPlayer) {
++                net.minecraft.advancements.CriteriaTriggers.PLACED_BLOCK.trigger((net.minecraft.server.level.ServerPlayer)$$5, $$3, $$6);
+             }
+         }
+-        net.minecraft.world.level.block.SoundType soundType = blockState2.getSoundType();
+-        level.playSound(player, blockPos, this.getPlaceSound(blockState2), net.minecraft.sounds.SoundSource.BLOCKS, (soundType.getVolume() + 1.0f) / 2.0f, soundType.getPitch() * 0.8f);
+-        level.gameEvent(net.minecraft.world.level.gameevent.GameEvent.BLOCK_PLACE, blockPos, net.minecraft.world.level.gameevent.GameEvent$Context.of((net.minecraft.world.entity.Entity)player, (net.minecraft.world.level.block.state.BlockState)blockState2));
+-        if (player == null || !player.getAbilities().instabuild) {
+-            itemStack.shrink(1);
++        net.minecraft.world.level.block.SoundType $$8 = $$7.getSoundType();
++        $$4.playSound($$5, $$3, this.getPlaceSound($$7), net.minecraft.sounds.SoundSource.BLOCKS, ($$8.getVolume() + 1.0f) / 2.0f, $$8.getPitch() * 0.8f);
++        $$4.gameEvent(net.minecraft.world.level.gameevent.GameEvent.BLOCK_PLACE, $$3, net.minecraft.world.level.gameevent.GameEvent$Context.of((net.minecraft.world.entity.Entity)$$5, (net.minecraft.world.level.block.state.BlockState)$$7));
++        if ($$5 == null || !$$5.getAbilities().instabuild) {
++            $$6.shrink(1);
+         }
+-        return net.minecraft.world.InteractionResult.sidedSuccess((boolean)level.isClientSide);
++        return net.minecraft.world.InteractionResult.sidedSuccess((boolean)$$4.isClientSide);
+     }
+ 
+-    public net.minecraft.sounds.SoundEvent getPlaceSound(net.minecraft.world.level.block.state.BlockState state) {
+-        return state.getSoundType().getPlaceSound();
++    public net.minecraft.sounds.SoundEvent getPlaceSound(net.minecraft.world.level.block.state.BlockState $$0) {
++        return $$0.getSoundType().getPlaceSound();
+     }
+ 
+     @javax.annotation.Nullable
+-    public net.minecraft.world.item.context.BlockPlaceContext updatePlacementContext(net.minecraft.world.item.context.BlockPlaceContext context) {
+-        return context;
++    public net.minecraft.world.item.context.BlockPlaceContext updatePlacementContext(net.minecraft.world.item.context.BlockPlaceContext $$0) {
++        return $$0;
+     }
+ 
+-    public boolean updateCustomBlockEntityTag(net.minecraft.core.BlockPos pos, net.minecraft.world.level.Level level, @javax.annotation.Nullable net.minecraft.world.entity.player.Player player, net.minecraft.world.item.ItemStack stack, net.minecraft.world.level.block.state.BlockState state) {
+-        return net.minecraft.world.item.BlockItem.updateCustomBlockEntityTag((net.minecraft.world.level.Level)level, (net.minecraft.world.entity.player.Player)player, (net.minecraft.core.BlockPos)pos, (net.minecraft.world.item.ItemStack)stack);
++    public boolean updateCustomBlockEntityTag(net.minecraft.core.BlockPos $$0, net.minecraft.world.level.Level $$1, @javax.annotation.Nullable net.minecraft.world.entity.player.Player $$2, net.minecraft.world.item.ItemStack $$3, net.minecraft.world.level.block.state.BlockState $$4) {
++        return net.minecraft.world.item.BlockItem.updateCustomBlockEntityTag((net.minecraft.world.level.Level)$$1, (net.minecraft.world.entity.player.Player)$$2, (net.minecraft.core.BlockPos)$$0, (net.minecraft.world.item.ItemStack)$$3);
+     }
+ 
+     @javax.annotation.Nullable
+-    public net.minecraft.world.level.block.state.BlockState getPlacementState(net.minecraft.world.item.context.BlockPlaceContext context) {
+-        net.minecraft.world.level.block.state.BlockState blockState = this.getBlock().getStateForPlacement(context);
+-        return blockState != null && this.canPlace(context, blockState) ? blockState : null;
++    public net.minecraft.world.level.block.state.BlockState getPlacementState(net.minecraft.world.item.context.BlockPlaceContext $$0) {
++        net.minecraft.world.level.block.state.BlockState $$1 = this.getBlock().getStateForPlacement($$0);
++        return $$1 != null && this.canPlace($$0, $$1) ? $$1 : null;
+     }
+ 
+-    public net.minecraft.world.level.block.state.BlockState updateBlockStateFromTag(net.minecraft.core.BlockPos pos, net.minecraft.world.level.Level level, net.minecraft.world.item.ItemStack stack, net.minecraft.world.level.block.state.BlockState state) {
+-        net.minecraft.world.level.block.state.BlockState blockState = state;
+-        net.minecraft.nbt.CompoundTag compoundTag = stack.getTag();
+-        if (compoundTag != null) {
+-            net.minecraft.nbt.CompoundTag compoundTag2 = compoundTag.getCompound("BlockStateTag");
+-            net.minecraft.world.level.block.state.StateDefinition stateDefinition = blockState.getBlock().getStateDefinition();
+-            for (java.lang.String string : compoundTag2.getAllKeys()) {
+-                net.minecraft.world.level.block.state.properties.Property property = stateDefinition.getProperty(string);
+-                if (property == null) continue;
+-                java.lang.String string2 = compoundTag2.get(string).getAsString();
+-                blockState = net.minecraft.world.item.BlockItem.updateState((net.minecraft.world.level.block.state.BlockState)blockState, (net.minecraft.world.level.block.state.properties.Property)property, (java.lang.String)string2);
++    public net.minecraft.world.level.block.state.BlockState updateBlockStateFromTag(net.minecraft.core.BlockPos $$0, net.minecraft.world.level.Level $$1, net.minecraft.world.item.ItemStack $$2, net.minecraft.world.level.block.state.BlockState $$3) {
++        net.minecraft.world.level.block.state.BlockState $$4 = $$3;
++        net.minecraft.nbt.CompoundTag $$5 = $$2.getTag();
++        if ($$5 != null) {
++            net.minecraft.nbt.CompoundTag $$6 = $$5.getCompound("BlockStateTag");
++            net.minecraft.world.level.block.state.StateDefinition $$7 = $$4.getBlock().getStateDefinition();
++            for (java.lang.String $$8 : $$6.getAllKeys()) {
++                net.minecraft.world.level.block.state.properties.Property $$9 = $$7.getProperty($$8);
++                if ($$9 == null) continue;
++                java.lang.String $$10 = $$6.get($$8).getAsString();
++                $$4 = net.minecraft.world.item.BlockItem.updateState((net.minecraft.world.level.block.state.BlockState)$$4, (net.minecraft.world.level.block.state.properties.Property)$$9, (java.lang.String)$$10);
+             }
+         }
+-        if (blockState != state) {
+-            level.setBlock(pos, blockState, 2);
++        if ($$4 != $$3) {
++            $$1.setBlock($$0, $$4, 2);
+         }
+-        return blockState;
++        return $$4;
+     }
+ 
+-    public static <T extends java.lang.Comparable<T>> net.minecraft.world.level.block.state.BlockState updateState(net.minecraft.world.level.block.state.BlockState state, net.minecraft.world.level.block.state.properties.Property<T> property, java.lang.String valueIdentifier) {
+-        return (net.minecraft.world.level.block.state.BlockState)property.getValue(valueIdentifier).map(comparable -> (net.minecraft.world.level.block.state.BlockState)state.setValue(property, comparable)).orElse((java.lang.Object)state);
++    public static <T extends java.lang.Comparable<T>> net.minecraft.world.level.block.state.BlockState updateState(net.minecraft.world.level.block.state.BlockState $$0, net.minecraft.world.level.block.state.properties.Property<T> $$1, java.lang.String $$22) {
++        return (net.minecraft.world.level.block.state.BlockState)$$1.getValue($$22).map($$2 -> (net.minecraft.world.level.block.state.BlockState)$$0.setValue($$1, $$2)).orElse((java.lang.Object)$$0);
+     }
+ 
+-    public boolean canPlace(net.minecraft.world.item.context.BlockPlaceContext context, net.minecraft.world.level.block.state.BlockState state) {
+-        net.minecraft.world.entity.player.Player player = context.getPlayer();
+-        net.minecraft.world.phys.shapes.CollisionContext collisionContext = player == null ? net.minecraft.world.phys.shapes.CollisionContext.empty() : net.minecraft.world.phys.shapes.CollisionContext.of((net.minecraft.world.entity.Entity)player);
+-        return (!this.mustSurvive() || state.canSurvive((net.minecraft.world.level.LevelReader)context.getLevel(), context.getClickedPos())) && context.getLevel().isUnobstructed(state, context.getClickedPos(), collisionContext);
++    public boolean canPlace(net.minecraft.world.item.context.BlockPlaceContext $$0, net.minecraft.world.level.block.state.BlockState $$1) {
++        net.minecraft.world.entity.player.Player $$2 = $$0.getPlayer();
++        net.minecraft.world.phys.shapes.CollisionContext $$3 = $$2 == null ? net.minecraft.world.phys.shapes.CollisionContext.empty() : net.minecraft.world.phys.shapes.CollisionContext.of((net.minecraft.world.entity.Entity)$$2);
++        return (!this.mustSurvive() || $$1.canSurvive((net.minecraft.world.level.LevelReader)$$0.getLevel(), $$0.getClickedPos())) && $$0.getLevel().isUnobstructed($$1, $$0.getClickedPos(), $$3);
+     }
+ 
+     public boolean mustSurvive() {
+         return true;
+     }
+ 
+-    public boolean placeBlock(net.minecraft.world.item.context.BlockPlaceContext context, net.minecraft.world.level.block.state.BlockState state) {
+-        return context.getLevel().setBlock(context.getClickedPos(), state, 11);
++    public boolean placeBlock(net.minecraft.world.item.context.BlockPlaceContext $$0, net.minecraft.world.level.block.state.BlockState $$1) {
++        return $$0.getLevel().setBlock($$0.getClickedPos(), $$1, 11);
+     }
+ 
+-    public static boolean updateCustomBlockEntityTag(net.minecraft.world.level.Level level, @javax.annotation.Nullable net.minecraft.world.entity.player.Player player, net.minecraft.core.BlockPos pos, net.minecraft.world.item.ItemStack stack) {
+-        net.minecraft.world.level.block.entity.BlockEntity blockEntity;
+-        net.minecraft.server.MinecraftServer minecraftServer = level.getServer();
+-        if (minecraftServer == null) {
++    public static boolean updateCustomBlockEntityTag(net.minecraft.world.level.Level $$0, @javax.annotation.Nullable net.minecraft.world.entity.player.Player $$1, net.minecraft.core.BlockPos $$2, net.minecraft.world.item.ItemStack $$3) {
++        net.minecraft.world.level.block.entity.BlockEntity $$6;
++        net.minecraft.server.MinecraftServer $$4 = $$0.getServer();
++        if ($$4 == null) {
+             return false;
+         }
+-        net.minecraft.nbt.CompoundTag compoundTag = net.minecraft.world.item.BlockItem.getBlockEntityData((net.minecraft.world.item.ItemStack)stack);
+-        if (compoundTag != null && (blockEntity = level.getBlockEntity(pos)) != null) {
+-            if (!(level.isClientSide || !blockEntity.onlyOpCanSetNbt() || player != null && player.canUseGameMasterBlocks())) {
++        net.minecraft.nbt.CompoundTag $$5 = net.minecraft.world.item.BlockItem.getBlockEntityData((net.minecraft.world.item.ItemStack)$$3);
++        if ($$5 != null && ($$6 = $$0.getBlockEntity($$2)) != null) {
++            if (!($$0.isClientSide || !$$6.onlyOpCanSetNbt() || $$1 != null && $$1.canUseGameMasterBlocks())) {
+                 return false;
+             }
+-            net.minecraft.nbt.CompoundTag compoundTag2 = blockEntity.saveWithoutMetadata();
+-            net.minecraft.nbt.CompoundTag compoundTag3 = compoundTag2.copy();
+-            compoundTag2.merge(compoundTag);
+-            if (!compoundTag2.equals((java.lang.Object)compoundTag3)) {
+-                blockEntity.load(compoundTag2);
+-                blockEntity.setChanged();
++            net.minecraft.nbt.CompoundTag $$7 = $$6.saveWithoutMetadata();
++            net.minecraft.nbt.CompoundTag $$8 = $$7.copy();
++            $$7.merge($$5);
++            if (!$$7.equals((java.lang.Object)$$8)) {
++                $$6.load($$7);
++                $$6.setChanged();
+                 return true;
+             }
+         }
+@@ -145,23 +148,17 @@
+         return this.getBlock().getDescriptionId();
+     }
+ 
+-    public void fillItemCategory(net.minecraft.world.item.CreativeModeTab group, net.minecraft.core.NonNullList<net.minecraft.world.item.ItemStack> items) {
+-        if (this.allowedIn(group)) {
+-            this.getBlock().fillItemCategory(group, items);
+-        }
++    public void appendHoverText(net.minecraft.world.item.ItemStack $$0, @javax.annotation.Nullable net.minecraft.world.level.Level $$1, java.util.List<net.minecraft.network.chat.Component> $$2, net.minecraft.world.item.TooltipFlag $$3) {
++        super.appendHoverText($$0, $$1, $$2, $$3);
++        this.getBlock().appendHoverText($$0, (net.minecraft.world.level.BlockGetter)$$1, $$2, $$3);
+     }
+ 
+-    public void appendHoverText(net.minecraft.world.item.ItemStack stack, @javax.annotation.Nullable net.minecraft.world.level.Level level, java.util.List<net.minecraft.network.chat.Component> tooltip, net.minecraft.world.item.TooltipFlag flag) {
+-        super.appendHoverText(stack, level, tooltip, flag);
+-        this.getBlock().appendHoverText(stack, (net.minecraft.world.level.BlockGetter)level, tooltip, flag);
+-    }
+-
+     public net.minecraft.world.level.block.Block getBlock() {
+         return this.block;
+     }
+ 
+-    public void registerBlocks(java.util.Map<net.minecraft.world.level.block.Block, net.minecraft.world.item.Item> blockToItemMap, net.minecraft.world.item.Item item) {
+-        blockToItemMap.put((java.lang.Object)this.getBlock(), (java.lang.Object)item);
++    public void registerBlocks(java.util.Map<net.minecraft.world.level.block.Block, net.minecraft.world.item.Item> $$0, net.minecraft.world.item.Item $$1) {
++        $$0.put((java.lang.Object)this.getBlock(), (java.lang.Object)$$1);
+     }
+ 
+     public boolean canFitInsideContainerItems() {
+@@ -190,5 +187,9 @@
+             $$0.addTagElement("BlockEntityTag", (net.minecraft.nbt.Tag)$$2);
+         }
+     }
++
++    public net.minecraft.world.flag.FeatureFlagSet requiredFeatures() {
++        return this.getBlock().requiredFeatures();
++    }
+ }
+ 

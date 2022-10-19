@@ -1,0 +1,76 @@
+--- com/mojang/blaze3d/platform/PngInfo$StbReaderBufferedChannel.java
++++ com/mojang/blaze3d/platform/PngInfo$StbReaderBufferedChannel.java
+@@ -1,73 +1,0 @@
+-/*
+- * Decompiled with CFR 0.151.
+- */
+-package com.mojang.blaze3d.platform;
+-
+-public class com.mojang.blaze3d.platform.PngInfo$StbReaderBufferedChannel
+-extends com.mojang.blaze3d.platform.PngInfo$StbReader
+- {
+-    public static int START_BUFFER_SIZE = 128;
+-    public java.nio.channels.ReadableByteChannel channel;
+-    public long readBufferAddress;
+-    public int bufferSize;
+-    public int read;
+-    public int consumed;
+-
+-    public com.mojang.blaze3d.platform.PngInfo$StbReaderBufferedChannel(java.nio.channels.ReadableByteChannel channel) {
+-        this.readBufferAddress = org.lwjgl.system.MemoryUtil.nmemAlloc((long)128L);
+-        this.bufferSize = 128;
+-        this.channel = channel;
+-    }
+-
+-    /*
+-     * WARNING - Removed try catching itself - possible behaviour change.
+-     */
+-    public void fillReadBuffer(int length) throws java.io.IOException {
+-        java.nio.ByteBuffer byteBuffer = org.lwjgl.system.MemoryUtil.memByteBuffer((long)this.readBufferAddress, (int)this.bufferSize);
+-        if (length + this.consumed > this.bufferSize) {
+-            this.bufferSize = length + this.consumed;
+-            byteBuffer = org.lwjgl.system.MemoryUtil.memRealloc((java.nio.ByteBuffer)byteBuffer, (int)this.bufferSize);
+-            this.readBufferAddress = org.lwjgl.system.MemoryUtil.memAddress((java.nio.ByteBuffer)byteBuffer);
+-        }
+-        byteBuffer.position(this.read);
+-        while (length + this.consumed > this.read) {
+-            try {
+-                int n = this.channel.read(byteBuffer);
+-                if (n != -1) continue;
+-                break;
+-            }
+-            finally {
+-                this.read = byteBuffer.position();
+-            }
+-        }
+-    }
+-
+-    public int read(long address, int capacity) throws java.io.IOException {
+-        this.fillReadBuffer(capacity);
+-        if (capacity + this.consumed > this.read) {
+-            capacity = this.read - this.consumed;
+-        }
+-        org.lwjgl.system.MemoryUtil.memCopy((long)(this.readBufferAddress + (long)this.consumed), (long)address, (long)capacity);
+-        this.consumed += capacity;
+-        return capacity;
+-    }
+-
+-    public void skip(int offset) throws java.io.IOException {
+-        if (offset > 0) {
+-            this.fillReadBuffer(offset);
+-            if (offset + this.consumed > this.read) {
+-                throw new java.io.EOFException("Can't skip past the EOF.");
+-            }
+-        }
+-        if (this.consumed + offset < 0) {
+-            throw new java.io.IOException("Can't seek before the beginning: " + (this.consumed + offset));
+-        }
+-        this.consumed += offset;
+-    }
+-
+-    public void close() throws java.io.IOException {
+-        org.lwjgl.system.MemoryUtil.nmemFree((long)this.readBufferAddress);
+-        this.channel.close();
+-    }
+-}
+-

@@ -1,0 +1,58 @@
+--- net/minecraft/world/item/KnowledgeBookItem.java
++++ net/minecraft/world/item/KnowledgeBookItem.java
+@@ -13,33 +13,33 @@
+         super($$0);
+     }
+ 
+-    public net.minecraft.world.InteractionResultHolder<net.minecraft.world.item.ItemStack> use(net.minecraft.world.level.Level level, net.minecraft.world.entity.player.Player player, net.minecraft.world.InteractionHand hand) {
+-        net.minecraft.world.item.ItemStack itemStack = player.getItemInHand(hand);
+-        net.minecraft.nbt.CompoundTag compoundTag = itemStack.getTag();
+-        if (!player.getAbilities().instabuild) {
+-            player.setItemInHand(hand, net.minecraft.world.item.ItemStack.EMPTY);
++    public net.minecraft.world.InteractionResultHolder<net.minecraft.world.item.ItemStack> use(net.minecraft.world.level.Level $$0, net.minecraft.world.entity.player.Player $$1, net.minecraft.world.InteractionHand $$2) {
++        net.minecraft.world.item.ItemStack $$3 = $$1.getItemInHand($$2);
++        net.minecraft.nbt.CompoundTag $$4 = $$3.getTag();
++        if (!$$1.getAbilities().instabuild) {
++            $$1.setItemInHand($$2, net.minecraft.world.item.ItemStack.EMPTY);
+         }
+-        if (compoundTag == null || !compoundTag.contains("Recipes", 9)) {
+-            LOGGER.error("Tag not valid: {}", (java.lang.Object)compoundTag);
+-            return net.minecraft.world.InteractionResultHolder.fail((java.lang.Object)itemStack);
++        if ($$4 == null || !$$4.contains("Recipes", 9)) {
++            LOGGER.error("Tag not valid: {}", (java.lang.Object)$$4);
++            return net.minecraft.world.InteractionResultHolder.fail((java.lang.Object)$$3);
+         }
+-        if (!level.isClientSide) {
+-            net.minecraft.nbt.ListTag listTag = compoundTag.getList("Recipes", 8);
+-            java.util.ArrayList arrayList = com.google.common.collect.Lists.newArrayList();
+-            net.minecraft.world.item.crafting.RecipeManager recipeManager = level.getServer().getRecipeManager();
+-            for (int i = 0; i < listTag.size(); ++i) {
+-                java.lang.String string = listTag.getString(i);
+-                java.util.Optional optional = recipeManager.byKey(new net.minecraft.resources.ResourceLocation(string));
+-                if (!optional.isPresent()) {
+-                    LOGGER.error("Invalid recipe: {}", (java.lang.Object)string);
+-                    return net.minecraft.world.InteractionResultHolder.fail((java.lang.Object)itemStack);
++        if (!$$0.isClientSide) {
++            net.minecraft.nbt.ListTag $$5 = $$4.getList("Recipes", 8);
++            java.util.ArrayList $$6 = com.google.common.collect.Lists.newArrayList();
++            net.minecraft.world.item.crafting.RecipeManager $$7 = $$0.getServer().getRecipeManager();
++            for (int $$8 = 0; $$8 < $$5.size(); ++$$8) {
++                java.lang.String $$9 = $$5.getString($$8);
++                java.util.Optional $$10 = $$7.byKey(new net.minecraft.resources.ResourceLocation($$9));
++                if (!$$10.isPresent()) {
++                    LOGGER.error("Invalid recipe: {}", (java.lang.Object)$$9);
++                    return net.minecraft.world.InteractionResultHolder.fail((java.lang.Object)$$3);
+                 }
+-                arrayList.add((java.lang.Object)((net.minecraft.world.item.crafting.Recipe)optional.get()));
++                $$6.add((java.lang.Object)((net.minecraft.world.item.crafting.Recipe)$$10.get()));
+             }
+-            player.awardRecipes((java.util.Collection)arrayList);
+-            player.awardStat(net.minecraft.stats.Stats.ITEM_USED.get((java.lang.Object)this));
++            $$1.awardRecipes((java.util.Collection)$$6);
++            $$1.awardStat(net.minecraft.stats.Stats.ITEM_USED.get((java.lang.Object)this));
+         }
+-        return net.minecraft.world.InteractionResultHolder.sidedSuccess((java.lang.Object)itemStack, (boolean)level.isClientSide());
++        return net.minecraft.world.InteractionResultHolder.sidedSuccess((java.lang.Object)$$3, (boolean)$$0.isClientSide());
+     }
+ 
+     static {

@@ -1,0 +1,114 @@
+--- net/minecraft/world/entity/vehicle/DismountHelper.java
++++ net/minecraft/world/entity/vehicle/DismountHelper.java
+@@ -8,73 +8,76 @@
+     public net.minecraft.world.entity.vehicle.DismountHelper() {
+     }
+ 
+-    public static int[][] offsetsForDirection(net.minecraft.core.Direction direction) {
+-        net.minecraft.core.Direction direction2 = direction.getClockWise();
+-        net.minecraft.core.Direction direction3 = direction2.getOpposite();
+-        net.minecraft.core.Direction direction4 = direction.getOpposite();
+-        return new int[][]{{direction2.getStepX(), direction2.getStepZ()}, {direction3.getStepX(), direction3.getStepZ()}, {direction4.getStepX() + direction2.getStepX(), direction4.getStepZ() + direction2.getStepZ()}, {direction4.getStepX() + direction3.getStepX(), direction4.getStepZ() + direction3.getStepZ()}, {direction.getStepX() + direction2.getStepX(), direction.getStepZ() + direction2.getStepZ()}, {direction.getStepX() + direction3.getStepX(), direction.getStepZ() + direction3.getStepZ()}, {direction4.getStepX(), direction4.getStepZ()}, {direction.getStepX(), direction.getStepZ()}};
++    public static int[][] offsetsForDirection(net.minecraft.core.Direction $$0) {
++        net.minecraft.core.Direction $$1 = $$0.getClockWise();
++        net.minecraft.core.Direction $$2 = $$1.getOpposite();
++        net.minecraft.core.Direction $$3 = $$0.getOpposite();
++        return new int[][]{{$$1.getStepX(), $$1.getStepZ()}, {$$2.getStepX(), $$2.getStepZ()}, {$$3.getStepX() + $$1.getStepX(), $$3.getStepZ() + $$1.getStepZ()}, {$$3.getStepX() + $$2.getStepX(), $$3.getStepZ() + $$2.getStepZ()}, {$$0.getStepX() + $$1.getStepX(), $$0.getStepZ() + $$1.getStepZ()}, {$$0.getStepX() + $$2.getStepX(), $$0.getStepZ() + $$2.getStepZ()}, {$$3.getStepX(), $$3.getStepZ()}, {$$0.getStepX(), $$0.getStepZ()}};
+     }
+ 
+-    public static boolean isBlockFloorValid(double distance) {
+-        return !java.lang.Double.isInfinite((double)distance) && distance < 1.0;
++    public static boolean isBlockFloorValid(double $$0) {
++        return !java.lang.Double.isInfinite((double)$$0) && $$0 < 1.0;
+     }
+ 
+-    public static boolean canDismountTo(net.minecraft.world.level.CollisionGetter level, net.minecraft.world.entity.LivingEntity passenger, net.minecraft.world.phys.AABB boundingBox) {
+-        java.lang.Iterable iterable = level.getBlockCollisions((net.minecraft.world.entity.Entity)passenger, boundingBox);
+-        for (net.minecraft.world.phys.shapes.VoxelShape voxelShape : iterable) {
+-            if (voxelShape.isEmpty()) continue;
++    public static boolean canDismountTo(net.minecraft.world.level.CollisionGetter $$0, net.minecraft.world.entity.LivingEntity $$1, net.minecraft.world.phys.AABB $$2) {
++        java.lang.Iterable $$3 = $$0.getBlockCollisions((net.minecraft.world.entity.Entity)$$1, $$2);
++        for (net.minecraft.world.phys.shapes.VoxelShape $$4 : $$3) {
++            if ($$4.isEmpty()) continue;
+             return false;
+         }
+-        return level.getWorldBorder().isWithinBounds(boundingBox);
++        return $$0.getWorldBorder().isWithinBounds($$2);
+     }
+ 
+     public static boolean canDismountTo(net.minecraft.world.level.CollisionGetter $$0, net.minecraft.world.phys.Vec3 $$1, net.minecraft.world.entity.LivingEntity $$2, net.minecraft.world.entity.Pose $$3) {
+         return net.minecraft.world.entity.vehicle.DismountHelper.canDismountTo((net.minecraft.world.level.CollisionGetter)$$0, (net.minecraft.world.entity.LivingEntity)$$2, (net.minecraft.world.phys.AABB)$$2.getLocalBoundsForPose($$3).move($$1));
+     }
+ 
+-    public static net.minecraft.world.phys.shapes.VoxelShape nonClimbableShape(net.minecraft.world.level.BlockGetter level, net.minecraft.core.BlockPos pos) {
+-        net.minecraft.world.level.block.state.BlockState blockState = level.getBlockState(pos);
+-        if (blockState.is(net.minecraft.tags.BlockTags.CLIMBABLE) || blockState.getBlock() instanceof net.minecraft.world.level.block.TrapDoorBlock && ((java.lang.Boolean)blockState.getValue((net.minecraft.world.level.block.state.properties.Property)net.minecraft.world.level.block.TrapDoorBlock.OPEN)).booleanValue()) {
++    public static net.minecraft.world.phys.shapes.VoxelShape nonClimbableShape(net.minecraft.world.level.BlockGetter $$0, net.minecraft.core.BlockPos $$1) {
++        net.minecraft.world.level.block.state.BlockState $$2 = $$0.getBlockState($$1);
++        if ($$2.is(net.minecraft.tags.BlockTags.CLIMBABLE) || $$2.getBlock() instanceof net.minecraft.world.level.block.TrapDoorBlock && ((java.lang.Boolean)$$2.getValue((net.minecraft.world.level.block.state.properties.Property)net.minecraft.world.level.block.TrapDoorBlock.OPEN)).booleanValue()) {
+             return net.minecraft.world.phys.shapes.Shapes.empty();
+         }
+-        return blockState.getCollisionShape(level, pos);
++        return $$2.getCollisionShape($$0, $$1);
+     }
+ 
+-    public static double findCeilingFrom(net.minecraft.core.BlockPos pos, int ceiling, java.util.function.Function<net.minecraft.core.BlockPos, net.minecraft.world.phys.shapes.VoxelShape> shapeForPos) {
+-        net.minecraft.core.BlockPos$MutableBlockPos mutableBlockPos = pos.mutable();
+-        for (int i = 0; i < ceiling; ++i) {
+-            net.minecraft.world.phys.shapes.VoxelShape voxelShape = (net.minecraft.world.phys.shapes.VoxelShape)shapeForPos.apply((java.lang.Object)mutableBlockPos);
+-            if (!voxelShape.isEmpty()) {
+-                return (double)(pos.getY() + i) + voxelShape.min(net.minecraft.core.Direction$Axis.Y);
++    public static double findCeilingFrom(net.minecraft.core.BlockPos $$0, int $$1, java.util.function.Function<net.minecraft.core.BlockPos, net.minecraft.world.phys.shapes.VoxelShape> $$2) {
++        net.minecraft.core.BlockPos$MutableBlockPos $$3 = $$0.mutable();
++        for (int $$4 = 0; $$4 < $$1; ++$$4) {
++            net.minecraft.world.phys.shapes.VoxelShape $$5 = (net.minecraft.world.phys.shapes.VoxelShape)$$2.apply((java.lang.Object)$$3);
++            if (!$$5.isEmpty()) {
++                return (double)($$0.getY() + $$4) + $$5.min(net.minecraft.core.Direction$Axis.Y);
+             }
+-            mutableBlockPos.move(net.minecraft.core.Direction.UP);
++            $$3.move(net.minecraft.core.Direction.UP);
+         }
+         return java.lang.Double.POSITIVE_INFINITY;
+     }
+ 
+     @javax.annotation.Nullable
+-    public static net.minecraft.world.phys.Vec3 findSafeDismountLocation(net.minecraft.world.entity.EntityType<?> entityType, net.minecraft.world.level.CollisionGetter level, net.minecraft.core.BlockPos pos, boolean onlySafePositions) {
+-        if (onlySafePositions && entityType.isBlockDangerous(level.getBlockState(pos))) {
++    public static net.minecraft.world.phys.Vec3 findSafeDismountLocation(net.minecraft.world.entity.EntityType<?> $$0, net.minecraft.world.level.CollisionGetter $$1, net.minecraft.core.BlockPos $$2, boolean $$3) {
++        if ($$3 && $$0.isBlockDangerous($$1.getBlockState($$2))) {
+             return null;
+         }
+-        double d = level.getBlockFloorHeight(net.minecraft.world.entity.vehicle.DismountHelper.nonClimbableShape((net.minecraft.world.level.BlockGetter)level, (net.minecraft.core.BlockPos)pos), () -> net.minecraft.world.entity.vehicle.DismountHelper.nonClimbableShape((net.minecraft.world.level.BlockGetter)level, (net.minecraft.core.BlockPos)pos.below()));
+-        if (!net.minecraft.world.entity.vehicle.DismountHelper.isBlockFloorValid((double)d)) {
++        double $$4 = $$1.getBlockFloorHeight(net.minecraft.world.entity.vehicle.DismountHelper.nonClimbableShape((net.minecraft.world.level.BlockGetter)$$1, (net.minecraft.core.BlockPos)$$2), () -> net.minecraft.world.entity.vehicle.DismountHelper.nonClimbableShape((net.minecraft.world.level.BlockGetter)$$1, (net.minecraft.core.BlockPos)$$2.below()));
++        if (!net.minecraft.world.entity.vehicle.DismountHelper.isBlockFloorValid((double)$$4)) {
+             return null;
+         }
+-        if (onlySafePositions && d <= 0.0 && entityType.isBlockDangerous(level.getBlockState(pos.below()))) {
++        if ($$3 && $$4 <= 0.0 && $$0.isBlockDangerous($$1.getBlockState($$2.below()))) {
+             return null;
+         }
+-        net.minecraft.world.phys.Vec3 vec3 = net.minecraft.world.phys.Vec3.upFromBottomCenterOf((net.minecraft.core.Vec3i)pos, (double)d);
+-        net.minecraft.world.phys.AABB aABB = entityType.getDimensions().makeBoundingBox(vec3);
+-        java.lang.Iterable iterable = level.getBlockCollisions(null, aABB);
+-        for (net.minecraft.world.phys.shapes.VoxelShape voxelShape : iterable) {
+-            if (voxelShape.isEmpty()) continue;
++        net.minecraft.world.phys.Vec3 $$5 = net.minecraft.world.phys.Vec3.upFromBottomCenterOf((net.minecraft.core.Vec3i)$$2, (double)$$4);
++        net.minecraft.world.phys.AABB $$6 = $$0.getDimensions().makeBoundingBox($$5);
++        java.lang.Iterable $$7 = $$1.getBlockCollisions(null, $$6);
++        for (net.minecraft.world.phys.shapes.VoxelShape $$8 : $$7) {
++            if ($$8.isEmpty()) continue;
+             return null;
+         }
+-        if (!level.getWorldBorder().isWithinBounds(aABB)) {
++        if ($$0 == net.minecraft.world.entity.EntityType.PLAYER && ($$1.getBlockState($$2).is(net.minecraft.tags.BlockTags.INVALID_SPAWN_INSIDE) || $$1.getBlockState($$2.above()).is(net.minecraft.tags.BlockTags.INVALID_SPAWN_INSIDE))) {
+             return null;
+         }
+-        return vec3;
++        if (!$$1.getWorldBorder().isWithinBounds($$6)) {
++            return null;
++        }
++        return $$5;
+     }
+ }
+ 

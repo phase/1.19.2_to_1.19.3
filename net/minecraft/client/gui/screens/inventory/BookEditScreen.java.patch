@@ -1,0 +1,388 @@
+--- net/minecraft/client/gui/screens/inventory/BookEditScreen.java
++++ net/minecraft/client/gui/screens/inventory/BookEditScreen.java
+@@ -38,7 +38,7 @@
+     public net.minecraft.network.chat.Component pageMsg;
+     public net.minecraft.network.chat.Component ownerText;
+ 
+-    public net.minecraft.client.gui.screens.inventory.BookEditScreen(net.minecraft.world.entity.player.Player player, net.minecraft.world.item.ItemStack book, net.minecraft.world.InteractionHand hand) {
++    public net.minecraft.client.gui.screens.inventory.BookEditScreen(net.minecraft.world.entity.player.Player $$02, net.minecraft.world.item.ItemStack $$1, net.minecraft.world.InteractionHand $$2) {
+         super(net.minecraft.client.GameNarrator.NO_TITLE);
+         this.pages = com.google.common.collect.Lists.newArrayList();
+         this.title = "";
+@@ -49,22 +49,22 @@
+         this.lastIndex = -1;
+         this.displayCache = net.minecraft.client.gui.screens.inventory.BookEditScreen$DisplayCache.EMPTY;
+         this.pageMsg = net.minecraft.network.chat.CommonComponents.EMPTY;
+-        this.owner = player;
+-        this.book = book;
+-        this.hand = hand;
+-        net.minecraft.nbt.CompoundTag compoundTag = book.getTag();
+-        if (compoundTag != null) {
+-            net.minecraft.client.gui.screens.inventory.BookViewScreen.loadPages((net.minecraft.nbt.CompoundTag)compoundTag, arg_0 -> ((java.util.List)this.pages).add(arg_0));
++        this.owner = $$02;
++        this.book = $$1;
++        this.hand = $$2;
++        net.minecraft.nbt.CompoundTag $$3 = $$1.getTag();
++        if ($$3 != null) {
++            net.minecraft.client.gui.screens.inventory.BookViewScreen.loadPages((net.minecraft.nbt.CompoundTag)$$3, arg_0 -> ((java.util.List)this.pages).add(arg_0));
+         }
+         if (this.pages.isEmpty()) {
+             this.pages.add((java.lang.Object)"");
+         }
+-        this.ownerText = net.minecraft.network.chat.Component.translatable((java.lang.String)"book.byAuthor", (java.lang.Object[])new java.lang.Object[]{player.getName()}).withStyle(net.minecraft.ChatFormatting.DARK_GRAY);
++        this.ownerText = net.minecraft.network.chat.Component.translatable((java.lang.String)"book.byAuthor", (java.lang.Object[])new java.lang.Object[]{$$02.getName()}).withStyle(net.minecraft.ChatFormatting.DARK_GRAY);
+     }
+ 
+-    public void setClipboard(java.lang.String clipboardValue) {
++    public void setClipboard(java.lang.String $$0) {
+         if (this.minecraft != null) {
+-            net.minecraft.client.gui.font.TextFieldHelper.setClipboardContents((net.minecraft.client.Minecraft)this.minecraft, (java.lang.String)clipboardValue);
++            net.minecraft.client.gui.font.TextFieldHelper.setClipboardContents((net.minecraft.client.Minecraft)this.minecraft, (java.lang.String)$$0);
+         }
+     }
+ 
+@@ -153,14 +153,14 @@
+         }
+     }
+ 
+-    public void saveChanges(boolean publish) {
++    public void saveChanges(boolean $$0) {
+         if (!this.isModified) {
+             return;
+         }
+         this.eraseEmptyTrailingPages();
+-        this.updateLocalCopy(publish);
+-        int n = this.hand == net.minecraft.world.InteractionHand.MAIN_HAND ? this.owner.getInventory().selected : 40;
+-        this.minecraft.getConnection().send((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ServerboundEditBookPacket(n, this.pages, publish ? java.util.Optional.of((java.lang.Object)this.title.trim()) : java.util.Optional.empty()));
++        this.updateLocalCopy($$0);
++        int $$1 = this.hand == net.minecraft.world.InteractionHand.MAIN_HAND ? this.owner.getInventory().selected : 40;
++        this.minecraft.getConnection().send((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ServerboundEditBookPacket($$1, this.pages, $$0 ? java.util.Optional.of((java.lang.Object)this.title.trim()) : java.util.Optional.empty()));
+     }
+ 
+     public void updateLocalCopy(boolean $$0) {
+@@ -183,67 +183,67 @@
+         this.isModified = true;
+     }
+ 
+-    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+-        if (super.keyPressed(keyCode, scanCode, modifiers)) {
++    public boolean keyPressed(int $$0, int $$1, int $$2) {
++        if (super.keyPressed($$0, $$1, $$2)) {
+             return true;
+         }
+         if (this.isSigning) {
+-            return this.titleKeyPressed(keyCode, scanCode, modifiers);
++            return this.titleKeyPressed($$0, $$1, $$2);
+         }
+-        boolean bl = this.bookKeyPressed(keyCode, scanCode, modifiers);
+-        if (bl) {
++        boolean $$3 = this.bookKeyPressed($$0, $$1, $$2);
++        if ($$3) {
+             this.clearDisplayCache();
+             return true;
+         }
+         return false;
+     }
+ 
+-    public boolean charTyped(char codePoint, int modifiers) {
+-        if (super.charTyped(codePoint, modifiers)) {
++    public boolean charTyped(char $$0, int $$1) {
++        if (super.charTyped($$0, $$1)) {
+             return true;
+         }
+         if (this.isSigning) {
+-            boolean bl = this.titleEdit.charTyped(codePoint);
+-            if (bl) {
++            boolean $$2 = this.titleEdit.charTyped($$0);
++            if ($$2) {
+                 this.updateButtonVisibility();
+                 this.isModified = true;
+                 return true;
+             }
+             return false;
+         }
+-        if (net.minecraft.SharedConstants.isAllowedChatCharacter((char)codePoint)) {
+-            this.pageEdit.insertText(java.lang.Character.toString((char)codePoint));
++        if (net.minecraft.SharedConstants.isAllowedChatCharacter((char)$$0)) {
++            this.pageEdit.insertText(java.lang.Character.toString((char)$$0));
+             this.clearDisplayCache();
+             return true;
+         }
+         return false;
+     }
+ 
+-    public boolean bookKeyPressed(int keyCode, int scanCode, int modifiers) {
+-        if (net.minecraft.client.gui.screens.Screen.isSelectAll((int)keyCode)) {
++    public boolean bookKeyPressed(int $$0, int $$1, int $$2) {
++        if (net.minecraft.client.gui.screens.Screen.isSelectAll((int)$$0)) {
+             this.pageEdit.selectAll();
+             return true;
+         }
+-        if (net.minecraft.client.gui.screens.Screen.isCopy((int)keyCode)) {
++        if (net.minecraft.client.gui.screens.Screen.isCopy((int)$$0)) {
+             this.pageEdit.copy();
+             return true;
+         }
+-        if (net.minecraft.client.gui.screens.Screen.isPaste((int)keyCode)) {
++        if (net.minecraft.client.gui.screens.Screen.isPaste((int)$$0)) {
+             this.pageEdit.paste();
+             return true;
+         }
+-        if (net.minecraft.client.gui.screens.Screen.isCut((int)keyCode)) {
++        if (net.minecraft.client.gui.screens.Screen.isCut((int)$$0)) {
+             this.pageEdit.cut();
+             return true;
+         }
+-        net.minecraft.client.gui.font.TextFieldHelper$CursorStep cursorStep = net.minecraft.client.gui.screens.Screen.hasControlDown() ? net.minecraft.client.gui.font.TextFieldHelper$CursorStep.WORD : net.minecraft.client.gui.font.TextFieldHelper$CursorStep.CHARACTER;
+-        switch (keyCode) {
++        net.minecraft.client.gui.font.TextFieldHelper$CursorStep $$3 = net.minecraft.client.gui.screens.Screen.hasControlDown() ? net.minecraft.client.gui.font.TextFieldHelper$CursorStep.WORD : net.minecraft.client.gui.font.TextFieldHelper$CursorStep.CHARACTER;
++        switch ($$0) {
+             case 259: {
+-                this.pageEdit.removeFromCursor(-1, cursorStep);
++                this.pageEdit.removeFromCursor(-1, $$3);
+                 return true;
+             }
+             case 261: {
+-                this.pageEdit.removeFromCursor(1, cursorStep);
++                this.pageEdit.removeFromCursor(1, $$3);
+                 return true;
+             }
+             case 257: 
+@@ -252,11 +252,11 @@
+                 return true;
+             }
+             case 263: {
+-                this.pageEdit.moveBy(-1, net.minecraft.client.gui.screens.Screen.hasShiftDown(), cursorStep);
++                this.pageEdit.moveBy(-1, net.minecraft.client.gui.screens.Screen.hasShiftDown(), $$3);
+                 return true;
+             }
+             case 262: {
+-                this.pageEdit.moveBy(1, net.minecraft.client.gui.screens.Screen.hasShiftDown(), cursorStep);
++                this.pageEdit.moveBy(1, net.minecraft.client.gui.screens.Screen.hasShiftDown(), $$3);
+                 return true;
+             }
+             case 265: {
+@@ -295,10 +295,10 @@
+         this.changeLine(1);
+     }
+ 
+-    public void changeLine(int yChange) {
+-        int n = this.pageEdit.getCursorPos();
+-        int n2 = this.getDisplayCache().changeLine(n, yChange);
+-        this.pageEdit.setCursorPos(n2, net.minecraft.client.gui.screens.Screen.hasShiftDown());
++    public void changeLine(int $$0) {
++        int $$1 = this.pageEdit.getCursorPos();
++        int $$2 = this.getDisplayCache().changeLine($$1, $$0);
++        this.pageEdit.setCursorPos($$2, net.minecraft.client.gui.screens.Screen.hasShiftDown());
+     }
+ 
+     public void keyHome() {
+@@ -322,8 +322,8 @@
+         }
+     }
+ 
+-    public boolean titleKeyPressed(int keyCode, int scanCode, int modifiers) {
+-        switch (keyCode) {
++    public boolean titleKeyPressed(int $$0, int $$1, int $$2) {
++        switch ($$0) {
+             case 259: {
+                 this.titleEdit.removeCharsFromCursor(-1);
+                 this.updateButtonVisibility();
+@@ -349,129 +349,129 @@
+         return "";
+     }
+ 
+-    public void setCurrentPageText(java.lang.String text) {
++    public void setCurrentPageText(java.lang.String $$0) {
+         if (this.currentPage >= 0 && this.currentPage < this.pages.size()) {
+-            this.pages.set(this.currentPage, (java.lang.Object)text);
++            this.pages.set(this.currentPage, (java.lang.Object)$$0);
+             this.isModified = true;
+             this.clearDisplayCache();
+         }
+     }
+ 
+-    public void render(com.mojang.blaze3d.vertex.PoseStack matrixStack, int mouseX, int mouseY, float partialTicks) {
+-        this.renderBackground(matrixStack);
++    public void render(com.mojang.blaze3d.vertex.PoseStack $$0, int $$1, int $$2, float $$3) {
++        this.renderBackground($$0);
+         this.setFocused(null);
+         com.mojang.blaze3d.systems.RenderSystem.setShader(net.minecraft.client.renderer.GameRenderer::getPositionTexShader);
+         com.mojang.blaze3d.systems.RenderSystem.setShaderColor((float)1.0f, (float)1.0f, (float)1.0f, (float)1.0f);
+         com.mojang.blaze3d.systems.RenderSystem.setShaderTexture((int)0, (net.minecraft.resources.ResourceLocation)net.minecraft.client.gui.screens.inventory.BookViewScreen.BOOK_LOCATION);
+-        int n = (this.width - 192) / 2;
+-        int n2 = 2;
+-        this.blit(matrixStack, n, 2, 0, 0, 192, 192);
++        int $$4 = (this.width - 192) / 2;
++        int $$5 = 2;
++        this.blit($$0, $$4, 2, 0, 0, 192, 192);
+         if (this.isSigning) {
+-            boolean bl = this.frameTick / 6 % 2 == 0;
+-            net.minecraft.util.FormattedCharSequence formattedCharSequence = net.minecraft.util.FormattedCharSequence.composite((net.minecraft.util.FormattedCharSequence)net.minecraft.util.FormattedCharSequence.forward((java.lang.String)this.title, (net.minecraft.network.chat.Style)net.minecraft.network.chat.Style.EMPTY), (net.minecraft.util.FormattedCharSequence)(bl ? BLACK_CURSOR : GRAY_CURSOR));
+-            int n3 = this.font.width((net.minecraft.network.chat.FormattedText)EDIT_TITLE_LABEL);
+-            this.font.draw(matrixStack, EDIT_TITLE_LABEL, (float)(n + 36 + (114 - n3) / 2), 34.0f, 0);
+-            int n4 = this.font.width(formattedCharSequence);
+-            this.font.draw(matrixStack, formattedCharSequence, (float)(n + 36 + (114 - n4) / 2), 50.0f, 0);
+-            int n5 = this.font.width((net.minecraft.network.chat.FormattedText)this.ownerText);
+-            this.font.draw(matrixStack, this.ownerText, (float)(n + 36 + (114 - n5) / 2), 60.0f, 0);
+-            this.font.drawWordWrap((net.minecraft.network.chat.FormattedText)FINALIZE_WARNING_LABEL, n + 36, 82, 114, 0);
++            boolean $$6 = this.frameTick / 6 % 2 == 0;
++            net.minecraft.util.FormattedCharSequence $$7 = net.minecraft.util.FormattedCharSequence.composite((net.minecraft.util.FormattedCharSequence)net.minecraft.util.FormattedCharSequence.forward((java.lang.String)this.title, (net.minecraft.network.chat.Style)net.minecraft.network.chat.Style.EMPTY), (net.minecraft.util.FormattedCharSequence)($$6 ? BLACK_CURSOR : GRAY_CURSOR));
++            int $$8 = this.font.width((net.minecraft.network.chat.FormattedText)EDIT_TITLE_LABEL);
++            this.font.draw($$0, EDIT_TITLE_LABEL, (float)($$4 + 36 + (114 - $$8) / 2), 34.0f, 0);
++            int $$9 = this.font.width($$7);
++            this.font.draw($$0, $$7, (float)($$4 + 36 + (114 - $$9) / 2), 50.0f, 0);
++            int $$10 = this.font.width((net.minecraft.network.chat.FormattedText)this.ownerText);
++            this.font.draw($$0, this.ownerText, (float)($$4 + 36 + (114 - $$10) / 2), 60.0f, 0);
++            this.font.drawWordWrap((net.minecraft.network.chat.FormattedText)FINALIZE_WARNING_LABEL, $$4 + 36, 82, 114, 0);
+         } else {
+-            int n6 = this.font.width((net.minecraft.network.chat.FormattedText)this.pageMsg);
+-            this.font.draw(matrixStack, this.pageMsg, (float)(n - n6 + 192 - 44), 18.0f, 0);
+-            net.minecraft.client.gui.screens.inventory.BookEditScreen$DisplayCache displayCache = this.getDisplayCache();
+-            for (net.minecraft.client.gui.screens.inventory.BookEditScreen$LineInfo lineInfo : displayCache.lines) {
+-                this.font.draw(matrixStack, lineInfo.asComponent, (float)lineInfo.x, (float)lineInfo.y, -16777216);
++            int $$11 = this.font.width((net.minecraft.network.chat.FormattedText)this.pageMsg);
++            this.font.draw($$0, this.pageMsg, (float)($$4 - $$11 + 192 - 44), 18.0f, 0);
++            net.minecraft.client.gui.screens.inventory.BookEditScreen$DisplayCache $$12 = this.getDisplayCache();
++            for (net.minecraft.client.gui.screens.inventory.BookEditScreen$LineInfo $$13 : $$12.lines) {
++                this.font.draw($$0, $$13.asComponent, (float)$$13.x, (float)$$13.y, -16777216);
+             }
+-            this.renderHighlight(displayCache.selection);
+-            this.renderCursor(matrixStack, displayCache.cursor, displayCache.cursorAtEnd);
++            this.renderHighlight($$12.selection);
++            this.renderCursor($$0, $$12.cursor, $$12.cursorAtEnd);
+         }
+-        super.render(matrixStack, mouseX, mouseY, partialTicks);
++        super.render($$0, $$1, $$2, $$3);
+     }
+ 
+-    public void renderCursor(com.mojang.blaze3d.vertex.PoseStack poseStack, net.minecraft.client.gui.screens.inventory.BookEditScreen$Pos2i cursorPos, boolean isEndOfText) {
++    public void renderCursor(com.mojang.blaze3d.vertex.PoseStack $$0, net.minecraft.client.gui.screens.inventory.BookEditScreen$Pos2i $$1, boolean $$2) {
+         if (this.frameTick / 6 % 2 == 0) {
+-            cursorPos = this.convertLocalToScreen(cursorPos);
+-            if (!isEndOfText) {
++            $$1 = this.convertLocalToScreen($$1);
++            if (!$$2) {
+                 java.util.Objects.requireNonNull((java.lang.Object)this.font);
+-                net.minecraft.client.gui.GuiComponent.fill((com.mojang.blaze3d.vertex.PoseStack)poseStack, (int)cursorPos.x, (int)(cursorPos.y - 1), (int)(cursorPos.x + 1), (int)(cursorPos.y + 9), (int)-16777216);
++                net.minecraft.client.gui.GuiComponent.fill((com.mojang.blaze3d.vertex.PoseStack)$$0, (int)$$1.x, (int)($$1.y - 1), (int)($$1.x + 1), (int)($$1.y + 9), (int)-16777216);
+             } else {
+-                this.font.draw(poseStack, "_", (float)cursorPos.x, (float)cursorPos.y, 0);
++                this.font.draw($$0, "_", (float)$$1.x, (float)$$1.y, 0);
+             }
+         }
+     }
+ 
+-    public void renderHighlight(net.minecraft.client.renderer.Rect2i[] selected) {
+-        com.mojang.blaze3d.vertex.Tesselator tesselator = com.mojang.blaze3d.vertex.Tesselator.getInstance();
+-        com.mojang.blaze3d.vertex.BufferBuilder bufferBuilder = tesselator.getBuilder();
++    public void renderHighlight(net.minecraft.client.renderer.Rect2i[] $$0) {
++        com.mojang.blaze3d.vertex.Tesselator $$1 = com.mojang.blaze3d.vertex.Tesselator.getInstance();
++        com.mojang.blaze3d.vertex.BufferBuilder $$2 = $$1.getBuilder();
+         com.mojang.blaze3d.systems.RenderSystem.setShader(net.minecraft.client.renderer.GameRenderer::getPositionShader);
+         com.mojang.blaze3d.systems.RenderSystem.setShaderColor((float)0.0f, (float)0.0f, (float)255.0f, (float)255.0f);
+         com.mojang.blaze3d.systems.RenderSystem.disableTexture();
+         com.mojang.blaze3d.systems.RenderSystem.enableColorLogicOp();
+         com.mojang.blaze3d.systems.RenderSystem.logicOp((com.mojang.blaze3d.platform.GlStateManager$LogicOp)com.mojang.blaze3d.platform.GlStateManager$LogicOp.OR_REVERSE);
+-        bufferBuilder.begin(com.mojang.blaze3d.vertex.VertexFormat$Mode.QUADS, com.mojang.blaze3d.vertex.DefaultVertexFormat.POSITION);
+-        for (net.minecraft.client.renderer.Rect2i rect2i : selected) {
+-            int n = rect2i.getX();
+-            int n2 = rect2i.getY();
+-            int n3 = n + rect2i.getWidth();
+-            int n4 = n2 + rect2i.getHeight();
+-            bufferBuilder.vertex((double)n, (double)n4, 0.0).endVertex();
+-            bufferBuilder.vertex((double)n3, (double)n4, 0.0).endVertex();
+-            bufferBuilder.vertex((double)n3, (double)n2, 0.0).endVertex();
+-            bufferBuilder.vertex((double)n, (double)n2, 0.0).endVertex();
++        $$2.begin(com.mojang.blaze3d.vertex.VertexFormat$Mode.QUADS, com.mojang.blaze3d.vertex.DefaultVertexFormat.POSITION);
++        for (net.minecraft.client.renderer.Rect2i $$3 : $$0) {
++            int $$4 = $$3.getX();
++            int $$5 = $$3.getY();
++            int $$6 = $$4 + $$3.getWidth();
++            int $$7 = $$5 + $$3.getHeight();
++            $$2.vertex((double)$$4, (double)$$7, 0.0).endVertex();
++            $$2.vertex((double)$$6, (double)$$7, 0.0).endVertex();
++            $$2.vertex((double)$$6, (double)$$5, 0.0).endVertex();
++            $$2.vertex((double)$$4, (double)$$5, 0.0).endVertex();
+         }
+-        tesselator.end();
++        $$1.end();
+         com.mojang.blaze3d.systems.RenderSystem.disableColorLogicOp();
+         com.mojang.blaze3d.systems.RenderSystem.enableTexture();
+     }
+ 
+-    public net.minecraft.client.gui.screens.inventory.BookEditScreen$Pos2i convertScreenToLocal(net.minecraft.client.gui.screens.inventory.BookEditScreen$Pos2i screenPos) {
+-        return new net.minecraft.client.gui.screens.inventory.BookEditScreen$Pos2i(screenPos.x - (this.width - 192) / 2 - 36, screenPos.y - 32);
++    public net.minecraft.client.gui.screens.inventory.BookEditScreen$Pos2i convertScreenToLocal(net.minecraft.client.gui.screens.inventory.BookEditScreen$Pos2i $$0) {
++        return new net.minecraft.client.gui.screens.inventory.BookEditScreen$Pos2i($$0.x - (this.width - 192) / 2 - 36, $$0.y - 32);
+     }
+ 
+-    public net.minecraft.client.gui.screens.inventory.BookEditScreen$Pos2i convertLocalToScreen(net.minecraft.client.gui.screens.inventory.BookEditScreen$Pos2i localScreenPos) {
+-        return new net.minecraft.client.gui.screens.inventory.BookEditScreen$Pos2i(localScreenPos.x + (this.width - 192) / 2 + 36, localScreenPos.y + 32);
++    public net.minecraft.client.gui.screens.inventory.BookEditScreen$Pos2i convertLocalToScreen(net.minecraft.client.gui.screens.inventory.BookEditScreen$Pos2i $$0) {
++        return new net.minecraft.client.gui.screens.inventory.BookEditScreen$Pos2i($$0.x + (this.width - 192) / 2 + 36, $$0.y + 32);
+     }
+ 
+-    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+-        if (super.mouseClicked(mouseX, mouseY, button)) {
++    public boolean mouseClicked(double $$0, double $$1, int $$2) {
++        if (super.mouseClicked($$0, $$1, $$2)) {
+             return true;
+         }
+-        if (button == 0) {
+-            long l = net.minecraft.Util.getMillis();
+-            net.minecraft.client.gui.screens.inventory.BookEditScreen$DisplayCache displayCache = this.getDisplayCache();
+-            int n = displayCache.getIndexAtPosition(this.font, this.convertScreenToLocal(new net.minecraft.client.gui.screens.inventory.BookEditScreen$Pos2i((int)mouseX, (int)mouseY)));
+-            if (n >= 0) {
+-                if (n == this.lastIndex && l - this.lastClickTime < 250L) {
++        if ($$2 == 0) {
++            long $$3 = net.minecraft.Util.getMillis();
++            net.minecraft.client.gui.screens.inventory.BookEditScreen$DisplayCache $$4 = this.getDisplayCache();
++            int $$5 = $$4.getIndexAtPosition(this.font, this.convertScreenToLocal(new net.minecraft.client.gui.screens.inventory.BookEditScreen$Pos2i((int)$$0, (int)$$1)));
++            if ($$5 >= 0) {
++                if ($$5 == this.lastIndex && $$3 - this.lastClickTime < 250L) {
+                     if (!this.pageEdit.isSelecting()) {
+-                        this.selectWord(n);
++                        this.selectWord($$5);
+                     } else {
+                         this.pageEdit.selectAll();
+                     }
+                 } else {
+-                    this.pageEdit.setCursorPos(n, net.minecraft.client.gui.screens.Screen.hasShiftDown());
++                    this.pageEdit.setCursorPos($$5, net.minecraft.client.gui.screens.Screen.hasShiftDown());
+                 }
+                 this.clearDisplayCache();
+             }
+-            this.lastIndex = n;
+-            this.lastClickTime = l;
++            this.lastIndex = $$5;
++            this.lastClickTime = $$3;
+         }
+         return true;
+     }
+ 
+-    public void selectWord(int index) {
+-        java.lang.String string = this.getCurrentPageText();
+-        this.pageEdit.setSelectionRange(net.minecraft.client.StringSplitter.getWordPosition((java.lang.String)string, (int)-1, (int)index, (boolean)false), net.minecraft.client.StringSplitter.getWordPosition((java.lang.String)string, (int)1, (int)index, (boolean)false));
++    public void selectWord(int $$0) {
++        java.lang.String $$1 = this.getCurrentPageText();
++        this.pageEdit.setSelectionRange(net.minecraft.client.StringSplitter.getWordPosition((java.lang.String)$$1, (int)-1, (int)$$0, (boolean)false), net.minecraft.client.StringSplitter.getWordPosition((java.lang.String)$$1, (int)1, (int)$$0, (boolean)false));
+     }
+ 
+-    public boolean mouseDragged(double mouseX, double mouseY, int button, double dragX, double dragY) {
+-        if (super.mouseDragged(mouseX, mouseY, button, dragX, dragY)) {
++    public boolean mouseDragged(double $$0, double $$1, int $$2, double $$3, double $$4) {
++        if (super.mouseDragged($$0, $$1, $$2, $$3, $$4)) {
+             return true;
+         }
+-        if (button == 0) {
+-            net.minecraft.client.gui.screens.inventory.BookEditScreen$DisplayCache displayCache = this.getDisplayCache();
+-            int n = displayCache.getIndexAtPosition(this.font, this.convertScreenToLocal(new net.minecraft.client.gui.screens.inventory.BookEditScreen$Pos2i((int)mouseX, (int)mouseY)));
+-            this.pageEdit.setCursorPos(n, true);
++        if ($$2 == 0) {
++            net.minecraft.client.gui.screens.inventory.BookEditScreen$DisplayCache $$5 = this.getDisplayCache();
++            int $$6 = $$5.getIndexAtPosition(this.font, this.convertScreenToLocal(new net.minecraft.client.gui.screens.inventory.BookEditScreen$Pos2i((int)$$0, (int)$$1)));
++            this.pageEdit.setCursorPos($$6, true);
+             this.clearDisplayCache();
+         }
+         return true;

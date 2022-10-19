@@ -1,0 +1,71 @@
+--- net/minecraft/client/gui/chat/ChatPreviewRequests.java
++++ net/minecraft/client/gui/chat/ChatPreviewRequests.java
+@@ -1,68 +1,0 @@
+-/*
+- * Decompiled with CFR 0.151.
+- */
+-package net.minecraft.client.gui.chat;
+-
+-public class net.minecraft.client.gui.chat.ChatPreviewRequests
+- {
+-    public static long MIN_REQUEST_INTERVAL_MS = 100L;
+-    public static long MAX_REQUEST_INTERVAL_MS = 1000L;
+-    public net.minecraft.client.Minecraft minecraft;
+-    public net.minecraft.client.gui.chat.ChatPreviewRequests$QueryIdGenerator queryIdGenerator;
+-    @javax.annotation.Nullable
+-    public net.minecraft.client.gui.chat.ChatPreviewRequests$PendingPreview pending;
+-    public long lastRequestTime;
+-
+-    public net.minecraft.client.gui.chat.ChatPreviewRequests(net.minecraft.client.Minecraft $$0) {
+-        this.queryIdGenerator = new net.minecraft.client.gui.chat.ChatPreviewRequests$QueryIdGenerator();
+-        this.minecraft = $$0;
+-    }
+-
+-    public boolean trySendRequest(java.lang.String $$0, long $$1) {
+-        net.minecraft.client.multiplayer.ClientPacketListener $$2 = this.minecraft.getConnection();
+-        if ($$2 == null) {
+-            this.clear();
+-            return true;
+-        }
+-        if (this.pending != null && this.pending.matches($$0)) {
+-            return true;
+-        }
+-        if (this.minecraft.isLocalServer() || this.isRequestReady($$1)) {
+-            net.minecraft.client.gui.chat.ChatPreviewRequests$PendingPreview $$3;
+-            this.pending = $$3 = new net.minecraft.client.gui.chat.ChatPreviewRequests$PendingPreview(this.queryIdGenerator.next(), $$0);
+-            this.lastRequestTime = $$1;
+-            $$2.send((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ServerboundChatPreviewPacket($$3.id(), $$3.query()));
+-            return true;
+-        }
+-        return false;
+-    }
+-
+-    @javax.annotation.Nullable
+-    public java.lang.String handleResponse(int $$0) {
+-        if (this.pending != null && this.pending.matches($$0)) {
+-            java.lang.String $$1 = this.pending.query;
+-            this.pending = null;
+-            return $$1;
+-        }
+-        return null;
+-    }
+-
+-    public boolean isRequestReady(long $$0) {
+-        long $$1 = this.lastRequestTime + 100L;
+-        if ($$0 >= $$1) {
+-            long $$2 = this.lastRequestTime + 1000L;
+-            return this.pending == null || $$0 >= $$2;
+-        }
+-        return false;
+-    }
+-
+-    public void clear() {
+-        this.pending = null;
+-        this.lastRequestTime = 0L;
+-    }
+-
+-    public boolean isPending() {
+-        return this.pending != null;
+-    }
+-}
+-

@@ -1,0 +1,272 @@
+--- net/minecraft/world/item/crafting/ShapedRecipe.java
++++ net/minecraft/world/item/crafting/ShapedRecipe.java
+@@ -12,14 +12,16 @@
+     public net.minecraft.world.item.ItemStack result;
+     public net.minecraft.resources.ResourceLocation id;
+     public java.lang.String group;
++    public net.minecraft.world.item.crafting.CraftingBookCategory category;
+ 
+-    public net.minecraft.world.item.crafting.ShapedRecipe(net.minecraft.resources.ResourceLocation id, java.lang.String group, int width, int height, net.minecraft.core.NonNullList<net.minecraft.world.item.crafting.Ingredient> recipeItems, net.minecraft.world.item.ItemStack result) {
+-        this.id = id;
+-        this.group = group;
+-        this.width = width;
+-        this.height = height;
+-        this.recipeItems = recipeItems;
+-        this.result = result;
++    public net.minecraft.world.item.crafting.ShapedRecipe(net.minecraft.resources.ResourceLocation $$0, java.lang.String $$1, net.minecraft.world.item.crafting.CraftingBookCategory $$2, int $$3, int $$4, net.minecraft.core.NonNullList<net.minecraft.world.item.crafting.Ingredient> $$5, net.minecraft.world.item.ItemStack $$6) {
++        this.id = $$0;
++        this.group = $$1;
++        this.category = $$2;
++        this.width = $$3;
++        this.height = $$4;
++        this.recipeItems = $$5;
++        this.result = $$6;
+     }
+ 
+     public net.minecraft.resources.ResourceLocation getId() {
+@@ -34,6 +36,10 @@
+         return this.group;
+     }
+ 
++    public net.minecraft.world.item.crafting.CraftingBookCategory category() {
++        return this.category;
++    }
++
+     public net.minecraft.world.item.ItemStack getResultItem() {
+         return this.result;
+     }
+@@ -42,40 +48,40 @@
+         return this.recipeItems;
+     }
+ 
+-    public boolean canCraftInDimensions(int width, int height) {
+-        return width >= this.width && height >= this.height;
++    public boolean canCraftInDimensions(int $$0, int $$1) {
++        return $$0 >= this.width && $$1 >= this.height;
+     }
+ 
+-    public boolean matches(net.minecraft.world.inventory.CraftingContainer inv, net.minecraft.world.level.Level level) {
+-        for (int i = 0; i <= inv.getWidth() - this.width; ++i) {
+-            for (int j = 0; j <= inv.getHeight() - this.height; ++j) {
+-                if (this.matches(inv, i, j, true)) {
++    public boolean matches(net.minecraft.world.inventory.CraftingContainer $$0, net.minecraft.world.level.Level $$1) {
++        for (int $$2 = 0; $$2 <= $$0.getWidth() - this.width; ++$$2) {
++            for (int $$3 = 0; $$3 <= $$0.getHeight() - this.height; ++$$3) {
++                if (this.matches($$0, $$2, $$3, true)) {
+                     return true;
+                 }
+-                if (!this.matches(inv, i, j, false)) continue;
++                if (!this.matches($$0, $$2, $$3, false)) continue;
+                 return true;
+             }
+         }
+         return false;
+     }
+ 
+-    public boolean matches(net.minecraft.world.inventory.CraftingContainer craftingInventory, int width, int height, boolean mirrored) {
+-        for (int i = 0; i < craftingInventory.getWidth(); ++i) {
+-            for (int j = 0; j < craftingInventory.getHeight(); ++j) {
+-                int n = i - width;
+-                int n2 = j - height;
+-                net.minecraft.world.item.crafting.Ingredient ingredient = net.minecraft.world.item.crafting.Ingredient.EMPTY;
+-                if (n >= 0 && n2 >= 0 && n < this.width && n2 < this.height) {
+-                    ingredient = mirrored ? (net.minecraft.world.item.crafting.Ingredient)this.recipeItems.get(this.width - n - 1 + n2 * this.width) : (net.minecraft.world.item.crafting.Ingredient)this.recipeItems.get(n + n2 * this.width);
++    public boolean matches(net.minecraft.world.inventory.CraftingContainer $$0, int $$1, int $$2, boolean $$3) {
++        for (int $$4 = 0; $$4 < $$0.getWidth(); ++$$4) {
++            for (int $$5 = 0; $$5 < $$0.getHeight(); ++$$5) {
++                int $$6 = $$4 - $$1;
++                int $$7 = $$5 - $$2;
++                net.minecraft.world.item.crafting.Ingredient $$8 = net.minecraft.world.item.crafting.Ingredient.EMPTY;
++                if ($$6 >= 0 && $$7 >= 0 && $$6 < this.width && $$7 < this.height) {
++                    $$8 = $$3 ? (net.minecraft.world.item.crafting.Ingredient)this.recipeItems.get(this.width - $$6 - 1 + $$7 * this.width) : (net.minecraft.world.item.crafting.Ingredient)this.recipeItems.get($$6 + $$7 * this.width);
+                 }
+-                if (ingredient.test(craftingInventory.getItem(i + j * craftingInventory.getWidth()))) continue;
++                if ($$8.test($$0.getItem($$4 + $$5 * $$0.getWidth()))) continue;
+                 return false;
+             }
+         }
+         return true;
+     }
+ 
+-    public net.minecraft.world.item.ItemStack assemble(net.minecraft.world.inventory.CraftingContainer inv) {
++    public net.minecraft.world.item.ItemStack assemble(net.minecraft.world.inventory.CraftingContainer $$0) {
+         return this.getResultItem().copy();
+     }
+ 
+@@ -87,55 +93,55 @@
+         return this.height;
+     }
+ 
+-    public static net.minecraft.core.NonNullList<net.minecraft.world.item.crafting.Ingredient> dissolvePattern(java.lang.String[] pattern, java.util.Map<java.lang.String, net.minecraft.world.item.crafting.Ingredient> keys, int patternWidth, int patternHeight) {
+-        net.minecraft.core.NonNullList nonNullList = net.minecraft.core.NonNullList.withSize((int)(patternWidth * patternHeight), (java.lang.Object)net.minecraft.world.item.crafting.Ingredient.EMPTY);
+-        java.util.HashSet hashSet = com.google.common.collect.Sets.newHashSet((java.lang.Iterable)keys.keySet());
+-        hashSet.remove((java.lang.Object)" ");
+-        for (int i = 0; i < pattern.length; ++i) {
+-            for (int j = 0; j < pattern[i].length(); ++j) {
+-                java.lang.String string = pattern[i].substring(j, j + 1);
+-                net.minecraft.world.item.crafting.Ingredient ingredient = (net.minecraft.world.item.crafting.Ingredient)keys.get((java.lang.Object)string);
+-                if (ingredient == null) {
+-                    throw new com.google.gson.JsonSyntaxException("Pattern references symbol '" + string + "' but it's not defined in the key");
++    public static net.minecraft.core.NonNullList<net.minecraft.world.item.crafting.Ingredient> dissolvePattern(java.lang.String[] $$0, java.util.Map<java.lang.String, net.minecraft.world.item.crafting.Ingredient> $$1, int $$2, int $$3) {
++        net.minecraft.core.NonNullList $$4 = net.minecraft.core.NonNullList.withSize((int)($$2 * $$3), (java.lang.Object)net.minecraft.world.item.crafting.Ingredient.EMPTY);
++        java.util.HashSet $$5 = com.google.common.collect.Sets.newHashSet((java.lang.Iterable)$$1.keySet());
++        $$5.remove((java.lang.Object)" ");
++        for (int $$6 = 0; $$6 < $$0.length; ++$$6) {
++            for (int $$7 = 0; $$7 < $$0[$$6].length(); ++$$7) {
++                java.lang.String $$8 = $$0[$$6].substring($$7, $$7 + 1);
++                net.minecraft.world.item.crafting.Ingredient $$9 = (net.minecraft.world.item.crafting.Ingredient)$$1.get((java.lang.Object)$$8);
++                if ($$9 == null) {
++                    throw new com.google.gson.JsonSyntaxException("Pattern references symbol '" + $$8 + "' but it's not defined in the key");
+                 }
+-                hashSet.remove((java.lang.Object)string);
+-                nonNullList.set(j + patternWidth * i, (java.lang.Object)ingredient);
++                $$5.remove((java.lang.Object)$$8);
++                $$4.set($$7 + $$2 * $$6, (java.lang.Object)$$9);
+             }
+         }
+-        if (!hashSet.isEmpty()) {
+-            throw new com.google.gson.JsonSyntaxException("Key defines symbols that aren't used in pattern: " + (java.util.Set)hashSet);
++        if (!$$5.isEmpty()) {
++            throw new com.google.gson.JsonSyntaxException("Key defines symbols that aren't used in pattern: " + (java.util.Set)$$5);
+         }
+-        return nonNullList;
++        return $$4;
+     }
+ 
+     @com.google.common.annotations.VisibleForTesting
+-    public static java.lang.String[] shrink(java.lang.String ... toShrink) {
+-        int n = java.lang.Integer.MAX_VALUE;
+-        int n2 = 0;
+-        int n3 = 0;
+-        int n4 = 0;
+-        for (int i = 0; i < toShrink.length; ++i) {
+-            java.lang.String string = toShrink[i];
+-            n = java.lang.Math.min((int)n, (int)net.minecraft.world.item.crafting.ShapedRecipe.firstNonSpace((java.lang.String)string));
+-            int n5 = net.minecraft.world.item.crafting.ShapedRecipe.lastNonSpace((java.lang.String)string);
+-            n2 = java.lang.Math.max((int)n2, (int)n5);
+-            if (n5 < 0) {
+-                if (n3 == i) {
+-                    ++n3;
++    public static java.lang.String[] shrink(java.lang.String ... $$0) {
++        int $$1 = java.lang.Integer.MAX_VALUE;
++        int $$2 = 0;
++        int $$3 = 0;
++        int $$4 = 0;
++        for (int $$5 = 0; $$5 < $$0.length; ++$$5) {
++            java.lang.String $$6 = $$0[$$5];
++            $$1 = java.lang.Math.min((int)$$1, (int)net.minecraft.world.item.crafting.ShapedRecipe.firstNonSpace((java.lang.String)$$6));
++            int $$7 = net.minecraft.world.item.crafting.ShapedRecipe.lastNonSpace((java.lang.String)$$6);
++            $$2 = java.lang.Math.max((int)$$2, (int)$$7);
++            if ($$7 < 0) {
++                if ($$3 == $$5) {
++                    ++$$3;
+                 }
+-                ++n4;
++                ++$$4;
+                 continue;
+             }
+-            n4 = 0;
++            $$4 = 0;
+         }
+-        if (toShrink.length == n4) {
++        if ($$0.length == $$4) {
+             return new java.lang.String[0];
+         }
+-        java.lang.String[] stringArray = new java.lang.String[toShrink.length - n4 - n3];
+-        for (int i = 0; i < stringArray.length; ++i) {
+-            stringArray[i] = toShrink[i + n3].substring(n, n2 + 1);
++        java.lang.String[] $$8 = new java.lang.String[$$0.length - $$4 - $$3];
++        for (int $$9 = 0; $$9 < $$8.length; ++$$9) {
++            $$8[$$9] = $$0[$$9 + $$3].substring($$1, $$2 + 1);
+         }
+-        return stringArray;
++        return $$8;
+     }
+ 
+     public boolean isIncomplete() {
+@@ -143,56 +149,56 @@
+         return $$02.isEmpty() || $$02.stream().filter($$0 -> !$$0.isEmpty()).anyMatch($$0 -> $$0.getItems().length == 0);
+     }
+ 
+-    public static int firstNonSpace(java.lang.String entry) {
+-        int n;
+-        for (n = 0;
+- n < entry.length() && entry.charAt(n) == ' '; ++n) {
++    public static int firstNonSpace(java.lang.String $$0) {
++        int $$1;
++        for ($$1 = 0;
++ $$1 < $$0.length() && $$0.charAt($$1) == ' '; ++$$1) {
+         }
+-        return n;
++        return $$1;
+     }
+ 
+-    public static int lastNonSpace(java.lang.String entry) {
+-        int n;
+-        for (n = entry.length() - 1;
+- n >= 0 && entry.charAt(n) == ' '; --n) {
++    public static int lastNonSpace(java.lang.String $$0) {
++        int $$1;
++        for ($$1 = $$0.length() - 1;
++ $$1 >= 0 && $$0.charAt($$1) == ' '; --$$1) {
+         }
+-        return n;
++        return $$1;
+     }
+ 
+-    public static java.lang.String[] patternFromJson(com.google.gson.JsonArray patternArray) {
+-        java.lang.String[] stringArray = new java.lang.String[patternArray.size()];
+-        if (stringArray.length > 3) {
++    public static java.lang.String[] patternFromJson(com.google.gson.JsonArray $$0) {
++        java.lang.String[] $$1 = new java.lang.String[$$0.size()];
++        if ($$1.length > 3) {
+             throw new com.google.gson.JsonSyntaxException("Invalid pattern: too many rows, 3 is maximum");
+         }
+-        if (stringArray.length == 0) {
++        if ($$1.length == 0) {
+             throw new com.google.gson.JsonSyntaxException("Invalid pattern: empty pattern not allowed");
+         }
+-        for (int i = 0; i < stringArray.length; ++i) {
+-            java.lang.String string = net.minecraft.util.GsonHelper.convertToString((com.google.gson.JsonElement)patternArray.get(i), (java.lang.String)("pattern[" + i + "]"));
+-            if (string.length() > 3) {
++        for (int $$2 = 0; $$2 < $$1.length; ++$$2) {
++            java.lang.String $$3 = net.minecraft.util.GsonHelper.convertToString((com.google.gson.JsonElement)$$0.get($$2), (java.lang.String)("pattern[" + $$2 + "]"));
++            if ($$3.length() > 3) {
+                 throw new com.google.gson.JsonSyntaxException("Invalid pattern: too many columns, 3 is maximum");
+             }
+-            if (i > 0 && stringArray[0].length() != string.length()) {
++            if ($$2 > 0 && $$1[0].length() != $$3.length()) {
+                 throw new com.google.gson.JsonSyntaxException("Invalid pattern: each row must be the same width");
+             }
+-            stringArray[i] = string;
++            $$1[$$2] = $$3;
+         }
+-        return stringArray;
++        return $$1;
+     }
+ 
+-    public static java.util.Map<java.lang.String, net.minecraft.world.item.crafting.Ingredient> keyFromJson(com.google.gson.JsonObject keyEntry) {
+-        java.util.HashMap hashMap = com.google.common.collect.Maps.newHashMap();
+-        for (java.util.Map$Entry entry : keyEntry.entrySet()) {
+-            if (((java.lang.String)entry.getKey()).length() != 1) {
+-                throw new com.google.gson.JsonSyntaxException("Invalid key entry: '" + (java.lang.String)entry.getKey() + "' is an invalid symbol (must be 1 character only).");
++    public static java.util.Map<java.lang.String, net.minecraft.world.item.crafting.Ingredient> keyFromJson(com.google.gson.JsonObject $$0) {
++        java.util.HashMap $$1 = com.google.common.collect.Maps.newHashMap();
++        for (java.util.Map$Entry $$2 : $$0.entrySet()) {
++            if (((java.lang.String)$$2.getKey()).length() != 1) {
++                throw new com.google.gson.JsonSyntaxException("Invalid key entry: '" + (java.lang.String)$$2.getKey() + "' is an invalid symbol (must be 1 character only).");
+             }
+-            if (" ".equals(entry.getKey())) {
++            if (" ".equals($$2.getKey())) {
+                 throw new com.google.gson.JsonSyntaxException("Invalid key entry: ' ' is a reserved symbol.");
+             }
+-            hashMap.put((java.lang.Object)((java.lang.String)entry.getKey()), (java.lang.Object)net.minecraft.world.item.crafting.Ingredient.fromJson((com.google.gson.JsonElement)((com.google.gson.JsonElement)entry.getValue())));
++            $$1.put((java.lang.Object)((java.lang.String)$$2.getKey()), (java.lang.Object)net.minecraft.world.item.crafting.Ingredient.fromJson((com.google.gson.JsonElement)((com.google.gson.JsonElement)$$2.getValue())));
+         }
+-        hashMap.put((java.lang.Object)" ", (java.lang.Object)net.minecraft.world.item.crafting.Ingredient.EMPTY);
+-        return hashMap;
++        $$1.put((java.lang.Object)" ", (java.lang.Object)net.minecraft.world.item.crafting.Ingredient.EMPTY);
++        return $$1;
+     }
+ 
+     public static net.minecraft.world.item.ItemStack itemStackFromJson(com.google.gson.JsonObject $$0) {

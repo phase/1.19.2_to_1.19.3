@@ -1,0 +1,325 @@
+--- net/minecraft/world/level/block/BeehiveBlock.java
++++ net/minecraft/world/level/block/BeehiveBlock.java
+@@ -16,104 +16,104 @@
+         this.registerDefaultState((net.minecraft.world.level.block.state.BlockState)((net.minecraft.world.level.block.state.BlockState)((net.minecraft.world.level.block.state.BlockState)this.stateDefinition.any()).setValue((net.minecraft.world.level.block.state.properties.Property)HONEY_LEVEL, (java.lang.Comparable)java.lang.Integer.valueOf((int)0))).setValue((net.minecraft.world.level.block.state.properties.Property)FACING, (java.lang.Comparable)net.minecraft.core.Direction.NORTH));
+     }
+ 
+-    public boolean hasAnalogOutputSignal(net.minecraft.world.level.block.state.BlockState state) {
++    public boolean hasAnalogOutputSignal(net.minecraft.world.level.block.state.BlockState $$0) {
+         return true;
+     }
+ 
+-    public int getAnalogOutputSignal(net.minecraft.world.level.block.state.BlockState blockState, net.minecraft.world.level.Level level, net.minecraft.core.BlockPos pos) {
+-        return (java.lang.Integer)blockState.getValue((net.minecraft.world.level.block.state.properties.Property)HONEY_LEVEL);
++    public int getAnalogOutputSignal(net.minecraft.world.level.block.state.BlockState $$0, net.minecraft.world.level.Level $$1, net.minecraft.core.BlockPos $$2) {
++        return (java.lang.Integer)$$0.getValue((net.minecraft.world.level.block.state.properties.Property)HONEY_LEVEL);
+     }
+ 
+-    public void playerDestroy(net.minecraft.world.level.Level level, net.minecraft.world.entity.player.Player player, net.minecraft.core.BlockPos pos, net.minecraft.world.level.block.state.BlockState state, @javax.annotation.Nullable net.minecraft.world.level.block.entity.BlockEntity te, net.minecraft.world.item.ItemStack stack) {
+-        super.playerDestroy(level, player, pos, state, te, stack);
+-        if (!level.isClientSide && te instanceof net.minecraft.world.level.block.entity.BeehiveBlockEntity) {
+-            net.minecraft.world.level.block.entity.BeehiveBlockEntity beehiveBlockEntity = (net.minecraft.world.level.block.entity.BeehiveBlockEntity)te;
+-            if (net.minecraft.world.item.enchantment.EnchantmentHelper.getItemEnchantmentLevel((net.minecraft.world.item.enchantment.Enchantment)net.minecraft.world.item.enchantment.Enchantments.SILK_TOUCH, (net.minecraft.world.item.ItemStack)stack) == 0) {
+-                beehiveBlockEntity.emptyAllLivingFromHive(player, state, net.minecraft.world.level.block.entity.BeehiveBlockEntity$BeeReleaseStatus.EMERGENCY);
+-                level.updateNeighbourForOutputSignal(pos, (net.minecraft.world.level.block.Block)this);
+-                this.angerNearbyBees(level, pos);
++    public void playerDestroy(net.minecraft.world.level.Level $$0, net.minecraft.world.entity.player.Player $$1, net.minecraft.core.BlockPos $$2, net.minecraft.world.level.block.state.BlockState $$3, @javax.annotation.Nullable net.minecraft.world.level.block.entity.BlockEntity $$4, net.minecraft.world.item.ItemStack $$5) {
++        super.playerDestroy($$0, $$1, $$2, $$3, $$4, $$5);
++        if (!$$0.isClientSide && $$4 instanceof net.minecraft.world.level.block.entity.BeehiveBlockEntity) {
++            net.minecraft.world.level.block.entity.BeehiveBlockEntity $$6 = (net.minecraft.world.level.block.entity.BeehiveBlockEntity)$$4;
++            if (net.minecraft.world.item.enchantment.EnchantmentHelper.getItemEnchantmentLevel((net.minecraft.world.item.enchantment.Enchantment)net.minecraft.world.item.enchantment.Enchantments.SILK_TOUCH, (net.minecraft.world.item.ItemStack)$$5) == 0) {
++                $$6.emptyAllLivingFromHive($$1, $$3, net.minecraft.world.level.block.entity.BeehiveBlockEntity$BeeReleaseStatus.EMERGENCY);
++                $$0.updateNeighbourForOutputSignal($$2, (net.minecraft.world.level.block.Block)this);
++                this.angerNearbyBees($$0, $$2);
+             }
+-            net.minecraft.advancements.CriteriaTriggers.BEE_NEST_DESTROYED.trigger((net.minecraft.server.level.ServerPlayer)player, state, stack, beehiveBlockEntity.getOccupantCount());
++            net.minecraft.advancements.CriteriaTriggers.BEE_NEST_DESTROYED.trigger((net.minecraft.server.level.ServerPlayer)$$1, $$3, $$5, $$6.getOccupantCount());
+         }
+     }
+ 
+-    public void angerNearbyBees(net.minecraft.world.level.Level level, net.minecraft.core.BlockPos pos) {
+-        java.util.List list = level.getEntitiesOfClass(net.minecraft.world.entity.animal.Bee.class, new net.minecraft.world.phys.AABB(pos).inflate(8.0, 6.0, 8.0));
+-        if (!list.isEmpty()) {
+-            java.util.List list2 = level.getEntitiesOfClass(net.minecraft.world.entity.player.Player.class, new net.minecraft.world.phys.AABB(pos).inflate(8.0, 6.0, 8.0));
+-            int n = list2.size();
+-            for (net.minecraft.world.entity.animal.Bee bee : list) {
+-                if (bee.getTarget() != null) continue;
+-                bee.setTarget((net.minecraft.world.entity.LivingEntity)list2.get(level.random.nextInt(n)));
++    public void angerNearbyBees(net.minecraft.world.level.Level $$0, net.minecraft.core.BlockPos $$1) {
++        java.util.List $$2 = $$0.getEntitiesOfClass(net.minecraft.world.entity.animal.Bee.class, new net.minecraft.world.phys.AABB($$1).inflate(8.0, 6.0, 8.0));
++        if (!$$2.isEmpty()) {
++            java.util.List $$3 = $$0.getEntitiesOfClass(net.minecraft.world.entity.player.Player.class, new net.minecraft.world.phys.AABB($$1).inflate(8.0, 6.0, 8.0));
++            int $$4 = $$3.size();
++            for (net.minecraft.world.entity.animal.Bee $$5 : $$2) {
++                if ($$5.getTarget() != null) continue;
++                $$5.setTarget((net.minecraft.world.entity.LivingEntity)$$3.get($$0.random.nextInt($$4)));
+             }
+         }
+     }
+ 
+-    public static void dropHoneycomb(net.minecraft.world.level.Level level, net.minecraft.core.BlockPos pos) {
+-        net.minecraft.world.level.block.BeehiveBlock.popResource((net.minecraft.world.level.Level)level, (net.minecraft.core.BlockPos)pos, (net.minecraft.world.item.ItemStack)new net.minecraft.world.item.ItemStack((net.minecraft.world.level.ItemLike)net.minecraft.world.item.Items.HONEYCOMB, 3));
++    public static void dropHoneycomb(net.minecraft.world.level.Level $$0, net.minecraft.core.BlockPos $$1) {
++        net.minecraft.world.level.block.BeehiveBlock.popResource((net.minecraft.world.level.Level)$$0, (net.minecraft.core.BlockPos)$$1, (net.minecraft.world.item.ItemStack)new net.minecraft.world.item.ItemStack((net.minecraft.world.level.ItemLike)net.minecraft.world.item.Items.HONEYCOMB, 3));
+     }
+ 
+-    public net.minecraft.world.InteractionResult use(net.minecraft.world.level.block.state.BlockState state, net.minecraft.world.level.Level level, net.minecraft.core.BlockPos pos, net.minecraft.world.entity.player.Player player, net.minecraft.world.InteractionHand hand, net.minecraft.world.phys.BlockHitResult hit) {
+-        net.minecraft.world.item.ItemStack itemStack = player.getItemInHand(hand);
+-        int n = (java.lang.Integer)state.getValue((net.minecraft.world.level.block.state.properties.Property)HONEY_LEVEL);
+-        boolean bl = false;
+-        if (n >= 5) {
+-            net.minecraft.world.item.Item item = itemStack.getItem();
+-            if (itemStack.is(net.minecraft.world.item.Items.SHEARS)) {
+-                level.playSound(player, player.getX(), player.getY(), player.getZ(), net.minecraft.sounds.SoundEvents.BEEHIVE_SHEAR, net.minecraft.sounds.SoundSource.NEUTRAL, 1.0f, 1.0f);
+-                net.minecraft.world.level.block.BeehiveBlock.dropHoneycomb((net.minecraft.world.level.Level)level, (net.minecraft.core.BlockPos)pos);
+-                itemStack.hurtAndBreak(1, (net.minecraft.world.entity.LivingEntity)player, $$1 -> $$1.broadcastBreakEvent(hand));
+-                bl = true;
+-                level.gameEvent((net.minecraft.world.entity.Entity)player, net.minecraft.world.level.gameevent.GameEvent.SHEAR, pos);
+-            } else if (itemStack.is(net.minecraft.world.item.Items.GLASS_BOTTLE)) {
+-                itemStack.shrink(1);
+-                level.playSound(player, player.getX(), player.getY(), player.getZ(), net.minecraft.sounds.SoundEvents.BOTTLE_FILL, net.minecraft.sounds.SoundSource.NEUTRAL, 1.0f, 1.0f);
+-                if (itemStack.isEmpty()) {
+-                    player.setItemInHand(hand, new net.minecraft.world.item.ItemStack((net.minecraft.world.level.ItemLike)net.minecraft.world.item.Items.HONEY_BOTTLE));
+-                } else if (!player.getInventory().add(new net.minecraft.world.item.ItemStack((net.minecraft.world.level.ItemLike)net.minecraft.world.item.Items.HONEY_BOTTLE))) {
+-                    player.drop(new net.minecraft.world.item.ItemStack((net.minecraft.world.level.ItemLike)net.minecraft.world.item.Items.HONEY_BOTTLE), false);
++    public net.minecraft.world.InteractionResult use(net.minecraft.world.level.block.state.BlockState $$0, net.minecraft.world.level.Level $$12, net.minecraft.core.BlockPos $$2, net.minecraft.world.entity.player.Player $$3, net.minecraft.world.InteractionHand $$4, net.minecraft.world.phys.BlockHitResult $$5) {
++        net.minecraft.world.item.ItemStack $$6 = $$3.getItemInHand($$4);
++        int $$7 = (java.lang.Integer)$$0.getValue((net.minecraft.world.level.block.state.properties.Property)HONEY_LEVEL);
++        boolean $$8 = false;
++        if ($$7 >= 5) {
++            net.minecraft.world.item.Item $$9 = $$6.getItem();
++            if ($$6.is(net.minecraft.world.item.Items.SHEARS)) {
++                $$12.playSound($$3, $$3.getX(), $$3.getY(), $$3.getZ(), net.minecraft.sounds.SoundEvents.BEEHIVE_SHEAR, net.minecraft.sounds.SoundSource.BLOCKS, 1.0f, 1.0f);
++                net.minecraft.world.level.block.BeehiveBlock.dropHoneycomb((net.minecraft.world.level.Level)$$12, (net.minecraft.core.BlockPos)$$2);
++                $$6.hurtAndBreak(1, (net.minecraft.world.entity.LivingEntity)$$3, $$1 -> $$1.broadcastBreakEvent($$4));
++                $$8 = true;
++                $$12.gameEvent((net.minecraft.world.entity.Entity)$$3, net.minecraft.world.level.gameevent.GameEvent.SHEAR, $$2);
++            } else if ($$6.is(net.minecraft.world.item.Items.GLASS_BOTTLE)) {
++                $$6.shrink(1);
++                $$12.playSound($$3, $$3.getX(), $$3.getY(), $$3.getZ(), net.minecraft.sounds.SoundEvents.BOTTLE_FILL, net.minecraft.sounds.SoundSource.BLOCKS, 1.0f, 1.0f);
++                if ($$6.isEmpty()) {
++                    $$3.setItemInHand($$4, new net.minecraft.world.item.ItemStack((net.minecraft.world.level.ItemLike)net.minecraft.world.item.Items.HONEY_BOTTLE));
++                } else if (!$$3.getInventory().add(new net.minecraft.world.item.ItemStack((net.minecraft.world.level.ItemLike)net.minecraft.world.item.Items.HONEY_BOTTLE))) {
++                    $$3.drop(new net.minecraft.world.item.ItemStack((net.minecraft.world.level.ItemLike)net.minecraft.world.item.Items.HONEY_BOTTLE), false);
+                 }
+-                bl = true;
+-                level.gameEvent((net.minecraft.world.entity.Entity)player, net.minecraft.world.level.gameevent.GameEvent.FLUID_PICKUP, pos);
++                $$8 = true;
++                $$12.gameEvent((net.minecraft.world.entity.Entity)$$3, net.minecraft.world.level.gameevent.GameEvent.FLUID_PICKUP, $$2);
+             }
+-            if (!level.isClientSide() && bl) {
+-                player.awardStat(net.minecraft.stats.Stats.ITEM_USED.get((java.lang.Object)item));
++            if (!$$12.isClientSide() && $$8) {
++                $$3.awardStat(net.minecraft.stats.Stats.ITEM_USED.get((java.lang.Object)$$9));
+             }
+         }
+-        if (bl) {
+-            if (!net.minecraft.world.level.block.CampfireBlock.isSmokeyPos((net.minecraft.world.level.Level)level, (net.minecraft.core.BlockPos)pos)) {
+-                if (this.hiveContainsBees(level, pos)) {
+-                    this.angerNearbyBees(level, pos);
++        if ($$8) {
++            if (!net.minecraft.world.level.block.CampfireBlock.isSmokeyPos((net.minecraft.world.level.Level)$$12, (net.minecraft.core.BlockPos)$$2)) {
++                if (this.hiveContainsBees($$12, $$2)) {
++                    this.angerNearbyBees($$12, $$2);
+                 }
+-                this.releaseBeesAndResetHoneyLevel(level, state, pos, player, net.minecraft.world.level.block.entity.BeehiveBlockEntity$BeeReleaseStatus.EMERGENCY);
++                this.releaseBeesAndResetHoneyLevel($$12, $$0, $$2, $$3, net.minecraft.world.level.block.entity.BeehiveBlockEntity$BeeReleaseStatus.EMERGENCY);
+             } else {
+-                this.resetHoneyLevel(level, state, pos);
++                this.resetHoneyLevel($$12, $$0, $$2);
+             }
+-            return net.minecraft.world.InteractionResult.sidedSuccess((boolean)level.isClientSide);
++            return net.minecraft.world.InteractionResult.sidedSuccess((boolean)$$12.isClientSide);
+         }
+-        return super.use(state, level, pos, player, hand, hit);
++        return super.use($$0, $$12, $$2, $$3, $$4, $$5);
+     }
+ 
+-    public boolean hiveContainsBees(net.minecraft.world.level.Level level, net.minecraft.core.BlockPos pos) {
+-        net.minecraft.world.level.block.entity.BlockEntity blockEntity = level.getBlockEntity(pos);
+-        if (blockEntity instanceof net.minecraft.world.level.block.entity.BeehiveBlockEntity) {
+-            net.minecraft.world.level.block.entity.BeehiveBlockEntity beehiveBlockEntity = (net.minecraft.world.level.block.entity.BeehiveBlockEntity)blockEntity;
+-            return !beehiveBlockEntity.isEmpty();
++    public boolean hiveContainsBees(net.minecraft.world.level.Level $$0, net.minecraft.core.BlockPos $$1) {
++        net.minecraft.world.level.block.entity.BlockEntity $$2 = $$0.getBlockEntity($$1);
++        if ($$2 instanceof net.minecraft.world.level.block.entity.BeehiveBlockEntity) {
++            net.minecraft.world.level.block.entity.BeehiveBlockEntity $$3 = (net.minecraft.world.level.block.entity.BeehiveBlockEntity)$$2;
++            return !$$3.isEmpty();
+         }
+         return false;
+     }
+ 
+-    public void releaseBeesAndResetHoneyLevel(net.minecraft.world.level.Level level, net.minecraft.world.level.block.state.BlockState state, net.minecraft.core.BlockPos pos, @javax.annotation.Nullable net.minecraft.world.entity.player.Player player, net.minecraft.world.level.block.entity.BeehiveBlockEntity$BeeReleaseStatus beeReleaseStatus) {
+-        this.resetHoneyLevel(level, state, pos);
+-        net.minecraft.world.level.block.entity.BlockEntity blockEntity = level.getBlockEntity(pos);
+-        if (blockEntity instanceof net.minecraft.world.level.block.entity.BeehiveBlockEntity) {
+-            net.minecraft.world.level.block.entity.BeehiveBlockEntity beehiveBlockEntity = (net.minecraft.world.level.block.entity.BeehiveBlockEntity)blockEntity;
+-            beehiveBlockEntity.emptyAllLivingFromHive(player, state, beeReleaseStatus);
++    public void releaseBeesAndResetHoneyLevel(net.minecraft.world.level.Level $$0, net.minecraft.world.level.block.state.BlockState $$1, net.minecraft.core.BlockPos $$2, @javax.annotation.Nullable net.minecraft.world.entity.player.Player $$3, net.minecraft.world.level.block.entity.BeehiveBlockEntity$BeeReleaseStatus $$4) {
++        this.resetHoneyLevel($$0, $$1, $$2);
++        net.minecraft.world.level.block.entity.BlockEntity $$5 = $$0.getBlockEntity($$2);
++        if ($$5 instanceof net.minecraft.world.level.block.entity.BeehiveBlockEntity) {
++            net.minecraft.world.level.block.entity.BeehiveBlockEntity $$6 = (net.minecraft.world.level.block.entity.BeehiveBlockEntity)$$5;
++            $$6.emptyAllLivingFromHive($$3, $$1, $$4);
+         }
+     }
+ 
+-    public void resetHoneyLevel(net.minecraft.world.level.Level level, net.minecraft.world.level.block.state.BlockState state, net.minecraft.core.BlockPos pos) {
+-        level.setBlock(pos, (net.minecraft.world.level.block.state.BlockState)state.setValue((net.minecraft.world.level.block.state.properties.Property)HONEY_LEVEL, (java.lang.Comparable)java.lang.Integer.valueOf((int)0)), 3);
++    public void resetHoneyLevel(net.minecraft.world.level.Level $$0, net.minecraft.world.level.block.state.BlockState $$1, net.minecraft.core.BlockPos $$2) {
++        $$0.setBlock($$2, (net.minecraft.world.level.block.state.BlockState)$$1.setValue((net.minecraft.world.level.block.state.properties.Property)HONEY_LEVEL, (java.lang.Comparable)java.lang.Integer.valueOf((int)0)), 3);
+     }
+ 
+     public void animateTick(net.minecraft.world.level.block.state.BlockState $$0, net.minecraft.world.level.Level $$1, net.minecraft.core.BlockPos $$2, net.minecraft.util.RandomSource $$3) {
+@@ -124,45 +124,45 @@
+         }
+     }
+ 
+-    public void trySpawnDripParticles(net.minecraft.world.level.Level level, net.minecraft.core.BlockPos pos, net.minecraft.world.level.block.state.BlockState state) {
+-        if (!state.getFluidState().isEmpty() || level.random.nextFloat() < 0.3f) {
++    public void trySpawnDripParticles(net.minecraft.world.level.Level $$0, net.minecraft.core.BlockPos $$1, net.minecraft.world.level.block.state.BlockState $$2) {
++        if (!$$2.getFluidState().isEmpty() || $$0.random.nextFloat() < 0.3f) {
+             return;
+         }
+-        net.minecraft.world.phys.shapes.VoxelShape voxelShape = state.getCollisionShape((net.minecraft.world.level.BlockGetter)level, pos);
+-        double d = voxelShape.max(net.minecraft.core.Direction$Axis.Y);
+-        if (d >= 1.0 && !state.is(net.minecraft.tags.BlockTags.IMPERMEABLE)) {
+-            double d2 = voxelShape.min(net.minecraft.core.Direction$Axis.Y);
+-            if (d2 > 0.0) {
+-                this.spawnParticle(level, pos, voxelShape, (double)pos.getY() + d2 - 0.05);
++        net.minecraft.world.phys.shapes.VoxelShape $$3 = $$2.getCollisionShape((net.minecraft.world.level.BlockGetter)$$0, $$1);
++        double $$4 = $$3.max(net.minecraft.core.Direction$Axis.Y);
++        if ($$4 >= 1.0 && !$$2.is(net.minecraft.tags.BlockTags.IMPERMEABLE)) {
++            double $$5 = $$3.min(net.minecraft.core.Direction$Axis.Y);
++            if ($$5 > 0.0) {
++                this.spawnParticle($$0, $$1, $$3, (double)$$1.getY() + $$5 - 0.05);
+             } else {
+-                net.minecraft.core.BlockPos blockPos = pos.below();
+-                net.minecraft.world.level.block.state.BlockState blockState = level.getBlockState(blockPos);
+-                net.minecraft.world.phys.shapes.VoxelShape voxelShape2 = blockState.getCollisionShape((net.minecraft.world.level.BlockGetter)level, blockPos);
+-                double d3 = voxelShape2.max(net.minecraft.core.Direction$Axis.Y);
+-                if ((d3 < 1.0 || !blockState.isCollisionShapeFullBlock((net.minecraft.world.level.BlockGetter)level, blockPos)) && blockState.getFluidState().isEmpty()) {
+-                    this.spawnParticle(level, pos, voxelShape, (double)pos.getY() - 0.05);
++                net.minecraft.core.BlockPos $$6 = $$1.below();
++                net.minecraft.world.level.block.state.BlockState $$7 = $$0.getBlockState($$6);
++                net.minecraft.world.phys.shapes.VoxelShape $$8 = $$7.getCollisionShape((net.minecraft.world.level.BlockGetter)$$0, $$6);
++                double $$9 = $$8.max(net.minecraft.core.Direction$Axis.Y);
++                if (($$9 < 1.0 || !$$7.isCollisionShapeFullBlock((net.minecraft.world.level.BlockGetter)$$0, $$6)) && $$7.getFluidState().isEmpty()) {
++                    this.spawnParticle($$0, $$1, $$3, (double)$$1.getY() - 0.05);
+                 }
+             }
+         }
+     }
+ 
+-    public void spawnParticle(net.minecraft.world.level.Level level, net.minecraft.core.BlockPos pos, net.minecraft.world.phys.shapes.VoxelShape shape, double y) {
+-        this.spawnFluidParticle(level, (double)pos.getX() + shape.min(net.minecraft.core.Direction$Axis.X), (double)pos.getX() + shape.max(net.minecraft.core.Direction$Axis.X), (double)pos.getZ() + shape.min(net.minecraft.core.Direction$Axis.Z), (double)pos.getZ() + shape.max(net.minecraft.core.Direction$Axis.Z), y);
++    public void spawnParticle(net.minecraft.world.level.Level $$0, net.minecraft.core.BlockPos $$1, net.minecraft.world.phys.shapes.VoxelShape $$2, double $$3) {
++        this.spawnFluidParticle($$0, (double)$$1.getX() + $$2.min(net.minecraft.core.Direction$Axis.X), (double)$$1.getX() + $$2.max(net.minecraft.core.Direction$Axis.X), (double)$$1.getZ() + $$2.min(net.minecraft.core.Direction$Axis.Z), (double)$$1.getZ() + $$2.max(net.minecraft.core.Direction$Axis.Z), $$3);
+     }
+ 
+-    public void spawnFluidParticle(net.minecraft.world.level.Level particleData, double x1, double x2, double z1, double z2, double y) {
+-        particleData.addParticle((net.minecraft.core.particles.ParticleOptions)net.minecraft.core.particles.ParticleTypes.DRIPPING_HONEY, net.minecraft.util.Mth.lerp((double)particleData.random.nextDouble(), (double)x1, (double)x2), y, net.minecraft.util.Mth.lerp((double)particleData.random.nextDouble(), (double)z1, (double)z2), 0.0, 0.0, 0.0);
++    public void spawnFluidParticle(net.minecraft.world.level.Level $$0, double $$1, double $$2, double $$3, double $$4, double $$5) {
++        $$0.addParticle((net.minecraft.core.particles.ParticleOptions)net.minecraft.core.particles.ParticleTypes.DRIPPING_HONEY, net.minecraft.util.Mth.lerp((double)$$0.random.nextDouble(), (double)$$1, (double)$$2), $$5, net.minecraft.util.Mth.lerp((double)$$0.random.nextDouble(), (double)$$3, (double)$$4), 0.0, 0.0, 0.0);
+     }
+ 
+-    public net.minecraft.world.level.block.state.BlockState getStateForPlacement(net.minecraft.world.item.context.BlockPlaceContext context) {
+-        return (net.minecraft.world.level.block.state.BlockState)this.defaultBlockState().setValue((net.minecraft.world.level.block.state.properties.Property)FACING, (java.lang.Comparable)context.getHorizontalDirection().getOpposite());
++    public net.minecraft.world.level.block.state.BlockState getStateForPlacement(net.minecraft.world.item.context.BlockPlaceContext $$0) {
++        return (net.minecraft.world.level.block.state.BlockState)this.defaultBlockState().setValue((net.minecraft.world.level.block.state.properties.Property)FACING, (java.lang.Comparable)$$0.getHorizontalDirection().getOpposite());
+     }
+ 
+-    public void createBlockStateDefinition(net.minecraft.world.level.block.state.StateDefinition$Builder<net.minecraft.world.level.block.Block, net.minecraft.world.level.block.state.BlockState> builder) {
+-        builder.add(new net.minecraft.world.level.block.state.properties.Property[]{HONEY_LEVEL, FACING});
++    public void createBlockStateDefinition(net.minecraft.world.level.block.state.StateDefinition$Builder<net.minecraft.world.level.block.Block, net.minecraft.world.level.block.state.BlockState> $$0) {
++        $$0.add(new net.minecraft.world.level.block.state.properties.Property[]{HONEY_LEVEL, FACING});
+     }
+ 
+-    public net.minecraft.world.level.block.RenderShape getRenderShape(net.minecraft.world.level.block.state.BlockState state) {
++    public net.minecraft.world.level.block.RenderShape getRenderShape(net.minecraft.world.level.block.state.BlockState $$0) {
+         return net.minecraft.world.level.block.RenderShape.MODEL;
+     }
+ 
+@@ -176,49 +176,48 @@
+         return $$0.isClientSide ? null : net.minecraft.world.level.block.BeehiveBlock.createTickerHelper($$2, (net.minecraft.world.level.block.entity.BlockEntityType)net.minecraft.world.level.block.entity.BlockEntityType.BEEHIVE, net.minecraft.world.level.block.entity.BeehiveBlockEntity::serverTick);
+     }
+ 
+-    public void playerWillDestroy(net.minecraft.world.level.Level level, net.minecraft.core.BlockPos pos, net.minecraft.world.level.block.state.BlockState state, net.minecraft.world.entity.player.Player player) {
+-        net.minecraft.world.level.block.entity.BlockEntity blockEntity;
+-        if (!level.isClientSide && player.isCreative() && level.getGameRules().getBoolean(net.minecraft.world.level.GameRules.RULE_DOBLOCKDROPS) && (blockEntity = level.getBlockEntity(pos)) instanceof net.minecraft.world.level.block.entity.BeehiveBlockEntity) {
+-            boolean bl;
+-            net.minecraft.world.level.block.entity.BeehiveBlockEntity beehiveBlockEntity = (net.minecraft.world.level.block.entity.BeehiveBlockEntity)blockEntity;
+-            net.minecraft.world.item.ItemStack itemStack = new net.minecraft.world.item.ItemStack((net.minecraft.world.level.ItemLike)this);
+-            int n = (java.lang.Integer)state.getValue((net.minecraft.world.level.block.state.properties.Property)HONEY_LEVEL);
+-            boolean bl2 = bl = !beehiveBlockEntity.isEmpty();
+-            if (bl || n > 0) {
+-                net.minecraft.nbt.CompoundTag compoundTag;
+-                if (bl) {
+-                    compoundTag = new net.minecraft.nbt.CompoundTag();
+-                    compoundTag.put("Bees", (net.minecraft.nbt.Tag)beehiveBlockEntity.writeBees());
+-                    net.minecraft.world.item.BlockItem.setBlockEntityData((net.minecraft.world.item.ItemStack)itemStack, (net.minecraft.world.level.block.entity.BlockEntityType)net.minecraft.world.level.block.entity.BlockEntityType.BEEHIVE, (net.minecraft.nbt.CompoundTag)compoundTag);
++    public void playerWillDestroy(net.minecraft.world.level.Level $$0, net.minecraft.core.BlockPos $$1, net.minecraft.world.level.block.state.BlockState $$2, net.minecraft.world.entity.player.Player $$3) {
++        net.minecraft.world.level.block.entity.BlockEntity $$4;
++        if (!$$0.isClientSide && $$3.isCreative() && $$0.getGameRules().getBoolean(net.minecraft.world.level.GameRules.RULE_DOBLOCKDROPS) && ($$4 = $$0.getBlockEntity($$1)) instanceof net.minecraft.world.level.block.entity.BeehiveBlockEntity) {
++            boolean $$8;
++            net.minecraft.world.level.block.entity.BeehiveBlockEntity $$5 = (net.minecraft.world.level.block.entity.BeehiveBlockEntity)$$4;
++            net.minecraft.world.item.ItemStack $$6 = new net.minecraft.world.item.ItemStack((net.minecraft.world.level.ItemLike)this);
++            int $$7 = (java.lang.Integer)$$2.getValue((net.minecraft.world.level.block.state.properties.Property)HONEY_LEVEL);
++            boolean bl = $$8 = !$$5.isEmpty();
++            if ($$8 || $$7 > 0) {
++                if ($$8) {
++                    net.minecraft.nbt.CompoundTag $$9 = new net.minecraft.nbt.CompoundTag();
++                    $$9.put("Bees", (net.minecraft.nbt.Tag)$$5.writeBees());
++                    net.minecraft.world.item.BlockItem.setBlockEntityData((net.minecraft.world.item.ItemStack)$$6, (net.minecraft.world.level.block.entity.BlockEntityType)net.minecraft.world.level.block.entity.BlockEntityType.BEEHIVE, (net.minecraft.nbt.CompoundTag)$$9);
+                 }
+-                compoundTag = new net.minecraft.nbt.CompoundTag();
+-                compoundTag.putInt("honey_level", n);
+-                itemStack.addTagElement("BlockStateTag", (net.minecraft.nbt.Tag)compoundTag);
+-                net.minecraft.world.entity.item.ItemEntity itemEntity = new net.minecraft.world.entity.item.ItemEntity(level, (double)pos.getX(), (double)pos.getY(), (double)pos.getZ(), itemStack);
+-                itemEntity.setDefaultPickUpDelay();
+-                level.addFreshEntity((net.minecraft.world.entity.Entity)itemEntity);
++                net.minecraft.nbt.CompoundTag $$10 = new net.minecraft.nbt.CompoundTag();
++                $$10.putInt("honey_level", $$7);
++                $$6.addTagElement("BlockStateTag", (net.minecraft.nbt.Tag)$$10);
++                net.minecraft.world.entity.item.ItemEntity $$11 = new net.minecraft.world.entity.item.ItemEntity($$0, (double)$$1.getX(), (double)$$1.getY(), (double)$$1.getZ(), $$6);
++                $$11.setDefaultPickUpDelay();
++                $$0.addFreshEntity((net.minecraft.world.entity.Entity)$$11);
+             }
+         }
+-        super.playerWillDestroy(level, pos, state, player);
++        super.playerWillDestroy($$0, $$1, $$2, $$3);
+     }
+ 
+-    public java.util.List<net.minecraft.world.item.ItemStack> getDrops(net.minecraft.world.level.block.state.BlockState state, net.minecraft.world.level.storage.loot.LootContext$Builder builder) {
+-        net.minecraft.world.level.block.entity.BlockEntity blockEntity;
+-        net.minecraft.world.entity.Entity entity = (net.minecraft.world.entity.Entity)builder.getOptionalParameter(net.minecraft.world.level.storage.loot.parameters.LootContextParams.THIS_ENTITY);
+-        if ((entity instanceof net.minecraft.world.entity.item.PrimedTnt || entity instanceof net.minecraft.world.entity.monster.Creeper || entity instanceof net.minecraft.world.entity.projectile.WitherSkull || entity instanceof net.minecraft.world.entity.boss.wither.WitherBoss || entity instanceof net.minecraft.world.entity.vehicle.MinecartTNT) && (blockEntity = (net.minecraft.world.level.block.entity.BlockEntity)builder.getOptionalParameter(net.minecraft.world.level.storage.loot.parameters.LootContextParams.BLOCK_ENTITY)) instanceof net.minecraft.world.level.block.entity.BeehiveBlockEntity) {
+-            net.minecraft.world.level.block.entity.BeehiveBlockEntity beehiveBlockEntity = (net.minecraft.world.level.block.entity.BeehiveBlockEntity)blockEntity;
+-            beehiveBlockEntity.emptyAllLivingFromHive(null, state, net.minecraft.world.level.block.entity.BeehiveBlockEntity$BeeReleaseStatus.EMERGENCY);
++    public java.util.List<net.minecraft.world.item.ItemStack> getDrops(net.minecraft.world.level.block.state.BlockState $$0, net.minecraft.world.level.storage.loot.LootContext$Builder $$1) {
++        net.minecraft.world.level.block.entity.BlockEntity $$3;
++        net.minecraft.world.entity.Entity $$2 = (net.minecraft.world.entity.Entity)$$1.getOptionalParameter(net.minecraft.world.level.storage.loot.parameters.LootContextParams.THIS_ENTITY);
++        if (($$2 instanceof net.minecraft.world.entity.item.PrimedTnt || $$2 instanceof net.minecraft.world.entity.monster.Creeper || $$2 instanceof net.minecraft.world.entity.projectile.WitherSkull || $$2 instanceof net.minecraft.world.entity.boss.wither.WitherBoss || $$2 instanceof net.minecraft.world.entity.vehicle.MinecartTNT) && ($$3 = (net.minecraft.world.level.block.entity.BlockEntity)$$1.getOptionalParameter(net.minecraft.world.level.storage.loot.parameters.LootContextParams.BLOCK_ENTITY)) instanceof net.minecraft.world.level.block.entity.BeehiveBlockEntity) {
++            net.minecraft.world.level.block.entity.BeehiveBlockEntity $$4 = (net.minecraft.world.level.block.entity.BeehiveBlockEntity)$$3;
++            $$4.emptyAllLivingFromHive(null, $$0, net.minecraft.world.level.block.entity.BeehiveBlockEntity$BeeReleaseStatus.EMERGENCY);
+         }
+-        return super.getDrops(state, builder);
++        return super.getDrops($$0, $$1);
+     }
+ 
+-    public net.minecraft.world.level.block.state.BlockState updateShape(net.minecraft.world.level.block.state.BlockState state, net.minecraft.core.Direction facing, net.minecraft.world.level.block.state.BlockState facingState, net.minecraft.world.level.LevelAccessor level, net.minecraft.core.BlockPos currentPos, net.minecraft.core.BlockPos facingPos) {
+-        net.minecraft.world.level.block.entity.BlockEntity blockEntity;
+-        if (level.getBlockState(facingPos).getBlock() instanceof net.minecraft.world.level.block.FireBlock && (blockEntity = level.getBlockEntity(currentPos)) instanceof net.minecraft.world.level.block.entity.BeehiveBlockEntity) {
+-            net.minecraft.world.level.block.entity.BeehiveBlockEntity beehiveBlockEntity = (net.minecraft.world.level.block.entity.BeehiveBlockEntity)blockEntity;
+-            beehiveBlockEntity.emptyAllLivingFromHive(null, state, net.minecraft.world.level.block.entity.BeehiveBlockEntity$BeeReleaseStatus.EMERGENCY);
++    public net.minecraft.world.level.block.state.BlockState updateShape(net.minecraft.world.level.block.state.BlockState $$0, net.minecraft.core.Direction $$1, net.minecraft.world.level.block.state.BlockState $$2, net.minecraft.world.level.LevelAccessor $$3, net.minecraft.core.BlockPos $$4, net.minecraft.core.BlockPos $$5) {
++        net.minecraft.world.level.block.entity.BlockEntity $$6;
++        if ($$3.getBlockState($$5).getBlock() instanceof net.minecraft.world.level.block.FireBlock && ($$6 = $$3.getBlockEntity($$4)) instanceof net.minecraft.world.level.block.entity.BeehiveBlockEntity) {
++            net.minecraft.world.level.block.entity.BeehiveBlockEntity $$7 = (net.minecraft.world.level.block.entity.BeehiveBlockEntity)$$6;
++            $$7.emptyAllLivingFromHive(null, $$0, net.minecraft.world.level.block.entity.BeehiveBlockEntity$BeeReleaseStatus.EMERGENCY);
+         }
+-        return super.updateShape(state, facing, facingState, level, currentPos, facingPos);
++        return super.updateShape($$0, $$1, $$2, $$3, $$4, $$5);
+     }
+ 
+     static {

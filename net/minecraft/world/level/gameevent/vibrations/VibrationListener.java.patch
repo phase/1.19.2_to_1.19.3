@@ -1,0 +1,218 @@
+--- net/minecraft/world/level/gameevent/vibrations/VibrationListener.java
++++ net/minecraft/world/level/gameevent/vibrations/VibrationListener.java
+@@ -6,36 +6,56 @@
+ public class net.minecraft.world.level.gameevent.vibrations.VibrationListener
+ implements net.minecraft.world.level.gameevent.GameEventListener
+  {
++    @com.google.common.annotations.VisibleForTesting
++    public static it.unimi.dsi.fastutil.objects.Object2IntMap<net.minecraft.world.level.gameevent.GameEvent> VIBRATION_FREQUENCY_FOR_EVENT;
+     public net.minecraft.world.level.gameevent.PositionSource listenerSource;
+     public int listenerRange;
+     public net.minecraft.world.level.gameevent.vibrations.VibrationListener$VibrationListenerConfig config;
+     @javax.annotation.Nullable
+-    public net.minecraft.world.level.gameevent.vibrations.VibrationListener$ReceivingEvent receivingEvent;
+-    public float receivingDistance;
++    public net.minecraft.world.level.gameevent.vibrations.VibrationInfo currentVibration;
+     public int travelTimeInTicks;
++    public net.minecraft.world.level.gameevent.vibrations.VibrationSelector selectionStrategy;
+ 
+     public static com.mojang.serialization.Codec<net.minecraft.world.level.gameevent.vibrations.VibrationListener> codec(net.minecraft.world.level.gameevent.vibrations.VibrationListener$VibrationListenerConfig $$0) {
+-        return com.mojang.serialization.codecs.RecordCodecBuilder.create($$12 -> $$12.group((com.mojang.datafixers.kinds.App)net.minecraft.world.level.gameevent.PositionSource.CODEC.fieldOf("source").forGetter($$0 -> $$0.listenerSource), (com.mojang.datafixers.kinds.App)net.minecraft.util.ExtraCodecs.NON_NEGATIVE_INT.fieldOf("range").forGetter($$0 -> $$0.listenerRange), (com.mojang.datafixers.kinds.App)net.minecraft.world.level.gameevent.vibrations.VibrationListener$ReceivingEvent.CODEC.optionalFieldOf("event").forGetter($$0 -> java.util.Optional.ofNullable((java.lang.Object)$$0.receivingEvent)), (com.mojang.datafixers.kinds.App)com.mojang.serialization.Codec.floatRange((float)0.0f, (float)java.lang.Float.MAX_VALUE).fieldOf("event_distance").orElse((java.lang.Object)java.lang.Float.valueOf((float)0.0f)).forGetter($$0 -> java.lang.Float.valueOf((float)$$0.receivingDistance)), (com.mojang.datafixers.kinds.App)net.minecraft.util.ExtraCodecs.NON_NEGATIVE_INT.fieldOf("event_delay").orElse((java.lang.Object)0).forGetter($$0 -> $$0.travelTimeInTicks)).apply((com.mojang.datafixers.kinds.Applicative)$$12, ($$1, $$2, $$3, $$4, $$5) -> new net.minecraft.world.level.gameevent.vibrations.VibrationListener($$1, $$2.intValue(), $$0, (net.minecraft.world.level.gameevent.vibrations.VibrationListener$ReceivingEvent)$$3.orElse(null), $$4.floatValue(), $$5.intValue())));
++        return com.mojang.serialization.codecs.RecordCodecBuilder.create($$12 -> $$12.group((com.mojang.datafixers.kinds.App)net.minecraft.world.level.gameevent.PositionSource.CODEC.fieldOf("source").forGetter($$0 -> $$0.listenerSource), (com.mojang.datafixers.kinds.App)net.minecraft.util.ExtraCodecs.NON_NEGATIVE_INT.fieldOf("range").forGetter($$0 -> $$0.listenerRange), (com.mojang.datafixers.kinds.App)net.minecraft.world.level.gameevent.vibrations.VibrationInfo.CODEC.optionalFieldOf("event").forGetter($$0 -> java.util.Optional.ofNullable((java.lang.Object)$$0.currentVibration)), (com.mojang.datafixers.kinds.App)net.minecraft.world.level.gameevent.vibrations.VibrationSelector.CODEC.fieldOf("selector").forGetter($$0 -> $$0.selectionStrategy), (com.mojang.datafixers.kinds.App)net.minecraft.util.ExtraCodecs.NON_NEGATIVE_INT.fieldOf("event_delay").orElse((java.lang.Object)0).forGetter($$0 -> $$0.travelTimeInTicks)).apply((com.mojang.datafixers.kinds.Applicative)$$12, ($$1, $$2, $$3, $$4, $$5) -> new net.minecraft.world.level.gameevent.vibrations.VibrationListener($$1, $$2.intValue(), $$0, (net.minecraft.world.level.gameevent.vibrations.VibrationInfo)$$3.orElse(null), $$4, $$5.intValue())));
+     }
+ 
+-    public net.minecraft.world.level.gameevent.vibrations.VibrationListener(net.minecraft.world.level.gameevent.PositionSource $$0, int $$1, net.minecraft.world.level.gameevent.vibrations.VibrationListener$VibrationListenerConfig $$2, @javax.annotation.Nullable net.minecraft.world.level.gameevent.vibrations.VibrationListener$ReceivingEvent $$3, float $$4, int $$5) {
++    public net.minecraft.world.level.gameevent.vibrations.VibrationListener(net.minecraft.world.level.gameevent.PositionSource $$0, int $$1, net.minecraft.world.level.gameevent.vibrations.VibrationListener$VibrationListenerConfig $$2, @javax.annotation.Nullable net.minecraft.world.level.gameevent.vibrations.VibrationInfo $$3, net.minecraft.world.level.gameevent.vibrations.VibrationSelector $$4, int $$5) {
+         this.listenerSource = $$0;
+         this.listenerRange = $$1;
+         this.config = $$2;
+-        this.receivingEvent = $$3;
+-        this.receivingDistance = $$4;
++        this.currentVibration = $$3;
+         this.travelTimeInTicks = $$5;
++        this.selectionStrategy = $$4;
+     }
+ 
++    public net.minecraft.world.level.gameevent.vibrations.VibrationListener(net.minecraft.world.level.gameevent.PositionSource $$0, int $$1, net.minecraft.world.level.gameevent.vibrations.VibrationListener$VibrationListenerConfig $$2) {
++        this($$0, $$1, $$2, null, new net.minecraft.world.level.gameevent.vibrations.VibrationSelector(), 0);
++    }
++
++    public static int getGameEventFrequency(net.minecraft.world.level.gameevent.GameEvent $$0) {
++        return VIBRATION_FREQUENCY_FOR_EVENT.getOrDefault((java.lang.Object)$$0, 0);
++    }
++
+     public void tick(net.minecraft.world.level.Level $$0) {
+         if ($$0 instanceof net.minecraft.server.level.ServerLevel) {
+-            net.minecraft.server.level.ServerLevel $$1 = (net.minecraft.server.level.ServerLevel)$$0;
+-            if (this.receivingEvent != null) {
++            net.minecraft.server.level.ServerLevel $$12 = (net.minecraft.server.level.ServerLevel)$$0;
++            if (this.currentVibration == null) {
++                this.selectionStrategy.chosenCandidate($$12.getGameTime()).ifPresent($$1 -> {
++                    this.currentVibration = $$1;
++                    net.minecraft.world.phys.Vec3 $$2 = this.currentVibration.pos();
++                    this.travelTimeInTicks = net.minecraft.util.Mth.floor((float)this.currentVibration.distance());
++                    $$12.sendParticles((net.minecraft.core.particles.ParticleOptions)new net.minecraft.core.particles.VibrationParticleOption(this.listenerSource, this.travelTimeInTicks), $$2.x, $$2.y, $$2.z, 1, 0.0, 0.0, 0.0, 0.0);
++                    this.config.onSignalSchedule();
++                    this.selectionStrategy.startOver();
++                });
++            }
++            if (this.currentVibration != null) {
+                 --this.travelTimeInTicks;
+                 if (this.travelTimeInTicks <= 0) {
+                     this.travelTimeInTicks = 0;
+-                    this.config.onSignalReceive($$1, (net.minecraft.world.level.gameevent.GameEventListener)this, new net.minecraft.core.BlockPos(this.receivingEvent.pos), this.receivingEvent.gameEvent, (net.minecraft.world.entity.Entity)this.receivingEvent.getEntity($$1).orElse(null), (net.minecraft.world.entity.Entity)this.receivingEvent.getProjectileOwner($$1).orElse(null), this.receivingDistance);
+-                    this.receivingEvent = null;
++                    this.config.onSignalReceive($$12, (net.minecraft.world.level.gameevent.GameEventListener)this, new net.minecraft.core.BlockPos(this.currentVibration.pos()), this.currentVibration.gameEvent(), (net.minecraft.world.entity.Entity)this.currentVibration.getEntity($$12).orElse(null), (net.minecraft.world.entity.Entity)this.currentVibration.getProjectileOwner($$12).orElse(null), this.currentVibration.distance());
++                    this.currentVibration = null;
+                 }
+             }
+         }
+@@ -49,39 +69,36 @@
+         return this.listenerRange;
+     }
+ 
+-    public boolean handleGameEvent(net.minecraft.server.level.ServerLevel $$0, net.minecraft.world.level.gameevent.GameEvent$Message $$1) {
+-        net.minecraft.world.level.gameevent.GameEvent$Context $$3;
+-        if (this.receivingEvent != null) {
++    public boolean handleGameEvent(net.minecraft.server.level.ServerLevel $$0, net.minecraft.world.level.gameevent.GameEvent $$1, net.minecraft.world.level.gameevent.GameEvent$Context $$2, net.minecraft.world.phys.Vec3 $$3) {
++        if (this.currentVibration != null) {
+             return false;
+         }
+-        net.minecraft.world.level.gameevent.GameEvent $$2 = $$1.gameEvent();
+-        if (!this.config.isValidVibration($$2, $$3 = $$1.context())) {
++        if (!this.config.isValidVibration($$1, $$2)) {
+             return false;
+         }
+         java.util.Optional $$4 = this.listenerSource.getPosition((net.minecraft.world.level.Level)$$0);
+         if ($$4.isEmpty()) {
+             return false;
+         }
+-        net.minecraft.world.phys.Vec3 $$5 = $$1.source();
+-        net.minecraft.world.phys.Vec3 $$6 = (net.minecraft.world.phys.Vec3)$$4.get();
+-        if (!this.config.shouldListen($$0, (net.minecraft.world.level.gameevent.GameEventListener)this, new net.minecraft.core.BlockPos($$5), $$2, $$3)) {
++        net.minecraft.world.phys.Vec3 $$5 = (net.minecraft.world.phys.Vec3)$$4.get();
++        if (!this.config.shouldListen($$0, (net.minecraft.world.level.gameevent.GameEventListener)this, new net.minecraft.core.BlockPos($$3), $$1, $$2)) {
+             return false;
+         }
+-        if (net.minecraft.world.level.gameevent.vibrations.VibrationListener.isOccluded((net.minecraft.world.level.Level)$$0, (net.minecraft.world.phys.Vec3)$$5, (net.minecraft.world.phys.Vec3)$$6)) {
++        if (net.minecraft.world.level.gameevent.vibrations.VibrationListener.isOccluded((net.minecraft.world.level.Level)$$0, (net.minecraft.world.phys.Vec3)$$3, (net.minecraft.world.phys.Vec3)$$5)) {
+             return false;
+         }
+-        this.scheduleSignal($$0, $$2, $$3, $$5, $$6);
++        this.scheduleVibration($$0, $$1, $$2, $$3, $$5);
+         return true;
+     }
+ 
+-    public void scheduleSignal(net.minecraft.server.level.ServerLevel $$0, net.minecraft.world.level.gameevent.GameEvent $$1, net.minecraft.world.level.gameevent.GameEvent$Context $$2, net.minecraft.world.phys.Vec3 $$3, net.minecraft.world.phys.Vec3 $$4) {
+-        this.receivingDistance = (float)$$3.distanceTo($$4);
+-        this.receivingEvent = new net.minecraft.world.level.gameevent.vibrations.VibrationListener$ReceivingEvent($$1, this.receivingDistance, $$3, $$2.sourceEntity());
+-        this.travelTimeInTicks = net.minecraft.util.Mth.floor((float)this.receivingDistance);
+-        $$0.sendParticles((net.minecraft.core.particles.ParticleOptions)new net.minecraft.core.particles.VibrationParticleOption(this.listenerSource, this.travelTimeInTicks), $$3.x, $$3.y, $$3.z, 1, 0.0, 0.0, 0.0, 0.0);
+-        this.config.onSignalSchedule();
++    public void forceGameEvent(net.minecraft.server.level.ServerLevel $$0, net.minecraft.world.level.gameevent.GameEvent $$1, net.minecraft.world.level.gameevent.GameEvent$Context $$2, net.minecraft.world.phys.Vec3 $$3) {
++        this.listenerSource.getPosition((net.minecraft.world.level.Level)$$0).ifPresent($$4 -> this.scheduleVibration($$0, $$1, $$2, $$3, $$4));
+     }
+ 
++    public void scheduleVibration(net.minecraft.server.level.ServerLevel $$0, net.minecraft.world.level.gameevent.GameEvent $$1, net.minecraft.world.level.gameevent.GameEvent$Context $$2, net.minecraft.world.phys.Vec3 $$3, net.minecraft.world.phys.Vec3 $$4) {
++        this.selectionStrategy.addCandidate(new net.minecraft.world.level.gameevent.vibrations.VibrationInfo($$1, (float)$$3.distanceTo($$4), $$3, $$2.sourceEntity()), $$0.getGameTime());
++    }
++
+     public static boolean isOccluded(net.minecraft.world.level.Level $$02, net.minecraft.world.phys.Vec3 $$1, net.minecraft.world.phys.Vec3 $$2) {
+         net.minecraft.world.phys.Vec3 $$3 = new net.minecraft.world.phys.Vec3((double)net.minecraft.util.Mth.floor((double)$$1.x) + 0.5, (double)net.minecraft.util.Mth.floor((double)$$1.y) + 0.5, (double)net.minecraft.util.Mth.floor((double)$$1.z) + 0.5);
+         net.minecraft.world.phys.Vec3 $$4 = new net.minecraft.world.phys.Vec3((double)net.minecraft.util.Mth.floor((double)$$2.x) + 0.5, (double)net.minecraft.util.Mth.floor((double)$$2.y) + 0.5, (double)net.minecraft.util.Mth.floor((double)$$2.z) + 0.5);
+@@ -92,5 +109,95 @@
+         }
+         return true;
+     }
++
++    public static /* synthetic */ void lambda$static$7(it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap $$0) {
++        $$0.put((java.lang.Object)net.minecraft.world.level.gameevent.GameEvent.STEP, 1);
++        $$0.put((java.lang.Object)net.minecraft.world.level.gameevent.GameEvent.FLAP, 2);
++        $$0.put((java.lang.Object)net.minecraft.world.level.gameevent.GameEvent.SWIM, 3);
++        $$0.put((java.lang.Object)net.minecraft.world.level.gameevent.GameEvent.ELYTRA_GLIDE, 4);
++        $$0.put((java.lang.Object)net.minecraft.world.level.gameevent.GameEvent.HIT_GROUND, 5);
++        $$0.put((java.lang.Object)net.minecraft.world.level.gameevent.GameEvent.TELEPORT, 5);
++        $$0.put((java.lang.Object)net.minecraft.world.level.gameevent.GameEvent.SPLASH, 6);
++        $$0.put((java.lang.Object)net.minecraft.world.level.gameevent.GameEvent.ENTITY_SHAKE, 6);
++        $$0.put((java.lang.Object)net.minecraft.world.level.gameevent.GameEvent.BLOCK_CHANGE, 6);
++        $$0.put((java.lang.Object)net.minecraft.world.level.gameevent.GameEvent.NOTE_BLOCK_PLAY, 6);
++        $$0.put((java.lang.Object)net.minecraft.world.level.gameevent.GameEvent.PROJECTILE_SHOOT, 7);
++        $$0.put((java.lang.Object)net.minecraft.world.level.gameevent.GameEvent.DRINK, 7);
++        $$0.put((java.lang.Object)net.minecraft.world.level.gameevent.GameEvent.PRIME_FUSE, 7);
++        $$0.put((java.lang.Object)net.minecraft.world.level.gameevent.GameEvent.PROJECTILE_LAND, 8);
++        $$0.put((java.lang.Object)net.minecraft.world.level.gameevent.GameEvent.EAT, 8);
++        $$0.put((java.lang.Object)net.minecraft.world.level.gameevent.GameEvent.ENTITY_INTERACT, 8);
++        $$0.put((java.lang.Object)net.minecraft.world.level.gameevent.GameEvent.ENTITY_DAMAGE, 8);
++        $$0.put((java.lang.Object)net.minecraft.world.level.gameevent.GameEvent.EQUIP, 9);
++        $$0.put((java.lang.Object)net.minecraft.world.level.gameevent.GameEvent.SHEAR, 9);
++        $$0.put((java.lang.Object)net.minecraft.world.level.gameevent.GameEvent.ENTITY_ROAR, 9);
++        $$0.put((java.lang.Object)net.minecraft.world.level.gameevent.GameEvent.BLOCK_CLOSE, 10);
++        $$0.put((java.lang.Object)net.minecraft.world.level.gameevent.GameEvent.BLOCK_DEACTIVATE, 10);
++        $$0.put((java.lang.Object)net.minecraft.world.level.gameevent.GameEvent.BLOCK_DETACH, 10);
++        $$0.put((java.lang.Object)net.minecraft.world.level.gameevent.GameEvent.DISPENSE_FAIL, 10);
++        $$0.put((java.lang.Object)net.minecraft.world.level.gameevent.GameEvent.BLOCK_OPEN, 11);
++        $$0.put((java.lang.Object)net.minecraft.world.level.gameevent.GameEvent.BLOCK_ACTIVATE, 11);
++        $$0.put((java.lang.Object)net.minecraft.world.level.gameevent.GameEvent.BLOCK_ATTACH, 11);
++        $$0.put((java.lang.Object)net.minecraft.world.level.gameevent.GameEvent.ENTITY_PLACE, 12);
++        $$0.put((java.lang.Object)net.minecraft.world.level.gameevent.GameEvent.BLOCK_PLACE, 12);
++        $$0.put((java.lang.Object)net.minecraft.world.level.gameevent.GameEvent.FLUID_PLACE, 12);
++        $$0.put((java.lang.Object)net.minecraft.world.level.gameevent.GameEvent.ENTITY_DIE, 13);
++        $$0.put((java.lang.Object)net.minecraft.world.level.gameevent.GameEvent.BLOCK_DESTROY, 13);
++        $$0.put((java.lang.Object)net.minecraft.world.level.gameevent.GameEvent.FLUID_PICKUP, 13);
++        $$0.put((java.lang.Object)net.minecraft.world.level.gameevent.GameEvent.ITEM_INTERACT_FINISH, 14);
++        $$0.put((java.lang.Object)net.minecraft.world.level.gameevent.GameEvent.CONTAINER_CLOSE, 14);
++        $$0.put((java.lang.Object)net.minecraft.world.level.gameevent.GameEvent.PISTON_CONTRACT, 14);
++        $$0.put((java.lang.Object)net.minecraft.world.level.gameevent.GameEvent.PISTON_EXTEND, 15);
++        $$0.put((java.lang.Object)net.minecraft.world.level.gameevent.GameEvent.CONTAINER_OPEN, 15);
++        $$0.put((java.lang.Object)net.minecraft.world.level.gameevent.GameEvent.EXPLODE, 15);
++        $$0.put((java.lang.Object)net.minecraft.world.level.gameevent.GameEvent.LIGHTNING_STRIKE, 15);
++        $$0.put((java.lang.Object)net.minecraft.world.level.gameevent.GameEvent.INSTRUMENT_PLAY, 15);
++    }
++
++    static {
++        VIBRATION_FREQUENCY_FOR_EVENT = it.unimi.dsi.fastutil.objects.Object2IntMaps.unmodifiable((it.unimi.dsi.fastutil.objects.Object2IntMap)((it.unimi.dsi.fastutil.objects.Object2IntMap)net.minecraft.Util.make((java.lang.Object)new it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap(), $$0 -> {
++            $$0.put((java.lang.Object)net.minecraft.world.level.gameevent.GameEvent.STEP, 1);
++            $$0.put((java.lang.Object)net.minecraft.world.level.gameevent.GameEvent.FLAP, 2);
++            $$0.put((java.lang.Object)net.minecraft.world.level.gameevent.GameEvent.SWIM, 3);
++            $$0.put((java.lang.Object)net.minecraft.world.level.gameevent.GameEvent.ELYTRA_GLIDE, 4);
++            $$0.put((java.lang.Object)net.minecraft.world.level.gameevent.GameEvent.HIT_GROUND, 5);
++            $$0.put((java.lang.Object)net.minecraft.world.level.gameevent.GameEvent.TELEPORT, 5);
++            $$0.put((java.lang.Object)net.minecraft.world.level.gameevent.GameEvent.SPLASH, 6);
++            $$0.put((java.lang.Object)net.minecraft.world.level.gameevent.GameEvent.ENTITY_SHAKE, 6);
++            $$0.put((java.lang.Object)net.minecraft.world.level.gameevent.GameEvent.BLOCK_CHANGE, 6);
++            $$0.put((java.lang.Object)net.minecraft.world.level.gameevent.GameEvent.NOTE_BLOCK_PLAY, 6);
++            $$0.put((java.lang.Object)net.minecraft.world.level.gameevent.GameEvent.PROJECTILE_SHOOT, 7);
++            $$0.put((java.lang.Object)net.minecraft.world.level.gameevent.GameEvent.DRINK, 7);
++            $$0.put((java.lang.Object)net.minecraft.world.level.gameevent.GameEvent.PRIME_FUSE, 7);
++            $$0.put((java.lang.Object)net.minecraft.world.level.gameevent.GameEvent.PROJECTILE_LAND, 8);
++            $$0.put((java.lang.Object)net.minecraft.world.level.gameevent.GameEvent.EAT, 8);
++            $$0.put((java.lang.Object)net.minecraft.world.level.gameevent.GameEvent.ENTITY_INTERACT, 8);
++            $$0.put((java.lang.Object)net.minecraft.world.level.gameevent.GameEvent.ENTITY_DAMAGE, 8);
++            $$0.put((java.lang.Object)net.minecraft.world.level.gameevent.GameEvent.EQUIP, 9);
++            $$0.put((java.lang.Object)net.minecraft.world.level.gameevent.GameEvent.SHEAR, 9);
++            $$0.put((java.lang.Object)net.minecraft.world.level.gameevent.GameEvent.ENTITY_ROAR, 9);
++            $$0.put((java.lang.Object)net.minecraft.world.level.gameevent.GameEvent.BLOCK_CLOSE, 10);
++            $$0.put((java.lang.Object)net.minecraft.world.level.gameevent.GameEvent.BLOCK_DEACTIVATE, 10);
++            $$0.put((java.lang.Object)net.minecraft.world.level.gameevent.GameEvent.BLOCK_DETACH, 10);
++            $$0.put((java.lang.Object)net.minecraft.world.level.gameevent.GameEvent.DISPENSE_FAIL, 10);
++            $$0.put((java.lang.Object)net.minecraft.world.level.gameevent.GameEvent.BLOCK_OPEN, 11);
++            $$0.put((java.lang.Object)net.minecraft.world.level.gameevent.GameEvent.BLOCK_ACTIVATE, 11);
++            $$0.put((java.lang.Object)net.minecraft.world.level.gameevent.GameEvent.BLOCK_ATTACH, 11);
++            $$0.put((java.lang.Object)net.minecraft.world.level.gameevent.GameEvent.ENTITY_PLACE, 12);
++            $$0.put((java.lang.Object)net.minecraft.world.level.gameevent.GameEvent.BLOCK_PLACE, 12);
++            $$0.put((java.lang.Object)net.minecraft.world.level.gameevent.GameEvent.FLUID_PLACE, 12);
++            $$0.put((java.lang.Object)net.minecraft.world.level.gameevent.GameEvent.ENTITY_DIE, 13);
++            $$0.put((java.lang.Object)net.minecraft.world.level.gameevent.GameEvent.BLOCK_DESTROY, 13);
++            $$0.put((java.lang.Object)net.minecraft.world.level.gameevent.GameEvent.FLUID_PICKUP, 13);
++            $$0.put((java.lang.Object)net.minecraft.world.level.gameevent.GameEvent.ITEM_INTERACT_FINISH, 14);
++            $$0.put((java.lang.Object)net.minecraft.world.level.gameevent.GameEvent.CONTAINER_CLOSE, 14);
++            $$0.put((java.lang.Object)net.minecraft.world.level.gameevent.GameEvent.PISTON_CONTRACT, 14);
++            $$0.put((java.lang.Object)net.minecraft.world.level.gameevent.GameEvent.PISTON_EXTEND, 15);
++            $$0.put((java.lang.Object)net.minecraft.world.level.gameevent.GameEvent.CONTAINER_OPEN, 15);
++            $$0.put((java.lang.Object)net.minecraft.world.level.gameevent.GameEvent.EXPLODE, 15);
++            $$0.put((java.lang.Object)net.minecraft.world.level.gameevent.GameEvent.LIGHTNING_STRIKE, 15);
++            $$0.put((java.lang.Object)net.minecraft.world.level.gameevent.GameEvent.INSTRUMENT_PLAY, 15);
++        })));
++    }
+ }
+ 

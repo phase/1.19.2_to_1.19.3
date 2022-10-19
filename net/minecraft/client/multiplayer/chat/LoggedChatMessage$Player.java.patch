@@ -1,0 +1,45 @@
+--- net/minecraft/client/multiplayer/chat/LoggedChatMessage$Player.java
++++ net/minecraft/client/multiplayer/chat/LoggedChatMessage$Player.java
+@@ -5,8 +5,7 @@
+ 
+ public class net.minecraft.client.multiplayer.chat.LoggedChatMessage$Player
+ extends java.lang.Record
+-implements net.minecraft.client.multiplayer.chat.LoggedChatMessage,
+-net.minecraft.client.multiplayer.chat.LoggedChatMessageLink
++implements net.minecraft.client.multiplayer.chat.LoggedChatMessage
+  {
+     public com.mojang.authlib.GameProfile profile;
+     public net.minecraft.network.chat.Component displayName;
+@@ -23,10 +22,10 @@
+ 
+     public net.minecraft.network.chat.Component toContentComponent() {
+         if (!this.message.filterMask().isEmpty()) {
+-            net.minecraft.network.chat.Component $$0 = this.message.filterMask().apply(this.message.signedContent());
+-            return (net.minecraft.network.chat.Component)java.util.Objects.requireNonNullElse((java.lang.Object)$$0, (java.lang.Object)net.minecraft.network.chat.CommonComponents.EMPTY);
++            net.minecraft.network.chat.Component $$0 = this.message.filterMask().applyWithFormatting(this.message.signedContent());
++            return $$0 != null ? $$0 : net.minecraft.network.chat.Component.empty();
+         }
+-        return this.message.serverContent();
++        return this.message.decoratedContent();
+     }
+ 
+     public net.minecraft.network.chat.Component toNarrationComponent() {
+@@ -49,18 +48,6 @@
+         return this.message.hasSignatureFrom($$0);
+     }
+ 
+-    public net.minecraft.network.chat.SignedMessageHeader header() {
+-        return this.message.signedHeader();
+-    }
+-
+-    public byte[] bodyDigest() {
+-        return this.message.signedBody().hash().asBytes();
+-    }
+-
+-    public net.minecraft.network.chat.MessageSignature headerSignature() {
+-        return this.message.headerSignature();
+-    }
+-
+     public java.util.UUID profileId() {
+         return this.profile.getId();
+     }

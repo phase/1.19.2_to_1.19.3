@@ -1,0 +1,204 @@
+--- net/minecraft/world/entity/monster/Shulker.java
++++ net/minecraft/world/entity/monster/Shulker.java
+@@ -65,7 +65,7 @@
+         return net.minecraft.sounds.SoundEvents.SHULKER_DEATH;
+     }
+ 
+-    public net.minecraft.sounds.SoundEvent getHurtSound(net.minecraft.world.damagesource.DamageSource damageSource) {
++    public net.minecraft.sounds.SoundEvent getHurtSound(net.minecraft.world.damagesource.DamageSource $$0) {
+         if (this.isClosed()) {
+             return net.minecraft.sounds.SoundEvents.SHULKER_HURT_CLOSED;
+         }
+@@ -87,20 +87,20 @@
+         return new net.minecraft.world.entity.monster.Shulker$ShulkerBodyRotationControl((net.minecraft.world.entity.Mob)this);
+     }
+ 
+-    public void readAdditionalSaveData(net.minecraft.nbt.CompoundTag compound) {
+-        super.readAdditionalSaveData(compound);
+-        this.setAttachFace(net.minecraft.core.Direction.from3DDataValue((int)compound.getByte("AttachFace")));
+-        this.entityData.set(DATA_PEEK_ID, (java.lang.Object)compound.getByte("Peek"));
+-        if (compound.contains("Color", 99)) {
+-            this.entityData.set(DATA_COLOR_ID, (java.lang.Object)compound.getByte("Color"));
++    public void readAdditionalSaveData(net.minecraft.nbt.CompoundTag $$0) {
++        super.readAdditionalSaveData($$0);
++        this.setAttachFace(net.minecraft.core.Direction.from3DDataValue((int)$$0.getByte("AttachFace")));
++        this.entityData.set(DATA_PEEK_ID, (java.lang.Object)$$0.getByte("Peek"));
++        if ($$0.contains("Color", 99)) {
++            this.entityData.set(DATA_COLOR_ID, (java.lang.Object)$$0.getByte("Color"));
+         }
+     }
+ 
+-    public void addAdditionalSaveData(net.minecraft.nbt.CompoundTag compound) {
+-        super.addAdditionalSaveData(compound);
+-        compound.putByte("AttachFace", (byte)this.getAttachFace().get3DDataValue());
+-        compound.putByte("Peek", ((java.lang.Byte)this.entityData.get(DATA_PEEK_ID)).byteValue());
+-        compound.putByte("Color", ((java.lang.Byte)this.entityData.get(DATA_COLOR_ID)).byteValue());
++    public void addAdditionalSaveData(net.minecraft.nbt.CompoundTag $$0) {
++        super.addAdditionalSaveData($$0);
++        $$0.putByte("AttachFace", (byte)this.getAttachFace().get3DDataValue());
++        $$0.putByte("Peek", ((java.lang.Byte)this.entityData.get(DATA_PEEK_ID)).byteValue());
++        $$0.putByte("Color", ((java.lang.Byte)this.entityData.get(DATA_COLOR_ID)).byteValue());
+     }
+ 
+     public void tick() {
+@@ -178,7 +178,7 @@
+ 
+     public double getMyRidingOffset() {
+         net.minecraft.world.entity.EntityType $$0 = this.getVehicle().getType();
+-        if ($$0 == net.minecraft.world.entity.EntityType.BOAT || $$0 == net.minecraft.world.entity.EntityType.MINECART) {
++        if (this.getVehicle() instanceof net.minecraft.world.entity.vehicle.Boat || $$0 == net.minecraft.world.entity.EntityType.MINECART) {
+             return 0.1875 - this.getVehicle().getPassengersRidingOffset();
+         }
+         return super.getMyRidingOffset();
+@@ -210,11 +210,11 @@
+         return super.finalizeSpawn($$0, $$1, $$2, $$3, $$4);
+     }
+ 
+-    public void move(net.minecraft.world.entity.MoverType type, net.minecraft.world.phys.Vec3 pos) {
+-        if (type == net.minecraft.world.entity.MoverType.SHULKER_BOX) {
++    public void move(net.minecraft.world.entity.MoverType $$0, net.minecraft.world.phys.Vec3 $$1) {
++        if ($$0 == net.minecraft.world.entity.MoverType.SHULKER_BOX) {
+             this.teleportSomewhere();
+         } else {
+-            super.move(type, pos);
++            super.move($$0, $$1);
+         }
+     }
+ 
+@@ -225,22 +225,22 @@
+     public void setDeltaMovement(net.minecraft.world.phys.Vec3 $$0) {
+     }
+ 
+-    public void setPos(double x, double y, double z) {
+-        net.minecraft.core.BlockPos blockPos = this.blockPosition();
++    public void setPos(double $$0, double $$1, double $$2) {
++        net.minecraft.core.BlockPos $$3 = this.blockPosition();
+         if (this.isPassenger()) {
+-            super.setPos(x, y, z);
++            super.setPos($$0, $$1, $$2);
+         } else {
+-            super.setPos((double)net.minecraft.util.Mth.floor((double)x) + 0.5, (double)net.minecraft.util.Mth.floor((double)(y + 0.5)), (double)net.minecraft.util.Mth.floor((double)z) + 0.5);
++            super.setPos((double)net.minecraft.util.Mth.floor((double)$$0) + 0.5, (double)net.minecraft.util.Mth.floor((double)($$1 + 0.5)), (double)net.minecraft.util.Mth.floor((double)$$2) + 0.5);
+         }
+         if (this.tickCount == 0) {
+             return;
+         }
+-        net.minecraft.core.BlockPos blockPos2 = this.blockPosition();
+-        if (!blockPos2.equals((java.lang.Object)blockPos)) {
++        net.minecraft.core.BlockPos $$4 = this.blockPosition();
++        if (!$$4.equals((java.lang.Object)$$3)) {
+             this.entityData.set(DATA_PEEK_ID, (java.lang.Object)0);
+             this.hasImpulse = true;
+-            if (this.level.isClientSide && !this.isPassenger() && !blockPos2.equals((java.lang.Object)this.clientOldAttachPosition)) {
+-                this.clientOldAttachPosition = blockPos;
++            if (this.level.isClientSide && !this.isPassenger() && !$$4.equals((java.lang.Object)this.clientOldAttachPosition)) {
++                this.clientOldAttachPosition = $$3;
+                 this.clientSideTeleportInterpolation = 6;
+                 this.xOld = this.getX();
+                 this.yOld = this.getY();
+@@ -300,21 +300,22 @@
+         return false;
+     }
+ 
+-    public void lerpTo(double x, double y, double z, float yaw, float pitch, int posRotationIncrements, boolean teleport) {
++    public void lerpTo(double $$0, double $$1, double $$2, float $$3, float $$4, int $$5, boolean $$6) {
+         this.lerpSteps = 0;
+-        this.setPos(x, y, z);
+-        this.setRot(yaw, pitch);
++        this.setPos($$0, $$1, $$2);
++        this.setRot($$3, $$4);
+     }
+ 
+-    public boolean hurt(net.minecraft.world.damagesource.DamageSource source, float amount) {
+-        net.minecraft.world.entity.Entity entity;
+-        if (this.isClosed() && (entity = source.getDirectEntity()) instanceof net.minecraft.world.entity.projectile.AbstractArrow) {
++    public boolean hurt(net.minecraft.world.damagesource.DamageSource $$0, float $$1) {
++        net.minecraft.world.entity.Entity $$2;
++        if (this.isClosed() && ($$2 = $$0.getDirectEntity()) instanceof net.minecraft.world.entity.projectile.AbstractArrow) {
+             return false;
+         }
+-        if (super.hurt(source, amount)) {
++        if (super.hurt($$0, $$1)) {
++            net.minecraft.world.entity.Entity $$3;
+             if ((double)this.getHealth() < (double)this.getMaxHealth() * 0.5 && this.random.nextInt(4) == 0) {
+                 this.teleportSomewhere();
+-            } else if (source.isProjectile() && (entity = source.getDirectEntity()) != null && entity.getType() == net.minecraft.world.entity.EntityType.SHULKER_BULLET) {
++            } else if ($$0.isProjectile() && ($$3 = $$0.getDirectEntity()) != null && $$3.getType() == net.minecraft.world.entity.EntityType.SHULKER_BULLET) {
+                 this.hitByShulkerBullet();
+             }
+             return true;
+@@ -338,12 +339,14 @@
+             return;
+         }
+         net.minecraft.world.entity.monster.Shulker $$4 = (net.minecraft.world.entity.monster.Shulker)net.minecraft.world.entity.EntityType.SHULKER.create(this.level);
+-        net.minecraft.world.item.DyeColor $$5 = this.getColor();
+-        if ($$5 != null) {
+-            $$4.setColor($$5);
++        if ($$4 != null) {
++            net.minecraft.world.item.DyeColor $$5 = this.getColor();
++            if ($$5 != null) {
++                $$4.setColor($$5);
++            }
++            $$4.moveTo($$0);
++            this.level.addFreshEntity((net.minecraft.world.entity.Entity)$$4);
+         }
+-        $$4.moveTo($$0);
+-        this.level.addFreshEntity((net.minecraft.world.entity.Entity)$$4);
+     }
+ 
+     public boolean canBeCollidedWith() {
+@@ -358,21 +361,21 @@
+         this.entityData.set(DATA_ATTACH_FACE_ID, (java.lang.Object)$$0);
+     }
+ 
+-    public void onSyncedDataUpdated(net.minecraft.network.syncher.EntityDataAccessor<?> key) {
+-        if (DATA_ATTACH_FACE_ID.equals(key)) {
++    public void onSyncedDataUpdated(net.minecraft.network.syncher.EntityDataAccessor<?> $$0) {
++        if (DATA_ATTACH_FACE_ID.equals($$0)) {
+             this.setBoundingBox(this.makeBoundingBox());
+         }
+-        super.onSyncedDataUpdated(key);
++        super.onSyncedDataUpdated($$0);
+     }
+ 
+     public int getRawPeekAmount() {
+         return ((java.lang.Byte)this.entityData.get(DATA_PEEK_ID)).byteValue();
+     }
+ 
+-    public void setRawPeekAmount(int peekAmount) {
++    public void setRawPeekAmount(int $$0) {
+         if (!this.level.isClientSide) {
+             this.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.ARMOR).removeModifier(COVERED_ARMOR_MODIFIER);
+-            if (peekAmount == 0) {
++            if ($$0 == 0) {
+                 this.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.ARMOR).addPermanentModifier(COVERED_ARMOR_MODIFIER);
+                 this.playSound(net.minecraft.sounds.SoundEvents.SHULKER_CLOSE, 1.0f, 1.0f);
+                 this.gameEvent(net.minecraft.world.level.gameevent.GameEvent.CONTAINER_CLOSE);
+@@ -381,14 +384,14 @@
+                 this.gameEvent(net.minecraft.world.level.gameevent.GameEvent.CONTAINER_OPEN);
+             }
+         }
+-        this.entityData.set(DATA_PEEK_ID, (java.lang.Object)((byte)peekAmount));
++        this.entityData.set(DATA_PEEK_ID, (java.lang.Object)((byte)$$0));
+     }
+ 
+-    public float getClientPeekAmount(float partialTick) {
+-        return net.minecraft.util.Mth.lerp((float)partialTick, (float)this.currentPeekAmountO, (float)this.currentPeekAmount);
++    public float getClientPeekAmount(float $$0) {
++        return net.minecraft.util.Mth.lerp((float)$$0, (float)this.currentPeekAmountO, (float)this.currentPeekAmount);
+     }
+ 
+-    public float getStandingEyeHeight(net.minecraft.world.entity.Pose pose, net.minecraft.world.entity.EntityDimensions size) {
++    public float getStandingEyeHeight(net.minecraft.world.entity.Pose $$0, net.minecraft.world.entity.EntityDimensions $$1) {
+         return 0.5f;
+     }
+ 
+@@ -406,7 +409,7 @@
+         return 180;
+     }
+ 
+-    public void push(net.minecraft.world.entity.Entity entity) {
++    public void push(net.minecraft.world.entity.Entity $$0) {
+     }
+ 
+     public float getPickRadius() {

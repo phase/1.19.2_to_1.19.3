@@ -1,0 +1,87 @@
+--- net/minecraft/commands/arguments/ObjectiveArgument.java
++++ net/minecraft/commands/arguments/ObjectiveArgument.java
+@@ -17,37 +17,37 @@
+         return new net.minecraft.commands.arguments.ObjectiveArgument();
+     }
+ 
+-    public static net.minecraft.world.scores.Objective getObjective(com.mojang.brigadier.context.CommandContext<net.minecraft.commands.CommandSourceStack> context, java.lang.String name) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
+-        java.lang.String string = (java.lang.String)context.getArgument(name, java.lang.String.class);
+-        net.minecraft.server.ServerScoreboard serverScoreboard = ((net.minecraft.commands.CommandSourceStack)context.getSource()).getServer().getScoreboard();
+-        net.minecraft.world.scores.Objective objective = serverScoreboard.getObjective(string);
+-        if (objective == null) {
+-            throw ERROR_OBJECTIVE_NOT_FOUND.create((java.lang.Object)string);
++    public static net.minecraft.world.scores.Objective getObjective(com.mojang.brigadier.context.CommandContext<net.minecraft.commands.CommandSourceStack> $$0, java.lang.String $$1) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
++        java.lang.String $$2 = (java.lang.String)$$0.getArgument($$1, java.lang.String.class);
++        net.minecraft.server.ServerScoreboard $$3 = ((net.minecraft.commands.CommandSourceStack)$$0.getSource()).getServer().getScoreboard();
++        net.minecraft.world.scores.Objective $$4 = $$3.getObjective($$2);
++        if ($$4 == null) {
++            throw ERROR_OBJECTIVE_NOT_FOUND.create((java.lang.Object)$$2);
+         }
+-        return objective;
++        return $$4;
+     }
+ 
+-    public static net.minecraft.world.scores.Objective getWritableObjective(com.mojang.brigadier.context.CommandContext<net.minecraft.commands.CommandSourceStack> context, java.lang.String name) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
+-        net.minecraft.world.scores.Objective objective = net.minecraft.commands.arguments.ObjectiveArgument.getObjective(context, (java.lang.String)name);
+-        if (objective.getCriteria().isReadOnly()) {
+-            throw ERROR_OBJECTIVE_READ_ONLY.create((java.lang.Object)objective.getName());
++    public static net.minecraft.world.scores.Objective getWritableObjective(com.mojang.brigadier.context.CommandContext<net.minecraft.commands.CommandSourceStack> $$0, java.lang.String $$1) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
++        net.minecraft.world.scores.Objective $$2 = net.minecraft.commands.arguments.ObjectiveArgument.getObjective($$0, (java.lang.String)$$1);
++        if ($$2.getCriteria().isReadOnly()) {
++            throw ERROR_OBJECTIVE_READ_ONLY.create((java.lang.Object)$$2.getName());
+         }
+-        return objective;
++        return $$2;
+     }
+ 
+-    public java.lang.String parse(com.mojang.brigadier.StringReader reader) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
+-        return reader.readUnquotedString();
++    public java.lang.String parse(com.mojang.brigadier.StringReader $$0) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
++        return $$0.readUnquotedString();
+     }
+ 
+-    public <S> java.util.concurrent.CompletableFuture<com.mojang.brigadier.suggestion.Suggestions> listSuggestions(com.mojang.brigadier.context.CommandContext<S> context, com.mojang.brigadier.suggestion.SuggestionsBuilder builder) {
+-        java.lang.Object object = context.getSource();
+-        if (object instanceof net.minecraft.commands.CommandSourceStack) {
+-            net.minecraft.commands.CommandSourceStack commandSourceStack = (net.minecraft.commands.CommandSourceStack)object;
+-            return net.minecraft.commands.SharedSuggestionProvider.suggest((java.lang.Iterable)commandSourceStack.getServer().getScoreboard().getObjectiveNames(), (com.mojang.brigadier.suggestion.SuggestionsBuilder)builder);
++    public <S> java.util.concurrent.CompletableFuture<com.mojang.brigadier.suggestion.Suggestions> listSuggestions(com.mojang.brigadier.context.CommandContext<S> $$0, com.mojang.brigadier.suggestion.SuggestionsBuilder $$1) {
++        java.lang.Object $$2 = $$0.getSource();
++        if ($$2 instanceof net.minecraft.commands.CommandSourceStack) {
++            net.minecraft.commands.CommandSourceStack $$3 = (net.minecraft.commands.CommandSourceStack)$$2;
++            return net.minecraft.commands.SharedSuggestionProvider.suggest((java.lang.Iterable)$$3.getServer().getScoreboard().getObjectiveNames(), (com.mojang.brigadier.suggestion.SuggestionsBuilder)$$1);
+         }
+-        if (object instanceof net.minecraft.commands.SharedSuggestionProvider) {
+-            net.minecraft.commands.SharedSuggestionProvider sharedSuggestionProvider = (net.minecraft.commands.SharedSuggestionProvider)object;
+-            return sharedSuggestionProvider.customSuggestion(context);
++        if ($$2 instanceof net.minecraft.commands.SharedSuggestionProvider) {
++            net.minecraft.commands.SharedSuggestionProvider $$4 = (net.minecraft.commands.SharedSuggestionProvider)$$2;
++            return $$4.customSuggestion($$0);
+         }
+         return com.mojang.brigadier.suggestion.Suggestions.empty();
+     }
+@@ -60,18 +60,18 @@
+         return this.parse(stringReader);
+     }
+ 
+-    public static /* synthetic */ com.mojang.brigadier.Message lambda$static$1(java.lang.Object objective) {
+-        return net.minecraft.network.chat.Component.translatable((java.lang.String)"arguments.objective.readonly", (java.lang.Object[])new java.lang.Object[]{objective});
++    public static /* synthetic */ com.mojang.brigadier.Message lambda$static$1(java.lang.Object $$0) {
++        return net.minecraft.network.chat.Component.translatable((java.lang.String)"arguments.objective.readonly", (java.lang.Object[])new java.lang.Object[]{$$0});
+     }
+ 
+-    public static /* synthetic */ com.mojang.brigadier.Message lambda$static$0(java.lang.Object objective) {
+-        return net.minecraft.network.chat.Component.translatable((java.lang.String)"arguments.objective.notFound", (java.lang.Object[])new java.lang.Object[]{objective});
++    public static /* synthetic */ com.mojang.brigadier.Message lambda$static$0(java.lang.Object $$0) {
++        return net.minecraft.network.chat.Component.translatable((java.lang.String)"arguments.objective.notFound", (java.lang.Object[])new java.lang.Object[]{$$0});
+     }
+ 
+     static {
+         EXAMPLES = java.util.Arrays.asList((java.lang.Object[])new java.lang.String[]{"foo", "*", "012"});
+-        ERROR_OBJECTIVE_NOT_FOUND = new com.mojang.brigadier.exceptions.DynamicCommandExceptionType(objective -> net.minecraft.network.chat.Component.translatable((java.lang.String)"arguments.objective.notFound", (java.lang.Object[])new java.lang.Object[]{objective}));
+-        ERROR_OBJECTIVE_READ_ONLY = new com.mojang.brigadier.exceptions.DynamicCommandExceptionType(objective -> net.minecraft.network.chat.Component.translatable((java.lang.String)"arguments.objective.readonly", (java.lang.Object[])new java.lang.Object[]{objective}));
++        ERROR_OBJECTIVE_NOT_FOUND = new com.mojang.brigadier.exceptions.DynamicCommandExceptionType($$0 -> net.minecraft.network.chat.Component.translatable((java.lang.String)"arguments.objective.notFound", (java.lang.Object[])new java.lang.Object[]{$$0}));
++        ERROR_OBJECTIVE_READ_ONLY = new com.mojang.brigadier.exceptions.DynamicCommandExceptionType($$0 -> net.minecraft.network.chat.Component.translatable((java.lang.String)"arguments.objective.readonly", (java.lang.Object[])new java.lang.Object[]{$$0}));
+     }
+ }
+ 

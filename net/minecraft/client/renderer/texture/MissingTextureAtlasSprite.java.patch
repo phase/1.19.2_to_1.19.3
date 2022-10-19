@@ -1,0 +1,111 @@
+--- net/minecraft/client/renderer/texture/MissingTextureAtlasSprite.java
++++ net/minecraft/client/renderer/texture/MissingTextureAtlasSprite.java
+@@ -4,83 +4,56 @@
+ package net.minecraft.client.renderer.texture;
+ 
+ public class net.minecraft.client.renderer.texture.MissingTextureAtlasSprite
+-extends net.minecraft.client.renderer.texture.TextureAtlasSprite
+  {
+     public static int MISSING_IMAGE_WIDTH = 16;
+     public static int MISSING_IMAGE_HEIGHT = 16;
+     public static java.lang.String MISSING_TEXTURE_NAME = "missingno";
+     public static net.minecraft.resources.ResourceLocation MISSING_TEXTURE_LOCATION;
++    public static net.minecraft.client.resources.metadata.animation.AnimationMetadataSection EMPTY_ANIMATION_META;
+     @javax.annotation.Nullable
+     public static net.minecraft.client.renderer.texture.DynamicTexture missingTexture;
+-    public static net.minecraft.util.LazyLoadedValue<com.mojang.blaze3d.platform.NativeImage> MISSING_IMAGE_DATA;
+-    public static net.minecraft.client.renderer.texture.TextureAtlasSprite$Info INFO;
+ 
+-    public net.minecraft.client.renderer.texture.MissingTextureAtlasSprite(net.minecraft.client.renderer.texture.TextureAtlas atlas, int n, int n2, int n3, int x, int y) {
+-        super(atlas, INFO, n, n2, n3, x, y, (com.mojang.blaze3d.platform.NativeImage)MISSING_IMAGE_DATA.get());
++    public net.minecraft.client.renderer.texture.MissingTextureAtlasSprite() {
+     }
+ 
+-    public static net.minecraft.client.renderer.texture.MissingTextureAtlasSprite newInstance(net.minecraft.client.renderer.texture.TextureAtlas atlasTexture, int mipmapLevel, int atlasWidth, int atlasHeight, int x, int y) {
+-        return new net.minecraft.client.renderer.texture.MissingTextureAtlasSprite(atlasTexture, mipmapLevel, atlasWidth, atlasHeight, x, y);
++    public static com.mojang.blaze3d.platform.NativeImage generateMissingImage(int $$0, int $$1) {
++        com.mojang.blaze3d.platform.NativeImage $$2 = new com.mojang.blaze3d.platform.NativeImage($$0, $$1, false);
++        int $$3 = -16777216;
++        int $$4 = -524040;
++        for (int $$5 = 0; $$5 < $$1; ++$$5) {
++            for (int $$6 = 0; $$6 < $$0; ++$$6) {
++                if ($$5 < $$1 / 2 ^ $$6 < $$0 / 2) {
++                    $$2.setPixelRGBA($$6, $$5, -524040);
++                    continue;
++                }
++                $$2.setPixelRGBA($$6, $$5, -16777216);
++            }
++        }
++        return $$2;
+     }
+ 
++    public static net.minecraft.client.renderer.texture.SpriteContents create() {
++        com.mojang.blaze3d.platform.NativeImage $$0 = net.minecraft.client.renderer.texture.MissingTextureAtlasSprite.generateMissingImage((int)16, (int)16);
++        return new net.minecraft.client.renderer.texture.SpriteContents(MISSING_TEXTURE_LOCATION, new net.minecraft.client.resources.metadata.animation.FrameSize(16, 16), $$0, EMPTY_ANIMATION_META);
++    }
++
+     public static net.minecraft.resources.ResourceLocation getLocation() {
+         return MISSING_TEXTURE_LOCATION;
+     }
+ 
+-    public static net.minecraft.client.renderer.texture.TextureAtlasSprite$Info info() {
+-        return INFO;
+-    }
+-
+-    public void close() {
+-        for (int $$0 = 1; $$0 < this.mainImage.length; ++$$0) {
+-            this.mainImage[$$0].close();
+-        }
+-    }
+-
+     public static net.minecraft.client.renderer.texture.DynamicTexture getTexture() {
+         if (missingTexture == null) {
+-            missingTexture = new net.minecraft.client.renderer.texture.DynamicTexture((com.mojang.blaze3d.platform.NativeImage)MISSING_IMAGE_DATA.get());
++            com.mojang.blaze3d.platform.NativeImage $$0 = net.minecraft.client.renderer.texture.MissingTextureAtlasSprite.generateMissingImage((int)16, (int)16);
++            $$0.untrack();
++            missingTexture = new net.minecraft.client.renderer.texture.DynamicTexture($$0);
+             net.minecraft.client.Minecraft.getInstance().getTextureManager().register(MISSING_TEXTURE_LOCATION, (net.minecraft.client.renderer.texture.AbstractTexture)missingTexture);
+         }
+         return missingTexture;
+     }
+ 
+-    public static /* synthetic */ com.mojang.blaze3d.platform.NativeImage lambda$static$0() {
+-        com.mojang.blaze3d.platform.NativeImage $$0 = new com.mojang.blaze3d.platform.NativeImage(16, 16, false);
+-        int $$1 = -16777216;
+-        int $$2 = -524040;
+-        for (int $$3 = 0; $$3 < 16; ++$$3) {
+-            for (int $$4 = 0; $$4 < 16; ++$$4) {
+-                if ($$3 < 8 ^ $$4 < 8) {
+-                    $$0.setPixelRGBA($$4, $$3, -524040);
+-                    continue;
+-                }
+-                $$0.setPixelRGBA($$4, $$3, -16777216);
+-            }
+-        }
+-        $$0.untrack();
+-        return $$0;
+-    }
+-
+     static {
+         MISSING_TEXTURE_LOCATION = new net.minecraft.resources.ResourceLocation("missingno");
+-        MISSING_IMAGE_DATA = new net.minecraft.util.LazyLoadedValue(() -> {
+-            com.mojang.blaze3d.platform.NativeImage $$0 = new com.mojang.blaze3d.platform.NativeImage(16, 16, false);
+-            int $$1 = -16777216;
+-            int $$2 = -524040;
+-            for (int $$3 = 0; $$3 < 16; ++$$3) {
+-                for (int $$4 = 0; $$4 < 16; ++$$4) {
+-                    if ($$3 < 8 ^ $$4 < 8) {
+-                        $$0.setPixelRGBA($$4, $$3, -524040);
+-                        continue;
+-                    }
+-                    $$0.setPixelRGBA($$4, $$3, -16777216);
+-                }
+-            }
+-            $$0.untrack();
+-            return $$0;
+-        });
+-        INFO = new net.minecraft.client.renderer.texture.TextureAtlasSprite$Info(MISSING_TEXTURE_LOCATION, 16, 16, new net.minecraft.client.resources.metadata.animation.AnimationMetadataSection((java.util.List)com.google.common.collect.ImmutableList.of((java.lang.Object)new net.minecraft.client.resources.metadata.animation.AnimationFrame(0, -1)), 16, 16, 1, false));
++        EMPTY_ANIMATION_META = new net.minecraft.client.resources.metadata.animation.AnimationMetadataSection((java.util.List)com.google.common.collect.ImmutableList.of((java.lang.Object)new net.minecraft.client.resources.metadata.animation.AnimationFrame(0, -1)), 16, 16, 1, false);
+     }
+ }
+ 

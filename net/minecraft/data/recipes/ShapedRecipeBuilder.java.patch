@@ -1,0 +1,126 @@
+--- net/minecraft/data/recipes/ShapedRecipeBuilder.java
++++ net/minecraft/data/recipes/ShapedRecipeBuilder.java
+@@ -4,8 +4,10 @@
+ package net.minecraft.data.recipes;
+ 
+ public class net.minecraft.data.recipes.ShapedRecipeBuilder
++extends net.minecraft.data.recipes.CraftingRecipeBuilder
+ implements net.minecraft.data.recipes.RecipeBuilder
+  {
++    public net.minecraft.data.recipes.RecipeCategory category;
+     public net.minecraft.world.item.Item result;
+     public int count;
+     public java.util.List<java.lang.String> rows;
+@@ -14,46 +16,47 @@
+     @javax.annotation.Nullable
+     public java.lang.String group;
+ 
+-    public net.minecraft.data.recipes.ShapedRecipeBuilder(net.minecraft.world.level.ItemLike result, int count) {
++    public net.minecraft.data.recipes.ShapedRecipeBuilder(net.minecraft.data.recipes.RecipeCategory $$0, net.minecraft.world.level.ItemLike $$1, int $$2) {
+         this.rows = com.google.common.collect.Lists.newArrayList();
+         this.key = com.google.common.collect.Maps.newLinkedHashMap();
+         this.advancement = net.minecraft.advancements.Advancement$Builder.advancement();
+-        this.result = result.asItem();
+-        this.count = count;
++        this.category = $$0;
++        this.result = $$1.asItem();
++        this.count = $$2;
+     }
+ 
+-    public static net.minecraft.data.recipes.ShapedRecipeBuilder shaped(net.minecraft.world.level.ItemLike result) {
+-        return net.minecraft.data.recipes.ShapedRecipeBuilder.shaped((net.minecraft.world.level.ItemLike)result, (int)1);
++    public static net.minecraft.data.recipes.ShapedRecipeBuilder shaped(net.minecraft.data.recipes.RecipeCategory $$0, net.minecraft.world.level.ItemLike $$1) {
++        return net.minecraft.data.recipes.ShapedRecipeBuilder.shaped((net.minecraft.data.recipes.RecipeCategory)$$0, (net.minecraft.world.level.ItemLike)$$1, (int)1);
+     }
+ 
+-    public static net.minecraft.data.recipes.ShapedRecipeBuilder shaped(net.minecraft.world.level.ItemLike result, int count) {
+-        return new net.minecraft.data.recipes.ShapedRecipeBuilder(result, count);
++    public static net.minecraft.data.recipes.ShapedRecipeBuilder shaped(net.minecraft.data.recipes.RecipeCategory $$0, net.minecraft.world.level.ItemLike $$1, int $$2) {
++        return new net.minecraft.data.recipes.ShapedRecipeBuilder($$0, $$1, $$2);
+     }
+ 
+     public net.minecraft.data.recipes.ShapedRecipeBuilder define(java.lang.Character $$0, net.minecraft.tags.TagKey<net.minecraft.world.item.Item> $$1) {
+         return this.define($$0, net.minecraft.world.item.crafting.Ingredient.of($$1));
+     }
+ 
+-    public net.minecraft.data.recipes.ShapedRecipeBuilder define(java.lang.Character symbol, net.minecraft.world.level.ItemLike item) {
+-        return this.define(symbol, net.minecraft.world.item.crafting.Ingredient.of((net.minecraft.world.level.ItemLike[])new net.minecraft.world.level.ItemLike[]{item}));
++    public net.minecraft.data.recipes.ShapedRecipeBuilder define(java.lang.Character $$0, net.minecraft.world.level.ItemLike $$1) {
++        return this.define($$0, net.minecraft.world.item.crafting.Ingredient.of((net.minecraft.world.level.ItemLike[])new net.minecraft.world.level.ItemLike[]{$$1}));
+     }
+ 
+-    public net.minecraft.data.recipes.ShapedRecipeBuilder define(java.lang.Character symbol, net.minecraft.world.item.crafting.Ingredient ingredient) {
+-        if (this.key.containsKey((java.lang.Object)symbol)) {
+-            throw new java.lang.IllegalArgumentException("Symbol '" + symbol + "' is already defined!");
++    public net.minecraft.data.recipes.ShapedRecipeBuilder define(java.lang.Character $$0, net.minecraft.world.item.crafting.Ingredient $$1) {
++        if (this.key.containsKey((java.lang.Object)$$0)) {
++            throw new java.lang.IllegalArgumentException("Symbol '" + $$0 + "' is already defined!");
+         }
+-        if (symbol.charValue() == ' ') {
++        if ($$0.charValue() == ' ') {
+             throw new java.lang.IllegalArgumentException("Symbol ' ' (whitespace) is reserved and cannot be defined");
+         }
+-        this.key.put((java.lang.Object)symbol, (java.lang.Object)ingredient);
++        this.key.put((java.lang.Object)$$0, (java.lang.Object)$$1);
+         return this;
+     }
+ 
+-    public net.minecraft.data.recipes.ShapedRecipeBuilder pattern(java.lang.String pattern) {
+-        if (!this.rows.isEmpty() && pattern.length() != ((java.lang.String)this.rows.get(0)).length()) {
++    public net.minecraft.data.recipes.ShapedRecipeBuilder pattern(java.lang.String $$0) {
++        if (!this.rows.isEmpty() && $$0.length() != ((java.lang.String)this.rows.get(0)).length()) {
+             throw new java.lang.IllegalArgumentException("Pattern must be the same width on every line!");
+         }
+-        this.rows.add((java.lang.Object)pattern);
++        this.rows.add((java.lang.Object)$$0);
+         return this;
+     }
+ 
+@@ -74,32 +77,32 @@
+     public void save(java.util.function.Consumer<net.minecraft.data.recipes.FinishedRecipe> $$0, net.minecraft.resources.ResourceLocation $$1) {
+         this.ensureValid($$1);
+         this.advancement.parent(ROOT_RECIPE_ADVANCEMENT).addCriterion("has_the_recipe", (net.minecraft.advancements.CriterionTriggerInstance)net.minecraft.advancements.critereon.RecipeUnlockedTrigger.unlocked((net.minecraft.resources.ResourceLocation)$$1)).rewards(net.minecraft.advancements.AdvancementRewards$Builder.recipe((net.minecraft.resources.ResourceLocation)$$1)).requirements(net.minecraft.advancements.RequirementsStrategy.OR);
+-        $$0.accept((java.lang.Object)new net.minecraft.data.recipes.ShapedRecipeBuilder$Result($$1, this.result, this.count, this.group == null ? "" : this.group, this.rows, this.key, this.advancement, new net.minecraft.resources.ResourceLocation($$1.getNamespace(), "recipes/" + this.result.getItemCategory().getRecipeFolderName() + "/" + $$1.getPath())));
++        $$0.accept((java.lang.Object)new net.minecraft.data.recipes.ShapedRecipeBuilder$Result($$1, this.result, this.count, this.group == null ? "" : this.group, net.minecraft.data.recipes.ShapedRecipeBuilder.determineBookCategory((net.minecraft.data.recipes.RecipeCategory)this.category), this.rows, this.key, this.advancement, $$1.withPrefix("recipes/" + this.category.getFolderName() + "/")));
+     }
+ 
+-    public void ensureValid(net.minecraft.resources.ResourceLocation id) {
++    public void ensureValid(net.minecraft.resources.ResourceLocation $$0) {
+         if (this.rows.isEmpty()) {
+-            throw new java.lang.IllegalStateException("No pattern is defined for shaped recipe " + id + "!");
++            throw new java.lang.IllegalStateException("No pattern is defined for shaped recipe " + $$0 + "!");
+         }
+-        java.util.HashSet hashSet = com.google.common.collect.Sets.newHashSet((java.lang.Iterable)this.key.keySet());
+-        hashSet.remove((java.lang.Object)java.lang.Character.valueOf((char)' '));
+-        for (java.lang.String string : this.rows) {
+-            for (int i = 0; i < string.length(); ++i) {
+-                char c = string.charAt(i);
+-                if (!this.key.containsKey((java.lang.Object)java.lang.Character.valueOf((char)c)) && c != ' ') {
+-                    throw new java.lang.IllegalStateException("Pattern in recipe " + id + " uses undefined symbol '" + c + "'");
++        java.util.HashSet $$1 = com.google.common.collect.Sets.newHashSet((java.lang.Iterable)this.key.keySet());
++        $$1.remove((java.lang.Object)java.lang.Character.valueOf((char)' '));
++        for (java.lang.String $$2 : this.rows) {
++            for (int $$3 = 0; $$3 < $$2.length(); ++$$3) {
++                char $$4 = $$2.charAt($$3);
++                if (!this.key.containsKey((java.lang.Object)java.lang.Character.valueOf((char)$$4)) && $$4 != ' ') {
++                    throw new java.lang.IllegalStateException("Pattern in recipe " + $$0 + " uses undefined symbol '" + $$4 + "'");
+                 }
+-                hashSet.remove((java.lang.Object)java.lang.Character.valueOf((char)c));
++                $$1.remove((java.lang.Object)java.lang.Character.valueOf((char)$$4));
+             }
+         }
+-        if (!hashSet.isEmpty()) {
+-            throw new java.lang.IllegalStateException("Ingredients are defined but not used in pattern for recipe " + id);
++        if (!$$1.isEmpty()) {
++            throw new java.lang.IllegalStateException("Ingredients are defined but not used in pattern for recipe " + $$0);
+         }
+         if (this.rows.size() == 1 && ((java.lang.String)this.rows.get(0)).length() == 1) {
+-            throw new java.lang.IllegalStateException("Shaped recipe " + id + " only takes in a single item - should it be a shapeless recipe instead?");
++            throw new java.lang.IllegalStateException("Shaped recipe " + $$0 + " only takes in a single item - should it be a shapeless recipe instead?");
+         }
+         if (this.advancement.getCriteria().isEmpty()) {
+-            throw new java.lang.IllegalStateException("No way of obtaining recipe " + id);
++            throw new java.lang.IllegalStateException("No way of obtaining recipe " + $$0);
+         }
+     }
+ 

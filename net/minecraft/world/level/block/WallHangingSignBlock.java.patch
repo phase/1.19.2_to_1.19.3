@@ -1,0 +1,114 @@
+--- net/minecraft/world/level/block/WallHangingSignBlock.java
++++ net/minecraft/world/level/block/WallHangingSignBlock.java
+@@ -1,0 +1,111 @@
++/*
++ * Decompiled with CFR 0.151.
++ */
++package net.minecraft.world.level.block;
++
++public class net.minecraft.world.level.block.WallHangingSignBlock
++extends net.minecraft.world.level.block.SignBlock
++ {
++    public static net.minecraft.world.level.block.state.properties.DirectionProperty FACING;
++    public static net.minecraft.world.phys.shapes.VoxelShape PLANK_NORTHSOUTH;
++    public static net.minecraft.world.phys.shapes.VoxelShape PLANK_EASTWEST;
++    public static net.minecraft.world.phys.shapes.VoxelShape SHAPE_NORTHSOUTH;
++    public static net.minecraft.world.phys.shapes.VoxelShape SHAPE_EASTWEST;
++    public static java.util.Map<net.minecraft.core.Direction, net.minecraft.world.phys.shapes.VoxelShape> AABBS;
++
++    public net.minecraft.world.level.block.WallHangingSignBlock(net.minecraft.world.level.block.state.BlockBehaviour$Properties $$0, net.minecraft.world.level.block.state.properties.WoodType $$1) {
++        super($$0, $$1);
++        this.registerDefaultState((net.minecraft.world.level.block.state.BlockState)((net.minecraft.world.level.block.state.BlockState)((net.minecraft.world.level.block.state.BlockState)this.stateDefinition.any()).setValue((net.minecraft.world.level.block.state.properties.Property)FACING, (java.lang.Comparable)net.minecraft.core.Direction.NORTH)).setValue((net.minecraft.world.level.block.state.properties.Property)WATERLOGGED, (java.lang.Comparable)java.lang.Boolean.valueOf((boolean)false)));
++    }
++
++    public net.minecraft.world.InteractionResult use(net.minecraft.world.level.block.state.BlockState $$0, net.minecraft.world.level.Level $$1, net.minecraft.core.BlockPos $$2, net.minecraft.world.entity.player.Player $$3, net.minecraft.world.InteractionHand $$4, net.minecraft.world.phys.BlockHitResult $$5) {
++        net.minecraft.world.level.block.entity.BlockEntity blockEntity = $$1.getBlockEntity($$2);
++        if (blockEntity instanceof net.minecraft.world.level.block.entity.SignBlockEntity) {
++            net.minecraft.world.level.block.entity.SignBlockEntity $$6 = (net.minecraft.world.level.block.entity.SignBlockEntity)blockEntity;
++            net.minecraft.world.item.ItemStack $$7 = $$3.getItemInHand($$4);
++            if (!$$6.hasAnyClickCommands($$3) && $$7.getItem() instanceof net.minecraft.world.item.BlockItem) {
++                return net.minecraft.world.InteractionResult.PASS;
++            }
++        }
++        return super.use($$0, $$1, $$2, $$3, $$4, $$5);
++    }
++
++    public java.lang.String getDescriptionId() {
++        return this.asItem().getDescriptionId();
++    }
++
++    public net.minecraft.world.phys.shapes.VoxelShape getShape(net.minecraft.world.level.block.state.BlockState $$0, net.minecraft.world.level.BlockGetter $$1, net.minecraft.core.BlockPos $$2, net.minecraft.world.phys.shapes.CollisionContext $$3) {
++        return (net.minecraft.world.phys.shapes.VoxelShape)AABBS.get((java.lang.Object)$$0.getValue((net.minecraft.world.level.block.state.properties.Property)FACING));
++    }
++
++    public net.minecraft.world.phys.shapes.VoxelShape getCollisionShape(net.minecraft.world.level.block.state.BlockState $$0, net.minecraft.world.level.BlockGetter $$1, net.minecraft.core.BlockPos $$2, net.minecraft.world.phys.shapes.CollisionContext $$3) {
++        switch (net.minecraft.world.level.block.WallHangingSignBlock$1.$SwitchMap$net$minecraft$core$Direction[((net.minecraft.core.Direction)$$0.getValue((net.minecraft.world.level.block.state.properties.Property)FACING)).ordinal()]) {
++            case 1: 
++            case 2: {
++                return PLANK_EASTWEST;
++            }
++        }
++        return PLANK_NORTHSOUTH;
++    }
++
++    public boolean canPlace(net.minecraft.world.level.block.state.BlockState $$0, net.minecraft.world.level.LevelReader $$1, net.minecraft.core.BlockPos $$2) {
++        net.minecraft.core.Direction $$3 = ((net.minecraft.core.Direction)$$0.getValue((net.minecraft.world.level.block.state.properties.Property)FACING)).getClockWise();
++        net.minecraft.core.Direction $$4 = ((net.minecraft.core.Direction)$$0.getValue((net.minecraft.world.level.block.state.properties.Property)FACING)).getCounterClockWise();
++        return this.canAttachTo($$1, $$0, $$2.relative($$3), $$4) || this.canAttachTo($$1, $$0, $$2.relative($$4), $$3);
++    }
++
++    public boolean canAttachTo(net.minecraft.world.level.LevelReader $$0, net.minecraft.world.level.block.state.BlockState $$1, net.minecraft.core.BlockPos $$2, net.minecraft.core.Direction $$3) {
++        net.minecraft.world.level.block.state.BlockState $$4 = $$0.getBlockState($$2);
++        if ($$4.is(net.minecraft.tags.BlockTags.WALL_HANGING_SIGNS)) {
++            return ((net.minecraft.core.Direction)$$4.getValue((net.minecraft.world.level.block.state.properties.Property)FACING)).getAxis().test((net.minecraft.core.Direction)$$1.getValue((net.minecraft.world.level.block.state.properties.Property)FACING));
++        }
++        return $$4.isFaceSturdy((net.minecraft.world.level.BlockGetter)$$0, $$2, $$3, net.minecraft.world.level.block.SupportType.FULL);
++    }
++
++    @javax.annotation.Nullable
++    public net.minecraft.world.level.block.state.BlockState getStateForPlacement(net.minecraft.world.item.context.BlockPlaceContext $$0) {
++        net.minecraft.world.level.block.state.BlockState $$1 = this.defaultBlockState();
++        net.minecraft.world.level.material.FluidState $$2 = $$0.getLevel().getFluidState($$0.getClickedPos());
++        net.minecraft.world.level.Level $$3 = $$0.getLevel();
++        net.minecraft.core.BlockPos $$4 = $$0.getClickedPos();
++        for (net.minecraft.core.Direction $$5 : $$0.getNearestLookingDirections()) {
++            net.minecraft.core.Direction $$6;
++            if (!$$5.getAxis().isHorizontal() || $$5.getAxis().test($$0.getClickedFace()) || !($$1 = (net.minecraft.world.level.block.state.BlockState)$$1.setValue((net.minecraft.world.level.block.state.properties.Property)FACING, (java.lang.Comparable)($$6 = $$5.getOpposite()))).canSurvive((net.minecraft.world.level.LevelReader)$$3, $$4) || !this.canPlace($$1, (net.minecraft.world.level.LevelReader)$$3, $$4)) continue;
++            return (net.minecraft.world.level.block.state.BlockState)$$1.setValue((net.minecraft.world.level.block.state.properties.Property)WATERLOGGED, (java.lang.Comparable)java.lang.Boolean.valueOf(($$2.getType() == net.minecraft.world.level.material.Fluids.WATER ? 1 : 0) != 0));
++        }
++        return null;
++    }
++
++    public net.minecraft.world.level.block.state.BlockState updateShape(net.minecraft.world.level.block.state.BlockState $$0, net.minecraft.core.Direction $$1, net.minecraft.world.level.block.state.BlockState $$2, net.minecraft.world.level.LevelAccessor $$3, net.minecraft.core.BlockPos $$4, net.minecraft.core.BlockPos $$5) {
++        if ($$1.getAxis() == ((net.minecraft.core.Direction)$$0.getValue((net.minecraft.world.level.block.state.properties.Property)FACING)).getClockWise().getAxis() && !$$0.canSurvive((net.minecraft.world.level.LevelReader)$$3, $$4)) {
++            return net.minecraft.world.level.block.Blocks.AIR.defaultBlockState();
++        }
++        return super.updateShape($$0, $$1, $$2, $$3, $$4, $$5);
++    }
++
++    public net.minecraft.world.level.block.state.BlockState rotate(net.minecraft.world.level.block.state.BlockState $$0, net.minecraft.world.level.block.Rotation $$1) {
++        return (net.minecraft.world.level.block.state.BlockState)$$0.setValue((net.minecraft.world.level.block.state.properties.Property)FACING, (java.lang.Comparable)$$1.rotate((net.minecraft.core.Direction)$$0.getValue((net.minecraft.world.level.block.state.properties.Property)FACING)));
++    }
++
++    public net.minecraft.world.level.block.state.BlockState mirror(net.minecraft.world.level.block.state.BlockState $$0, net.minecraft.world.level.block.Mirror $$1) {
++        return $$0.rotate($$1.getRotation((net.minecraft.core.Direction)$$0.getValue((net.minecraft.world.level.block.state.properties.Property)FACING)));
++    }
++
++    public void createBlockStateDefinition(net.minecraft.world.level.block.state.StateDefinition$Builder<net.minecraft.world.level.block.Block, net.minecraft.world.level.block.state.BlockState> $$0) {
++        $$0.add(new net.minecraft.world.level.block.state.properties.Property[]{FACING, WATERLOGGED});
++    }
++
++    public net.minecraft.world.level.block.entity.BlockEntity newBlockEntity(net.minecraft.core.BlockPos $$0, net.minecraft.world.level.block.state.BlockState $$1) {
++        return new net.minecraft.world.level.block.entity.HangingSignBlockEntity($$0, $$1);
++    }
++
++    static {
++        FACING = net.minecraft.world.level.block.HorizontalDirectionalBlock.FACING;
++        PLANK_NORTHSOUTH = net.minecraft.world.level.block.Block.box((double)0.0, (double)14.0, (double)6.0, (double)16.0, (double)16.0, (double)10.0);
++        PLANK_EASTWEST = net.minecraft.world.level.block.Block.box((double)6.0, (double)14.0, (double)0.0, (double)10.0, (double)16.0, (double)16.0);
++        SHAPE_NORTHSOUTH = net.minecraft.world.phys.shapes.Shapes.or((net.minecraft.world.phys.shapes.VoxelShape)PLANK_NORTHSOUTH, (net.minecraft.world.phys.shapes.VoxelShape)net.minecraft.world.level.block.Block.box((double)1.0, (double)0.0, (double)7.0, (double)15.0, (double)10.0, (double)9.0));
++        SHAPE_EASTWEST = net.minecraft.world.phys.shapes.Shapes.or((net.minecraft.world.phys.shapes.VoxelShape)PLANK_EASTWEST, (net.minecraft.world.phys.shapes.VoxelShape)net.minecraft.world.level.block.Block.box((double)7.0, (double)0.0, (double)1.0, (double)9.0, (double)10.0, (double)15.0));
++        AABBS = com.google.common.collect.Maps.newEnumMap((java.util.Map)com.google.common.collect.ImmutableMap.of((java.lang.Object)net.minecraft.core.Direction.NORTH, (java.lang.Object)SHAPE_NORTHSOUTH, (java.lang.Object)net.minecraft.core.Direction.SOUTH, (java.lang.Object)SHAPE_NORTHSOUTH, (java.lang.Object)net.minecraft.core.Direction.EAST, (java.lang.Object)SHAPE_EASTWEST, (java.lang.Object)net.minecraft.core.Direction.WEST, (java.lang.Object)SHAPE_EASTWEST));
++    }
++}
++

@@ -1,0 +1,113 @@
+--- net/minecraft/world/level/levelgen/NoiseBasedChunkGenerator.java
++++ net/minecraft/world/level/levelgen/NoiseBasedChunkGenerator.java
+@@ -8,26 +8,27 @@
+  {
+     public static com.mojang.serialization.Codec<net.minecraft.world.level.levelgen.NoiseBasedChunkGenerator> CODEC;
+     public static net.minecraft.world.level.block.state.BlockState AIR;
+-    public net.minecraft.world.level.block.state.BlockState defaultBlock;
+     public net.minecraft.core.Registry<net.minecraft.world.level.levelgen.synth.NormalNoise$NoiseParameters> noises;
+     public net.minecraft.core.Holder<net.minecraft.world.level.levelgen.NoiseGeneratorSettings> settings;
+-    public net.minecraft.world.level.levelgen.Aquifer$FluidPicker globalFluidPicker;
++    public java.util.function.Supplier<net.minecraft.world.level.levelgen.Aquifer$FluidPicker> globalFluidPicker;
+ 
+     public net.minecraft.world.level.levelgen.NoiseBasedChunkGenerator(net.minecraft.core.Registry<net.minecraft.world.level.levelgen.structure.StructureSet> $$0, net.minecraft.core.Registry<net.minecraft.world.level.levelgen.synth.NormalNoise$NoiseParameters> $$1, net.minecraft.world.level.biome.BiomeSource $$2, net.minecraft.core.Holder<net.minecraft.world.level.levelgen.NoiseGeneratorSettings> $$3) {
+         super($$0, java.util.Optional.empty(), $$2);
+         this.noises = $$1;
+         this.settings = $$3;
+-        net.minecraft.world.level.levelgen.NoiseGeneratorSettings $$42 = (net.minecraft.world.level.levelgen.NoiseGeneratorSettings)this.settings.value();
+-        this.defaultBlock = $$42.defaultBlock();
+-        net.minecraft.world.level.levelgen.Aquifer$FluidStatus $$52 = new net.minecraft.world.level.levelgen.Aquifer$FluidStatus(-54, net.minecraft.world.level.block.Blocks.LAVA.defaultBlockState());
+-        int $$62 = $$42.seaLevel();
+-        net.minecraft.world.level.levelgen.Aquifer$FluidStatus $$7 = new net.minecraft.world.level.levelgen.Aquifer$FluidStatus($$62, $$42.defaultFluid());
+-        net.minecraft.world.level.levelgen.Aquifer$FluidStatus $$8 = new net.minecraft.world.level.levelgen.Aquifer$FluidStatus(net.minecraft.world.level.dimension.DimensionType.MIN_Y * 2, net.minecraft.world.level.block.Blocks.AIR.defaultBlockState());
+-        this.globalFluidPicker = ($$4, $$5, $$6) -> {
+-            if ($$5 < java.lang.Math.min((int)-54, (int)$$62)) {
+-                return $$52;
++        this.globalFluidPicker = com.google.common.base.Suppliers.memoize(() -> net.minecraft.world.level.levelgen.NoiseBasedChunkGenerator.createFluidPicker((net.minecraft.world.level.levelgen.NoiseGeneratorSettings)((net.minecraft.world.level.levelgen.NoiseGeneratorSettings)$$3.value())));
++    }
++
++    public static net.minecraft.world.level.levelgen.Aquifer$FluidPicker createFluidPicker(net.minecraft.world.level.levelgen.NoiseGeneratorSettings $$0) {
++        net.minecraft.world.level.levelgen.Aquifer$FluidStatus $$1 = new net.minecraft.world.level.levelgen.Aquifer$FluidStatus(-54, net.minecraft.world.level.block.Blocks.LAVA.defaultBlockState());
++        int $$2 = $$0.seaLevel();
++        net.minecraft.world.level.levelgen.Aquifer$FluidStatus $$3 = new net.minecraft.world.level.levelgen.Aquifer$FluidStatus($$2, $$0.defaultFluid());
++        net.minecraft.world.level.levelgen.Aquifer$FluidStatus $$42 = new net.minecraft.world.level.levelgen.Aquifer$FluidStatus(net.minecraft.world.level.dimension.DimensionType.MIN_Y * 2, net.minecraft.world.level.block.Blocks.AIR.defaultBlockState());
++        return ($$4, $$5, $$6) -> {
++            if ($$5 < java.lang.Math.min((int)-54, (int)$$2)) {
++                return $$1;
+             }
+-            return $$7;
++            return $$3;
+         };
+     }
+ 
+@@ -45,7 +46,7 @@
+     }
+ 
+     public net.minecraft.world.level.levelgen.NoiseChunk createNoiseChunk(net.minecraft.world.level.chunk.ChunkAccess $$0, net.minecraft.world.level.StructureManager $$1, net.minecraft.world.level.levelgen.blending.Blender $$2, net.minecraft.world.level.levelgen.RandomState $$3) {
+-        return net.minecraft.world.level.levelgen.NoiseChunk.forChunk((net.minecraft.world.level.chunk.ChunkAccess)$$0, (net.minecraft.world.level.levelgen.RandomState)$$3, (net.minecraft.world.level.levelgen.DensityFunctions$BeardifierOrMarker)net.minecraft.world.level.levelgen.Beardifier.forStructuresInChunk((net.minecraft.world.level.StructureManager)$$1, (net.minecraft.world.level.ChunkPos)$$0.getPos()), (net.minecraft.world.level.levelgen.NoiseGeneratorSettings)((net.minecraft.world.level.levelgen.NoiseGeneratorSettings)this.settings.value()), (net.minecraft.world.level.levelgen.Aquifer$FluidPicker)this.globalFluidPicker, (net.minecraft.world.level.levelgen.blending.Blender)$$2);
++        return net.minecraft.world.level.levelgen.NoiseChunk.forChunk((net.minecraft.world.level.chunk.ChunkAccess)$$0, (net.minecraft.world.level.levelgen.RandomState)$$3, (net.minecraft.world.level.levelgen.DensityFunctions$BeardifierOrMarker)net.minecraft.world.level.levelgen.Beardifier.forStructuresInChunk((net.minecraft.world.level.StructureManager)$$1, (net.minecraft.world.level.ChunkPos)$$0.getPos()), (net.minecraft.world.level.levelgen.NoiseGeneratorSettings)((net.minecraft.world.level.levelgen.NoiseGeneratorSettings)this.settings.value()), (net.minecraft.world.level.levelgen.Aquifer$FluidPicker)((net.minecraft.world.level.levelgen.Aquifer$FluidPicker)this.globalFluidPicker.get()), (net.minecraft.world.level.levelgen.blending.Blender)$$2);
+     }
+ 
+     public com.mojang.serialization.Codec<? extends net.minecraft.world.level.chunk.ChunkGenerator> codec() {
+@@ -103,7 +104,7 @@
+         int $$19 = $$15 * $$13;
+         double $$20 = (double)$$16 / (double)$$13;
+         double $$21 = (double)$$17 / (double)$$13;
+-        net.minecraft.world.level.levelgen.NoiseChunk $$22 = new net.minecraft.world.level.levelgen.NoiseChunk(1, $$1, $$18, $$19, $$6, (net.minecraft.world.level.levelgen.DensityFunctions$BeardifierOrMarker)net.minecraft.world.level.levelgen.DensityFunctions$BeardifierMarker.INSTANCE, (net.minecraft.world.level.levelgen.NoiseGeneratorSettings)this.settings.value(), this.globalFluidPicker, net.minecraft.world.level.levelgen.blending.Blender.empty());
++        net.minecraft.world.level.levelgen.NoiseChunk $$22 = new net.minecraft.world.level.levelgen.NoiseChunk(1, $$1, $$18, $$19, $$6, (net.minecraft.world.level.levelgen.DensityFunctions$BeardifierOrMarker)net.minecraft.world.level.levelgen.DensityFunctions$BeardifierMarker.INSTANCE, (net.minecraft.world.level.levelgen.NoiseGeneratorSettings)this.settings.value(), (net.minecraft.world.level.levelgen.Aquifer$FluidPicker)this.globalFluidPicker.get(), net.minecraft.world.level.levelgen.blending.Blender.empty());
+         $$22.initializeForFirstCellX();
+         $$22.advanceCellX(0);
+         for (int $$23 = $$10 - 1; $$23 >= 0; --$$23) {
+@@ -116,7 +117,7 @@
+                 $$22.updateForX($$2, $$20);
+                 $$22.updateForZ($$3, $$21);
+                 net.minecraft.world.level.block.state.BlockState $$27 = $$22.getInterpolatedState();
+-                net.minecraft.world.level.block.state.BlockState blockState = $$28 = $$27 == null ? this.defaultBlock : $$27;
++                net.minecraft.world.level.block.state.BlockState blockState = $$28 = $$27 == null ? ((net.minecraft.world.level.levelgen.NoiseGeneratorSettings)this.settings.value()).defaultBlock() : $$27;
+                 if ($$12 != null) {
+                     int $$29 = $$23 * $$7 + $$24;
+                     $$12[$$29] = $$28;
+@@ -189,7 +190,7 @@
+             $$13.acquire();
+             $$11.add((java.lang.Object)$$13);
+         }
+-        return java.util.concurrent.CompletableFuture.supplyAsync((java.util.function.Supplier)net.minecraft.Util.wrapThreadWithTaskName((java.lang.String)"wgen_fill_noise", () -> this.doFill($$1, $$3, $$2, $$4, $$7, $$8)), (java.util.concurrent.Executor)net.minecraft.Util.backgroundExecutor()).whenCompleteAsync((arg_0, arg_1) -> net.minecraft.world.level.levelgen.NoiseBasedChunkGenerator.lambda$fillFromNoise$12((java.util.Set)$$11, arg_0, arg_1), $$0);
++        return java.util.concurrent.CompletableFuture.supplyAsync((java.util.function.Supplier)net.minecraft.Util.wrapThreadWithTaskName((java.lang.String)"wgen_fill_noise", () -> this.doFill($$1, $$3, $$2, $$4, $$7, $$8)), (java.util.concurrent.Executor)net.minecraft.Util.backgroundExecutor()).whenCompleteAsync((arg_0, arg_1) -> net.minecraft.world.level.levelgen.NoiseBasedChunkGenerator.lambda$fillFromNoise$13((java.util.Set)$$11, arg_0, arg_1), $$0);
+     }
+ 
+     public net.minecraft.world.level.chunk.ChunkAccess doFill(net.minecraft.world.level.levelgen.blending.Blender $$0, net.minecraft.world.level.StructureManager $$1, net.minecraft.world.level.levelgen.RandomState $$2, net.minecraft.world.level.chunk.ChunkAccess $$32, int $$4, int $$5) {
+@@ -233,7 +234,7 @@
+                                 $$6.updateForZ($$322, $$34);
+                                 net.minecraft.world.level.block.state.BlockState $$35 = $$6.getInterpolatedState();
+                                 if ($$35 == null) {
+-                                    $$35 = this.defaultBlock;
++                                    $$35 = ((net.minecraft.world.level.levelgen.NoiseGeneratorSettings)this.settings.value()).defaultBlock();
+                                 }
+                                 if (($$35 = this.debugPreliminarySurfaceLevel($$6, $$28, $$23, $$322, $$35)) == AIR || net.minecraft.SharedConstants.debugVoidTerrain((net.minecraft.world.level.ChunkPos)$$32.getPos())) continue;
+                                 if ($$35.getLightEmission() != 0 && $$32 instanceof net.minecraft.world.level.chunk.ProtoChunk) {
+@@ -273,18 +274,18 @@
+         return ((net.minecraft.world.level.levelgen.NoiseGeneratorSettings)this.settings.value()).noiseSettings().minY();
+     }
+ 
+-    public void spawnOriginalMobs(net.minecraft.server.level.WorldGenRegion region) {
++    public void spawnOriginalMobs(net.minecraft.server.level.WorldGenRegion $$0) {
+         if (((net.minecraft.world.level.levelgen.NoiseGeneratorSettings)this.settings.value()).disableMobGeneration()) {
+             return;
+         }
+-        net.minecraft.world.level.ChunkPos chunkPos = region.getCenter();
+-        net.minecraft.core.Holder holder = region.getBiome(chunkPos.getWorldPosition().atY(region.getMaxBuildHeight() - 1));
+-        net.minecraft.world.level.levelgen.WorldgenRandom worldgenRandom = new net.minecraft.world.level.levelgen.WorldgenRandom((net.minecraft.util.RandomSource)new net.minecraft.world.level.levelgen.LegacyRandomSource(net.minecraft.world.level.levelgen.RandomSupport.generateUniqueSeed()));
+-        worldgenRandom.setDecorationSeed(region.getSeed(), chunkPos.getMinBlockX(), chunkPos.getMinBlockZ());
+-        net.minecraft.world.level.NaturalSpawner.spawnMobsForChunkGeneration((net.minecraft.world.level.ServerLevelAccessor)region, (net.minecraft.core.Holder)holder, (net.minecraft.world.level.ChunkPos)chunkPos, (net.minecraft.util.RandomSource)worldgenRandom);
++        net.minecraft.world.level.ChunkPos $$1 = $$0.getCenter();
++        net.minecraft.core.Holder $$2 = $$0.getBiome($$1.getWorldPosition().atY($$0.getMaxBuildHeight() - 1));
++        net.minecraft.world.level.levelgen.WorldgenRandom $$3 = new net.minecraft.world.level.levelgen.WorldgenRandom((net.minecraft.util.RandomSource)new net.minecraft.world.level.levelgen.LegacyRandomSource(net.minecraft.world.level.levelgen.RandomSupport.generateUniqueSeed()));
++        $$3.setDecorationSeed($$0.getSeed(), $$1.getMinBlockX(), $$1.getMinBlockZ());
++        net.minecraft.world.level.NaturalSpawner.spawnMobsForChunkGeneration((net.minecraft.world.level.ServerLevelAccessor)$$0, (net.minecraft.core.Holder)$$2, (net.minecraft.world.level.ChunkPos)$$1, (net.minecraft.util.RandomSource)$$3);
+     }
+ 
+-    public static /* synthetic */ void lambda$fillFromNoise$12(java.util.Set $$0, net.minecraft.world.level.chunk.ChunkAccess $$1, java.lang.Throwable $$2) {
++    public static /* synthetic */ void lambda$fillFromNoise$13(java.util.Set $$0, net.minecraft.world.level.chunk.ChunkAccess $$1, java.lang.Throwable $$2) {
+         for (net.minecraft.world.level.chunk.LevelChunkSection $$3 : $$0) {
+             $$3.release();
+         }

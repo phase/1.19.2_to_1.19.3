@@ -1,0 +1,62 @@
+--- net/minecraft/network/chat/MessageSignatureCache.java
++++ net/minecraft/network/chat/MessageSignatureCache.java
+@@ -1,0 +1,59 @@
++/*
++ * Decompiled with CFR 0.151.
++ */
++package net.minecraft.network.chat;
++
++public class net.minecraft.network.chat.MessageSignatureCache
++ {
++    public static int DEFAULT_CAPACITY = 128;
++    public net.minecraft.network.chat.MessageSignature[] entries;
++
++    public net.minecraft.network.chat.MessageSignatureCache(int $$0) {
++        this.entries = new net.minecraft.network.chat.MessageSignature[$$0];
++    }
++
++    public static net.minecraft.network.chat.MessageSignatureCache createDefault() {
++        return new net.minecraft.network.chat.MessageSignatureCache(128);
++    }
++
++    public net.minecraft.network.chat.MessageSignature$Packer packer() {
++        return $$0 -> {
++            for (int $$1 = 0; $$1 < this.entries.length; ++$$1) {
++                if (!$$0.equals((java.lang.Object)this.entries[$$1])) continue;
++                return $$1;
++            }
++            return -1;
++        };
++    }
++
++    public net.minecraft.network.chat.MessageSignature$Unpacker unpacker() {
++        return $$0 -> this.entries[$$0];
++    }
++
++    public void push(net.minecraft.network.chat.PlayerChatMessage $$0) {
++        java.util.List $$1 = $$0.signedBody().lastSeen().entries();
++        java.util.ArrayDeque $$2 = new java.util.ArrayDeque($$1.size() + 1);
++        $$2.addAll((java.util.Collection)$$1);
++        net.minecraft.network.chat.MessageSignature $$3 = $$0.signature();
++        if ($$3 != null) {
++            $$2.add((java.lang.Object)$$3);
++        }
++        this.push($$2);
++    }
++
++    @org.jetbrains.annotations.VisibleForTesting
++    public void push(java.util.List<net.minecraft.network.chat.MessageSignature> $$0) {
++        this.push(new java.util.ArrayDeque($$0));
++    }
++
++    public void push(java.util.ArrayDeque<net.minecraft.network.chat.MessageSignature> $$0) {
++        it.unimi.dsi.fastutil.objects.ObjectOpenHashSet $$1 = new it.unimi.dsi.fastutil.objects.ObjectOpenHashSet($$0);
++        for (int $$2 = 0; !$$0.isEmpty() && $$2 < this.entries.length; ++$$2) {
++            net.minecraft.network.chat.MessageSignature $$3 = this.entries[$$2];
++            this.entries[$$2] = (net.minecraft.network.chat.MessageSignature)$$0.removeLast();
++            if ($$3 == null || $$1.contains((java.lang.Object)$$3)) continue;
++            $$0.addFirst((java.lang.Object)$$3);
++        }
++    }
++}
++

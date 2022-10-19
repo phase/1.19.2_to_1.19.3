@@ -1,0 +1,67 @@
+--- net/minecraft/world/entity/ai/behavior/InteractWithDoor.java
++++ net/minecraft/world/entity/ai/behavior/InteractWithDoor.java
+@@ -17,12 +17,12 @@
+         super((java.util.Map)com.google.common.collect.ImmutableMap.of((java.lang.Object)net.minecraft.world.entity.ai.memory.MemoryModuleType.PATH, (java.lang.Object)net.minecraft.world.entity.ai.memory.MemoryStatus.VALUE_PRESENT, (java.lang.Object)net.minecraft.world.entity.ai.memory.MemoryModuleType.DOORS_TO_CLOSE, (java.lang.Object)net.minecraft.world.entity.ai.memory.MemoryStatus.REGISTERED));
+     }
+ 
+-    public boolean checkExtraStartConditions(net.minecraft.server.level.ServerLevel level, net.minecraft.world.entity.LivingEntity owner) {
+-        net.minecraft.world.level.pathfinder.Path path = (net.minecraft.world.level.pathfinder.Path)owner.getBrain().getMemory(net.minecraft.world.entity.ai.memory.MemoryModuleType.PATH).get();
+-        if (path.notStarted() || path.isDone()) {
++    public boolean checkExtraStartConditions(net.minecraft.server.level.ServerLevel $$0, net.minecraft.world.entity.LivingEntity $$1) {
++        net.minecraft.world.level.pathfinder.Path $$2 = (net.minecraft.world.level.pathfinder.Path)$$1.getBrain().getMemory(net.minecraft.world.entity.ai.memory.MemoryModuleType.PATH).get();
++        if ($$2.notStarted() || $$2.isDone()) {
+             return false;
+         }
+-        if (!java.util.Objects.equals((java.lang.Object)this.lastCheckedNode, (java.lang.Object)path.getNextNode())) {
++        if (!java.util.Objects.equals((java.lang.Object)this.lastCheckedNode, (java.lang.Object)$$2.getNextNode())) {
+             this.remainingCooldown = 20;
+             return true;
+         }
+@@ -32,28 +32,28 @@
+         return this.remainingCooldown == 0;
+     }
+ 
+-    public void start(net.minecraft.server.level.ServerLevel level, net.minecraft.world.entity.LivingEntity entity, long gameTime) {
+-        net.minecraft.world.level.block.DoorBlock doorBlock;
+-        net.minecraft.world.level.block.state.BlockState blockState;
+-        net.minecraft.core.BlockPos blockPos;
+-        net.minecraft.world.level.pathfinder.Path path = (net.minecraft.world.level.pathfinder.Path)entity.getBrain().getMemory(net.minecraft.world.entity.ai.memory.MemoryModuleType.PATH).get();
+-        this.lastCheckedNode = path.getNextNode();
+-        net.minecraft.world.level.pathfinder.Node node = path.getPreviousNode();
+-        net.minecraft.world.level.pathfinder.Node node2 = path.getNextNode();
+-        net.minecraft.core.BlockPos blockPos2 = node.asBlockPos();
+-        net.minecraft.world.level.block.state.BlockState blockState2 = level.getBlockState(blockPos2);
+-        if (blockState2.is(net.minecraft.tags.BlockTags.WOODEN_DOORS, $$0 -> $$0.getBlock() instanceof net.minecraft.world.level.block.DoorBlock)) {
+-            blockPos = (net.minecraft.world.level.block.DoorBlock)blockState2.getBlock();
+-            if (!blockPos.isOpen(blockState2)) {
+-                blockPos.setOpen((net.minecraft.world.entity.Entity)entity, (net.minecraft.world.level.Level)level, blockState2, blockPos2, true);
++    public void start(net.minecraft.server.level.ServerLevel $$02, net.minecraft.world.entity.LivingEntity $$1, long $$2) {
++        net.minecraft.world.level.block.DoorBlock $$11;
++        net.minecraft.core.BlockPos $$9;
++        net.minecraft.world.level.block.state.BlockState $$10;
++        net.minecraft.world.level.pathfinder.Path $$3 = (net.minecraft.world.level.pathfinder.Path)$$1.getBrain().getMemory(net.minecraft.world.entity.ai.memory.MemoryModuleType.PATH).get();
++        this.lastCheckedNode = $$3.getNextNode();
++        net.minecraft.world.level.pathfinder.Node $$4 = $$3.getPreviousNode();
++        net.minecraft.world.level.pathfinder.Node $$5 = $$3.getNextNode();
++        net.minecraft.core.BlockPos $$6 = $$4.asBlockPos();
++        net.minecraft.world.level.block.state.BlockState $$7 = $$02.getBlockState($$6);
++        if ($$7.is(net.minecraft.tags.BlockTags.WOODEN_DOORS, $$0 -> $$0.getBlock() instanceof net.minecraft.world.level.block.DoorBlock)) {
++            net.minecraft.world.level.block.DoorBlock $$8 = (net.minecraft.world.level.block.DoorBlock)$$7.getBlock();
++            if (!$$8.isOpen($$7)) {
++                $$8.setOpen((net.minecraft.world.entity.Entity)$$1, (net.minecraft.world.level.Level)$$02, $$7, $$6, true);
+             }
+-            this.rememberDoorToClose(level, entity, blockPos2);
++            this.rememberDoorToClose($$02, $$1, $$6);
+         }
+-        if ((blockState = level.getBlockState(blockPos = node2.asBlockPos())).is(net.minecraft.tags.BlockTags.WOODEN_DOORS, $$0 -> $$0.getBlock() instanceof net.minecraft.world.level.block.DoorBlock) && !(doorBlock = (net.minecraft.world.level.block.DoorBlock)blockState.getBlock()).isOpen(blockState)) {
+-            doorBlock.setOpen((net.minecraft.world.entity.Entity)entity, (net.minecraft.world.level.Level)level, blockState, blockPos, true);
+-            this.rememberDoorToClose(level, entity, blockPos);
++        if (($$10 = $$02.getBlockState($$9 = $$5.asBlockPos())).is(net.minecraft.tags.BlockTags.WOODEN_DOORS, $$0 -> $$0.getBlock() instanceof net.minecraft.world.level.block.DoorBlock) && !($$11 = (net.minecraft.world.level.block.DoorBlock)$$10.getBlock()).isOpen($$10)) {
++            $$11.setOpen((net.minecraft.world.entity.Entity)$$1, (net.minecraft.world.level.Level)$$02, $$10, $$9, true);
++            this.rememberDoorToClose($$02, $$1, $$9);
+         }
+-        net.minecraft.world.entity.ai.behavior.InteractWithDoor.closeDoorsThatIHaveOpenedOrPassedThrough((net.minecraft.server.level.ServerLevel)level, (net.minecraft.world.entity.LivingEntity)entity, (net.minecraft.world.level.pathfinder.Node)node, (net.minecraft.world.level.pathfinder.Node)node2);
++        net.minecraft.world.entity.ai.behavior.InteractWithDoor.closeDoorsThatIHaveOpenedOrPassedThrough((net.minecraft.server.level.ServerLevel)$$02, (net.minecraft.world.entity.LivingEntity)$$1, (net.minecraft.world.level.pathfinder.Node)$$4, (net.minecraft.world.level.pathfinder.Node)$$5);
+     }
+ 
+     public static void closeDoorsThatIHaveOpenedOrPassedThrough(net.minecraft.server.level.ServerLevel $$02, net.minecraft.world.entity.LivingEntity $$1, @javax.annotation.Nullable net.minecraft.world.level.pathfinder.Node $$2, @javax.annotation.Nullable net.minecraft.world.level.pathfinder.Node $$3) {

@@ -1,0 +1,64 @@
+--- net/minecraft/core/dispenser/ShearsDispenseItemBehavior.java
++++ net/minecraft/core/dispenser/ShearsDispenseItemBehavior.java
+@@ -9,38 +9,38 @@
+     public net.minecraft.core.dispenser.ShearsDispenseItemBehavior() {
+     }
+ 
+-    public net.minecraft.world.item.ItemStack execute(net.minecraft.core.BlockSource source, net.minecraft.world.item.ItemStack stack) {
+-        net.minecraft.server.level.ServerLevel serverLevel = source.getLevel();
+-        if (!serverLevel.isClientSide()) {
+-            net.minecraft.core.BlockPos blockPos = source.getPos().relative((net.minecraft.core.Direction)source.getBlockState().getValue((net.minecraft.world.level.block.state.properties.Property)net.minecraft.world.level.block.DispenserBlock.FACING));
+-            this.setSuccess(net.minecraft.core.dispenser.ShearsDispenseItemBehavior.tryShearBeehive((net.minecraft.server.level.ServerLevel)serverLevel, (net.minecraft.core.BlockPos)blockPos) || net.minecraft.core.dispenser.ShearsDispenseItemBehavior.tryShearLivingEntity((net.minecraft.server.level.ServerLevel)serverLevel, (net.minecraft.core.BlockPos)blockPos));
+-            if (this.isSuccess() && stack.hurt(1, serverLevel.getRandom(), null)) {
+-                stack.setCount(0);
++    public net.minecraft.world.item.ItemStack execute(net.minecraft.core.BlockSource $$0, net.minecraft.world.item.ItemStack $$1) {
++        net.minecraft.server.level.ServerLevel $$2 = $$0.getLevel();
++        if (!$$2.isClientSide()) {
++            net.minecraft.core.BlockPos $$3 = $$0.getPos().relative((net.minecraft.core.Direction)$$0.getBlockState().getValue((net.minecraft.world.level.block.state.properties.Property)net.minecraft.world.level.block.DispenserBlock.FACING));
++            this.setSuccess(net.minecraft.core.dispenser.ShearsDispenseItemBehavior.tryShearBeehive((net.minecraft.server.level.ServerLevel)$$2, (net.minecraft.core.BlockPos)$$3) || net.minecraft.core.dispenser.ShearsDispenseItemBehavior.tryShearLivingEntity((net.minecraft.server.level.ServerLevel)$$2, (net.minecraft.core.BlockPos)$$3));
++            if (this.isSuccess() && $$1.hurt(1, $$2.getRandom(), null)) {
++                $$1.setCount(0);
+             }
+         }
+-        return stack;
++        return $$1;
+     }
+ 
+-    public static boolean tryShearBeehive(net.minecraft.server.level.ServerLevel level, net.minecraft.core.BlockPos pos) {
+-        int n;
+-        net.minecraft.world.level.block.state.BlockState blockState = level.getBlockState(pos);
+-        if (blockState.is(net.minecraft.tags.BlockTags.BEEHIVES, $$0 -> $$0.hasProperty((net.minecraft.world.level.block.state.properties.Property)net.minecraft.world.level.block.BeehiveBlock.HONEY_LEVEL) && $$0.getBlock() instanceof net.minecraft.world.level.block.BeehiveBlock) && (n = ((java.lang.Integer)blockState.getValue((net.minecraft.world.level.block.state.properties.Property)net.minecraft.world.level.block.BeehiveBlock.HONEY_LEVEL)).intValue()) >= 5) {
+-            level.playSound(null, pos, net.minecraft.sounds.SoundEvents.BEEHIVE_SHEAR, net.minecraft.sounds.SoundSource.BLOCKS, 1.0f, 1.0f);
+-            net.minecraft.world.level.block.BeehiveBlock.dropHoneycomb((net.minecraft.world.level.Level)level, (net.minecraft.core.BlockPos)pos);
+-            ((net.minecraft.world.level.block.BeehiveBlock)blockState.getBlock()).releaseBeesAndResetHoneyLevel((net.minecraft.world.level.Level)level, blockState, pos, null, net.minecraft.world.level.block.entity.BeehiveBlockEntity$BeeReleaseStatus.BEE_RELEASED);
+-            level.gameEvent(null, net.minecraft.world.level.gameevent.GameEvent.SHEAR, pos);
++    public static boolean tryShearBeehive(net.minecraft.server.level.ServerLevel $$02, net.minecraft.core.BlockPos $$1) {
++        int $$3;
++        net.minecraft.world.level.block.state.BlockState $$2 = $$02.getBlockState($$1);
++        if ($$2.is(net.minecraft.tags.BlockTags.BEEHIVES, $$0 -> $$0.hasProperty((net.minecraft.world.level.block.state.properties.Property)net.minecraft.world.level.block.BeehiveBlock.HONEY_LEVEL) && $$0.getBlock() instanceof net.minecraft.world.level.block.BeehiveBlock) && ($$3 = ((java.lang.Integer)$$2.getValue((net.minecraft.world.level.block.state.properties.Property)net.minecraft.world.level.block.BeehiveBlock.HONEY_LEVEL)).intValue()) >= 5) {
++            $$02.playSound(null, $$1, net.minecraft.sounds.SoundEvents.BEEHIVE_SHEAR, net.minecraft.sounds.SoundSource.BLOCKS, 1.0f, 1.0f);
++            net.minecraft.world.level.block.BeehiveBlock.dropHoneycomb((net.minecraft.world.level.Level)$$02, (net.minecraft.core.BlockPos)$$1);
++            ((net.minecraft.world.level.block.BeehiveBlock)$$2.getBlock()).releaseBeesAndResetHoneyLevel((net.minecraft.world.level.Level)$$02, $$2, $$1, null, net.minecraft.world.level.block.entity.BeehiveBlockEntity$BeeReleaseStatus.BEE_RELEASED);
++            $$02.gameEvent(null, net.minecraft.world.level.gameevent.GameEvent.SHEAR, $$1);
+             return true;
+         }
+         return false;
+     }
+ 
+-    public static boolean tryShearLivingEntity(net.minecraft.server.level.ServerLevel level, net.minecraft.core.BlockPos pos) {
+-        java.util.List list = level.getEntitiesOfClass(net.minecraft.world.entity.LivingEntity.class, new net.minecraft.world.phys.AABB(pos), net.minecraft.world.entity.EntitySelector.NO_SPECTATORS);
+-        for (net.minecraft.world.entity.LivingEntity livingEntity : list) {
+-            net.minecraft.world.entity.Shearable shearable;
+-            if (!(livingEntity instanceof net.minecraft.world.entity.Shearable) || !(shearable = (net.minecraft.world.entity.Shearable)livingEntity).readyForShearing()) continue;
+-            shearable.shear(net.minecraft.sounds.SoundSource.BLOCKS);
+-            level.gameEvent(null, net.minecraft.world.level.gameevent.GameEvent.SHEAR, pos);
++    public static boolean tryShearLivingEntity(net.minecraft.server.level.ServerLevel $$0, net.minecraft.core.BlockPos $$1) {
++        java.util.List $$2 = $$0.getEntitiesOfClass(net.minecraft.world.entity.LivingEntity.class, new net.minecraft.world.phys.AABB($$1), net.minecraft.world.entity.EntitySelector.NO_SPECTATORS);
++        for (net.minecraft.world.entity.LivingEntity $$3 : $$2) {
++            net.minecraft.world.entity.Shearable $$4;
++            if (!($$3 instanceof net.minecraft.world.entity.Shearable) || !($$4 = (net.minecraft.world.entity.Shearable)$$3).readyForShearing()) continue;
++            $$4.shear(net.minecraft.sounds.SoundSource.BLOCKS);
++            $$0.gameEvent(null, net.minecraft.world.level.gameevent.GameEvent.SHEAR, $$1);
+             return true;
+         }
+         return false;

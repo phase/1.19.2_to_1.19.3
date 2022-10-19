@@ -1,0 +1,148 @@
+--- net/minecraft/client/gui/font/providers/BitmapProvider$Builder.java
++++ net/minecraft/client/gui/font/providers/BitmapProvider$Builder.java
+@@ -12,66 +12,66 @@
+     public int ascent;
+ 
+     public net.minecraft.client.gui.font.providers.BitmapProvider$Builder(net.minecraft.resources.ResourceLocation $$0, int $$1, int $$2, java.util.List<int[]> $$3) {
+-        this.texture = new net.minecraft.resources.ResourceLocation($$0.getNamespace(), "textures/" + $$0.getPath());
++        this.texture = $$0.withPrefix("textures/");
+         this.chars = $$3;
+         this.height = $$1;
+         this.ascent = $$2;
+     }
+ 
+-    public static net.minecraft.client.gui.font.providers.BitmapProvider$Builder fromJson(com.google.gson.JsonObject json) {
+-        int n = net.minecraft.util.GsonHelper.getAsInt((com.google.gson.JsonObject)json, (java.lang.String)"height", (int)8);
+-        int n2 = net.minecraft.util.GsonHelper.getAsInt((com.google.gson.JsonObject)json, (java.lang.String)"ascent");
+-        if (n2 > n) {
+-            throw new com.google.gson.JsonParseException("Ascent " + n2 + " higher than height " + n);
++    public static net.minecraft.client.gui.font.providers.BitmapProvider$Builder fromJson(com.google.gson.JsonObject $$0) {
++        int $$1 = net.minecraft.util.GsonHelper.getAsInt((com.google.gson.JsonObject)$$0, (java.lang.String)"height", (int)8);
++        int $$2 = net.minecraft.util.GsonHelper.getAsInt((com.google.gson.JsonObject)$$0, (java.lang.String)"ascent");
++        if ($$2 > $$1) {
++            throw new com.google.gson.JsonParseException("Ascent " + $$2 + " higher than height " + $$1);
+         }
+-        java.util.ArrayList arrayList = com.google.common.collect.Lists.newArrayList();
+-        com.google.gson.JsonArray jsonArray = net.minecraft.util.GsonHelper.getAsJsonArray((com.google.gson.JsonObject)json, (java.lang.String)"chars");
+-        for (int i = 0; i < jsonArray.size(); ++i) {
+-            int n3;
+-            java.lang.String string = net.minecraft.util.GsonHelper.convertToString((com.google.gson.JsonElement)jsonArray.get(i), (java.lang.String)("chars[" + i + "]"));
+-            int[] nArray = string.codePoints().toArray();
+-            if (i > 0 && nArray.length != (n3 = ((int[])arrayList.get(0)).length)) {
+-                throw new com.google.gson.JsonParseException("Elements of chars have to be the same length (found: " + nArray.length + ", expected: " + n3 + "), pad with space or \\u0000");
++        java.util.ArrayList $$3 = com.google.common.collect.Lists.newArrayList();
++        com.google.gson.JsonArray $$4 = net.minecraft.util.GsonHelper.getAsJsonArray((com.google.gson.JsonObject)$$0, (java.lang.String)"chars");
++        for (int $$5 = 0; $$5 < $$4.size(); ++$$5) {
++            int $$8;
++            java.lang.String $$6 = net.minecraft.util.GsonHelper.convertToString((com.google.gson.JsonElement)$$4.get($$5), (java.lang.String)("chars[" + $$5 + "]"));
++            int[] $$7 = $$6.codePoints().toArray();
++            if ($$5 > 0 && $$7.length != ($$8 = ((int[])$$3.get(0)).length)) {
++                throw new com.google.gson.JsonParseException("Elements of chars have to be the same length (found: " + $$7.length + ", expected: " + $$8 + "), pad with space or \\u0000");
+             }
+-            arrayList.add((java.lang.Object)nArray);
++            $$3.add((java.lang.Object)$$7);
+         }
+-        if (arrayList.isEmpty() || ((int[])arrayList.get(0)).length == 0) {
++        if ($$3.isEmpty() || ((int[])$$3.get(0)).length == 0) {
+             throw new com.google.gson.JsonParseException("Expected to find data in chars, found none.");
+         }
+-        return new net.minecraft.client.gui.font.providers.BitmapProvider$Builder(new net.minecraft.resources.ResourceLocation(net.minecraft.util.GsonHelper.getAsString((com.google.gson.JsonObject)json, (java.lang.String)"file")), n, n2, (java.util.List)arrayList);
++        return new net.minecraft.client.gui.font.providers.BitmapProvider$Builder(new net.minecraft.resources.ResourceLocation(net.minecraft.util.GsonHelper.getAsString((com.google.gson.JsonObject)$$0, (java.lang.String)"file")), $$1, $$2, (java.util.List)$$3);
+     }
+ 
+     @javax.annotation.Nullable
+-    public com.mojang.blaze3d.font.GlyphProvider create(net.minecraft.server.packs.resources.ResourceManager resourceManager) {
++    public com.mojang.blaze3d.font.GlyphProvider create(net.minecraft.server.packs.resources.ResourceManager $$0) {
+         net.minecraft.client.gui.font.providers.BitmapProvider bitmapProvider;
+ block10:        {
+-            java.io.InputStream inputStream = resourceManager.open(this.texture);
++            java.io.InputStream $$1 = $$0.open(this.texture);
+             try {
+-                com.mojang.blaze3d.platform.NativeImage nativeImage = com.mojang.blaze3d.platform.NativeImage.read((com.mojang.blaze3d.platform.NativeImage$Format)com.mojang.blaze3d.platform.NativeImage$Format.RGBA, (java.io.InputStream)inputStream);
+-                int n = nativeImage.getWidth();
+-                int n2 = nativeImage.getHeight();
+-                int n3 = n / ((int[])this.chars.get(0)).length;
+-                int n4 = n2 / this.chars.size();
+-                float f = (float)this.height / (float)n4;
+-                it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap int2ObjectOpenHashMap = new it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap();
+-                for (int i = 0; i < this.chars.size(); ++i) {
+-                    int n5 = 0;
+-                    for (int n6 : (int[])this.chars.get(i)) {
+-                        int n7;
+-                        net.minecraft.client.gui.font.providers.BitmapProvider$Glyph glyph;
+-                        int n8 = n5++;
+-                        if (n6 == 0 || (glyph = (net.minecraft.client.gui.font.providers.BitmapProvider$Glyph)int2ObjectOpenHashMap.put(n6, (java.lang.Object)new net.minecraft.client.gui.font.providers.BitmapProvider$Glyph(f, nativeImage, n8 * n3, i * n4, n3, n4, (int)(0.5 + (double)((float)(n7 = this.getActualGlyphWidth(nativeImage, n3, n4, n8, i)) * f)) + 1, this.ascent))) == null) continue;
+-                        net.minecraft.client.gui.font.providers.BitmapProvider.LOGGER.warn("Codepoint '{}' declared multiple times in {}", (java.lang.Object)java.lang.Integer.toHexString((int)n6), (java.lang.Object)this.texture);
++                com.mojang.blaze3d.platform.NativeImage $$2 = com.mojang.blaze3d.platform.NativeImage.read((com.mojang.blaze3d.platform.NativeImage$Format)com.mojang.blaze3d.platform.NativeImage$Format.RGBA, (java.io.InputStream)$$1);
++                int $$3 = $$2.getWidth();
++                int $$4 = $$2.getHeight();
++                int $$5 = $$3 / ((int[])this.chars.get(0)).length;
++                int $$6 = $$4 / this.chars.size();
++                float $$7 = (float)this.height / (float)$$6;
++                it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap $$8 = new it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap();
++                for (int $$9 = 0; $$9 < this.chars.size(); ++$$9) {
++                    int $$10 = 0;
++                    for (int $$11 : (int[])this.chars.get($$9)) {
++                        int $$13;
++                        net.minecraft.client.gui.font.providers.BitmapProvider$Glyph $$14;
++                        int $$12 = $$10++;
++                        if ($$11 == 0 || ($$14 = (net.minecraft.client.gui.font.providers.BitmapProvider$Glyph)$$8.put($$11, (java.lang.Object)new net.minecraft.client.gui.font.providers.BitmapProvider$Glyph($$7, $$2, $$12 * $$5, $$9 * $$6, $$5, $$6, (int)(0.5 + (double)((float)($$13 = this.getActualGlyphWidth($$2, $$5, $$6, $$12, $$9)) * $$7)) + 1, this.ascent))) == null) continue;
++                        net.minecraft.client.gui.font.providers.BitmapProvider.LOGGER.warn("Codepoint '{}' declared multiple times in {}", (java.lang.Object)java.lang.Integer.toHexString((int)$$11), (java.lang.Object)this.texture);
+                     }
+                 }
+-                bitmapProvider = new net.minecraft.client.gui.font.providers.BitmapProvider(nativeImage, (it.unimi.dsi.fastutil.ints.Int2ObjectMap)int2ObjectOpenHashMap);
+-                if (inputStream == null) break block10;
++                bitmapProvider = new net.minecraft.client.gui.font.providers.BitmapProvider($$2, (it.unimi.dsi.fastutil.ints.Int2ObjectMap)$$8);
++                if ($$1 == null) break block10;
+             }
+             catch (java.lang.Throwable throwable) {
+                 try {
+-                    if (inputStream != null) {
++                    if ($$1 != null) {
+                         try {
+-                            inputStream.close();
++                            $$1.close();
+                         }
+                         catch (java.lang.Throwable throwable2) {
+                             throwable.addSuppressed(throwable2);
+@@ -79,27 +79,27 @@
+                     }
+                     throw throwable;
+                 }
+-                catch (java.io.IOException iOException) {
+-                    throw new java.lang.RuntimeException(iOException.getMessage());
++                catch (java.io.IOException $$15) {
++                    throw new java.lang.RuntimeException($$15.getMessage());
+                 }
+             }
+-            inputStream.close();
++            $$1.close();
+         }
+         return bitmapProvider;
+     }
+ 
+-    public int getActualGlyphWidth(com.mojang.blaze3d.platform.NativeImage nativeImage, int charWidth, int charHeightInsp, int column, int row) {
+-        int n;
+-        for (n = charWidth - 1;
+- n >= 0; --n) {
+-            int n2 = column * charWidth + n;
+-            for (int i = 0; i < charHeightInsp; ++i) {
+-                int n3 = row * charHeightInsp + i;
+-                if (nativeImage.getLuminanceOrAlpha(n2, n3) == 0) continue;
+-                return n + 1;
++    public int getActualGlyphWidth(com.mojang.blaze3d.platform.NativeImage $$0, int $$1, int $$2, int $$3, int $$4) {
++        int $$5;
++        for ($$5 = $$1 - 1;
++ $$5 >= 0; --$$5) {
++            int $$6 = $$3 * $$1 + $$5;
++            for (int $$7 = 0; $$7 < $$2; ++$$7) {
++                int $$8 = $$4 * $$2 + $$7;
++                if ($$0.getLuminanceOrAlpha($$6, $$8) == 0) continue;
++                return $$5 + 1;
+             }
+         }
+-        return n + 1;
++        return $$5 + 1;
+     }
+ }
+ 

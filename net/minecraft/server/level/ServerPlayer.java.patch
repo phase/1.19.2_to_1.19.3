@@ -1,0 +1,1080 @@
+--- net/minecraft/server/level/ServerPlayer.java
++++ net/minecraft/server/level/ServerPlayer.java
+@@ -52,14 +52,16 @@
+     public net.minecraft.server.network.TextFilter textFilter;
+     public boolean textFilteringEnabled;
+     public boolean allowsListing;
++    public net.minecraft.world.entity.monster.warden.WardenSpawnTracker wardenSpawnTracker;
+     public net.minecraft.world.inventory.ContainerSynchronizer containerSynchronizer;
+     public net.minecraft.world.inventory.ContainerListener containerListener;
++    public net.minecraft.network.chat.RemoteChatSession chatSession;
+     public int containerCounter;
+     public int latency;
+     public boolean wonGame;
+ 
+-    public net.minecraft.server.level.ServerPlayer(net.minecraft.server.MinecraftServer $$0, net.minecraft.server.level.ServerLevel $$1, com.mojang.authlib.GameProfile $$2, @javax.annotation.Nullable net.minecraft.world.entity.player.ProfilePublicKey $$3) {
+-        super((net.minecraft.world.level.Level)$$1, $$1.getSharedSpawnPos(), $$1.getSharedSpawnAngle(), $$2, $$3);
++    public net.minecraft.server.level.ServerPlayer(net.minecraft.server.MinecraftServer $$0, net.minecraft.server.level.ServerLevel $$1, com.mojang.authlib.GameProfile $$2, net.minecraft.network.chat.RemoteChatSession $$3) {
++        super((net.minecraft.world.level.Level)$$1, $$1.getSharedSpawnPos(), $$1.getSharedSpawnAngle(), $$2);
+         this.lastRecordedHealthAndAbsorption = java.lang.Float.MIN_VALUE;
+         this.lastRecordedFoodLevel = java.lang.Integer.MIN_VALUE;
+         this.lastRecordedAirLevel = java.lang.Integer.MIN_VALUE;
+@@ -78,6 +80,7 @@
+         this.lastSectionPos = net.minecraft.core.SectionPos.of((int)0, (int)0, (int)0);
+         this.respawnDimension = net.minecraft.world.level.Level.OVERWORLD;
+         this.allowsListing = true;
++        this.wardenSpawnTracker = new net.minecraft.world.entity.monster.warden.WardenSpawnTracker(0, 0, 0);
+         this.containerSynchronizer = new /* Unavailable Anonymous Inner Class!! */;
+         this.containerListener = new /* Unavailable Anonymous Inner Class!! */;
+         this.textFilter = $$0.createTextFilterForPlayer(this);
+@@ -86,6 +89,7 @@
+         this.stats = $$0.getPlayerList().getPlayerStats((net.minecraft.world.entity.player.Player)this);
+         this.advancements = $$0.getPlayerList().getPlayerAdvancements(this);
+         this.maxUpStep = 1.0f;
++        this.chatSession = $$3;
+         this.fudgeSpawnLocation($$1);
+     }
+ 
+@@ -129,60 +133,65 @@
+         return $$0 <= 16 ? $$0 - 1 : 17;
+     }
+ 
+-    public void readAdditionalSaveData(net.minecraft.nbt.CompoundTag compound) {
+-        super.readAdditionalSaveData(compound);
+-        if (compound.contains("enteredNetherPosition", 10)) {
+-            net.minecraft.nbt.CompoundTag compoundTag = compound.getCompound("enteredNetherPosition");
+-            this.enteredNetherPosition = new net.minecraft.world.phys.Vec3(compoundTag.getDouble("x"), compoundTag.getDouble("y"), compoundTag.getDouble("z"));
++    public void readAdditionalSaveData(net.minecraft.nbt.CompoundTag $$02) {
++        super.readAdditionalSaveData($$02);
++        if ($$02.contains("warden_spawn_tracker", 10)) {
++            net.minecraft.world.entity.monster.warden.WardenSpawnTracker.CODEC.parse(new com.mojang.serialization.Dynamic((com.mojang.serialization.DynamicOps)net.minecraft.nbt.NbtOps.INSTANCE, (java.lang.Object)$$02.get("warden_spawn_tracker"))).resultOrPartial(arg_0 -> ((org.slf4j.Logger)LOGGER).error(arg_0)).ifPresent($$0 -> {
++                this.wardenSpawnTracker = $$0;
++            });
+         }
+-        this.seenCredits = compound.getBoolean("seenCredits");
+-        if (compound.contains("recipeBook", 10)) {
+-            this.recipeBook.fromNbt(compound.getCompound("recipeBook"), this.server.getRecipeManager());
++        if ($$02.contains("enteredNetherPosition", 10)) {
++            net.minecraft.nbt.CompoundTag $$1 = $$02.getCompound("enteredNetherPosition");
++            this.enteredNetherPosition = new net.minecraft.world.phys.Vec3($$1.getDouble("x"), $$1.getDouble("y"), $$1.getDouble("z"));
+         }
++        this.seenCredits = $$02.getBoolean("seenCredits");
++        if ($$02.contains("recipeBook", 10)) {
++            this.recipeBook.fromNbt($$02.getCompound("recipeBook"), this.server.getRecipeManager());
++        }
+         if (this.isSleeping()) {
+             this.stopSleeping();
+         }
+-        if (compound.contains("SpawnX", 99) && compound.contains("SpawnY", 99) && compound.contains("SpawnZ", 99)) {
+-            this.respawnPosition = new net.minecraft.core.BlockPos(compound.getInt("SpawnX"), compound.getInt("SpawnY"), compound.getInt("SpawnZ"));
+-            this.respawnForced = compound.getBoolean("SpawnForced");
+-            this.respawnAngle = compound.getFloat("SpawnAngle");
+-            if (compound.contains("SpawnDimension")) {
+-                this.respawnDimension = (net.minecraft.resources.ResourceKey)net.minecraft.world.level.Level.RESOURCE_KEY_CODEC.parse((com.mojang.serialization.DynamicOps)net.minecraft.nbt.NbtOps.INSTANCE, (java.lang.Object)compound.get("SpawnDimension")).resultOrPartial(arg_0 -> ((org.slf4j.Logger)LOGGER).error(arg_0)).orElse((java.lang.Object)net.minecraft.world.level.Level.OVERWORLD);
++        if ($$02.contains("SpawnX", 99) && $$02.contains("SpawnY", 99) && $$02.contains("SpawnZ", 99)) {
++            this.respawnPosition = new net.minecraft.core.BlockPos($$02.getInt("SpawnX"), $$02.getInt("SpawnY"), $$02.getInt("SpawnZ"));
++            this.respawnForced = $$02.getBoolean("SpawnForced");
++            this.respawnAngle = $$02.getFloat("SpawnAngle");
++            if ($$02.contains("SpawnDimension")) {
++                this.respawnDimension = (net.minecraft.resources.ResourceKey)net.minecraft.world.level.Level.RESOURCE_KEY_CODEC.parse((com.mojang.serialization.DynamicOps)net.minecraft.nbt.NbtOps.INSTANCE, (java.lang.Object)$$02.get("SpawnDimension")).resultOrPartial(arg_0 -> ((org.slf4j.Logger)LOGGER).error(arg_0)).orElse((java.lang.Object)net.minecraft.world.level.Level.OVERWORLD);
+             }
+         }
+     }
+ 
+-    public void addAdditionalSaveData(net.minecraft.nbt.CompoundTag compound) {
+-        net.minecraft.world.entity.Entity entity;
+-        super.addAdditionalSaveData(compound);
+-        this.storeGameTypes(compound);
+-        compound.putBoolean("seenCredits", this.seenCredits);
++    public void addAdditionalSaveData(net.minecraft.nbt.CompoundTag $$0) {
++        super.addAdditionalSaveData($$0);
++        net.minecraft.world.entity.monster.warden.WardenSpawnTracker.CODEC.encodeStart((com.mojang.serialization.DynamicOps)net.minecraft.nbt.NbtOps.INSTANCE, (java.lang.Object)this.wardenSpawnTracker).resultOrPartial(arg_0 -> ((org.slf4j.Logger)LOGGER).error(arg_0)).ifPresent($$1 -> $$0.put("warden_spawn_tracker", $$1));
++        this.storeGameTypes($$0);
++        $$0.putBoolean("seenCredits", this.seenCredits);
+         if (this.enteredNetherPosition != null) {
+-            entity = new net.minecraft.nbt.CompoundTag();
+-            entity.putDouble("x", this.enteredNetherPosition.x);
+-            entity.putDouble("y", this.enteredNetherPosition.y);
+-            entity.putDouble("z", this.enteredNetherPosition.z);
+-            compound.put("enteredNetherPosition", (net.minecraft.nbt.Tag)entity);
++            net.minecraft.nbt.CompoundTag $$12 = new net.minecraft.nbt.CompoundTag();
++            $$12.putDouble("x", this.enteredNetherPosition.x);
++            $$12.putDouble("y", this.enteredNetherPosition.y);
++            $$12.putDouble("z", this.enteredNetherPosition.z);
++            $$0.put("enteredNetherPosition", (net.minecraft.nbt.Tag)$$12);
+         }
+-        entity = this.getRootVehicle();
+-        net.minecraft.world.entity.Entity entity2 = this.getVehicle();
+-        if (entity2 != null && entity != this && entity.hasExactlyOnePlayerPassenger()) {
+-            net.minecraft.nbt.CompoundTag compoundTag = new net.minecraft.nbt.CompoundTag();
+-            net.minecraft.nbt.CompoundTag compoundTag2 = new net.minecraft.nbt.CompoundTag();
+-            entity.save(compoundTag2);
+-            compoundTag.putUUID("Attach", entity2.getUUID());
+-            compoundTag.put("Entity", (net.minecraft.nbt.Tag)compoundTag2);
+-            compound.put("RootVehicle", (net.minecraft.nbt.Tag)compoundTag);
++        net.minecraft.world.entity.Entity $$2 = this.getRootVehicle();
++        net.minecraft.world.entity.Entity $$3 = this.getVehicle();
++        if ($$3 != null && $$2 != this && $$2.hasExactlyOnePlayerPassenger()) {
++            net.minecraft.nbt.CompoundTag $$4 = new net.minecraft.nbt.CompoundTag();
++            net.minecraft.nbt.CompoundTag $$5 = new net.minecraft.nbt.CompoundTag();
++            $$2.save($$5);
++            $$4.putUUID("Attach", $$3.getUUID());
++            $$4.put("Entity", (net.minecraft.nbt.Tag)$$5);
++            $$0.put("RootVehicle", (net.minecraft.nbt.Tag)$$4);
+         }
+-        compound.put("recipeBook", (net.minecraft.nbt.Tag)this.recipeBook.toNbt());
+-        compound.putString("Dimension", this.level.dimension().location().toString());
++        $$0.put("recipeBook", (net.minecraft.nbt.Tag)this.recipeBook.toNbt());
++        $$0.putString("Dimension", this.level.dimension().location().toString());
+         if (this.respawnPosition != null) {
+-            compound.putInt("SpawnX", this.respawnPosition.getX());
+-            compound.putInt("SpawnY", this.respawnPosition.getY());
+-            compound.putInt("SpawnZ", this.respawnPosition.getZ());
+-            compound.putBoolean("SpawnForced", this.respawnForced);
+-            compound.putFloat("SpawnAngle", this.respawnAngle);
+-            net.minecraft.resources.ResourceLocation.CODEC.encodeStart((com.mojang.serialization.DynamicOps)net.minecraft.nbt.NbtOps.INSTANCE, (java.lang.Object)this.respawnDimension.location()).resultOrPartial(arg_0 -> ((org.slf4j.Logger)LOGGER).error(arg_0)).ifPresent($$1 -> compound.put("SpawnDimension", $$1));
++            $$0.putInt("SpawnX", this.respawnPosition.getX());
++            $$0.putInt("SpawnY", this.respawnPosition.getY());
++            $$0.putInt("SpawnZ", this.respawnPosition.getZ());
++            $$0.putBoolean("SpawnForced", this.respawnForced);
++            $$0.putFloat("SpawnAngle", this.respawnAngle);
++            net.minecraft.resources.ResourceLocation.CODEC.encodeStart((com.mojang.serialization.DynamicOps)net.minecraft.nbt.NbtOps.INSTANCE, (java.lang.Object)this.respawnDimension.location()).resultOrPartial(arg_0 -> ((org.slf4j.Logger)LOGGER).error(arg_0)).ifPresent($$1 -> $$0.put("SpawnDimension", $$1));
+         }
+     }
+ 
+@@ -193,18 +202,18 @@
+         this.lastSentExp = -1;
+     }
+ 
+-    public void setExperienceLevels(int level) {
+-        this.experienceLevel = level;
++    public void setExperienceLevels(int $$0) {
++        this.experienceLevel = $$0;
+         this.lastSentExp = -1;
+     }
+ 
+-    public void giveExperienceLevels(int levels) {
+-        super.giveExperienceLevels(levels);
++    public void giveExperienceLevels(int $$0) {
++        super.giveExperienceLevels($$0);
+         this.lastSentExp = -1;
+     }
+ 
+-    public void onEnchantmentPerformed(net.minecraft.world.item.ItemStack enchantedItem, int cost) {
+-        super.onEnchantmentPerformed(enchantedItem, cost);
++    public void onEnchantmentPerformed(net.minecraft.world.item.ItemStack $$0, int $$1) {
++        super.onEnchantmentPerformed($$0, $$1);
+         this.lastSentExp = -1;
+     }
+ 
+@@ -227,8 +236,8 @@
+         this.connection.send((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ClientboundPlayerCombatEndPacket(this.getCombatTracker()));
+     }
+ 
+-    public void onInsideBlock(net.minecraft.world.level.block.state.BlockState state) {
+-        net.minecraft.advancements.CriteriaTriggers.ENTER_BLOCK.trigger(this, state);
++    public void onInsideBlock(net.minecraft.world.level.block.state.BlockState $$0) {
++        net.minecraft.advancements.CriteriaTriggers.ENTER_BLOCK.trigger(this, $$0);
+     }
+ 
+     public net.minecraft.world.item.ItemCooldowns createItemCooldowns() {
+@@ -238,6 +247,7 @@
+     public void tick() {
+         net.minecraft.world.entity.Entity $$0;
+         this.gameMode.tick();
++        this.wardenSpawnTracker.tick();
+         --this.spawnInvulnerableTime;
+         if (this.invulnerableTime > 0) {
+             --this.invulnerableTime;
+@@ -351,30 +361,29 @@
+         }
+     }
+ 
+-    public void updateScoreForCriteria(net.minecraft.world.scores.criteria.ObjectiveCriteria criteria, int points) {
+-        this.getScoreboard().forAllObjectives(criteria, this.getScoreboardName(), $$1 -> $$1.setScore(points));
++    public void updateScoreForCriteria(net.minecraft.world.scores.criteria.ObjectiveCriteria $$0, int $$12) {
++        this.getScoreboard().forAllObjectives($$0, this.getScoreboardName(), $$1 -> $$1.setScore($$12));
+     }
+ 
+-    public void die(net.minecraft.world.damagesource.DamageSource cause) {
+-        net.minecraft.network.chat.Component component;
++    public void die(net.minecraft.world.damagesource.DamageSource $$0) {
+         this.gameEvent(net.minecraft.world.level.gameevent.GameEvent.ENTITY_DIE);
+-        boolean bl = this.level.getGameRules().getBoolean(net.minecraft.world.level.GameRules.RULE_SHOWDEATHMESSAGES);
+-        if (bl) {
+-            component = this.getCombatTracker().getDeathMessage();
+-            this.connection.send((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ClientboundPlayerCombatKillPacket(this.getCombatTracker(), component), net.minecraft.network.PacketSendListener.exceptionallySend(() -> {
++        boolean $$1 = this.level.getGameRules().getBoolean(net.minecraft.world.level.GameRules.RULE_SHOWDEATHMESSAGES);
++        if ($$1) {
++            net.minecraft.network.chat.Component $$2 = this.getCombatTracker().getDeathMessage();
++            this.connection.send((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ClientboundPlayerCombatKillPacket(this.getCombatTracker(), $$2), net.minecraft.network.PacketSendListener.exceptionallySend(() -> {
+                 int $$1 = 256;
+-                java.lang.String $$2 = component.getString(256);
++                java.lang.String $$2 = $$2.getString(256);
+                 net.minecraft.network.chat.MutableComponent $$3 = net.minecraft.network.chat.Component.translatable((java.lang.String)"death.attack.message_too_long", (java.lang.Object[])new java.lang.Object[]{net.minecraft.network.chat.Component.literal((java.lang.String)$$2).withStyle(net.minecraft.ChatFormatting.YELLOW)});
+-                net.minecraft.network.chat.MutableComponent $$4 = net.minecraft.network.chat.Component.translatable((java.lang.String)"death.attack.even_more_magic", (java.lang.Object[])new java.lang.Object[]{this.getDisplayName()}).withStyle(arg_0 -> net.minecraft.server.level.ServerPlayer.lambda$die$2((net.minecraft.network.chat.Component)$$3, arg_0));
++                net.minecraft.network.chat.MutableComponent $$4 = net.minecraft.network.chat.Component.translatable((java.lang.String)"death.attack.even_more_magic", (java.lang.Object[])new java.lang.Object[]{this.getDisplayName()}).withStyle(arg_0 -> net.minecraft.server.level.ServerPlayer.lambda$die$4((net.minecraft.network.chat.Component)$$3, arg_0));
+                 return new net.minecraft.network.protocol.game.ClientboundPlayerCombatKillPacket(this.getCombatTracker(), (net.minecraft.network.chat.Component)$$4);
+             }));
+-            net.minecraft.world.scores.Team team = this.getTeam();
+-            if (team == null || team.getDeathMessageVisibility() == net.minecraft.world.scores.Team$Visibility.ALWAYS) {
+-                this.server.getPlayerList().broadcastSystemMessage(component, false);
+-            } else if (team.getDeathMessageVisibility() == net.minecraft.world.scores.Team$Visibility.HIDE_FOR_OTHER_TEAMS) {
+-                this.server.getPlayerList().broadcastSystemToTeam((net.minecraft.world.entity.player.Player)this, component);
+-            } else if (team.getDeathMessageVisibility() == net.minecraft.world.scores.Team$Visibility.HIDE_FOR_OWN_TEAM) {
+-                this.server.getPlayerList().broadcastSystemToAllExceptTeam((net.minecraft.world.entity.player.Player)this, component);
++            net.minecraft.world.scores.Team $$3 = this.getTeam();
++            if ($$3 == null || $$3.getDeathMessageVisibility() == net.minecraft.world.scores.Team$Visibility.ALWAYS) {
++                this.server.getPlayerList().broadcastSystemMessage($$2, false);
++            } else if ($$3.getDeathMessageVisibility() == net.minecraft.world.scores.Team$Visibility.HIDE_FOR_OTHER_TEAMS) {
++                this.server.getPlayerList().broadcastSystemToTeam((net.minecraft.world.entity.player.Player)this, $$2);
++            } else if ($$3.getDeathMessageVisibility() == net.minecraft.world.scores.Team$Visibility.HIDE_FOR_OWN_TEAM) {
++                this.server.getPlayerList().broadcastSystemToAllExceptTeam((net.minecraft.world.entity.player.Player)this, $$2);
+             }
+         } else {
+             this.connection.send((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ClientboundPlayerCombatKillPacket(this.getCombatTracker(), net.minecraft.network.chat.CommonComponents.EMPTY));
+@@ -384,14 +393,14 @@
+             this.tellNeutralMobsThatIDied();
+         }
+         if (!this.isSpectator()) {
+-            this.dropAllDeathLoot(cause);
++            this.dropAllDeathLoot($$0);
+         }
+         this.getScoreboard().forAllObjectives(net.minecraft.world.scores.criteria.ObjectiveCriteria.DEATH_COUNT, this.getScoreboardName(), net.minecraft.world.scores.Score::increment);
+-        component = this.getKillCredit();
+-        if (component != null) {
+-            this.awardStat(net.minecraft.stats.Stats.ENTITY_KILLED_BY.get((java.lang.Object)component.getType()));
+-            component.awardKillScore((net.minecraft.world.entity.Entity)this, this.deathScore, cause);
+-            this.createWitherRose((net.minecraft.world.entity.LivingEntity)component);
++        net.minecraft.world.entity.LivingEntity $$4 = this.getKillCredit();
++        if ($$4 != null) {
++            this.awardStat(net.minecraft.stats.Stats.ENTITY_KILLED_BY.get((java.lang.Object)$$4.getType()));
++            $$4.awardKillScore((net.minecraft.world.entity.Entity)this, this.deathScore, $$0);
++            this.createWitherRose($$4);
+         }
+         this.level.broadcastEntityEvent((net.minecraft.world.entity.Entity)this, (byte)3);
+         this.awardStat(net.minecraft.stats.Stats.DEATHS);
+@@ -409,24 +418,24 @@
+         this.level.getEntitiesOfClass(net.minecraft.world.entity.Mob.class, $$02, net.minecraft.world.entity.EntitySelector.NO_SPECTATORS).stream().filter($$0 -> $$0 instanceof net.minecraft.world.entity.NeutralMob).forEach($$0 -> ((net.minecraft.world.entity.NeutralMob)$$0).playerDied((net.minecraft.world.entity.player.Player)this));
+     }
+ 
+-    public void awardKillScore(net.minecraft.world.entity.Entity killed, int scoreValue, net.minecraft.world.damagesource.DamageSource damageSource) {
+-        if (killed == this) {
++    public void awardKillScore(net.minecraft.world.entity.Entity $$0, int $$1, net.minecraft.world.damagesource.DamageSource $$2) {
++        if ($$0 == this) {
+             return;
+         }
+-        super.awardKillScore(killed, scoreValue, damageSource);
+-        this.increaseScore(scoreValue);
+-        java.lang.String string = this.getScoreboardName();
+-        java.lang.String string2 = killed.getScoreboardName();
+-        this.getScoreboard().forAllObjectives(net.minecraft.world.scores.criteria.ObjectiveCriteria.KILL_COUNT_ALL, string, net.minecraft.world.scores.Score::increment);
+-        if (killed instanceof net.minecraft.world.entity.player.Player) {
++        super.awardKillScore($$0, $$1, $$2);
++        this.increaseScore($$1);
++        java.lang.String $$3 = this.getScoreboardName();
++        java.lang.String $$4 = $$0.getScoreboardName();
++        this.getScoreboard().forAllObjectives(net.minecraft.world.scores.criteria.ObjectiveCriteria.KILL_COUNT_ALL, $$3, net.minecraft.world.scores.Score::increment);
++        if ($$0 instanceof net.minecraft.world.entity.player.Player) {
+             this.awardStat(net.minecraft.stats.Stats.PLAYER_KILLS);
+-            this.getScoreboard().forAllObjectives(net.minecraft.world.scores.criteria.ObjectiveCriteria.KILL_COUNT_PLAYERS, string, net.minecraft.world.scores.Score::increment);
++            this.getScoreboard().forAllObjectives(net.minecraft.world.scores.criteria.ObjectiveCriteria.KILL_COUNT_PLAYERS, $$3, net.minecraft.world.scores.Score::increment);
+         } else {
+             this.awardStat(net.minecraft.stats.Stats.MOB_KILLS);
+         }
+-        this.handleTeamKill(string, string2, net.minecraft.world.scores.criteria.ObjectiveCriteria.TEAM_KILL);
+-        this.handleTeamKill(string2, string, net.minecraft.world.scores.criteria.ObjectiveCriteria.KILLED_BY_TEAM);
+-        net.minecraft.advancements.CriteriaTriggers.PLAYER_KILLED_ENTITY.trigger(this, killed, damageSource);
++        this.handleTeamKill($$3, $$4, net.minecraft.world.scores.criteria.ObjectiveCriteria.TEAM_KILL);
++        this.handleTeamKill($$4, $$3, net.minecraft.world.scores.criteria.ObjectiveCriteria.KILLED_BY_TEAM);
++        net.minecraft.advancements.CriteriaTriggers.PLAYER_KILLED_ENTITY.trigger(this, $$0, $$2);
+     }
+ 
+     public void handleTeamKill(java.lang.String $$0, java.lang.String $$1, net.minecraft.world.scores.criteria.ObjectiveCriteria[] $$2) {
+@@ -437,34 +446,34 @@
+         }
+     }
+ 
+-    public boolean hurt(net.minecraft.world.damagesource.DamageSource source, float amount) {
+-        boolean bl;
+-        if (this.isInvulnerableTo(source)) {
++    public boolean hurt(net.minecraft.world.damagesource.DamageSource $$0, float $$1) {
++        boolean $$2;
++        if (this.isInvulnerableTo($$0)) {
+             return false;
+         }
+-        boolean bl2 = bl = this.server.isDedicatedServer() && this.isPvpAllowed() && "fall".equals((java.lang.Object)source.msgId);
+-        if (!bl && this.spawnInvulnerableTime > 0 && source != net.minecraft.world.damagesource.DamageSource.OUT_OF_WORLD) {
++        boolean bl = $$2 = this.server.isDedicatedServer() && this.isPvpAllowed() && "fall".equals((java.lang.Object)$$0.msgId);
++        if (!$$2 && this.spawnInvulnerableTime > 0 && $$0 != net.minecraft.world.damagesource.DamageSource.OUT_OF_WORLD) {
+             return false;
+         }
+-        if (source instanceof net.minecraft.world.damagesource.EntityDamageSource) {
+-            net.minecraft.world.entity.projectile.AbstractArrow abstractArrow;
+-            net.minecraft.world.entity.Entity entity;
+-            net.minecraft.world.entity.Entity entity2 = source.getEntity();
+-            if (entity2 instanceof net.minecraft.world.entity.player.Player && !this.canHarmPlayer((net.minecraft.world.entity.player.Player)entity2)) {
++        if ($$0 instanceof net.minecraft.world.damagesource.EntityDamageSource) {
++            net.minecraft.world.entity.projectile.AbstractArrow $$4;
++            net.minecraft.world.entity.Entity $$5;
++            net.minecraft.world.entity.Entity $$3 = $$0.getEntity();
++            if ($$3 instanceof net.minecraft.world.entity.player.Player && !this.canHarmPlayer((net.minecraft.world.entity.player.Player)$$3)) {
+                 return false;
+             }
+-            if (entity2 instanceof net.minecraft.world.entity.projectile.AbstractArrow && (entity = (abstractArrow = (net.minecraft.world.entity.projectile.AbstractArrow)entity2).getOwner()) instanceof net.minecraft.world.entity.player.Player && !this.canHarmPlayer((net.minecraft.world.entity.player.Player)entity)) {
++            if ($$3 instanceof net.minecraft.world.entity.projectile.AbstractArrow && ($$5 = ($$4 = (net.minecraft.world.entity.projectile.AbstractArrow)$$3).getOwner()) instanceof net.minecraft.world.entity.player.Player && !this.canHarmPlayer((net.minecraft.world.entity.player.Player)$$5)) {
+                 return false;
+             }
+         }
+-        return super.hurt(source, amount);
++        return super.hurt($$0, $$1);
+     }
+ 
+-    public boolean canHarmPlayer(net.minecraft.world.entity.player.Player other) {
++    public boolean canHarmPlayer(net.minecraft.world.entity.player.Player $$0) {
+         if (!this.isPvpAllowed()) {
+             return false;
+         }
+-        return super.canHarmPlayer(other);
++        return super.canHarmPlayer($$0);
+     }
+ 
+     public boolean isPvpAllowed() {
+@@ -472,21 +481,21 @@
+     }
+ 
+     @javax.annotation.Nullable
+-    public net.minecraft.world.level.portal.PortalInfo findDimensionEntryPoint(net.minecraft.server.level.ServerLevel destination) {
+-        net.minecraft.world.level.portal.PortalInfo portalInfo = super.findDimensionEntryPoint(destination);
+-        if (portalInfo != null && this.level.dimension() == net.minecraft.world.level.Level.OVERWORLD && destination.dimension() == net.minecraft.world.level.Level.END) {
+-            net.minecraft.world.phys.Vec3 vec3 = portalInfo.pos.add(0.0, -1.0, 0.0);
+-            return new net.minecraft.world.level.portal.PortalInfo(vec3, net.minecraft.world.phys.Vec3.ZERO, 90.0f, 0.0f);
++    public net.minecraft.world.level.portal.PortalInfo findDimensionEntryPoint(net.minecraft.server.level.ServerLevel $$0) {
++        net.minecraft.world.level.portal.PortalInfo $$1 = super.findDimensionEntryPoint($$0);
++        if ($$1 != null && this.level.dimension() == net.minecraft.world.level.Level.OVERWORLD && $$0.dimension() == net.minecraft.world.level.Level.END) {
++            net.minecraft.world.phys.Vec3 $$2 = $$1.pos.add(0.0, -1.0, 0.0);
++            return new net.minecraft.world.level.portal.PortalInfo($$2, net.minecraft.world.phys.Vec3.ZERO, 90.0f, 0.0f);
+         }
+-        return portalInfo;
++        return $$1;
+     }
+ 
+     @javax.annotation.Nullable
+-    public net.minecraft.world.entity.Entity changeDimension(net.minecraft.server.level.ServerLevel server) {
++    public net.minecraft.world.entity.Entity changeDimension(net.minecraft.server.level.ServerLevel $$0) {
+         this.isChangingDimension = true;
+-        net.minecraft.server.level.ServerLevel serverLevel = this.getLevel();
+-        net.minecraft.resources.ResourceKey resourceKey = serverLevel.dimension();
+-        if (resourceKey == net.minecraft.world.level.Level.END && server.dimension() == net.minecraft.world.level.Level.OVERWORLD) {
++        net.minecraft.server.level.ServerLevel $$1 = this.getLevel();
++        net.minecraft.resources.ResourceKey $$2 = $$1.dimension();
++        if ($$2 == net.minecraft.world.level.Level.END && $$0.dimension() == net.minecraft.world.level.Level.OVERWORLD) {
+             this.unRide();
+             this.getLevel().removePlayerImmediately(this, net.minecraft.world.entity.Entity$RemovalReason.CHANGED_DIMENSION);
+             if (!this.wonGame) {
+@@ -496,34 +505,34 @@
+             }
+             return this;
+         }
+-        net.minecraft.world.level.storage.LevelData levelData = server.getLevelData();
+-        this.connection.send((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ClientboundRespawnPacket(server.dimensionTypeId(), server.dimension(), net.minecraft.world.level.biome.BiomeManager.obfuscateSeed((long)server.getSeed()), this.gameMode.getGameModeForPlayer(), this.gameMode.getPreviousGameModeForPlayer(), server.isDebug(), server.isFlat(), true, this.getLastDeathLocation()));
+-        this.connection.send((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ClientboundChangeDifficultyPacket(levelData.getDifficulty(), levelData.isDifficultyLocked()));
+-        net.minecraft.server.players.PlayerList playerList = this.server.getPlayerList();
+-        playerList.sendPlayerPermissionLevel(this);
+-        serverLevel.removePlayerImmediately(this, net.minecraft.world.entity.Entity$RemovalReason.CHANGED_DIMENSION);
++        net.minecraft.world.level.storage.LevelData $$3 = $$0.getLevelData();
++        this.connection.send((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ClientboundRespawnPacket($$0.dimensionTypeId(), $$0.dimension(), net.minecraft.world.level.biome.BiomeManager.obfuscateSeed((long)$$0.getSeed()), this.gameMode.getGameModeForPlayer(), this.gameMode.getPreviousGameModeForPlayer(), $$0.isDebug(), $$0.isFlat(), true, this.getLastDeathLocation()));
++        this.connection.send((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ClientboundChangeDifficultyPacket($$3.getDifficulty(), $$3.isDifficultyLocked()));
++        net.minecraft.server.players.PlayerList $$4 = this.server.getPlayerList();
++        $$4.sendPlayerPermissionLevel(this);
++        $$1.removePlayerImmediately(this, net.minecraft.world.entity.Entity$RemovalReason.CHANGED_DIMENSION);
+         this.unsetRemoved();
+-        net.minecraft.world.level.portal.PortalInfo portalInfo = this.findDimensionEntryPoint(server);
+-        if (portalInfo != null) {
+-            serverLevel.getProfiler().push("moving");
+-            if (resourceKey == net.minecraft.world.level.Level.OVERWORLD && server.dimension() == net.minecraft.world.level.Level.NETHER) {
++        net.minecraft.world.level.portal.PortalInfo $$5 = this.findDimensionEntryPoint($$0);
++        if ($$5 != null) {
++            $$1.getProfiler().push("moving");
++            if ($$2 == net.minecraft.world.level.Level.OVERWORLD && $$0.dimension() == net.minecraft.world.level.Level.NETHER) {
+                 this.enteredNetherPosition = this.position();
+-            } else if (server.dimension() == net.minecraft.world.level.Level.END) {
+-                this.createEndPlatform(server, new net.minecraft.core.BlockPos(portalInfo.pos));
++            } else if ($$0.dimension() == net.minecraft.world.level.Level.END) {
++                this.createEndPlatform($$0, new net.minecraft.core.BlockPos($$5.pos));
+             }
+-            serverLevel.getProfiler().pop();
+-            serverLevel.getProfiler().push("placing");
+-            this.setLevel(server);
+-            server.addDuringPortalTeleport(this);
+-            this.setRot(portalInfo.yRot, portalInfo.xRot);
+-            this.moveTo(portalInfo.pos.x, portalInfo.pos.y, portalInfo.pos.z);
+-            serverLevel.getProfiler().pop();
+-            this.triggerDimensionChangeTriggers(serverLevel);
++            $$1.getProfiler().pop();
++            $$1.getProfiler().push("placing");
++            this.setLevel($$0);
++            $$0.addDuringPortalTeleport(this);
++            this.connection.teleport($$5.pos.x, $$5.pos.y, $$5.pos.z, $$5.yRot, $$5.xRot);
++            this.connection.resetPosition();
++            $$1.getProfiler().pop();
++            this.triggerDimensionChangeTriggers($$1);
+             this.connection.send((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ClientboundPlayerAbilitiesPacket(this.getAbilities()));
+-            playerList.sendLevelInfo(this, server);
+-            playerList.sendAllPlayerInfo(this);
+-            for (net.minecraft.world.effect.MobEffectInstance mobEffectInstance : this.getActiveEffects()) {
+-                this.connection.send((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ClientboundUpdateMobEffectPacket(this.getId(), mobEffectInstance));
++            $$4.sendLevelInfo(this, $$0);
++            $$4.sendAllPlayerInfo(this);
++            for (net.minecraft.world.effect.MobEffectInstance $$6 : this.getActiveEffects()) {
++                this.connection.send((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ClientboundUpdateMobEffectPacket(this.getId(), $$6));
+             }
+             this.connection.send((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ClientboundLevelEventPacket(1032, net.minecraft.core.BlockPos.ZERO, 0, false));
+             this.lastSentExp = -1;
+@@ -570,49 +579,49 @@
+         }
+     }
+ 
+-    public boolean broadcastToPlayer(net.minecraft.server.level.ServerPlayer player) {
+-        if (player.isSpectator()) {
++    public boolean broadcastToPlayer(net.minecraft.server.level.ServerPlayer $$0) {
++        if ($$0.isSpectator()) {
+             return this.getCamera() == this;
+         }
+         if (this.isSpectator()) {
+             return false;
+         }
+-        return super.broadcastToPlayer(player);
++        return super.broadcastToPlayer($$0);
+     }
+ 
+-    public void take(net.minecraft.world.entity.Entity entity, int quantity) {
+-        super.take(entity, quantity);
++    public void take(net.minecraft.world.entity.Entity $$0, int $$1) {
++        super.take($$0, $$1);
+         this.containerMenu.broadcastChanges();
+     }
+ 
+-    public com.mojang.datafixers.util.Either<net.minecraft.world.entity.player.Player$BedSleepingProblem, net.minecraft.util.Unit> startSleepInBed(net.minecraft.core.BlockPos at) {
+-        net.minecraft.core.Direction direction = (net.minecraft.core.Direction)this.level.getBlockState(at).getValue((net.minecraft.world.level.block.state.properties.Property)net.minecraft.world.level.block.HorizontalDirectionalBlock.FACING);
++    public com.mojang.datafixers.util.Either<net.minecraft.world.entity.player.Player$BedSleepingProblem, net.minecraft.util.Unit> startSleepInBed(net.minecraft.core.BlockPos $$02) {
++        net.minecraft.core.Direction $$1 = (net.minecraft.core.Direction)this.level.getBlockState($$02).getValue((net.minecraft.world.level.block.state.properties.Property)net.minecraft.world.level.block.HorizontalDirectionalBlock.FACING);
+         if (this.isSleeping() || !this.isAlive()) {
+             return com.mojang.datafixers.util.Either.left((java.lang.Object)net.minecraft.world.entity.player.Player$BedSleepingProblem.OTHER_PROBLEM);
+         }
+         if (!this.level.dimensionType().natural()) {
+             return com.mojang.datafixers.util.Either.left((java.lang.Object)net.minecraft.world.entity.player.Player$BedSleepingProblem.NOT_POSSIBLE_HERE);
+         }
+-        if (!this.bedInRange(at, direction)) {
++        if (!this.bedInRange($$02, $$1)) {
+             return com.mojang.datafixers.util.Either.left((java.lang.Object)net.minecraft.world.entity.player.Player$BedSleepingProblem.TOO_FAR_AWAY);
+         }
+-        if (this.bedBlocked(at, direction)) {
++        if (this.bedBlocked($$02, $$1)) {
+             return com.mojang.datafixers.util.Either.left((java.lang.Object)net.minecraft.world.entity.player.Player$BedSleepingProblem.OBSTRUCTED);
+         }
+-        this.setRespawnPosition(this.level.dimension(), at, this.getYRot(), false, true);
++        this.setRespawnPosition(this.level.dimension(), $$02, this.getYRot(), false, true);
+         if (this.level.isDay()) {
+             return com.mojang.datafixers.util.Either.left((java.lang.Object)net.minecraft.world.entity.player.Player$BedSleepingProblem.NOT_POSSIBLE_NOW);
+         }
+         if (!this.isCreative()) {
+-            double d = 8.0;
+-            double d2 = 5.0;
+-            net.minecraft.world.phys.Vec3 vec3 = net.minecraft.world.phys.Vec3.atBottomCenterOf((net.minecraft.core.Vec3i)at);
+-            java.util.List list = this.level.getEntitiesOfClass(net.minecraft.world.entity.monster.Monster.class, new net.minecraft.world.phys.AABB(vec3.x() - 8.0, vec3.y() - 5.0, vec3.z() - 8.0, vec3.x() + 8.0, vec3.y() + 5.0, vec3.z() + 8.0), $$0 -> $$0.isPreventingPlayerRest((net.minecraft.world.entity.player.Player)this));
+-            if (!list.isEmpty()) {
++            double $$2 = 8.0;
++            double $$3 = 5.0;
++            net.minecraft.world.phys.Vec3 $$4 = net.minecraft.world.phys.Vec3.atBottomCenterOf((net.minecraft.core.Vec3i)$$02);
++            java.util.List $$5 = this.level.getEntitiesOfClass(net.minecraft.world.entity.monster.Monster.class, new net.minecraft.world.phys.AABB($$4.x() - 8.0, $$4.y() - 5.0, $$4.z() - 8.0, $$4.x() + 8.0, $$4.y() + 5.0, $$4.z() + 8.0), $$0 -> $$0.isPreventingPlayerRest((net.minecraft.world.entity.player.Player)this));
++            if (!$$5.isEmpty()) {
+                 return com.mojang.datafixers.util.Either.left((java.lang.Object)net.minecraft.world.entity.player.Player$BedSleepingProblem.NOT_SAFE);
+             }
+         }
+-        com.mojang.datafixers.util.Either either = super.startSleepInBed(at).ifRight($$0 -> {
++        com.mojang.datafixers.util.Either $$6 = super.startSleepInBed($$02).ifRight($$0 -> {
+             this.awardStat(net.minecraft.stats.Stats.SLEEP_IN_BED);
+             net.minecraft.advancements.CriteriaTriggers.SLEPT_IN_BED.trigger(this);
+         });
+@@ -620,12 +629,12 @@
+             this.displayClientMessage((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"sleep.not_possible"), true);
+         }
+         ((net.minecraft.server.level.ServerLevel)this.level).updateSleepingPlayerList();
+-        return either;
++        return $$6;
+     }
+ 
+-    public void startSleeping(net.minecraft.core.BlockPos pos) {
++    public void startSleeping(net.minecraft.core.BlockPos $$0) {
+         this.resetStat(net.minecraft.stats.Stats.CUSTOM.get((java.lang.Object)net.minecraft.stats.Stats.TIME_SINCE_REST));
+-        super.startSleeping(pos);
++        super.startSleeping($$0);
+     }
+ 
+     public boolean bedInRange(net.minecraft.core.BlockPos $$0, net.minecraft.core.Direction $$1) {
+@@ -642,23 +651,23 @@
+         return !this.freeAt($$2) || !this.freeAt($$2.relative($$1.getOpposite()));
+     }
+ 
+-    public void stopSleepInBed(boolean wakeImmediatly, boolean updateLevelForSleepingPlayers) {
++    public void stopSleepInBed(boolean $$0, boolean $$1) {
+         if (this.isSleeping()) {
+             this.getLevel().getChunkSource().broadcastAndSend((net.minecraft.world.entity.Entity)this, (net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ClientboundAnimatePacket((net.minecraft.world.entity.Entity)this, 2));
+         }
+-        super.stopSleepInBed(wakeImmediatly, updateLevelForSleepingPlayers);
++        super.stopSleepInBed($$0, $$1);
+         if (this.connection != null) {
+             this.connection.teleport(this.getX(), this.getY(), this.getZ(), this.getYRot(), this.getXRot());
+         }
+     }
+ 
+-    public boolean startRiding(net.minecraft.world.entity.Entity entity, boolean force) {
+-        net.minecraft.world.entity.Entity entity2 = this.getVehicle();
+-        if (!super.startRiding(entity, force)) {
++    public boolean startRiding(net.minecraft.world.entity.Entity $$0, boolean $$1) {
++        net.minecraft.world.entity.Entity $$2 = this.getVehicle();
++        if (!super.startRiding($$0, $$1)) {
+             return false;
+         }
+-        net.minecraft.world.entity.Entity entity3 = this.getVehicle();
+-        if (entity3 != entity2 && this.connection != null) {
++        net.minecraft.world.entity.Entity $$3 = this.getVehicle();
++        if ($$3 != $$2 && this.connection != null) {
+             this.connection.teleport(this.getX(), this.getY(), this.getZ(), this.getYRot(), this.getXRot());
+         }
+         return true;
+@@ -680,83 +689,83 @@
+         }
+     }
+ 
+-    public boolean isInvulnerableTo(net.minecraft.world.damagesource.DamageSource source) {
+-        return super.isInvulnerableTo(source) || this.isChangingDimension() || this.getAbilities().invulnerable && source == net.minecraft.world.damagesource.DamageSource.WITHER;
++    public boolean isInvulnerableTo(net.minecraft.world.damagesource.DamageSource $$0) {
++        return super.isInvulnerableTo($$0) || this.isChangingDimension() || this.getAbilities().invulnerable && $$0 == net.minecraft.world.damagesource.DamageSource.WITHER;
+     }
+ 
+-    public void checkFallDamage(double y, boolean onGround, net.minecraft.world.level.block.state.BlockState state, net.minecraft.core.BlockPos pos) {
++    public void checkFallDamage(double $$0, boolean $$1, net.minecraft.world.level.block.state.BlockState $$2, net.minecraft.core.BlockPos $$3) {
+     }
+ 
+-    public void onChangedBlock(net.minecraft.core.BlockPos pos) {
++    public void onChangedBlock(net.minecraft.core.BlockPos $$0) {
+         if (!this.isSpectator()) {
+-            super.onChangedBlock(pos);
++            super.onChangedBlock($$0);
+         }
+     }
+ 
+-    public void doCheckFallDamage(double y, boolean onGround) {
++    public void doCheckFallDamage(double $$0, boolean $$1) {
+         if (this.touchingUnloadedChunk()) {
+             return;
+         }
+-        net.minecraft.core.BlockPos blockPos = this.getOnPosLegacy();
+-        super.checkFallDamage(y, onGround, this.level.getBlockState(blockPos), blockPos);
++        net.minecraft.core.BlockPos $$2 = this.getOnPosLegacy();
++        super.checkFallDamage($$0, $$1, this.level.getBlockState($$2), $$2);
+     }
+ 
+-    public void openTextEdit(net.minecraft.world.level.block.entity.SignBlockEntity signTile) {
+-        signTile.setAllowedPlayerEditor(this.getUUID());
+-        this.connection.send((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ClientboundBlockUpdatePacket((net.minecraft.world.level.BlockGetter)this.level, signTile.getBlockPos()));
+-        this.connection.send((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ClientboundOpenSignEditorPacket(signTile.getBlockPos()));
++    public void openTextEdit(net.minecraft.world.level.block.entity.SignBlockEntity $$0) {
++        $$0.setAllowedPlayerEditor(this.getUUID());
++        this.connection.send((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ClientboundBlockUpdatePacket((net.minecraft.world.level.BlockGetter)this.level, $$0.getBlockPos()));
++        this.connection.send((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ClientboundOpenSignEditorPacket($$0.getBlockPos()));
+     }
+ 
+     public void nextContainerCounter() {
+         this.containerCounter = this.containerCounter % 100 + 1;
+     }
+ 
+-    public java.util.OptionalInt openMenu(@javax.annotation.Nullable net.minecraft.world.MenuProvider menu) {
+-        if (menu == null) {
++    public java.util.OptionalInt openMenu(@javax.annotation.Nullable net.minecraft.world.MenuProvider $$0) {
++        if ($$0 == null) {
+             return java.util.OptionalInt.empty();
+         }
+         if (this.containerMenu != this.inventoryMenu) {
+             this.closeContainer();
+         }
+         this.nextContainerCounter();
+-        net.minecraft.world.inventory.AbstractContainerMenu abstractContainerMenu = menu.createMenu(this.containerCounter, this.getInventory(), (net.minecraft.world.entity.player.Player)this);
+-        if (abstractContainerMenu == null) {
++        net.minecraft.world.inventory.AbstractContainerMenu $$1 = $$0.createMenu(this.containerCounter, this.getInventory(), (net.minecraft.world.entity.player.Player)this);
++        if ($$1 == null) {
+             if (this.isSpectator()) {
+                 this.displayClientMessage((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"container.spectatorCantOpen").withStyle(net.minecraft.ChatFormatting.RED), true);
+             }
+             return java.util.OptionalInt.empty();
+         }
+-        this.connection.send((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ClientboundOpenScreenPacket(abstractContainerMenu.containerId, abstractContainerMenu.getType(), menu.getDisplayName()));
+-        this.initMenu(abstractContainerMenu);
+-        this.containerMenu = abstractContainerMenu;
++        this.connection.send((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ClientboundOpenScreenPacket($$1.containerId, $$1.getType(), $$0.getDisplayName()));
++        this.initMenu($$1);
++        this.containerMenu = $$1;
+         return java.util.OptionalInt.of((int)this.containerCounter);
+     }
+ 
+-    public void sendMerchantOffers(int containerId, net.minecraft.world.item.trading.MerchantOffers offers, int level, int xp, boolean showProgress, boolean canRestock) {
+-        this.connection.send((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ClientboundMerchantOffersPacket(containerId, offers, level, xp, showProgress, canRestock));
++    public void sendMerchantOffers(int $$0, net.minecraft.world.item.trading.MerchantOffers $$1, int $$2, int $$3, boolean $$4, boolean $$5) {
++        this.connection.send((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ClientboundMerchantOffersPacket($$0, $$1, $$2, $$3, $$4, $$5));
+     }
+ 
+-    public void openHorseInventory(net.minecraft.world.entity.animal.horse.AbstractHorse horse, net.minecraft.world.Container inventory) {
++    public void openHorseInventory(net.minecraft.world.entity.animal.horse.AbstractHorse $$0, net.minecraft.world.Container $$1) {
+         if (this.containerMenu != this.inventoryMenu) {
+             this.closeContainer();
+         }
+         this.nextContainerCounter();
+-        this.connection.send((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ClientboundHorseScreenOpenPacket(this.containerCounter, inventory.getContainerSize(), horse.getId()));
+-        this.containerMenu = new net.minecraft.world.inventory.HorseInventoryMenu(this.containerCounter, this.getInventory(), inventory, horse);
++        this.connection.send((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ClientboundHorseScreenOpenPacket(this.containerCounter, $$1.getContainerSize(), $$0.getId()));
++        this.containerMenu = new net.minecraft.world.inventory.HorseInventoryMenu(this.containerCounter, this.getInventory(), $$1, $$0);
+         this.initMenu(this.containerMenu);
+     }
+ 
+-    public void openItemGui(net.minecraft.world.item.ItemStack stack, net.minecraft.world.InteractionHand hand) {
+-        if (stack.is(net.minecraft.world.item.Items.WRITTEN_BOOK)) {
+-            if (net.minecraft.world.item.WrittenBookItem.resolveBookComponents((net.minecraft.world.item.ItemStack)stack, (net.minecraft.commands.CommandSourceStack)this.createCommandSourceStack(), (net.minecraft.world.entity.player.Player)this)) {
++    public void openItemGui(net.minecraft.world.item.ItemStack $$0, net.minecraft.world.InteractionHand $$1) {
++        if ($$0.is(net.minecraft.world.item.Items.WRITTEN_BOOK)) {
++            if (net.minecraft.world.item.WrittenBookItem.resolveBookComponents((net.minecraft.world.item.ItemStack)$$0, (net.minecraft.commands.CommandSourceStack)this.createCommandSourceStack(), (net.minecraft.world.entity.player.Player)this)) {
+                 this.containerMenu.broadcastChanges();
+             }
+-            this.connection.send((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ClientboundOpenBookPacket(hand));
++            this.connection.send((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ClientboundOpenBookPacket($$1));
+         }
+     }
+ 
+-    public void openCommandBlock(net.minecraft.world.level.block.entity.CommandBlockEntity commandBlock) {
+-        this.connection.send((net.minecraft.network.protocol.Packet)net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket.create((net.minecraft.world.level.block.entity.BlockEntity)commandBlock, net.minecraft.world.level.block.entity.BlockEntity::saveWithoutMetadata));
++    public void openCommandBlock(net.minecraft.world.level.block.entity.CommandBlockEntity $$0) {
++        this.connection.send((net.minecraft.network.protocol.Packet)net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket.create((net.minecraft.world.level.block.entity.BlockEntity)$$0, net.minecraft.world.level.block.entity.BlockEntity::saveWithoutMetadata));
+     }
+ 
+     public void closeContainer() {
+@@ -770,47 +779,47 @@
+         this.containerMenu = this.inventoryMenu;
+     }
+ 
+-    public void setPlayerInput(float strafe, float forward, boolean jumping, boolean sneaking) {
++    public void setPlayerInput(float $$0, float $$1, boolean $$2, boolean $$3) {
+         if (this.isPassenger()) {
+-            if (strafe >= -1.0f && strafe <= 1.0f) {
+-                this.xxa = strafe;
++            if ($$0 >= -1.0f && $$0 <= 1.0f) {
++                this.xxa = $$0;
+             }
+-            if (forward >= -1.0f && forward <= 1.0f) {
+-                this.zza = forward;
++            if ($$1 >= -1.0f && $$1 <= 1.0f) {
++                this.zza = $$1;
+             }
+-            this.jumping = jumping;
+-            this.setShiftKeyDown(sneaking);
++            this.jumping = $$2;
++            this.setShiftKeyDown($$3);
+         }
+     }
+ 
+-    public void awardStat(net.minecraft.stats.Stat<?> stat, int amount) {
+-        this.stats.increment((net.minecraft.world.entity.player.Player)this, stat, amount);
+-        this.getScoreboard().forAllObjectives(stat, this.getScoreboardName(), $$1 -> $$1.add(amount));
++    public void awardStat(net.minecraft.stats.Stat<?> $$0, int $$12) {
++        this.stats.increment((net.minecraft.world.entity.player.Player)this, $$0, $$12);
++        this.getScoreboard().forAllObjectives($$0, this.getScoreboardName(), $$1 -> $$1.add($$12));
+     }
+ 
+-    public void resetStat(net.minecraft.stats.Stat<?> stat) {
+-        this.stats.setValue((net.minecraft.world.entity.player.Player)this, stat, 0);
+-        this.getScoreboard().forAllObjectives(stat, this.getScoreboardName(), net.minecraft.world.scores.Score::reset);
++    public void resetStat(net.minecraft.stats.Stat<?> $$0) {
++        this.stats.setValue((net.minecraft.world.entity.player.Player)this, $$0, 0);
++        this.getScoreboard().forAllObjectives($$0, this.getScoreboardName(), net.minecraft.world.scores.Score::reset);
+     }
+ 
+-    public int awardRecipes(java.util.Collection<net.minecraft.world.item.crafting.Recipe<?>> recipes) {
+-        return this.recipeBook.addRecipes(recipes, this);
++    public int awardRecipes(java.util.Collection<net.minecraft.world.item.crafting.Recipe<?>> $$0) {
++        return this.recipeBook.addRecipes($$0, this);
+     }
+ 
+-    public void awardRecipesByKey(net.minecraft.resources.ResourceLocation[] recipesKeys) {
+-        java.util.ArrayList arrayList = com.google.common.collect.Lists.newArrayList();
+-        for (net.minecraft.resources.ResourceLocation resourceLocation : recipesKeys) {
+-            this.server.getRecipeManager().byKey(resourceLocation).ifPresent(arg_0 -> ((java.util.List)arrayList).add(arg_0));
++    public void awardRecipesByKey(net.minecraft.resources.ResourceLocation[] $$0) {
++        java.util.ArrayList $$1 = com.google.common.collect.Lists.newArrayList();
++        for (net.minecraft.resources.ResourceLocation $$2 : $$0) {
++            this.server.getRecipeManager().byKey($$2).ifPresent(arg_0 -> ((java.util.List)$$1).add(arg_0));
+         }
+-        this.awardRecipes((java.util.Collection)arrayList);
++        this.awardRecipes((java.util.Collection)$$1);
+     }
+ 
+-    public int resetRecipes(java.util.Collection<net.minecraft.world.item.crafting.Recipe<?>> recipes) {
+-        return this.recipeBook.removeRecipes(recipes, this);
++    public int resetRecipes(java.util.Collection<net.minecraft.world.item.crafting.Recipe<?>> $$0) {
++        return this.recipeBook.removeRecipes($$0, this);
+     }
+ 
+-    public void giveExperiencePoints(int xpPoints) {
+-        super.giveExperiencePoints(xpPoints);
++    public void giveExperiencePoints(int $$0) {
++        super.giveExperiencePoints($$0);
+         this.lastSentExp = -1;
+     }
+ 
+@@ -830,8 +839,8 @@
+         this.lastSentHealth = -1.0E8f;
+     }
+ 
+-    public void displayClientMessage(net.minecraft.network.chat.Component chatComponent, boolean actionBar) {
+-        this.sendSystemMessage(chatComponent, actionBar);
++    public void displayClientMessage(net.minecraft.network.chat.Component $$0, boolean $$1) {
++        this.sendSystemMessage($$0, $$1);
+     }
+ 
+     public void completeUsingItem() {
+@@ -841,9 +850,9 @@
+         }
+     }
+ 
+-    public void lookAt(net.minecraft.commands.arguments.EntityAnchorArgument$Anchor anchor, net.minecraft.world.phys.Vec3 target) {
+-        super.lookAt(anchor, target);
+-        this.connection.send((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ClientboundPlayerLookAtPacket(anchor, target.x, target.y, target.z));
++    public void lookAt(net.minecraft.commands.arguments.EntityAnchorArgument$Anchor $$0, net.minecraft.world.phys.Vec3 $$1) {
++        super.lookAt($$0, $$1);
++        this.connection.send((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ClientboundPlayerLookAtPacket($$0, $$1.x, $$1.y, $$1.z));
+     }
+ 
+     public void lookAt(net.minecraft.commands.arguments.EntityAnchorArgument$Anchor $$0, net.minecraft.world.entity.Entity $$1, net.minecraft.commands.arguments.EntityAnchorArgument$Anchor $$2) {
+@@ -852,37 +861,39 @@
+         this.connection.send((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ClientboundPlayerLookAtPacket($$0, $$1, $$2));
+     }
+ 
+-    public void restoreFrom(net.minecraft.server.level.ServerPlayer that, boolean keepEverything) {
+-        this.textFilteringEnabled = that.textFilteringEnabled;
+-        this.gameMode.setGameModeForPlayer(that.gameMode.getGameModeForPlayer(), that.gameMode.getPreviousGameModeForPlayer());
+-        if (keepEverything) {
+-            this.getInventory().replaceWith(that.getInventory());
+-            this.setHealth(that.getHealth());
+-            this.foodData = that.foodData;
+-            this.experienceLevel = that.experienceLevel;
+-            this.totalExperience = that.totalExperience;
+-            this.experienceProgress = that.experienceProgress;
+-            this.setScore(that.getScore());
+-            this.portalEntrancePos = that.portalEntrancePos;
+-        } else if (this.level.getGameRules().getBoolean(net.minecraft.world.level.GameRules.RULE_KEEPINVENTORY) || that.isSpectator()) {
+-            this.getInventory().replaceWith(that.getInventory());
+-            this.experienceLevel = that.experienceLevel;
+-            this.totalExperience = that.totalExperience;
+-            this.experienceProgress = that.experienceProgress;
+-            this.setScore(that.getScore());
++    public void restoreFrom(net.minecraft.server.level.ServerPlayer $$0, boolean $$1) {
++        this.wardenSpawnTracker = $$0.wardenSpawnTracker;
++        this.textFilteringEnabled = $$0.textFilteringEnabled;
++        this.gameMode.setGameModeForPlayer($$0.gameMode.getGameModeForPlayer(), $$0.gameMode.getPreviousGameModeForPlayer());
++        this.onUpdateAbilities();
++        if ($$1) {
++            this.getInventory().replaceWith($$0.getInventory());
++            this.setHealth($$0.getHealth());
++            this.foodData = $$0.foodData;
++            this.experienceLevel = $$0.experienceLevel;
++            this.totalExperience = $$0.totalExperience;
++            this.experienceProgress = $$0.experienceProgress;
++            this.setScore($$0.getScore());
++            this.portalEntrancePos = $$0.portalEntrancePos;
++        } else if (this.level.getGameRules().getBoolean(net.minecraft.world.level.GameRules.RULE_KEEPINVENTORY) || $$0.isSpectator()) {
++            this.getInventory().replaceWith($$0.getInventory());
++            this.experienceLevel = $$0.experienceLevel;
++            this.totalExperience = $$0.totalExperience;
++            this.experienceProgress = $$0.experienceProgress;
++            this.setScore($$0.getScore());
+         }
+-        this.enchantmentSeed = that.enchantmentSeed;
+-        this.enderChestInventory = that.enderChestInventory;
+-        this.getEntityData().set(DATA_PLAYER_MODE_CUSTOMISATION, (java.lang.Object)((java.lang.Byte)that.getEntityData().get(DATA_PLAYER_MODE_CUSTOMISATION)));
++        this.enchantmentSeed = $$0.enchantmentSeed;
++        this.enderChestInventory = $$0.enderChestInventory;
++        this.getEntityData().set(DATA_PLAYER_MODE_CUSTOMISATION, (java.lang.Object)((java.lang.Byte)$$0.getEntityData().get(DATA_PLAYER_MODE_CUSTOMISATION)));
+         this.lastSentExp = -1;
+         this.lastSentHealth = -1.0f;
+         this.lastSentFood = -1;
+-        this.recipeBook.copyOverData((net.minecraft.stats.RecipeBook)that.recipeBook);
+-        this.seenCredits = that.seenCredits;
+-        this.enteredNetherPosition = that.enteredNetherPosition;
+-        this.setShoulderEntityLeft(that.getShoulderEntityLeft());
+-        this.setShoulderEntityRight(that.getShoulderEntityRight());
+-        this.setLastDeathLocation(that.getLastDeathLocation());
++        this.recipeBook.copyOverData((net.minecraft.stats.RecipeBook)$$0.recipeBook);
++        this.seenCredits = $$0.seenCredits;
++        this.enteredNetherPosition = $$0.enteredNetherPosition;
++        this.setShoulderEntityLeft($$0.getShoulderEntityLeft());
++        this.setShoulderEntityRight($$0.getShoulderEntityRight());
++        this.setLastDeathLocation($$0.getLastDeathLocation());
+     }
+ 
+     public void onEffectAdded(net.minecraft.world.effect.MobEffectInstance $$0, @javax.annotation.Nullable net.minecraft.world.entity.Entity $$1) {
+@@ -901,30 +912,34 @@
+         net.minecraft.advancements.CriteriaTriggers.EFFECTS_CHANGED.trigger(this, $$2);
+     }
+ 
+-    public void onEffectRemoved(net.minecraft.world.effect.MobEffectInstance effect) {
+-        super.onEffectRemoved(effect);
+-        this.connection.send((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ClientboundRemoveMobEffectPacket(this.getId(), effect.getEffect()));
+-        if (effect.getEffect() == net.minecraft.world.effect.MobEffects.LEVITATION) {
++    public void onEffectRemoved(net.minecraft.world.effect.MobEffectInstance $$0) {
++        super.onEffectRemoved($$0);
++        this.connection.send((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ClientboundRemoveMobEffectPacket(this.getId(), $$0.getEffect()));
++        if ($$0.getEffect() == net.minecraft.world.effect.MobEffects.LEVITATION) {
+             this.levitationStartPos = null;
+         }
+         net.minecraft.advancements.CriteriaTriggers.EFFECTS_CHANGED.trigger(this, null);
+     }
+ 
+-    public void teleportTo(double x, double y, double z) {
+-        this.connection.teleport(x, y, z, this.getYRot(), this.getXRot());
++    public void teleportTo(double $$0, double $$1, double $$2) {
++        this.connection.teleport($$0, $$1, $$2, this.getYRot(), this.getXRot(), net.minecraft.network.protocol.game.ClientboundPlayerPositionPacket$RelativeArgument.ROTATION);
+     }
+ 
+-    public void moveTo(double x, double y, double z) {
+-        this.teleportTo(x, y, z);
++    public void teleportRelative(double $$0, double $$1, double $$2) {
++        this.connection.teleport(this.getX() + $$0, this.getY() + $$1, this.getZ() + $$2, this.getYRot(), this.getXRot(), net.minecraft.network.protocol.game.ClientboundPlayerPositionPacket$RelativeArgument.ALL);
++    }
++
++    public void moveTo(double $$0, double $$1, double $$2) {
++        this.teleportTo($$0, $$1, $$2);
+         this.connection.resetPosition();
+     }
+ 
+-    public void crit(net.minecraft.world.entity.Entity entityHit) {
+-        this.getLevel().getChunkSource().broadcastAndSend((net.minecraft.world.entity.Entity)this, (net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ClientboundAnimatePacket(entityHit, 4));
++    public void crit(net.minecraft.world.entity.Entity $$0) {
++        this.getLevel().getChunkSource().broadcastAndSend((net.minecraft.world.entity.Entity)this, (net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ClientboundAnimatePacket($$0, 4));
+     }
+ 
+-    public void magicCrit(net.minecraft.world.entity.Entity entityHit) {
+-        this.getLevel().getChunkSource().broadcastAndSend((net.minecraft.world.entity.Entity)this, (net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ClientboundAnimatePacket(entityHit, 5));
++    public void magicCrit(net.minecraft.world.entity.Entity $$0) {
++        this.getLevel().getChunkSource().broadcastAndSend((net.minecraft.world.entity.Entity)this, (net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ClientboundAnimatePacket($$0, 5));
+     }
+ 
+     public void onUpdateAbilities() {
+@@ -982,18 +997,12 @@
+         }));
+     }
+ 
+-    public void sendChatMessage(net.minecraft.network.chat.OutgoingPlayerChatMessage $$0, boolean $$1, net.minecraft.network.chat.ChatType$Bound $$2) {
++    public void sendChatMessage(net.minecraft.network.chat.OutgoingChatMessage $$0, boolean $$1, net.minecraft.network.chat.ChatType$Bound $$2) {
+         if (this.acceptsChatMessages()) {
+             $$0.sendToPlayer(this, $$1, $$2);
+         }
+     }
+ 
+-    public void sendChatHeader(net.minecraft.network.chat.SignedMessageHeader $$0, net.minecraft.network.chat.MessageSignature $$1, byte[] $$2) {
+-        if (this.acceptsChatMessages()) {
+-            this.connection.send((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ClientboundPlayerChatHeaderPacket($$0, $$1, $$2));
+-        }
+-    }
+-
+     public java.lang.String getIpAddress() {
+         java.lang.String $$0 = this.connection.connection.getRemoteAddress().toString();
+         $$0 = $$0.substring($$0.indexOf("/") + 1);
+@@ -1001,13 +1010,13 @@
+         return $$0;
+     }
+ 
+-    public void updateOptions(net.minecraft.network.protocol.game.ServerboundClientInformationPacket packet) {
+-        this.chatVisibility = packet.chatVisibility();
+-        this.canChatColor = packet.chatColors();
+-        this.textFilteringEnabled = packet.textFilteringEnabled();
+-        this.allowsListing = packet.allowsListing();
+-        this.getEntityData().set(DATA_PLAYER_MODE_CUSTOMISATION, (java.lang.Object)((byte)packet.modelCustomisation()));
+-        this.getEntityData().set(DATA_PLAYER_MAIN_HAND, (java.lang.Object)((byte)(packet.mainHand() != net.minecraft.world.entity.HumanoidArm.LEFT ? 1 : 0)));
++    public void updateOptions(net.minecraft.network.protocol.game.ServerboundClientInformationPacket $$0) {
++        this.chatVisibility = $$0.chatVisibility();
++        this.canChatColor = $$0.chatColors();
++        this.textFilteringEnabled = $$0.textFilteringEnabled();
++        this.allowsListing = $$0.allowsListing();
++        this.getEntityData().set(DATA_PLAYER_MODE_CUSTOMISATION, (java.lang.Object)((byte)$$0.modelCustomisation()));
++        this.getEntityData().set(DATA_PLAYER_MAIN_HAND, (java.lang.Object)((byte)($$0.mainHand() != net.minecraft.world.entity.HumanoidArm.LEFT ? 1 : 0)));
+     }
+ 
+     public boolean canChatInColor() {
+@@ -1034,7 +1043,7 @@
+     }
+ 
+     public void sendServerStatus(net.minecraft.network.protocol.status.ServerStatus $$0) {
+-        this.connection.send((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ClientboundServerDataPacket($$0.getDescription(), $$0.getFavicon(), $$0.previewsChat(), $$0.enforcesSecureChat()));
++        this.connection.send((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ClientboundServerDataPacket($$0.getDescription(), $$0.getFavicon(), $$0.enforcesSecureChat()));
+     }
+ 
+     public int getPermissionLevel() {
+@@ -1066,12 +1075,13 @@
+         return this.camera == null ? this : this.camera;
+     }
+ 
+-    public void setCamera(@javax.annotation.Nullable net.minecraft.world.entity.Entity entityToSpectate) {
+-        net.minecraft.world.entity.Entity entity = this.getCamera();
+-        java.lang.Object object = this.camera = entityToSpectate == null ? this : entityToSpectate;
+-        if (entity != this.camera) {
++    public void setCamera(@javax.annotation.Nullable net.minecraft.world.entity.Entity $$0) {
++        net.minecraft.world.entity.Entity $$1 = this.getCamera();
++        java.lang.Object object = this.camera = $$0 == null ? this : $$0;
++        if ($$1 != this.camera) {
+             this.connection.send((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ClientboundSetCameraPacket(this.camera));
+-            this.teleportTo(this.camera.getX(), this.camera.getY(), this.camera.getZ());
++            this.connection.teleport(this.camera.getX(), this.camera.getY(), this.camera.getZ(), this.getYRot(), this.getXRot());
++            this.connection.resetPosition();
+         }
+     }
+ 
+@@ -1081,11 +1091,11 @@
+         }
+     }
+ 
+-    public void attack(net.minecraft.world.entity.Entity targetEntity) {
++    public void attack(net.minecraft.world.entity.Entity $$0) {
+         if (this.gameMode.getGameModeForPlayer() == net.minecraft.world.level.GameType.SPECTATOR) {
+-            this.setCamera(targetEntity);
++            this.setCamera($$0);
+         } else {
+-            super.attack(targetEntity);
++            super.attack($$0);
+         }
+     }
+ 
+@@ -1098,8 +1108,8 @@
+         return null;
+     }
+ 
+-    public void swing(net.minecraft.world.InteractionHand hand) {
+-        super.swing(hand);
++    public void swing(net.minecraft.world.InteractionHand $$0) {
++        super.swing($$0);
+         this.resetAttackStrengthTicker();
+     }
+ 
+@@ -1115,25 +1125,25 @@
+         return this.advancements;
+     }
+ 
+-    public void teleportTo(net.minecraft.server.level.ServerLevel newLevel, double x, double y, double z, float yaw, float pitch) {
++    public void teleportTo(net.minecraft.server.level.ServerLevel $$0, double $$1, double $$2, double $$3, float $$4, float $$5) {
+         this.setCamera((net.minecraft.world.entity.Entity)this);
+         this.stopRiding();
+-        if (newLevel == this.level) {
+-            this.connection.teleport(x, y, z, yaw, pitch);
++        if ($$0 == this.level) {
++            this.connection.teleport($$1, $$2, $$3, $$4, $$5);
+         } else {
+-            net.minecraft.server.level.ServerLevel serverLevel = this.getLevel();
+-            net.minecraft.world.level.storage.LevelData levelData = newLevel.getLevelData();
+-            this.connection.send((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ClientboundRespawnPacket(newLevel.dimensionTypeId(), newLevel.dimension(), net.minecraft.world.level.biome.BiomeManager.obfuscateSeed((long)newLevel.getSeed()), this.gameMode.getGameModeForPlayer(), this.gameMode.getPreviousGameModeForPlayer(), newLevel.isDebug(), newLevel.isFlat(), true, this.getLastDeathLocation()));
+-            this.connection.send((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ClientboundChangeDifficultyPacket(levelData.getDifficulty(), levelData.isDifficultyLocked()));
++            net.minecraft.server.level.ServerLevel $$6 = this.getLevel();
++            net.minecraft.world.level.storage.LevelData $$7 = $$0.getLevelData();
++            this.connection.send((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ClientboundRespawnPacket($$0.dimensionTypeId(), $$0.dimension(), net.minecraft.world.level.biome.BiomeManager.obfuscateSeed((long)$$0.getSeed()), this.gameMode.getGameModeForPlayer(), this.gameMode.getPreviousGameModeForPlayer(), $$0.isDebug(), $$0.isFlat(), true, this.getLastDeathLocation()));
++            this.connection.send((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ClientboundChangeDifficultyPacket($$7.getDifficulty(), $$7.isDifficultyLocked()));
+             this.server.getPlayerList().sendPlayerPermissionLevel(this);
+-            serverLevel.removePlayerImmediately(this, net.minecraft.world.entity.Entity$RemovalReason.CHANGED_DIMENSION);
++            $$6.removePlayerImmediately(this, net.minecraft.world.entity.Entity$RemovalReason.CHANGED_DIMENSION);
+             this.unsetRemoved();
+-            this.moveTo(x, y, z, yaw, pitch);
+-            this.setLevel(newLevel);
+-            newLevel.addDuringCommandTeleport(this);
+-            this.triggerDimensionChangeTriggers(serverLevel);
+-            this.connection.teleport(x, y, z, yaw, pitch);
+-            this.server.getPlayerList().sendLevelInfo(this, newLevel);
++            this.moveTo($$1, $$2, $$3, $$4, $$5);
++            this.setLevel($$0);
++            $$0.addDuringCommandTeleport(this);
++            this.triggerDimensionChangeTriggers($$6);
++            this.connection.teleport($$1, $$2, $$3, $$4, $$5);
++            this.server.getPlayerList().sendLevelInfo(this, $$0);
+             this.server.getPlayerList().sendAllPlayerInfo(this);
+         }
+     }
+@@ -1188,32 +1198,32 @@
+         return this.lastSectionPos;
+     }
+ 
+-    public void setLastSectionPos(net.minecraft.core.SectionPos sectionPos) {
+-        this.lastSectionPos = sectionPos;
++    public void setLastSectionPos(net.minecraft.core.SectionPos $$0) {
++        this.lastSectionPos = $$0;
+     }
+ 
+-    public void playNotifySound(net.minecraft.sounds.SoundEvent sound, net.minecraft.sounds.SoundSource source, float volume, float pitch) {
+-        this.connection.send((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ClientboundSoundPacket(sound, source, this.getX(), this.getY(), this.getZ(), volume, pitch, this.random.nextLong()));
++    public void playNotifySound(net.minecraft.sounds.SoundEvent $$0, net.minecraft.sounds.SoundSource $$1, float $$2, float $$3) {
++        this.connection.send((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ClientboundSoundPacket($$0, $$1, this.getX(), this.getY(), this.getZ(), $$2, $$3, this.random.nextLong()));
+     }
+ 
+-    public net.minecraft.network.protocol.Packet<?> getAddEntityPacket() {
++    public net.minecraft.network.protocol.Packet<net.minecraft.network.protocol.game.ClientGamePacketListener> getAddEntityPacket() {
+         return new net.minecraft.network.protocol.game.ClientboundAddPlayerPacket((net.minecraft.world.entity.player.Player)this);
+     }
+ 
+-    public net.minecraft.world.entity.item.ItemEntity drop(net.minecraft.world.item.ItemStack droppedItem, boolean dropAround, boolean traceItem) {
+-        net.minecraft.world.entity.item.ItemEntity itemEntity = super.drop(droppedItem, dropAround, traceItem);
+-        if (itemEntity == null) {
++    public net.minecraft.world.entity.item.ItemEntity drop(net.minecraft.world.item.ItemStack $$0, boolean $$1, boolean $$2) {
++        net.minecraft.world.entity.item.ItemEntity $$3 = super.drop($$0, $$1, $$2);
++        if ($$3 == null) {
+             return null;
+         }
+-        this.level.addFreshEntity((net.minecraft.world.entity.Entity)itemEntity);
+-        net.minecraft.world.item.ItemStack itemStack = itemEntity.getItem();
+-        if (traceItem) {
+-            if (!itemStack.isEmpty()) {
+-                this.awardStat(net.minecraft.stats.Stats.ITEM_DROPPED.get((java.lang.Object)itemStack.getItem()), droppedItem.getCount());
++        this.level.addFreshEntity((net.minecraft.world.entity.Entity)$$3);
++        net.minecraft.world.item.ItemStack $$4 = $$3.getItem();
++        if ($$2) {
++            if (!$$4.isEmpty()) {
++                this.awardStat(net.minecraft.stats.Stats.ITEM_DROPPED.get((java.lang.Object)$$4.getItem()), $$0.getCount());
+             }
+             this.awardStat(net.minecraft.stats.Stats.DROP);
+         }
+-        return itemEntity;
++        return $$3;
+     }
+ 
+     public net.minecraft.server.network.TextFilter getTextFilter() {
+@@ -1281,6 +1291,10 @@
+         return this.allowsListing;
+     }
+ 
++    public java.util.Optional<net.minecraft.world.entity.monster.warden.WardenSpawnTracker> getWardenSpawnTracker() {
++        return java.util.Optional.of((java.lang.Object)this.wardenSpawnTracker);
++    }
++
+     public void onItemPickup(net.minecraft.world.entity.item.ItemEntity $$0) {
+         net.minecraft.world.entity.Entity $$1;
+         super.onItemPickup($$0);
+@@ -1290,11 +1304,15 @@
+         }
+     }
+ 
++    public net.minecraft.network.chat.RemoteChatSession getChatSession() {
++        return this.chatSession;
++    }
++
+     public /* synthetic */ net.minecraft.world.level.Level getLevel() {
+         return this.getLevel();
+     }
+ 
+-    public static /* synthetic */ net.minecraft.network.chat.Style lambda$die$2(net.minecraft.network.chat.Component $$0, net.minecraft.network.chat.Style $$1) {
++    public static /* synthetic */ net.minecraft.network.chat.Style lambda$die$4(net.minecraft.network.chat.Component $$0, net.minecraft.network.chat.Style $$1) {
+         return $$1.withHoverEvent(new net.minecraft.network.chat.HoverEvent(net.minecraft.network.chat.HoverEvent$Action.SHOW_TEXT, (java.lang.Object)$$0));
+     }
+ 

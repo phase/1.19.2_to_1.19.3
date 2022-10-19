@@ -1,0 +1,26 @@
+--- net/minecraft/world/level/block/SupportType$2.java
++++ net/minecraft/world/level/block/SupportType$2.java
+@@ -8,6 +8,7 @@
+  {
+     public int CENTER_SUPPORT_WIDTH = 1;
+     public net.minecraft.world.phys.shapes.VoxelShape CENTER_SUPPORT_SHAPE;
++    public static java.util.List<net.minecraft.tags.TagKey<net.minecraft.world.level.block.Block>> OVERRIDE_TO_SUPPORT;
+ 
+     public net.minecraft.world.level.block.SupportType$2() {
+         super(string, n);
+@@ -16,7 +17,15 @@
+     }
+ 
+     public boolean isSupporting(net.minecraft.world.level.block.state.BlockState $$0, net.minecraft.world.level.BlockGetter $$1, net.minecraft.core.BlockPos $$2, net.minecraft.core.Direction $$3) {
++        for (net.minecraft.tags.TagKey $$4 : OVERRIDE_TO_SUPPORT) {
++            if (!$$0.is($$4)) continue;
++            return true;
++        }
+         return !net.minecraft.world.phys.shapes.Shapes.joinIsNotEmpty((net.minecraft.world.phys.shapes.VoxelShape)$$0.getBlockSupportShape($$1, $$2).getFaceShape($$3), (net.minecraft.world.phys.shapes.VoxelShape)this.CENTER_SUPPORT_SHAPE, (net.minecraft.world.phys.shapes.BooleanOp)net.minecraft.world.phys.shapes.BooleanOp.ONLY_SECOND);
+     }
++
++    static {
++        OVERRIDE_TO_SUPPORT = com.google.common.collect.Lists.newArrayList((java.lang.Object[])new net.minecraft.tags.TagKey[]{net.minecraft.tags.BlockTags.CEILING_HANGING_SIGNS, net.minecraft.tags.BlockTags.WALL_HANGING_SIGNS});
++    }
+ }
+ 

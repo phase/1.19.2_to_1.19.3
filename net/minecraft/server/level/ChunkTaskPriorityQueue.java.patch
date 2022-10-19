@@ -1,0 +1,43 @@
+--- net/minecraft/server/level/ChunkTaskPriorityQueue.java
++++ net/minecraft/server/level/ChunkTaskPriorityQueue.java
+@@ -37,27 +37,27 @@
+         }
+     }
+ 
+-    public void submit(java.util.Optional<T> task, long chunkPos, int chunkLevel) {
+-        ((java.util.List)((it.unimi.dsi.fastutil.longs.Long2ObjectLinkedOpenHashMap)this.taskQueue.get(chunkLevel)).computeIfAbsent(chunkPos, $$0 -> com.google.common.collect.Lists.newArrayList())).add(task);
+-        this.firstQueue = java.lang.Math.min((int)this.firstQueue, (int)chunkLevel);
++    public void submit(java.util.Optional<T> $$02, long $$1, int $$2) {
++        ((java.util.List)((it.unimi.dsi.fastutil.longs.Long2ObjectLinkedOpenHashMap)this.taskQueue.get($$2)).computeIfAbsent($$1, $$0 -> com.google.common.collect.Lists.newArrayList())).add($$02);
++        this.firstQueue = java.lang.Math.min((int)this.firstQueue, (int)$$2);
+     }
+ 
+-    public void release(long chunkPos, boolean fullClear) {
+-        for (it.unimi.dsi.fastutil.longs.Long2ObjectLinkedOpenHashMap long2ObjectLinkedOpenHashMap : this.taskQueue) {
+-            java.util.List list = (java.util.List)long2ObjectLinkedOpenHashMap.get(chunkPos);
+-            if (list == null) continue;
+-            if (fullClear) {
+-                list.clear();
++    public void release(long $$02, boolean $$1) {
++        for (it.unimi.dsi.fastutil.longs.Long2ObjectLinkedOpenHashMap $$2 : this.taskQueue) {
++            java.util.List $$3 = (java.util.List)$$2.get($$02);
++            if ($$3 == null) continue;
++            if ($$1) {
++                $$3.clear();
+             } else {
+-                list.removeIf($$0 -> !$$0.isPresent());
++                $$3.removeIf($$0 -> !$$0.isPresent());
+             }
+-            if (!list.isEmpty()) continue;
+-            long2ObjectLinkedOpenHashMap.remove(chunkPos);
++            if (!$$3.isEmpty()) continue;
++            $$2.remove($$02);
+         }
+         while (this.hasWork() && ((it.unimi.dsi.fastutil.longs.Long2ObjectLinkedOpenHashMap)this.taskQueue.get(this.firstQueue)).isEmpty()) {
+             ++this.firstQueue;
+         }
+-        this.acquired.remove(chunkPos);
++        this.acquired.remove($$02);
+     }
+ 
+     public java.lang.Runnable acquire(long $$0) {

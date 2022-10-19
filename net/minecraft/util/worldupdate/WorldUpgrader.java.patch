@@ -1,0 +1,202 @@
+--- net/minecraft/util/worldupdate/WorldUpgrader.java
++++ net/minecraft/util/worldupdate/WorldUpgrader.java
+@@ -7,7 +7,8 @@
+  {
+     public static org.slf4j.Logger LOGGER;
+     public static java.util.concurrent.ThreadFactory THREAD_FACTORY;
+-    public net.minecraft.world.level.levelgen.WorldGenSettings worldGenSettings;
++    public net.minecraft.core.Registry<net.minecraft.world.level.dimension.LevelStem> dimensions;
++    public java.util.Set<net.minecraft.resources.ResourceKey<net.minecraft.world.level.Level>> levels;
+     public boolean eraseCache;
+     public net.minecraft.world.level.storage.LevelStorageSource$LevelStorageAccess levelStorage;
+     public java.lang.Thread thread;
+@@ -23,11 +24,12 @@
+     public static java.util.regex.Pattern REGEX;
+     public net.minecraft.world.level.storage.DimensionDataStorage overworldDataStorage;
+ 
+-    public net.minecraft.util.worldupdate.WorldUpgrader(net.minecraft.world.level.storage.LevelStorageSource$LevelStorageAccess $$02, com.mojang.datafixers.DataFixer $$12, net.minecraft.world.level.levelgen.WorldGenSettings $$2, boolean $$3) {
++    public net.minecraft.util.worldupdate.WorldUpgrader(net.minecraft.world.level.storage.LevelStorageSource$LevelStorageAccess $$02, com.mojang.datafixers.DataFixer $$12, net.minecraft.core.Registry<net.minecraft.world.level.dimension.LevelStem> $$2, boolean $$3) {
+         this.running = true;
+         this.progressMap = it.unimi.dsi.fastutil.objects.Object2FloatMaps.synchronize((it.unimi.dsi.fastutil.objects.Object2FloatMap)new it.unimi.dsi.fastutil.objects.Object2FloatOpenCustomHashMap(net.minecraft.Util.identityStrategy()));
+         this.status = net.minecraft.network.chat.Component.translatable((java.lang.String)"optimizeWorld.stage.counting");
+-        this.worldGenSettings = $$2;
++        this.dimensions = $$2;
++        this.levels = (java.util.Set)$$2.registryKeySet().stream().map(net.minecraft.core.Registry::levelStemToLevel).collect(java.util.stream.Collectors.toUnmodifiableSet());
+         this.eraseCache = $$3;
+         this.dataFixer = $$12;
+         this.levelStorage = $$02;
+@@ -54,101 +56,100 @@
+     public void work() {
+         this.totalChunks = 0;
+         com.google.common.collect.ImmutableMap$Builder $$0 = com.google.common.collect.ImmutableMap.builder();
+-        com.google.common.collect.ImmutableSet $$1 = this.worldGenSettings.levels();
+-        for (net.minecraft.resources.ResourceKey $$2 : $$1) {
+-            java.util.List $$3 = this.getAllChunkPos($$2);
+-            $$0.put((java.lang.Object)$$2, (java.lang.Object)$$3.listIterator());
+-            this.totalChunks += $$3.size();
++        for (net.minecraft.resources.ResourceKey $$1 : this.levels) {
++            java.util.List $$2 = this.getAllChunkPos($$1);
++            $$0.put((java.lang.Object)$$1, (java.lang.Object)$$2.listIterator());
++            this.totalChunks += $$2.size();
+         }
+         if (this.totalChunks == 0) {
+             this.finished = true;
+             return;
+         }
+-        float $$4 = this.totalChunks;
+-        com.google.common.collect.ImmutableMap $$5 = $$0.build();
+-        com.google.common.collect.ImmutableMap$Builder $$6 = com.google.common.collect.ImmutableMap.builder();
+-        for (net.minecraft.resources.ResourceKey $$7 : $$1) {
+-            java.nio.file.Path $$8 = this.levelStorage.getDimensionPath($$7);
+-            $$6.put((java.lang.Object)$$7, (java.lang.Object)new net.minecraft.world.level.chunk.storage.ChunkStorage($$8.resolve("region"), this.dataFixer, true));
++        float $$3 = this.totalChunks;
++        com.google.common.collect.ImmutableMap $$4 = $$0.build();
++        com.google.common.collect.ImmutableMap$Builder $$5 = com.google.common.collect.ImmutableMap.builder();
++        for (net.minecraft.resources.ResourceKey $$6 : this.levels) {
++            java.nio.file.Path $$7 = this.levelStorage.getDimensionPath($$6);
++            $$5.put((java.lang.Object)$$6, (java.lang.Object)new net.minecraft.world.level.chunk.storage.ChunkStorage($$7.resolve("region"), this.dataFixer, true));
+         }
+-        com.google.common.collect.ImmutableMap $$9 = $$6.build();
+-        long $$10 = net.minecraft.Util.getMillis();
++        com.google.common.collect.ImmutableMap $$8 = $$5.build();
++        long $$9 = net.minecraft.Util.getMillis();
+         this.status = net.minecraft.network.chat.Component.translatable((java.lang.String)"optimizeWorld.stage.upgrading");
+         while (this.running) {
+-            boolean $$11 = false;
+-            float $$12 = 0.0f;
+-            for (net.minecraft.resources.ResourceKey $$13 : $$1) {
+-                java.util.ListIterator $$14 = (java.util.ListIterator)$$5.get((java.lang.Object)$$13);
+-                net.minecraft.world.level.chunk.storage.ChunkStorage $$15 = (net.minecraft.world.level.chunk.storage.ChunkStorage)$$9.get((java.lang.Object)$$13);
+-                if ($$14.hasNext()) {
+-                    net.minecraft.world.level.ChunkPos $$16 = (net.minecraft.world.level.ChunkPos)$$14.next();
+-                    boolean $$17 = false;
++            boolean $$10 = false;
++            float $$11 = 0.0f;
++            for (net.minecraft.resources.ResourceKey $$12 : this.levels) {
++                java.util.ListIterator $$13 = (java.util.ListIterator)$$4.get((java.lang.Object)$$12);
++                net.minecraft.world.level.chunk.storage.ChunkStorage $$14 = (net.minecraft.world.level.chunk.storage.ChunkStorage)$$8.get((java.lang.Object)$$12);
++                if ($$13.hasNext()) {
++                    net.minecraft.world.level.ChunkPos $$15 = (net.minecraft.world.level.ChunkPos)$$13.next();
++                    boolean $$16 = false;
+                     try {
+-                        net.minecraft.nbt.CompoundTag $$18 = (net.minecraft.nbt.CompoundTag)((java.util.Optional)$$15.read($$16).join()).orElse(null);
+-                        if ($$18 != null) {
+-                            boolean $$23;
+-                            int $$19 = net.minecraft.world.level.chunk.storage.ChunkStorage.getVersion((net.minecraft.nbt.CompoundTag)$$18);
+-                            net.minecraft.world.level.chunk.ChunkGenerator $$20 = ((net.minecraft.world.level.dimension.LevelStem)this.worldGenSettings.dimensions().get(net.minecraft.world.level.levelgen.WorldGenSettings.levelToLevelStem((net.minecraft.resources.ResourceKey)$$13))).generator();
+-                            net.minecraft.nbt.CompoundTag $$21 = $$15.upgradeChunkTag($$13, () -> this.overworldDataStorage, $$18, $$20.getTypeNameForDataFixer());
+-                            net.minecraft.world.level.ChunkPos $$22 = new net.minecraft.world.level.ChunkPos($$21.getInt("xPos"), $$21.getInt("zPos"));
+-                            if (!$$22.equals((java.lang.Object)$$16)) {
+-                                LOGGER.warn("Chunk {} has invalid position {}", (java.lang.Object)$$16, (java.lang.Object)$$22);
++                        net.minecraft.nbt.CompoundTag $$17 = (net.minecraft.nbt.CompoundTag)((java.util.Optional)$$14.read($$15).join()).orElse(null);
++                        if ($$17 != null) {
++                            boolean $$22;
++                            int $$18 = net.minecraft.world.level.chunk.storage.ChunkStorage.getVersion((net.minecraft.nbt.CompoundTag)$$17);
++                            net.minecraft.world.level.chunk.ChunkGenerator $$19 = ((net.minecraft.world.level.dimension.LevelStem)this.dimensions.getOrThrow(net.minecraft.core.Registry.levelToLevelStem((net.minecraft.resources.ResourceKey)$$12))).generator();
++                            net.minecraft.nbt.CompoundTag $$20 = $$14.upgradeChunkTag($$12, () -> this.overworldDataStorage, $$17, $$19.getTypeNameForDataFixer());
++                            net.minecraft.world.level.ChunkPos $$21 = new net.minecraft.world.level.ChunkPos($$20.getInt("xPos"), $$20.getInt("zPos"));
++                            if (!$$21.equals((java.lang.Object)$$15)) {
++                                LOGGER.warn("Chunk {} has invalid position {}", (java.lang.Object)$$15, (java.lang.Object)$$21);
+                             }
+-                            boolean bl = $$23 = $$19 < net.minecraft.SharedConstants.getCurrentVersion().getWorldVersion();
++                            boolean bl = $$22 = $$18 < net.minecraft.SharedConstants.getCurrentVersion().getWorldVersion();
+                             if (this.eraseCache) {
+-                                $$23 = $$23 || $$21.contains("Heightmaps");
+-                                $$21.remove("Heightmaps");
+-                                $$23 = $$23 || $$21.contains("isLightOn");
+-                                $$21.remove("isLightOn");
+-                                net.minecraft.nbt.ListTag $$24 = $$21.getList("sections", 10);
+-                                for (int $$25 = 0; $$25 < $$24.size(); ++$$25) {
+-                                    net.minecraft.nbt.CompoundTag $$26 = $$24.getCompound($$25);
+-                                    $$23 = $$23 || $$26.contains("BlockLight");
+-                                    $$26.remove("BlockLight");
+-                                    $$23 = $$23 || $$26.contains("SkyLight");
+-                                    $$26.remove("SkyLight");
++                                $$22 = $$22 || $$20.contains("Heightmaps");
++                                $$20.remove("Heightmaps");
++                                $$22 = $$22 || $$20.contains("isLightOn");
++                                $$20.remove("isLightOn");
++                                net.minecraft.nbt.ListTag $$23 = $$20.getList("sections", 10);
++                                for (int $$24 = 0; $$24 < $$23.size(); ++$$24) {
++                                    net.minecraft.nbt.CompoundTag $$25 = $$23.getCompound($$24);
++                                    $$22 = $$22 || $$25.contains("BlockLight");
++                                    $$25.remove("BlockLight");
++                                    $$22 = $$22 || $$25.contains("SkyLight");
++                                    $$25.remove("SkyLight");
+                                 }
+                             }
+-                            if ($$23) {
+-                                $$15.write($$16, $$21);
+-                                $$17 = true;
++                            if ($$22) {
++                                $$14.write($$15, $$20);
++                                $$16 = true;
+                             }
+                         }
+                     }
+-                    catch (java.util.concurrent.CompletionException | net.minecraft.ReportedException $$27) {
+-                        java.lang.Throwable $$28 = $$27.getCause();
+-                        if ($$28 instanceof java.io.IOException) {
+-                            LOGGER.error("Error upgrading chunk {}", (java.lang.Object)$$16, (java.lang.Object)$$28);
++                    catch (java.util.concurrent.CompletionException | net.minecraft.ReportedException $$26) {
++                        java.lang.Throwable $$27 = $$26.getCause();
++                        if ($$27 instanceof java.io.IOException) {
++                            LOGGER.error("Error upgrading chunk {}", (java.lang.Object)$$15, (java.lang.Object)$$27);
+                         }
+-                        throw $$27;
++                        throw $$26;
+                     }
+-                    if ($$17) {
++                    if ($$16) {
+                         ++this.converted;
+                     } else {
+                         ++this.skipped;
+                     }
+-                    $$11 = true;
++                    $$10 = true;
+                 }
+-                float $$29 = (float)$$14.nextIndex() / $$4;
+-                this.progressMap.put((java.lang.Object)$$13, $$29);
+-                $$12 += $$29;
++                float $$28 = (float)$$13.nextIndex() / $$3;
++                this.progressMap.put((java.lang.Object)$$12, $$28);
++                $$11 += $$28;
+             }
+-            this.progress = $$12;
+-            if ($$11) continue;
++            this.progress = $$11;
++            if ($$10) continue;
+             this.running = false;
+         }
+         this.status = net.minecraft.network.chat.Component.translatable((java.lang.String)"optimizeWorld.stage.finished");
+-        for (net.minecraft.world.level.chunk.storage.ChunkStorage $$30 : $$9.values()) {
++        for (net.minecraft.world.level.chunk.storage.ChunkStorage $$29 : $$8.values()) {
+             try {
+-                $$30.close();
++                $$29.close();
+             }
+-            catch (java.io.IOException $$31) {
+-                LOGGER.error("Error upgrading chunk", (java.lang.Throwable)$$31);
++            catch (java.io.IOException $$30) {
++                LOGGER.error("Error upgrading chunk", (java.lang.Throwable)$$30);
+             }
+         }
+         this.overworldDataStorage.save();
+-        $$10 = net.minecraft.Util.getMillis() - $$10;
+-        LOGGER.info("World optimizaton finished after {} ms", (java.lang.Object)$$10);
++        $$9 = net.minecraft.Util.getMillis() - $$9;
++        LOGGER.info("World optimizaton finished after {} ms", (java.lang.Object)$$9);
+         this.finished = true;
+     }
+ 
+@@ -186,8 +187,8 @@
+         return this.finished;
+     }
+ 
+-    public com.google.common.collect.ImmutableSet<net.minecraft.resources.ResourceKey<net.minecraft.world.level.Level>> levels() {
+-        return this.worldGenSettings.levels();
++    public java.util.Set<net.minecraft.resources.ResourceKey<net.minecraft.world.level.Level>> levels() {
++        return this.levels;
+     }
+ 
+     public float dimensionProgress(net.minecraft.resources.ResourceKey<net.minecraft.world.level.Level> $$0) {

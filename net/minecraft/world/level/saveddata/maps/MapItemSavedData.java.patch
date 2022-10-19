@@ -1,0 +1,315 @@
+--- net/minecraft/world/level/saveddata/maps/MapItemSavedData.java
++++ net/minecraft/world/level/saveddata/maps/MapItemSavedData.java
+@@ -84,26 +84,26 @@
+         return $$8;
+     }
+ 
+-    public net.minecraft.nbt.CompoundTag save(net.minecraft.nbt.CompoundTag compound) {
+-        net.minecraft.resources.ResourceLocation.CODEC.encodeStart((com.mojang.serialization.DynamicOps)net.minecraft.nbt.NbtOps.INSTANCE, (java.lang.Object)this.dimension.location()).resultOrPartial(arg_0 -> ((org.slf4j.Logger)LOGGER).error(arg_0)).ifPresent($$1 -> compound.put("dimension", $$1));
+-        compound.putInt("xCenter", this.x);
+-        compound.putInt("zCenter", this.z);
+-        compound.putByte("scale", this.scale);
+-        compound.putByteArray("colors", this.colors);
+-        compound.putBoolean("trackingPosition", this.trackingPosition);
+-        compound.putBoolean("unlimitedTracking", this.unlimitedTracking);
+-        compound.putBoolean("locked", this.locked);
+-        net.minecraft.nbt.ListTag listTag = new net.minecraft.nbt.ListTag();
+-        for (net.minecraft.world.level.saveddata.maps.MapBanner mapBanner : this.bannerMarkers.values()) {
+-            listTag.add((java.lang.Object)mapBanner.save());
++    public net.minecraft.nbt.CompoundTag save(net.minecraft.nbt.CompoundTag $$0) {
++        net.minecraft.resources.ResourceLocation.CODEC.encodeStart((com.mojang.serialization.DynamicOps)net.minecraft.nbt.NbtOps.INSTANCE, (java.lang.Object)this.dimension.location()).resultOrPartial(arg_0 -> ((org.slf4j.Logger)LOGGER).error(arg_0)).ifPresent($$1 -> $$0.put("dimension", $$1));
++        $$0.putInt("xCenter", this.x);
++        $$0.putInt("zCenter", this.z);
++        $$0.putByte("scale", this.scale);
++        $$0.putByteArray("colors", this.colors);
++        $$0.putBoolean("trackingPosition", this.trackingPosition);
++        $$0.putBoolean("unlimitedTracking", this.unlimitedTracking);
++        $$0.putBoolean("locked", this.locked);
++        net.minecraft.nbt.ListTag $$12 = new net.minecraft.nbt.ListTag();
++        for (net.minecraft.world.level.saveddata.maps.MapBanner $$2 : this.bannerMarkers.values()) {
++            $$12.add((java.lang.Object)$$2.save());
+         }
+-        compound.put("banners", (net.minecraft.nbt.Tag)listTag);
+-        java.util.Iterator iterator = new net.minecraft.nbt.ListTag();
+-        for (net.minecraft.world.level.saveddata.maps.MapFrame mapFrame : this.frameMarkers.values()) {
+-            iterator.add((java.lang.Object)mapFrame.save());
++        $$0.put("banners", (net.minecraft.nbt.Tag)$$12);
++        net.minecraft.nbt.ListTag $$3 = new net.minecraft.nbt.ListTag();
++        for (net.minecraft.world.level.saveddata.maps.MapFrame $$4 : this.frameMarkers.values()) {
++            $$3.add((java.lang.Object)$$4.save());
+         }
+-        compound.put("frames", (net.minecraft.nbt.Tag)iterator);
+-        return compound;
++        $$0.put("frames", (net.minecraft.nbt.Tag)$$3);
++        return $$0;
+     }
+ 
+     public net.minecraft.world.level.saveddata.maps.MapItemSavedData locked() {
+@@ -120,48 +120,45 @@
+         return net.minecraft.world.level.saveddata.maps.MapItemSavedData.createFresh((double)this.x, (double)this.z, (byte)((byte)net.minecraft.util.Mth.clamp((int)(this.scale + $$0), (int)0, (int)4)), (boolean)this.trackingPosition, (boolean)this.unlimitedTracking, (net.minecraft.resources.ResourceKey)this.dimension);
+     }
+ 
+-    public void tickCarriedBy(net.minecraft.world.entity.player.Player player, net.minecraft.world.item.ItemStack mapStack) {
+-        net.minecraft.nbt.CompoundTag compoundTag;
+-        net.minecraft.nbt.CompoundTag compoundTag2;
+-        java.lang.String string;
+-        net.minecraft.world.level.saveddata.maps.MapItemSavedData$HoldingPlayer holdingPlayer;
+-        if (!this.carriedByPlayers.containsKey((java.lang.Object)player)) {
+-            net.minecraft.world.level.saveddata.maps.MapItemSavedData$HoldingPlayer holdingPlayer2 = new net.minecraft.world.level.saveddata.maps.MapItemSavedData$HoldingPlayer(this, player);
+-            this.carriedByPlayers.put((java.lang.Object)player, (java.lang.Object)holdingPlayer2);
+-            this.carriedBy.add((java.lang.Object)holdingPlayer2);
++    public void tickCarriedBy(net.minecraft.world.entity.player.Player $$0, net.minecraft.world.item.ItemStack $$1) {
++        net.minecraft.nbt.CompoundTag $$10;
++        if (!this.carriedByPlayers.containsKey((java.lang.Object)$$0)) {
++            net.minecraft.world.level.saveddata.maps.MapItemSavedData$HoldingPlayer $$2 = new net.minecraft.world.level.saveddata.maps.MapItemSavedData$HoldingPlayer(this, $$0);
++            this.carriedByPlayers.put((java.lang.Object)$$0, (java.lang.Object)$$2);
++            this.carriedBy.add((java.lang.Object)$$2);
+         }
+-        if (!player.getInventory().contains(mapStack)) {
+-            this.removeDecoration(player.getName().getString());
++        if (!$$0.getInventory().contains($$1)) {
++            this.removeDecoration($$0.getName().getString());
+         }
+-        for (int i = 0; i < this.carriedBy.size(); ++i) {
+-            holdingPlayer = (net.minecraft.world.level.saveddata.maps.MapItemSavedData$HoldingPlayer)this.carriedBy.get(i);
+-            string = holdingPlayer.player.getName().getString();
+-            if (holdingPlayer.player.isRemoved() || !holdingPlayer.player.getInventory().contains(mapStack) && !mapStack.isFramed()) {
+-                this.carriedByPlayers.remove((java.lang.Object)holdingPlayer.player);
+-                this.carriedBy.remove((java.lang.Object)holdingPlayer);
+-                this.removeDecoration(string);
++        for (int $$3 = 0; $$3 < this.carriedBy.size(); ++$$3) {
++            net.minecraft.world.level.saveddata.maps.MapItemSavedData$HoldingPlayer $$4 = (net.minecraft.world.level.saveddata.maps.MapItemSavedData$HoldingPlayer)this.carriedBy.get($$3);
++            java.lang.String $$5 = $$4.player.getName().getString();
++            if ($$4.player.isRemoved() || !$$4.player.getInventory().contains($$1) && !$$1.isFramed()) {
++                this.carriedByPlayers.remove((java.lang.Object)$$4.player);
++                this.carriedBy.remove((java.lang.Object)$$4);
++                this.removeDecoration($$5);
+                 continue;
+             }
+-            if (mapStack.isFramed() || holdingPlayer.player.level.dimension() != this.dimension || !this.trackingPosition) continue;
+-            this.addDecoration(net.minecraft.world.level.saveddata.maps.MapDecoration$Type.PLAYER, (net.minecraft.world.level.LevelAccessor)holdingPlayer.player.level, string, holdingPlayer.player.getX(), holdingPlayer.player.getZ(), (double)holdingPlayer.player.getYRot(), null);
++            if ($$1.isFramed() || $$4.player.level.dimension() != this.dimension || !this.trackingPosition) continue;
++            this.addDecoration(net.minecraft.world.level.saveddata.maps.MapDecoration$Type.PLAYER, (net.minecraft.world.level.LevelAccessor)$$4.player.level, $$5, $$4.player.getX(), $$4.player.getZ(), (double)$$4.player.getYRot(), null);
+         }
+-        if (mapStack.isFramed() && this.trackingPosition) {
+-            net.minecraft.world.entity.decoration.ItemFrame itemFrame = mapStack.getFrame();
+-            holdingPlayer = itemFrame.getPos();
+-            string = (net.minecraft.world.level.saveddata.maps.MapFrame)this.frameMarkers.get((java.lang.Object)net.minecraft.world.level.saveddata.maps.MapFrame.frameId((net.minecraft.core.BlockPos)holdingPlayer));
+-            if (string != null && itemFrame.getId() != string.getEntityId() && this.frameMarkers.containsKey((java.lang.Object)string.getId())) {
+-                this.removeDecoration("frame-" + string.getEntityId());
++        if ($$1.isFramed() && this.trackingPosition) {
++            net.minecraft.world.entity.decoration.ItemFrame $$6 = $$1.getFrame();
++            net.minecraft.core.BlockPos $$7 = $$6.getPos();
++            net.minecraft.world.level.saveddata.maps.MapFrame $$8 = (net.minecraft.world.level.saveddata.maps.MapFrame)this.frameMarkers.get((java.lang.Object)net.minecraft.world.level.saveddata.maps.MapFrame.frameId((net.minecraft.core.BlockPos)$$7));
++            if ($$8 != null && $$6.getId() != $$8.getEntityId() && this.frameMarkers.containsKey((java.lang.Object)$$8.getId())) {
++                this.removeDecoration("frame-" + $$8.getEntityId());
+             }
+-            compoundTag2 = new net.minecraft.world.level.saveddata.maps.MapFrame((net.minecraft.core.BlockPos)holdingPlayer, itemFrame.getDirection().get2DDataValue() * 90, itemFrame.getId());
+-            this.addDecoration(net.minecraft.world.level.saveddata.maps.MapDecoration$Type.FRAME, (net.minecraft.world.level.LevelAccessor)player.level, "frame-" + itemFrame.getId(), (double)holdingPlayer.getX(), (double)holdingPlayer.getZ(), (double)(itemFrame.getDirection().get2DDataValue() * 90), null);
+-            this.frameMarkers.put((java.lang.Object)compoundTag2.getId(), (java.lang.Object)compoundTag2);
++            net.minecraft.world.level.saveddata.maps.MapFrame $$9 = new net.minecraft.world.level.saveddata.maps.MapFrame($$7, $$6.getDirection().get2DDataValue() * 90, $$6.getId());
++            this.addDecoration(net.minecraft.world.level.saveddata.maps.MapDecoration$Type.FRAME, (net.minecraft.world.level.LevelAccessor)$$0.level, "frame-" + $$6.getId(), (double)$$7.getX(), (double)$$7.getZ(), (double)($$6.getDirection().get2DDataValue() * 90), null);
++            this.frameMarkers.put((java.lang.Object)$$9.getId(), (java.lang.Object)$$9);
+         }
+-        if ((compoundTag = mapStack.getTag()) != null && compoundTag.contains("Decorations", 9)) {
+-            holdingPlayer = compoundTag.getList("Decorations", 10);
+-            for (int i = 0; i < holdingPlayer.size(); ++i) {
+-                compoundTag2 = holdingPlayer.getCompound(i);
+-                if (this.decorations.containsKey((java.lang.Object)compoundTag2.getString("id"))) continue;
+-                this.addDecoration(net.minecraft.world.level.saveddata.maps.MapDecoration$Type.byIcon((byte)compoundTag2.getByte("type")), (net.minecraft.world.level.LevelAccessor)player.level, compoundTag2.getString("id"), compoundTag2.getDouble("x"), compoundTag2.getDouble("z"), compoundTag2.getDouble("rot"), null);
++        if (($$10 = $$1.getTag()) != null && $$10.contains("Decorations", 9)) {
++            net.minecraft.nbt.ListTag $$11 = $$10.getList("Decorations", 10);
++            for (int $$12 = 0; $$12 < $$11.size(); ++$$12) {
++                net.minecraft.nbt.CompoundTag $$13 = $$11.getCompound($$12);
++                if (this.decorations.containsKey((java.lang.Object)$$13.getString("id"))) continue;
++                this.addDecoration(net.minecraft.world.level.saveddata.maps.MapDecoration$Type.byIcon((byte)$$13.getByte("type")), (net.minecraft.world.level.LevelAccessor)$$0.level, $$13.getString("id"), $$13.getDouble("x"), $$13.getDouble("z"), $$13.getDouble("rot"), null);
+             }
+         }
+     }
+@@ -174,75 +171,78 @@
+         this.setDecorationsDirty();
+     }
+ 
+-    public static void addTargetDecoration(net.minecraft.world.item.ItemStack map, net.minecraft.core.BlockPos target, java.lang.String decorationName, net.minecraft.world.level.saveddata.maps.MapDecoration$Type type) {
+-        net.minecraft.nbt.ListTag listTag;
+-        if (map.hasTag() && map.getTag().contains("Decorations", 9)) {
+-            listTag = map.getTag().getList("Decorations", 10);
++    public static void addTargetDecoration(net.minecraft.world.item.ItemStack $$0, net.minecraft.core.BlockPos $$1, java.lang.String $$2, net.minecraft.world.level.saveddata.maps.MapDecoration$Type $$3) {
++        net.minecraft.nbt.ListTag $$5;
++        if ($$0.hasTag() && $$0.getTag().contains("Decorations", 9)) {
++            net.minecraft.nbt.ListTag $$4 = $$0.getTag().getList("Decorations", 10);
+         } else {
+-            listTag = new net.minecraft.nbt.ListTag();
+-            map.addTagElement("Decorations", (net.minecraft.nbt.Tag)listTag);
++            $$5 = new net.minecraft.nbt.ListTag();
++            $$0.addTagElement("Decorations", (net.minecraft.nbt.Tag)$$5);
+         }
+-        net.minecraft.nbt.CompoundTag compoundTag = new net.minecraft.nbt.CompoundTag();
+-        compoundTag.putByte("type", type.getIcon());
+-        compoundTag.putString("id", decorationName);
+-        compoundTag.putDouble("x", (double)target.getX());
+-        compoundTag.putDouble("z", (double)target.getZ());
+-        compoundTag.putDouble("rot", 180.0);
+-        listTag.add((java.lang.Object)compoundTag);
+-        if (type.hasMapColor()) {
+-            net.minecraft.nbt.CompoundTag compoundTag2 = map.getOrCreateTagElement("display");
+-            compoundTag2.putInt("MapColor", type.getMapColor());
++        net.minecraft.nbt.CompoundTag $$6 = new net.minecraft.nbt.CompoundTag();
++        $$6.putByte("type", $$3.getIcon());
++        $$6.putString("id", $$2);
++        $$6.putDouble("x", (double)$$1.getX());
++        $$6.putDouble("z", (double)$$1.getZ());
++        $$6.putDouble("rot", 180.0);
++        $$5.add((java.lang.Object)$$6);
++        if ($$3.hasMapColor()) {
++            net.minecraft.nbt.CompoundTag $$7 = $$0.getOrCreateTagElement("display");
++            $$7.putInt("MapColor", $$3.getMapColor());
+         }
+     }
+ 
+-    public void addDecoration(net.minecraft.world.level.saveddata.maps.MapDecoration$Type type, @javax.annotation.Nullable net.minecraft.world.level.LevelAccessor level, java.lang.String decorationName, double levelX, double levelZ, double rotation, @javax.annotation.Nullable net.minecraft.network.chat.Component name) {
+-        net.minecraft.world.level.saveddata.maps.MapDecoration mapDecoration;
+-        net.minecraft.world.level.saveddata.maps.MapDecoration mapDecoration2;
+-        byte by;
+-        int n = 1 << this.scale;
+-        float f = (float)(levelX - (double)this.x) / (float)n;
+-        float f2 = (float)(levelZ - (double)this.z) / (float)n;
+-        byte by2 = (byte)((double)(f * 2.0f) + 0.5);
+-        byte by3 = (byte)((double)(f2 * 2.0f) + 0.5);
+-        int n2 = 63;
+-        if (f >= -63.0f && f2 >= -63.0f && f <= 63.0f && f2 <= 63.0f) {
+-            by = (byte)((rotation += rotation < 0.0 ? -8.0 : 8.0) * 16.0 / 360.0);
+-            if (this.dimension == net.minecraft.world.level.Level.NETHER && level != null) {
+-                var18_15 = (int)(level.getLevelData().getDayTime() / 10L);
+-                by = (byte)(var18_15 * var18_15 * 34187121 + var18_15 * 121 >> 15 & 0xF);
++    /*
++     * WARNING - void declaration
++     */
++    public void addDecoration(net.minecraft.world.level.saveddata.maps.MapDecoration$Type $$0, @javax.annotation.Nullable net.minecraft.world.level.LevelAccessor $$1, java.lang.String $$2, double $$3, double $$4, double $$5, @javax.annotation.Nullable net.minecraft.network.chat.Component $$6) {
++        net.minecraft.world.level.saveddata.maps.MapDecoration $$19;
++        void $$17;
++        net.minecraft.world.level.saveddata.maps.MapDecoration $$18;
++        int $$7 = 1 << this.scale;
++        float $$8 = (float)($$3 - (double)this.x) / (float)$$7;
++        float $$9 = (float)($$4 - (double)this.z) / (float)$$7;
++        byte $$10 = (byte)((double)($$8 * 2.0f) + 0.5);
++        byte $$11 = (byte)((double)($$9 * 2.0f) + 0.5);
++        int $$12 = 63;
++        if ($$8 >= -63.0f && $$9 >= -63.0f && $$8 <= 63.0f && $$9 <= 63.0f) {
++            byte $$13 = (byte)(($$5 += $$5 < 0.0 ? -8.0 : 8.0) * 16.0 / 360.0);
++            if (this.dimension == net.minecraft.world.level.Level.NETHER && $$1 != null) {
++                int $$14 = (int)($$1.getLevelData().getDayTime() / 10L);
++                $$13 = (byte)($$14 * $$14 * 34187121 + $$14 * 121 >> 15 & 0xF);
+             }
+-        } else if (type == net.minecraft.world.level.saveddata.maps.MapDecoration$Type.PLAYER) {
+-            var18_15 = 320;
+-            if (java.lang.Math.abs((float)f) < 320.0f && java.lang.Math.abs((float)f2) < 320.0f) {
+-                type = net.minecraft.world.level.saveddata.maps.MapDecoration$Type.PLAYER_OFF_MAP;
++        } else if ($$0 == net.minecraft.world.level.saveddata.maps.MapDecoration$Type.PLAYER) {
++            int $$15 = 320;
++            if (java.lang.Math.abs((float)$$8) < 320.0f && java.lang.Math.abs((float)$$9) < 320.0f) {
++                $$0 = net.minecraft.world.level.saveddata.maps.MapDecoration$Type.PLAYER_OFF_MAP;
+             } else if (this.unlimitedTracking) {
+-                type = net.minecraft.world.level.saveddata.maps.MapDecoration$Type.PLAYER_OFF_LIMITS;
++                $$0 = net.minecraft.world.level.saveddata.maps.MapDecoration$Type.PLAYER_OFF_LIMITS;
+             } else {
+-                this.removeDecoration(decorationName);
++                this.removeDecoration($$2);
+                 return;
+             }
+-            by = 0;
+-            if (f <= -63.0f) {
+-                by2 = -128;
++            boolean $$16 = false;
++            if ($$8 <= -63.0f) {
++                $$10 = -128;
+             }
+-            if (f2 <= -63.0f) {
+-                by3 = -128;
++            if ($$9 <= -63.0f) {
++                $$11 = -128;
+             }
+-            if (f >= 63.0f) {
+-                by2 = 127;
++            if ($$8 >= 63.0f) {
++                $$10 = 127;
+             }
+-            if (f2 >= 63.0f) {
+-                by3 = 127;
++            if ($$9 >= 63.0f) {
++                $$11 = 127;
+             }
+         } else {
+-            this.removeDecoration(decorationName);
++            this.removeDecoration($$2);
+             return;
+         }
+-        if (!(mapDecoration2 = new net.minecraft.world.level.saveddata.maps.MapDecoration(type, by2, by3, by, name)).equals((java.lang.Object)(mapDecoration = (net.minecraft.world.level.saveddata.maps.MapDecoration)this.decorations.put((java.lang.Object)decorationName, (java.lang.Object)mapDecoration2)))) {
+-            if (mapDecoration != null && mapDecoration.getType().shouldTrackCount()) {
++        if (!($$18 = new net.minecraft.world.level.saveddata.maps.MapDecoration($$0, $$10, $$11, (byte)$$17, $$6)).equals((java.lang.Object)($$19 = (net.minecraft.world.level.saveddata.maps.MapDecoration)this.decorations.put((java.lang.Object)$$2, (java.lang.Object)$$18)))) {
++            if ($$19 != null && $$19.getType().shouldTrackCount()) {
+                 --this.trackedDecorationCount;
+             }
+-            if (type.shouldTrackCount()) {
++            if ($$0.shouldTrackCount()) {
+                 ++this.trackedDecorationCount;
+             }
+             this.setDecorationsDirty();
+@@ -270,14 +270,14 @@
+         this.carriedBy.forEach(net.minecraft.world.level.saveddata.maps.MapItemSavedData$HoldingPlayer::markDecorationsDirty);
+     }
+ 
+-    public net.minecraft.world.level.saveddata.maps.MapItemSavedData$HoldingPlayer getHoldingPlayer(net.minecraft.world.entity.player.Player player) {
+-        net.minecraft.world.level.saveddata.maps.MapItemSavedData$HoldingPlayer holdingPlayer = (net.minecraft.world.level.saveddata.maps.MapItemSavedData$HoldingPlayer)this.carriedByPlayers.get((java.lang.Object)player);
+-        if (holdingPlayer == null) {
+-            holdingPlayer = new net.minecraft.world.level.saveddata.maps.MapItemSavedData$HoldingPlayer(this, player);
+-            this.carriedByPlayers.put((java.lang.Object)player, (java.lang.Object)holdingPlayer);
+-            this.carriedBy.add((java.lang.Object)holdingPlayer);
++    public net.minecraft.world.level.saveddata.maps.MapItemSavedData$HoldingPlayer getHoldingPlayer(net.minecraft.world.entity.player.Player $$0) {
++        net.minecraft.world.level.saveddata.maps.MapItemSavedData$HoldingPlayer $$1 = (net.minecraft.world.level.saveddata.maps.MapItemSavedData$HoldingPlayer)this.carriedByPlayers.get((java.lang.Object)$$0);
++        if ($$1 == null) {
++            $$1 = new net.minecraft.world.level.saveddata.maps.MapItemSavedData$HoldingPlayer(this, $$0);
++            this.carriedByPlayers.put((java.lang.Object)$$0, (java.lang.Object)$$1);
++            this.carriedBy.add((java.lang.Object)$$1);
+         }
+-        return holdingPlayer;
++        return $$1;
+     }
+ 
+     public boolean toggleBanner(net.minecraft.world.level.LevelAccessor $$0, net.minecraft.core.BlockPos $$1) {
+@@ -305,14 +305,14 @@
+         return false;
+     }
+ 
+-    public void checkBanners(net.minecraft.world.level.BlockGetter reader, int x, int z) {
+-        java.util.Iterator iterator = this.bannerMarkers.values().iterator();
+-        while (iterator.hasNext()) {
+-            net.minecraft.world.level.saveddata.maps.MapBanner mapBanner;
+-            net.minecraft.world.level.saveddata.maps.MapBanner mapBanner2 = (net.minecraft.world.level.saveddata.maps.MapBanner)iterator.next();
+-            if (mapBanner2.getPos().getX() != x || mapBanner2.getPos().getZ() != z || mapBanner2.equals((java.lang.Object)(mapBanner = net.minecraft.world.level.saveddata.maps.MapBanner.fromWorld((net.minecraft.world.level.BlockGetter)reader, (net.minecraft.core.BlockPos)mapBanner2.getPos())))) continue;
+-            iterator.remove();
+-            this.removeDecoration(mapBanner2.getId());
++    public void checkBanners(net.minecraft.world.level.BlockGetter $$0, int $$1, int $$2) {
++        java.util.Iterator $$3 = this.bannerMarkers.values().iterator();
++        while ($$3.hasNext()) {
++            net.minecraft.world.level.saveddata.maps.MapBanner $$5;
++            net.minecraft.world.level.saveddata.maps.MapBanner $$4 = (net.minecraft.world.level.saveddata.maps.MapBanner)$$3.next();
++            if ($$4.getPos().getX() != $$1 || $$4.getPos().getZ() != $$2 || $$4.equals((java.lang.Object)($$5 = net.minecraft.world.level.saveddata.maps.MapBanner.fromWorld((net.minecraft.world.level.BlockGetter)$$0, (net.minecraft.core.BlockPos)$$4.getPos())))) continue;
++            $$3.remove();
++            this.removeDecoration($$4.getId());
+         }
+     }
+ 
+@@ -320,9 +320,9 @@
+         return this.bannerMarkers.values();
+     }
+ 
+-    public void removedFromFrame(net.minecraft.core.BlockPos pos, int entityId) {
+-        this.removeDecoration("frame-" + entityId);
+-        this.frameMarkers.remove((java.lang.Object)net.minecraft.world.level.saveddata.maps.MapFrame.frameId((net.minecraft.core.BlockPos)pos));
++    public void removedFromFrame(net.minecraft.core.BlockPos $$0, int $$1) {
++        this.removeDecoration("frame-" + $$1);
++        this.frameMarkers.remove((java.lang.Object)net.minecraft.world.level.saveddata.maps.MapFrame.frameId((net.minecraft.core.BlockPos)$$0));
+     }
+ 
+     public boolean updateColor(int $$0, int $$1, byte $$2) {

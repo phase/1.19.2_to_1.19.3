@@ -1,0 +1,116 @@
+--- net/minecraft/world/entity/animal/horse/SkeletonHorse.java
++++ net/minecraft/world/entity/animal/horse/SkeletonHorse.java
+@@ -28,7 +28,6 @@
+     }
+ 
+     public net.minecraft.sounds.SoundEvent getAmbientSound() {
+-        super.getAmbientSound();
+         if (this.isEyeInFluid(net.minecraft.tags.FluidTags.WATER)) {
+             return net.minecraft.sounds.SoundEvents.SKELETON_HORSE_AMBIENT_WATER;
+         }
+@@ -36,12 +35,10 @@
+     }
+ 
+     public net.minecraft.sounds.SoundEvent getDeathSound() {
+-        super.getDeathSound();
+         return net.minecraft.sounds.SoundEvents.SKELETON_HORSE_DEATH;
+     }
+ 
+-    public net.minecraft.sounds.SoundEvent getHurtSound(net.minecraft.world.damagesource.DamageSource damageSource) {
+-        super.getHurtSound(damageSource);
++    public net.minecraft.sounds.SoundEvent getHurtSound(net.minecraft.world.damagesource.DamageSource $$0) {
+         return net.minecraft.sounds.SoundEvents.SKELETON_HORSE_HURT;
+     }
+ 
+@@ -62,11 +59,11 @@
+         return net.minecraft.sounds.SoundEvents.SKELETON_HORSE_SWIM;
+     }
+ 
+-    public void playSwimSound(float volume) {
++    public void playSwimSound(float $$0) {
+         if (this.onGround) {
+             super.playSwimSound(0.3f);
+         } else {
+-            super.playSwimSound(java.lang.Math.min((float)0.1f, (float)(volume * 25.0f)));
++            super.playSwimSound(java.lang.Math.min((float)0.1f, (float)($$0 * 25.0f)));
+         }
+     }
+ 
+@@ -93,16 +90,16 @@
+         }
+     }
+ 
+-    public void addAdditionalSaveData(net.minecraft.nbt.CompoundTag compound) {
+-        super.addAdditionalSaveData(compound);
+-        compound.putBoolean("SkeletonTrap", this.isTrap());
+-        compound.putInt("SkeletonTrapTime", this.trapTime);
++    public void addAdditionalSaveData(net.minecraft.nbt.CompoundTag $$0) {
++        super.addAdditionalSaveData($$0);
++        $$0.putBoolean("SkeletonTrap", this.isTrap());
++        $$0.putInt("SkeletonTrapTime", this.trapTime);
+     }
+ 
+-    public void readAdditionalSaveData(net.minecraft.nbt.CompoundTag compound) {
+-        super.readAdditionalSaveData(compound);
+-        this.setTrap(compound.getBoolean("SkeletonTrap"));
+-        this.trapTime = compound.getInt("SkeletonTrapTime");
++    public void readAdditionalSaveData(net.minecraft.nbt.CompoundTag $$0) {
++        super.readAdditionalSaveData($$0);
++        this.setTrap($$0.getBoolean("SkeletonTrap"));
++        this.trapTime = $$0.getInt("SkeletonTrapTime");
+     }
+ 
+     public boolean rideableUnderWater() {
+@@ -117,12 +114,12 @@
+         return this.isTrap;
+     }
+ 
+-    public void setTrap(boolean isTrap) {
+-        if (isTrap == this.isTrap) {
++    public void setTrap(boolean $$0) {
++        if ($$0 == this.isTrap) {
+             return;
+         }
+-        this.isTrap = isTrap;
+-        if (isTrap) {
++        this.isTrap = $$0;
++        if ($$0) {
+             this.goalSelector.addGoal(1, (net.minecraft.world.entity.ai.goal.Goal)this.skeletonTrapGoal);
+         } else {
+             this.goalSelector.removeGoal((net.minecraft.world.entity.ai.goal.Goal)this.skeletonTrapGoal);
+@@ -134,33 +131,11 @@
+         return (net.minecraft.world.entity.AgeableMob)net.minecraft.world.entity.EntityType.SKELETON_HORSE.create((net.minecraft.world.level.Level)$$0);
+     }
+ 
+-    public net.minecraft.world.InteractionResult mobInteract(net.minecraft.world.entity.player.Player player, net.minecraft.world.InteractionHand hand) {
+-        net.minecraft.world.item.ItemStack itemStack = player.getItemInHand(hand);
++    public net.minecraft.world.InteractionResult mobInteract(net.minecraft.world.entity.player.Player $$0, net.minecraft.world.InteractionHand $$1) {
+         if (!this.isTamed()) {
+             return net.minecraft.world.InteractionResult.PASS;
+         }
+-        if (this.isBaby()) {
+-            return super.mobInteract(player, hand);
+-        }
+-        if (player.isSecondaryUseActive()) {
+-            this.openCustomInventoryScreen(player);
+-            return net.minecraft.world.InteractionResult.sidedSuccess((boolean)this.level.isClientSide);
+-        }
+-        if (this.isVehicle()) {
+-            return super.mobInteract(player, hand);
+-        }
+-        if (!itemStack.isEmpty()) {
+-            if (itemStack.is(net.minecraft.world.item.Items.SADDLE) && !this.isSaddled()) {
+-                this.openCustomInventoryScreen(player);
+-                return net.minecraft.world.InteractionResult.sidedSuccess((boolean)this.level.isClientSide);
+-            }
+-            net.minecraft.world.InteractionResult interactionResult = itemStack.interactLivingEntity(player, (net.minecraft.world.entity.LivingEntity)this, hand);
+-            if (interactionResult.consumesAction()) {
+-                return interactionResult;
+-            }
+-        }
+-        this.doPlayerRide(player);
+-        return net.minecraft.world.InteractionResult.sidedSuccess((boolean)this.level.isClientSide);
++        return super.mobInteract($$0, $$1);
+     }
+ }
+ 

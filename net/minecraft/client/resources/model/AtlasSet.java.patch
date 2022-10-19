@@ -1,0 +1,38 @@
+--- net/minecraft/client/resources/model/AtlasSet.java
++++ net/minecraft/client/resources/model/AtlasSet.java
+@@ -1,0 +1,35 @@
++/*
++ * Decompiled with CFR 0.151.
++ */
++package net.minecraft.client.resources.model;
++
++public class net.minecraft.client.resources.model.AtlasSet
++implements java.lang.AutoCloseable
++ {
++    public java.util.Map<net.minecraft.resources.ResourceLocation, net.minecraft.client.resources.model.AtlasSet$AtlasEntry> atlases;
++
++    public net.minecraft.client.resources.model.AtlasSet(java.util.Map<net.minecraft.resources.ResourceLocation, net.minecraft.client.resources.model.AtlasSet$ResourceLister> $$0, net.minecraft.client.renderer.texture.TextureManager $$12) {
++        this.atlases = (java.util.Map)$$0.entrySet().stream().collect(java.util.stream.Collectors.toMap(java.util.Map$Entry::getKey, $$1 -> {
++            net.minecraft.client.renderer.texture.TextureAtlas $$2 = new net.minecraft.client.renderer.texture.TextureAtlas((net.minecraft.resources.ResourceLocation)$$1.getKey());
++            $$12.register((net.minecraft.resources.ResourceLocation)$$1.getKey(), (net.minecraft.client.renderer.texture.AbstractTexture)$$2);
++            return new net.minecraft.client.resources.model.AtlasSet$AtlasEntry($$2, (net.minecraft.client.resources.model.AtlasSet$ResourceLister)$$1.getValue());
++        }));
++    }
++
++    public net.minecraft.client.renderer.texture.TextureAtlas getAtlas(net.minecraft.resources.ResourceLocation $$0) {
++        return ((net.minecraft.client.resources.model.AtlasSet$AtlasEntry)this.atlases.get((java.lang.Object)$$0)).atlas();
++    }
++
++    public void close() {
++        this.atlases.values().forEach(net.minecraft.client.resources.model.AtlasSet$AtlasEntry::close);
++        this.atlases.clear();
++    }
++
++    public java.util.Map<net.minecraft.resources.ResourceLocation, java.util.concurrent.CompletableFuture<net.minecraft.client.resources.model.AtlasSet$StitchResult>> scheduleLoad(net.minecraft.server.packs.resources.ResourceManager $$0, int $$1, java.util.concurrent.Executor $$2) {
++        return (java.util.Map)this.atlases.entrySet().stream().collect(java.util.stream.Collectors.toMap(java.util.Map$Entry::getKey, $$32 -> {
++            net.minecraft.client.resources.model.AtlasSet$AtlasEntry $$4 = (net.minecraft.client.resources.model.AtlasSet$AtlasEntry)$$32.getValue();
++            return java.util.concurrent.CompletableFuture.supplyAsync(() -> (java.util.Map)$$0.resourceLister.apply((java.lang.Object)$$0), (java.util.concurrent.Executor)$$2).thenCompose($$3 -> net.minecraft.client.renderer.texture.SpriteLoader.create((net.minecraft.client.renderer.texture.TextureAtlas)$$0.atlas).stitch($$3, $$1, $$2)).thenApply($$1 -> new net.minecraft.client.resources.model.AtlasSet$StitchResult($$0.atlas, $$1));
++        }));
++    }
++}
++

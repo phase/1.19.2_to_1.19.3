@@ -1,0 +1,92 @@
+--- net/minecraft/world/level/block/NoteBlock.java
++++ net/minecraft/world/level/block/NoteBlock.java
+@@ -15,24 +15,24 @@
+         this.registerDefaultState((net.minecraft.world.level.block.state.BlockState)((net.minecraft.world.level.block.state.BlockState)((net.minecraft.world.level.block.state.BlockState)((net.minecraft.world.level.block.state.BlockState)this.stateDefinition.any()).setValue((net.minecraft.world.level.block.state.properties.Property)INSTRUMENT, (java.lang.Comparable)net.minecraft.world.level.block.state.properties.NoteBlockInstrument.HARP)).setValue((net.minecraft.world.level.block.state.properties.Property)NOTE, (java.lang.Comparable)java.lang.Integer.valueOf((int)0))).setValue((net.minecraft.world.level.block.state.properties.Property)POWERED, (java.lang.Comparable)java.lang.Boolean.valueOf((boolean)false)));
+     }
+ 
+-    public net.minecraft.world.level.block.state.BlockState getStateForPlacement(net.minecraft.world.item.context.BlockPlaceContext context) {
+-        return (net.minecraft.world.level.block.state.BlockState)this.defaultBlockState().setValue((net.minecraft.world.level.block.state.properties.Property)INSTRUMENT, (java.lang.Comparable)net.minecraft.world.level.block.state.properties.NoteBlockInstrument.byState((net.minecraft.world.level.block.state.BlockState)context.getLevel().getBlockState(context.getClickedPos().below())));
++    public net.minecraft.world.level.block.state.BlockState getStateForPlacement(net.minecraft.world.item.context.BlockPlaceContext $$0) {
++        return (net.minecraft.world.level.block.state.BlockState)this.defaultBlockState().setValue((net.minecraft.world.level.block.state.properties.Property)INSTRUMENT, (java.lang.Comparable)net.minecraft.world.level.block.state.properties.NoteBlockInstrument.byState((net.minecraft.world.level.block.state.BlockState)$$0.getLevel().getBlockState($$0.getClickedPos().below())));
+     }
+ 
+-    public net.minecraft.world.level.block.state.BlockState updateShape(net.minecraft.world.level.block.state.BlockState state, net.minecraft.core.Direction facing, net.minecraft.world.level.block.state.BlockState facingState, net.minecraft.world.level.LevelAccessor level, net.minecraft.core.BlockPos currentPos, net.minecraft.core.BlockPos facingPos) {
+-        if (facing == net.minecraft.core.Direction.DOWN) {
+-            return (net.minecraft.world.level.block.state.BlockState)state.setValue((net.minecraft.world.level.block.state.properties.Property)INSTRUMENT, (java.lang.Comparable)net.minecraft.world.level.block.state.properties.NoteBlockInstrument.byState((net.minecraft.world.level.block.state.BlockState)facingState));
++    public net.minecraft.world.level.block.state.BlockState updateShape(net.minecraft.world.level.block.state.BlockState $$0, net.minecraft.core.Direction $$1, net.minecraft.world.level.block.state.BlockState $$2, net.minecraft.world.level.LevelAccessor $$3, net.minecraft.core.BlockPos $$4, net.minecraft.core.BlockPos $$5) {
++        if ($$1 == net.minecraft.core.Direction.DOWN) {
++            return (net.minecraft.world.level.block.state.BlockState)$$0.setValue((net.minecraft.world.level.block.state.properties.Property)INSTRUMENT, (java.lang.Comparable)net.minecraft.world.level.block.state.properties.NoteBlockInstrument.byState((net.minecraft.world.level.block.state.BlockState)$$2));
+         }
+-        return super.updateShape(state, facing, facingState, level, currentPos, facingPos);
++        return super.updateShape($$0, $$1, $$2, $$3, $$4, $$5);
+     }
+ 
+-    public void neighborChanged(net.minecraft.world.level.block.state.BlockState state, net.minecraft.world.level.Level level, net.minecraft.core.BlockPos pos, net.minecraft.world.level.block.Block block, net.minecraft.core.BlockPos fromPos, boolean isMoving) {
+-        boolean bl = level.hasNeighborSignal(pos);
+-        if (bl != (java.lang.Boolean)state.getValue((net.minecraft.world.level.block.state.properties.Property)POWERED)) {
+-            if (bl) {
+-                this.playNote(null, level, pos);
++    public void neighborChanged(net.minecraft.world.level.block.state.BlockState $$0, net.minecraft.world.level.Level $$1, net.minecraft.core.BlockPos $$2, net.minecraft.world.level.block.Block $$3, net.minecraft.core.BlockPos $$4, boolean $$5) {
++        boolean $$6 = $$1.hasNeighborSignal($$2);
++        if ($$6 != (java.lang.Boolean)$$0.getValue((net.minecraft.world.level.block.state.properties.Property)POWERED)) {
++            if ($$6) {
++                this.playNote(null, $$1, $$2);
+             }
+-            level.setBlock(pos, (net.minecraft.world.level.block.state.BlockState)state.setValue((net.minecraft.world.level.block.state.properties.Property)POWERED, (java.lang.Comparable)java.lang.Boolean.valueOf((boolean)bl)), 3);
++            $$1.setBlock($$2, (net.minecraft.world.level.block.state.BlockState)$$0.setValue((net.minecraft.world.level.block.state.properties.Property)POWERED, (java.lang.Comparable)java.lang.Boolean.valueOf((boolean)$$6)), 3);
+         }
+     }
+ 
+@@ -44,35 +44,35 @@
+         $$1.gameEvent($$0, net.minecraft.world.level.gameevent.GameEvent.NOTE_BLOCK_PLAY, $$2);
+     }
+ 
+-    public net.minecraft.world.InteractionResult use(net.minecraft.world.level.block.state.BlockState state, net.minecraft.world.level.Level level, net.minecraft.core.BlockPos pos, net.minecraft.world.entity.player.Player player, net.minecraft.world.InteractionHand hand, net.minecraft.world.phys.BlockHitResult hit) {
+-        if (level.isClientSide) {
++    public net.minecraft.world.InteractionResult use(net.minecraft.world.level.block.state.BlockState $$0, net.minecraft.world.level.Level $$1, net.minecraft.core.BlockPos $$2, net.minecraft.world.entity.player.Player $$3, net.minecraft.world.InteractionHand $$4, net.minecraft.world.phys.BlockHitResult $$5) {
++        if ($$1.isClientSide) {
+             return net.minecraft.world.InteractionResult.SUCCESS;
+         }
+-        state = (net.minecraft.world.level.block.state.BlockState)state.cycle((net.minecraft.world.level.block.state.properties.Property)NOTE);
+-        level.setBlock(pos, state, 3);
+-        this.playNote((net.minecraft.world.entity.Entity)player, level, pos);
+-        player.awardStat(net.minecraft.stats.Stats.TUNE_NOTEBLOCK);
++        $$0 = (net.minecraft.world.level.block.state.BlockState)$$0.cycle((net.minecraft.world.level.block.state.properties.Property)NOTE);
++        $$1.setBlock($$2, $$0, 3);
++        this.playNote((net.minecraft.world.entity.Entity)$$3, $$1, $$2);
++        $$3.awardStat(net.minecraft.stats.Stats.TUNE_NOTEBLOCK);
+         return net.minecraft.world.InteractionResult.CONSUME;
+     }
+ 
+-    public void attack(net.minecraft.world.level.block.state.BlockState state, net.minecraft.world.level.Level level, net.minecraft.core.BlockPos pos, net.minecraft.world.entity.player.Player player) {
+-        if (level.isClientSide) {
++    public void attack(net.minecraft.world.level.block.state.BlockState $$0, net.minecraft.world.level.Level $$1, net.minecraft.core.BlockPos $$2, net.minecraft.world.entity.player.Player $$3) {
++        if ($$1.isClientSide) {
+             return;
+         }
+-        this.playNote((net.minecraft.world.entity.Entity)player, level, pos);
+-        player.awardStat(net.minecraft.stats.Stats.PLAY_NOTEBLOCK);
++        this.playNote((net.minecraft.world.entity.Entity)$$3, $$1, $$2);
++        $$3.awardStat(net.minecraft.stats.Stats.PLAY_NOTEBLOCK);
+     }
+ 
+-    public boolean triggerEvent(net.minecraft.world.level.block.state.BlockState state, net.minecraft.world.level.Level level, net.minecraft.core.BlockPos pos, int id, int param) {
+-        int n = (java.lang.Integer)state.getValue((net.minecraft.world.level.block.state.properties.Property)NOTE);
+-        float f = (float)java.lang.Math.pow((double)2.0, (double)((double)(n - 12) / 12.0));
+-        level.playSound(null, pos, ((net.minecraft.world.level.block.state.properties.NoteBlockInstrument)state.getValue((net.minecraft.world.level.block.state.properties.Property)INSTRUMENT)).getSoundEvent(), net.minecraft.sounds.SoundSource.RECORDS, 3.0f, f);
+-        level.addParticle((net.minecraft.core.particles.ParticleOptions)net.minecraft.core.particles.ParticleTypes.NOTE, (double)pos.getX() + 0.5, (double)pos.getY() + 1.2, (double)pos.getZ() + 0.5, (double)n / 24.0, 0.0, 0.0);
++    public boolean triggerEvent(net.minecraft.world.level.block.state.BlockState $$0, net.minecraft.world.level.Level $$1, net.minecraft.core.BlockPos $$2, int $$3, int $$4) {
++        int $$5 = (java.lang.Integer)$$0.getValue((net.minecraft.world.level.block.state.properties.Property)NOTE);
++        float $$6 = (float)java.lang.Math.pow((double)2.0, (double)((double)($$5 - 12) / 12.0));
++        $$1.playSound(null, $$2, ((net.minecraft.world.level.block.state.properties.NoteBlockInstrument)$$0.getValue((net.minecraft.world.level.block.state.properties.Property)INSTRUMENT)).getSoundEvent(), net.minecraft.sounds.SoundSource.RECORDS, 3.0f, $$6);
++        $$1.addParticle((net.minecraft.core.particles.ParticleOptions)net.minecraft.core.particles.ParticleTypes.NOTE, (double)$$2.getX() + 0.5, (double)$$2.getY() + 1.2, (double)$$2.getZ() + 0.5, (double)$$5 / 24.0, 0.0, 0.0);
+         return true;
+     }
+ 
+-    public void createBlockStateDefinition(net.minecraft.world.level.block.state.StateDefinition$Builder<net.minecraft.world.level.block.Block, net.minecraft.world.level.block.state.BlockState> builder) {
+-        builder.add(new net.minecraft.world.level.block.state.properties.Property[]{INSTRUMENT, POWERED, NOTE});
++    public void createBlockStateDefinition(net.minecraft.world.level.block.state.StateDefinition$Builder<net.minecraft.world.level.block.Block, net.minecraft.world.level.block.state.BlockState> $$0) {
++        $$0.add(new net.minecraft.world.level.block.state.properties.Property[]{INSTRUMENT, POWERED, NOTE});
+     }
+ 
+     static {

@@ -1,0 +1,86 @@
+--- net/minecraft/client/multiplayer/ClientAdvancements.java
++++ net/minecraft/client/multiplayer/ClientAdvancements.java
+@@ -20,27 +20,27 @@
+         this.minecraft = $$0;
+     }
+ 
+-    public void update(net.minecraft.network.protocol.game.ClientboundUpdateAdvancementsPacket packet) {
+-        if (packet.shouldReset()) {
++    public void update(net.minecraft.network.protocol.game.ClientboundUpdateAdvancementsPacket $$0) {
++        if ($$0.shouldReset()) {
+             this.advancements.clear();
+             this.progress.clear();
+         }
+-        this.advancements.remove(packet.getRemoved());
+-        this.advancements.add(packet.getAdded());
+-        for (java.util.Map$Entry entry : packet.getProgress().entrySet()) {
+-            net.minecraft.advancements.Advancement advancement = this.advancements.get((net.minecraft.resources.ResourceLocation)entry.getKey());
+-            if (advancement != null) {
+-                net.minecraft.advancements.AdvancementProgress advancementProgress = (net.minecraft.advancements.AdvancementProgress)entry.getValue();
+-                advancementProgress.update(advancement.getCriteria(), advancement.getRequirements());
+-                this.progress.put((java.lang.Object)advancement, (java.lang.Object)advancementProgress);
++        this.advancements.remove($$0.getRemoved());
++        this.advancements.add($$0.getAdded());
++        for (java.util.Map$Entry $$1 : $$0.getProgress().entrySet()) {
++            net.minecraft.advancements.Advancement $$2 = this.advancements.get((net.minecraft.resources.ResourceLocation)$$1.getKey());
++            if ($$2 != null) {
++                net.minecraft.advancements.AdvancementProgress $$3 = (net.minecraft.advancements.AdvancementProgress)$$1.getValue();
++                $$3.update($$2.getCriteria(), $$2.getRequirements());
++                this.progress.put((java.lang.Object)$$2, (java.lang.Object)$$3);
+                 if (this.listener != null) {
+-                    this.listener.onUpdateAdvancementProgress(advancement, advancementProgress);
++                    this.listener.onUpdateAdvancementProgress($$2, $$3);
+                 }
+-                if (packet.shouldReset() || !advancementProgress.isDone() || advancement.getDisplay() == null || !advancement.getDisplay().shouldShowToast()) continue;
+-                this.minecraft.getToasts().addToast((net.minecraft.client.gui.components.toasts.Toast)new net.minecraft.client.gui.components.toasts.AdvancementToast(advancement));
++                if ($$0.shouldReset() || !$$3.isDone() || $$2.getDisplay() == null || !$$2.getDisplay().shouldShowToast()) continue;
++                this.minecraft.getToasts().addToast((net.minecraft.client.gui.components.toasts.Toast)new net.minecraft.client.gui.components.toasts.AdvancementToast($$2));
+                 continue;
+             }
+-            LOGGER.warn("Server informed client about progress for unknown advancement {}", entry.getKey());
++            LOGGER.warn("Server informed client about progress for unknown advancement {}", $$1.getKey());
+         }
+     }
+ 
+@@ -48,27 +48,27 @@
+         return this.advancements;
+     }
+ 
+-    public void setSelectedTab(@javax.annotation.Nullable net.minecraft.advancements.Advancement advancement, boolean tellServer) {
+-        net.minecraft.client.multiplayer.ClientPacketListener clientPacketListener = this.minecraft.getConnection();
+-        if (clientPacketListener != null && advancement != null && tellServer) {
+-            clientPacketListener.send((net.minecraft.network.protocol.Packet)net.minecraft.network.protocol.game.ServerboundSeenAdvancementsPacket.openedTab((net.minecraft.advancements.Advancement)advancement));
++    public void setSelectedTab(@javax.annotation.Nullable net.minecraft.advancements.Advancement $$0, boolean $$1) {
++        net.minecraft.client.multiplayer.ClientPacketListener $$2 = this.minecraft.getConnection();
++        if ($$2 != null && $$0 != null && $$1) {
++            $$2.send((net.minecraft.network.protocol.Packet)net.minecraft.network.protocol.game.ServerboundSeenAdvancementsPacket.openedTab((net.minecraft.advancements.Advancement)$$0));
+         }
+-        if (this.selectedTab != advancement) {
+-            this.selectedTab = advancement;
++        if (this.selectedTab != $$0) {
++            this.selectedTab = $$0;
+             if (this.listener != null) {
+-                this.listener.onSelectedTabChanged(advancement);
++                this.listener.onSelectedTabChanged($$0);
+             }
+         }
+     }
+ 
+-    public void setListener(@javax.annotation.Nullable net.minecraft.client.multiplayer.ClientAdvancements$Listener listener) {
+-        this.listener = listener;
+-        this.advancements.setListener((net.minecraft.advancements.AdvancementList$Listener)listener);
+-        if (listener != null) {
+-            for (java.util.Map$Entry entry : this.progress.entrySet()) {
+-                listener.onUpdateAdvancementProgress((net.minecraft.advancements.Advancement)entry.getKey(), (net.minecraft.advancements.AdvancementProgress)entry.getValue());
++    public void setListener(@javax.annotation.Nullable net.minecraft.client.multiplayer.ClientAdvancements$Listener $$0) {
++        this.listener = $$0;
++        this.advancements.setListener((net.minecraft.advancements.AdvancementList$Listener)$$0);
++        if ($$0 != null) {
++            for (java.util.Map$Entry $$1 : this.progress.entrySet()) {
++                $$0.onUpdateAdvancementProgress((net.minecraft.advancements.Advancement)$$1.getKey(), (net.minecraft.advancements.AdvancementProgress)$$1.getValue());
+             }
+-            listener.onSelectedTabChanged(this.selectedTab);
++            $$0.onSelectedTabChanged(this.selectedTab);
+         }
+     }
+ 

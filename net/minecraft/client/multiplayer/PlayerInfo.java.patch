@@ -1,0 +1,154 @@
+--- net/minecraft/client/multiplayer/PlayerInfo.java
++++ net/minecraft/client/multiplayer/PlayerInfo.java
+@@ -5,7 +5,6 @@
+ 
+ public class net.minecraft.client.multiplayer.PlayerInfo
+  {
+-    public static org.slf4j.Logger LOGGER;
+     public com.mojang.authlib.GameProfile profile;
+     public java.util.Map<com.mojang.authlib.minecraft.MinecraftProfileTexture$Type, net.minecraft.resources.ResourceLocation> textureLocations;
+     public net.minecraft.world.level.GameType gameMode;
+@@ -15,33 +14,15 @@
+     public java.lang.String skinModel;
+     @javax.annotation.Nullable
+     public net.minecraft.network.chat.Component tabListDisplayName;
+-    public int lastHealth;
+-    public int displayHealth;
+-    public long lastHealthTime;
+-    public long healthBlinkTime;
+-    public long renderVisibilityId;
+     @javax.annotation.Nullable
+-    public net.minecraft.world.entity.player.ProfilePublicKey profilePublicKey;
++    public net.minecraft.network.chat.RemoteChatSession chatSession;
+     public net.minecraft.network.chat.SignedMessageValidator messageValidator;
+ 
+-    public net.minecraft.client.multiplayer.PlayerInfo(net.minecraft.network.protocol.game.ClientboundPlayerInfoPacket$PlayerUpdate $$0, net.minecraft.util.SignatureValidator $$1, boolean $$2) {
++    public net.minecraft.client.multiplayer.PlayerInfo(com.mojang.authlib.GameProfile $$0) {
+         this.textureLocations = com.google.common.collect.Maps.newEnumMap(com.mojang.authlib.minecraft.MinecraftProfileTexture$Type.class);
+-        this.profile = $$0.getProfile();
+-        this.gameMode = $$0.getGameMode();
+-        this.latency = $$0.getLatency();
+-        this.tabListDisplayName = $$0.getDisplayName();
+-        net.minecraft.world.entity.player.ProfilePublicKey $$3 = null;
+-        try {
+-            net.minecraft.world.entity.player.ProfilePublicKey$Data $$4 = $$0.getProfilePublicKey();
+-            if ($$4 != null) {
+-                $$3 = net.minecraft.world.entity.player.ProfilePublicKey.createValidated((net.minecraft.util.SignatureValidator)$$1, (java.util.UUID)this.profile.getId(), (net.minecraft.world.entity.player.ProfilePublicKey$Data)$$4, (java.time.Duration)net.minecraft.world.entity.player.ProfilePublicKey.EXPIRY_GRACE_PERIOD);
+-            }
+-        }
+-        catch (java.lang.Exception $$5) {
+-            LOGGER.error("Failed to validate publicKey property for profile {}", (java.lang.Object)this.profile.getId(), (java.lang.Object)((java.lang.Object)$$5));
+-        }
+-        this.profilePublicKey = $$3;
+-        this.messageValidator = net.minecraft.network.chat.SignedMessageValidator.create((net.minecraft.world.entity.player.ProfilePublicKey)$$3, (boolean)$$2);
++        this.gameMode = net.minecraft.world.level.GameType.DEFAULT_MODE;
++        this.messageValidator = net.minecraft.network.chat.SignedMessageValidator.REJECT_ALL;
++        this.profile = $$0;
+     }
+ 
+     public com.mojang.authlib.GameProfile getProfile() {
+@@ -49,29 +30,37 @@
+     }
+ 
+     @javax.annotation.Nullable
+-    public net.minecraft.world.entity.player.ProfilePublicKey getProfilePublicKey() {
+-        return this.profilePublicKey;
++    public net.minecraft.network.chat.RemoteChatSession getChatSession() {
++        return this.chatSession;
+     }
+ 
+     public net.minecraft.network.chat.SignedMessageValidator getMessageValidator() {
+         return this.messageValidator;
+     }
+ 
+-    @javax.annotation.Nullable
++    public boolean hasVerifiableChat() {
++        return this.chatSession != null && this.chatSession.verifiable();
++    }
++
++    public void setChatSession(@javax.annotation.Nullable net.minecraft.network.chat.RemoteChatSession $$0) {
++        this.chatSession = $$0;
++        this.messageValidator = (net.minecraft.network.chat.SignedMessageValidator)net.minecraft.Util.mapNullable((java.lang.Object)$$0, net.minecraft.network.chat.RemoteChatSession::createMessageValidator, (java.lang.Object)net.minecraft.network.chat.SignedMessageValidator.REJECT_ALL);
++    }
++
+     public net.minecraft.world.level.GameType getGameMode() {
+         return this.gameMode;
+     }
+ 
+-    public void setGameMode(net.minecraft.world.level.GameType gameMode) {
+-        this.gameMode = gameMode;
++    public void setGameMode(net.minecraft.world.level.GameType $$0) {
++        this.gameMode = $$0;
+     }
+ 
+     public int getLatency() {
+         return this.latency;
+     }
+ 
+-    public void setLatency(int latency) {
+-        this.latency = latency;
++    public void setLatency(int $$0) {
++        this.latency = $$0;
+     }
+ 
+     public boolean isCapeLoaded() {
+@@ -132,57 +121,13 @@
+         }
+     }
+ 
+-    public void setTabListDisplayName(@javax.annotation.Nullable net.minecraft.network.chat.Component displayName) {
+-        this.tabListDisplayName = displayName;
++    public void setTabListDisplayName(@javax.annotation.Nullable net.minecraft.network.chat.Component $$0) {
++        this.tabListDisplayName = $$0;
+     }
+ 
+     @javax.annotation.Nullable
+     public net.minecraft.network.chat.Component getTabListDisplayName() {
+         return this.tabListDisplayName;
+     }
+-
+-    public int getLastHealth() {
+-        return this.lastHealth;
+-    }
+-
+-    public void setLastHealth(int lastHealth) {
+-        this.lastHealth = lastHealth;
+-    }
+-
+-    public int getDisplayHealth() {
+-        return this.displayHealth;
+-    }
+-
+-    public void setDisplayHealth(int displayHealth) {
+-        this.displayHealth = displayHealth;
+-    }
+-
+-    public long getLastHealthTime() {
+-        return this.lastHealthTime;
+-    }
+-
+-    public void setLastHealthTime(long lastHealthTime) {
+-        this.lastHealthTime = lastHealthTime;
+-    }
+-
+-    public long getHealthBlinkTime() {
+-        return this.healthBlinkTime;
+-    }
+-
+-    public void setHealthBlinkTime(long healthBlinkTime) {
+-        this.healthBlinkTime = healthBlinkTime;
+-    }
+-
+-    public long getRenderVisibilityId() {
+-        return this.renderVisibilityId;
+-    }
+-
+-    public void setRenderVisibilityId(long $$0) {
+-        this.renderVisibilityId = $$0;
+-    }
+-
+-    static {
+-        LOGGER = com.mojang.logging.LogUtils.getLogger();
+-    }
+ }
+ 

@@ -1,0 +1,69 @@
+--- net/minecraft/world/level/block/entity/SculkCatalystBlockEntity.java
++++ net/minecraft/world/level/block/entity/SculkCatalystBlockEntity.java
+@@ -16,10 +16,6 @@
+         this.sculkSpreader = net.minecraft.world.level.block.SculkSpreader.createLevelSpreader();
+     }
+ 
+-    public boolean handleEventsImmediately() {
+-        return true;
+-    }
+-
+     public net.minecraft.world.level.gameevent.PositionSource getListenerSource() {
+         return this.blockPosSource;
+     }
+@@ -28,26 +24,21 @@
+         return 8;
+     }
+ 
+-    public boolean handleGameEvent(net.minecraft.server.level.ServerLevel $$0, net.minecraft.world.level.gameevent.GameEvent$Message $$1) {
++    public net.minecraft.world.level.gameevent.GameEventListener$DeliveryMode getDeliveryMode() {
++        return net.minecraft.world.level.gameevent.GameEventListener$DeliveryMode.BY_DISTANCE;
++    }
++
++    public boolean handleGameEvent(net.minecraft.server.level.ServerLevel $$0, net.minecraft.world.level.gameevent.GameEvent $$1, net.minecraft.world.level.gameevent.GameEvent$Context $$2, net.minecraft.world.phys.Vec3 $$3) {
+         net.minecraft.world.entity.Entity entity;
+-        if (this.isRemoved()) {
+-            return false;
+-        }
+-        net.minecraft.world.level.gameevent.GameEvent$Context $$2 = $$1.context();
+-        if ($$1.gameEvent() == net.minecraft.world.level.gameevent.GameEvent.ENTITY_DIE && (entity = $$2.sourceEntity()) instanceof net.minecraft.world.entity.LivingEntity) {
+-            net.minecraft.world.entity.LivingEntity $$3 = (net.minecraft.world.entity.LivingEntity)entity;
+-            if (!$$3.wasExperienceConsumed()) {
+-                int $$4 = $$3.getExperienceReward();
+-                if ($$3.shouldDropExperience() && $$4 > 0) {
+-                    this.sculkSpreader.addCursors(new net.minecraft.core.BlockPos($$1.source().relative(net.minecraft.core.Direction.UP, 0.5)), $$4);
+-                    net.minecraft.world.entity.LivingEntity $$5 = $$3.getLastHurtByMob();
+-                    if ($$5 instanceof net.minecraft.server.level.ServerPlayer) {
+-                        net.minecraft.server.level.ServerPlayer $$6 = (net.minecraft.server.level.ServerPlayer)$$5;
+-                        net.minecraft.world.damagesource.DamageSource $$7 = $$3.getLastDamageSource() == null ? net.minecraft.world.damagesource.DamageSource.playerAttack((net.minecraft.world.entity.player.Player)$$6) : $$3.getLastDamageSource();
+-                        net.minecraft.advancements.CriteriaTriggers.KILL_MOB_NEAR_SCULK_CATALYST.trigger($$6, $$2.sourceEntity(), $$7);
+-                    }
++        if ($$1 == net.minecraft.world.level.gameevent.GameEvent.ENTITY_DIE && (entity = $$2.sourceEntity()) instanceof net.minecraft.world.entity.LivingEntity) {
++            net.minecraft.world.entity.LivingEntity $$4 = (net.minecraft.world.entity.LivingEntity)entity;
++            if (!$$4.wasExperienceConsumed()) {
++                int $$5 = $$4.getExperienceReward();
++                if ($$4.shouldDropExperience() && $$5 > 0) {
++                    this.sculkSpreader.addCursors(new net.minecraft.core.BlockPos($$3.relative(net.minecraft.core.Direction.UP, 0.5)), $$5);
++                    this.tryAwardItSpreadsAdvancement($$4);
+                 }
+-                $$3.skipDropExperience();
++                $$4.skipDropExperience();
+                 net.minecraft.world.level.block.SculkCatalystBlock.bloom((net.minecraft.server.level.ServerLevel)$$0, (net.minecraft.core.BlockPos)this.worldPosition, (net.minecraft.world.level.block.state.BlockState)this.getBlockState(), (net.minecraft.util.RandomSource)$$0.getRandom());
+             }
+             return true;
+@@ -55,6 +46,15 @@
+         return false;
+     }
+ 
++    public void tryAwardItSpreadsAdvancement(net.minecraft.world.entity.LivingEntity $$0) {
++        net.minecraft.world.entity.LivingEntity $$1 = $$0.getLastHurtByMob();
++        if ($$1 instanceof net.minecraft.server.level.ServerPlayer) {
++            net.minecraft.server.level.ServerPlayer $$2 = (net.minecraft.server.level.ServerPlayer)$$1;
++            net.minecraft.world.damagesource.DamageSource $$3 = $$0.getLastDamageSource() == null ? net.minecraft.world.damagesource.DamageSource.playerAttack((net.minecraft.world.entity.player.Player)$$2) : $$0.getLastDamageSource();
++            net.minecraft.advancements.CriteriaTriggers.KILL_MOB_NEAR_SCULK_CATALYST.trigger($$2, (net.minecraft.world.entity.Entity)$$0, $$3);
++        }
++    }
++
+     public static void serverTick(net.minecraft.world.level.Level $$0, net.minecraft.core.BlockPos $$1, net.minecraft.world.level.block.state.BlockState $$2, net.minecraft.world.level.block.entity.SculkCatalystBlockEntity $$3) {
+         $$3.sculkSpreader.updateCursors((net.minecraft.world.level.LevelAccessor)$$0, $$1, $$0.getRandom(), true);
+     }

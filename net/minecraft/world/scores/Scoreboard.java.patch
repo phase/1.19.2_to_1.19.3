@@ -1,0 +1,407 @@
+--- net/minecraft/world/scores/Scoreboard.java
++++ net/minecraft/world/scores/Scoreboard.java
+@@ -30,61 +30,61 @@
+         this.teamsByPlayer = com.google.common.collect.Maps.newHashMap();
+     }
+ 
+-    public boolean hasObjective(java.lang.String objective) {
+-        return this.objectivesByName.containsKey((java.lang.Object)objective);
++    public boolean hasObjective(java.lang.String $$0) {
++        return this.objectivesByName.containsKey((java.lang.Object)$$0);
+     }
+ 
+-    public net.minecraft.world.scores.Objective getOrCreateObjective(java.lang.String objective) {
+-        return (net.minecraft.world.scores.Objective)this.objectivesByName.get((java.lang.Object)objective);
++    public net.minecraft.world.scores.Objective getOrCreateObjective(java.lang.String $$0) {
++        return (net.minecraft.world.scores.Objective)this.objectivesByName.get((java.lang.Object)$$0);
+     }
+ 
+     @javax.annotation.Nullable
+-    public net.minecraft.world.scores.Objective getObjective(@javax.annotation.Nullable java.lang.String name) {
+-        return (net.minecraft.world.scores.Objective)this.objectivesByName.get((java.lang.Object)name);
++    public net.minecraft.world.scores.Objective getObjective(@javax.annotation.Nullable java.lang.String $$0) {
++        return (net.minecraft.world.scores.Objective)this.objectivesByName.get((java.lang.Object)$$0);
+     }
+ 
+-    public net.minecraft.world.scores.Objective addObjective(java.lang.String name, net.minecraft.world.scores.criteria.ObjectiveCriteria criteria, net.minecraft.network.chat.Component displayName, net.minecraft.world.scores.criteria.ObjectiveCriteria$RenderType renderType) {
+-        if (this.objectivesByName.containsKey((java.lang.Object)name)) {
+-            throw new java.lang.IllegalArgumentException("An objective with the name '" + name + "' already exists!");
++    public net.minecraft.world.scores.Objective addObjective(java.lang.String $$02, net.minecraft.world.scores.criteria.ObjectiveCriteria $$1, net.minecraft.network.chat.Component $$2, net.minecraft.world.scores.criteria.ObjectiveCriteria$RenderType $$3) {
++        if (this.objectivesByName.containsKey((java.lang.Object)$$02)) {
++            throw new java.lang.IllegalArgumentException("An objective with the name '" + $$02 + "' already exists!");
+         }
+-        net.minecraft.world.scores.Objective objective = new net.minecraft.world.scores.Objective(this, name, criteria, displayName, renderType);
+-        ((java.util.List)this.objectivesByCriteria.computeIfAbsent((java.lang.Object)criteria, $$0 -> com.google.common.collect.Lists.newArrayList())).add((java.lang.Object)objective);
+-        this.objectivesByName.put((java.lang.Object)name, (java.lang.Object)objective);
+-        this.onObjectiveAdded(objective);
+-        return objective;
++        net.minecraft.world.scores.Objective $$4 = new net.minecraft.world.scores.Objective(this, $$02, $$1, $$2, $$3);
++        ((java.util.List)this.objectivesByCriteria.computeIfAbsent((java.lang.Object)$$1, $$0 -> com.google.common.collect.Lists.newArrayList())).add((java.lang.Object)$$4);
++        this.objectivesByName.put((java.lang.Object)$$02, (java.lang.Object)$$4);
++        this.onObjectiveAdded($$4);
++        return $$4;
+     }
+ 
+-    public void forAllObjectives(net.minecraft.world.scores.criteria.ObjectiveCriteria criteria, java.lang.String scoreboardName, java.util.function.Consumer<net.minecraft.world.scores.Score> points) {
+-        ((java.util.List)this.objectivesByCriteria.getOrDefault((java.lang.Object)criteria, (java.lang.Object)java.util.Collections.emptyList())).forEach($$2 -> points.accept((java.lang.Object)this.getOrCreatePlayerScore(scoreboardName, $$2)));
++    public void forAllObjectives(net.minecraft.world.scores.criteria.ObjectiveCriteria $$0, java.lang.String $$1, java.util.function.Consumer<net.minecraft.world.scores.Score> $$22) {
++        ((java.util.List)this.objectivesByCriteria.getOrDefault((java.lang.Object)$$0, (java.lang.Object)java.util.Collections.emptyList())).forEach($$2 -> $$22.accept((java.lang.Object)this.getOrCreatePlayerScore($$1, $$2)));
+     }
+ 
+-    public boolean hasPlayerScore(java.lang.String name, net.minecraft.world.scores.Objective objective) {
+-        java.util.Map map = (java.util.Map)this.playerScores.get((java.lang.Object)name);
+-        if (map == null) {
++    public boolean hasPlayerScore(java.lang.String $$0, net.minecraft.world.scores.Objective $$1) {
++        java.util.Map $$2 = (java.util.Map)this.playerScores.get((java.lang.Object)$$0);
++        if ($$2 == null) {
+             return false;
+         }
+-        net.minecraft.world.scores.Score score = (net.minecraft.world.scores.Score)map.get((java.lang.Object)objective);
+-        return score != null;
++        net.minecraft.world.scores.Score $$3 = (net.minecraft.world.scores.Score)$$2.get((java.lang.Object)$$1);
++        return $$3 != null;
+     }
+ 
+-    public net.minecraft.world.scores.Score getOrCreatePlayerScore(java.lang.String username, net.minecraft.world.scores.Objective objective) {
+-        java.util.Map map = (java.util.Map)this.playerScores.computeIfAbsent((java.lang.Object)username, $$0 -> com.google.common.collect.Maps.newHashMap());
+-        return (net.minecraft.world.scores.Score)map.computeIfAbsent((java.lang.Object)objective, $$1 -> {
+-            net.minecraft.world.scores.Score $$2 = new net.minecraft.world.scores.Score(this, $$1, username);
++    public net.minecraft.world.scores.Score getOrCreatePlayerScore(java.lang.String $$02, net.minecraft.world.scores.Objective $$12) {
++        java.util.Map $$2 = (java.util.Map)this.playerScores.computeIfAbsent((java.lang.Object)$$02, $$0 -> com.google.common.collect.Maps.newHashMap());
++        return (net.minecraft.world.scores.Score)$$2.computeIfAbsent((java.lang.Object)$$12, $$1 -> {
++            net.minecraft.world.scores.Score $$2 = new net.minecraft.world.scores.Score(this, $$1, $$02);
+             $$2.setScore(0);
+             return $$2;
+         });
+     }
+ 
+-    public java.util.Collection<net.minecraft.world.scores.Score> getPlayerScores(net.minecraft.world.scores.Objective objective) {
+-        java.util.ArrayList arrayList = com.google.common.collect.Lists.newArrayList();
+-        for (java.util.Map map : this.playerScores.values()) {
+-            net.minecraft.world.scores.Score score = (net.minecraft.world.scores.Score)map.get((java.lang.Object)objective);
+-            if (score == null) continue;
+-            arrayList.add((java.lang.Object)score);
++    public java.util.Collection<net.minecraft.world.scores.Score> getPlayerScores(net.minecraft.world.scores.Objective $$0) {
++        java.util.ArrayList $$1 = com.google.common.collect.Lists.newArrayList();
++        for (java.util.Map $$2 : this.playerScores.values()) {
++            net.minecraft.world.scores.Score $$3 = (net.minecraft.world.scores.Score)$$2.get((java.lang.Object)$$0);
++            if ($$3 == null) continue;
++            $$1.add((java.lang.Object)$$3);
+         }
+-        arrayList.sort(net.minecraft.world.scores.Score.SCORE_COMPARATOR);
+-        return arrayList;
++        $$1.sort(net.minecraft.world.scores.Score.SCORE_COMPARATOR);
++        return $$1;
+     }
+ 
+     public java.util.Collection<net.minecraft.world.scores.Objective> getObjectives() {
+@@ -99,109 +99,109 @@
+         return com.google.common.collect.Lists.newArrayList((java.lang.Iterable)this.playerScores.keySet());
+     }
+ 
+-    public void resetPlayerScore(java.lang.String name, @javax.annotation.Nullable net.minecraft.world.scores.Objective objective) {
+-        if (objective == null) {
+-            java.util.Map map = (java.util.Map)this.playerScores.remove((java.lang.Object)name);
+-            if (map != null) {
+-                this.onPlayerRemoved(name);
++    public void resetPlayerScore(java.lang.String $$0, @javax.annotation.Nullable net.minecraft.world.scores.Objective $$1) {
++        if ($$1 == null) {
++            java.util.Map $$2 = (java.util.Map)this.playerScores.remove((java.lang.Object)$$0);
++            if ($$2 != null) {
++                this.onPlayerRemoved($$0);
+             }
+         } else {
+-            java.util.Map map = (java.util.Map)this.playerScores.get((java.lang.Object)name);
+-            if (map != null) {
+-                net.minecraft.world.scores.Score score = (net.minecraft.world.scores.Score)map.remove((java.lang.Object)objective);
+-                if (map.size() < 1) {
+-                    java.util.Map map2 = (java.util.Map)this.playerScores.remove((java.lang.Object)name);
+-                    if (map2 != null) {
+-                        this.onPlayerRemoved(name);
++            java.util.Map $$3 = (java.util.Map)this.playerScores.get((java.lang.Object)$$0);
++            if ($$3 != null) {
++                net.minecraft.world.scores.Score $$4 = (net.minecraft.world.scores.Score)$$3.remove((java.lang.Object)$$1);
++                if ($$3.size() < 1) {
++                    java.util.Map $$5 = (java.util.Map)this.playerScores.remove((java.lang.Object)$$0);
++                    if ($$5 != null) {
++                        this.onPlayerRemoved($$0);
+                     }
+-                } else if (score != null) {
+-                    this.onPlayerScoreRemoved(name, objective);
++                } else if ($$4 != null) {
++                    this.onPlayerScoreRemoved($$0, $$1);
+                 }
+             }
+         }
+     }
+ 
+-    public java.util.Map<net.minecraft.world.scores.Objective, net.minecraft.world.scores.Score> getPlayerScores(java.lang.String name) {
+-        java.util.Map map = (java.util.Map)this.playerScores.get((java.lang.Object)name);
+-        if (map == null) {
+-            map = com.google.common.collect.Maps.newHashMap();
++    public java.util.Map<net.minecraft.world.scores.Objective, net.minecraft.world.scores.Score> getPlayerScores(java.lang.String $$0) {
++        java.util.Map $$1 = (java.util.Map)this.playerScores.get((java.lang.Object)$$0);
++        if ($$1 == null) {
++            $$1 = com.google.common.collect.Maps.newHashMap();
+         }
+-        return map;
++        return $$1;
+     }
+ 
+-    public void removeObjective(net.minecraft.world.scores.Objective objective) {
+-        this.objectivesByName.remove((java.lang.Object)objective.getName());
+-        for (int i = 0; i < 19; ++i) {
+-            if (this.getDisplayObjective(i) != objective) continue;
+-            this.setDisplayObjective(i, null);
++    public void removeObjective(net.minecraft.world.scores.Objective $$0) {
++        this.objectivesByName.remove((java.lang.Object)$$0.getName());
++        for (int $$1 = 0; $$1 < 19; ++$$1) {
++            if (this.getDisplayObjective($$1) != $$0) continue;
++            this.setDisplayObjective($$1, null);
+         }
+-        java.util.List list = (java.util.List)this.objectivesByCriteria.get((java.lang.Object)objective.getCriteria());
+-        if (list != null) {
+-            list.remove((java.lang.Object)objective);
++        java.util.List $$2 = (java.util.List)this.objectivesByCriteria.get((java.lang.Object)$$0.getCriteria());
++        if ($$2 != null) {
++            $$2.remove((java.lang.Object)$$0);
+         }
+-        for (java.util.Map map : this.playerScores.values()) {
+-            map.remove((java.lang.Object)objective);
++        for (java.util.Map $$3 : this.playerScores.values()) {
++            $$3.remove((java.lang.Object)$$0);
+         }
+-        this.onObjectiveRemoved(objective);
++        this.onObjectiveRemoved($$0);
+     }
+ 
+-    public void setDisplayObjective(int objectiveSlot, @javax.annotation.Nullable net.minecraft.world.scores.Objective objective) {
+-        this.displayObjectives[objectiveSlot] = objective;
++    public void setDisplayObjective(int $$0, @javax.annotation.Nullable net.minecraft.world.scores.Objective $$1) {
++        this.displayObjectives[$$0] = $$1;
+     }
+ 
+     @javax.annotation.Nullable
+-    public net.minecraft.world.scores.Objective getDisplayObjective(int slot) {
+-        return this.displayObjectives[slot];
++    public net.minecraft.world.scores.Objective getDisplayObjective(int $$0) {
++        return this.displayObjectives[$$0];
+     }
+ 
+     @javax.annotation.Nullable
+-    public net.minecraft.world.scores.PlayerTeam getPlayerTeam(java.lang.String teamName) {
+-        return (net.minecraft.world.scores.PlayerTeam)this.teamsByName.get((java.lang.Object)teamName);
++    public net.minecraft.world.scores.PlayerTeam getPlayerTeam(java.lang.String $$0) {
++        return (net.minecraft.world.scores.PlayerTeam)this.teamsByName.get((java.lang.Object)$$0);
+     }
+ 
+-    public net.minecraft.world.scores.PlayerTeam addPlayerTeam(java.lang.String name) {
+-        net.minecraft.world.scores.PlayerTeam playerTeam = this.getPlayerTeam(name);
+-        if (playerTeam != null) {
+-            LOGGER.warn("Requested creation of existing team '{}'", (java.lang.Object)name);
+-            return playerTeam;
++    public net.minecraft.world.scores.PlayerTeam addPlayerTeam(java.lang.String $$0) {
++        net.minecraft.world.scores.PlayerTeam $$1 = this.getPlayerTeam($$0);
++        if ($$1 != null) {
++            LOGGER.warn("Requested creation of existing team '{}'", (java.lang.Object)$$0);
++            return $$1;
+         }
+-        playerTeam = new net.minecraft.world.scores.PlayerTeam(this, name);
+-        this.teamsByName.put((java.lang.Object)name, (java.lang.Object)playerTeam);
+-        this.onTeamAdded(playerTeam);
+-        return playerTeam;
++        $$1 = new net.minecraft.world.scores.PlayerTeam(this, $$0);
++        this.teamsByName.put((java.lang.Object)$$0, (java.lang.Object)$$1);
++        this.onTeamAdded($$1);
++        return $$1;
+     }
+ 
+-    public void removePlayerTeam(net.minecraft.world.scores.PlayerTeam playerTeam) {
+-        this.teamsByName.remove((java.lang.Object)playerTeam.getName());
+-        for (java.lang.String string : playerTeam.getPlayers()) {
+-            this.teamsByPlayer.remove((java.lang.Object)string);
++    public void removePlayerTeam(net.minecraft.world.scores.PlayerTeam $$0) {
++        this.teamsByName.remove((java.lang.Object)$$0.getName());
++        for (java.lang.String $$1 : $$0.getPlayers()) {
++            this.teamsByPlayer.remove((java.lang.Object)$$1);
+         }
+-        this.onTeamRemoved(playerTeam);
++        this.onTeamRemoved($$0);
+     }
+ 
+-    public boolean addPlayerToTeam(java.lang.String playerName, net.minecraft.world.scores.PlayerTeam team) {
+-        if (this.getPlayersTeam(playerName) != null) {
+-            this.removePlayerFromTeam(playerName);
++    public boolean addPlayerToTeam(java.lang.String $$0, net.minecraft.world.scores.PlayerTeam $$1) {
++        if (this.getPlayersTeam($$0) != null) {
++            this.removePlayerFromTeam($$0);
+         }
+-        this.teamsByPlayer.put((java.lang.Object)playerName, (java.lang.Object)team);
+-        return team.getPlayers().add((java.lang.Object)playerName);
++        this.teamsByPlayer.put((java.lang.Object)$$0, (java.lang.Object)$$1);
++        return $$1.getPlayers().add((java.lang.Object)$$0);
+     }
+ 
+-    public boolean removePlayerFromTeam(java.lang.String playerName) {
+-        net.minecraft.world.scores.PlayerTeam playerTeam = this.getPlayersTeam(playerName);
+-        if (playerTeam != null) {
+-            this.removePlayerFromTeam(playerName, playerTeam);
++    public boolean removePlayerFromTeam(java.lang.String $$0) {
++        net.minecraft.world.scores.PlayerTeam $$1 = this.getPlayersTeam($$0);
++        if ($$1 != null) {
++            this.removePlayerFromTeam($$0, $$1);
+             return true;
+         }
+         return false;
+     }
+ 
+-    public void removePlayerFromTeam(java.lang.String username, net.minecraft.world.scores.PlayerTeam playerTeam) {
+-        if (this.getPlayersTeam(username) != playerTeam) {
+-            throw new java.lang.IllegalStateException("Player is either on another team or not on any team. Cannot remove from team '" + playerTeam.getName() + "'.");
++    public void removePlayerFromTeam(java.lang.String $$0, net.minecraft.world.scores.PlayerTeam $$1) {
++        if (this.getPlayersTeam($$0) != $$1) {
++            throw new java.lang.IllegalStateException("Player is either on another team or not on any team. Cannot remove from team '" + $$1.getName() + "'.");
+         }
+-        this.teamsByPlayer.remove((java.lang.Object)username);
+-        playerTeam.getPlayers().remove((java.lang.Object)username);
++        this.teamsByPlayer.remove((java.lang.Object)$$0);
++        $$1.getPlayers().remove((java.lang.Object)$$0);
+     }
+ 
+     public java.util.Collection<java.lang.String> getTeamNames() {
+@@ -213,40 +213,40 @@
+     }
+ 
+     @javax.annotation.Nullable
+-    public net.minecraft.world.scores.PlayerTeam getPlayersTeam(java.lang.String username) {
+-        return (net.minecraft.world.scores.PlayerTeam)this.teamsByPlayer.get((java.lang.Object)username);
++    public net.minecraft.world.scores.PlayerTeam getPlayersTeam(java.lang.String $$0) {
++        return (net.minecraft.world.scores.PlayerTeam)this.teamsByPlayer.get((java.lang.Object)$$0);
+     }
+ 
+-    public void onObjectiveAdded(net.minecraft.world.scores.Objective objective) {
++    public void onObjectiveAdded(net.minecraft.world.scores.Objective $$0) {
+     }
+ 
+-    public void onObjectiveChanged(net.minecraft.world.scores.Objective objective) {
++    public void onObjectiveChanged(net.minecraft.world.scores.Objective $$0) {
+     }
+ 
+-    public void onObjectiveRemoved(net.minecraft.world.scores.Objective objective) {
++    public void onObjectiveRemoved(net.minecraft.world.scores.Objective $$0) {
+     }
+ 
+-    public void onScoreChanged(net.minecraft.world.scores.Score score) {
++    public void onScoreChanged(net.minecraft.world.scores.Score $$0) {
+     }
+ 
+-    public void onPlayerRemoved(java.lang.String scoreName) {
++    public void onPlayerRemoved(java.lang.String $$0) {
+     }
+ 
+-    public void onPlayerScoreRemoved(java.lang.String scoreName, net.minecraft.world.scores.Objective objective) {
++    public void onPlayerScoreRemoved(java.lang.String $$0, net.minecraft.world.scores.Objective $$1) {
+     }
+ 
+-    public void onTeamAdded(net.minecraft.world.scores.PlayerTeam playerTeam) {
++    public void onTeamAdded(net.minecraft.world.scores.PlayerTeam $$0) {
+     }
+ 
+-    public void onTeamChanged(net.minecraft.world.scores.PlayerTeam playerTeam) {
++    public void onTeamChanged(net.minecraft.world.scores.PlayerTeam $$0) {
+     }
+ 
+-    public void onTeamRemoved(net.minecraft.world.scores.PlayerTeam playerTeam) {
++    public void onTeamRemoved(net.minecraft.world.scores.PlayerTeam $$0) {
+     }
+ 
+-    public static java.lang.String getDisplaySlotName(int id) {
+-        net.minecraft.ChatFormatting chatFormatting;
+-        switch (id) {
++    public static java.lang.String getDisplaySlotName(int $$0) {
++        net.minecraft.ChatFormatting $$1;
++        switch ($$0) {
+             case 0: {
+                 return "list";
+             }
+@@ -257,26 +257,26 @@
+                 return "belowName";
+             }
+         }
+-        if (id >= 3 && id <= 18 && (chatFormatting = net.minecraft.ChatFormatting.getById((int)(id - 3))) != null && chatFormatting != net.minecraft.ChatFormatting.RESET) {
+-            return "sidebar.team." + chatFormatting.getName();
++        if ($$0 >= 3 && $$0 <= 18 && ($$1 = net.minecraft.ChatFormatting.getById((int)($$0 - 3))) != null && $$1 != net.minecraft.ChatFormatting.RESET) {
++            return "sidebar.team." + $$1.getName();
+         }
+         return null;
+     }
+ 
+-    public static int getDisplaySlotByName(java.lang.String name) {
+-        java.lang.String string;
+-        net.minecraft.ChatFormatting chatFormatting;
+-        if ("list".equalsIgnoreCase(name)) {
++    public static int getDisplaySlotByName(java.lang.String $$0) {
++        java.lang.String $$1;
++        net.minecraft.ChatFormatting $$2;
++        if ("list".equalsIgnoreCase($$0)) {
+             return 0;
+         }
+-        if ("sidebar".equalsIgnoreCase(name)) {
++        if ("sidebar".equalsIgnoreCase($$0)) {
+             return 1;
+         }
+-        if ("belowName".equalsIgnoreCase(name)) {
++        if ("belowName".equalsIgnoreCase($$0)) {
+             return 2;
+         }
+-        if (name.startsWith("sidebar.team.") && (chatFormatting = net.minecraft.ChatFormatting.getByName((java.lang.String)(string = name.substring("sidebar.team.".length())))) != null && chatFormatting.getId() >= 0) {
+-            return chatFormatting.getId() + 3;
++        if ($$0.startsWith("sidebar.team.") && ($$2 = net.minecraft.ChatFormatting.getByName((java.lang.String)($$1 = $$0.substring("sidebar.team.".length())))) != null && $$2.getId() >= 0) {
++            return $$2.getId() + 3;
+         }
+         return -1;
+     }
+@@ -291,13 +291,13 @@
+         return displaySlotNames;
+     }
+ 
+-    public void entityRemoved(net.minecraft.world.entity.Entity entity) {
+-        if (entity == null || entity instanceof net.minecraft.world.entity.player.Player || entity.isAlive()) {
++    public void entityRemoved(net.minecraft.world.entity.Entity $$0) {
++        if ($$0 == null || $$0 instanceof net.minecraft.world.entity.player.Player || $$0.isAlive()) {
+             return;
+         }
+-        java.lang.String string = entity.getStringUUID();
+-        this.resetPlayerScore(string, null);
+-        this.removePlayerFromTeam(string);
++        java.lang.String $$1 = $$0.getStringUUID();
++        this.resetPlayerScore($$1, null);
++        this.removePlayerFromTeam($$1);
+     }
+ 
+     public net.minecraft.nbt.ListTag savePlayerScores() {
+@@ -313,15 +313,15 @@
+         return $$0;
+     }
+ 
+-    public void loadPlayerScores(net.minecraft.nbt.ListTag tag) {
+-        for (int i = 0; i < tag.size(); ++i) {
+-            net.minecraft.nbt.CompoundTag compoundTag = tag.getCompound(i);
+-            net.minecraft.world.scores.Objective objective = this.getOrCreateObjective(compoundTag.getString("Objective"));
+-            java.lang.String string = compoundTag.getString("Name");
+-            net.minecraft.world.scores.Score score = this.getOrCreatePlayerScore(string, objective);
+-            score.setScore(compoundTag.getInt("Score"));
+-            if (!compoundTag.contains("Locked")) continue;
+-            score.setLocked(compoundTag.getBoolean("Locked"));
++    public void loadPlayerScores(net.minecraft.nbt.ListTag $$0) {
++        for (int $$1 = 0; $$1 < $$0.size(); ++$$1) {
++            net.minecraft.nbt.CompoundTag $$2 = $$0.getCompound($$1);
++            net.minecraft.world.scores.Objective $$3 = this.getOrCreateObjective($$2.getString("Objective"));
++            java.lang.String $$4 = $$2.getString("Name");
++            net.minecraft.world.scores.Score $$5 = this.getOrCreatePlayerScore($$4, $$3);
++            $$5.setScore($$2.getInt("Score"));
++            if (!$$2.contains("Locked")) continue;
++            $$5.setLocked($$2.getBoolean("Locked"));
+         }
+     }
+ 

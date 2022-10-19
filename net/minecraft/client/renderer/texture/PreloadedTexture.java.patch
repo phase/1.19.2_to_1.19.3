@@ -1,0 +1,46 @@
+--- net/minecraft/client/renderer/texture/PreloadedTexture.java
++++ net/minecraft/client/renderer/texture/PreloadedTexture.java
+@@ -9,31 +9,31 @@
+     @javax.annotation.Nullable
+     public java.util.concurrent.CompletableFuture<net.minecraft.client.renderer.texture.SimpleTexture$TextureImage> future;
+ 
+-    public net.minecraft.client.renderer.texture.PreloadedTexture(net.minecraft.server.packs.resources.ResourceManager manager, net.minecraft.resources.ResourceLocation location, java.util.concurrent.Executor executor) {
+-        super(location);
+-        this.future = java.util.concurrent.CompletableFuture.supplyAsync(() -> net.minecraft.client.renderer.texture.SimpleTexture$TextureImage.load((net.minecraft.server.packs.resources.ResourceManager)manager, (net.minecraft.resources.ResourceLocation)location), (java.util.concurrent.Executor)executor);
++    public net.minecraft.client.renderer.texture.PreloadedTexture(net.minecraft.server.packs.resources.ResourceManager $$0, net.minecraft.resources.ResourceLocation $$1, java.util.concurrent.Executor $$2) {
++        super($$1);
++        this.future = java.util.concurrent.CompletableFuture.supplyAsync(() -> net.minecraft.client.renderer.texture.SimpleTexture$TextureImage.load((net.minecraft.server.packs.resources.ResourceManager)$$0, (net.minecraft.resources.ResourceLocation)$$1), (java.util.concurrent.Executor)$$2);
+     }
+ 
+-    public net.minecraft.client.renderer.texture.SimpleTexture$TextureImage getTextureImage(net.minecraft.server.packs.resources.ResourceManager resourceManager) {
++    public net.minecraft.client.renderer.texture.SimpleTexture$TextureImage getTextureImage(net.minecraft.server.packs.resources.ResourceManager $$0) {
+         if (this.future != null) {
+-            net.minecraft.client.renderer.texture.SimpleTexture$TextureImage textureImage = (net.minecraft.client.renderer.texture.SimpleTexture$TextureImage)this.future.join();
++            net.minecraft.client.renderer.texture.SimpleTexture$TextureImage $$1 = (net.minecraft.client.renderer.texture.SimpleTexture$TextureImage)this.future.join();
+             this.future = null;
+-            return textureImage;
++            return $$1;
+         }
+-        return net.minecraft.client.renderer.texture.SimpleTexture$TextureImage.load((net.minecraft.server.packs.resources.ResourceManager)resourceManager, (net.minecraft.resources.ResourceLocation)this.location);
++        return net.minecraft.client.renderer.texture.SimpleTexture$TextureImage.load((net.minecraft.server.packs.resources.ResourceManager)$$0, (net.minecraft.resources.ResourceLocation)this.location);
+     }
+ 
+     public java.util.concurrent.CompletableFuture<java.lang.Void> getFuture() {
+         return this.future == null ? java.util.concurrent.CompletableFuture.completedFuture(null) : this.future.thenApply($$0 -> null);
+     }
+ 
+-    public void reset(net.minecraft.client.renderer.texture.TextureManager textureManager, net.minecraft.server.packs.resources.ResourceManager resourceManager, net.minecraft.resources.ResourceLocation resourceLocation, java.util.concurrent.Executor executor) {
+-        this.future = java.util.concurrent.CompletableFuture.supplyAsync(() -> net.minecraft.client.renderer.texture.SimpleTexture$TextureImage.load((net.minecraft.server.packs.resources.ResourceManager)resourceManager, (net.minecraft.resources.ResourceLocation)this.location), (java.util.concurrent.Executor)net.minecraft.Util.backgroundExecutor());
+-        this.future.thenRunAsync(() -> textureManager.register(this.location, (net.minecraft.client.renderer.texture.AbstractTexture)this), net.minecraft.client.renderer.texture.PreloadedTexture.executor((java.util.concurrent.Executor)executor));
++    public void reset(net.minecraft.client.renderer.texture.TextureManager $$0, net.minecraft.server.packs.resources.ResourceManager $$1, net.minecraft.resources.ResourceLocation $$2, java.util.concurrent.Executor $$3) {
++        this.future = java.util.concurrent.CompletableFuture.supplyAsync(() -> net.minecraft.client.renderer.texture.SimpleTexture$TextureImage.load((net.minecraft.server.packs.resources.ResourceManager)$$1, (net.minecraft.resources.ResourceLocation)this.location), (java.util.concurrent.Executor)net.minecraft.Util.backgroundExecutor());
++        this.future.thenRunAsync(() -> $$0.register(this.location, (net.minecraft.client.renderer.texture.AbstractTexture)this), net.minecraft.client.renderer.texture.PreloadedTexture.executor((java.util.concurrent.Executor)$$3));
+     }
+ 
+-    public static java.util.concurrent.Executor executor(java.util.concurrent.Executor executor) {
+-        return $$1 -> executor.execute(() -> com.mojang.blaze3d.systems.RenderSystem.recordRenderCall(() -> ((java.lang.Runnable)$$1).run()));
++    public static java.util.concurrent.Executor executor(java.util.concurrent.Executor $$0) {
++        return $$1 -> $$0.execute(() -> com.mojang.blaze3d.systems.RenderSystem.recordRenderCall(() -> ((java.lang.Runnable)$$1).run()));
+     }
+ }
+ 

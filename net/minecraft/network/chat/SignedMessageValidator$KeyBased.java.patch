@@ -1,0 +1,59 @@
+--- net/minecraft/network/chat/SignedMessageValidator$KeyBased.java
++++ net/minecraft/network/chat/SignedMessageValidator$KeyBased.java
+@@ -8,44 +8,28 @@
+  {
+     public net.minecraft.util.SignatureValidator validator;
+     @javax.annotation.Nullable
+-    public net.minecraft.network.chat.MessageSignature lastSignature;
+-    public boolean isChainConsistent;
++    public net.minecraft.network.chat.PlayerChatMessage lastMessage;
++    public boolean isChainValid;
+ 
+     public net.minecraft.network.chat.SignedMessageValidator$KeyBased(net.minecraft.util.SignatureValidator $$0) {
+-        this.isChainConsistent = true;
++        this.isChainValid = true;
+         this.validator = $$0;
+     }
+ 
+-    public boolean validateChain(net.minecraft.network.chat.SignedMessageHeader $$0, net.minecraft.network.chat.MessageSignature $$1, boolean $$2) {
+-        if ($$1.isEmpty()) {
+-            return false;
+-        }
+-        if ($$2 && $$1.equals((java.lang.Object)this.lastSignature)) {
++    public boolean validateChain(net.minecraft.network.chat.PlayerChatMessage $$0) {
++        if ($$0.equals((java.lang.Object)this.lastMessage)) {
+             return true;
+         }
+-        return this.lastSignature == null || this.lastSignature.equals((java.lang.Object)$$0.previousSignature());
++        return this.lastMessage == null || $$0.link().isDescendantOf(this.lastMessage.link());
+     }
+ 
+-    public boolean validateContents(net.minecraft.network.chat.SignedMessageHeader $$0, net.minecraft.network.chat.MessageSignature $$1, byte[] $$2, boolean $$3) {
+-        return this.validateChain($$0, $$1, $$3) && $$1.verify(this.validator, $$0, $$2);
+-    }
+-
+-    public net.minecraft.network.chat.SignedMessageValidator$State updateAndValidate(net.minecraft.network.chat.SignedMessageHeader $$0, net.minecraft.network.chat.MessageSignature $$1, byte[] $$2, boolean $$3) {
+-        boolean bl = this.isChainConsistent = this.isChainConsistent && this.validateContents($$0, $$1, $$2, $$3);
+-        if (!this.isChainConsistent) {
+-            return net.minecraft.network.chat.SignedMessageValidator$State.BROKEN_CHAIN;
++    public boolean updateAndValidate(net.minecraft.network.chat.PlayerChatMessage $$0) {
++        boolean bl = this.isChainValid = this.isChainValid && $$0.verify(this.validator) && this.validateChain($$0);
++        if (!this.isChainValid) {
++            return false;
+         }
+-        this.lastSignature = $$1;
+-        return net.minecraft.network.chat.SignedMessageValidator$State.SECURE;
++        this.lastMessage = $$0;
++        return true;
+     }
+-
+-    public net.minecraft.network.chat.SignedMessageValidator$State validateHeader(net.minecraft.network.chat.SignedMessageHeader $$0, net.minecraft.network.chat.MessageSignature $$1, byte[] $$2) {
+-        return this.updateAndValidate($$0, $$1, $$2, false);
+-    }
+-
+-    public net.minecraft.network.chat.SignedMessageValidator$State validateMessage(net.minecraft.network.chat.PlayerChatMessage $$0) {
+-        byte[] $$1 = $$0.signedBody().hash().asBytes();
+-        return this.updateAndValidate($$0.signedHeader(), $$0.headerSignature(), $$1, true);
+-    }
+ }
+ 

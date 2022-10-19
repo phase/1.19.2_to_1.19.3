@@ -1,0 +1,161 @@
+--- net/minecraft/client/renderer/blockentity/SignRenderer.java
++++ net/minecraft/client/renderer/blockentity/SignRenderer.java
+@@ -6,8 +6,6 @@
+ public class net.minecraft.client.renderer.blockentity.SignRenderer
+ implements net.minecraft.client.renderer.blockentity.BlockEntityRenderer<net.minecraft.world.level.block.entity.SignBlockEntity>
+  {
+-    public static int MAX_LINE_WIDTH = 90;
+-    public static int LINE_HEIGHT = 10;
+     public static java.lang.String STICK = "stick";
+     public static int BLACK_TEXT_OUTLINE_COLOR = -988212;
+     public static int OUTLINE_RENDER_DISTANCE;
+@@ -19,63 +17,85 @@
+         this.font = $$02.getFont();
+     }
+ 
+-    public void render(net.minecraft.world.level.block.entity.SignBlockEntity blockEntity, float partialTicks, com.mojang.blaze3d.vertex.PoseStack matrixStack, net.minecraft.client.renderer.MultiBufferSource buffer, int combinedLight, int combinedOverlay) {
+-        int n;
+-        boolean bl;
+-        int n2;
+-        net.minecraft.world.level.block.state.BlockState blockState = blockEntity.getBlockState();
+-        matrixStack.pushPose();
+-        float f = 0.6666667f;
+-        net.minecraft.world.level.block.state.properties.WoodType woodType = net.minecraft.client.renderer.blockentity.SignRenderer.getWoodType((net.minecraft.world.level.block.Block)blockState.getBlock());
+-        net.minecraft.client.renderer.blockentity.SignRenderer$SignModel signModel = (net.minecraft.client.renderer.blockentity.SignRenderer$SignModel)this.signModels.get((java.lang.Object)woodType);
+-        if (blockState.getBlock() instanceof net.minecraft.world.level.block.StandingSignBlock) {
+-            matrixStack.translate(0.5, 0.5, 0.5);
+-            var11_11 = -((float)((java.lang.Integer)blockState.getValue((net.minecraft.world.level.block.state.properties.Property)net.minecraft.world.level.block.StandingSignBlock.ROTATION) * 360) / 16.0f);
+-            matrixStack.mulPose(com.mojang.math.Vector3f.YP.rotationDegrees(var11_11));
+-            signModel.stick.visible = true;
++    public void render(net.minecraft.world.level.block.entity.SignBlockEntity $$0, float $$1, com.mojang.blaze3d.vertex.PoseStack $$2, net.minecraft.client.renderer.MultiBufferSource $$3, int $$4, int $$5) {
++        net.minecraft.world.level.block.state.BlockState $$6 = $$0.getBlockState();
++        $$2.pushPose();
++        float $$7 = 0.6666667f;
++        net.minecraft.world.level.block.state.properties.WoodType $$8 = net.minecraft.world.level.block.SignBlock.getWoodType((net.minecraft.world.level.block.Block)$$6.getBlock());
++        net.minecraft.client.renderer.blockentity.SignRenderer$SignModel $$9 = (net.minecraft.client.renderer.blockentity.SignRenderer$SignModel)this.signModels.get((java.lang.Object)$$8);
++        if ($$6.getBlock() instanceof net.minecraft.world.level.block.StandingSignBlock) {
++            $$2.translate(0.5, 0.5, 0.5);
++            float $$10 = -net.minecraft.world.level.block.state.properties.RotationSegment.convertToDegrees((int)((java.lang.Integer)$$6.getValue((net.minecraft.world.level.block.state.properties.Property)net.minecraft.world.level.block.StandingSignBlock.ROTATION)));
++            $$2.mulPose(com.mojang.math.Vector3f.YP.rotationDegrees($$10));
++            $$9.stick.visible = true;
+         } else {
+-            matrixStack.translate(0.5, 0.5, 0.5);
+-            var11_11 = -((net.minecraft.core.Direction)blockState.getValue((net.minecraft.world.level.block.state.properties.Property)net.minecraft.world.level.block.WallSignBlock.FACING)).toYRot();
+-            matrixStack.mulPose(com.mojang.math.Vector3f.YP.rotationDegrees(var11_11));
+-            matrixStack.translate(0.0, -0.3125, -0.4375);
+-            signModel.stick.visible = false;
++            $$2.translate(0.5, 0.5, 0.5);
++            float $$11 = -((net.minecraft.core.Direction)$$6.getValue((net.minecraft.world.level.block.state.properties.Property)net.minecraft.world.level.block.WallSignBlock.FACING)).toYRot();
++            $$2.mulPose(com.mojang.math.Vector3f.YP.rotationDegrees($$11));
++            $$2.translate(0.0, -0.3125, -0.4375);
++            $$9.stick.visible = false;
+         }
+-        matrixStack.pushPose();
+-        matrixStack.scale(0.6666667f, -0.6666667f, -0.6666667f);
+-        net.minecraft.client.resources.model.Material material = net.minecraft.client.renderer.Sheets.getSignMaterial((net.minecraft.world.level.block.state.properties.WoodType)woodType);
+-        com.mojang.blaze3d.vertex.VertexConsumer vertexConsumer = material.buffer(buffer, arg_0 -> ((net.minecraft.client.renderer.blockentity.SignRenderer$SignModel)signModel).renderType(arg_0));
+-        signModel.root.render(matrixStack, vertexConsumer, combinedLight, combinedOverlay);
+-        matrixStack.popPose();
+-        float f2 = 0.010416667f;
+-        matrixStack.translate(0.0, 0.3333333432674408, 0.046666666865348816);
+-        matrixStack.scale(0.010416667f, -0.010416667f, 0.010416667f);
+-        int n3 = net.minecraft.client.renderer.blockentity.SignRenderer.getDarkColor((net.minecraft.world.level.block.entity.SignBlockEntity)blockEntity);
+-        int n4 = 20;
+-        net.minecraft.util.FormattedCharSequence[] formattedCharSequenceArray = blockEntity.getRenderMessages(net.minecraft.client.Minecraft.getInstance().isTextFilteringEnabled(), $$0 -> {
+-            java.util.List $$1 = this.font.split((net.minecraft.network.chat.FormattedText)$$0, 90);
+-            return $$1.isEmpty() ? net.minecraft.util.FormattedCharSequence.EMPTY : (net.minecraft.util.FormattedCharSequence)$$1.get(0);
++        this.renderSign($$2, $$3, $$4, $$5, 0.6666667f, $$8, (net.minecraft.client.model.Model)$$9);
++        this.renderSignText($$0, $$2, $$3, $$4, 0.6666667f);
++    }
++
++    public void renderSign(com.mojang.blaze3d.vertex.PoseStack $$0, net.minecraft.client.renderer.MultiBufferSource $$1, int $$2, int $$3, float $$4, net.minecraft.world.level.block.state.properties.WoodType $$5, net.minecraft.client.model.Model $$6) {
++        $$0.pushPose();
++        $$0.scale($$4, -$$4, -$$4);
++        net.minecraft.client.resources.model.Material $$7 = this.getSignMaterial($$5);
++        com.mojang.blaze3d.vertex.VertexConsumer $$8 = $$7.buffer($$1, arg_0 -> ((net.minecraft.client.model.Model)$$6).renderType(arg_0));
++        this.renderSignModel($$0, $$2, $$3, $$6, $$8);
++        $$0.popPose();
++    }
++
++    public void renderSignModel(com.mojang.blaze3d.vertex.PoseStack $$0, int $$1, int $$2, net.minecraft.client.model.Model $$3, com.mojang.blaze3d.vertex.VertexConsumer $$4) {
++        net.minecraft.client.renderer.blockentity.SignRenderer$SignModel $$5 = (net.minecraft.client.renderer.blockentity.SignRenderer$SignModel)$$3;
++        $$5.root.render($$0, $$4, $$1, $$2);
++    }
++
++    public net.minecraft.client.resources.model.Material getSignMaterial(net.minecraft.world.level.block.state.properties.WoodType $$0) {
++        return net.minecraft.client.renderer.Sheets.getSignMaterial((net.minecraft.world.level.block.state.properties.WoodType)$$0);
++    }
++
++    public void renderSignText(net.minecraft.world.level.block.entity.SignBlockEntity $$0, com.mojang.blaze3d.vertex.PoseStack $$12, net.minecraft.client.renderer.MultiBufferSource $$2, int $$3, float $$4) {
++        int $$15;
++        boolean $$14;
++        int $$13;
++        float $$5 = 0.015625f * $$4;
++        net.minecraft.world.phys.Vec3 $$6 = this.getTextOffset($$4);
++        $$12.translate($$6.x, $$6.y, $$6.z);
++        $$12.scale($$5, -$$5, $$5);
++        int $$7 = net.minecraft.client.renderer.blockentity.SignRenderer.getDarkColor((net.minecraft.world.level.block.entity.SignBlockEntity)$$0);
++        int $$8 = 4 * $$0.getTextLineHeight() / 2;
++        net.minecraft.util.FormattedCharSequence[] $$9 = $$0.getRenderMessages(net.minecraft.client.Minecraft.getInstance().isTextFilteringEnabled(), $$1 -> {
++            java.util.List $$2 = this.font.split((net.minecraft.network.chat.FormattedText)$$1, $$0.getMaxTextLineWidth());
++            return $$2.isEmpty() ? net.minecraft.util.FormattedCharSequence.EMPTY : (net.minecraft.util.FormattedCharSequence)$$2.get(0);
+         });
+-        if (blockEntity.hasGlowingText()) {
+-            n2 = blockEntity.getColor().getTextColor();
+-            bl = net.minecraft.client.renderer.blockentity.SignRenderer.isOutlineVisible((net.minecraft.world.level.block.entity.SignBlockEntity)blockEntity, (int)n2);
+-            n = 0xF000F0;
++        if ($$0.hasGlowingText()) {
++            int $$10 = $$0.getColor().getTextColor();
++            boolean $$11 = net.minecraft.client.renderer.blockentity.SignRenderer.isOutlineVisible((net.minecraft.world.level.block.entity.SignBlockEntity)$$0, (int)$$10);
++            int $$122 = 0xF000F0;
+         } else {
+-            n2 = n3;
+-            bl = false;
+-            n = combinedLight;
++            $$13 = $$7;
++            $$14 = false;
++            $$15 = $$3;
+         }
+-        for (int i = 0; i < 4; ++i) {
+-            net.minecraft.util.FormattedCharSequence formattedCharSequence = formattedCharSequenceArray[i];
+-            float f3 = -this.font.width(formattedCharSequence) / 2;
+-            if (bl) {
+-                this.font.drawInBatch8xOutline(formattedCharSequence, f3, (float)(i * 10 - 20), n2, n3, matrixStack.last().pose(), buffer, n);
++        for (int $$16 = 0; $$16 < 4; ++$$16) {
++            net.minecraft.util.FormattedCharSequence $$17 = $$9[$$16];
++            float $$18 = -this.font.width($$17) / 2;
++            if ($$14) {
++                this.font.drawInBatch8xOutline($$17, $$18, (float)($$16 * $$0.getTextLineHeight() - $$8), $$13, $$7, $$12.last().pose(), $$2, $$15);
+                 continue;
+             }
+-            this.font.drawInBatch(formattedCharSequence, f3, (float)(i * 10 - 20), n2, false, matrixStack.last().pose(), buffer, false, 0, n);
++            this.font.drawInBatch($$17, $$18, (float)($$16 * $$0.getTextLineHeight() - $$8), $$13, false, $$12.last().pose(), $$2, false, 0, $$15);
+         }
+-        matrixStack.popPose();
++        $$12.popPose();
+     }
+ 
++    public net.minecraft.world.phys.Vec3 getTextOffset(float $$0) {
++        return new net.minecraft.world.phys.Vec3(0.0, (double)(0.5f * $$0), (double)(0.07f * $$0));
++    }
++
+     public static boolean isOutlineVisible(net.minecraft.world.level.block.entity.SignBlockEntity $$0, int $$1) {
+         if ($$1 == net.minecraft.world.item.DyeColor.BLACK.getTextColor()) {
+             return true;
+@@ -101,16 +121,6 @@
+         return com.mojang.blaze3d.platform.NativeImage.combine((int)0, (int)$$5, (int)$$4, (int)$$3);
+     }
+ 
+-    public static net.minecraft.world.level.block.state.properties.WoodType getWoodType(net.minecraft.world.level.block.Block $$0) {
+-        net.minecraft.world.level.block.state.properties.WoodType $$2;
+-        if ($$0 instanceof net.minecraft.world.level.block.SignBlock) {
+-            net.minecraft.world.level.block.state.properties.WoodType $$1 = ((net.minecraft.world.level.block.SignBlock)$$0).type();
+-        } else {
+-            $$2 = net.minecraft.world.level.block.state.properties.WoodType.OAK;
+-        }
+-        return $$2;
+-    }
+-
+     public static net.minecraft.client.renderer.blockentity.SignRenderer$SignModel createSignModel(net.minecraft.client.model.geom.EntityModelSet $$0, net.minecraft.world.level.block.state.properties.WoodType $$1) {
+         return new net.minecraft.client.renderer.blockentity.SignRenderer$SignModel($$0.bakeLayer(net.minecraft.client.model.geom.ModelLayers.createSignModelName((net.minecraft.world.level.block.state.properties.WoodType)$$1)));
+     }

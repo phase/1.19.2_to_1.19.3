@@ -1,0 +1,194 @@
+--- net/minecraft/world/level/lighting/LayerLightEngine.java
++++ net/minecraft/world/level/lighting/LayerLightEngine.java
+@@ -29,28 +29,28 @@
+         this.clearCache();
+     }
+ 
+-    public void checkNode(long levelPos) {
++    public void checkNode(long $$0) {
+         this.storage.runAllUpdates();
+-        if (this.storage.storingLightForSection(net.minecraft.core.SectionPos.blockToSection((long)levelPos))) {
+-            super.checkNode(levelPos);
++        if (this.storage.storingLightForSection(net.minecraft.core.SectionPos.blockToSection((long)$$0))) {
++            super.checkNode($$0);
+         }
+     }
+ 
+     @javax.annotation.Nullable
+-    public net.minecraft.world.level.BlockGetter getChunk(int chunkX, int chunkZ) {
+-        long l = net.minecraft.world.level.ChunkPos.asLong((int)chunkX, (int)chunkZ);
+-        for (int i = 0; i < 2; ++i) {
+-            if (l != this.lastChunkPos[i]) continue;
+-            return this.lastChunk[i];
++    public net.minecraft.world.level.BlockGetter getChunk(int $$0, int $$1) {
++        long $$2 = net.minecraft.world.level.ChunkPos.asLong((int)$$0, (int)$$1);
++        for (int $$3 = 0; $$3 < 2; ++$$3) {
++            if ($$2 != this.lastChunkPos[$$3]) continue;
++            return this.lastChunk[$$3];
+         }
+-        net.minecraft.world.level.BlockGetter blockGetter = this.chunkSource.getChunkForLighting(chunkX, chunkZ);
+-        for (int i = 1; i > 0; --i) {
+-            this.lastChunkPos[i] = this.lastChunkPos[i - 1];
+-            this.lastChunk[i] = this.lastChunk[i - 1];
++        net.minecraft.world.level.BlockGetter $$4 = this.chunkSource.getChunkForLighting($$0, $$1);
++        for (int $$5 = 1; $$5 > 0; --$$5) {
++            this.lastChunkPos[$$5] = this.lastChunkPos[$$5 - 1];
++            this.lastChunk[$$5] = this.lastChunk[$$5 - 1];
+         }
+-        this.lastChunkPos[0] = l;
+-        this.lastChunk[0] = blockGetter;
+-        return blockGetter;
++        this.lastChunkPos[0] = $$2;
++        this.lastChunk[0] = $$4;
++        return $$4;
+     }
+ 
+     public void clearCache() {
+@@ -58,34 +58,34 @@
+         java.util.Arrays.fill((java.lang.Object[])this.lastChunk, null);
+     }
+ 
+-    public net.minecraft.world.level.block.state.BlockState getStateAndOpacity(long pos, @javax.annotation.Nullable org.apache.commons.lang3.mutable.MutableInt opacityOut) {
+-        boolean bl;
+-        int n;
+-        if (pos == java.lang.Long.MAX_VALUE) {
+-            if (opacityOut != null) {
+-                opacityOut.setValue(0);
++    public net.minecraft.world.level.block.state.BlockState getStateAndOpacity(long $$0, @javax.annotation.Nullable org.apache.commons.lang3.mutable.MutableInt $$1) {
++        boolean $$6;
++        int $$3;
++        if ($$0 == java.lang.Long.MAX_VALUE) {
++            if ($$1 != null) {
++                $$1.setValue(0);
+             }
+             return net.minecraft.world.level.block.Blocks.AIR.defaultBlockState();
+         }
+-        int n2 = net.minecraft.core.SectionPos.blockToSectionCoord((int)net.minecraft.core.BlockPos.getX((long)pos));
+-        net.minecraft.world.level.BlockGetter blockGetter = this.getChunk(n2, n = net.minecraft.core.SectionPos.blockToSectionCoord((int)net.minecraft.core.BlockPos.getZ((long)pos)));
+-        if (blockGetter == null) {
+-            if (opacityOut != null) {
+-                opacityOut.setValue(16);
++        int $$2 = net.minecraft.core.SectionPos.blockToSectionCoord((int)net.minecraft.core.BlockPos.getX((long)$$0));
++        net.minecraft.world.level.BlockGetter $$4 = this.getChunk($$2, $$3 = net.minecraft.core.SectionPos.blockToSectionCoord((int)net.minecraft.core.BlockPos.getZ((long)$$0)));
++        if ($$4 == null) {
++            if ($$1 != null) {
++                $$1.setValue(16);
+             }
+             return net.minecraft.world.level.block.Blocks.BEDROCK.defaultBlockState();
+         }
+-        this.pos.set(pos);
+-        net.minecraft.world.level.block.state.BlockState blockState = blockGetter.getBlockState((net.minecraft.core.BlockPos)this.pos);
+-        boolean bl2 = bl = blockState.canOcclude() && blockState.useShapeForLightOcclusion();
+-        if (opacityOut != null) {
+-            opacityOut.setValue(blockState.getLightBlock(this.chunkSource.getLevel(), (net.minecraft.core.BlockPos)this.pos));
++        this.pos.set($$0);
++        net.minecraft.world.level.block.state.BlockState $$5 = $$4.getBlockState((net.minecraft.core.BlockPos)this.pos);
++        boolean bl = $$6 = $$5.canOcclude() && $$5.useShapeForLightOcclusion();
++        if ($$1 != null) {
++            $$1.setValue($$5.getLightBlock(this.chunkSource.getLevel(), (net.minecraft.core.BlockPos)this.pos));
+         }
+-        return bl ? blockState : net.minecraft.world.level.block.Blocks.AIR.defaultBlockState();
++        return $$6 ? $$5 : net.minecraft.world.level.block.Blocks.AIR.defaultBlockState();
+     }
+ 
+-    public net.minecraft.world.phys.shapes.VoxelShape getShape(net.minecraft.world.level.block.state.BlockState blockState, long levelPos, net.minecraft.core.Direction direction) {
+-        return blockState.canOcclude() ? blockState.getFaceOcclusionShape(this.chunkSource.getLevel(), (net.minecraft.core.BlockPos)this.pos.set(levelPos), direction) : net.minecraft.world.phys.shapes.Shapes.empty();
++    public net.minecraft.world.phys.shapes.VoxelShape getShape(net.minecraft.world.level.block.state.BlockState $$0, long $$1, net.minecraft.core.Direction $$2) {
++        return $$0.canOcclude() ? $$0.getFaceOcclusionShape(this.chunkSource.getLevel(), (net.minecraft.core.BlockPos)this.pos.set($$1), $$2) : net.minecraft.world.phys.shapes.Shapes.empty();
+     }
+ 
+     public static int getLightBlockInto(net.minecraft.world.level.BlockGetter $$0, net.minecraft.world.level.block.state.BlockState $$1, net.minecraft.core.BlockPos $$2, net.minecraft.world.level.block.state.BlockState $$3, net.minecraft.core.BlockPos $$4, net.minecraft.core.Direction $$5, int $$6) {
+@@ -104,30 +104,30 @@
+         return $$6;
+     }
+ 
+-    public boolean isSource(long pos) {
+-        return pos == java.lang.Long.MAX_VALUE;
++    public boolean isSource(long $$0) {
++        return $$0 == java.lang.Long.MAX_VALUE;
+     }
+ 
+-    public int getComputedLevel(long pos, long excludedSourcePos, int level) {
++    public int getComputedLevel(long $$0, long $$1, int $$2) {
+         return 0;
+     }
+ 
+-    public int getLevel(long sectionPos) {
+-        if (sectionPos == java.lang.Long.MAX_VALUE) {
++    public int getLevel(long $$0) {
++        if ($$0 == java.lang.Long.MAX_VALUE) {
+             return 0;
+         }
+-        return 15 - this.storage.getStoredLevel(sectionPos);
++        return 15 - this.storage.getStoredLevel($$0);
+     }
+ 
+-    public int getLevel(net.minecraft.world.level.chunk.DataLayer array, long levelPos) {
+-        return 15 - array.get(net.minecraft.core.SectionPos.sectionRelative((int)net.minecraft.core.BlockPos.getX((long)levelPos)), net.minecraft.core.SectionPos.sectionRelative((int)net.minecraft.core.BlockPos.getY((long)levelPos)), net.minecraft.core.SectionPos.sectionRelative((int)net.minecraft.core.BlockPos.getZ((long)levelPos)));
++    public int getLevel(net.minecraft.world.level.chunk.DataLayer $$0, long $$1) {
++        return 15 - $$0.get(net.minecraft.core.SectionPos.sectionRelative((int)net.minecraft.core.BlockPos.getX((long)$$1)), net.minecraft.core.SectionPos.sectionRelative((int)net.minecraft.core.BlockPos.getY((long)$$1)), net.minecraft.core.SectionPos.sectionRelative((int)net.minecraft.core.BlockPos.getZ((long)$$1)));
+     }
+ 
+-    public void setLevel(long sectionPos, int level) {
+-        this.storage.setStoredLevel(sectionPos, java.lang.Math.min((int)15, (int)(15 - level)));
++    public void setLevel(long $$0, int $$1) {
++        this.storage.setStoredLevel($$0, java.lang.Math.min((int)15, (int)(15 - $$1)));
+     }
+ 
+-    public int computeLevelFromNeighbor(long startPos, long endPos, int startLevel) {
++    public int computeLevelFromNeighbor(long $$0, long $$1, int $$2) {
+         return 0;
+     }
+ 
+@@ -155,8 +155,8 @@
+         return $$0;
+     }
+ 
+-    public void queueSectionData(long sectionPos, @javax.annotation.Nullable net.minecraft.world.level.chunk.DataLayer array, boolean bl) {
+-        this.storage.queueSectionData(sectionPos, array, bl);
++    public void queueSectionData(long $$0, @javax.annotation.Nullable net.minecraft.world.level.chunk.DataLayer $$1, boolean $$2) {
++        this.storage.queueSectionData($$0, $$1, $$2);
+     }
+ 
+     @javax.annotation.Nullable
+@@ -164,12 +164,12 @@
+         return this.storage.getDataLayerData($$0.asLong());
+     }
+ 
+-    public int getLightValue(net.minecraft.core.BlockPos levelPos) {
+-        return this.storage.getLightValue(levelPos.asLong());
++    public int getLightValue(net.minecraft.core.BlockPos $$0) {
++        return this.storage.getLightValue($$0.asLong());
+     }
+ 
+-    public java.lang.String getDebugData(long sectionPos) {
+-        return "" + this.storage.getLevel(sectionPos);
++    public java.lang.String getDebugData(long $$0) {
++        return "" + this.storage.getLevel($$0);
+     }
+ 
+     public void checkBlock(net.minecraft.core.BlockPos $$0) {
+@@ -183,8 +183,8 @@
+     public void onBlockEmissionIncrease(net.minecraft.core.BlockPos $$0, int $$1) {
+     }
+ 
+-    public void updateSectionStatus(net.minecraft.core.SectionPos pos, boolean isEmpty) {
+-        this.storage.updateSectionStatus(pos.asLong(), isEmpty);
++    public void updateSectionStatus(net.minecraft.core.SectionPos $$0, boolean $$1) {
++        this.storage.updateSectionStatus($$0.asLong(), $$1);
+     }
+ 
+     public void enableLightSources(net.minecraft.world.level.ChunkPos $$0, boolean $$1) {
+@@ -192,9 +192,9 @@
+         this.storage.enableLightSources($$2, $$1);
+     }
+ 
+-    public void retainData(net.minecraft.world.level.ChunkPos pos, boolean retain) {
+-        long l = net.minecraft.core.SectionPos.getZeroNode((long)net.minecraft.core.SectionPos.asLong((int)pos.x, (int)0, (int)pos.z));
+-        this.storage.retainData(l, retain);
++    public void retainData(net.minecraft.world.level.ChunkPos $$0, boolean $$1) {
++        long $$2 = net.minecraft.core.SectionPos.getZeroNode((long)net.minecraft.core.SectionPos.asLong((int)$$0.x, (int)0, (int)$$0.z));
++        this.storage.retainData($$2, $$1);
+     }
+ 
+     static {

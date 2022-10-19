@@ -1,0 +1,534 @@
+--- net/minecraft/world/entity/animal/camel/Camel.java
++++ net/minecraft/world/entity/animal/camel/Camel.java
+@@ -1,0 +1,531 @@
++/*
++ * Decompiled with CFR 0.151.
++ */
++package net.minecraft.world.entity.animal.camel;
++
++public class net.minecraft.world.entity.animal.camel.Camel
++extends net.minecraft.world.entity.animal.horse.AbstractHorse
++implements net.minecraft.world.entity.PlayerRideableJumping,
++net.minecraft.world.entity.Saddleable
++ {
++    public static net.minecraft.world.item.crafting.Ingredient TEMPTATION_ITEM;
++    public static int DASH_COOLDOWN_TICKS = 55;
++    public static float RUNNING_SPEED_BONUS = 0.1f;
++    public static float DASH_VERTICAL_MOMENTUM = 1.4285f;
++    public static float DASH_HORIZONTAL_MOMENTUM = 22.2222f;
++    public static int SITDOWN_DURATION_TICKS = 40;
++    public static int STANDUP_DURATION_TICKS = 52;
++    public static int IDLE_MINIMAL_DURATION_TICKS = 80;
++    public static float SITTING_HEIGHT_DIFFERENCE = 1.43f;
++    public static net.minecraft.network.syncher.EntityDataAccessor<java.lang.Boolean> DASH;
++    public static net.minecraft.network.syncher.EntityDataAccessor<java.lang.Long> LAST_POSE_CHANGE_TICK;
++    public net.minecraft.world.entity.AnimationState walkAnimationState;
++    public net.minecraft.world.entity.AnimationState sitAnimationState;
++    public net.minecraft.world.entity.AnimationState sitUpAnimationState;
++    public net.minecraft.world.entity.AnimationState idleAnimationState;
++    public net.minecraft.world.entity.AnimationState dashAnimationState;
++    public static net.minecraft.world.entity.EntityDimensions SITTING_DIMENSIONS;
++    public int dashCooldown;
++    public int idleAnimationTimeout;
++
++    public net.minecraft.world.entity.animal.camel.Camel(net.minecraft.world.entity.EntityType<? extends net.minecraft.world.entity.animal.camel.Camel> $$0, net.minecraft.world.level.Level $$1) {
++        super($$0, $$1);
++        this.walkAnimationState = new net.minecraft.world.entity.AnimationState();
++        this.sitAnimationState = new net.minecraft.world.entity.AnimationState();
++        this.sitUpAnimationState = new net.minecraft.world.entity.AnimationState();
++        this.idleAnimationState = new net.minecraft.world.entity.AnimationState();
++        this.dashAnimationState = new net.minecraft.world.entity.AnimationState();
++        this.dashCooldown = 0;
++        this.idleAnimationTimeout = 0;
++        this.maxUpStep = 1.5f;
++        this.getNavigation().setCanFloat(true);
++    }
++
++    public void addAdditionalSaveData(net.minecraft.nbt.CompoundTag $$0) {
++        super.addAdditionalSaveData($$0);
++        $$0.putBoolean("IsSitting", this.getPose() == net.minecraft.world.entity.Pose.SITTING);
++        $$0.putLong("LastPoseTick", ((java.lang.Long)this.entityData.get(LAST_POSE_CHANGE_TICK)).longValue());
++    }
++
++    public void readAdditionalSaveData(net.minecraft.nbt.CompoundTag $$0) {
++        super.readAdditionalSaveData($$0);
++        if ($$0.getBoolean("IsSitting")) {
++            this.setPose(net.minecraft.world.entity.Pose.SITTING);
++        }
++        this.resetLastPoseChangeTick($$0.getLong("LastPoseTick"));
++    }
++
++    public static net.minecraft.world.entity.ai.attributes.AttributeSupplier$Builder createAttributes() {
++        return net.minecraft.world.entity.animal.camel.Camel.createBaseHorseAttributes().add(net.minecraft.world.entity.ai.attributes.Attributes.MAX_HEALTH, 32.0).add(net.minecraft.world.entity.ai.attributes.Attributes.MOVEMENT_SPEED, (double)0.09f).add(net.minecraft.world.entity.ai.attributes.Attributes.JUMP_STRENGTH, (double)0.42f);
++    }
++
++    public void defineSynchedData() {
++        super.defineSynchedData();
++        this.entityData.define(DASH, (java.lang.Object)false);
++        this.entityData.define(LAST_POSE_CHANGE_TICK, (java.lang.Object)-52L);
++    }
++
++    public net.minecraft.world.entity.SpawnGroupData finalizeSpawn(net.minecraft.world.level.ServerLevelAccessor $$0, net.minecraft.world.DifficultyInstance $$1, net.minecraft.world.entity.MobSpawnType $$2, @javax.annotation.Nullable net.minecraft.world.entity.SpawnGroupData $$3, @javax.annotation.Nullable net.minecraft.nbt.CompoundTag $$4) {
++        net.minecraft.world.entity.animal.camel.CamelAi.initMemories((net.minecraft.world.entity.animal.camel.Camel)this, (net.minecraft.util.RandomSource)$$0.getRandom());
++        this.entityData.set(LAST_POSE_CHANGE_TICK, (java.lang.Object)($$0.getLevel().getGameTime() - 52L));
++        return super.finalizeSpawn($$0, $$1, $$2, $$3, $$4);
++    }
++
++    public net.minecraft.world.entity.ai.Brain$Provider<net.minecraft.world.entity.animal.camel.Camel> brainProvider() {
++        return net.minecraft.world.entity.animal.camel.CamelAi.brainProvider();
++    }
++
++    public void registerGoals() {
++    }
++
++    public net.minecraft.world.entity.ai.Brain<?> makeBrain(com.mojang.serialization.Dynamic<?> $$0) {
++        return net.minecraft.world.entity.animal.camel.CamelAi.makeBrain((net.minecraft.world.entity.ai.Brain)this.brainProvider().makeBrain($$0));
++    }
++
++    public net.minecraft.world.entity.EntityDimensions getDimensions(net.minecraft.world.entity.Pose $$0) {
++        return $$0 == net.minecraft.world.entity.Pose.SITTING ? SITTING_DIMENSIONS.scale(this.getScale()) : super.getDimensions($$0);
++    }
++
++    public float getStandingEyeHeight(net.minecraft.world.entity.Pose $$0, net.minecraft.world.entity.EntityDimensions $$1) {
++        return $$1.height - 0.1f;
++    }
++
++    public void customServerAiStep() {
++        this.level.getProfiler().push("camelBrain");
++        net.minecraft.world.entity.ai.Brain $$0 = this.getBrain();
++        $$0.tick((net.minecraft.server.level.ServerLevel)this.level, (net.minecraft.world.entity.LivingEntity)this);
++        this.level.getProfiler().pop();
++        this.level.getProfiler().push("camelActivityUpdate");
++        net.minecraft.world.entity.animal.camel.CamelAi.updateActivity((net.minecraft.world.entity.animal.camel.Camel)this);
++        this.level.getProfiler().pop();
++        super.customServerAiStep();
++    }
++
++    public void tick() {
++        super.tick();
++        if (this.isDashing() && this.dashCooldown < 55 && (this.onGround || this.isInWater())) {
++            this.setDashing(false);
++        }
++        if (this.dashCooldown > 0) {
++            --this.dashCooldown;
++            if (this.dashCooldown == 0) {
++                this.level.playSound(null, this.blockPosition(), net.minecraft.sounds.SoundEvents.CAMEL_DASH_READY, net.minecraft.sounds.SoundSource.PLAYERS, 1.0f, 1.0f);
++            }
++        }
++        if (this.level.isClientSide()) {
++            this.setupAnimationStates();
++        }
++    }
++
++    public void setupAnimationStates() {
++        if (this.idleAnimationTimeout <= 0) {
++            this.idleAnimationTimeout = this.random.nextInt(40) + 80;
++            this.idleAnimationState.start(this.tickCount);
++        } else {
++            --this.idleAnimationTimeout;
++        }
++        switch (net.minecraft.world.entity.animal.camel.Camel$1.$SwitchMap$net$minecraft$world$entity$Pose[this.getPose().ordinal()]) {
++            case 1: {
++                this.sitAnimationState.stop();
++                this.dashAnimationState.animateWhen(this.isDashing(), this.tickCount);
++                this.sitUpAnimationState.animateWhen(this.isInPoseTransition(), this.tickCount);
++                this.walkAnimationState.animateWhen((this.onGround || this.hasControllingPassenger()) && this.getDeltaMovement().horizontalDistanceSqr() > 1.0E-6, this.tickCount);
++                break;
++            }
++            case 2: {
++                this.walkAnimationState.stop();
++                this.sitUpAnimationState.stop();
++                this.dashAnimationState.stop();
++                this.sitAnimationState.startIfStopped(this.tickCount);
++                break;
++            }
++            default: {
++                this.walkAnimationState.stop();
++                this.sitAnimationState.stop();
++                this.sitUpAnimationState.stop();
++                this.dashAnimationState.stop();
++            }
++        }
++    }
++
++    public void travel(net.minecraft.world.phys.Vec3 $$0) {
++        if (!this.isAlive()) {
++            return;
++        }
++        if (this.refuseToMove() && this.isOnGround()) {
++            this.setDeltaMovement(this.getDeltaMovement().multiply(0.0, 1.0, 0.0));
++            $$0 = $$0.multiply(0.0, 1.0, 0.0);
++        }
++        super.travel($$0);
++    }
++
++    public boolean refuseToMove() {
++        return this.isPoseSitting() || this.isInPoseTransition();
++    }
++
++    public float getDrivenMovementSpeed(net.minecraft.world.entity.LivingEntity $$0) {
++        float $$1 = $$0.isSprinting() && this.getJumpCooldown() == 0 ? 0.1f : 0.0f;
++        return (float)this.getAttributeValue(net.minecraft.world.entity.ai.attributes.Attributes.MOVEMENT_SPEED) + $$1;
++    }
++
++    public boolean mountIgnoresControllerInput(net.minecraft.world.entity.LivingEntity $$0) {
++        boolean $$1 = this.isInPoseTransition();
++        if (this.isPoseSitting() && !$$1 && $$0.zza > 0.0f) {
++            this.standUp();
++        }
++        return this.refuseToMove() || super.mountIgnoresControllerInput($$0);
++    }
++
++    public boolean canJump() {
++        return !this.refuseToMove() && super.canJump();
++    }
++
++    public void onPlayerJump(int $$0) {
++        if (!this.isSaddled() || this.dashCooldown > 0 || !this.isOnGround()) {
++            return;
++        }
++        super.onPlayerJump($$0);
++    }
++
++    public void executeRidersJump(float $$0, float $$1, float $$2) {
++        double $$3 = this.getAttributeValue(net.minecraft.world.entity.ai.attributes.Attributes.JUMP_STRENGTH) * (double)this.getBlockJumpFactor() + this.getJumpBoostPower();
++        this.addDeltaMovement(this.getLookAngle().multiply(1.0, 0.0, 1.0).normalize().scale((double)(22.2222f * $$0) * this.getAttributeValue(net.minecraft.world.entity.ai.attributes.Attributes.MOVEMENT_SPEED) * (double)this.getBlockSpeedFactor()).add(0.0, (double)(1.4285f * $$0) * $$3, 0.0));
++        this.dashCooldown = 55;
++        this.setDashing(true);
++        this.hasImpulse = true;
++    }
++
++    public boolean isDashing() {
++        return (java.lang.Boolean)this.entityData.get(DASH);
++    }
++
++    public void setDashing(boolean $$0) {
++        this.entityData.set(DASH, (java.lang.Object)$$0);
++    }
++
++    public boolean isPanicking() {
++        return this.getBrain().checkMemory(net.minecraft.world.entity.ai.memory.MemoryModuleType.IS_PANICKING, net.minecraft.world.entity.ai.memory.MemoryStatus.VALUE_PRESENT);
++    }
++
++    public void handleStartJump(int $$0) {
++        this.playSound(net.minecraft.sounds.SoundEvents.CAMEL_DASH, 1.0f, 1.0f);
++        this.setDashing(true);
++    }
++
++    public void handleStopJump() {
++    }
++
++    public int getJumpCooldown() {
++        return this.dashCooldown;
++    }
++
++    public net.minecraft.sounds.SoundEvent getAmbientSound() {
++        return net.minecraft.sounds.SoundEvents.CAMEL_AMBIENT;
++    }
++
++    public net.minecraft.sounds.SoundEvent getDeathSound() {
++        return net.minecraft.sounds.SoundEvents.CAMEL_DEATH;
++    }
++
++    public net.minecraft.sounds.SoundEvent getHurtSound(net.minecraft.world.damagesource.DamageSource $$0) {
++        return net.minecraft.sounds.SoundEvents.CAMEL_HURT;
++    }
++
++    public void playStepSound(net.minecraft.core.BlockPos $$0, net.minecraft.world.level.block.state.BlockState $$1) {
++        if ($$1.getSoundType() == net.minecraft.world.level.block.SoundType.SAND) {
++            this.playSound(net.minecraft.sounds.SoundEvents.CAMEL_STEP_SAND, 1.0f, 1.0f);
++        } else {
++            this.playSound(net.minecraft.sounds.SoundEvents.CAMEL_STEP, 1.0f, 1.0f);
++        }
++    }
++
++    public boolean isFood(net.minecraft.world.item.ItemStack $$0) {
++        return TEMPTATION_ITEM.test($$0);
++    }
++
++    public net.minecraft.world.InteractionResult mobInteract(net.minecraft.world.entity.player.Player $$0, net.minecraft.world.InteractionHand $$1) {
++        net.minecraft.world.item.ItemStack $$2 = $$0.getItemInHand($$1);
++        if ($$0.isSecondaryUseActive()) {
++            this.openCustomInventoryScreen($$0);
++            return net.minecraft.world.InteractionResult.sidedSuccess((boolean)this.level.isClientSide);
++        }
++        net.minecraft.world.InteractionResult $$3 = $$2.interactLivingEntity($$0, (net.minecraft.world.entity.LivingEntity)this, $$1);
++        if ($$3.consumesAction()) {
++            return $$3;
++        }
++        if (this.isFood($$2)) {
++            return this.fedFood($$0, $$2);
++        }
++        if (this.getPassengers().size() < 2 && !this.isBaby()) {
++            this.doPlayerRide($$0);
++        }
++        return net.minecraft.world.InteractionResult.sidedSuccess((boolean)this.level.isClientSide);
++    }
++
++    public void onLeashDistance(float $$0) {
++        if ($$0 > 6.0f && this.isPoseSitting() && !this.isInPoseTransition()) {
++            this.standUp();
++        }
++    }
++
++    public boolean handleEating(net.minecraft.world.entity.player.Player $$0, net.minecraft.world.item.ItemStack $$1) {
++        boolean $$4;
++        boolean $$3;
++        boolean $$2;
++        if (!this.isFood($$1)) {
++            return false;
++        }
++        boolean bl = $$2 = this.getHealth() < this.getMaxHealth();
++        if ($$2) {
++            this.heal(2.0f);
++        }
++        boolean bl2 = $$3 = this.isTamed() && this.getAge() == 0 && this.canFallInLove();
++        if ($$3) {
++            this.setInLove($$0);
++        }
++        if ($$4 = this.isBaby()) {
++            this.level.addParticle((net.minecraft.core.particles.ParticleOptions)net.minecraft.core.particles.ParticleTypes.HAPPY_VILLAGER, this.getRandomX(1.0), this.getRandomY() + 0.5, this.getRandomZ(1.0), 0.0, 0.0, 0.0);
++            if (!this.level.isClientSide) {
++                this.ageUp(10);
++            }
++        }
++        if ($$2 || $$3 || $$4) {
++            net.minecraft.sounds.SoundEvent $$5;
++            if (!this.isSilent() && ($$5 = this.getEatingSound()) != null) {
++                this.level.playSound(null, this.getX(), this.getY(), this.getZ(), $$5, this.getSoundSource(), 1.0f, 1.0f + (this.random.nextFloat() - this.random.nextFloat()) * 0.2f);
++            }
++            return true;
++        }
++        return false;
++    }
++
++    public boolean canPerformRearing() {
++        return false;
++    }
++
++    /*
++     * Unable to fully structure code
++     */
++    public boolean canMate(net.minecraft.world.entity.animal.Animal $$0) {
++        if ($$0 == this || !($$0 instanceof net.minecraft.world.entity.animal.camel.Camel)) ** GOTO lbl-1000
++        $$1 = (net.minecraft.world.entity.animal.camel.Camel)$$0;
++        if (this.canParent() && $$1.canParent()) {
++            v0 = true;
++        } else lbl-1000:// 2 sources
++
++        {
++            v0 = false;
++        }
++        return v0;
++    }
++
++    @javax.annotation.Nullable
++    public net.minecraft.world.entity.animal.camel.Camel getBreedOffspring(net.minecraft.server.level.ServerLevel $$0, net.minecraft.world.entity.AgeableMob $$1) {
++        return (net.minecraft.world.entity.animal.camel.Camel)net.minecraft.world.entity.EntityType.CAMEL.create((net.minecraft.world.level.Level)$$0);
++    }
++
++    @javax.annotation.Nullable
++    public net.minecraft.sounds.SoundEvent getEatingSound() {
++        return net.minecraft.sounds.SoundEvents.CAMEL_EAT;
++    }
++
++    public void actuallyHurt(net.minecraft.world.damagesource.DamageSource $$0, float $$1) {
++        this.standUpPanic();
++        super.actuallyHurt($$0, $$1);
++    }
++
++    public void positionRider(net.minecraft.world.entity.Entity $$0) {
++        int $$1 = this.getPassengers().indexOf((java.lang.Object)$$0);
++        if ($$1 < 0) {
++            return;
++        }
++        boolean $$2 = $$1 == 0;
++        float $$3 = 0.5f;
++        float $$4 = (float)(this.isRemoved() ? (double)0.01f : this.getBodyAnchorAnimationYOffset($$2, 0.0f) + $$0.getMyRidingOffset());
++        if (this.getPassengers().size() > 1) {
++            if (!$$2) {
++                $$3 = -0.7f;
++            }
++            if ($$0 instanceof net.minecraft.world.entity.animal.Animal) {
++                $$3 += 0.2f;
++            }
++        }
++        net.minecraft.world.phys.Vec3 $$5 = new net.minecraft.world.phys.Vec3(0.0, 0.0, (double)$$3).yRot(-this.yBodyRot * ((float)java.lang.Math.PI / 180));
++        $$0.setPos(this.getX() + $$5.x, this.getY() + (double)$$4, this.getZ() + $$5.z);
++        this.clampRotation($$0);
++    }
++
++    public double getBodyAnchorAnimationYOffset(boolean $$0, float $$1) {
++        boolean $$7;
++        double $$2 = this.getPassengersRidingOffset();
++        float $$3 = this.getScale() * 1.43f;
++        float $$4 = $$3 - this.getScale() * 0.2f;
++        float $$5 = $$3 - $$4;
++        boolean $$6 = this.isInPoseTransition();
++        boolean bl = $$7 = this.getPose() == net.minecraft.world.entity.Pose.SITTING;
++        if ($$6) {
++            float $$12;
++            int $$11;
++            int $$8;
++            int n = $$8 = $$7 ? 40 : 52;
++            if ($$7) {
++                int $$9 = 28;
++                float $$10 = $$0 ? 0.5f : 0.1f;
++            } else {
++                $$11 = $$0 ? 24 : 32;
++                $$12 = $$0 ? 0.6f : 0.35f;
++            }
++            float $$13 = (float)this.getPoseTime() + $$1;
++            boolean $$14 = $$13 < (float)$$11;
++            float $$15 = $$14 ? $$13 / (float)$$11 : ($$13 - (float)$$11) / (float)($$8 - $$11);
++            float $$16 = $$3 - $$12 * $$4;
++            $$2 += $$7 ? (double)net.minecraft.util.Mth.lerp((float)$$15, (float)($$14 ? $$3 : $$16), (float)($$14 ? $$16 : $$5)) : (double)net.minecraft.util.Mth.lerp((float)$$15, (float)($$14 ? $$5 - $$3 : $$5 - $$16), (float)($$14 ? $$5 - $$16 : 0.0f));
++        }
++        if ($$7 && !$$6) {
++            $$2 += (double)$$5;
++        }
++        return $$2;
++    }
++
++    public net.minecraft.world.phys.Vec3 getLeashOffset(float $$0) {
++        return new net.minecraft.world.phys.Vec3(0.0, this.getBodyAnchorAnimationYOffset(true, $$0) - (double)(0.2f * this.getScale()), (double)(this.getBbWidth() * 0.56f));
++    }
++
++    public double getPassengersRidingOffset() {
++        return this.getDimensions((net.minecraft.world.entity.Pose)this.getPose()).height - (this.isBaby() ? 0.35f : 0.6f);
++    }
++
++    public void onPassengerTurned(net.minecraft.world.entity.Entity $$0) {
++        if (this.getControllingPassenger() != $$0) {
++            this.clampRotation($$0);
++        }
++    }
++
++    public void clampRotation(net.minecraft.world.entity.Entity $$0) {
++        $$0.setYBodyRot(this.getYRot());
++        float $$1 = $$0.getYRot();
++        float $$2 = net.minecraft.util.Mth.wrapDegrees((float)($$1 - this.getYRot()));
++        float $$3 = net.minecraft.util.Mth.clamp((float)$$2, (float)-160.0f, (float)160.0f);
++        $$0.yRotO += $$3 - $$2;
++        float $$4 = $$1 + $$3 - $$2;
++        $$0.setYRot($$4);
++        $$0.setYHeadRot($$4);
++    }
++
++    public boolean canAddPassenger(net.minecraft.world.entity.Entity $$0) {
++        return this.getPassengers().size() <= 2;
++    }
++
++    @javax.annotation.Nullable
++    public net.minecraft.world.entity.LivingEntity getControllingPassenger() {
++        net.minecraft.world.entity.Entity $$0;
++        if (!this.getPassengers().isEmpty() && this.isSaddled() && ($$0 = (net.minecraft.world.entity.Entity)this.getPassengers().get(0)) instanceof net.minecraft.world.entity.LivingEntity) {
++            net.minecraft.world.entity.LivingEntity $$1 = (net.minecraft.world.entity.LivingEntity)$$0;
++            return $$1;
++        }
++        return null;
++    }
++
++    public void sendDebugPackets() {
++        super.sendDebugPackets();
++        net.minecraft.network.protocol.game.DebugPackets.sendEntityBrain((net.minecraft.world.entity.LivingEntity)this);
++    }
++
++    public boolean isPoseSitting() {
++        return this.getPose() == net.minecraft.world.entity.Pose.SITTING;
++    }
++
++    public boolean isInPoseTransition() {
++        long $$0 = this.getPoseTime();
++        return switch (net.minecraft.world.entity.animal.camel.Camel$1.$SwitchMap$net$minecraft$world$entity$Pose[this.getPose().ordinal()]) {
++            case 1 -> {
++                if ($$0 < 52L) {
++                    yield true;
++                }
++                yield false;
++            }
++            case 2 -> {
++                if ($$0 < 40L) {
++                    yield true;
++                }
++                yield false;
++            }
++            default -> false;
++        };
++    }
++
++    public void sitDown() {
++        if (this.hasPose(net.minecraft.world.entity.Pose.SITTING)) {
++            return;
++        }
++        this.playSound(net.minecraft.sounds.SoundEvents.CAMEL_SIT, 1.0f, 1.0f);
++        this.setPose(net.minecraft.world.entity.Pose.SITTING);
++        this.resetLastPoseChangeTick(this.level.getGameTime());
++    }
++
++    public void standUp() {
++        if (this.hasPose(net.minecraft.world.entity.Pose.STANDING)) {
++            return;
++        }
++        this.playSound(net.minecraft.sounds.SoundEvents.CAMEL_STAND, 1.0f, 1.0f);
++        this.setPose(net.minecraft.world.entity.Pose.STANDING);
++        this.resetLastPoseChangeTick(this.level.getGameTime());
++    }
++
++    public void standUpPanic() {
++        this.setPose(net.minecraft.world.entity.Pose.STANDING);
++        this.resetLastPoseChangeTick(this.level.getGameTime() - 52L);
++    }
++
++    @com.google.common.annotations.VisibleForTesting
++    public void resetLastPoseChangeTick(long $$0) {
++        this.entityData.set(LAST_POSE_CHANGE_TICK, (java.lang.Object)$$0);
++    }
++
++    public long getPoseTime() {
++        return this.level.getGameTime() - (java.lang.Long)this.entityData.get(LAST_POSE_CHANGE_TICK);
++    }
++
++    public net.minecraft.sounds.SoundEvent getSaddleSoundEvent() {
++        return net.minecraft.sounds.SoundEvents.CAMEL_SADDLE;
++    }
++
++    public void onSyncedDataUpdated(net.minecraft.network.syncher.EntityDataAccessor<?> $$0) {
++        if (!this.firstTick && DASH.equals($$0)) {
++            this.dashCooldown = this.dashCooldown == 0 ? 55 : this.dashCooldown;
++        }
++        super.onSyncedDataUpdated($$0);
++    }
++
++    public net.minecraft.world.entity.ai.control.BodyRotationControl createBodyControl() {
++        return new net.minecraft.world.entity.animal.camel.Camel$CamelBodyRotationControl(this, this);
++    }
++
++    public boolean isTamed() {
++        return true;
++    }
++
++    public void openCustomInventoryScreen(net.minecraft.world.entity.player.Player $$0) {
++        if (!this.level.isClientSide) {
++            $$0.openHorseInventory((net.minecraft.world.entity.animal.horse.AbstractHorse)this, (net.minecraft.world.Container)this.inventory);
++        }
++    }
++
++    @javax.annotation.Nullable
++    public /* synthetic */ net.minecraft.world.entity.AgeableMob getBreedOffspring(net.minecraft.server.level.ServerLevel serverLevel, net.minecraft.world.entity.AgeableMob ageableMob) {
++        return this.getBreedOffspring(serverLevel, ageableMob);
++    }
++
++    @javax.annotation.Nullable
++    public /* synthetic */ net.minecraft.world.entity.Entity getControllingPassenger() {
++        return this.getControllingPassenger();
++    }
++
++    static {
++        TEMPTATION_ITEM = net.minecraft.world.item.crafting.Ingredient.of((net.minecraft.world.level.ItemLike[])new net.minecraft.world.level.ItemLike[]{net.minecraft.world.item.Items.CACTUS});
++        DASH = net.minecraft.network.syncher.SynchedEntityData.defineId(net.minecraft.world.entity.animal.camel.Camel.class, (net.minecraft.network.syncher.EntityDataSerializer)net.minecraft.network.syncher.EntityDataSerializers.BOOLEAN);
++        LAST_POSE_CHANGE_TICK = net.minecraft.network.syncher.SynchedEntityData.defineId(net.minecraft.world.entity.animal.camel.Camel.class, (net.minecraft.network.syncher.EntityDataSerializer)net.minecraft.network.syncher.EntityDataSerializers.LONG);
++        SITTING_DIMENSIONS = net.minecraft.world.entity.EntityDimensions.scalable((float)net.minecraft.world.entity.EntityType.CAMEL.getWidth(), (float)(net.minecraft.world.entity.EntityType.CAMEL.getHeight() - 1.43f));
++    }
++}
++

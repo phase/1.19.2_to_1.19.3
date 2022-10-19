@@ -1,0 +1,327 @@
+--- net/minecraft/client/gui/screens/worldselection/CreateWorldScreen.java
++++ net/minecraft/client/gui/screens/worldselection/CreateWorldScreen.java
+@@ -26,7 +26,7 @@
+     public boolean commands;
+     public boolean commandsChanged;
+     public boolean hardCore;
+-    public net.minecraft.world.level.DataPackConfig dataPacks;
++    public net.minecraft.world.level.WorldDataConfiguration dataConfiguration;
+     @javax.annotation.Nullable
+     public java.nio.file.Path tempDataPackDir;
+     @javax.annotation.Nullable
+@@ -47,52 +47,42 @@
+ 
+     public static void openFresh(net.minecraft.client.Minecraft $$02, @javax.annotation.Nullable net.minecraft.client.gui.screens.Screen $$12) {
+         net.minecraft.client.gui.screens.worldselection.CreateWorldScreen.queueLoadScreen((net.minecraft.client.Minecraft)$$02, (net.minecraft.network.chat.Component)PREPARING_WORLD_DATA);
+-        net.minecraft.server.packs.repository.PackRepository $$22 = new net.minecraft.server.packs.repository.PackRepository(net.minecraft.server.packs.PackType.SERVER_DATA, new net.minecraft.server.packs.repository.RepositorySource[]{new net.minecraft.server.packs.repository.ServerPacksSource()});
+-        net.minecraft.server.WorldLoader$InitConfig $$32 = net.minecraft.client.gui.screens.worldselection.CreateWorldScreen.createDefaultLoadConfig((net.minecraft.server.packs.repository.PackRepository)$$22, (net.minecraft.world.level.DataPackConfig)net.minecraft.world.level.DataPackConfig.DEFAULT);
+-        java.util.concurrent.CompletableFuture $$4 = net.minecraft.server.WorldLoader.load((net.minecraft.server.WorldLoader$InitConfig)$$32, ($$0, $$1) -> {
+-            net.minecraft.core.RegistryAccess$Frozen $$2 = net.minecraft.core.RegistryAccess.builtinCopy().freeze();
+-            net.minecraft.world.level.levelgen.WorldGenSettings $$3 = net.minecraft.world.level.levelgen.presets.WorldPresets.createNormalWorldFromPreset((net.minecraft.core.RegistryAccess)$$2);
+-            return com.mojang.datafixers.util.Pair.of((java.lang.Object)$$3, (java.lang.Object)$$2);
+-        }, ($$0, $$1, $$2, $$3) -> {
++        net.minecraft.server.packs.repository.PackRepository $$22 = new net.minecraft.server.packs.repository.PackRepository(new net.minecraft.server.packs.repository.RepositorySource[]{new net.minecraft.server.packs.repository.ServerPacksSource()});
++        net.minecraft.server.WorldLoader$InitConfig $$32 = net.minecraft.client.gui.screens.worldselection.CreateWorldScreen.createDefaultLoadConfig((net.minecraft.server.packs.repository.PackRepository)$$22, (net.minecraft.world.level.WorldDataConfiguration)net.minecraft.world.level.WorldDataConfiguration.DEFAULT);
++        java.util.concurrent.CompletableFuture $$4 = net.minecraft.server.WorldLoader.load((net.minecraft.server.WorldLoader$InitConfig)$$32, $$0 -> new net.minecraft.server.WorldLoader$DataLoadOutput((java.lang.Object)new net.minecraft.client.gui.screens.worldselection.CreateWorldScreen$DataPackReloadCookie(new net.minecraft.world.level.levelgen.WorldGenSettings(net.minecraft.world.level.levelgen.WorldOptions.defaultWithRandomSeed(), net.minecraft.world.level.levelgen.presets.WorldPresets.createNormalWorldDimensions((net.minecraft.core.RegistryAccess)$$0.datapackWorldgen())), $$0.dataConfiguration()), $$0.datapackDimensions()), ($$0, $$1, $$2, $$3) -> {
+             $$0.close();
+-            return new net.minecraft.client.gui.screens.worldselection.WorldCreationContext($$3, com.mojang.serialization.Lifecycle.stable(), $$2, $$1);
++            return new net.minecraft.client.gui.screens.worldselection.WorldCreationContext($$3.worldGenSettings(), $$2, $$1, $$3.dataConfiguration());
+         }, (java.util.concurrent.Executor)net.minecraft.Util.backgroundExecutor(), (java.util.concurrent.Executor)$$02);
+         $$02.managedBlock(() -> ((java.util.concurrent.CompletableFuture)$$4).isDone());
+-        $$02.setScreen((net.minecraft.client.gui.screens.Screen)new net.minecraft.client.gui.screens.worldselection.CreateWorldScreen($$12, net.minecraft.world.level.DataPackConfig.DEFAULT, new net.minecraft.client.gui.screens.worldselection.WorldGenSettingsComponent((net.minecraft.client.gui.screens.worldselection.WorldCreationContext)$$4.join(), java.util.Optional.of((java.lang.Object)net.minecraft.world.level.levelgen.presets.WorldPresets.NORMAL), java.util.OptionalLong.empty())));
++        $$02.setScreen((net.minecraft.client.gui.screens.Screen)new net.minecraft.client.gui.screens.worldselection.CreateWorldScreen($$12, net.minecraft.world.level.WorldDataConfiguration.DEFAULT, new net.minecraft.client.gui.screens.worldselection.WorldGenSettingsComponent((net.minecraft.client.gui.screens.worldselection.WorldCreationContext)$$4.join(), java.util.Optional.of((java.lang.Object)net.minecraft.world.level.levelgen.presets.WorldPresets.NORMAL), java.util.OptionalLong.empty())));
+     }
+ 
+-    public static net.minecraft.client.gui.screens.worldselection.CreateWorldScreen createFromExisting(@javax.annotation.Nullable net.minecraft.client.gui.screens.Screen $$0, net.minecraft.server.WorldStem $$1, @javax.annotation.Nullable java.nio.file.Path $$2) {
+-        net.minecraft.world.level.storage.WorldData $$3 = $$1.worldData();
+-        net.minecraft.world.level.LevelSettings $$4 = $$3.getLevelSettings();
+-        net.minecraft.world.level.levelgen.WorldGenSettings $$5 = $$3.worldGenSettings();
+-        net.minecraft.core.RegistryAccess$Frozen $$6 = $$1.registryAccess();
+-        net.minecraft.client.gui.screens.worldselection.WorldCreationContext $$7 = new net.minecraft.client.gui.screens.worldselection.WorldCreationContext($$5, $$3.worldGenSettingsLifecycle(), $$6, $$1.dataPackResources());
+-        net.minecraft.world.level.DataPackConfig $$8 = $$4.getDataPackConfig();
+-        net.minecraft.client.gui.screens.worldselection.CreateWorldScreen $$9 = new net.minecraft.client.gui.screens.worldselection.CreateWorldScreen($$0, $$8, new net.minecraft.client.gui.screens.worldselection.WorldGenSettingsComponent($$7, net.minecraft.world.level.levelgen.presets.WorldPresets.fromSettings((net.minecraft.world.level.levelgen.WorldGenSettings)$$5), java.util.OptionalLong.of((long)$$5.seed())));
+-        $$9.initName = $$4.levelName();
+-        $$9.commands = $$4.allowCommands();
+-        $$9.commandsChanged = true;
+-        $$9.difficulty = $$4.difficulty();
+-        $$9.gameRules.assignFrom($$4.gameRules(), null);
+-        if ($$4.hardcore()) {
+-            $$9.gameMode = net.minecraft.client.gui.screens.worldselection.CreateWorldScreen$SelectedGameMode.HARDCORE;
+-        } else if ($$4.gameType().isSurvival()) {
+-            $$9.gameMode = net.minecraft.client.gui.screens.worldselection.CreateWorldScreen$SelectedGameMode.SURVIVAL;
+-        } else if ($$4.gameType().isCreative()) {
+-            $$9.gameMode = net.minecraft.client.gui.screens.worldselection.CreateWorldScreen$SelectedGameMode.CREATIVE;
++    public static net.minecraft.client.gui.screens.worldselection.CreateWorldScreen createFromExisting(@javax.annotation.Nullable net.minecraft.client.gui.screens.Screen $$0, net.minecraft.world.level.LevelSettings $$1, net.minecraft.client.gui.screens.worldselection.WorldCreationContext $$2, @javax.annotation.Nullable java.nio.file.Path $$3) {
++        net.minecraft.client.gui.screens.worldselection.CreateWorldScreen $$4 = new net.minecraft.client.gui.screens.worldselection.CreateWorldScreen($$0, $$2.dataConfiguration(), new net.minecraft.client.gui.screens.worldselection.WorldGenSettingsComponent($$2, net.minecraft.world.level.levelgen.presets.WorldPresets.fromSettings((net.minecraft.core.Registry)$$2.selectedDimensions().dimensions()), java.util.OptionalLong.of((long)$$2.options().seed())));
++        $$4.initName = $$1.levelName();
++        $$4.commands = $$1.allowCommands();
++        $$4.commandsChanged = true;
++        $$4.difficulty = $$1.difficulty();
++        $$4.gameRules.assignFrom($$1.gameRules(), null);
++        if ($$1.hardcore()) {
++            $$4.gameMode = net.minecraft.client.gui.screens.worldselection.CreateWorldScreen$SelectedGameMode.HARDCORE;
++        } else if ($$1.gameType().isSurvival()) {
++            $$4.gameMode = net.minecraft.client.gui.screens.worldselection.CreateWorldScreen$SelectedGameMode.SURVIVAL;
++        } else if ($$1.gameType().isCreative()) {
++            $$4.gameMode = net.minecraft.client.gui.screens.worldselection.CreateWorldScreen$SelectedGameMode.CREATIVE;
+         }
+-        $$9.tempDataPackDir = $$2;
+-        return $$9;
++        $$4.tempDataPackDir = $$3;
++        return $$4;
+     }
+ 
+-    public net.minecraft.client.gui.screens.worldselection.CreateWorldScreen(@javax.annotation.Nullable net.minecraft.client.gui.screens.Screen $$0, net.minecraft.world.level.DataPackConfig $$1, net.minecraft.client.gui.screens.worldselection.WorldGenSettingsComponent $$2) {
++    public net.minecraft.client.gui.screens.worldselection.CreateWorldScreen(@javax.annotation.Nullable net.minecraft.client.gui.screens.Screen $$0, net.minecraft.world.level.WorldDataConfiguration $$1, net.minecraft.client.gui.screens.worldselection.WorldGenSettingsComponent $$2) {
+         super((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"selectWorld.create"));
+         this.gameMode = net.minecraft.client.gui.screens.worldselection.CreateWorldScreen$SelectedGameMode.SURVIVAL;
+         this.difficulty = net.minecraft.world.Difficulty.NORMAL;
+         this.gameRules = new net.minecraft.world.level.GameRules();
+         this.lastScreen = $$0;
+         this.initName = net.minecraft.client.resources.language.I18n.get((java.lang.String)"selectWorld.newWorld", (java.lang.Object[])new java.lang.Object[0]);
+-        this.dataPacks = $$1;
++        this.dataConfiguration = $$1;
+         this.worldGenSettingsComponent = $$2;
+     }
+ 
+@@ -176,20 +166,28 @@
+     }
+ 
+     public void onCreate() {
+-        net.minecraft.client.gui.screens.worldselection.WorldOpenFlows.confirmWorldCreation((net.minecraft.client.Minecraft)this.minecraft, (net.minecraft.client.gui.screens.worldselection.CreateWorldScreen)this, (com.mojang.serialization.Lifecycle)this.worldGenSettingsComponent.settings().worldSettingsStability(), () -> this.createNewWorld());
++        net.minecraft.client.gui.screens.worldselection.WorldCreationContext $$0 = this.worldGenSettingsComponent.settings();
++        net.minecraft.world.level.levelgen.WorldDimensions$Complete $$1 = $$0.selectedDimensions().bake($$0.datapackDimensions());
++        net.minecraft.core.LayeredRegistryAccess $$2 = $$0.worldgenRegistries().replaceFrom((java.lang.Object)net.minecraft.server.RegistryLayer.DIMENSIONS, new net.minecraft.core.RegistryAccess$Frozen[]{$$1.dimensionsRegistryAccess()});
++        com.mojang.serialization.Lifecycle $$3 = net.minecraft.world.flag.FeatureFlags.isExperimental((net.minecraft.world.flag.FeatureFlagSet)$$0.dataConfiguration().enabledFeatures()) ? com.mojang.serialization.Lifecycle.experimental() : com.mojang.serialization.Lifecycle.stable();
++        com.mojang.serialization.Lifecycle $$4 = $$2.compositeAccess().allElementsLifecycle();
++        com.mojang.serialization.Lifecycle $$5 = $$4.add($$3);
++        net.minecraft.client.gui.screens.worldselection.WorldOpenFlows.confirmWorldCreation((net.minecraft.client.Minecraft)this.minecraft, (net.minecraft.client.gui.screens.worldselection.CreateWorldScreen)this, (com.mojang.serialization.Lifecycle)$$5, () -> this.createNewWorld($$1.specialWorldProperty(), $$2, $$5));
+     }
+ 
+-    public void createNewWorld() {
++    public void createNewWorld(net.minecraft.world.level.storage.PrimaryLevelData$SpecialWorldProperty $$0, net.minecraft.core.LayeredRegistryAccess<net.minecraft.server.RegistryLayer> $$1, com.mojang.serialization.Lifecycle $$2) {
+         net.minecraft.client.gui.screens.worldselection.CreateWorldScreen.queueLoadScreen((net.minecraft.client.Minecraft)this.minecraft, (net.minecraft.network.chat.Component)PREPARING_WORLD_DATA);
+-        java.util.Optional $$0 = this.createNewWorldDirectory();
+-        if ($$0.isEmpty()) {
++        java.util.Optional $$3 = this.createNewWorldDirectory();
++        if ($$3.isEmpty()) {
+             return;
+         }
+         this.removeTempDataPackDir();
+-        net.minecraft.client.gui.screens.worldselection.WorldCreationContext $$1 = this.worldGenSettingsComponent.createFinalSettings(this.hardCore);
+-        net.minecraft.world.level.LevelSettings $$2 = this.createLevelSettings($$1.worldGenSettings().isDebug());
+-        net.minecraft.world.level.storage.PrimaryLevelData $$3 = new net.minecraft.world.level.storage.PrimaryLevelData($$2, $$1.worldGenSettings(), $$1.worldSettingsStability());
+-        this.minecraft.createWorldOpenFlows().createLevelFromExistingSettings((net.minecraft.world.level.storage.LevelStorageSource$LevelStorageAccess)$$0.get(), $$1.dataPackResources(), $$1.registryAccess(), (net.minecraft.world.level.storage.WorldData)$$3);
++        boolean $$4 = $$0 == net.minecraft.world.level.storage.PrimaryLevelData$SpecialWorldProperty.DEBUG;
++        net.minecraft.client.gui.screens.worldselection.WorldCreationContext $$5 = this.worldGenSettingsComponent.settings();
++        net.minecraft.world.level.levelgen.WorldOptions $$6 = this.worldGenSettingsComponent.createFinalOptions($$4, this.hardCore);
++        net.minecraft.world.level.LevelSettings $$7 = this.createLevelSettings($$4);
++        net.minecraft.world.level.storage.PrimaryLevelData $$8 = new net.minecraft.world.level.storage.PrimaryLevelData($$7, $$6, $$0, $$2);
++        this.minecraft.createWorldOpenFlows().createLevelFromExistingSettings((net.minecraft.world.level.storage.LevelStorageSource$LevelStorageAccess)$$3.get(), $$5.dataPackResources(), $$1, (net.minecraft.world.level.storage.WorldData)$$8);
+     }
+ 
+     public net.minecraft.world.level.LevelSettings createLevelSettings(boolean $$0) {
+@@ -197,9 +195,9 @@
+         if ($$0) {
+             net.minecraft.world.level.GameRules $$2 = new net.minecraft.world.level.GameRules();
+             ((net.minecraft.world.level.GameRules$BooleanValue)$$2.getRule(net.minecraft.world.level.GameRules.RULE_DAYLIGHT)).set(false, null);
+-            return new net.minecraft.world.level.LevelSettings($$1, net.minecraft.world.level.GameType.SPECTATOR, false, net.minecraft.world.Difficulty.PEACEFUL, true, $$2, net.minecraft.world.level.DataPackConfig.DEFAULT);
++            return new net.minecraft.world.level.LevelSettings($$1, net.minecraft.world.level.GameType.SPECTATOR, false, net.minecraft.world.Difficulty.PEACEFUL, true, $$2, net.minecraft.world.level.WorldDataConfiguration.DEFAULT);
+         }
+-        return new net.minecraft.world.level.LevelSettings($$1, this.gameMode.gameType, this.hardCore, this.getEffectiveDifficulty(), this.commands && !this.hardCore, this.gameRules, this.dataPacks);
++        return new net.minecraft.world.level.LevelSettings($$1, this.gameMode.gameType, this.hardCore, this.getEffectiveDifficulty(), this.commands && !this.hardCore, this.gameRules, this.dataConfiguration);
+     }
+ 
+     public void toggleWorldGenSettingsVisibility() {
+@@ -264,11 +262,11 @@
+         this.gameRulesButton.visible = !$$0;
+     }
+ 
+-    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+-        if (super.keyPressed(keyCode, scanCode, modifiers)) {
++    public boolean keyPressed(int $$0, int $$1, int $$2) {
++        if (super.keyPressed($$0, $$1, $$2)) {
+             return true;
+         }
+-        if (keyCode == 257 || keyCode == 335) {
++        if ($$0 == 257 || $$0 == 335) {
+             this.onCreate();
+             return true;
+         }
+@@ -288,28 +286,28 @@
+         this.removeTempDataPackDir();
+     }
+ 
+-    public void render(com.mojang.blaze3d.vertex.PoseStack matrixStack, int mouseX, int mouseY, float partialTicks) {
+-        this.renderBackground(matrixStack);
+-        net.minecraft.client.gui.screens.worldselection.CreateWorldScreen.drawCenteredString((com.mojang.blaze3d.vertex.PoseStack)matrixStack, (net.minecraft.client.gui.Font)this.font, (net.minecraft.network.chat.Component)this.title, (int)(this.width / 2), (int)20, (int)-1);
++    public void render(com.mojang.blaze3d.vertex.PoseStack $$0, int $$1, int $$2, float $$3) {
++        this.renderBackground($$0);
++        net.minecraft.client.gui.screens.worldselection.CreateWorldScreen.drawCenteredString((com.mojang.blaze3d.vertex.PoseStack)$$0, (net.minecraft.client.gui.Font)this.font, (net.minecraft.network.chat.Component)this.title, (int)(this.width / 2), (int)20, (int)-1);
+         if (this.worldGenSettingsVisible) {
+-            net.minecraft.client.gui.screens.worldselection.CreateWorldScreen.drawString((com.mojang.blaze3d.vertex.PoseStack)matrixStack, (net.minecraft.client.gui.Font)this.font, (net.minecraft.network.chat.Component)SEED_LABEL, (int)(this.width / 2 - 100), (int)47, (int)-6250336);
+-            net.minecraft.client.gui.screens.worldselection.CreateWorldScreen.drawString((com.mojang.blaze3d.vertex.PoseStack)matrixStack, (net.minecraft.client.gui.Font)this.font, (net.minecraft.network.chat.Component)SEED_INFO, (int)(this.width / 2 - 100), (int)85, (int)-6250336);
+-            this.worldGenSettingsComponent.render(matrixStack, mouseX, mouseY, partialTicks);
++            net.minecraft.client.gui.screens.worldselection.CreateWorldScreen.drawString((com.mojang.blaze3d.vertex.PoseStack)$$0, (net.minecraft.client.gui.Font)this.font, (net.minecraft.network.chat.Component)SEED_LABEL, (int)(this.width / 2 - 100), (int)47, (int)-6250336);
++            net.minecraft.client.gui.screens.worldselection.CreateWorldScreen.drawString((com.mojang.blaze3d.vertex.PoseStack)$$0, (net.minecraft.client.gui.Font)this.font, (net.minecraft.network.chat.Component)SEED_INFO, (int)(this.width / 2 - 100), (int)85, (int)-6250336);
++            this.worldGenSettingsComponent.render($$0, $$1, $$2, $$3);
+         } else {
+-            net.minecraft.client.gui.screens.worldselection.CreateWorldScreen.drawString((com.mojang.blaze3d.vertex.PoseStack)matrixStack, (net.minecraft.client.gui.Font)this.font, (net.minecraft.network.chat.Component)NAME_LABEL, (int)(this.width / 2 - 100), (int)47, (int)-6250336);
+-            net.minecraft.client.gui.screens.worldselection.CreateWorldScreen.drawString((com.mojang.blaze3d.vertex.PoseStack)matrixStack, (net.minecraft.client.gui.Font)this.font, (net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.empty().append(OUTPUT_DIR_INFO).append(" ").append(this.resultFolder), (int)(this.width / 2 - 100), (int)85, (int)-6250336);
+-            this.nameEdit.render(matrixStack, mouseX, mouseY, partialTicks);
+-            net.minecraft.client.gui.screens.worldselection.CreateWorldScreen.drawString((com.mojang.blaze3d.vertex.PoseStack)matrixStack, (net.minecraft.client.gui.Font)this.font, (net.minecraft.network.chat.Component)this.gameModeHelp1, (int)(this.width / 2 - 150), (int)122, (int)-6250336);
+-            net.minecraft.client.gui.screens.worldselection.CreateWorldScreen.drawString((com.mojang.blaze3d.vertex.PoseStack)matrixStack, (net.minecraft.client.gui.Font)this.font, (net.minecraft.network.chat.Component)this.gameModeHelp2, (int)(this.width / 2 - 150), (int)134, (int)-6250336);
++            net.minecraft.client.gui.screens.worldselection.CreateWorldScreen.drawString((com.mojang.blaze3d.vertex.PoseStack)$$0, (net.minecraft.client.gui.Font)this.font, (net.minecraft.network.chat.Component)NAME_LABEL, (int)(this.width / 2 - 100), (int)47, (int)-6250336);
++            net.minecraft.client.gui.screens.worldselection.CreateWorldScreen.drawString((com.mojang.blaze3d.vertex.PoseStack)$$0, (net.minecraft.client.gui.Font)this.font, (net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.empty().append(OUTPUT_DIR_INFO).append(" ").append(this.resultFolder), (int)(this.width / 2 - 100), (int)85, (int)-6250336);
++            this.nameEdit.render($$0, $$1, $$2, $$3);
++            net.minecraft.client.gui.screens.worldselection.CreateWorldScreen.drawString((com.mojang.blaze3d.vertex.PoseStack)$$0, (net.minecraft.client.gui.Font)this.font, (net.minecraft.network.chat.Component)this.gameModeHelp1, (int)(this.width / 2 - 150), (int)122, (int)-6250336);
++            net.minecraft.client.gui.screens.worldselection.CreateWorldScreen.drawString((com.mojang.blaze3d.vertex.PoseStack)$$0, (net.minecraft.client.gui.Font)this.font, (net.minecraft.network.chat.Component)this.gameModeHelp2, (int)(this.width / 2 - 150), (int)134, (int)-6250336);
+             if (this.commandsButton.visible) {
+-                net.minecraft.client.gui.screens.worldselection.CreateWorldScreen.drawString((com.mojang.blaze3d.vertex.PoseStack)matrixStack, (net.minecraft.client.gui.Font)this.font, (net.minecraft.network.chat.Component)COMMANDS_INFO, (int)(this.width / 2 - 150), (int)172, (int)-6250336);
++                net.minecraft.client.gui.screens.worldselection.CreateWorldScreen.drawString((com.mojang.blaze3d.vertex.PoseStack)$$0, (net.minecraft.client.gui.Font)this.font, (net.minecraft.network.chat.Component)COMMANDS_INFO, (int)(this.width / 2 - 150), (int)172, (int)-6250336);
+             }
+         }
+-        super.render(matrixStack, mouseX, mouseY, partialTicks);
++        super.render($$0, $$1, $$2, $$3);
+     }
+ 
+-    public <T extends net.minecraft.client.gui.components.events.GuiEventListener & net.minecraft.client.gui.narration.NarratableEntry> T addWidget(T listener) {
+-        return (T)super.addWidget(listener);
++    public <T extends net.minecraft.client.gui.components.events.GuiEventListener & net.minecraft.client.gui.narration.NarratableEntry> T addWidget(T $$0) {
++        return (T)super.addWidget($$0);
+     }
+ 
+     public <T extends net.minecraft.client.gui.components.events.GuiEventListener & net.minecraft.client.gui.components.Widget> T addRenderableWidget(T $$0) {
+@@ -334,44 +332,54 @@
+     public void openDataPackSelectionScreen() {
+         com.mojang.datafixers.util.Pair $$0 = this.getDataPackSelectionSettings();
+         if ($$0 != null) {
+-            this.minecraft.setScreen((net.minecraft.client.gui.screens.Screen)new net.minecraft.client.gui.screens.packs.PackSelectionScreen((net.minecraft.client.gui.screens.Screen)this, (net.minecraft.server.packs.repository.PackRepository)$$0.getSecond(), arg_0 -> this.tryApplyNewDataPacks(arg_0), (java.io.File)$$0.getFirst(), (net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"dataPack.title")));
++            this.minecraft.setScreen((net.minecraft.client.gui.screens.Screen)new net.minecraft.client.gui.screens.packs.PackSelectionScreen((net.minecraft.client.gui.screens.Screen)this, (net.minecraft.server.packs.repository.PackRepository)$$0.getSecond(), arg_0 -> this.tryApplyNewDataPacks(arg_0), (java.nio.file.Path)$$0.getFirst(), (net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"dataPack.title")));
+         }
+     }
+ 
+-    public void tryApplyNewDataPacks(net.minecraft.server.packs.repository.PackRepository $$02) {
+-        com.google.common.collect.ImmutableList $$12 = com.google.common.collect.ImmutableList.copyOf((java.util.Collection)$$02.getSelectedIds());
+-        java.util.List $$22 = (java.util.List)$$02.getAvailableIds().stream().filter(arg_0 -> net.minecraft.client.gui.screens.worldselection.CreateWorldScreen.lambda$tryApplyNewDataPacks$15((java.util.List)$$12, arg_0)).collect(com.google.common.collect.ImmutableList.toImmutableList());
+-        net.minecraft.world.level.DataPackConfig $$32 = new net.minecraft.world.level.DataPackConfig((java.util.List)$$12, $$22);
+-        if ($$12.equals((java.lang.Object)this.dataPacks.getEnabled())) {
+-            this.dataPacks = $$32;
++    public void tryApplyNewDataPacks(net.minecraft.server.packs.repository.PackRepository $$0) {
++        com.google.common.collect.ImmutableList $$1 = com.google.common.collect.ImmutableList.copyOf((java.util.Collection)$$0.getSelectedIds());
++        java.util.List $$2 = (java.util.List)$$0.getAvailableIds().stream().filter(arg_0 -> net.minecraft.client.gui.screens.worldselection.CreateWorldScreen.lambda$tryApplyNewDataPacks$16((java.util.List)$$1, arg_0)).collect(com.google.common.collect.ImmutableList.toImmutableList());
++        net.minecraft.world.level.WorldDataConfiguration $$3 = new net.minecraft.world.level.WorldDataConfiguration(new net.minecraft.world.level.DataPackConfig((java.util.List)$$1, $$2), this.dataConfiguration.enabledFeatures());
++        if ($$1.equals((java.lang.Object)this.dataConfiguration.dataPacks().getEnabled())) {
++            this.dataConfiguration = $$3;
+             return;
+         }
++        net.minecraft.world.flag.FeatureFlagSet $$4 = $$0.getRequestedFeatureFlags();
++        if (net.minecraft.world.flag.FeatureFlags.isExperimental((net.minecraft.world.flag.FeatureFlagSet)$$4)) {
++            this.minecraft.tell(() -> this.minecraft.setScreen((net.minecraft.client.gui.screens.Screen)new net.minecraft.client.gui.screens.worldselection.ConfirmExperimentalFeaturesScreen($$0.getSelectedPacks(), $$2 -> {
++                if ($$2) {
++                    this.applyNewPackConfig($$0, $$3);
++                } else {
++                    this.openDataPackSelectionScreen();
++                }
++            })));
++        } else {
++            this.applyNewPackConfig($$0, $$3);
++        }
++    }
++
++    public void applyNewPackConfig(net.minecraft.server.packs.repository.PackRepository $$02, net.minecraft.world.level.WorldDataConfiguration $$12) {
+         this.minecraft.tell(() -> this.minecraft.setScreen((net.minecraft.client.gui.screens.Screen)new net.minecraft.client.gui.screens.GenericDirtMessageScreen((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"dataPack.validation.working"))));
+-        net.minecraft.server.WorldLoader$InitConfig $$4 = net.minecraft.client.gui.screens.worldselection.CreateWorldScreen.createDefaultLoadConfig((net.minecraft.server.packs.repository.PackRepository)$$02, (net.minecraft.world.level.DataPackConfig)$$32);
+-        net.minecraft.server.WorldLoader.load((net.minecraft.server.WorldLoader$InitConfig)$$4, ($$0, $$1) -> {
+-            net.minecraft.client.gui.screens.worldselection.WorldCreationContext $$2 = this.worldGenSettingsComponent.settings();
+-            net.minecraft.core.RegistryAccess$Frozen $$3 = $$2.registryAccess();
+-            net.minecraft.core.RegistryAccess$Writable $$4 = net.minecraft.core.RegistryAccess.builtinCopy();
+-            net.minecraft.resources.RegistryOps $$5 = net.minecraft.resources.RegistryOps.create((com.mojang.serialization.DynamicOps)com.mojang.serialization.JsonOps.INSTANCE, (net.minecraft.core.RegistryAccess)$$3);
+-            net.minecraft.resources.RegistryOps $$6 = net.minecraft.resources.RegistryOps.createAndLoad((com.mojang.serialization.DynamicOps)com.mojang.serialization.JsonOps.INSTANCE, (net.minecraft.core.RegistryAccess$Writable)$$4, (net.minecraft.server.packs.resources.ResourceManager)$$0);
+-            com.mojang.serialization.DataResult $$7 = net.minecraft.world.level.levelgen.WorldGenSettings.CODEC.encodeStart((com.mojang.serialization.DynamicOps)$$5, (java.lang.Object)$$2.worldGenSettings()).setLifecycle(com.mojang.serialization.Lifecycle.stable());
+-            com.mojang.serialization.DataResult $$8 = $$7.flatMap(arg_0 -> net.minecraft.client.gui.screens.worldselection.CreateWorldScreen.lambda$tryApplyNewDataPacks$17((com.mojang.serialization.DynamicOps)$$6, arg_0));
+-            net.minecraft.core.RegistryAccess$Frozen $$9 = $$4.freeze();
+-            com.mojang.serialization.Lifecycle $$10 = $$8.lifecycle().add($$9.allElementsLifecycle());
+-            net.minecraft.world.level.levelgen.WorldGenSettings $$11 = (net.minecraft.world.level.levelgen.WorldGenSettings)$$8.getOrThrow(false, net.minecraft.Util.prefix((java.lang.String)"Error parsing worldgen settings after loading data packs: ", arg_0 -> ((org.slf4j.Logger)LOGGER).error(arg_0)));
+-            if ($$9.registryOrThrow(net.minecraft.core.Registry.WORLD_PRESET_REGISTRY).size() == 0) {
++        net.minecraft.server.WorldLoader$InitConfig $$22 = net.minecraft.client.gui.screens.worldselection.CreateWorldScreen.createDefaultLoadConfig((net.minecraft.server.packs.repository.PackRepository)$$02, (net.minecraft.world.level.WorldDataConfiguration)$$12);
++        net.minecraft.server.WorldLoader.load((net.minecraft.server.WorldLoader$InitConfig)$$22, $$0 -> {
++            if ($$0.datapackWorldgen().registryOrThrow(net.minecraft.core.Registry.WORLD_PRESET_REGISTRY).size() == 0) {
+                 throw new java.lang.IllegalStateException("Needs at least one world preset to continue");
+             }
+-            if ($$9.registryOrThrow(net.minecraft.core.Registry.BIOME_REGISTRY).size() == 0) {
++            if ($$0.datapackWorldgen().registryOrThrow(net.minecraft.core.Registry.BIOME_REGISTRY).size() == 0) {
+                 throw new java.lang.IllegalStateException("Needs at least one biome continue");
+             }
+-            return com.mojang.datafixers.util.Pair.of((java.lang.Object)com.mojang.datafixers.util.Pair.of((java.lang.Object)$$11, (java.lang.Object)$$10), (java.lang.Object)$$9);
++            net.minecraft.client.gui.screens.worldselection.WorldCreationContext $$1 = this.worldGenSettingsComponent.settings();
++            net.minecraft.resources.RegistryOps $$2 = net.minecraft.resources.RegistryOps.create((com.mojang.serialization.DynamicOps)com.mojang.serialization.JsonOps.INSTANCE, (net.minecraft.core.RegistryAccess)$$1.worldgenLoadContext());
++            com.mojang.serialization.DataResult $$3 = net.minecraft.world.level.levelgen.WorldGenSettings.encode((com.mojang.serialization.DynamicOps)$$2, (net.minecraft.world.level.levelgen.WorldOptions)$$1.options(), (net.minecraft.world.level.levelgen.WorldDimensions)$$1.selectedDimensions()).setLifecycle(com.mojang.serialization.Lifecycle.stable());
++            net.minecraft.resources.RegistryOps $$4 = net.minecraft.resources.RegistryOps.create((com.mojang.serialization.DynamicOps)com.mojang.serialization.JsonOps.INSTANCE, (net.minecraft.core.RegistryAccess)$$0.datapackWorldgen());
++            net.minecraft.world.level.levelgen.WorldGenSettings $$5 = (net.minecraft.world.level.levelgen.WorldGenSettings)$$3.flatMap(arg_0 -> net.minecraft.client.gui.screens.worldselection.CreateWorldScreen.lambda$applyNewPackConfig$20((com.mojang.serialization.DynamicOps)$$4, arg_0)).getOrThrow(false, net.minecraft.Util.prefix((java.lang.String)"Error parsing worldgen settings after loading data packs: ", arg_0 -> ((org.slf4j.Logger)LOGGER).error(arg_0)));
++            return new net.minecraft.server.WorldLoader$DataLoadOutput((java.lang.Object)new net.minecraft.client.gui.screens.worldselection.CreateWorldScreen$DataPackReloadCookie($$5, $$0.dataConfiguration()), $$0.datapackDimensions());
+         }, ($$0, $$1, $$2, $$3) -> {
+             $$0.close();
+-            return new net.minecraft.client.gui.screens.worldselection.WorldCreationContext((net.minecraft.world.level.levelgen.WorldGenSettings)$$3.getFirst(), (com.mojang.serialization.Lifecycle)$$3.getSecond(), $$2, $$1);
+-        }, (java.util.concurrent.Executor)net.minecraft.Util.backgroundExecutor(), (java.util.concurrent.Executor)this.minecraft).thenAcceptAsync($$1 -> {
+-            this.dataPacks = $$32;
+-            this.worldGenSettingsComponent.updateSettings($$1);
++            return new net.minecraft.client.gui.screens.worldselection.WorldCreationContext($$3.worldGenSettings(), $$2, $$1, $$3.dataConfiguration());
++        }, (java.util.concurrent.Executor)net.minecraft.Util.backgroundExecutor(), (java.util.concurrent.Executor)this.minecraft).thenAcceptAsync($$0 -> {
++            this.dataConfiguration = $$0.dataConfiguration();
++            this.worldGenSettingsComponent.updateSettings($$0);
+             this.rebuildWidgets();
+         }, (java.util.concurrent.Executor)this.minecraft).handle(($$0, $$1) -> {
+             if ($$1 != null) {
+@@ -380,7 +388,7 @@
+                     if ($$0) {
+                         this.openDataPackSelectionScreen();
+                     } else {
+-                        this.dataPacks = net.minecraft.world.level.DataPackConfig.DEFAULT;
++                        this.dataConfiguration = net.minecraft.world.level.WorldDataConfiguration.DEFAULT;
+                         this.minecraft.setScreen((net.minecraft.client.gui.screens.Screen)this);
+                     }
+                 }, (net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"dataPack.validation.failed"), net.minecraft.network.chat.CommonComponents.EMPTY, (net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"dataPack.validation.back"), (net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"dataPack.validation.reset"))));
+@@ -391,8 +399,8 @@
+         });
+     }
+ 
+-    public static net.minecraft.server.WorldLoader$InitConfig createDefaultLoadConfig(net.minecraft.server.packs.repository.PackRepository $$0, net.minecraft.world.level.DataPackConfig $$1) {
+-        net.minecraft.server.WorldLoader$PackConfig $$2 = new net.minecraft.server.WorldLoader$PackConfig($$0, $$1, false);
++    public static net.minecraft.server.WorldLoader$InitConfig createDefaultLoadConfig(net.minecraft.server.packs.repository.PackRepository $$0, net.minecraft.world.level.WorldDataConfiguration $$1) {
++        net.minecraft.server.WorldLoader$PackConfig $$2 = new net.minecraft.server.WorldLoader$PackConfig($$0, $$1, false, true);
+         return new net.minecraft.server.WorldLoader$InitConfig($$2, net.minecraft.commands.Commands$CommandSelection.INTEGRATED, 2);
+     }
+ 
+@@ -502,25 +510,24 @@
+     }
+ 
+     @javax.annotation.Nullable
+-    public com.mojang.datafixers.util.Pair<java.io.File, net.minecraft.server.packs.repository.PackRepository> getDataPackSelectionSettings() {
++    public com.mojang.datafixers.util.Pair<java.nio.file.Path, net.minecraft.server.packs.repository.PackRepository> getDataPackSelectionSettings() {
+         java.nio.file.Path $$0 = this.getTempDataPackDir();
+         if ($$0 != null) {
+-            java.io.File $$1 = $$0.toFile();
+             if (this.tempDataPackRepository == null) {
+-                this.tempDataPackRepository = new net.minecraft.server.packs.repository.PackRepository(net.minecraft.server.packs.PackType.SERVER_DATA, new net.minecraft.server.packs.repository.RepositorySource[]{new net.minecraft.server.packs.repository.ServerPacksSource(), new net.minecraft.server.packs.repository.FolderRepositorySource($$1, net.minecraft.server.packs.repository.PackSource.DEFAULT)});
++                this.tempDataPackRepository = net.minecraft.server.packs.repository.ServerPacksSource.createPackRepository((java.nio.file.Path)$$0);
+                 this.tempDataPackRepository.reload();
+             }
+-            this.tempDataPackRepository.setSelected((java.util.Collection)this.dataPacks.getEnabled());
+-            return com.mojang.datafixers.util.Pair.of((java.lang.Object)$$1, (java.lang.Object)this.tempDataPackRepository);
++            this.tempDataPackRepository.setSelected((java.util.Collection)this.dataConfiguration.dataPacks().getEnabled());
++            return com.mojang.datafixers.util.Pair.of((java.lang.Object)$$0, (java.lang.Object)this.tempDataPackRepository);
+         }
+         return null;
+     }
+ 
+-    public static /* synthetic */ com.mojang.serialization.DataResult lambda$tryApplyNewDataPacks$17(com.mojang.serialization.DynamicOps $$0, com.google.gson.JsonElement $$1) {
++    public static /* synthetic */ com.mojang.serialization.DataResult lambda$applyNewPackConfig$20(com.mojang.serialization.DynamicOps $$0, com.google.gson.JsonElement $$1) {
+         return net.minecraft.world.level.levelgen.WorldGenSettings.CODEC.parse($$0, (java.lang.Object)$$1);
+     }
+ 
+-    public static /* synthetic */ boolean lambda$tryApplyNewDataPacks$15(java.util.List $$0, java.lang.String $$1) {
++    public static /* synthetic */ boolean lambda$tryApplyNewDataPacks$16(java.util.List $$0, java.lang.String $$1) {
+         return !$$0.contains((java.lang.Object)$$1);
+     }
+ 

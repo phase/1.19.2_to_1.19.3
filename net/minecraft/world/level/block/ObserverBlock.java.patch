@@ -1,0 +1,118 @@
+--- net/minecraft/world/level/block/ObserverBlock.java
++++ net/minecraft/world/level/block/ObserverBlock.java
+@@ -13,16 +13,16 @@
+         this.registerDefaultState((net.minecraft.world.level.block.state.BlockState)((net.minecraft.world.level.block.state.BlockState)((net.minecraft.world.level.block.state.BlockState)this.stateDefinition.any()).setValue((net.minecraft.world.level.block.state.properties.Property)FACING, (java.lang.Comparable)net.minecraft.core.Direction.SOUTH)).setValue((net.minecraft.world.level.block.state.properties.Property)POWERED, (java.lang.Comparable)java.lang.Boolean.valueOf((boolean)false)));
+     }
+ 
+-    public void createBlockStateDefinition(net.minecraft.world.level.block.state.StateDefinition$Builder<net.minecraft.world.level.block.Block, net.minecraft.world.level.block.state.BlockState> builder) {
+-        builder.add(new net.minecraft.world.level.block.state.properties.Property[]{FACING, POWERED});
++    public void createBlockStateDefinition(net.minecraft.world.level.block.state.StateDefinition$Builder<net.minecraft.world.level.block.Block, net.minecraft.world.level.block.state.BlockState> $$0) {
++        $$0.add(new net.minecraft.world.level.block.state.properties.Property[]{FACING, POWERED});
+     }
+ 
+-    public net.minecraft.world.level.block.state.BlockState rotate(net.minecraft.world.level.block.state.BlockState state, net.minecraft.world.level.block.Rotation rot) {
+-        return (net.minecraft.world.level.block.state.BlockState)state.setValue((net.minecraft.world.level.block.state.properties.Property)FACING, (java.lang.Comparable)rot.rotate((net.minecraft.core.Direction)state.getValue((net.minecraft.world.level.block.state.properties.Property)FACING)));
++    public net.minecraft.world.level.block.state.BlockState rotate(net.minecraft.world.level.block.state.BlockState $$0, net.minecraft.world.level.block.Rotation $$1) {
++        return (net.minecraft.world.level.block.state.BlockState)$$0.setValue((net.minecraft.world.level.block.state.properties.Property)FACING, (java.lang.Comparable)$$1.rotate((net.minecraft.core.Direction)$$0.getValue((net.minecraft.world.level.block.state.properties.Property)FACING)));
+     }
+ 
+-    public net.minecraft.world.level.block.state.BlockState mirror(net.minecraft.world.level.block.state.BlockState state, net.minecraft.world.level.block.Mirror mirror) {
+-        return state.rotate(mirror.getRotation((net.minecraft.core.Direction)state.getValue((net.minecraft.world.level.block.state.properties.Property)FACING)));
++    public net.minecraft.world.level.block.state.BlockState mirror(net.minecraft.world.level.block.state.BlockState $$0, net.minecraft.world.level.block.Mirror $$1) {
++        return $$0.rotate($$1.getRotation((net.minecraft.core.Direction)$$0.getValue((net.minecraft.world.level.block.state.properties.Property)FACING)));
+     }
+ 
+     public void tick(net.minecraft.world.level.block.state.BlockState $$0, net.minecraft.server.level.ServerLevel $$1, net.minecraft.core.BlockPos $$2, net.minecraft.util.RandomSource $$3) {
+@@ -35,63 +35,63 @@
+         this.updateNeighborsInFront((net.minecraft.world.level.Level)$$1, $$2, $$0);
+     }
+ 
+-    public net.minecraft.world.level.block.state.BlockState updateShape(net.minecraft.world.level.block.state.BlockState state, net.minecraft.core.Direction facing, net.minecraft.world.level.block.state.BlockState facingState, net.minecraft.world.level.LevelAccessor level, net.minecraft.core.BlockPos currentPos, net.minecraft.core.BlockPos facingPos) {
+-        if (state.getValue((net.minecraft.world.level.block.state.properties.Property)FACING) == facing && !((java.lang.Boolean)state.getValue((net.minecraft.world.level.block.state.properties.Property)POWERED)).booleanValue()) {
+-            this.startSignal(level, currentPos);
++    public net.minecraft.world.level.block.state.BlockState updateShape(net.minecraft.world.level.block.state.BlockState $$0, net.minecraft.core.Direction $$1, net.minecraft.world.level.block.state.BlockState $$2, net.minecraft.world.level.LevelAccessor $$3, net.minecraft.core.BlockPos $$4, net.minecraft.core.BlockPos $$5) {
++        if ($$0.getValue((net.minecraft.world.level.block.state.properties.Property)FACING) == $$1 && !((java.lang.Boolean)$$0.getValue((net.minecraft.world.level.block.state.properties.Property)POWERED)).booleanValue()) {
++            this.startSignal($$3, $$4);
+         }
+-        return super.updateShape(state, facing, facingState, level, currentPos, facingPos);
++        return super.updateShape($$0, $$1, $$2, $$3, $$4, $$5);
+     }
+ 
+-    public void startSignal(net.minecraft.world.level.LevelAccessor level, net.minecraft.core.BlockPos pos) {
+-        if (!level.isClientSide() && !level.getBlockTicks().hasScheduledTick(pos, (java.lang.Object)this)) {
+-            level.scheduleTick(pos, (net.minecraft.world.level.block.Block)this, 2);
++    public void startSignal(net.minecraft.world.level.LevelAccessor $$0, net.minecraft.core.BlockPos $$1) {
++        if (!$$0.isClientSide() && !$$0.getBlockTicks().hasScheduledTick($$1, (java.lang.Object)this)) {
++            $$0.scheduleTick($$1, (net.minecraft.world.level.block.Block)this, 2);
+         }
+     }
+ 
+-    public void updateNeighborsInFront(net.minecraft.world.level.Level level, net.minecraft.core.BlockPos pos, net.minecraft.world.level.block.state.BlockState state) {
+-        net.minecraft.core.Direction direction = (net.minecraft.core.Direction)state.getValue((net.minecraft.world.level.block.state.properties.Property)FACING);
+-        net.minecraft.core.BlockPos blockPos = pos.relative(direction.getOpposite());
+-        level.neighborChanged(blockPos, (net.minecraft.world.level.block.Block)this, pos);
+-        level.updateNeighborsAtExceptFromFacing(blockPos, (net.minecraft.world.level.block.Block)this, direction);
++    public void updateNeighborsInFront(net.minecraft.world.level.Level $$0, net.minecraft.core.BlockPos $$1, net.minecraft.world.level.block.state.BlockState $$2) {
++        net.minecraft.core.Direction $$3 = (net.minecraft.core.Direction)$$2.getValue((net.minecraft.world.level.block.state.properties.Property)FACING);
++        net.minecraft.core.BlockPos $$4 = $$1.relative($$3.getOpposite());
++        $$0.neighborChanged($$4, (net.minecraft.world.level.block.Block)this, $$1);
++        $$0.updateNeighborsAtExceptFromFacing($$4, (net.minecraft.world.level.block.Block)this, $$3);
+     }
+ 
+-    public boolean isSignalSource(net.minecraft.world.level.block.state.BlockState state) {
++    public boolean isSignalSource(net.minecraft.world.level.block.state.BlockState $$0) {
+         return true;
+     }
+ 
+-    public int getDirectSignal(net.minecraft.world.level.block.state.BlockState blockState, net.minecraft.world.level.BlockGetter blockAccess, net.minecraft.core.BlockPos pos, net.minecraft.core.Direction side) {
+-        return blockState.getSignal(blockAccess, pos, side);
++    public int getDirectSignal(net.minecraft.world.level.block.state.BlockState $$0, net.minecraft.world.level.BlockGetter $$1, net.minecraft.core.BlockPos $$2, net.minecraft.core.Direction $$3) {
++        return $$0.getSignal($$1, $$2, $$3);
+     }
+ 
+-    public int getSignal(net.minecraft.world.level.block.state.BlockState blockState, net.minecraft.world.level.BlockGetter blockAccess, net.minecraft.core.BlockPos pos, net.minecraft.core.Direction side) {
+-        if (((java.lang.Boolean)blockState.getValue((net.minecraft.world.level.block.state.properties.Property)POWERED)).booleanValue() && blockState.getValue((net.minecraft.world.level.block.state.properties.Property)FACING) == side) {
++    public int getSignal(net.minecraft.world.level.block.state.BlockState $$0, net.minecraft.world.level.BlockGetter $$1, net.minecraft.core.BlockPos $$2, net.minecraft.core.Direction $$3) {
++        if (((java.lang.Boolean)$$0.getValue((net.minecraft.world.level.block.state.properties.Property)POWERED)).booleanValue() && $$0.getValue((net.minecraft.world.level.block.state.properties.Property)FACING) == $$3) {
+             return 15;
+         }
+         return 0;
+     }
+ 
+-    public void onPlace(net.minecraft.world.level.block.state.BlockState state, net.minecraft.world.level.Level level, net.minecraft.core.BlockPos pos, net.minecraft.world.level.block.state.BlockState oldState, boolean isMoving) {
+-        if (state.is(oldState.getBlock())) {
++    public void onPlace(net.minecraft.world.level.block.state.BlockState $$0, net.minecraft.world.level.Level $$1, net.minecraft.core.BlockPos $$2, net.minecraft.world.level.block.state.BlockState $$3, boolean $$4) {
++        if ($$0.is($$3.getBlock())) {
+             return;
+         }
+-        if (!level.isClientSide() && ((java.lang.Boolean)state.getValue((net.minecraft.world.level.block.state.properties.Property)POWERED)).booleanValue() && !level.getBlockTicks().hasScheduledTick(pos, (java.lang.Object)this)) {
+-            net.minecraft.world.level.block.state.BlockState blockState = (net.minecraft.world.level.block.state.BlockState)state.setValue((net.minecraft.world.level.block.state.properties.Property)POWERED, (java.lang.Comparable)java.lang.Boolean.valueOf((boolean)false));
+-            level.setBlock(pos, blockState, 18);
+-            this.updateNeighborsInFront(level, pos, blockState);
++        if (!$$1.isClientSide() && ((java.lang.Boolean)$$0.getValue((net.minecraft.world.level.block.state.properties.Property)POWERED)).booleanValue() && !$$1.getBlockTicks().hasScheduledTick($$2, (java.lang.Object)this)) {
++            net.minecraft.world.level.block.state.BlockState $$5 = (net.minecraft.world.level.block.state.BlockState)$$0.setValue((net.minecraft.world.level.block.state.properties.Property)POWERED, (java.lang.Comparable)java.lang.Boolean.valueOf((boolean)false));
++            $$1.setBlock($$2, $$5, 18);
++            this.updateNeighborsInFront($$1, $$2, $$5);
+         }
+     }
+ 
+-    public void onRemove(net.minecraft.world.level.block.state.BlockState state, net.minecraft.world.level.Level level, net.minecraft.core.BlockPos pos, net.minecraft.world.level.block.state.BlockState newState, boolean isMoving) {
+-        if (state.is(newState.getBlock())) {
++    public void onRemove(net.minecraft.world.level.block.state.BlockState $$0, net.minecraft.world.level.Level $$1, net.minecraft.core.BlockPos $$2, net.minecraft.world.level.block.state.BlockState $$3, boolean $$4) {
++        if ($$0.is($$3.getBlock())) {
+             return;
+         }
+-        if (!level.isClientSide && ((java.lang.Boolean)state.getValue((net.minecraft.world.level.block.state.properties.Property)POWERED)).booleanValue() && level.getBlockTicks().hasScheduledTick(pos, (java.lang.Object)this)) {
+-            this.updateNeighborsInFront(level, pos, (net.minecraft.world.level.block.state.BlockState)state.setValue((net.minecraft.world.level.block.state.properties.Property)POWERED, (java.lang.Comparable)java.lang.Boolean.valueOf((boolean)false)));
++        if (!$$1.isClientSide && ((java.lang.Boolean)$$0.getValue((net.minecraft.world.level.block.state.properties.Property)POWERED)).booleanValue() && $$1.getBlockTicks().hasScheduledTick($$2, (java.lang.Object)this)) {
++            this.updateNeighborsInFront($$1, $$2, (net.minecraft.world.level.block.state.BlockState)$$0.setValue((net.minecraft.world.level.block.state.properties.Property)POWERED, (java.lang.Comparable)java.lang.Boolean.valueOf((boolean)false)));
+         }
+     }
+ 
+-    public net.minecraft.world.level.block.state.BlockState getStateForPlacement(net.minecraft.world.item.context.BlockPlaceContext context) {
+-        return (net.minecraft.world.level.block.state.BlockState)this.defaultBlockState().setValue((net.minecraft.world.level.block.state.properties.Property)FACING, (java.lang.Comparable)context.getNearestLookingDirection().getOpposite().getOpposite());
++    public net.minecraft.world.level.block.state.BlockState getStateForPlacement(net.minecraft.world.item.context.BlockPlaceContext $$0) {
++        return (net.minecraft.world.level.block.state.BlockState)this.defaultBlockState().setValue((net.minecraft.world.level.block.state.properties.Property)FACING, (java.lang.Comparable)$$0.getNearestLookingDirection().getOpposite().getOpposite());
+     }
+ 
+     static {

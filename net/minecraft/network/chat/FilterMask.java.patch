@@ -1,0 +1,52 @@
+--- net/minecraft/network/chat/FilterMask.java
++++ net/minecraft/network/chat/FilterMask.java
+@@ -7,6 +7,7 @@
+  {
+     public static net.minecraft.network.chat.FilterMask FULLY_FILTERED;
+     public static net.minecraft.network.chat.FilterMask PASS_THROUGH;
++    public static net.minecraft.network.chat.Style FILTERED_STYLE;
+     public static char HASH = '#';
+     public java.util.BitSet mask;
+     public net.minecraft.network.chat.FilterMask$Type type;
+@@ -59,9 +60,30 @@
+     }
+ 
+     @javax.annotation.Nullable
+-    public net.minecraft.network.chat.Component apply(net.minecraft.network.chat.ChatMessageContent $$0) {
+-        java.lang.String $$1 = $$0.plain();
+-        return (net.minecraft.network.chat.Component)net.minecraft.Util.mapNullable((java.lang.Object)this.apply($$1), net.minecraft.network.chat.Component::literal);
++    public net.minecraft.network.chat.Component applyWithFormatting(java.lang.String $$0) {
++        return switch (net.minecraft.network.chat.FilterMask$1.$SwitchMap$net$minecraft$network$chat$FilterMask$Type[this.type.ordinal()]) {
++            default -> throw new java.lang.IncompatibleClassChangeError();
++            case 2 -> null;
++            case 1 -> net.minecraft.network.chat.Component.literal((java.lang.String)$$0);
++            case 3 -> {
++                net.minecraft.network.chat.MutableComponent $$1 = net.minecraft.network.chat.Component.empty();
++                int $$2 = 0;
++                boolean $$3 = this.mask.get(0);
++                while (true) {
++                    int $$4 = $$3 ? this.mask.nextClearBit($$2) : this.mask.nextSetBit($$2);
++                    int v1 = $$4 = $$4 < 0 ? $$0.length() : $$4;
++                    if ($$4 == $$2) break;
++                    if ($$3) {
++                        $$1.append((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.literal((java.lang.String)org.apache.commons.lang3.StringUtils.repeat((char)'#', (int)($$4 - $$2))).withStyle(FILTERED_STYLE));
++                    } else {
++                        $$1.append($$0.substring($$2, $$4));
++                    }
++                    $$3 = !$$3;
++                    $$2 = $$4;
++                }
++                yield $$1;
++            }
++        };
+     }
+ 
+     public boolean isEmpty() {
+@@ -75,6 +97,7 @@
+     static {
+         FULLY_FILTERED = new net.minecraft.network.chat.FilterMask(new java.util.BitSet(0), net.minecraft.network.chat.FilterMask$Type.FULLY_FILTERED);
+         PASS_THROUGH = new net.minecraft.network.chat.FilterMask(new java.util.BitSet(0), net.minecraft.network.chat.FilterMask$Type.PASS_THROUGH);
++        FILTERED_STYLE = net.minecraft.network.chat.Style.EMPTY.withColor(net.minecraft.ChatFormatting.DARK_GRAY).withHoverEvent(new net.minecraft.network.chat.HoverEvent(net.minecraft.network.chat.HoverEvent$Action.SHOW_TEXT, (java.lang.Object)net.minecraft.network.chat.Component.translatable((java.lang.String)"chat.filtered")));
+     }
+ }
+ 

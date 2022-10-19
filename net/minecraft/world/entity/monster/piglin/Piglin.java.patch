@@ -1,0 +1,360 @@
+--- net/minecraft/world/entity/monster/piglin/Piglin.java
++++ net/minecraft/world/entity/monster/piglin/Piglin.java
+@@ -33,22 +33,24 @@
+         this.xpReward = 5;
+     }
+ 
+-    public void addAdditionalSaveData(net.minecraft.nbt.CompoundTag compound) {
+-        super.addAdditionalSaveData(compound);
++    public void addAdditionalSaveData(net.minecraft.nbt.CompoundTag $$0) {
++        super.addAdditionalSaveData($$0);
+         if (this.isBaby()) {
+-            compound.putBoolean("IsBaby", true);
++            $$0.putBoolean("IsBaby", true);
+         }
+         if (this.cannotHunt) {
+-            compound.putBoolean("CannotHunt", true);
++            $$0.putBoolean("CannotHunt", true);
+         }
+-        compound.put("Inventory", (net.minecraft.nbt.Tag)this.inventory.createTag());
++        $$0.put("Inventory", (net.minecraft.nbt.Tag)this.inventory.createTag());
+     }
+ 
+-    public void readAdditionalSaveData(net.minecraft.nbt.CompoundTag compound) {
+-        super.readAdditionalSaveData(compound);
+-        this.setBaby(compound.getBoolean("IsBaby"));
+-        this.setCannotHunt(compound.getBoolean("CannotHunt"));
+-        this.inventory.fromTag(compound.getList("Inventory", 10));
++    public void readAdditionalSaveData(net.minecraft.nbt.CompoundTag $$0) {
++        super.readAdditionalSaveData($$0);
++        this.setBaby($$0.getBoolean("IsBaby"));
++        this.setCannotHunt($$0.getBoolean("CannotHunt"));
++        if ($$0.contains("Inventory", 10)) {
++            this.inventory.fromTag($$0.getList("Inventory", 10));
++        }
+     }
+ 
+     @net.minecraft.util.VisibleForDebug
+@@ -56,17 +58,17 @@
+         return this.inventory;
+     }
+ 
+-    public void dropCustomDeathLoot(net.minecraft.world.damagesource.DamageSource source, int looting, boolean recentlyHit) {
+-        super.dropCustomDeathLoot(source, looting, recentlyHit);
++    public void dropCustomDeathLoot(net.minecraft.world.damagesource.DamageSource $$0, int $$1, boolean $$2) {
++        super.dropCustomDeathLoot($$0, $$1, $$2);
+         this.inventory.removeAllItems().forEach(arg_0 -> ((net.minecraft.world.entity.monster.piglin.Piglin)this).spawnAtLocation(arg_0));
+     }
+ 
+-    public net.minecraft.world.item.ItemStack addToInventory(net.minecraft.world.item.ItemStack stack) {
+-        return this.inventory.addItem(stack);
++    public net.minecraft.world.item.ItemStack addToInventory(net.minecraft.world.item.ItemStack $$0) {
++        return this.inventory.addItem($$0);
+     }
+ 
+-    public boolean canAddToInventory(net.minecraft.world.item.ItemStack stack) {
+-        return this.inventory.canAddItem(stack);
++    public boolean canAddToInventory(net.minecraft.world.item.ItemStack $$0) {
++        return this.inventory.canAddItem($$0);
+     }
+ 
+     public void defineSynchedData() {
+@@ -76,9 +78,9 @@
+         this.entityData.define(DATA_IS_DANCING, (java.lang.Object)false);
+     }
+ 
+-    public void onSyncedDataUpdated(net.minecraft.network.syncher.EntityDataAccessor<?> key) {
+-        super.onSyncedDataUpdated(key);
+-        if (DATA_BABY_ID.equals(key)) {
++    public void onSyncedDataUpdated(net.minecraft.network.syncher.EntityDataAccessor<?> $$0) {
++        super.onSyncedDataUpdated($$0);
++        if (DATA_BABY_ID.equals($$0)) {
+             this.refreshDimensions();
+         }
+     }
+@@ -92,26 +94,26 @@
+     }
+ 
+     @javax.annotation.Nullable
+-    public net.minecraft.world.entity.SpawnGroupData finalizeSpawn(net.minecraft.world.level.ServerLevelAccessor level, net.minecraft.world.DifficultyInstance difficulty, net.minecraft.world.entity.MobSpawnType reason, @javax.annotation.Nullable net.minecraft.world.entity.SpawnGroupData spawnData, @javax.annotation.Nullable net.minecraft.nbt.CompoundTag dataTag) {
+-        net.minecraft.util.RandomSource randomSource = level.getRandom();
+-        if (reason != net.minecraft.world.entity.MobSpawnType.STRUCTURE) {
+-            if (randomSource.nextFloat() < 0.2f) {
++    public net.minecraft.world.entity.SpawnGroupData finalizeSpawn(net.minecraft.world.level.ServerLevelAccessor $$0, net.minecraft.world.DifficultyInstance $$1, net.minecraft.world.entity.MobSpawnType $$2, @javax.annotation.Nullable net.minecraft.world.entity.SpawnGroupData $$3, @javax.annotation.Nullable net.minecraft.nbt.CompoundTag $$4) {
++        net.minecraft.util.RandomSource $$5 = $$0.getRandom();
++        if ($$2 != net.minecraft.world.entity.MobSpawnType.STRUCTURE) {
++            if ($$5.nextFloat() < 0.2f) {
+                 this.setBaby(true);
+             } else if (this.isAdult()) {
+                 this.setItemSlot(net.minecraft.world.entity.EquipmentSlot.MAINHAND, this.createSpawnWeapon());
+             }
+         }
+-        net.minecraft.world.entity.monster.piglin.PiglinAi.initMemories((net.minecraft.world.entity.monster.piglin.Piglin)this, (net.minecraft.util.RandomSource)level.getRandom());
+-        this.populateDefaultEquipmentSlots(randomSource, difficulty);
+-        this.populateDefaultEquipmentEnchantments(randomSource, difficulty);
+-        return super.finalizeSpawn(level, difficulty, reason, spawnData, dataTag);
++        net.minecraft.world.entity.monster.piglin.PiglinAi.initMemories((net.minecraft.world.entity.monster.piglin.Piglin)this, (net.minecraft.util.RandomSource)$$0.getRandom());
++        this.populateDefaultEquipmentSlots($$5, $$1);
++        this.populateDefaultEquipmentEnchantments($$5, $$1);
++        return super.finalizeSpawn($$0, $$1, $$2, $$3, $$4);
+     }
+ 
+     public boolean shouldDespawnInPeaceful() {
+         return false;
+     }
+ 
+-    public boolean removeWhenFarAway(double distanceToClosestPlayer) {
++    public boolean removeWhenFarAway(double $$0) {
+         return !this.isPersistenceRequired();
+     }
+ 
+@@ -134,27 +136,27 @@
+         return net.minecraft.world.entity.ai.Brain.provider((java.util.Collection)MEMORY_TYPES, (java.util.Collection)SENSOR_TYPES);
+     }
+ 
+-    public net.minecraft.world.entity.ai.Brain<?> makeBrain(com.mojang.serialization.Dynamic<?> dynamic) {
+-        return net.minecraft.world.entity.monster.piglin.PiglinAi.makeBrain((net.minecraft.world.entity.monster.piglin.Piglin)this, (net.minecraft.world.entity.ai.Brain)this.brainProvider().makeBrain(dynamic));
++    public net.minecraft.world.entity.ai.Brain<?> makeBrain(com.mojang.serialization.Dynamic<?> $$0) {
++        return net.minecraft.world.entity.monster.piglin.PiglinAi.makeBrain((net.minecraft.world.entity.monster.piglin.Piglin)this, (net.minecraft.world.entity.ai.Brain)this.brainProvider().makeBrain($$0));
+     }
+ 
+     public net.minecraft.world.entity.ai.Brain<net.minecraft.world.entity.monster.piglin.Piglin> getBrain() {
+         return super.getBrain();
+     }
+ 
+-    public net.minecraft.world.InteractionResult mobInteract(net.minecraft.world.entity.player.Player player, net.minecraft.world.InteractionHand hand) {
+-        net.minecraft.world.InteractionResult interactionResult = super.mobInteract(player, hand);
+-        if (interactionResult.consumesAction()) {
+-            return interactionResult;
++    public net.minecraft.world.InteractionResult mobInteract(net.minecraft.world.entity.player.Player $$0, net.minecraft.world.InteractionHand $$1) {
++        net.minecraft.world.InteractionResult $$2 = super.mobInteract($$0, $$1);
++        if ($$2.consumesAction()) {
++            return $$2;
+         }
+         if (this.level.isClientSide) {
+-            boolean bl = net.minecraft.world.entity.monster.piglin.PiglinAi.canAdmire((net.minecraft.world.entity.monster.piglin.Piglin)this, (net.minecraft.world.item.ItemStack)player.getItemInHand(hand)) && this.getArmPose() != net.minecraft.world.entity.monster.piglin.PiglinArmPose.ADMIRING_ITEM;
+-            return bl ? net.minecraft.world.InteractionResult.SUCCESS : net.minecraft.world.InteractionResult.PASS;
++            boolean $$3 = net.minecraft.world.entity.monster.piglin.PiglinAi.canAdmire((net.minecraft.world.entity.monster.piglin.Piglin)this, (net.minecraft.world.item.ItemStack)$$0.getItemInHand($$1)) && this.getArmPose() != net.minecraft.world.entity.monster.piglin.PiglinArmPose.ADMIRING_ITEM;
++            return $$3 ? net.minecraft.world.InteractionResult.SUCCESS : net.minecraft.world.InteractionResult.PASS;
+         }
+-        return net.minecraft.world.entity.monster.piglin.PiglinAi.mobInteract((net.minecraft.world.entity.monster.piglin.Piglin)this, (net.minecraft.world.entity.player.Player)player, (net.minecraft.world.InteractionHand)hand);
++        return net.minecraft.world.entity.monster.piglin.PiglinAi.mobInteract((net.minecraft.world.entity.monster.piglin.Piglin)this, (net.minecraft.world.entity.player.Player)$$0, (net.minecraft.world.InteractionHand)$$1);
+     }
+ 
+-    public float getStandingEyeHeight(net.minecraft.world.entity.Pose pose, net.minecraft.world.entity.EntityDimensions size) {
++    public float getStandingEyeHeight(net.minecraft.world.entity.Pose $$0, net.minecraft.world.entity.EntityDimensions $$1) {
+         return this.isBaby() ? 0.93f : 1.74f;
+     }
+ 
+@@ -162,13 +164,13 @@
+         return (double)this.getBbHeight() * 0.92;
+     }
+ 
+-    public void setBaby(boolean childZombie) {
+-        this.getEntityData().set(DATA_BABY_ID, (java.lang.Object)childZombie);
++    public void setBaby(boolean $$0) {
++        this.getEntityData().set(DATA_BABY_ID, (java.lang.Object)$$0);
+         if (!this.level.isClientSide) {
+-            net.minecraft.world.entity.ai.attributes.AttributeInstance attributeInstance = this.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.MOVEMENT_SPEED);
+-            attributeInstance.removeModifier(SPEED_MODIFIER_BABY);
+-            if (childZombie) {
+-                attributeInstance.addTransientModifier(SPEED_MODIFIER_BABY);
++            net.minecraft.world.entity.ai.attributes.AttributeInstance $$1 = this.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.MOVEMENT_SPEED);
++            $$1.removeModifier(SPEED_MODIFIER_BABY);
++            if ($$0) {
++                $$1.addTransientModifier(SPEED_MODIFIER_BABY);
+             }
+         }
+     }
+@@ -177,8 +179,8 @@
+         return (java.lang.Boolean)this.getEntityData().get(DATA_BABY_ID);
+     }
+ 
+-    public void setCannotHunt(boolean cannotHunt) {
+-        this.cannotHunt = cannotHunt;
++    public void setCannotHunt(boolean $$0) {
++        this.cannotHunt = $$0;
+     }
+ 
+     public boolean canHunt() {
+@@ -197,10 +199,10 @@
+         return this.xpReward;
+     }
+ 
+-    public void finishConversion(net.minecraft.server.level.ServerLevel serverLevel) {
++    public void finishConversion(net.minecraft.server.level.ServerLevel $$0) {
+         net.minecraft.world.entity.monster.piglin.PiglinAi.cancelAdmiring((net.minecraft.world.entity.monster.piglin.Piglin)this);
+         this.inventory.removeAllItems().forEach(arg_0 -> ((net.minecraft.world.entity.monster.piglin.Piglin)this).spawnAtLocation(arg_0));
+-        super.finishConversion(serverLevel);
++        super.finishConversion($$0);
+     }
+ 
+     public net.minecraft.world.item.ItemStack createSpawnWeapon() {
+@@ -214,8 +216,8 @@
+         return (java.lang.Boolean)this.entityData.get(DATA_IS_CHARGING_CROSSBOW);
+     }
+ 
+-    public void setChargingCrossbow(boolean isCharging) {
+-        this.entityData.set(DATA_IS_CHARGING_CROSSBOW, (java.lang.Object)isCharging);
++    public void setChargingCrossbow(boolean $$0) {
++        this.entityData.set(DATA_IS_CHARGING_CROSSBOW, (java.lang.Object)$$0);
+     }
+ 
+     public void onCrossbowAttackPerformed() {
+@@ -245,93 +247,93 @@
+         return (java.lang.Boolean)this.entityData.get(DATA_IS_DANCING);
+     }
+ 
+-    public void setDancing(boolean dancing) {
+-        this.entityData.set(DATA_IS_DANCING, (java.lang.Object)dancing);
++    public void setDancing(boolean $$0) {
++        this.entityData.set(DATA_IS_DANCING, (java.lang.Object)$$0);
+     }
+ 
+-    public boolean hurt(net.minecraft.world.damagesource.DamageSource source, float amount) {
+-        boolean bl = super.hurt(source, amount);
++    public boolean hurt(net.minecraft.world.damagesource.DamageSource $$0, float $$1) {
++        boolean $$2 = super.hurt($$0, $$1);
+         if (this.level.isClientSide) {
+             return false;
+         }
+-        if (bl && source.getEntity() instanceof net.minecraft.world.entity.LivingEntity) {
+-            net.minecraft.world.entity.monster.piglin.PiglinAi.wasHurtBy((net.minecraft.world.entity.monster.piglin.Piglin)this, (net.minecraft.world.entity.LivingEntity)((net.minecraft.world.entity.LivingEntity)source.getEntity()));
++        if ($$2 && $$0.getEntity() instanceof net.minecraft.world.entity.LivingEntity) {
++            net.minecraft.world.entity.monster.piglin.PiglinAi.wasHurtBy((net.minecraft.world.entity.monster.piglin.Piglin)this, (net.minecraft.world.entity.LivingEntity)((net.minecraft.world.entity.LivingEntity)$$0.getEntity()));
+         }
+-        return bl;
++        return $$2;
+     }
+ 
+-    public void performRangedAttack(net.minecraft.world.entity.LivingEntity target, float distanceFactor) {
++    public void performRangedAttack(net.minecraft.world.entity.LivingEntity $$0, float $$1) {
+         this.performCrossbowAttack((net.minecraft.world.entity.LivingEntity)this, 1.6f);
+     }
+ 
+-    public void shootCrossbowProjectile(net.minecraft.world.entity.LivingEntity target, net.minecraft.world.item.ItemStack crossbowStack, net.minecraft.world.entity.projectile.Projectile projectile, float projectileAngle) {
+-        this.shootCrossbowProjectile((net.minecraft.world.entity.LivingEntity)this, target, projectile, projectileAngle, 1.6f);
++    public void shootCrossbowProjectile(net.minecraft.world.entity.LivingEntity $$0, net.minecraft.world.item.ItemStack $$1, net.minecraft.world.entity.projectile.Projectile $$2, float $$3) {
++        this.shootCrossbowProjectile((net.minecraft.world.entity.LivingEntity)this, $$0, $$2, $$3, 1.6f);
+     }
+ 
+-    public boolean canFireProjectileWeapon(net.minecraft.world.item.ProjectileWeaponItem projectileWeapon) {
+-        return projectileWeapon == net.minecraft.world.item.Items.CROSSBOW;
++    public boolean canFireProjectileWeapon(net.minecraft.world.item.ProjectileWeaponItem $$0) {
++        return $$0 == net.minecraft.world.item.Items.CROSSBOW;
+     }
+ 
+-    public void holdInMainHand(net.minecraft.world.item.ItemStack stack) {
+-        this.setItemSlotAndDropWhenKilled(net.minecraft.world.entity.EquipmentSlot.MAINHAND, stack);
++    public void holdInMainHand(net.minecraft.world.item.ItemStack $$0) {
++        this.setItemSlotAndDropWhenKilled(net.minecraft.world.entity.EquipmentSlot.MAINHAND, $$0);
+     }
+ 
+-    public void holdInOffHand(net.minecraft.world.item.ItemStack stack) {
+-        if (stack.is(net.minecraft.world.entity.monster.piglin.PiglinAi.BARTERING_ITEM)) {
+-            this.setItemSlot(net.minecraft.world.entity.EquipmentSlot.OFFHAND, stack);
++    public void holdInOffHand(net.minecraft.world.item.ItemStack $$0) {
++        if ($$0.is(net.minecraft.world.entity.monster.piglin.PiglinAi.BARTERING_ITEM)) {
++            this.setItemSlot(net.minecraft.world.entity.EquipmentSlot.OFFHAND, $$0);
+             this.setGuaranteedDrop(net.minecraft.world.entity.EquipmentSlot.OFFHAND);
+         } else {
+-            this.setItemSlotAndDropWhenKilled(net.minecraft.world.entity.EquipmentSlot.OFFHAND, stack);
++            this.setItemSlotAndDropWhenKilled(net.minecraft.world.entity.EquipmentSlot.OFFHAND, $$0);
+         }
+     }
+ 
+-    public boolean wantsToPickUp(net.minecraft.world.item.ItemStack stack) {
+-        return this.level.getGameRules().getBoolean(net.minecraft.world.level.GameRules.RULE_MOBGRIEFING) && this.canPickUpLoot() && net.minecraft.world.entity.monster.piglin.PiglinAi.wantsToPickup((net.minecraft.world.entity.monster.piglin.Piglin)this, (net.minecraft.world.item.ItemStack)stack);
++    public boolean wantsToPickUp(net.minecraft.world.item.ItemStack $$0) {
++        return this.level.getGameRules().getBoolean(net.minecraft.world.level.GameRules.RULE_MOBGRIEFING) && this.canPickUpLoot() && net.minecraft.world.entity.monster.piglin.PiglinAi.wantsToPickup((net.minecraft.world.entity.monster.piglin.Piglin)this, (net.minecraft.world.item.ItemStack)$$0);
+     }
+ 
+-    public boolean canReplaceCurrentItem(net.minecraft.world.item.ItemStack candidate) {
+-        net.minecraft.world.entity.EquipmentSlot equipmentSlot = net.minecraft.world.entity.Mob.getEquipmentSlotForItem((net.minecraft.world.item.ItemStack)candidate);
+-        net.minecraft.world.item.ItemStack itemStack = this.getItemBySlot(equipmentSlot);
+-        return this.canReplaceCurrentItem(candidate, itemStack);
++    public boolean canReplaceCurrentItem(net.minecraft.world.item.ItemStack $$0) {
++        net.minecraft.world.entity.EquipmentSlot $$1 = net.minecraft.world.entity.Mob.getEquipmentSlotForItem((net.minecraft.world.item.ItemStack)$$0);
++        net.minecraft.world.item.ItemStack $$2 = this.getItemBySlot($$1);
++        return this.canReplaceCurrentItem($$0, $$2);
+     }
+ 
+-    public boolean canReplaceCurrentItem(net.minecraft.world.item.ItemStack candidate, net.minecraft.world.item.ItemStack existing) {
+-        boolean bl;
+-        if (net.minecraft.world.item.enchantment.EnchantmentHelper.hasBindingCurse((net.minecraft.world.item.ItemStack)existing)) {
++    public boolean canReplaceCurrentItem(net.minecraft.world.item.ItemStack $$0, net.minecraft.world.item.ItemStack $$1) {
++        boolean $$3;
++        if (net.minecraft.world.item.enchantment.EnchantmentHelper.hasBindingCurse((net.minecraft.world.item.ItemStack)$$1)) {
+             return false;
+         }
+-        boolean bl2 = net.minecraft.world.entity.monster.piglin.PiglinAi.isLovedItem((net.minecraft.world.item.ItemStack)candidate) || candidate.is(net.minecraft.world.item.Items.CROSSBOW);
+-        boolean bl3 = bl = net.minecraft.world.entity.monster.piglin.PiglinAi.isLovedItem((net.minecraft.world.item.ItemStack)existing) || existing.is(net.minecraft.world.item.Items.CROSSBOW);
+-        if (bl2 && !bl) {
++        boolean $$2 = net.minecraft.world.entity.monster.piglin.PiglinAi.isLovedItem((net.minecraft.world.item.ItemStack)$$0) || $$0.is(net.minecraft.world.item.Items.CROSSBOW);
++        boolean bl = $$3 = net.minecraft.world.entity.monster.piglin.PiglinAi.isLovedItem((net.minecraft.world.item.ItemStack)$$1) || $$1.is(net.minecraft.world.item.Items.CROSSBOW);
++        if ($$2 && !$$3) {
+             return true;
+         }
+-        if (!bl2 && bl) {
++        if (!$$2 && $$3) {
+             return false;
+         }
+-        if (this.isAdult() && !candidate.is(net.minecraft.world.item.Items.CROSSBOW) && existing.is(net.minecraft.world.item.Items.CROSSBOW)) {
++        if (this.isAdult() && !$$0.is(net.minecraft.world.item.Items.CROSSBOW) && $$1.is(net.minecraft.world.item.Items.CROSSBOW)) {
+             return false;
+         }
+-        return super.canReplaceCurrentItem(candidate, existing);
++        return super.canReplaceCurrentItem($$0, $$1);
+     }
+ 
+-    public void pickUpItem(net.minecraft.world.entity.item.ItemEntity itemEntity) {
+-        this.onItemPickup(itemEntity);
+-        net.minecraft.world.entity.monster.piglin.PiglinAi.pickUpItem((net.minecraft.world.entity.monster.piglin.Piglin)this, (net.minecraft.world.entity.item.ItemEntity)itemEntity);
++    public void pickUpItem(net.minecraft.world.entity.item.ItemEntity $$0) {
++        this.onItemPickup($$0);
++        net.minecraft.world.entity.monster.piglin.PiglinAi.pickUpItem((net.minecraft.world.entity.monster.piglin.Piglin)this, (net.minecraft.world.entity.item.ItemEntity)$$0);
+     }
+ 
+-    public boolean startRiding(net.minecraft.world.entity.Entity entity, boolean force) {
+-        if (this.isBaby() && entity.getType() == net.minecraft.world.entity.EntityType.HOGLIN) {
+-            entity = this.getTopPassenger(entity, 3);
++    public boolean startRiding(net.minecraft.world.entity.Entity $$0, boolean $$1) {
++        if (this.isBaby() && $$0.getType() == net.minecraft.world.entity.EntityType.HOGLIN) {
++            $$0 = this.getTopPassenger($$0, 3);
+         }
+-        return super.startRiding(entity, force);
++        return super.startRiding($$0, $$1);
+     }
+ 
+-    public net.minecraft.world.entity.Entity getTopPassenger(net.minecraft.world.entity.Entity vehicle, int maxPosition) {
+-        java.util.List list = vehicle.getPassengers();
+-        if (maxPosition == 1 || list.isEmpty()) {
+-            return vehicle;
++    public net.minecraft.world.entity.Entity getTopPassenger(net.minecraft.world.entity.Entity $$0, int $$1) {
++        java.util.List $$2 = $$0.getPassengers();
++        if ($$1 == 1 || $$2.isEmpty()) {
++            return $$0;
+         }
+-        return this.getTopPassenger((net.minecraft.world.entity.Entity)list.get(0), maxPosition - 1);
++        return this.getTopPassenger((net.minecraft.world.entity.Entity)$$2.get(0), $$1 - 1);
+     }
+ 
+     public net.minecraft.sounds.SoundEvent getAmbientSound() {
+@@ -341,7 +343,7 @@
+         return (net.minecraft.sounds.SoundEvent)net.minecraft.world.entity.monster.piglin.PiglinAi.getSoundForCurrentActivity((net.minecraft.world.entity.monster.piglin.Piglin)this).orElse(null);
+     }
+ 
+-    public net.minecraft.sounds.SoundEvent getHurtSound(net.minecraft.world.damagesource.DamageSource damageSource) {
++    public net.minecraft.sounds.SoundEvent getHurtSound(net.minecraft.world.damagesource.DamageSource $$0) {
+         return net.minecraft.sounds.SoundEvents.PIGLIN_HURT;
+     }
+ 
+@@ -349,7 +351,7 @@
+         return net.minecraft.sounds.SoundEvents.PIGLIN_DEATH;
+     }
+ 
+-    public void playStepSound(net.minecraft.core.BlockPos pos, net.minecraft.world.level.block.state.BlockState block) {
++    public void playStepSound(net.minecraft.core.BlockPos $$0, net.minecraft.world.level.block.state.BlockState $$1) {
+         this.playSound(net.minecraft.sounds.SoundEvents.PIGLIN_STEP, 0.15f, 1.0f);
+     }
+ 

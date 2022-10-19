@@ -1,0 +1,49 @@
+--- net/minecraft/data/loot/LootTableProvider.java
++++ net/minecraft/data/loot/LootTableProvider.java
+@@ -7,19 +7,23 @@
+ implements net.minecraft.data.DataProvider
+  {
+     public static org.slf4j.Logger LOGGER;
+-    public net.minecraft.data.DataGenerator$PathProvider pathProvider;
+-    public java.util.List<com.mojang.datafixers.util.Pair<java.util.function.Supplier<java.util.function.Consumer<java.util.function.BiConsumer<net.minecraft.resources.ResourceLocation, net.minecraft.world.level.storage.loot.LootTable$Builder>>>, net.minecraft.world.level.storage.loot.parameters.LootContextParamSet>> subProviders;
++    public java.lang.String name;
++    public net.minecraft.data.PackOutput$PathProvider pathProvider;
++    public java.util.Set<net.minecraft.resources.ResourceLocation> requiredTables;
++    public java.util.List<net.minecraft.data.loot.LootTableProvider$SubProviderEntry> subProviders;
+ 
+-    public net.minecraft.data.loot.LootTableProvider(net.minecraft.data.DataGenerator generator) {
+-        this.subProviders = com.google.common.collect.ImmutableList.of((java.lang.Object)com.mojang.datafixers.util.Pair.of(net.minecraft.data.loot.FishingLoot::new, (java.lang.Object)net.minecraft.world.level.storage.loot.parameters.LootContextParamSets.FISHING), (java.lang.Object)com.mojang.datafixers.util.Pair.of(net.minecraft.data.loot.ChestLoot::new, (java.lang.Object)net.minecraft.world.level.storage.loot.parameters.LootContextParamSets.CHEST), (java.lang.Object)com.mojang.datafixers.util.Pair.of(net.minecraft.data.loot.EntityLoot::new, (java.lang.Object)net.minecraft.world.level.storage.loot.parameters.LootContextParamSets.ENTITY), (java.lang.Object)com.mojang.datafixers.util.Pair.of(net.minecraft.data.loot.BlockLoot::new, (java.lang.Object)net.minecraft.world.level.storage.loot.parameters.LootContextParamSets.BLOCK), (java.lang.Object)com.mojang.datafixers.util.Pair.of(net.minecraft.data.loot.PiglinBarterLoot::new, (java.lang.Object)net.minecraft.world.level.storage.loot.parameters.LootContextParamSets.PIGLIN_BARTER), (java.lang.Object)com.mojang.datafixers.util.Pair.of(net.minecraft.data.loot.GiftLoot::new, (java.lang.Object)net.minecraft.world.level.storage.loot.parameters.LootContextParamSets.GIFT));
+-        this.pathProvider = generator.createPathProvider(net.minecraft.data.DataGenerator$Target.DATA_PACK, "loot_tables");
++    public net.minecraft.data.loot.LootTableProvider(java.lang.String $$0, net.minecraft.data.PackOutput $$1, java.util.Set<net.minecraft.resources.ResourceLocation> $$2, java.util.List<net.minecraft.data.loot.LootTableProvider$SubProviderEntry> $$3) {
++        this.name = $$0;
++        this.pathProvider = $$1.createPathProvider(net.minecraft.data.PackOutput$Target.DATA_PACK, "loot_tables");
++        this.subProviders = $$3;
++        this.requiredTables = $$2;
+     }
+ 
+     public void run(net.minecraft.data.CachedOutput $$02) {
+         java.util.HashMap $$12 = com.google.common.collect.Maps.newHashMap();
+         this.subProviders.forEach(arg_0 -> net.minecraft.data.loot.LootTableProvider.lambda$run$1((java.util.Map)$$12, arg_0));
+         net.minecraft.world.level.storage.loot.ValidationContext $$22 = new net.minecraft.world.level.storage.loot.ValidationContext(net.minecraft.world.level.storage.loot.parameters.LootContextParamSets.ALL_PARAMS, $$0 -> null, arg_0 -> ((java.util.Map)$$12).get(arg_0));
+-        com.google.common.collect.Sets$SetView $$3 = com.google.common.collect.Sets.difference((java.util.Set)net.minecraft.world.level.storage.loot.BuiltInLootTables.all(), (java.util.Set)$$12.keySet());
++        com.google.common.collect.Sets$SetView $$3 = com.google.common.collect.Sets.difference((java.util.Set)this.requiredTables, (java.util.Set)$$12.keySet());
+         for (net.minecraft.resources.ResourceLocation $$4 : $$3) {
+             $$22.reportProblem("Missing built-in table: " + $$4);
+         }
+@@ -41,12 +45,12 @@
+     }
+ 
+     public java.lang.String getName() {
+-        return "LootTables";
++        return this.name;
+     }
+ 
+-    public static /* synthetic */ void lambda$run$1(java.util.Map $$0, com.mojang.datafixers.util.Pair $$1) {
+-        ((java.util.function.Consumer)((java.util.function.Supplier)$$1.getFirst()).get()).accept(($$2, $$3) -> {
+-            if ($$0.put($$2, (java.lang.Object)$$3.setParamSet((net.minecraft.world.level.storage.loot.parameters.LootContextParamSet)$$1.getSecond()).build()) != null) {
++    public static /* synthetic */ void lambda$run$1(java.util.Map $$0, net.minecraft.data.loot.LootTableProvider$SubProviderEntry $$1) {
++        ((net.minecraft.data.loot.LootTableSubProvider)$$1.provider().get()).generate(($$2, $$3) -> {
++            if ($$0.put($$2, (java.lang.Object)$$3.setParamSet($$1.paramSet).build()) != null) {
+                 throw new java.lang.IllegalStateException("Duplicate loot table " + $$2);
+             }
+         });

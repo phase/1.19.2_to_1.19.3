@@ -1,0 +1,121 @@
+--- net/minecraft/stats/ServerRecipeBook.java
++++ net/minecraft/stats/ServerRecipeBook.java
+@@ -12,38 +12,38 @@
+     public net.minecraft.stats.ServerRecipeBook() {
+     }
+ 
+-    public int addRecipes(java.util.Collection<net.minecraft.world.item.crafting.Recipe<?>> recipes, net.minecraft.server.level.ServerPlayer player) {
+-        java.util.ArrayList arrayList = com.google.common.collect.Lists.newArrayList();
+-        int n = 0;
+-        for (net.minecraft.world.item.crafting.Recipe recipe : recipes) {
+-            net.minecraft.resources.ResourceLocation resourceLocation = recipe.getId();
+-            if (this.known.contains((java.lang.Object)resourceLocation) || recipe.isSpecial()) continue;
+-            this.add(resourceLocation);
+-            this.addHighlight(resourceLocation);
+-            arrayList.add((java.lang.Object)resourceLocation);
+-            net.minecraft.advancements.CriteriaTriggers.RECIPE_UNLOCKED.trigger(player, recipe);
+-            ++n;
++    public int addRecipes(java.util.Collection<net.minecraft.world.item.crafting.Recipe<?>> $$0, net.minecraft.server.level.ServerPlayer $$1) {
++        java.util.ArrayList $$2 = com.google.common.collect.Lists.newArrayList();
++        int $$3 = 0;
++        for (net.minecraft.world.item.crafting.Recipe $$4 : $$0) {
++            net.minecraft.resources.ResourceLocation $$5 = $$4.getId();
++            if (this.known.contains((java.lang.Object)$$5) || $$4.isSpecial()) continue;
++            this.add($$5);
++            this.addHighlight($$5);
++            $$2.add((java.lang.Object)$$5);
++            net.minecraft.advancements.CriteriaTriggers.RECIPE_UNLOCKED.trigger($$1, $$4);
++            ++$$3;
+         }
+-        this.sendRecipes(net.minecraft.network.protocol.game.ClientboundRecipePacket$State.ADD, player, (java.util.List)arrayList);
+-        return n;
++        this.sendRecipes(net.minecraft.network.protocol.game.ClientboundRecipePacket$State.ADD, $$1, (java.util.List)$$2);
++        return $$3;
+     }
+ 
+-    public int removeRecipes(java.util.Collection<net.minecraft.world.item.crafting.Recipe<?>> recipes, net.minecraft.server.level.ServerPlayer player) {
+-        java.util.ArrayList arrayList = com.google.common.collect.Lists.newArrayList();
+-        int n = 0;
+-        for (net.minecraft.world.item.crafting.Recipe recipe : recipes) {
+-            net.minecraft.resources.ResourceLocation resourceLocation = recipe.getId();
+-            if (!this.known.contains((java.lang.Object)resourceLocation)) continue;
+-            this.remove(resourceLocation);
+-            arrayList.add((java.lang.Object)resourceLocation);
+-            ++n;
++    public int removeRecipes(java.util.Collection<net.minecraft.world.item.crafting.Recipe<?>> $$0, net.minecraft.server.level.ServerPlayer $$1) {
++        java.util.ArrayList $$2 = com.google.common.collect.Lists.newArrayList();
++        int $$3 = 0;
++        for (net.minecraft.world.item.crafting.Recipe $$4 : $$0) {
++            net.minecraft.resources.ResourceLocation $$5 = $$4.getId();
++            if (!this.known.contains((java.lang.Object)$$5)) continue;
++            this.remove($$5);
++            $$2.add((java.lang.Object)$$5);
++            ++$$3;
+         }
+-        this.sendRecipes(net.minecraft.network.protocol.game.ClientboundRecipePacket$State.REMOVE, player, (java.util.List)arrayList);
+-        return n;
++        this.sendRecipes(net.minecraft.network.protocol.game.ClientboundRecipePacket$State.REMOVE, $$1, (java.util.List)$$2);
++        return $$3;
+     }
+ 
+-    public void sendRecipes(net.minecraft.network.protocol.game.ClientboundRecipePacket$State state, net.minecraft.server.level.ServerPlayer player, java.util.List<net.minecraft.resources.ResourceLocation> recipes) {
+-        player.connection.send((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ClientboundRecipePacket(state, recipes, (java.util.Collection)java.util.Collections.emptyList(), this.getBookSettings()));
++    public void sendRecipes(net.minecraft.network.protocol.game.ClientboundRecipePacket$State $$0, net.minecraft.server.level.ServerPlayer $$1, java.util.List<net.minecraft.resources.ResourceLocation> $$2) {
++        $$1.connection.send((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ClientboundRecipePacket($$0, $$2, (java.util.Collection)java.util.Collections.emptyList(), this.getBookSettings()));
+     }
+ 
+     public net.minecraft.nbt.CompoundTag toNbt() {
+@@ -62,35 +62,35 @@
+         return $$0;
+     }
+ 
+-    public void fromNbt(net.minecraft.nbt.CompoundTag tag, net.minecraft.world.item.crafting.RecipeManager recipeManager) {
+-        this.setBookSettings(net.minecraft.stats.RecipeBookSettings.read((net.minecraft.nbt.CompoundTag)tag));
+-        net.minecraft.nbt.ListTag listTag = tag.getList("recipes", 8);
+-        this.loadRecipes(listTag, arg_0 -> ((net.minecraft.stats.ServerRecipeBook)this).add(arg_0), recipeManager);
+-        net.minecraft.nbt.ListTag listTag2 = tag.getList("toBeDisplayed", 8);
+-        this.loadRecipes(listTag2, arg_0 -> ((net.minecraft.stats.ServerRecipeBook)this).addHighlight(arg_0), recipeManager);
++    public void fromNbt(net.minecraft.nbt.CompoundTag $$0, net.minecraft.world.item.crafting.RecipeManager $$1) {
++        this.setBookSettings(net.minecraft.stats.RecipeBookSettings.read((net.minecraft.nbt.CompoundTag)$$0));
++        net.minecraft.nbt.ListTag $$2 = $$0.getList("recipes", 8);
++        this.loadRecipes($$2, arg_0 -> ((net.minecraft.stats.ServerRecipeBook)this).add(arg_0), $$1);
++        net.minecraft.nbt.ListTag $$3 = $$0.getList("toBeDisplayed", 8);
++        this.loadRecipes($$3, arg_0 -> ((net.minecraft.stats.ServerRecipeBook)this).addHighlight(arg_0), $$1);
+     }
+ 
+-    public void loadRecipes(net.minecraft.nbt.ListTag nbtList, java.util.function.Consumer<net.minecraft.world.item.crafting.Recipe<?>> recipeConsumer, net.minecraft.world.item.crafting.RecipeManager recipeManager) {
+-        for (int i = 0; i < nbtList.size(); ++i) {
+-            java.lang.String string = nbtList.getString(i);
++    public void loadRecipes(net.minecraft.nbt.ListTag $$0, java.util.function.Consumer<net.minecraft.world.item.crafting.Recipe<?>> $$1, net.minecraft.world.item.crafting.RecipeManager $$2) {
++        for (int $$3 = 0; $$3 < $$0.size(); ++$$3) {
++            java.lang.String $$4 = $$0.getString($$3);
+             try {
+-                net.minecraft.resources.ResourceLocation resourceLocation = new net.minecraft.resources.ResourceLocation(string);
+-                java.util.Optional optional = recipeManager.byKey(resourceLocation);
+-                if (!optional.isPresent()) {
+-                    LOGGER.error("Tried to load unrecognized recipe: {} removed now.", (java.lang.Object)resourceLocation);
++                net.minecraft.resources.ResourceLocation $$5 = new net.minecraft.resources.ResourceLocation($$4);
++                java.util.Optional $$6 = $$2.byKey($$5);
++                if (!$$6.isPresent()) {
++                    LOGGER.error("Tried to load unrecognized recipe: {} removed now.", (java.lang.Object)$$5);
+                     continue;
+                 }
+-                recipeConsumer.accept((java.lang.Object)((net.minecraft.world.item.crafting.Recipe)optional.get()));
++                $$1.accept((java.lang.Object)((net.minecraft.world.item.crafting.Recipe)$$6.get()));
+                 continue;
+             }
+-            catch (net.minecraft.ResourceLocationException resourceLocationException) {
+-                LOGGER.error("Tried to load improperly formatted recipe: {} removed now.", (java.lang.Object)string);
++            catch (net.minecraft.ResourceLocationException $$7) {
++                LOGGER.error("Tried to load improperly formatted recipe: {} removed now.", (java.lang.Object)$$4);
+             }
+         }
+     }
+ 
+-    public void sendInitialRecipeBook(net.minecraft.server.level.ServerPlayer player) {
+-        player.connection.send((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ClientboundRecipePacket(net.minecraft.network.protocol.game.ClientboundRecipePacket$State.INIT, (java.util.Collection)this.known, (java.util.Collection)this.highlight, this.getBookSettings()));
++    public void sendInitialRecipeBook(net.minecraft.server.level.ServerPlayer $$0) {
++        $$0.connection.send((net.minecraft.network.protocol.Packet)new net.minecraft.network.protocol.game.ClientboundRecipePacket(net.minecraft.network.protocol.game.ClientboundRecipePacket$State.INIT, (java.util.Collection)this.known, (java.util.Collection)this.highlight, this.getBookSettings()));
+     }
+ 
+     static {

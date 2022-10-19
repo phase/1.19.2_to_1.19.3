@@ -1,0 +1,48 @@
+--- net/minecraft/server/commands/DebugCommand.java
++++ net/minecraft/server/commands/DebugCommand.java
+@@ -12,30 +12,30 @@
+     public net.minecraft.server.commands.DebugCommand() {
+     }
+ 
+-    public static void register(com.mojang.brigadier.CommandDispatcher<net.minecraft.commands.CommandSourceStack> dispatcher) {
+-        dispatcher.register((com.mojang.brigadier.builder.LiteralArgumentBuilder)((com.mojang.brigadier.builder.LiteralArgumentBuilder)((com.mojang.brigadier.builder.LiteralArgumentBuilder)((com.mojang.brigadier.builder.LiteralArgumentBuilder)net.minecraft.commands.Commands.literal((java.lang.String)"debug").requires($$0 -> $$0.hasPermission(3))).then(net.minecraft.commands.Commands.literal((java.lang.String)"start").executes($$0 -> net.minecraft.server.commands.DebugCommand.start((net.minecraft.commands.CommandSourceStack)((net.minecraft.commands.CommandSourceStack)$$0.getSource()))))).then(net.minecraft.commands.Commands.literal((java.lang.String)"stop").executes($$0 -> net.minecraft.server.commands.DebugCommand.stop((net.minecraft.commands.CommandSourceStack)((net.minecraft.commands.CommandSourceStack)$$0.getSource()))))).then(((com.mojang.brigadier.builder.LiteralArgumentBuilder)net.minecraft.commands.Commands.literal((java.lang.String)"function").requires($$0 -> $$0.hasPermission(3))).then(net.minecraft.commands.Commands.argument((java.lang.String)"name", (com.mojang.brigadier.arguments.ArgumentType)net.minecraft.commands.arguments.item.FunctionArgument.functions()).suggests(net.minecraft.server.commands.FunctionCommand.SUGGEST_FUNCTION).executes($$0 -> net.minecraft.server.commands.DebugCommand.traceFunction((net.minecraft.commands.CommandSourceStack)((net.minecraft.commands.CommandSourceStack)$$0.getSource()), (java.util.Collection)net.minecraft.commands.arguments.item.FunctionArgument.getFunctions((com.mojang.brigadier.context.CommandContext)$$0, (java.lang.String)"name"))))));
++    public static void register(com.mojang.brigadier.CommandDispatcher<net.minecraft.commands.CommandSourceStack> $$02) {
++        $$02.register((com.mojang.brigadier.builder.LiteralArgumentBuilder)((com.mojang.brigadier.builder.LiteralArgumentBuilder)((com.mojang.brigadier.builder.LiteralArgumentBuilder)((com.mojang.brigadier.builder.LiteralArgumentBuilder)net.minecraft.commands.Commands.literal((java.lang.String)"debug").requires($$0 -> $$0.hasPermission(3))).then(net.minecraft.commands.Commands.literal((java.lang.String)"start").executes($$0 -> net.minecraft.server.commands.DebugCommand.start((net.minecraft.commands.CommandSourceStack)((net.minecraft.commands.CommandSourceStack)$$0.getSource()))))).then(net.minecraft.commands.Commands.literal((java.lang.String)"stop").executes($$0 -> net.minecraft.server.commands.DebugCommand.stop((net.minecraft.commands.CommandSourceStack)((net.minecraft.commands.CommandSourceStack)$$0.getSource()))))).then(((com.mojang.brigadier.builder.LiteralArgumentBuilder)net.minecraft.commands.Commands.literal((java.lang.String)"function").requires($$0 -> $$0.hasPermission(3))).then(net.minecraft.commands.Commands.argument((java.lang.String)"name", (com.mojang.brigadier.arguments.ArgumentType)net.minecraft.commands.arguments.item.FunctionArgument.functions()).suggests(net.minecraft.server.commands.FunctionCommand.SUGGEST_FUNCTION).executes($$0 -> net.minecraft.server.commands.DebugCommand.traceFunction((net.minecraft.commands.CommandSourceStack)((net.minecraft.commands.CommandSourceStack)$$0.getSource()), (java.util.Collection)net.minecraft.commands.arguments.item.FunctionArgument.getFunctions((com.mojang.brigadier.context.CommandContext)$$0, (java.lang.String)"name"))))));
+     }
+ 
+-    public static int start(net.minecraft.commands.CommandSourceStack source) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
+-        net.minecraft.server.MinecraftServer minecraftServer = source.getServer();
+-        if (minecraftServer.isTimeProfilerRunning()) {
++    public static int start(net.minecraft.commands.CommandSourceStack $$0) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
++        net.minecraft.server.MinecraftServer $$1 = $$0.getServer();
++        if ($$1.isTimeProfilerRunning()) {
+             throw ERROR_ALREADY_RUNNING.create();
+         }
+-        minecraftServer.startTimeProfiler();
+-        source.sendSuccess((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"commands.debug.started"), true);
++        $$1.startTimeProfiler();
++        $$0.sendSuccess((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"commands.debug.started"), true);
+         return 0;
+     }
+ 
+-    public static int stop(net.minecraft.commands.CommandSourceStack source) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
+-        net.minecraft.server.MinecraftServer minecraftServer = source.getServer();
+-        if (!minecraftServer.isTimeProfilerRunning()) {
++    public static int stop(net.minecraft.commands.CommandSourceStack $$0) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
++        net.minecraft.server.MinecraftServer $$1 = $$0.getServer();
++        if (!$$1.isTimeProfilerRunning()) {
+             throw ERROR_NOT_RUNNING.create();
+         }
+-        net.minecraft.util.profiling.ProfileResults profileResults = minecraftServer.stopTimeProfiler();
+-        double d = (double)profileResults.getNanoDuration() / (double)net.minecraft.util.TimeUtil.NANOSECONDS_PER_SECOND;
+-        double d2 = (double)profileResults.getTickDuration() / d;
+-        source.sendSuccess((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"commands.debug.stopped", (java.lang.Object[])new java.lang.Object[]{java.lang.String.format((java.util.Locale)java.util.Locale.ROOT, (java.lang.String)"%.2f", (java.lang.Object[])new java.lang.Object[]{d}), profileResults.getTickDuration(), java.lang.String.format((java.util.Locale)java.util.Locale.ROOT, (java.lang.String)"%.2f", (java.lang.Object[])new java.lang.Object[]{d2})}), true);
+-        return (int)d2;
++        net.minecraft.util.profiling.ProfileResults $$2 = $$1.stopTimeProfiler();
++        double $$3 = (double)$$2.getNanoDuration() / (double)net.minecraft.util.TimeUtil.NANOSECONDS_PER_SECOND;
++        double $$4 = (double)$$2.getTickDuration() / $$3;
++        $$0.sendSuccess((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"commands.debug.stopped", (java.lang.Object[])new java.lang.Object[]{java.lang.String.format((java.util.Locale)java.util.Locale.ROOT, (java.lang.String)"%.2f", (java.lang.Object[])new java.lang.Object[]{$$3}), $$2.getTickDuration(), java.lang.String.format((java.util.Locale)java.util.Locale.ROOT, (java.lang.String)"%.2f", (java.lang.Object[])new java.lang.Object[]{$$4})}), true);
++        return (int)$$4;
+     }
+ 
+     public static int traceFunction(net.minecraft.commands.CommandSourceStack $$0, java.util.Collection<net.minecraft.commands.CommandFunction> $$1) {

@@ -1,0 +1,51 @@
+--- net/minecraft/client/renderer/texture/SpriteContents$Ticker.java
++++ net/minecraft/client/renderer/texture/SpriteContents$Ticker.java
+@@ -1,0 +1,48 @@
++/*
++ * Decompiled with CFR 0.151.
++ */
++package net.minecraft.client.renderer.texture;
++
++public class net.minecraft.client.renderer.texture.SpriteContents$Ticker
++implements net.minecraft.client.renderer.texture.SpriteTicker
++ {
++    public int frame;
++    public int subFrame;
++    public net.minecraft.client.renderer.texture.SpriteContents$AnimatedTexture animationInfo;
++    @javax.annotation.Nullable
++    public net.minecraft.client.renderer.texture.SpriteContents$InterpolationData interpolationData;
++    public /* synthetic */ net.minecraft.client.renderer.texture.SpriteContents this$0;
++
++    public net.minecraft.client.renderer.texture.SpriteContents$Ticker(@javax.annotation.Nullable net.minecraft.client.renderer.texture.SpriteContents spriteContents, net.minecraft.client.renderer.texture.SpriteContents$AnimatedTexture $$0, net.minecraft.client.renderer.texture.SpriteContents$InterpolationData $$1) {
++        this.this$0 = spriteContents;
++        this.animationInfo = $$0;
++        this.interpolationData = $$1;
++    }
++
++    public void tickAndUpload(int $$0, int $$1) {
++        ++this.subFrame;
++        net.minecraft.client.renderer.texture.SpriteContents$FrameInfo $$2 = (net.minecraft.client.renderer.texture.SpriteContents$FrameInfo)this.animationInfo.frames.get(this.frame);
++        if (this.subFrame >= $$2.time) {
++            int $$3 = $$2.index;
++            this.frame = (this.frame + 1) % this.animationInfo.frames.size();
++            this.subFrame = 0;
++            int $$4 = ((net.minecraft.client.renderer.texture.SpriteContents$FrameInfo)this.animationInfo.frames.get((int)this.frame)).index;
++            if ($$3 != $$4) {
++                this.animationInfo.uploadFrame($$0, $$1, $$4);
++            }
++        } else if (this.interpolationData != null) {
++            if (!com.mojang.blaze3d.systems.RenderSystem.isOnRenderThread()) {
++                com.mojang.blaze3d.systems.RenderSystem.recordRenderCall(() -> this.interpolationData.uploadInterpolatedFrame($$0, $$1, this));
++            } else {
++                this.interpolationData.uploadInterpolatedFrame($$0, $$1, this);
++            }
++        }
++    }
++
++    public void close() {
++        if (this.interpolationData != null) {
++            this.interpolationData.close();
++        }
++    }
++}
++

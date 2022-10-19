@@ -1,0 +1,98 @@
+--- net/minecraft/world/level/block/CeilingHangingSignBlock.java
++++ net/minecraft/world/level/block/CeilingHangingSignBlock.java
+@@ -1,0 +1,95 @@
++/*
++ * Decompiled with CFR 0.151.
++ */
++package net.minecraft.world.level.block;
++
++public class net.minecraft.world.level.block.CeilingHangingSignBlock
++extends net.minecraft.world.level.block.SignBlock
++ {
++    public static net.minecraft.world.level.block.state.properties.IntegerProperty ROTATION;
++    public static net.minecraft.world.level.block.state.properties.BooleanProperty ATTACHED;
++    public static float AABB_OFFSET = 5.0f;
++    public static net.minecraft.world.phys.shapes.VoxelShape SHAPE;
++    public static java.util.Map<java.lang.Integer, net.minecraft.world.phys.shapes.VoxelShape> AABBS;
++
++    public net.minecraft.world.level.block.CeilingHangingSignBlock(net.minecraft.world.level.block.state.BlockBehaviour$Properties $$0, net.minecraft.world.level.block.state.properties.WoodType $$1) {
++        super($$0, $$1);
++        this.registerDefaultState((net.minecraft.world.level.block.state.BlockState)((net.minecraft.world.level.block.state.BlockState)((net.minecraft.world.level.block.state.BlockState)((net.minecraft.world.level.block.state.BlockState)this.stateDefinition.any()).setValue((net.minecraft.world.level.block.state.properties.Property)ROTATION, (java.lang.Comparable)java.lang.Integer.valueOf((int)0))).setValue((net.minecraft.world.level.block.state.properties.Property)ATTACHED, (java.lang.Comparable)java.lang.Boolean.valueOf((boolean)false))).setValue((net.minecraft.world.level.block.state.properties.Property)WATERLOGGED, (java.lang.Comparable)java.lang.Boolean.valueOf((boolean)false)));
++    }
++
++    public net.minecraft.world.InteractionResult use(net.minecraft.world.level.block.state.BlockState $$0, net.minecraft.world.level.Level $$1, net.minecraft.core.BlockPos $$2, net.minecraft.world.entity.player.Player $$3, net.minecraft.world.InteractionHand $$4, net.minecraft.world.phys.BlockHitResult $$5) {
++        net.minecraft.world.level.block.entity.BlockEntity blockEntity = $$1.getBlockEntity($$2);
++        if (blockEntity instanceof net.minecraft.world.level.block.entity.SignBlockEntity) {
++            net.minecraft.world.level.block.entity.SignBlockEntity $$6 = (net.minecraft.world.level.block.entity.SignBlockEntity)blockEntity;
++            net.minecraft.world.item.ItemStack $$7 = $$3.getItemInHand($$4);
++            if (!$$6.hasAnyClickCommands($$3) && $$7.getItem() instanceof net.minecraft.world.item.BlockItem) {
++                return net.minecraft.world.InteractionResult.PASS;
++            }
++        }
++        return super.use($$0, $$1, $$2, $$3, $$4, $$5);
++    }
++
++    public boolean canSurvive(net.minecraft.world.level.block.state.BlockState $$0, net.minecraft.world.level.LevelReader $$1, net.minecraft.core.BlockPos $$2) {
++        return $$1.getBlockState($$2.above()).isFaceSturdy((net.minecraft.world.level.BlockGetter)$$1, $$2.above(), net.minecraft.core.Direction.DOWN, net.minecraft.world.level.block.SupportType.CENTER);
++    }
++
++    public net.minecraft.world.level.block.state.BlockState getStateForPlacement(net.minecraft.world.item.context.BlockPlaceContext $$0) {
++        boolean $$7;
++        net.minecraft.world.level.Level $$1 = $$0.getLevel();
++        net.minecraft.world.level.material.FluidState $$2 = $$1.getFluidState($$0.getClickedPos());
++        net.minecraft.core.BlockPos $$3 = $$0.getClickedPos().above();
++        net.minecraft.world.level.block.state.BlockState $$4 = $$1.getBlockState($$3);
++        boolean $$5 = $$4.is(net.minecraft.tags.BlockTags.ALL_HANGING_SIGNS);
++        net.minecraft.core.Direction $$6 = net.minecraft.core.Direction.fromYRot((double)$$0.getRotation());
++        boolean bl = $$7 = !net.minecraft.world.level.block.Block.isFaceFull((net.minecraft.world.phys.shapes.VoxelShape)$$4.getCollisionShape((net.minecraft.world.level.BlockGetter)$$1, $$3), (net.minecraft.core.Direction)net.minecraft.core.Direction.DOWN) || $$0.isSecondaryUseActive();
++        if ($$5 && !$$0.isSecondaryUseActive()) {
++            java.util.Optional $$9;
++            if ($$4.hasProperty((net.minecraft.world.level.block.state.properties.Property)net.minecraft.world.level.block.WallHangingSignBlock.FACING)) {
++                net.minecraft.core.Direction $$8 = (net.minecraft.core.Direction)$$4.getValue((net.minecraft.world.level.block.state.properties.Property)net.minecraft.world.level.block.WallHangingSignBlock.FACING);
++                if ($$8.getAxis().test($$6)) {
++                    $$7 = false;
++                }
++            } else if ($$4.hasProperty((net.minecraft.world.level.block.state.properties.Property)ROTATION) && ($$9 = net.minecraft.world.level.block.state.properties.RotationSegment.convertToDirection((int)((java.lang.Integer)$$4.getValue((net.minecraft.world.level.block.state.properties.Property)ROTATION)))).isPresent() && ((net.minecraft.core.Direction)$$9.get()).getAxis().test($$6)) {
++                $$7 = false;
++            }
++        }
++        int $$10 = !$$7 ? net.minecraft.world.level.block.state.properties.RotationSegment.convertToSegment((net.minecraft.core.Direction)$$6) : net.minecraft.world.level.block.state.properties.RotationSegment.convertToSegment((float)$$0.getRotation());
++        return (net.minecraft.world.level.block.state.BlockState)((net.minecraft.world.level.block.state.BlockState)((net.minecraft.world.level.block.state.BlockState)this.defaultBlockState().setValue((net.minecraft.world.level.block.state.properties.Property)ATTACHED, (java.lang.Comparable)java.lang.Boolean.valueOf((boolean)$$7))).setValue((net.minecraft.world.level.block.state.properties.Property)ROTATION, (java.lang.Comparable)java.lang.Integer.valueOf((int)$$10))).setValue((net.minecraft.world.level.block.state.properties.Property)WATERLOGGED, (java.lang.Comparable)java.lang.Boolean.valueOf(($$2.getType() == net.minecraft.world.level.material.Fluids.WATER ? 1 : 0) != 0));
++    }
++
++    public net.minecraft.world.phys.shapes.VoxelShape getShape(net.minecraft.world.level.block.state.BlockState $$0, net.minecraft.world.level.BlockGetter $$1, net.minecraft.core.BlockPos $$2, net.minecraft.world.phys.shapes.CollisionContext $$3) {
++        net.minecraft.world.phys.shapes.VoxelShape $$4 = (net.minecraft.world.phys.shapes.VoxelShape)AABBS.get((java.lang.Object)$$0.getValue((net.minecraft.world.level.block.state.properties.Property)ROTATION));
++        return $$4 == null ? SHAPE : $$4;
++    }
++
++    public net.minecraft.world.level.block.state.BlockState updateShape(net.minecraft.world.level.block.state.BlockState $$0, net.minecraft.core.Direction $$1, net.minecraft.world.level.block.state.BlockState $$2, net.minecraft.world.level.LevelAccessor $$3, net.minecraft.core.BlockPos $$4, net.minecraft.core.BlockPos $$5) {
++        if ($$1 == net.minecraft.core.Direction.UP && !this.canSurvive($$0, (net.minecraft.world.level.LevelReader)$$3, $$4)) {
++            return net.minecraft.world.level.block.Blocks.AIR.defaultBlockState();
++        }
++        return super.updateShape($$0, $$1, $$2, $$3, $$4, $$5);
++    }
++
++    public net.minecraft.world.level.block.state.BlockState rotate(net.minecraft.world.level.block.state.BlockState $$0, net.minecraft.world.level.block.Rotation $$1) {
++        return (net.minecraft.world.level.block.state.BlockState)$$0.setValue((net.minecraft.world.level.block.state.properties.Property)ROTATION, (java.lang.Comparable)java.lang.Integer.valueOf((int)$$1.rotate(((java.lang.Integer)$$0.getValue((net.minecraft.world.level.block.state.properties.Property)ROTATION)).intValue(), 16)));
++    }
++
++    public net.minecraft.world.level.block.state.BlockState mirror(net.minecraft.world.level.block.state.BlockState $$0, net.minecraft.world.level.block.Mirror $$1) {
++        return (net.minecraft.world.level.block.state.BlockState)$$0.setValue((net.minecraft.world.level.block.state.properties.Property)ROTATION, (java.lang.Comparable)java.lang.Integer.valueOf((int)$$1.mirror(((java.lang.Integer)$$0.getValue((net.minecraft.world.level.block.state.properties.Property)ROTATION)).intValue(), 16)));
++    }
++
++    public void createBlockStateDefinition(net.minecraft.world.level.block.state.StateDefinition$Builder<net.minecraft.world.level.block.Block, net.minecraft.world.level.block.state.BlockState> $$0) {
++        $$0.add(new net.minecraft.world.level.block.state.properties.Property[]{ROTATION, ATTACHED, WATERLOGGED});
++    }
++
++    public net.minecraft.world.level.block.entity.BlockEntity newBlockEntity(net.minecraft.core.BlockPos $$0, net.minecraft.world.level.block.state.BlockState $$1) {
++        return new net.minecraft.world.level.block.entity.HangingSignBlockEntity($$0, $$1);
++    }
++
++    static {
++        ROTATION = net.minecraft.world.level.block.state.properties.BlockStateProperties.ROTATION_16;
++        ATTACHED = net.minecraft.world.level.block.state.properties.BlockStateProperties.ATTACHED;
++        SHAPE = net.minecraft.world.level.block.Block.box((double)3.0, (double)0.0, (double)3.0, (double)13.0, (double)16.0, (double)13.0);
++        AABBS = com.google.common.collect.Maps.newHashMap((java.util.Map)com.google.common.collect.ImmutableMap.of((java.lang.Object)0, (java.lang.Object)net.minecraft.world.level.block.Block.box((double)1.0, (double)0.0, (double)7.0, (double)15.0, (double)10.0, (double)9.0), (java.lang.Object)4, (java.lang.Object)net.minecraft.world.level.block.Block.box((double)7.0, (double)0.0, (double)1.0, (double)9.0, (double)10.0, (double)15.0), (java.lang.Object)8, (java.lang.Object)net.minecraft.world.level.block.Block.box((double)1.0, (double)0.0, (double)7.0, (double)15.0, (double)10.0, (double)9.0), (java.lang.Object)12, (java.lang.Object)net.minecraft.world.level.block.Block.box((double)7.0, (double)0.0, (double)1.0, (double)9.0, (double)10.0, (double)15.0)));
++    }
++}
++

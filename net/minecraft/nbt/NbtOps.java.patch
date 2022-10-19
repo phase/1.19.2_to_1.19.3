@@ -1,0 +1,345 @@
+--- net/minecraft/nbt/NbtOps.java
++++ net/minecraft/nbt/NbtOps.java
+@@ -7,6 +7,7 @@
+ implements com.mojang.serialization.DynamicOps<net.minecraft.nbt.Tag>
+  {
+     public static net.minecraft.nbt.NbtOps INSTANCE;
++    public static java.lang.String WRAPPER_MARKER = "";
+ 
+     public net.minecraft.nbt.NbtOps() {
+     }
+@@ -62,7 +63,8 @@
+ 
+     public com.mojang.serialization.DataResult<java.lang.Number> getNumberValue(net.minecraft.nbt.Tag $$0) {
+         if ($$0 instanceof net.minecraft.nbt.NumericTag) {
+-            return com.mojang.serialization.DataResult.success((java.lang.Object)((net.minecraft.nbt.NumericTag)$$0).getAsNumber());
++            net.minecraft.nbt.NumericTag $$1 = (net.minecraft.nbt.NumericTag)$$0;
++            return com.mojang.serialization.DataResult.success((java.lang.Object)$$1.getAsNumber());
+         }
+         return com.mojang.serialization.DataResult.error((java.lang.String)"Not a number");
+     }
+@@ -101,7 +103,8 @@
+ 
+     public com.mojang.serialization.DataResult<java.lang.String> getStringValue(net.minecraft.nbt.Tag $$0) {
+         if ($$0 instanceof net.minecraft.nbt.StringTag) {
+-            return com.mojang.serialization.DataResult.success((java.lang.Object)$$0.getAsString());
++            net.minecraft.nbt.StringTag $$1 = (net.minecraft.nbt.StringTag)$$0;
++            return com.mojang.serialization.DataResult.success((java.lang.Object)$$1.getAsString());
+         }
+         return com.mojang.serialization.DataResult.error((java.lang.String)"Not a string");
+     }
+@@ -110,58 +113,15 @@
+         return net.minecraft.nbt.StringTag.valueOf((java.lang.String)$$0);
+     }
+ 
+-    public static net.minecraft.nbt.CollectionTag<?> createGenericList(byte collectionElementId, byte newElementId) {
+-        if (net.minecraft.nbt.NbtOps.typesMatch((byte)collectionElementId, (byte)newElementId, (byte)4)) {
+-            return new net.minecraft.nbt.LongArrayTag(new long[0]);
+-        }
+-        if (net.minecraft.nbt.NbtOps.typesMatch((byte)collectionElementId, (byte)newElementId, (byte)1)) {
+-            return new net.minecraft.nbt.ByteArrayTag(new byte[0]);
+-        }
+-        if (net.minecraft.nbt.NbtOps.typesMatch((byte)collectionElementId, (byte)newElementId, (byte)3)) {
+-            return new net.minecraft.nbt.IntArrayTag(new int[0]);
+-        }
+-        return new net.minecraft.nbt.ListTag();
++    public com.mojang.serialization.DataResult<net.minecraft.nbt.Tag> mergeToList(net.minecraft.nbt.Tag $$0, net.minecraft.nbt.Tag $$12) {
++        return (com.mojang.serialization.DataResult)net.minecraft.nbt.NbtOps.createCollector((net.minecraft.nbt.Tag)$$0).map($$1 -> com.mojang.serialization.DataResult.success((java.lang.Object)$$1.accept($$12).result())).orElseGet(() -> com.mojang.serialization.DataResult.error((java.lang.String)("mergeToList called with not a list: " + $$0), (java.lang.Object)$$0));
+     }
+ 
+-    public static boolean typesMatch(byte collectionElementId, byte newElementId, byte newCollectionElementId) {
+-        return collectionElementId == newCollectionElementId && (newElementId == newCollectionElementId || newElementId == 0);
++    public com.mojang.serialization.DataResult<net.minecraft.nbt.Tag> mergeToList(net.minecraft.nbt.Tag $$0, java.util.List<net.minecraft.nbt.Tag> $$12) {
++        return (com.mojang.serialization.DataResult)net.minecraft.nbt.NbtOps.createCollector((net.minecraft.nbt.Tag)$$0).map($$1 -> com.mojang.serialization.DataResult.success((java.lang.Object)$$1.acceptAll((java.lang.Iterable)$$12).result())).orElseGet(() -> com.mojang.serialization.DataResult.error((java.lang.String)("mergeToList called with not a list: " + $$0), (java.lang.Object)$$0));
+     }
+ 
+-    public static <T extends net.minecraft.nbt.Tag> void fillOne(net.minecraft.nbt.CollectionTag<T> collectionTag, net.minecraft.nbt.Tag mergingCollectionTag, net.minecraft.nbt.Tag elementTag) {
+-        if (mergingCollectionTag instanceof net.minecraft.nbt.CollectionTag) {
+-            net.minecraft.nbt.CollectionTag collectionTag2 = (net.minecraft.nbt.CollectionTag)mergingCollectionTag;
+-            collectionTag2.forEach(tag -> collectionTag.add(tag));
+-        }
+-        collectionTag.add((java.lang.Object)elementTag);
+-    }
+-
+-    public static <T extends net.minecraft.nbt.Tag> void fillMany(net.minecraft.nbt.CollectionTag<T> collectionTag, net.minecraft.nbt.Tag mergingCollectionTag, java.util.List<net.minecraft.nbt.Tag> elementTags) {
+-        if (mergingCollectionTag instanceof net.minecraft.nbt.CollectionTag) {
+-            net.minecraft.nbt.CollectionTag collectionTag2 = (net.minecraft.nbt.CollectionTag)mergingCollectionTag;
+-            collectionTag2.forEach(tag -> collectionTag.add(tag));
+-        }
+-        elementTags.forEach(tag -> collectionTag.add(tag));
+-    }
+-
+-    public com.mojang.serialization.DataResult<net.minecraft.nbt.Tag> mergeToList(net.minecraft.nbt.Tag $$0, net.minecraft.nbt.Tag $$1) {
+-        if (!($$0 instanceof net.minecraft.nbt.CollectionTag) && !($$0 instanceof net.minecraft.nbt.EndTag)) {
+-            return com.mojang.serialization.DataResult.error((java.lang.String)("mergeToList called with not a list: " + $$0), (java.lang.Object)$$0);
+-        }
+-        net.minecraft.nbt.CollectionTag $$2 = net.minecraft.nbt.NbtOps.createGenericList((byte)($$0 instanceof net.minecraft.nbt.CollectionTag ? ((net.minecraft.nbt.CollectionTag)$$0).getElementType() : (byte)0), (byte)$$1.getId());
+-        net.minecraft.nbt.NbtOps.fillOne((net.minecraft.nbt.CollectionTag)$$2, (net.minecraft.nbt.Tag)$$0, (net.minecraft.nbt.Tag)$$1);
+-        return com.mojang.serialization.DataResult.success((java.lang.Object)$$2);
+-    }
+-
+-    public com.mojang.serialization.DataResult<net.minecraft.nbt.Tag> mergeToList(net.minecraft.nbt.Tag $$0, java.util.List<net.minecraft.nbt.Tag> $$1) {
+-        if (!($$0 instanceof net.minecraft.nbt.CollectionTag) && !($$0 instanceof net.minecraft.nbt.EndTag)) {
+-            return com.mojang.serialization.DataResult.error((java.lang.String)("mergeToList called with not a list: " + $$0), (java.lang.Object)$$0);
+-        }
+-        net.minecraft.nbt.CollectionTag $$2 = net.minecraft.nbt.NbtOps.createGenericList((byte)($$0 instanceof net.minecraft.nbt.CollectionTag ? ((net.minecraft.nbt.CollectionTag)$$0).getElementType() : (byte)0), (byte)((java.lang.Byte)$$1.stream().findFirst().map(net.minecraft.nbt.Tag::getId).orElse((java.lang.Object)0)));
+-        net.minecraft.nbt.NbtOps.fillMany((net.minecraft.nbt.CollectionTag)$$2, (net.minecraft.nbt.Tag)$$0, $$1);
+-        return com.mojang.serialization.DataResult.success((java.lang.Object)$$2);
+-    }
+-
+-    public com.mojang.serialization.DataResult<net.minecraft.nbt.Tag> mergeToMap(net.minecraft.nbt.Tag $$0, net.minecraft.nbt.Tag $$1, net.minecraft.nbt.Tag $$2) {
++    public com.mojang.serialization.DataResult<net.minecraft.nbt.Tag> mergeToMap(net.minecraft.nbt.Tag $$0, net.minecraft.nbt.Tag $$1, net.minecraft.nbt.Tag $$22) {
+         if (!($$0 instanceof net.minecraft.nbt.CompoundTag) && !($$0 instanceof net.minecraft.nbt.EndTag)) {
+             return com.mojang.serialization.DataResult.error((java.lang.String)("mergeToMap called with not a map: " + $$0), (java.lang.Object)$$0);
+         }
+@@ -171,9 +131,9 @@
+         net.minecraft.nbt.CompoundTag $$3 = new net.minecraft.nbt.CompoundTag();
+         if ($$0 instanceof net.minecraft.nbt.CompoundTag) {
+             net.minecraft.nbt.CompoundTag $$4 = (net.minecraft.nbt.CompoundTag)$$0;
+-            $$4.getAllKeys().forEach(compoundTagKey -> $$3.put(compoundTagKey, $$4.get(compoundTagKey)));
++            $$4.getAllKeys().forEach($$2 -> $$3.put($$2, $$4.get($$2)));
+         }
+-        $$3.put($$1.getAsString(), $$2);
++        $$3.put($$1.getAsString(), $$22);
+         return com.mojang.serialization.DataResult.success((java.lang.Object)$$3);
+     }
+ 
+@@ -181,67 +141,91 @@
+         if (!($$0 instanceof net.minecraft.nbt.CompoundTag) && !($$0 instanceof net.minecraft.nbt.EndTag)) {
+             return com.mojang.serialization.DataResult.error((java.lang.String)("mergeToMap called with not a map: " + $$0), (java.lang.Object)$$0);
+         }
+-        net.minecraft.nbt.CompoundTag $$2 = new net.minecraft.nbt.CompoundTag();
++        net.minecraft.nbt.CompoundTag $$22 = new net.minecraft.nbt.CompoundTag();
+         if ($$0 instanceof net.minecraft.nbt.CompoundTag) {
+             net.minecraft.nbt.CompoundTag $$3 = (net.minecraft.nbt.CompoundTag)$$0;
+-            $$3.getAllKeys().forEach(compoundTagKey -> $$2.put(compoundTagKey, $$3.get(compoundTagKey)));
++            $$3.getAllKeys().forEach($$2 -> $$22.put($$2, $$3.get($$2)));
+         }
+         java.util.ArrayList $$4 = com.google.common.collect.Lists.newArrayList();
+-        $$1.entries().forEach(arg_0 -> net.minecraft.nbt.NbtOps.lambda$mergeToMap$5((java.util.List)$$4, $$2, arg_0));
++        $$1.entries().forEach(arg_0 -> net.minecraft.nbt.NbtOps.lambda$mergeToMap$6((java.util.List)$$4, $$22, arg_0));
+         if (!$$4.isEmpty()) {
+-            return com.mojang.serialization.DataResult.error((java.lang.String)("some keys are not strings: " + (java.util.List)$$4), (java.lang.Object)$$2);
++            return com.mojang.serialization.DataResult.error((java.lang.String)("some keys are not strings: " + (java.util.List)$$4), (java.lang.Object)$$22);
+         }
+-        return com.mojang.serialization.DataResult.success((java.lang.Object)$$2);
++        return com.mojang.serialization.DataResult.success((java.lang.Object)$$22);
+     }
+ 
+     public com.mojang.serialization.DataResult<java.util.stream.Stream<com.mojang.datafixers.util.Pair<net.minecraft.nbt.Tag, net.minecraft.nbt.Tag>>> getMapValues(net.minecraft.nbt.Tag $$0) {
+-        if (!($$0 instanceof net.minecraft.nbt.CompoundTag)) {
+-            return com.mojang.serialization.DataResult.error((java.lang.String)("Not a map: " + $$0));
++        if ($$0 instanceof net.minecraft.nbt.CompoundTag) {
++            net.minecraft.nbt.CompoundTag $$12 = (net.minecraft.nbt.CompoundTag)$$0;
++            return com.mojang.serialization.DataResult.success((java.lang.Object)$$12.getAllKeys().stream().map($$1 -> com.mojang.datafixers.util.Pair.of((java.lang.Object)this.createString($$1), (java.lang.Object)$$12.get($$1))));
+         }
+-        net.minecraft.nbt.CompoundTag $$1 = (net.minecraft.nbt.CompoundTag)$$0;
+-        return com.mojang.serialization.DataResult.success((java.lang.Object)$$1.getAllKeys().stream().map(key -> com.mojang.datafixers.util.Pair.of((java.lang.Object)this.createString(key), (java.lang.Object)$$1.get(key))));
++        return com.mojang.serialization.DataResult.error((java.lang.String)("Not a map: " + $$0));
+     }
+ 
+     public com.mojang.serialization.DataResult<java.util.function.Consumer<java.util.function.BiConsumer<net.minecraft.nbt.Tag, net.minecraft.nbt.Tag>>> getMapEntries(net.minecraft.nbt.Tag $$0) {
+-        if (!($$0 instanceof net.minecraft.nbt.CompoundTag)) {
+-            return com.mojang.serialization.DataResult.error((java.lang.String)("Not a map: " + $$0));
++        if ($$0 instanceof net.minecraft.nbt.CompoundTag) {
++            net.minecraft.nbt.CompoundTag $$12 = (net.minecraft.nbt.CompoundTag)$$0;
++            return com.mojang.serialization.DataResult.success($$1 -> $$12.getAllKeys().forEach($$2 -> $$1.accept((java.lang.Object)this.createString($$2), (java.lang.Object)$$12.get($$2))));
+         }
+-        net.minecraft.nbt.CompoundTag $$1 = (net.minecraft.nbt.CompoundTag)$$0;
+-        return com.mojang.serialization.DataResult.success(entryValueConsumer -> $$1.getAllKeys().forEach($$2 -> entryValueConsumer.accept((java.lang.Object)this.createString($$2), (java.lang.Object)$$1.get($$2))));
++        return com.mojang.serialization.DataResult.error((java.lang.String)("Not a map: " + $$0));
+     }
+ 
+     public com.mojang.serialization.DataResult<com.mojang.serialization.MapLike<net.minecraft.nbt.Tag>> getMap(net.minecraft.nbt.Tag $$0) {
+-        if (!($$0 instanceof net.minecraft.nbt.CompoundTag)) {
+-            return com.mojang.serialization.DataResult.error((java.lang.String)("Not a map: " + $$0));
++        if ($$0 instanceof net.minecraft.nbt.CompoundTag) {
++            net.minecraft.nbt.CompoundTag $$1 = (net.minecraft.nbt.CompoundTag)$$0;
++            return com.mojang.serialization.DataResult.success((java.lang.Object)new /* Unavailable Anonymous Inner Class!! */);
+         }
+-        net.minecraft.nbt.CompoundTag $$1 = (net.minecraft.nbt.CompoundTag)$$0;
+-        return com.mojang.serialization.DataResult.success((java.lang.Object)new /* Unavailable Anonymous Inner Class!! */);
++        return com.mojang.serialization.DataResult.error((java.lang.String)("Not a map: " + $$0));
+     }
+ 
+     public net.minecraft.nbt.Tag createMap(java.util.stream.Stream<com.mojang.datafixers.util.Pair<net.minecraft.nbt.Tag, net.minecraft.nbt.Tag>> $$0) {
+-        net.minecraft.nbt.CompoundTag $$1 = new net.minecraft.nbt.CompoundTag();
+-        $$0.forEach(entry -> $$1.put(((net.minecraft.nbt.Tag)entry.getFirst()).getAsString(), (net.minecraft.nbt.Tag)entry.getSecond()));
+-        return $$1;
++        net.minecraft.nbt.CompoundTag $$12 = new net.minecraft.nbt.CompoundTag();
++        $$0.forEach($$1 -> $$12.put(((net.minecraft.nbt.Tag)$$1.getFirst()).getAsString(), (net.minecraft.nbt.Tag)$$1.getSecond()));
++        return $$12;
+     }
+ 
+-    public com.mojang.serialization.DataResult<java.util.stream.Stream<net.minecraft.nbt.Tag>> getStream(net.minecraft.nbt.Tag $$0) {
+-        if ($$0 instanceof net.minecraft.nbt.CollectionTag) {
+-            return com.mojang.serialization.DataResult.success((java.lang.Object)((net.minecraft.nbt.CollectionTag)$$0).stream().map(tag -> tag));
++    public static net.minecraft.nbt.Tag tryUnwrap(net.minecraft.nbt.CompoundTag $$0) {
++        net.minecraft.nbt.Tag $$1;
++        if ($$0.size() == 1 && ($$1 = $$0.get("")) != null) {
++            return $$1;
+         }
++        return $$0;
++    }
++
++    public com.mojang.serialization.DataResult<java.util.stream.Stream<net.minecraft.nbt.Tag>> getStream(net.minecraft.nbt.Tag $$02) {
++        if ($$02 instanceof net.minecraft.nbt.ListTag) {
++            net.minecraft.nbt.ListTag $$1 = (net.minecraft.nbt.ListTag)$$02;
++            if ($$1.getElementType() == 10) {
++                return com.mojang.serialization.DataResult.success((java.lang.Object)$$1.stream().map($$0 -> net.minecraft.nbt.NbtOps.tryUnwrap((net.minecraft.nbt.CompoundTag)((net.minecraft.nbt.CompoundTag)$$0))));
++            }
++            return com.mojang.serialization.DataResult.success((java.lang.Object)$$1.stream());
++        }
++        if ($$02 instanceof net.minecraft.nbt.CollectionTag) {
++            net.minecraft.nbt.CollectionTag $$2 = (net.minecraft.nbt.CollectionTag)$$02;
++            return com.mojang.serialization.DataResult.success((java.lang.Object)$$2.stream().map($$0 -> $$0));
++        }
+         return com.mojang.serialization.DataResult.error((java.lang.String)"Not a list");
+     }
+ 
+     public com.mojang.serialization.DataResult<java.util.function.Consumer<java.util.function.Consumer<net.minecraft.nbt.Tag>>> getList(net.minecraft.nbt.Tag $$0) {
++        if ($$0 instanceof net.minecraft.nbt.ListTag) {
++            net.minecraft.nbt.ListTag $$1 = (net.minecraft.nbt.ListTag)$$0;
++            if ($$1.getElementType() == 10) {
++                return com.mojang.serialization.DataResult.success($$12 -> $$1.forEach($$1 -> $$12.accept((java.lang.Object)net.minecraft.nbt.NbtOps.tryUnwrap((net.minecraft.nbt.CompoundTag)((net.minecraft.nbt.CompoundTag)$$1)))));
++            }
++            return com.mojang.serialization.DataResult.success(arg_0 -> ((net.minecraft.nbt.ListTag)$$1).forEach(arg_0));
++        }
+         if ($$0 instanceof net.minecraft.nbt.CollectionTag) {
+-            net.minecraft.nbt.CollectionTag $$1 = (net.minecraft.nbt.CollectionTag)$$0;
+-            return com.mojang.serialization.DataResult.success(arg_0 -> ((net.minecraft.nbt.CollectionTag)$$1).forEach(arg_0));
++            net.minecraft.nbt.CollectionTag $$2 = (net.minecraft.nbt.CollectionTag)$$0;
++            return com.mojang.serialization.DataResult.success(arg_0 -> ((net.minecraft.nbt.CollectionTag)$$2).forEach(arg_0));
+         }
+         return com.mojang.serialization.DataResult.error((java.lang.String)("Not a list: " + $$0));
+     }
+ 
+     public com.mojang.serialization.DataResult<java.nio.ByteBuffer> getByteBuffer(net.minecraft.nbt.Tag $$0) {
+         if ($$0 instanceof net.minecraft.nbt.ByteArrayTag) {
+-            return com.mojang.serialization.DataResult.success((java.lang.Object)java.nio.ByteBuffer.wrap((byte[])((net.minecraft.nbt.ByteArrayTag)$$0).getAsByteArray()));
++            net.minecraft.nbt.ByteArrayTag $$1 = (net.minecraft.nbt.ByteArrayTag)$$0;
++            return com.mojang.serialization.DataResult.success((java.lang.Object)java.nio.ByteBuffer.wrap((byte[])$$1.getAsByteArray()));
+         }
+         return super.getByteBuffer((java.lang.Object)$$0);
+     }
+@@ -252,7 +236,8 @@
+ 
+     public com.mojang.serialization.DataResult<java.util.stream.IntStream> getIntStream(net.minecraft.nbt.Tag $$0) {
+         if ($$0 instanceof net.minecraft.nbt.IntArrayTag) {
+-            return com.mojang.serialization.DataResult.success((java.lang.Object)java.util.Arrays.stream((int[])((net.minecraft.nbt.IntArrayTag)$$0).getAsIntArray()));
++            net.minecraft.nbt.IntArrayTag $$1 = (net.minecraft.nbt.IntArrayTag)$$0;
++            return com.mojang.serialization.DataResult.success((java.lang.Object)java.util.Arrays.stream((int[])$$1.getAsIntArray()));
+         }
+         return super.getIntStream((java.lang.Object)$$0);
+     }
+@@ -263,7 +248,8 @@
+ 
+     public com.mojang.serialization.DataResult<java.util.stream.LongStream> getLongStream(net.minecraft.nbt.Tag $$0) {
+         if ($$0 instanceof net.minecraft.nbt.LongArrayTag) {
+-            return com.mojang.serialization.DataResult.success((java.lang.Object)java.util.Arrays.stream((long[])((net.minecraft.nbt.LongArrayTag)$$0).getAsLongArray()));
++            net.minecraft.nbt.LongArrayTag $$1 = (net.minecraft.nbt.LongArrayTag)$$0;
++            return com.mojang.serialization.DataResult.success((java.lang.Object)java.util.Arrays.stream((long[])$$1.getAsLongArray()));
+         }
+         return super.getLongStream((java.lang.Object)$$0);
+     }
+@@ -273,37 +259,14 @@
+     }
+ 
+     public net.minecraft.nbt.Tag createList(java.util.stream.Stream<net.minecraft.nbt.Tag> $$0) {
+-        com.google.common.collect.PeekingIterator $$1 = com.google.common.collect.Iterators.peekingIterator((java.util.Iterator)$$0.iterator());
+-        if (!$$1.hasNext()) {
+-            return new net.minecraft.nbt.ListTag();
+-        }
+-        net.minecraft.nbt.Tag $$2 = (net.minecraft.nbt.Tag)$$1.peek();
+-        if ($$2 instanceof net.minecraft.nbt.ByteTag) {
+-            java.util.ArrayList $$3 = com.google.common.collect.Lists.newArrayList((java.util.Iterator)com.google.common.collect.Iterators.transform((java.util.Iterator)$$1, byteTag -> ((net.minecraft.nbt.ByteTag)byteTag).getAsByte()));
+-            return new net.minecraft.nbt.ByteArrayTag((java.util.List)$$3);
+-        }
+-        if ($$2 instanceof net.minecraft.nbt.IntTag) {
+-            java.util.ArrayList $$4 = com.google.common.collect.Lists.newArrayList((java.util.Iterator)com.google.common.collect.Iterators.transform((java.util.Iterator)$$1, intTag -> ((net.minecraft.nbt.IntTag)intTag).getAsInt()));
+-            return new net.minecraft.nbt.IntArrayTag((java.util.List)$$4);
+-        }
+-        if ($$2 instanceof net.minecraft.nbt.LongTag) {
+-            java.util.ArrayList $$5 = com.google.common.collect.Lists.newArrayList((java.util.Iterator)com.google.common.collect.Iterators.transform((java.util.Iterator)$$1, longTag -> ((net.minecraft.nbt.LongTag)longTag).getAsLong()));
+-            return new net.minecraft.nbt.LongArrayTag((java.util.List)$$5);
+-        }
+-        net.minecraft.nbt.ListTag $$6 = new net.minecraft.nbt.ListTag();
+-        while ($$1.hasNext()) {
+-            net.minecraft.nbt.Tag $$7 = (net.minecraft.nbt.Tag)$$1.next();
+-            if ($$7 instanceof net.minecraft.nbt.EndTag) continue;
+-            $$6.add((java.lang.Object)$$7);
+-        }
+-        return $$6;
++        return net.minecraft.nbt.NbtOps$InitialListCollector.INSTANCE.acceptAll($$0).result();
+     }
+ 
+-    public net.minecraft.nbt.Tag remove(net.minecraft.nbt.Tag $$0, java.lang.String $$1) {
++    public net.minecraft.nbt.Tag remove(net.minecraft.nbt.Tag $$0, java.lang.String $$12) {
+         if ($$0 instanceof net.minecraft.nbt.CompoundTag) {
+-            net.minecraft.nbt.CompoundTag $$2 = (net.minecraft.nbt.CompoundTag)$$0;
++            net.minecraft.nbt.CompoundTag $$22 = (net.minecraft.nbt.CompoundTag)$$0;
+             net.minecraft.nbt.CompoundTag $$3 = new net.minecraft.nbt.CompoundTag();
+-            $$2.getAllKeys().stream().filter(compoundTagKey -> !java.util.Objects.equals((java.lang.Object)compoundTagKey, (java.lang.Object)$$1)).forEach(compoundTagKey -> $$3.put(compoundTagKey, $$2.get(compoundTagKey)));
++            $$22.getAllKeys().stream().filter($$1 -> !java.util.Objects.equals((java.lang.Object)$$1, (java.lang.Object)$$12)).forEach($$2 -> $$3.put($$2, $$22.get($$2)));
+             return $$3;
+         }
+         return $$0;
+@@ -317,6 +280,39 @@
+         return new net.minecraft.nbt.NbtOps$NbtRecordBuilder(this);
+     }
+ 
++    public static java.util.Optional<net.minecraft.nbt.NbtOps$ListCollector> createCollector(net.minecraft.nbt.Tag $$0) {
++        if ($$0 instanceof net.minecraft.nbt.EndTag) {
++            return java.util.Optional.of((java.lang.Object)net.minecraft.nbt.NbtOps$InitialListCollector.INSTANCE);
++        }
++        if ($$0 instanceof net.minecraft.nbt.CollectionTag) {
++            net.minecraft.nbt.CollectionTag $$1 = (net.minecraft.nbt.CollectionTag)$$0;
++            if ($$1.isEmpty()) {
++                return java.util.Optional.of((java.lang.Object)net.minecraft.nbt.NbtOps$InitialListCollector.INSTANCE);
++            }
++            if ($$1 instanceof net.minecraft.nbt.ListTag) {
++                net.minecraft.nbt.ListTag $$2 = (net.minecraft.nbt.ListTag)$$1;
++                return switch ($$2.getElementType()) {
++                    case 0 -> java.util.Optional.of((java.lang.Object)net.minecraft.nbt.NbtOps$InitialListCollector.INSTANCE);
++                    case 10 -> java.util.Optional.of((java.lang.Object)new net.minecraft.nbt.NbtOps$HeterogenousListCollector((java.util.Collection)$$2));
++                    default -> java.util.Optional.of((java.lang.Object)new net.minecraft.nbt.NbtOps$HomogenousListCollector($$2));
++                };
++            }
++            if ($$1 instanceof net.minecraft.nbt.ByteArrayTag) {
++                net.minecraft.nbt.ByteArrayTag $$3 = (net.minecraft.nbt.ByteArrayTag)$$1;
++                return java.util.Optional.of((java.lang.Object)new net.minecraft.nbt.NbtOps$ByteListCollector($$3.getAsByteArray()));
++            }
++            if ($$1 instanceof net.minecraft.nbt.IntArrayTag) {
++                net.minecraft.nbt.IntArrayTag $$4 = (net.minecraft.nbt.IntArrayTag)$$1;
++                return java.util.Optional.of((java.lang.Object)new net.minecraft.nbt.NbtOps$IntListCollector($$4.getAsIntArray()));
++            }
++            if ($$1 instanceof net.minecraft.nbt.LongArrayTag) {
++                net.minecraft.nbt.LongArrayTag $$5 = (net.minecraft.nbt.LongArrayTag)$$1;
++                return java.util.Optional.of((java.lang.Object)new net.minecraft.nbt.NbtOps$LongListCollector($$5.getAsLongArray()));
++            }
++        }
++        return java.util.Optional.empty();
++    }
++
+     public /* synthetic */ java.lang.Object remove(java.lang.Object object, java.lang.String string) {
+         return this.remove((net.minecraft.nbt.Tag)object, string);
+     }
+@@ -441,13 +437,13 @@
+         return this.empty();
+     }
+ 
+-    public static /* synthetic */ void lambda$mergeToMap$5(java.util.List list, net.minecraft.nbt.CompoundTag compoundTag, com.mojang.datafixers.util.Pair entry) {
+-        net.minecraft.nbt.Tag tag = (net.minecraft.nbt.Tag)entry.getFirst();
+-        if (!(tag instanceof net.minecraft.nbt.StringTag)) {
+-            list.add((java.lang.Object)tag);
++    public static /* synthetic */ void lambda$mergeToMap$6(java.util.List $$0, net.minecraft.nbt.CompoundTag $$1, com.mojang.datafixers.util.Pair $$2) {
++        net.minecraft.nbt.Tag $$3 = (net.minecraft.nbt.Tag)$$2.getFirst();
++        if (!($$3 instanceof net.minecraft.nbt.StringTag)) {
++            $$0.add((java.lang.Object)$$3);
+             return;
+         }
+-        compoundTag.put(tag.getAsString(), (net.minecraft.nbt.Tag)entry.getSecond());
++        $$1.put($$3.getAsString(), (net.minecraft.nbt.Tag)$$2.getSecond());
+     }
+ 
+     static {

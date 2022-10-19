@@ -1,0 +1,132 @@
+--- net/minecraft/world/item/crafting/BookCloningRecipe.java
++++ net/minecraft/world/item/crafting/BookCloningRecipe.java
+@@ -6,85 +6,84 @@
+ public class net.minecraft.world.item.crafting.BookCloningRecipe
+ extends net.minecraft.world.item.crafting.CustomRecipe
+  {
+-    public net.minecraft.world.item.crafting.BookCloningRecipe(net.minecraft.resources.ResourceLocation $$0) {
+-        super($$0);
++    public net.minecraft.world.item.crafting.BookCloningRecipe(net.minecraft.resources.ResourceLocation $$0, net.minecraft.world.item.crafting.CraftingBookCategory $$1) {
++        super($$0, $$1);
+     }
+ 
+-    public boolean matches(net.minecraft.world.inventory.CraftingContainer inv, net.minecraft.world.level.Level level) {
+-        int n = 0;
+-        net.minecraft.world.item.ItemStack itemStack = net.minecraft.world.item.ItemStack.EMPTY;
+-        for (int i = 0; i < inv.getContainerSize(); ++i) {
+-            net.minecraft.world.item.ItemStack itemStack2 = inv.getItem(i);
+-            if (itemStack2.isEmpty()) continue;
+-            if (itemStack2.is(net.minecraft.world.item.Items.WRITTEN_BOOK)) {
+-                if (!itemStack.isEmpty()) {
++    public boolean matches(net.minecraft.world.inventory.CraftingContainer $$0, net.minecraft.world.level.Level $$1) {
++        int $$2 = 0;
++        net.minecraft.world.item.ItemStack $$3 = net.minecraft.world.item.ItemStack.EMPTY;
++        for (int $$4 = 0; $$4 < $$0.getContainerSize(); ++$$4) {
++            net.minecraft.world.item.ItemStack $$5 = $$0.getItem($$4);
++            if ($$5.isEmpty()) continue;
++            if ($$5.is(net.minecraft.world.item.Items.WRITTEN_BOOK)) {
++                if (!$$3.isEmpty()) {
+                     return false;
+                 }
+-                itemStack = itemStack2;
++                $$3 = $$5;
+                 continue;
+             }
+-            if (itemStack2.is(net.minecraft.world.item.Items.WRITABLE_BOOK)) {
+-                ++n;
++            if ($$5.is(net.minecraft.world.item.Items.WRITABLE_BOOK)) {
++                ++$$2;
+                 continue;
+             }
+             return false;
+         }
+-        return !itemStack.isEmpty() && itemStack.hasTag() && n > 0;
++        return !$$3.isEmpty() && $$3.hasTag() && $$2 > 0;
+     }
+ 
+-    public net.minecraft.world.item.ItemStack assemble(net.minecraft.world.inventory.CraftingContainer inv) {
+-        net.minecraft.world.item.ItemStack itemStack;
+-        int n = 0;
+-        net.minecraft.world.item.ItemStack itemStack2 = net.minecraft.world.item.ItemStack.EMPTY;
+-        for (int i = 0; i < inv.getContainerSize(); ++i) {
+-            itemStack = inv.getItem(i);
+-            if (itemStack.isEmpty()) continue;
+-            if (itemStack.is(net.minecraft.world.item.Items.WRITTEN_BOOK)) {
+-                if (!itemStack2.isEmpty()) {
++    public net.minecraft.world.item.ItemStack assemble(net.minecraft.world.inventory.CraftingContainer $$0) {
++        int $$1 = 0;
++        net.minecraft.world.item.ItemStack $$2 = net.minecraft.world.item.ItemStack.EMPTY;
++        for (int $$3 = 0; $$3 < $$0.getContainerSize(); ++$$3) {
++            net.minecraft.world.item.ItemStack $$4 = $$0.getItem($$3);
++            if ($$4.isEmpty()) continue;
++            if ($$4.is(net.minecraft.world.item.Items.WRITTEN_BOOK)) {
++                if (!$$2.isEmpty()) {
+                     return net.minecraft.world.item.ItemStack.EMPTY;
+                 }
+-                itemStack2 = itemStack;
++                $$2 = $$4;
+                 continue;
+             }
+-            if (itemStack.is(net.minecraft.world.item.Items.WRITABLE_BOOK)) {
+-                ++n;
++            if ($$4.is(net.minecraft.world.item.Items.WRITABLE_BOOK)) {
++                ++$$1;
+                 continue;
+             }
+             return net.minecraft.world.item.ItemStack.EMPTY;
+         }
+-        if (itemStack2.isEmpty() || !itemStack2.hasTag() || n < 1 || net.minecraft.world.item.WrittenBookItem.getGeneration((net.minecraft.world.item.ItemStack)itemStack2) >= 2) {
++        if ($$2.isEmpty() || !$$2.hasTag() || $$1 < 1 || net.minecraft.world.item.WrittenBookItem.getGeneration((net.minecraft.world.item.ItemStack)$$2) >= 2) {
+             return net.minecraft.world.item.ItemStack.EMPTY;
+         }
+-        net.minecraft.world.item.ItemStack itemStack3 = new net.minecraft.world.item.ItemStack((net.minecraft.world.level.ItemLike)net.minecraft.world.item.Items.WRITTEN_BOOK, n);
+-        itemStack = itemStack2.getTag().copy();
+-        itemStack.putInt("generation", net.minecraft.world.item.WrittenBookItem.getGeneration((net.minecraft.world.item.ItemStack)itemStack2) + 1);
+-        itemStack3.setTag((net.minecraft.nbt.CompoundTag)itemStack);
+-        return itemStack3;
++        net.minecraft.world.item.ItemStack $$5 = new net.minecraft.world.item.ItemStack((net.minecraft.world.level.ItemLike)net.minecraft.world.item.Items.WRITTEN_BOOK, $$1);
++        net.minecraft.nbt.CompoundTag $$6 = $$2.getTag().copy();
++        $$6.putInt("generation", net.minecraft.world.item.WrittenBookItem.getGeneration((net.minecraft.world.item.ItemStack)$$2) + 1);
++        $$5.setTag($$6);
++        return $$5;
+     }
+ 
+-    public net.minecraft.core.NonNullList<net.minecraft.world.item.ItemStack> getRemainingItems(net.minecraft.world.inventory.CraftingContainer inv) {
+-        net.minecraft.core.NonNullList nonNullList = net.minecraft.core.NonNullList.withSize((int)inv.getContainerSize(), (java.lang.Object)net.minecraft.world.item.ItemStack.EMPTY);
+-        for (int i = 0; i < nonNullList.size(); ++i) {
+-            net.minecraft.world.item.ItemStack itemStack = inv.getItem(i);
+-            if (itemStack.getItem().hasCraftingRemainingItem()) {
+-                nonNullList.set(i, (java.lang.Object)new net.minecraft.world.item.ItemStack((net.minecraft.world.level.ItemLike)itemStack.getItem().getCraftingRemainingItem()));
++    public net.minecraft.core.NonNullList<net.minecraft.world.item.ItemStack> getRemainingItems(net.minecraft.world.inventory.CraftingContainer $$0) {
++        net.minecraft.core.NonNullList $$1 = net.minecraft.core.NonNullList.withSize((int)$$0.getContainerSize(), (java.lang.Object)net.minecraft.world.item.ItemStack.EMPTY);
++        for (int $$2 = 0; $$2 < $$1.size(); ++$$2) {
++            net.minecraft.world.item.ItemStack $$3 = $$0.getItem($$2);
++            if ($$3.getItem().hasCraftingRemainingItem()) {
++                $$1.set($$2, (java.lang.Object)new net.minecraft.world.item.ItemStack((net.minecraft.world.level.ItemLike)$$3.getItem().getCraftingRemainingItem()));
+                 continue;
+             }
+-            if (!(itemStack.getItem() instanceof net.minecraft.world.item.WrittenBookItem)) continue;
+-            net.minecraft.world.item.ItemStack itemStack2 = itemStack.copy();
+-            itemStack2.setCount(1);
+-            nonNullList.set(i, (java.lang.Object)itemStack2);
++            if (!($$3.getItem() instanceof net.minecraft.world.item.WrittenBookItem)) continue;
++            net.minecraft.world.item.ItemStack $$4 = $$3.copy();
++            $$4.setCount(1);
++            $$1.set($$2, (java.lang.Object)$$4);
+             break;
+         }
+-        return nonNullList;
++        return $$1;
+     }
+ 
+     public net.minecraft.world.item.crafting.RecipeSerializer<?> getSerializer() {
+         return net.minecraft.world.item.crafting.RecipeSerializer.BOOK_CLONING;
+     }
+ 
+-    public boolean canCraftInDimensions(int width, int height) {
+-        return width >= 3 && height >= 3;
++    public boolean canCraftInDimensions(int $$0, int $$1) {
++        return $$0 >= 3 && $$1 >= 3;
+     }
+ }
+ 

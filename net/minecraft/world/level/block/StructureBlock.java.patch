@@ -1,0 +1,95 @@
+--- net/minecraft/world/level/block/StructureBlock.java
++++ net/minecraft/world/level/block/StructureBlock.java
+@@ -18,63 +18,63 @@
+         return new net.minecraft.world.level.block.entity.StructureBlockEntity($$0, $$1);
+     }
+ 
+-    public net.minecraft.world.InteractionResult use(net.minecraft.world.level.block.state.BlockState state, net.minecraft.world.level.Level level, net.minecraft.core.BlockPos pos, net.minecraft.world.entity.player.Player player, net.minecraft.world.InteractionHand hand, net.minecraft.world.phys.BlockHitResult hit) {
+-        net.minecraft.world.level.block.entity.BlockEntity blockEntity = level.getBlockEntity(pos);
+-        if (blockEntity instanceof net.minecraft.world.level.block.entity.StructureBlockEntity) {
+-            return ((net.minecraft.world.level.block.entity.StructureBlockEntity)blockEntity).usedBy(player) ? net.minecraft.world.InteractionResult.sidedSuccess((boolean)level.isClientSide) : net.minecraft.world.InteractionResult.PASS;
++    public net.minecraft.world.InteractionResult use(net.minecraft.world.level.block.state.BlockState $$0, net.minecraft.world.level.Level $$1, net.minecraft.core.BlockPos $$2, net.minecraft.world.entity.player.Player $$3, net.minecraft.world.InteractionHand $$4, net.minecraft.world.phys.BlockHitResult $$5) {
++        net.minecraft.world.level.block.entity.BlockEntity $$6 = $$1.getBlockEntity($$2);
++        if ($$6 instanceof net.minecraft.world.level.block.entity.StructureBlockEntity) {
++            return ((net.minecraft.world.level.block.entity.StructureBlockEntity)$$6).usedBy($$3) ? net.minecraft.world.InteractionResult.sidedSuccess((boolean)$$1.isClientSide) : net.minecraft.world.InteractionResult.PASS;
+         }
+         return net.minecraft.world.InteractionResult.PASS;
+     }
+ 
+-    public void setPlacedBy(net.minecraft.world.level.Level level, net.minecraft.core.BlockPos pos, net.minecraft.world.level.block.state.BlockState state, @javax.annotation.Nullable net.minecraft.world.entity.LivingEntity placer, net.minecraft.world.item.ItemStack stack) {
+-        net.minecraft.world.level.block.entity.BlockEntity blockEntity;
+-        if (level.isClientSide) {
++    public void setPlacedBy(net.minecraft.world.level.Level $$0, net.minecraft.core.BlockPos $$1, net.minecraft.world.level.block.state.BlockState $$2, @javax.annotation.Nullable net.minecraft.world.entity.LivingEntity $$3, net.minecraft.world.item.ItemStack $$4) {
++        net.minecraft.world.level.block.entity.BlockEntity $$5;
++        if ($$0.isClientSide) {
+             return;
+         }
+-        if (placer != null && (blockEntity = level.getBlockEntity(pos)) instanceof net.minecraft.world.level.block.entity.StructureBlockEntity) {
+-            ((net.minecraft.world.level.block.entity.StructureBlockEntity)blockEntity).createdBy(placer);
++        if ($$3 != null && ($$5 = $$0.getBlockEntity($$1)) instanceof net.minecraft.world.level.block.entity.StructureBlockEntity) {
++            ((net.minecraft.world.level.block.entity.StructureBlockEntity)$$5).createdBy($$3);
+         }
+     }
+ 
+-    public net.minecraft.world.level.block.RenderShape getRenderShape(net.minecraft.world.level.block.state.BlockState state) {
++    public net.minecraft.world.level.block.RenderShape getRenderShape(net.minecraft.world.level.block.state.BlockState $$0) {
+         return net.minecraft.world.level.block.RenderShape.MODEL;
+     }
+ 
+-    public void createBlockStateDefinition(net.minecraft.world.level.block.state.StateDefinition$Builder<net.minecraft.world.level.block.Block, net.minecraft.world.level.block.state.BlockState> builder) {
+-        builder.add(new net.minecraft.world.level.block.state.properties.Property[]{MODE});
++    public void createBlockStateDefinition(net.minecraft.world.level.block.state.StateDefinition$Builder<net.minecraft.world.level.block.Block, net.minecraft.world.level.block.state.BlockState> $$0) {
++        $$0.add(new net.minecraft.world.level.block.state.properties.Property[]{MODE});
+     }
+ 
+-    public void neighborChanged(net.minecraft.world.level.block.state.BlockState state, net.minecraft.world.level.Level level, net.minecraft.core.BlockPos pos, net.minecraft.world.level.block.Block block, net.minecraft.core.BlockPos fromPos, boolean isMoving) {
+-        if (!(level instanceof net.minecraft.server.level.ServerLevel)) {
++    public void neighborChanged(net.minecraft.world.level.block.state.BlockState $$0, net.minecraft.world.level.Level $$1, net.minecraft.core.BlockPos $$2, net.minecraft.world.level.block.Block $$3, net.minecraft.core.BlockPos $$4, boolean $$5) {
++        if (!($$1 instanceof net.minecraft.server.level.ServerLevel)) {
+             return;
+         }
+-        net.minecraft.world.level.block.entity.BlockEntity blockEntity = level.getBlockEntity(pos);
+-        if (!(blockEntity instanceof net.minecraft.world.level.block.entity.StructureBlockEntity)) {
++        net.minecraft.world.level.block.entity.BlockEntity $$6 = $$1.getBlockEntity($$2);
++        if (!($$6 instanceof net.minecraft.world.level.block.entity.StructureBlockEntity)) {
+             return;
+         }
+-        net.minecraft.world.level.block.entity.StructureBlockEntity structureBlockEntity = (net.minecraft.world.level.block.entity.StructureBlockEntity)blockEntity;
+-        boolean bl = level.hasNeighborSignal(pos);
+-        boolean bl2 = structureBlockEntity.isPowered();
+-        if (bl && !bl2) {
+-            structureBlockEntity.setPowered(true);
+-            this.trigger((net.minecraft.server.level.ServerLevel)level, structureBlockEntity);
+-        } else if (!bl && bl2) {
+-            structureBlockEntity.setPowered(false);
++        net.minecraft.world.level.block.entity.StructureBlockEntity $$7 = (net.minecraft.world.level.block.entity.StructureBlockEntity)$$6;
++        boolean $$8 = $$1.hasNeighborSignal($$2);
++        boolean $$9 = $$7.isPowered();
++        if ($$8 && !$$9) {
++            $$7.setPowered(true);
++            this.trigger((net.minecraft.server.level.ServerLevel)$$1, $$7);
++        } else if (!$$8 && $$9) {
++            $$7.setPowered(false);
+         }
+     }
+ 
+-    public void trigger(net.minecraft.server.level.ServerLevel level, net.minecraft.world.level.block.entity.StructureBlockEntity blockEntity) {
+-        switch (net.minecraft.world.level.block.StructureBlock$1.$SwitchMap$net$minecraft$world$level$block$state$properties$StructureMode[blockEntity.getMode().ordinal()]) {
++    public void trigger(net.minecraft.server.level.ServerLevel $$0, net.minecraft.world.level.block.entity.StructureBlockEntity $$1) {
++        switch (net.minecraft.world.level.block.StructureBlock$1.$SwitchMap$net$minecraft$world$level$block$state$properties$StructureMode[$$1.getMode().ordinal()]) {
+             case 1: {
+-                blockEntity.saveStructure(false);
++                $$1.saveStructure(false);
+                 break;
+             }
+             case 2: {
+-                blockEntity.loadStructure(level, false);
++                $$1.loadStructure($$0, false);
+                 break;
+             }
+             case 3: {
+-                blockEntity.unloadStructure();
++                $$1.unloadStructure();
+                 break;
+             }
+             case 4: {

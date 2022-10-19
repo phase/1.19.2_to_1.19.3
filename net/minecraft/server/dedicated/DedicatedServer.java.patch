@@ -1,0 +1,117 @@
+--- net/minecraft/server/dedicated/DedicatedServer.java
++++ net/minecraft/server/dedicated/DedicatedServer.java
+@@ -85,7 +85,7 @@
+         if (!net.minecraft.server.players.OldUsersConverter.serverReadyAfterUserconversion((net.minecraft.server.MinecraftServer)this)) {
+             return false;
+         }
+-        this.setPlayerList((net.minecraft.server.players.PlayerList)new net.minecraft.server.dedicated.DedicatedPlayerList(this, this.registryAccess(), this.playerDataStorage));
++        this.setPlayerList((net.minecraft.server.players.PlayerList)new net.minecraft.server.dedicated.DedicatedPlayerList(this, this.registries(), this.playerDataStorage));
+         long $$4 = net.minecraft.Util.getNanos();
+         net.minecraft.world.level.block.entity.SkullBlockEntity.setup((net.minecraft.server.Services)this.services, (java.util.concurrent.Executor)this);
+         net.minecraft.server.players.GameProfileCache.setUsesAuthentication((boolean)this.usesAuthentication());
+@@ -112,7 +112,6 @@
+             $$7.setDaemon(true);
+             $$7.start();
+         }
+-        net.minecraft.world.item.Items.AIR.fillItemCategory(net.minecraft.world.item.CreativeModeTab.TAB_SEARCH, net.minecraft.core.NonNullList.create());
+         if ($$1.enableJmxMonitoring) {
+             net.minecraft.util.monitoring.jmx.MinecraftServerStatistics.registerJmxMonitoring((net.minecraft.server.MinecraftServer)this);
+             LOGGER.info("JMX monitoring enabled");
+@@ -163,7 +162,7 @@
+             $$2.write(java.lang.String.format((java.util.Locale)java.util.Locale.ROOT, (java.lang.String)"view-distance=%d%n", (java.lang.Object[])new java.lang.Object[]{$$1.viewDistance}));
+             $$2.write(java.lang.String.format((java.util.Locale)java.util.Locale.ROOT, (java.lang.String)"simulation-distance=%d%n", (java.lang.Object[])new java.lang.Object[]{$$1.simulationDistance}));
+             $$2.write(java.lang.String.format((java.util.Locale)java.util.Locale.ROOT, (java.lang.String)"spawn-animals=%s%n", (java.lang.Object[])new java.lang.Object[]{$$1.spawnAnimals}));
+-            $$2.write(java.lang.String.format((java.util.Locale)java.util.Locale.ROOT, (java.lang.String)"generate-structures=%s%n", (java.lang.Object[])new java.lang.Object[]{$$1.getWorldGenSettings((net.minecraft.core.RegistryAccess)this.registryAccess()).generateStructures()}));
++            $$2.write(java.lang.String.format((java.util.Locale)java.util.Locale.ROOT, (java.lang.String)"generate-structures=%s%n", (java.lang.Object[])new java.lang.Object[]{$$1.worldOptions.generateStructures()}));
+             $$2.write(java.lang.String.format((java.util.Locale)java.util.Locale.ROOT, (java.lang.String)"use-native=%s%n", (java.lang.Object[])new java.lang.Object[]{$$1.useNativeTransport}));
+             $$2.write(java.lang.String.format((java.util.Locale)java.util.Locale.ROOT, (java.lang.String)"rate-limit=%d%n", (java.lang.Object[])new java.lang.Object[]{$$1.rateLimitPacketsPerSecond}));
+         }
+@@ -184,8 +183,8 @@
+         }
+     }
+ 
+-    public void tickChildren(java.util.function.BooleanSupplier hasTimeLeft) {
+-        super.tickChildren(hasTimeLeft);
++    public void tickChildren(java.util.function.BooleanSupplier $$0) {
++        super.tickChildren($$0);
+         this.handleConsoleInputs();
+     }
+ 
+@@ -216,10 +215,6 @@
+         return this.getProperties().useNativeTransport;
+     }
+ 
+-    public boolean previewsChat() {
+-        return this.getProperties().previewsChat;
+-    }
+-
+     public net.minecraft.server.dedicated.DedicatedPlayerList getPlayerList() {
+         return (net.minecraft.server.dedicated.DedicatedPlayerList)super.getPlayerList();
+     }
+@@ -258,24 +253,24 @@
+         return this.getProperties().spawnProtection;
+     }
+ 
+-    public boolean isUnderSpawnProtection(net.minecraft.server.level.ServerLevel level, net.minecraft.core.BlockPos pos, net.minecraft.world.entity.player.Player player) {
+-        int n;
+-        if (level.dimension() != net.minecraft.world.level.Level.OVERWORLD) {
++    public boolean isUnderSpawnProtection(net.minecraft.server.level.ServerLevel $$0, net.minecraft.core.BlockPos $$1, net.minecraft.world.entity.player.Player $$2) {
++        int $$5;
++        if ($$0.dimension() != net.minecraft.world.level.Level.OVERWORLD) {
+             return false;
+         }
+         if (this.getPlayerList().getOps().isEmpty()) {
+             return false;
+         }
+-        if (this.getPlayerList().isOp(player.getGameProfile())) {
++        if (this.getPlayerList().isOp($$2.getGameProfile())) {
+             return false;
+         }
+         if (this.getSpawnProtectionRadius() <= 0) {
+             return false;
+         }
+-        net.minecraft.core.BlockPos blockPos = level.getSharedSpawnPos();
+-        int n2 = net.minecraft.util.Mth.abs((int)(pos.getX() - blockPos.getX()));
+-        int n3 = java.lang.Math.max((int)n2, (int)(n = net.minecraft.util.Mth.abs((int)(pos.getZ() - blockPos.getZ()))));
+-        return n3 <= this.getSpawnProtectionRadius();
++        net.minecraft.core.BlockPos $$3 = $$0.getSharedSpawnPos();
++        int $$4 = net.minecraft.util.Mth.abs((int)($$1.getX() - $$3.getX()));
++        int $$6 = java.lang.Math.max((int)$$4, (int)($$5 = net.minecraft.util.Mth.abs((int)($$1.getZ() - $$3.getZ()))));
++        return $$6 <= this.getSpawnProtectionRadius();
+     }
+ 
+     public boolean repliesToStatus() {
+@@ -294,9 +289,9 @@
+         return this.getProperties().functionPermissionLevel;
+     }
+ 
+-    public void setPlayerIdleTimeout(int idleTimeout) {
+-        super.setPlayerIdleTimeout(idleTimeout);
+-        this.settings.update($$1 -> (net.minecraft.server.dedicated.DedicatedServerProperties)$$1.playerIdleTimeout.update((net.minecraft.core.RegistryAccess)this.registryAccess(), (java.lang.Object)idleTimeout));
++    public void setPlayerIdleTimeout(int $$0) {
++        super.setPlayerIdleTimeout($$0);
++        this.settings.update($$1 -> (net.minecraft.server.dedicated.DedicatedServerProperties)$$1.playerIdleTimeout.update((net.minecraft.core.RegistryAccess)this.registryAccess(), (java.lang.Object)$$0));
+     }
+ 
+     public boolean shouldRconBroadcast() {
+@@ -390,9 +385,9 @@
+         return "";
+     }
+ 
+-    public java.lang.String runCommand(java.lang.String command) {
++    public java.lang.String runCommand(java.lang.String $$0) {
+         this.rconConsoleSource.prepareForCommand();
+-        this.executeBlocking(() -> this.getCommands().performPrefixedCommand(this.rconConsoleSource.createCommandSourceStack(), command));
++        this.executeBlocking(() -> this.getCommands().performPrefixedCommand(this.rconConsoleSource.createCommandSourceStack(), $$0));
+         return this.rconConsoleSource.getCommandResponse();
+     }
+ 
+@@ -406,7 +401,7 @@
+         net.minecraft.world.level.block.entity.SkullBlockEntity.clear();
+     }
+ 
+-    public boolean isSingleplayerOwner(com.mojang.authlib.GameProfile profile) {
++    public boolean isSingleplayerOwner(com.mojang.authlib.GameProfile $$0) {
+         return false;
+     }
+ 

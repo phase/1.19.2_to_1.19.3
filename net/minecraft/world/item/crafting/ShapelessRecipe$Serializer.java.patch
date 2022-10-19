@@ -1,0 +1,81 @@
+--- net/minecraft/world/item/crafting/ShapelessRecipe$Serializer.java
++++ net/minecraft/world/item/crafting/ShapelessRecipe$Serializer.java
+@@ -9,47 +9,50 @@
+     public net.minecraft.world.item.crafting.ShapelessRecipe$Serializer() {
+     }
+ 
+-    public net.minecraft.world.item.crafting.ShapelessRecipe fromJson(net.minecraft.resources.ResourceLocation recipeId, com.google.gson.JsonObject json) {
+-        java.lang.String string = net.minecraft.util.GsonHelper.getAsString((com.google.gson.JsonObject)json, (java.lang.String)"group", (java.lang.String)"");
+-        net.minecraft.core.NonNullList nonNullList = net.minecraft.world.item.crafting.ShapelessRecipe$Serializer.itemsFromJson((com.google.gson.JsonArray)net.minecraft.util.GsonHelper.getAsJsonArray((com.google.gson.JsonObject)json, (java.lang.String)"ingredients"));
+-        if (nonNullList.isEmpty()) {
++    public net.minecraft.world.item.crafting.ShapelessRecipe fromJson(net.minecraft.resources.ResourceLocation $$0, com.google.gson.JsonObject $$1) {
++        java.lang.String $$2 = net.minecraft.util.GsonHelper.getAsString((com.google.gson.JsonObject)$$1, (java.lang.String)"group", (java.lang.String)"");
++        net.minecraft.world.item.crafting.CraftingBookCategory $$3 = (net.minecraft.world.item.crafting.CraftingBookCategory)java.util.Objects.requireNonNullElse((java.lang.Object)((net.minecraft.world.item.crafting.CraftingBookCategory)net.minecraft.world.item.crafting.CraftingBookCategory.CODEC.byName(net.minecraft.util.GsonHelper.getAsString((com.google.gson.JsonObject)$$1, (java.lang.String)"category", null))), (java.lang.Object)net.minecraft.world.item.crafting.CraftingBookCategory.MISC);
++        net.minecraft.core.NonNullList $$4 = net.minecraft.world.item.crafting.ShapelessRecipe$Serializer.itemsFromJson((com.google.gson.JsonArray)net.minecraft.util.GsonHelper.getAsJsonArray((com.google.gson.JsonObject)$$1, (java.lang.String)"ingredients"));
++        if ($$4.isEmpty()) {
+             throw new com.google.gson.JsonParseException("No ingredients for shapeless recipe");
+         }
+-        if (nonNullList.size() > 9) {
++        if ($$4.size() > 9) {
+             throw new com.google.gson.JsonParseException("Too many ingredients for shapeless recipe");
+         }
+-        net.minecraft.world.item.ItemStack itemStack = net.minecraft.world.item.crafting.ShapedRecipe.itemStackFromJson((com.google.gson.JsonObject)net.minecraft.util.GsonHelper.getAsJsonObject((com.google.gson.JsonObject)json, (java.lang.String)"result"));
+-        return new net.minecraft.world.item.crafting.ShapelessRecipe(recipeId, string, itemStack, nonNullList);
++        net.minecraft.world.item.ItemStack $$5 = net.minecraft.world.item.crafting.ShapedRecipe.itemStackFromJson((com.google.gson.JsonObject)net.minecraft.util.GsonHelper.getAsJsonObject((com.google.gson.JsonObject)$$1, (java.lang.String)"result"));
++        return new net.minecraft.world.item.crafting.ShapelessRecipe($$0, $$2, $$3, $$5, $$4);
+     }
+ 
+-    public static net.minecraft.core.NonNullList<net.minecraft.world.item.crafting.Ingredient> itemsFromJson(com.google.gson.JsonArray ingredientArray) {
+-        net.minecraft.core.NonNullList nonNullList = net.minecraft.core.NonNullList.create();
+-        for (int i = 0; i < ingredientArray.size(); ++i) {
+-            net.minecraft.world.item.crafting.Ingredient ingredient = net.minecraft.world.item.crafting.Ingredient.fromJson((com.google.gson.JsonElement)ingredientArray.get(i));
+-            if (ingredient.isEmpty()) continue;
+-            nonNullList.add((java.lang.Object)ingredient);
++    public static net.minecraft.core.NonNullList<net.minecraft.world.item.crafting.Ingredient> itemsFromJson(com.google.gson.JsonArray $$0) {
++        net.minecraft.core.NonNullList $$1 = net.minecraft.core.NonNullList.create();
++        for (int $$2 = 0; $$2 < $$0.size(); ++$$2) {
++            net.minecraft.world.item.crafting.Ingredient $$3 = net.minecraft.world.item.crafting.Ingredient.fromJson((com.google.gson.JsonElement)$$0.get($$2));
++            if ($$3.isEmpty()) continue;
++            $$1.add((java.lang.Object)$$3);
+         }
+-        return nonNullList;
++        return $$1;
+     }
+ 
+-    public net.minecraft.world.item.crafting.ShapelessRecipe fromNetwork(net.minecraft.resources.ResourceLocation recipeId, net.minecraft.network.FriendlyByteBuf buffer) {
+-        java.lang.String string = buffer.readUtf();
+-        int n = buffer.readVarInt();
+-        net.minecraft.core.NonNullList nonNullList = net.minecraft.core.NonNullList.withSize((int)n, (java.lang.Object)net.minecraft.world.item.crafting.Ingredient.EMPTY);
+-        for (int i = 0; i < nonNullList.size(); ++i) {
+-            nonNullList.set(i, (java.lang.Object)net.minecraft.world.item.crafting.Ingredient.fromNetwork((net.minecraft.network.FriendlyByteBuf)buffer));
++    public net.minecraft.world.item.crafting.ShapelessRecipe fromNetwork(net.minecraft.resources.ResourceLocation $$0, net.minecraft.network.FriendlyByteBuf $$1) {
++        java.lang.String $$2 = $$1.readUtf();
++        net.minecraft.world.item.crafting.CraftingBookCategory $$3 = (net.minecraft.world.item.crafting.CraftingBookCategory)$$1.readEnum(net.minecraft.world.item.crafting.CraftingBookCategory.class);
++        int $$4 = $$1.readVarInt();
++        net.minecraft.core.NonNullList $$5 = net.minecraft.core.NonNullList.withSize((int)$$4, (java.lang.Object)net.minecraft.world.item.crafting.Ingredient.EMPTY);
++        for (int $$6 = 0; $$6 < $$5.size(); ++$$6) {
++            $$5.set($$6, (java.lang.Object)net.minecraft.world.item.crafting.Ingredient.fromNetwork((net.minecraft.network.FriendlyByteBuf)$$1));
+         }
+-        net.minecraft.world.item.ItemStack itemStack = buffer.readItem();
+-        return new net.minecraft.world.item.crafting.ShapelessRecipe(recipeId, string, itemStack, nonNullList);
++        net.minecraft.world.item.ItemStack $$7 = $$1.readItem();
++        return new net.minecraft.world.item.crafting.ShapelessRecipe($$0, $$2, $$3, $$7, $$5);
+     }
+ 
+-    public void toNetwork(net.minecraft.network.FriendlyByteBuf buffer, net.minecraft.world.item.crafting.ShapelessRecipe recipe) {
+-        buffer.writeUtf(recipe.group);
+-        buffer.writeVarInt(recipe.ingredients.size());
+-        for (net.minecraft.world.item.crafting.Ingredient ingredient : recipe.ingredients) {
+-            ingredient.toNetwork(buffer);
++    public void toNetwork(net.minecraft.network.FriendlyByteBuf $$0, net.minecraft.world.item.crafting.ShapelessRecipe $$1) {
++        $$0.writeUtf($$1.group);
++        $$0.writeEnum((java.lang.Enum)$$1.category);
++        $$0.writeVarInt($$1.ingredients.size());
++        for (net.minecraft.world.item.crafting.Ingredient $$2 : $$1.ingredients) {
++            $$2.toNetwork($$0);
+         }
+-        buffer.writeItem(recipe.result);
++        $$0.writeItem($$1.result);
+     }
+ 
+     public /* synthetic */ net.minecraft.world.item.crafting.Recipe fromNetwork(net.minecraft.resources.ResourceLocation resourceLocation, net.minecraft.network.FriendlyByteBuf friendlyByteBuf) {

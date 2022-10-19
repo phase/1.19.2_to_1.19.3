@@ -1,0 +1,90 @@
+--- net/minecraft/world/item/HangingEntityItem.java
++++ net/minecraft/world/item/HangingEntityItem.java
+@@ -8,54 +8,56 @@
+  {
+     public net.minecraft.world.entity.EntityType<? extends net.minecraft.world.entity.decoration.HangingEntity> type;
+ 
+-    public net.minecraft.world.item.HangingEntityItem(net.minecraft.world.entity.EntityType<? extends net.minecraft.world.entity.decoration.HangingEntity> type, net.minecraft.world.item.Item$Properties properties) {
+-        super(properties);
+-        this.type = type;
++    public net.minecraft.world.item.HangingEntityItem(net.minecraft.world.entity.EntityType<? extends net.minecraft.world.entity.decoration.HangingEntity> $$0, net.minecraft.world.item.Item$Properties $$1) {
++        super($$1);
++        this.type = $$0;
+     }
+ 
+-    public net.minecraft.world.InteractionResult useOn(net.minecraft.world.item.context.UseOnContext context) {
+-        net.minecraft.world.entity.decoration.ItemFrame itemFrame;
+-        java.util.Optional optional;
+-        net.minecraft.core.BlockPos blockPos = context.getClickedPos();
+-        net.minecraft.core.Direction direction = context.getClickedFace();
+-        net.minecraft.core.BlockPos blockPos2 = blockPos.relative(direction);
+-        net.minecraft.world.entity.player.Player player = context.getPlayer();
+-        net.minecraft.world.item.ItemStack itemStack = context.getItemInHand();
+-        if (player != null && !this.mayPlace(player, direction, itemStack, blockPos2)) {
++    /*
++     * WARNING - void declaration
++     */
++    public net.minecraft.world.InteractionResult useOn(net.minecraft.world.item.context.UseOnContext $$0) {
++        void $$11;
++        net.minecraft.core.BlockPos $$1 = $$0.getClickedPos();
++        net.minecraft.core.Direction $$2 = $$0.getClickedFace();
++        net.minecraft.core.BlockPos $$3 = $$1.relative($$2);
++        net.minecraft.world.entity.player.Player $$4 = $$0.getPlayer();
++        net.minecraft.world.item.ItemStack $$5 = $$0.getItemInHand();
++        if ($$4 != null && !this.mayPlace($$4, $$2, $$5, $$3)) {
+             return net.minecraft.world.InteractionResult.FAIL;
+         }
+-        net.minecraft.world.level.Level level = context.getLevel();
++        net.minecraft.world.level.Level $$6 = $$0.getLevel();
+         if (this.type == net.minecraft.world.entity.EntityType.PAINTING) {
+-            optional = net.minecraft.world.entity.decoration.Painting.create((net.minecraft.world.level.Level)level, (net.minecraft.core.BlockPos)blockPos2, (net.minecraft.core.Direction)direction);
+-            if (optional.isEmpty()) {
++            java.util.Optional $$7 = net.minecraft.world.entity.decoration.Painting.create((net.minecraft.world.level.Level)$$6, (net.minecraft.core.BlockPos)$$3, (net.minecraft.core.Direction)$$2);
++            if ($$7.isEmpty()) {
+                 return net.minecraft.world.InteractionResult.CONSUME;
+             }
+-            itemFrame = (net.minecraft.world.entity.decoration.HangingEntity)optional.get();
++            net.minecraft.world.entity.decoration.HangingEntity $$8 = (net.minecraft.world.entity.decoration.HangingEntity)$$7.get();
+         } else if (this.type == net.minecraft.world.entity.EntityType.ITEM_FRAME) {
+-            itemFrame = new net.minecraft.world.entity.decoration.ItemFrame(level, blockPos2, direction);
++            net.minecraft.world.entity.decoration.ItemFrame $$9 = new net.minecraft.world.entity.decoration.ItemFrame($$6, $$3, $$2);
+         } else if (this.type == net.minecraft.world.entity.EntityType.GLOW_ITEM_FRAME) {
+-            itemFrame = new net.minecraft.world.entity.decoration.GlowItemFrame(level, blockPos2, direction);
++            net.minecraft.world.entity.decoration.GlowItemFrame $$10 = new net.minecraft.world.entity.decoration.GlowItemFrame($$6, $$3, $$2);
+         } else {
+-            return net.minecraft.world.InteractionResult.sidedSuccess((boolean)level.isClientSide);
++            return net.minecraft.world.InteractionResult.sidedSuccess((boolean)$$6.isClientSide);
+         }
+-        optional = itemStack.getTag();
+-        if (optional != null) {
+-            net.minecraft.world.entity.EntityType.updateCustomEntityTag((net.minecraft.world.level.Level)level, (net.minecraft.world.entity.player.Player)player, (net.minecraft.world.entity.Entity)itemFrame, (net.minecraft.nbt.CompoundTag)optional);
++        net.minecraft.nbt.CompoundTag $$12 = $$5.getTag();
++        if ($$12 != null) {
++            net.minecraft.world.entity.EntityType.updateCustomEntityTag((net.minecraft.world.level.Level)$$6, (net.minecraft.world.entity.player.Player)$$4, (net.minecraft.world.entity.Entity)$$11, (net.minecraft.nbt.CompoundTag)$$12);
+         }
+-        if (itemFrame.survives()) {
+-            if (!level.isClientSide) {
+-                itemFrame.playPlacementSound();
+-                level.gameEvent((net.minecraft.world.entity.Entity)player, net.minecraft.world.level.gameevent.GameEvent.ENTITY_PLACE, itemFrame.position());
+-                level.addFreshEntity((net.minecraft.world.entity.Entity)itemFrame);
++        if ($$11.survives()) {
++            if (!$$6.isClientSide) {
++                $$11.playPlacementSound();
++                $$6.gameEvent((net.minecraft.world.entity.Entity)$$4, net.minecraft.world.level.gameevent.GameEvent.ENTITY_PLACE, $$11.position());
++                $$6.addFreshEntity((net.minecraft.world.entity.Entity)$$11);
+             }
+-            itemStack.shrink(1);
+-            return net.minecraft.world.InteractionResult.sidedSuccess((boolean)level.isClientSide);
++            $$5.shrink(1);
++            return net.minecraft.world.InteractionResult.sidedSuccess((boolean)$$6.isClientSide);
+         }
+         return net.minecraft.world.InteractionResult.CONSUME;
+     }
+ 
+-    public boolean mayPlace(net.minecraft.world.entity.player.Player player, net.minecraft.core.Direction direction, net.minecraft.world.item.ItemStack hangingEntityStack, net.minecraft.core.BlockPos pos) {
+-        return !direction.getAxis().isVertical() && player.mayUseItemAt(pos, direction, hangingEntityStack);
++    public boolean mayPlace(net.minecraft.world.entity.player.Player $$0, net.minecraft.core.Direction $$1, net.minecraft.world.item.ItemStack $$2, net.minecraft.core.BlockPos $$3) {
++        return !$$1.getAxis().isVertical() && $$0.mayUseItemAt($$3, $$1, $$2);
+     }
+ }
+ 

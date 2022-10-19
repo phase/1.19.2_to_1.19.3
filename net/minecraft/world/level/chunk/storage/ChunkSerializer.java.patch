@@ -1,0 +1,210 @@
+--- net/minecraft/world/level/chunk/storage/ChunkSerializer.java
++++ net/minecraft/world/level/chunk/storage/ChunkSerializer.java
+@@ -170,93 +170,91 @@
+         return net.minecraft.world.level.chunk.PalettedContainer.codecRO((net.minecraft.core.IdMap)$$0.asHolderIdMap(), (com.mojang.serialization.Codec)$$0.holderByNameCodec(), (net.minecraft.world.level.chunk.PalettedContainer$Strategy)net.minecraft.world.level.chunk.PalettedContainer$Strategy.SECTION_BIOMES, (java.lang.Object)$$0.getHolderOrThrow(net.minecraft.world.level.biome.Biomes.PLAINS));
+     }
+ 
+-    public static net.minecraft.nbt.CompoundTag write(net.minecraft.server.level.ServerLevel level, net.minecraft.world.level.chunk.ChunkAccess chunk) {
+-        java.util.Iterator iterator;
+-        net.minecraft.world.level.chunk.DataLayer dataLayer2;
+-        net.minecraft.world.level.chunk.UpgradeData upgradeData;
+-        net.minecraft.world.level.levelgen.BelowZeroRetrogen belowZeroRetrogen;
+-        net.minecraft.world.level.ChunkPos chunkPos = chunk.getPos();
+-        net.minecraft.nbt.CompoundTag compoundTag = new net.minecraft.nbt.CompoundTag();
+-        compoundTag.putInt("DataVersion", net.minecraft.SharedConstants.getCurrentVersion().getWorldVersion());
+-        compoundTag.putInt("xPos", chunkPos.x);
+-        compoundTag.putInt("yPos", chunk.getMinSection());
+-        compoundTag.putInt("zPos", chunkPos.z);
+-        compoundTag.putLong("LastUpdate", level.getGameTime());
+-        compoundTag.putLong("InhabitedTime", chunk.getInhabitedTime());
+-        compoundTag.putString("Status", chunk.getStatus().getName());
+-        net.minecraft.world.level.levelgen.blending.BlendingData blendingData = chunk.getBlendingData();
+-        if (blendingData != null) {
+-            net.minecraft.world.level.levelgen.blending.BlendingData.CODEC.encodeStart((com.mojang.serialization.DynamicOps)net.minecraft.nbt.NbtOps.INSTANCE, (java.lang.Object)blendingData).resultOrPartial(arg_0 -> ((org.slf4j.Logger)LOGGER).error(arg_0)).ifPresent($$1 -> compoundTag.put("blending_data", $$1));
++    public static net.minecraft.nbt.CompoundTag write(net.minecraft.server.level.ServerLevel $$0, net.minecraft.world.level.chunk.ChunkAccess $$12) {
++        net.minecraft.world.level.chunk.UpgradeData $$6;
++        net.minecraft.world.level.levelgen.BelowZeroRetrogen $$5;
++        net.minecraft.world.level.ChunkPos $$2 = $$12.getPos();
++        net.minecraft.nbt.CompoundTag $$3 = new net.minecraft.nbt.CompoundTag();
++        $$3.putInt("DataVersion", net.minecraft.SharedConstants.getCurrentVersion().getWorldVersion());
++        $$3.putInt("xPos", $$2.x);
++        $$3.putInt("yPos", $$12.getMinSection());
++        $$3.putInt("zPos", $$2.z);
++        $$3.putLong("LastUpdate", $$0.getGameTime());
++        $$3.putLong("InhabitedTime", $$12.getInhabitedTime());
++        $$3.putString("Status", $$12.getStatus().getName());
++        net.minecraft.world.level.levelgen.blending.BlendingData $$4 = $$12.getBlendingData();
++        if ($$4 != null) {
++            net.minecraft.world.level.levelgen.blending.BlendingData.CODEC.encodeStart((com.mojang.serialization.DynamicOps)net.minecraft.nbt.NbtOps.INSTANCE, (java.lang.Object)$$4).resultOrPartial(arg_0 -> ((org.slf4j.Logger)LOGGER).error(arg_0)).ifPresent($$1 -> $$3.put("blending_data", $$1));
+         }
+-        if ((belowZeroRetrogen = chunk.getBelowZeroRetrogen()) != null) {
+-            net.minecraft.world.level.levelgen.BelowZeroRetrogen.CODEC.encodeStart((com.mojang.serialization.DynamicOps)net.minecraft.nbt.NbtOps.INSTANCE, (java.lang.Object)belowZeroRetrogen).resultOrPartial(arg_0 -> ((org.slf4j.Logger)LOGGER).error(arg_0)).ifPresent($$1 -> compoundTag.put("below_zero_retrogen", $$1));
++        if (($$5 = $$12.getBelowZeroRetrogen()) != null) {
++            net.minecraft.world.level.levelgen.BelowZeroRetrogen.CODEC.encodeStart((com.mojang.serialization.DynamicOps)net.minecraft.nbt.NbtOps.INSTANCE, (java.lang.Object)$$5).resultOrPartial(arg_0 -> ((org.slf4j.Logger)LOGGER).error(arg_0)).ifPresent($$1 -> $$3.put("below_zero_retrogen", $$1));
+         }
+-        if (!(upgradeData = chunk.getUpgradeData()).isEmpty()) {
+-            compoundTag.put("UpgradeData", (net.minecraft.nbt.Tag)upgradeData.write());
++        if (!($$6 = $$12.getUpgradeData()).isEmpty()) {
++            $$3.put("UpgradeData", (net.minecraft.nbt.Tag)$$6.write());
+         }
+-        net.minecraft.world.level.chunk.LevelChunkSection[] levelChunkSectionArray = chunk.getSections();
+-        net.minecraft.nbt.ListTag listTag = new net.minecraft.nbt.ListTag();
+-        net.minecraft.server.level.ThreadedLevelLightEngine threadedLevelLightEngine = level.getChunkSource().getLightEngine();
+-        net.minecraft.core.Registry registry = level.registryAccess().registryOrThrow(net.minecraft.core.Registry.BIOME_REGISTRY);
+-        com.mojang.serialization.Codec codec = net.minecraft.world.level.chunk.storage.ChunkSerializer.makeBiomeCodec((net.minecraft.core.Registry)registry);
+-        boolean bl = chunk.isLightCorrect();
+-        for (int i = threadedLevelLightEngine.getMinLightSection(); i < threadedLevelLightEngine.getMaxLightSection(); ++i) {
+-            int n = chunk.getSectionIndexFromSectionY(i);
+-            boolean bl2 = n >= 0 && n < levelChunkSectionArray.length;
+-            dataLayer2 = threadedLevelLightEngine.getLayerListener(net.minecraft.world.level.LightLayer.BLOCK).getDataLayerData(net.minecraft.core.SectionPos.of((net.minecraft.world.level.ChunkPos)chunkPos, (int)i));
+-            net.minecraft.world.level.levelgen.GenerationStep$Carving[] carvingArray = threadedLevelLightEngine.getLayerListener(net.minecraft.world.level.LightLayer.SKY).getDataLayerData(net.minecraft.core.SectionPos.of((net.minecraft.world.level.ChunkPos)chunkPos, (int)i));
+-            if (!bl2 && dataLayer2 == null && carvingArray == null) continue;
+-            net.minecraft.nbt.CompoundTag compoundTag2 = new net.minecraft.nbt.CompoundTag();
+-            if (bl2) {
+-                net.minecraft.world.level.chunk.LevelChunkSection levelChunkSection = levelChunkSectionArray[n];
+-                compoundTag2.put("block_states", (net.minecraft.nbt.Tag)BLOCK_STATE_CODEC.encodeStart((com.mojang.serialization.DynamicOps)net.minecraft.nbt.NbtOps.INSTANCE, (java.lang.Object)levelChunkSection.getStates()).getOrThrow(false, arg_0 -> ((org.slf4j.Logger)LOGGER).error(arg_0)));
+-                compoundTag2.put("biomes", (net.minecraft.nbt.Tag)codec.encodeStart((com.mojang.serialization.DynamicOps)net.minecraft.nbt.NbtOps.INSTANCE, (java.lang.Object)levelChunkSection.getBiomes()).getOrThrow(false, arg_0 -> ((org.slf4j.Logger)LOGGER).error(arg_0)));
++        net.minecraft.world.level.chunk.LevelChunkSection[] $$7 = $$12.getSections();
++        net.minecraft.nbt.ListTag $$8 = new net.minecraft.nbt.ListTag();
++        net.minecraft.server.level.ThreadedLevelLightEngine $$9 = $$0.getChunkSource().getLightEngine();
++        net.minecraft.core.Registry $$10 = $$0.registryAccess().registryOrThrow(net.minecraft.core.Registry.BIOME_REGISTRY);
++        com.mojang.serialization.Codec $$11 = net.minecraft.world.level.chunk.storage.ChunkSerializer.makeBiomeCodec((net.minecraft.core.Registry)$$10);
++        boolean $$122 = $$12.isLightCorrect();
++        for (int $$13 = $$9.getMinLightSection(); $$13 < $$9.getMaxLightSection(); ++$$13) {
++            int $$14 = $$12.getSectionIndexFromSectionY($$13);
++            boolean $$15 = $$14 >= 0 && $$14 < $$7.length;
++            net.minecraft.world.level.chunk.DataLayer $$16 = $$9.getLayerListener(net.minecraft.world.level.LightLayer.BLOCK).getDataLayerData(net.minecraft.core.SectionPos.of((net.minecraft.world.level.ChunkPos)$$2, (int)$$13));
++            net.minecraft.world.level.chunk.DataLayer $$17 = $$9.getLayerListener(net.minecraft.world.level.LightLayer.SKY).getDataLayerData(net.minecraft.core.SectionPos.of((net.minecraft.world.level.ChunkPos)$$2, (int)$$13));
++            if (!$$15 && $$16 == null && $$17 == null) continue;
++            net.minecraft.nbt.CompoundTag $$18 = new net.minecraft.nbt.CompoundTag();
++            if ($$15) {
++                net.minecraft.world.level.chunk.LevelChunkSection $$19 = $$7[$$14];
++                $$18.put("block_states", (net.minecraft.nbt.Tag)BLOCK_STATE_CODEC.encodeStart((com.mojang.serialization.DynamicOps)net.minecraft.nbt.NbtOps.INSTANCE, (java.lang.Object)$$19.getStates()).getOrThrow(false, arg_0 -> ((org.slf4j.Logger)LOGGER).error(arg_0)));
++                $$18.put("biomes", (net.minecraft.nbt.Tag)$$11.encodeStart((com.mojang.serialization.DynamicOps)net.minecraft.nbt.NbtOps.INSTANCE, (java.lang.Object)$$19.getBiomes()).getOrThrow(false, arg_0 -> ((org.slf4j.Logger)LOGGER).error(arg_0)));
+             }
+-            if (dataLayer2 != null && !dataLayer2.isEmpty()) {
+-                compoundTag2.putByteArray("BlockLight", dataLayer2.getData());
++            if ($$16 != null && !$$16.isEmpty()) {
++                $$18.putByteArray("BlockLight", $$16.getData());
+             }
+-            if (carvingArray != null && !carvingArray.isEmpty()) {
+-                compoundTag2.putByteArray("SkyLight", carvingArray.getData());
++            if ($$17 != null && !$$17.isEmpty()) {
++                $$18.putByteArray("SkyLight", $$17.getData());
+             }
+-            if (compoundTag2.isEmpty()) continue;
+-            compoundTag2.putByte("Y", (byte)i);
+-            listTag.add((java.lang.Object)compoundTag2);
++            if ($$18.isEmpty()) continue;
++            $$18.putByte("Y", (byte)$$13);
++            $$8.add((java.lang.Object)$$18);
+         }
+-        compoundTag.put("sections", (net.minecraft.nbt.Tag)listTag);
+-        if (bl) {
+-            compoundTag.putBoolean("isLightOn", true);
++        $$3.put("sections", (net.minecraft.nbt.Tag)$$8);
++        if ($$122) {
++            $$3.putBoolean("isLightOn", true);
+         }
+-        net.minecraft.nbt.ListTag listTag2 = new net.minecraft.nbt.ListTag();
+-        for (net.minecraft.core.BlockPos blockPos : chunk.getBlockEntitiesPos()) {
+-            dataLayer2 = chunk.getBlockEntityNbtForSaving(blockPos);
+-            if (dataLayer2 == null) continue;
+-            listTag2.add((java.lang.Object)dataLayer2);
++        net.minecraft.nbt.ListTag $$20 = new net.minecraft.nbt.ListTag();
++        for (net.minecraft.core.BlockPos $$21 : $$12.getBlockEntitiesPos()) {
++            net.minecraft.nbt.CompoundTag $$22 = $$12.getBlockEntityNbtForSaving($$21);
++            if ($$22 == null) continue;
++            $$20.add((java.lang.Object)$$22);
+         }
+-        compoundTag.put("block_entities", (net.minecraft.nbt.Tag)listTag2);
+-        if (chunk.getStatus().getChunkType() == net.minecraft.world.level.chunk.ChunkStatus$ChunkType.PROTOCHUNK) {
+-            iterator = (net.minecraft.world.level.chunk.ProtoChunk)chunk;
+-            net.minecraft.nbt.ListTag listTag3 = new net.minecraft.nbt.ListTag();
+-            listTag3.addAll((java.util.Collection)iterator.getEntities());
+-            compoundTag.put("entities", (net.minecraft.nbt.Tag)listTag3);
+-            compoundTag.put("Lights", (net.minecraft.nbt.Tag)net.minecraft.world.level.chunk.storage.ChunkSerializer.packOffsets((it.unimi.dsi.fastutil.shorts.ShortList[])iterator.getPackedLights()));
+-            dataLayer2 = new net.minecraft.nbt.CompoundTag();
+-            for (net.minecraft.world.level.levelgen.GenerationStep$Carving carving : net.minecraft.world.level.levelgen.GenerationStep$Carving.values()) {
+-                net.minecraft.world.level.chunk.CarvingMask carvingMask = iterator.getCarvingMask(carving);
+-                if (carvingMask == null) continue;
+-                dataLayer2.putLongArray(carving.toString(), carvingMask.toArray());
++        $$3.put("block_entities", (net.minecraft.nbt.Tag)$$20);
++        if ($$12.getStatus().getChunkType() == net.minecraft.world.level.chunk.ChunkStatus$ChunkType.PROTOCHUNK) {
++            net.minecraft.world.level.chunk.ProtoChunk $$23 = (net.minecraft.world.level.chunk.ProtoChunk)$$12;
++            net.minecraft.nbt.ListTag $$24 = new net.minecraft.nbt.ListTag();
++            $$24.addAll((java.util.Collection)$$23.getEntities());
++            $$3.put("entities", (net.minecraft.nbt.Tag)$$24);
++            $$3.put("Lights", (net.minecraft.nbt.Tag)net.minecraft.world.level.chunk.storage.ChunkSerializer.packOffsets((it.unimi.dsi.fastutil.shorts.ShortList[])$$23.getPackedLights()));
++            net.minecraft.nbt.CompoundTag $$25 = new net.minecraft.nbt.CompoundTag();
++            for (net.minecraft.world.level.levelgen.GenerationStep$Carving $$26 : net.minecraft.world.level.levelgen.GenerationStep$Carving.values()) {
++                net.minecraft.world.level.chunk.CarvingMask $$27 = $$23.getCarvingMask($$26);
++                if ($$27 == null) continue;
++                $$25.putLongArray($$26.toString(), $$27.toArray());
+             }
+-            compoundTag.put("CarvingMasks", (net.minecraft.nbt.Tag)dataLayer2);
++            $$3.put("CarvingMasks", (net.minecraft.nbt.Tag)$$25);
+         }
+-        net.minecraft.world.level.chunk.storage.ChunkSerializer.saveTicks((net.minecraft.server.level.ServerLevel)level, (net.minecraft.nbt.CompoundTag)compoundTag, (net.minecraft.world.level.chunk.ChunkAccess$TicksToSave)chunk.getTicksForSerialization());
+-        compoundTag.put("PostProcessing", (net.minecraft.nbt.Tag)net.minecraft.world.level.chunk.storage.ChunkSerializer.packOffsets((it.unimi.dsi.fastutil.shorts.ShortList[])chunk.getPostProcessing()));
+-        iterator = new net.minecraft.nbt.CompoundTag();
+-        for (net.minecraft.world.level.chunk.DataLayer dataLayer2 : chunk.getHeightmaps()) {
+-            if (!chunk.getStatus().heightmapsAfter().contains(dataLayer2.getKey())) continue;
+-            iterator.put(((net.minecraft.world.level.levelgen.Heightmap$Types)dataLayer2.getKey()).getSerializationKey(), (net.minecraft.nbt.Tag)new net.minecraft.nbt.LongArrayTag(((net.minecraft.world.level.levelgen.Heightmap)dataLayer2.getValue()).getRawData()));
++        net.minecraft.world.level.chunk.storage.ChunkSerializer.saveTicks((net.minecraft.server.level.ServerLevel)$$0, (net.minecraft.nbt.CompoundTag)$$3, (net.minecraft.world.level.chunk.ChunkAccess$TicksToSave)$$12.getTicksForSerialization());
++        $$3.put("PostProcessing", (net.minecraft.nbt.Tag)net.minecraft.world.level.chunk.storage.ChunkSerializer.packOffsets((it.unimi.dsi.fastutil.shorts.ShortList[])$$12.getPostProcessing()));
++        net.minecraft.nbt.CompoundTag $$28 = new net.minecraft.nbt.CompoundTag();
++        for (java.util.Map$Entry $$29 : $$12.getHeightmaps()) {
++            if (!$$12.getStatus().heightmapsAfter().contains($$29.getKey())) continue;
++            $$28.put(((net.minecraft.world.level.levelgen.Heightmap$Types)$$29.getKey()).getSerializationKey(), (net.minecraft.nbt.Tag)new net.minecraft.nbt.LongArrayTag(((net.minecraft.world.level.levelgen.Heightmap)$$29.getValue()).getRawData()));
+         }
+-        compoundTag.put("Heightmaps", (net.minecraft.nbt.Tag)iterator);
+-        compoundTag.put("structures", (net.minecraft.nbt.Tag)net.minecraft.world.level.chunk.storage.ChunkSerializer.packStructureData((net.minecraft.world.level.levelgen.structure.pieces.StructurePieceSerializationContext)net.minecraft.world.level.levelgen.structure.pieces.StructurePieceSerializationContext.fromLevel((net.minecraft.server.level.ServerLevel)level), (net.minecraft.world.level.ChunkPos)chunkPos, (java.util.Map)chunk.getAllStarts(), (java.util.Map)chunk.getAllReferences()));
+-        return compoundTag;
++        $$3.put("Heightmaps", (net.minecraft.nbt.Tag)$$28);
++        $$3.put("structures", (net.minecraft.nbt.Tag)net.minecraft.world.level.chunk.storage.ChunkSerializer.packStructureData((net.minecraft.world.level.levelgen.structure.pieces.StructurePieceSerializationContext)net.minecraft.world.level.levelgen.structure.pieces.StructurePieceSerializationContext.fromLevel((net.minecraft.server.level.ServerLevel)$$0), (net.minecraft.world.level.ChunkPos)$$2, (java.util.Map)$$12.getAllStarts(), (java.util.Map)$$12.getAllReferences()));
++        return $$3;
+     }
+ 
+     public static void saveTicks(net.minecraft.server.level.ServerLevel $$02, net.minecraft.nbt.CompoundTag $$1, net.minecraft.world.level.chunk.ChunkAccess$TicksToSave $$2) {
+@@ -265,9 +263,9 @@
+         $$1.put("fluid_ticks", $$2.fluids().save($$3, $$0 -> net.minecraft.core.Registry.FLUID.getKey($$0).toString()));
+     }
+ 
+-    public static net.minecraft.world.level.chunk.ChunkStatus$ChunkType getChunkTypeFromTag(@javax.annotation.Nullable net.minecraft.nbt.CompoundTag chunkNBT) {
+-        if (chunkNBT != null) {
+-            return net.minecraft.world.level.chunk.ChunkStatus.byName((java.lang.String)chunkNBT.getString("Status")).getChunkType();
++    public static net.minecraft.world.level.chunk.ChunkStatus$ChunkType getChunkTypeFromTag(@javax.annotation.Nullable net.minecraft.nbt.CompoundTag $$0) {
++        if ($$0 != null) {
++            return net.minecraft.world.level.chunk.ChunkStatus.byName((java.lang.String)$$0.getString("Status")).getChunkType();
+         }
+         return net.minecraft.world.level.chunk.ChunkStatus$ChunkType.PROTOCHUNK;
+     }
+@@ -368,18 +366,18 @@
+         return $$3;
+     }
+ 
+-    public static net.minecraft.nbt.ListTag packOffsets(it.unimi.dsi.fastutil.shorts.ShortList[] list) {
+-        net.minecraft.nbt.ListTag listTag = new net.minecraft.nbt.ListTag();
+-        for (it.unimi.dsi.fastutil.shorts.ShortList shortList : list) {
+-            net.minecraft.nbt.ListTag listTag2 = new net.minecraft.nbt.ListTag();
+-            if (shortList != null) {
+-                for (java.lang.Short s : shortList) {
+-                    listTag2.add((java.lang.Object)net.minecraft.nbt.ShortTag.valueOf((short)s));
++    public static net.minecraft.nbt.ListTag packOffsets(it.unimi.dsi.fastutil.shorts.ShortList[] $$0) {
++        net.minecraft.nbt.ListTag $$1 = new net.minecraft.nbt.ListTag();
++        for (it.unimi.dsi.fastutil.shorts.ShortList $$2 : $$0) {
++            net.minecraft.nbt.ListTag $$3 = new net.minecraft.nbt.ListTag();
++            if ($$2 != null) {
++                for (java.lang.Short $$4 : $$2) {
++                    $$3.add((java.lang.Object)net.minecraft.nbt.ShortTag.valueOf((short)$$4));
+                 }
+             }
+-            listTag.add((java.lang.Object)listTag2);
++            $$1.add((java.lang.Object)$$3);
+         }
+-        return listTag;
++        return $$1;
+     }
+ 
+     static {

@@ -1,0 +1,59 @@
+--- net/minecraft/world/level/NaturalSpawner$SpawnState.java
++++ net/minecraft/world/level/NaturalSpawner$SpawnState.java
+@@ -24,29 +24,38 @@
+         this.unmodifiableMobCategoryCounts = it.unimi.dsi.fastutil.objects.Object2IntMaps.unmodifiable($$1);
+     }
+ 
+-    public boolean canSpawn(net.minecraft.world.entity.EntityType<?> entityType, net.minecraft.core.BlockPos pos, net.minecraft.world.level.chunk.ChunkAccess chunk) {
+-        double d;
+-        this.lastCheckedPos = pos;
+-        this.lastCheckedType = entityType;
+-        net.minecraft.world.level.biome.MobSpawnSettings$MobSpawnCost mobSpawnCost = net.minecraft.world.level.NaturalSpawner.getRoughBiome((net.minecraft.core.BlockPos)pos, (net.minecraft.world.level.chunk.ChunkAccess)chunk).getMobSettings().getMobSpawnCost(entityType);
+-        if (mobSpawnCost == null) {
++    public boolean canSpawn(net.minecraft.world.entity.EntityType<?> $$0, net.minecraft.core.BlockPos $$1, net.minecraft.world.level.chunk.ChunkAccess $$2) {
++        double $$4;
++        this.lastCheckedPos = $$1;
++        this.lastCheckedType = $$0;
++        net.minecraft.world.level.biome.MobSpawnSettings$MobSpawnCost $$3 = net.minecraft.world.level.NaturalSpawner.getRoughBiome((net.minecraft.core.BlockPos)$$1, (net.minecraft.world.level.chunk.ChunkAccess)$$2).getMobSettings().getMobSpawnCost($$0);
++        if ($$3 == null) {
+             this.lastCharge = 0.0;
+             return true;
+         }
+-        this.lastCharge = d = mobSpawnCost.getCharge();
+-        double d2 = this.spawnPotential.getPotentialEnergyChange(pos, d);
+-        return d2 <= mobSpawnCost.getEnergyBudget();
++        this.lastCharge = $$4 = $$3.getCharge();
++        double $$5 = this.spawnPotential.getPotentialEnergyChange($$1, $$4);
++        return $$5 <= $$3.getEnergyBudget();
+     }
+ 
+-    public void afterSpawn(net.minecraft.world.entity.Mob mob, net.minecraft.world.level.chunk.ChunkAccess chunk) {
+-        net.minecraft.world.level.biome.MobSpawnSettings$MobSpawnCost mobSpawnCost;
+-        net.minecraft.world.entity.EntityType entityType = mob.getType();
+-        net.minecraft.core.BlockPos blockPos = mob.blockPosition();
+-        double d = blockPos.equals((java.lang.Object)this.lastCheckedPos) && entityType == this.lastCheckedType ? this.lastCharge : ((mobSpawnCost = net.minecraft.world.level.NaturalSpawner.getRoughBiome((net.minecraft.core.BlockPos)blockPos, (net.minecraft.world.level.chunk.ChunkAccess)chunk).getMobSettings().getMobSpawnCost(entityType)) != null ? mobSpawnCost.getCharge() : 0.0);
+-        this.spawnPotential.addCharge(blockPos, d);
+-        mobSpawnCost = entityType.getCategory();
+-        this.mobCategoryCounts.addTo((java.lang.Object)mobSpawnCost, 1);
+-        this.localMobCapCalculator.addMob(new net.minecraft.world.level.ChunkPos(blockPos), (net.minecraft.world.entity.MobCategory)mobSpawnCost);
++    public void afterSpawn(net.minecraft.world.entity.Mob $$0, net.minecraft.world.level.chunk.ChunkAccess $$1) {
++        double $$7;
++        net.minecraft.world.entity.EntityType $$2 = $$0.getType();
++        net.minecraft.core.BlockPos $$3 = $$0.blockPosition();
++        if ($$3.equals((java.lang.Object)this.lastCheckedPos) && $$2 == this.lastCheckedType) {
++            double $$4 = this.lastCharge;
++        } else {
++            net.minecraft.world.level.biome.MobSpawnSettings$MobSpawnCost $$5 = net.minecraft.world.level.NaturalSpawner.getRoughBiome((net.minecraft.core.BlockPos)$$3, (net.minecraft.world.level.chunk.ChunkAccess)$$1).getMobSettings().getMobSpawnCost($$2);
++            if ($$5 != null) {
++                double $$6 = $$5.getCharge();
++            } else {
++                $$7 = 0.0;
++            }
++        }
++        this.spawnPotential.addCharge($$3, $$7);
++        net.minecraft.world.entity.MobCategory $$8 = $$2.getCategory();
++        this.mobCategoryCounts.addTo((java.lang.Object)$$8, 1);
++        this.localMobCapCalculator.addMob(new net.minecraft.world.level.ChunkPos($$3), $$8);
+     }
+ 
+     public int getSpawnableChunkCount() {

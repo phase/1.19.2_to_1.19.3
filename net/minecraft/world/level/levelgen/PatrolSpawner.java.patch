@@ -1,0 +1,98 @@
+--- net/minecraft/world/level/levelgen/PatrolSpawner.java
++++ net/minecraft/world/level/levelgen/PatrolSpawner.java
+@@ -11,64 +11,64 @@
+     public net.minecraft.world.level.levelgen.PatrolSpawner() {
+     }
+ 
+-    public int tick(net.minecraft.server.level.ServerLevel level, boolean spawnHostiles, boolean spawnPassives) {
+-        if (!spawnHostiles) {
++    public int tick(net.minecraft.server.level.ServerLevel $$0, boolean $$1, boolean $$2) {
++        if (!$$1) {
+             return 0;
+         }
+-        if (!level.getGameRules().getBoolean(net.minecraft.world.level.GameRules.RULE_DO_PATROL_SPAWNING)) {
++        if (!$$0.getGameRules().getBoolean(net.minecraft.world.level.GameRules.RULE_DO_PATROL_SPAWNING)) {
+             return 0;
+         }
+-        net.minecraft.util.RandomSource randomSource = level.random;
++        net.minecraft.util.RandomSource $$3 = $$0.random;
+         --this.nextTick;
+         if (this.nextTick > 0) {
+             return 0;
+         }
+-        this.nextTick += 12000 + randomSource.nextInt(1200);
+-        long l = level.getDayTime() / 24000L;
+-        if (l < 5L || !level.isDay()) {
++        this.nextTick += 12000 + $$3.nextInt(1200);
++        long $$4 = $$0.getDayTime() / 24000L;
++        if ($$4 < 5L || !$$0.isDay()) {
+             return 0;
+         }
+-        if (randomSource.nextInt(5) != 0) {
++        if ($$3.nextInt(5) != 0) {
+             return 0;
+         }
+-        int n = level.players().size();
+-        if (n < 1) {
++        int $$5 = $$0.players().size();
++        if ($$5 < 1) {
+             return 0;
+         }
+-        net.minecraft.world.entity.player.Player player = (net.minecraft.world.entity.player.Player)level.players().get(randomSource.nextInt(n));
+-        if (player.isSpectator()) {
++        net.minecraft.world.entity.player.Player $$6 = (net.minecraft.world.entity.player.Player)$$0.players().get($$3.nextInt($$5));
++        if ($$6.isSpectator()) {
+             return 0;
+         }
+-        if (level.isCloseToVillage(player.blockPosition(), 2)) {
++        if ($$0.isCloseToVillage($$6.blockPosition(), 2)) {
+             return 0;
+         }
+-        int n2 = (24 + randomSource.nextInt(24)) * (randomSource.nextBoolean() ? -1 : 1);
+-        int n3 = (24 + randomSource.nextInt(24)) * (randomSource.nextBoolean() ? -1 : 1);
+-        net.minecraft.core.BlockPos$MutableBlockPos mutableBlockPos = player.blockPosition().mutable().move(n2, 0, n3);
+-        int n4 = 10;
+-        if (!level.hasChunksAt(mutableBlockPos.getX() - 10, mutableBlockPos.getZ() - 10, mutableBlockPos.getX() + 10, mutableBlockPos.getZ() + 10)) {
++        int $$7 = (24 + $$3.nextInt(24)) * ($$3.nextBoolean() ? -1 : 1);
++        int $$8 = (24 + $$3.nextInt(24)) * ($$3.nextBoolean() ? -1 : 1);
++        net.minecraft.core.BlockPos$MutableBlockPos $$9 = $$6.blockPosition().mutable().move($$7, 0, $$8);
++        int $$10 = 10;
++        if (!$$0.hasChunksAt($$9.getX() - 10, $$9.getZ() - 10, $$9.getX() + 10, $$9.getZ() + 10)) {
+             return 0;
+         }
+-        net.minecraft.core.Holder holder = level.getBiome((net.minecraft.core.BlockPos)mutableBlockPos);
+-        if (holder.is(net.minecraft.tags.BiomeTags.WITHOUT_PATROL_SPAWNS)) {
++        net.minecraft.core.Holder $$11 = $$0.getBiome((net.minecraft.core.BlockPos)$$9);
++        if ($$11.is(net.minecraft.tags.BiomeTags.WITHOUT_PATROL_SPAWNS)) {
+             return 0;
+         }
+-        int n5 = 0;
+-        int n6 = (int)java.lang.Math.ceil((double)level.getCurrentDifficultyAt((net.minecraft.core.BlockPos)mutableBlockPos).getEffectiveDifficulty()) + 1;
+-        for (int i = 0; i < n6; ++i) {
+-            ++n5;
+-            mutableBlockPos.setY(level.getHeightmapPos(net.minecraft.world.level.levelgen.Heightmap$Types.MOTION_BLOCKING_NO_LEAVES, (net.minecraft.core.BlockPos)mutableBlockPos).getY());
+-            if (i == 0) {
+-                if (!this.spawnPatrolMember(level, (net.minecraft.core.BlockPos)mutableBlockPos, randomSource, true)) {
++        int $$12 = 0;
++        int $$13 = (int)java.lang.Math.ceil((double)$$0.getCurrentDifficultyAt((net.minecraft.core.BlockPos)$$9).getEffectiveDifficulty()) + 1;
++        for (int $$14 = 0; $$14 < $$13; ++$$14) {
++            ++$$12;
++            $$9.setY($$0.getHeightmapPos(net.minecraft.world.level.levelgen.Heightmap$Types.MOTION_BLOCKING_NO_LEAVES, (net.minecraft.core.BlockPos)$$9).getY());
++            if ($$14 == 0) {
++                if (!this.spawnPatrolMember($$0, (net.minecraft.core.BlockPos)$$9, $$3, true)) {
+                     break;
+                 }
+             } else {
+-                this.spawnPatrolMember(level, (net.minecraft.core.BlockPos)mutableBlockPos, randomSource, false);
++                this.spawnPatrolMember($$0, (net.minecraft.core.BlockPos)$$9, $$3, false);
+             }
+-            mutableBlockPos.setX(mutableBlockPos.getX() + randomSource.nextInt(5) - randomSource.nextInt(5));
+-            mutableBlockPos.setZ(mutableBlockPos.getZ() + randomSource.nextInt(5) - randomSource.nextInt(5));
++            $$9.setX($$9.getX() + $$3.nextInt(5) - $$3.nextInt(5));
++            $$9.setZ($$9.getZ() + $$3.nextInt(5) - $$3.nextInt(5));
+         }
+-        return n5;
++        return $$12;
+     }
+ 
+     public boolean spawnPatrolMember(net.minecraft.server.level.ServerLevel $$0, net.minecraft.core.BlockPos $$1, net.minecraft.util.RandomSource $$2, boolean $$3) {

@@ -1,0 +1,47 @@
+--- net/minecraft/client/resources/TextureAtlasHolder.java
++++ net/minecraft/client/resources/TextureAtlasHolder.java
+@@ -1,1 +1,43 @@
+-// Failed to decompile net/minecraft/client/resources/TextureAtlasHolder.class
++/*
++ * Decompiled with CFR 0.151.
++ */
++package net.minecraft.client.resources;
++
++public abstract class net.minecraft.client.resources.TextureAtlasHolder
++implements net.minecraft.server.packs.resources.PreparableReloadListener,
++java.lang.AutoCloseable
++ {
++    public net.minecraft.client.renderer.texture.TextureAtlas textureAtlas;
++    public java.lang.String prefix;
++
++    public net.minecraft.client.resources.TextureAtlasHolder(net.minecraft.client.renderer.texture.TextureManager $$0, net.minecraft.resources.ResourceLocation $$1, java.lang.String $$2) {
++        this.prefix = $$2;
++        this.textureAtlas = new net.minecraft.client.renderer.texture.TextureAtlas($$1);
++        $$0.register(this.textureAtlas.location(), (net.minecraft.client.renderer.texture.AbstractTexture)this.textureAtlas);
++    }
++
++    public net.minecraft.client.renderer.texture.TextureAtlasSprite getSprite(net.minecraft.resources.ResourceLocation $$0) {
++        return this.textureAtlas.getSprite(this.resolveLocation($$0));
++    }
++
++    public net.minecraft.resources.ResourceLocation resolveLocation(net.minecraft.resources.ResourceLocation $$0) {
++        return $$0.withPrefix(this.prefix + "/");
++    }
++
++    public java.util.concurrent.CompletableFuture<java.lang.Void> reload(net.minecraft.server.packs.resources.PreparableReloadListener$PreparationBarrier $$0, net.minecraft.server.packs.resources.ResourceManager $$12, net.minecraft.util.profiling.ProfilerFiller $$2, net.minecraft.util.profiling.ProfilerFiller $$3, java.util.concurrent.Executor $$4, java.util.concurrent.Executor $$5) {
++        return java.util.concurrent.CompletableFuture.supplyAsync(() -> net.minecraft.client.renderer.texture.SpriteLoader.listSprites((net.minecraft.server.packs.resources.ResourceManager)$$12, (java.lang.String)this.prefix), (java.util.concurrent.Executor)$$4).thenCompose($$1 -> net.minecraft.client.renderer.texture.SpriteLoader.create((net.minecraft.client.renderer.texture.TextureAtlas)this.textureAtlas).stitch($$1, 0, $$4)).thenCompose(net.minecraft.client.renderer.texture.SpriteLoader$Preparations::waitForUpload).thenCompose(arg_0 -> ((net.minecraft.server.packs.resources.PreparableReloadListener$PreparationBarrier)$$0).wait(arg_0)).thenAcceptAsync($$1 -> this.apply($$1, $$3), $$5);
++    }
++
++    public void apply(net.minecraft.client.renderer.texture.SpriteLoader$Preparations $$0, net.minecraft.util.profiling.ProfilerFiller $$1) {
++        $$1.startTick();
++        $$1.push("upload");
++        this.textureAtlas.upload($$0);
++        $$1.pop();
++        $$1.endTick();
++    }
++
++    public void close() {
++        this.textureAtlas.clearTextureData();
++    }
++}
++

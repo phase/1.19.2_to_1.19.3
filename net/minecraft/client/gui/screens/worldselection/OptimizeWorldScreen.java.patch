@@ -1,0 +1,105 @@
+--- net/minecraft/client/gui/screens/worldselection/OptimizeWorldScreen.java
++++ net/minecraft/client/gui/screens/worldselection/OptimizeWorldScreen.java
+@@ -18,8 +18,9 @@
+             net.minecraft.server.WorldStem $$5 = $$0.createWorldOpenFlows().loadWorldStem($$3, false);
+             try {
+                 net.minecraft.world.level.storage.WorldData $$6 = $$5.worldData();
+-                $$3.saveDataTag((net.minecraft.core.RegistryAccess)$$5.registryAccess(), $$6);
+-                optimizeWorldScreen = new net.minecraft.client.gui.screens.worldselection.OptimizeWorldScreen($$1, $$2, $$3, $$6.getLevelSettings(), $$4, $$6.worldGenSettings());
++                net.minecraft.core.RegistryAccess$Frozen $$7 = $$5.registries().compositeAccess();
++                $$3.saveDataTag((net.minecraft.core.RegistryAccess)$$7, $$6);
++                optimizeWorldScreen = new net.minecraft.client.gui.screens.worldselection.OptimizeWorldScreen($$1, $$2, $$3, $$6.getLevelSettings(), $$4, $$7.registryOrThrow(net.minecraft.core.Registry.LEVEL_STEM_REGISTRY));
+                 if ($$5 == null) break block8;
+             }
+             catch (java.lang.Throwable throwable) {
+@@ -34,8 +35,8 @@
+                     }
+                     throw throwable;
+                 }
+-                catch (java.lang.Exception $$7) {
+-                    LOGGER.warn("Failed to load datapacks, can't optimize world", (java.lang.Throwable)$$7);
++                catch (java.lang.Exception $$8) {
++                    LOGGER.warn("Failed to load datapacks, can't optimize world", (java.lang.Throwable)$$8);
+                     return null;
+                 }
+             }
+@@ -44,7 +45,7 @@
+         return optimizeWorldScreen;
+     }
+ 
+-    public net.minecraft.client.gui.screens.worldselection.OptimizeWorldScreen(it.unimi.dsi.fastutil.booleans.BooleanConsumer $$0, com.mojang.datafixers.DataFixer $$1, net.minecraft.world.level.storage.LevelStorageSource$LevelStorageAccess $$2, net.minecraft.world.level.LevelSettings $$3, boolean $$4, net.minecraft.world.level.levelgen.WorldGenSettings $$5) {
++    public net.minecraft.client.gui.screens.worldselection.OptimizeWorldScreen(it.unimi.dsi.fastutil.booleans.BooleanConsumer $$0, com.mojang.datafixers.DataFixer $$1, net.minecraft.world.level.storage.LevelStorageSource$LevelStorageAccess $$2, net.minecraft.world.level.LevelSettings $$3, boolean $$4, net.minecraft.core.Registry<net.minecraft.world.level.dimension.LevelStem> $$5) {
+         super((net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"optimizeWorld.title", (java.lang.Object[])new java.lang.Object[]{$$3.levelName()}));
+         this.callback = $$0;
+         this.upgrader = new net.minecraft.util.worldupdate.WorldUpgrader($$2, $$1, $$5, $$4);
+@@ -72,44 +73,44 @@
+         this.upgrader.cancel();
+     }
+ 
+-    public void render(com.mojang.blaze3d.vertex.PoseStack matrixStack, int mouseX, int mouseY, float partialTicks) {
+-        this.renderBackground(matrixStack);
+-        net.minecraft.client.gui.screens.worldselection.OptimizeWorldScreen.drawCenteredString((com.mojang.blaze3d.vertex.PoseStack)matrixStack, (net.minecraft.client.gui.Font)this.font, (net.minecraft.network.chat.Component)this.title, (int)(this.width / 2), (int)20, (int)0xFFFFFF);
+-        int n = this.width / 2 - 150;
+-        int n2 = this.width / 2 + 150;
+-        int n3 = this.height / 4 + 100;
+-        int n4 = n3 + 10;
++    public void render(com.mojang.blaze3d.vertex.PoseStack $$0, int $$1, int $$2, float $$3) {
++        this.renderBackground($$0);
++        net.minecraft.client.gui.screens.worldselection.OptimizeWorldScreen.drawCenteredString((com.mojang.blaze3d.vertex.PoseStack)$$0, (net.minecraft.client.gui.Font)this.font, (net.minecraft.network.chat.Component)this.title, (int)(this.width / 2), (int)20, (int)0xFFFFFF);
++        int $$4 = this.width / 2 - 150;
++        int $$5 = this.width / 2 + 150;
++        int $$6 = this.height / 4 + 100;
++        int $$7 = $$6 + 10;
+         net.minecraft.network.chat.Component component = this.upgrader.getStatus();
+-        int n5 = this.width / 2;
++        int n = this.width / 2;
+         java.util.Objects.requireNonNull((java.lang.Object)this.font);
+-        net.minecraft.client.gui.screens.worldselection.OptimizeWorldScreen.drawCenteredString((com.mojang.blaze3d.vertex.PoseStack)matrixStack, (net.minecraft.client.gui.Font)this.font, (net.minecraft.network.chat.Component)component, (int)n5, (int)(n3 - 9 - 2), (int)0xA0A0A0);
++        net.minecraft.client.gui.screens.worldselection.OptimizeWorldScreen.drawCenteredString((com.mojang.blaze3d.vertex.PoseStack)$$0, (net.minecraft.client.gui.Font)this.font, (net.minecraft.network.chat.Component)component, (int)n, (int)($$6 - 9 - 2), (int)0xA0A0A0);
+         if (this.upgrader.getTotalChunks() > 0) {
+-            net.minecraft.client.gui.screens.worldselection.OptimizeWorldScreen.fill((com.mojang.blaze3d.vertex.PoseStack)matrixStack, (int)(n - 1), (int)(n3 - 1), (int)(n2 + 1), (int)(n4 + 1), (int)-16777216);
+-            net.minecraft.client.gui.screens.worldselection.OptimizeWorldScreen.drawString((com.mojang.blaze3d.vertex.PoseStack)matrixStack, (net.minecraft.client.gui.Font)this.font, (net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"optimizeWorld.info.converted", (java.lang.Object[])new java.lang.Object[]{this.upgrader.getConverted()}), (int)n, (int)40, (int)0xA0A0A0);
++            net.minecraft.client.gui.screens.worldselection.OptimizeWorldScreen.fill((com.mojang.blaze3d.vertex.PoseStack)$$0, (int)($$4 - 1), (int)($$6 - 1), (int)($$5 + 1), (int)($$7 + 1), (int)-16777216);
++            net.minecraft.client.gui.screens.worldselection.OptimizeWorldScreen.drawString((com.mojang.blaze3d.vertex.PoseStack)$$0, (net.minecraft.client.gui.Font)this.font, (net.minecraft.network.chat.Component)net.minecraft.network.chat.Component.translatable((java.lang.String)"optimizeWorld.info.converted", (java.lang.Object[])new java.lang.Object[]{this.upgrader.getConverted()}), (int)$$4, (int)40, (int)0xA0A0A0);
+             net.minecraft.network.chat.MutableComponent mutableComponent = net.minecraft.network.chat.Component.translatable((java.lang.String)"optimizeWorld.info.skipped", (java.lang.Object[])new java.lang.Object[]{this.upgrader.getSkipped()});
+             java.util.Objects.requireNonNull((java.lang.Object)this.font);
+-            net.minecraft.client.gui.screens.worldselection.OptimizeWorldScreen.drawString((com.mojang.blaze3d.vertex.PoseStack)matrixStack, (net.minecraft.client.gui.Font)this.font, (net.minecraft.network.chat.Component)mutableComponent, (int)n, (int)(40 + 9 + 3), (int)0xA0A0A0);
++            net.minecraft.client.gui.screens.worldselection.OptimizeWorldScreen.drawString((com.mojang.blaze3d.vertex.PoseStack)$$0, (net.minecraft.client.gui.Font)this.font, (net.minecraft.network.chat.Component)mutableComponent, (int)$$4, (int)(40 + 9 + 3), (int)0xA0A0A0);
+             net.minecraft.network.chat.MutableComponent mutableComponent2 = net.minecraft.network.chat.Component.translatable((java.lang.String)"optimizeWorld.info.total", (java.lang.Object[])new java.lang.Object[]{this.upgrader.getTotalChunks()});
+             java.util.Objects.requireNonNull((java.lang.Object)this.font);
+-            net.minecraft.client.gui.screens.worldselection.OptimizeWorldScreen.drawString((com.mojang.blaze3d.vertex.PoseStack)matrixStack, (net.minecraft.client.gui.Font)this.font, (net.minecraft.network.chat.Component)mutableComponent2, (int)n, (int)(40 + (9 + 3) * 2), (int)0xA0A0A0);
+-            int n6 = 0;
+-            for (net.minecraft.resources.ResourceKey resourceKey : this.upgrader.levels()) {
+-                int n7 = net.minecraft.util.Mth.floor((float)(this.upgrader.dimensionProgress(resourceKey) * (float)(n2 - n)));
+-                net.minecraft.client.gui.screens.worldselection.OptimizeWorldScreen.fill((com.mojang.blaze3d.vertex.PoseStack)matrixStack, (int)(n + n6), (int)n3, (int)(n + n6 + n7), (int)n4, (int)DIMENSION_COLORS.getInt((java.lang.Object)resourceKey));
+-                n6 += n7;
++            net.minecraft.client.gui.screens.worldselection.OptimizeWorldScreen.drawString((com.mojang.blaze3d.vertex.PoseStack)$$0, (net.minecraft.client.gui.Font)this.font, (net.minecraft.network.chat.Component)mutableComponent2, (int)$$4, (int)(40 + (9 + 3) * 2), (int)0xA0A0A0);
++            int $$8 = 0;
++            for (net.minecraft.resources.ResourceKey $$9 : this.upgrader.levels()) {
++                int $$10 = net.minecraft.util.Mth.floor((float)(this.upgrader.dimensionProgress($$9) * (float)($$5 - $$4)));
++                net.minecraft.client.gui.screens.worldselection.OptimizeWorldScreen.fill((com.mojang.blaze3d.vertex.PoseStack)$$0, (int)($$4 + $$8), (int)$$6, (int)($$4 + $$8 + $$10), (int)$$7, (int)DIMENSION_COLORS.getInt((java.lang.Object)$$9));
++                $$8 += $$10;
+             }
+-            int n8 = this.upgrader.getConverted() + this.upgrader.getSkipped();
+-            java.lang.String string = n8 + " / " + this.upgrader.getTotalChunks();
+-            int n9 = this.width / 2;
++            int $$11 = this.upgrader.getConverted() + this.upgrader.getSkipped();
++            java.lang.String string = $$11 + " / " + this.upgrader.getTotalChunks();
++            int n2 = this.width / 2;
+             java.util.Objects.requireNonNull((java.lang.Object)this.font);
+-            net.minecraft.client.gui.screens.worldselection.OptimizeWorldScreen.drawCenteredString((com.mojang.blaze3d.vertex.PoseStack)matrixStack, (net.minecraft.client.gui.Font)this.font, (java.lang.String)string, (int)n9, (int)(n3 + 2 * 9 + 2), (int)0xA0A0A0);
++            net.minecraft.client.gui.screens.worldselection.OptimizeWorldScreen.drawCenteredString((com.mojang.blaze3d.vertex.PoseStack)$$0, (net.minecraft.client.gui.Font)this.font, (java.lang.String)string, (int)n2, (int)($$6 + 2 * 9 + 2), (int)0xA0A0A0);
+             java.lang.String string2 = net.minecraft.util.Mth.floor((float)(this.upgrader.getProgress() * 100.0f)) + "%";
+-            int n10 = this.width / 2;
+-            int n11 = n3 + (n4 - n3) / 2;
++            int n3 = this.width / 2;
++            int n4 = $$6 + ($$7 - $$6) / 2;
+             java.util.Objects.requireNonNull((java.lang.Object)this.font);
+-            net.minecraft.client.gui.screens.worldselection.OptimizeWorldScreen.drawCenteredString((com.mojang.blaze3d.vertex.PoseStack)matrixStack, (net.minecraft.client.gui.Font)this.font, (java.lang.String)string2, (int)n10, (int)(n11 - 9 / 2), (int)0xA0A0A0);
++            net.minecraft.client.gui.screens.worldselection.OptimizeWorldScreen.drawCenteredString((com.mojang.blaze3d.vertex.PoseStack)$$0, (net.minecraft.client.gui.Font)this.font, (java.lang.String)string2, (int)n3, (int)(n4 - 9 / 2), (int)0xA0A0A0);
+         }
+-        super.render(matrixStack, mouseX, mouseY, partialTicks);
++        super.render($$0, $$1, $$2, $$3);
+     }
+ 
+     public static /* synthetic */ void lambda$static$0(it.unimi.dsi.fastutil.objects.Object2IntOpenCustomHashMap $$0) {

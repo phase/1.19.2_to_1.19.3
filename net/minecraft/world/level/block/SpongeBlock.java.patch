@@ -1,0 +1,109 @@
+--- net/minecraft/world/level/block/SpongeBlock.java
++++ net/minecraft/world/level/block/SpongeBlock.java
+@@ -13,64 +13,64 @@
+         super($$0);
+     }
+ 
+-    public void onPlace(net.minecraft.world.level.block.state.BlockState state, net.minecraft.world.level.Level level, net.minecraft.core.BlockPos pos, net.minecraft.world.level.block.state.BlockState oldState, boolean isMoving) {
+-        if (oldState.is(state.getBlock())) {
++    public void onPlace(net.minecraft.world.level.block.state.BlockState $$0, net.minecraft.world.level.Level $$1, net.minecraft.core.BlockPos $$2, net.minecraft.world.level.block.state.BlockState $$3, boolean $$4) {
++        if ($$3.is($$0.getBlock())) {
+             return;
+         }
+-        this.tryAbsorbWater(level, pos);
++        this.tryAbsorbWater($$1, $$2);
+     }
+ 
+-    public void neighborChanged(net.minecraft.world.level.block.state.BlockState state, net.minecraft.world.level.Level level, net.minecraft.core.BlockPos pos, net.minecraft.world.level.block.Block block, net.minecraft.core.BlockPos fromPos, boolean isMoving) {
+-        this.tryAbsorbWater(level, pos);
+-        super.neighborChanged(state, level, pos, block, fromPos, isMoving);
++    public void neighborChanged(net.minecraft.world.level.block.state.BlockState $$0, net.minecraft.world.level.Level $$1, net.minecraft.core.BlockPos $$2, net.minecraft.world.level.block.Block $$3, net.minecraft.core.BlockPos $$4, boolean $$5) {
++        this.tryAbsorbWater($$1, $$2);
++        super.neighborChanged($$0, $$1, $$2, $$3, $$4, $$5);
+     }
+ 
+-    public void tryAbsorbWater(net.minecraft.world.level.Level level, net.minecraft.core.BlockPos pos) {
+-        if (this.removeWaterBreadthFirstSearch(level, pos)) {
+-            level.setBlock(pos, net.minecraft.world.level.block.Blocks.WET_SPONGE.defaultBlockState(), 2);
+-            level.levelEvent(2001, pos, net.minecraft.world.level.block.Block.getId((net.minecraft.world.level.block.state.BlockState)net.minecraft.world.level.block.Blocks.WATER.defaultBlockState()));
++    public void tryAbsorbWater(net.minecraft.world.level.Level $$0, net.minecraft.core.BlockPos $$1) {
++        if (this.removeWaterBreadthFirstSearch($$0, $$1)) {
++            $$0.setBlock($$1, net.minecraft.world.level.block.Blocks.WET_SPONGE.defaultBlockState(), 2);
++            $$0.levelEvent(2001, $$1, net.minecraft.world.level.block.Block.getId((net.minecraft.world.level.block.state.BlockState)net.minecraft.world.level.block.Blocks.WATER.defaultBlockState()));
+         }
+     }
+ 
+-    public boolean removeWaterBreadthFirstSearch(net.minecraft.world.level.Level level, net.minecraft.core.BlockPos pos) {
+-        java.util.LinkedList linkedList = com.google.common.collect.Lists.newLinkedList();
+-        linkedList.add((java.lang.Object)new net.minecraft.util.Tuple((java.lang.Object)pos, (java.lang.Object)0));
+-        int n = 0;
+-        while (!linkedList.isEmpty()) {
+-            net.minecraft.util.Tuple tuple = (net.minecraft.util.Tuple)linkedList.poll();
+-            net.minecraft.core.BlockPos blockPos = (net.minecraft.core.BlockPos)tuple.getA();
+-            int n2 = (java.lang.Integer)tuple.getB();
+-            for (net.minecraft.core.Direction direction : net.minecraft.core.Direction.values()) {
+-                net.minecraft.core.BlockPos blockPos2 = blockPos.relative(direction);
+-                net.minecraft.world.level.block.state.BlockState blockState = level.getBlockState(blockPos2);
+-                net.minecraft.world.level.material.FluidState fluidState = level.getFluidState(blockPos2);
+-                net.minecraft.world.level.material.Material material = blockState.getMaterial();
+-                if (!fluidState.is(net.minecraft.tags.FluidTags.WATER)) continue;
+-                if (blockState.getBlock() instanceof net.minecraft.world.level.block.BucketPickup && !((net.minecraft.world.level.block.BucketPickup)blockState.getBlock()).pickupBlock((net.minecraft.world.level.LevelAccessor)level, blockPos2, blockState).isEmpty()) {
+-                    ++n;
+-                    if (n2 >= 6) continue;
+-                    linkedList.add((java.lang.Object)new net.minecraft.util.Tuple((java.lang.Object)blockPos2, (java.lang.Object)(n2 + 1)));
++    public boolean removeWaterBreadthFirstSearch(net.minecraft.world.level.Level $$0, net.minecraft.core.BlockPos $$1) {
++        java.util.LinkedList $$2 = com.google.common.collect.Lists.newLinkedList();
++        $$2.add((java.lang.Object)new net.minecraft.util.Tuple((java.lang.Object)$$1, (java.lang.Object)0));
++        int $$3 = 0;
++        while (!$$2.isEmpty()) {
++            net.minecraft.util.Tuple $$4 = (net.minecraft.util.Tuple)$$2.poll();
++            net.minecraft.core.BlockPos $$5 = (net.minecraft.core.BlockPos)$$4.getA();
++            int $$6 = (java.lang.Integer)$$4.getB();
++            for (net.minecraft.core.Direction $$7 : net.minecraft.core.Direction.values()) {
++                net.minecraft.core.BlockPos $$8 = $$5.relative($$7);
++                net.minecraft.world.level.block.state.BlockState $$9 = $$0.getBlockState($$8);
++                net.minecraft.world.level.material.FluidState $$10 = $$0.getFluidState($$8);
++                net.minecraft.world.level.material.Material $$11 = $$9.getMaterial();
++                if (!$$10.is(net.minecraft.tags.FluidTags.WATER)) continue;
++                if ($$9.getBlock() instanceof net.minecraft.world.level.block.BucketPickup && !((net.minecraft.world.level.block.BucketPickup)$$9.getBlock()).pickupBlock((net.minecraft.world.level.LevelAccessor)$$0, $$8, $$9).isEmpty()) {
++                    ++$$3;
++                    if ($$6 >= 6) continue;
++                    $$2.add((java.lang.Object)new net.minecraft.util.Tuple((java.lang.Object)$$8, (java.lang.Object)($$6 + 1)));
+                     continue;
+                 }
+-                if (blockState.getBlock() instanceof net.minecraft.world.level.block.LiquidBlock) {
+-                    level.setBlock(blockPos2, net.minecraft.world.level.block.Blocks.AIR.defaultBlockState(), 3);
+-                    ++n;
+-                    if (n2 >= 6) continue;
+-                    linkedList.add((java.lang.Object)new net.minecraft.util.Tuple((java.lang.Object)blockPos2, (java.lang.Object)(n2 + 1)));
++                if ($$9.getBlock() instanceof net.minecraft.world.level.block.LiquidBlock) {
++                    $$0.setBlock($$8, net.minecraft.world.level.block.Blocks.AIR.defaultBlockState(), 3);
++                    ++$$3;
++                    if ($$6 >= 6) continue;
++                    $$2.add((java.lang.Object)new net.minecraft.util.Tuple((java.lang.Object)$$8, (java.lang.Object)($$6 + 1)));
+                     continue;
+                 }
+-                if (material != net.minecraft.world.level.material.Material.WATER_PLANT && material != net.minecraft.world.level.material.Material.REPLACEABLE_WATER_PLANT) continue;
+-                net.minecraft.world.level.block.entity.BlockEntity blockEntity = blockState.hasBlockEntity() ? level.getBlockEntity(blockPos2) : null;
+-                net.minecraft.world.level.block.SpongeBlock.dropResources((net.minecraft.world.level.block.state.BlockState)blockState, (net.minecraft.world.level.LevelAccessor)level, (net.minecraft.core.BlockPos)blockPos2, (net.minecraft.world.level.block.entity.BlockEntity)blockEntity);
+-                level.setBlock(blockPos2, net.minecraft.world.level.block.Blocks.AIR.defaultBlockState(), 3);
+-                ++n;
+-                if (n2 >= 6) continue;
+-                linkedList.add((java.lang.Object)new net.minecraft.util.Tuple((java.lang.Object)blockPos2, (java.lang.Object)(n2 + 1)));
++                if ($$11 != net.minecraft.world.level.material.Material.WATER_PLANT && $$11 != net.minecraft.world.level.material.Material.REPLACEABLE_WATER_PLANT) continue;
++                net.minecraft.world.level.block.entity.BlockEntity $$12 = $$9.hasBlockEntity() ? $$0.getBlockEntity($$8) : null;
++                net.minecraft.world.level.block.SpongeBlock.dropResources((net.minecraft.world.level.block.state.BlockState)$$9, (net.minecraft.world.level.LevelAccessor)$$0, (net.minecraft.core.BlockPos)$$8, (net.minecraft.world.level.block.entity.BlockEntity)$$12);
++                $$0.setBlock($$8, net.minecraft.world.level.block.Blocks.AIR.defaultBlockState(), 3);
++                ++$$3;
++                if ($$6 >= 6) continue;
++                $$2.add((java.lang.Object)new net.minecraft.util.Tuple((java.lang.Object)$$8, (java.lang.Object)($$6 + 1)));
+             }
+-            if (n <= 64) continue;
++            if ($$3 <= 64) continue;
+             break;
+         }
+-        return n > 0;
++        return $$3 > 0;
+     }
+ }
+ 

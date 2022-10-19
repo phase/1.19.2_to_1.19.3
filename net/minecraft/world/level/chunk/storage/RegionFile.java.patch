@@ -1,0 +1,398 @@
+--- net/minecraft/world/level/chunk/storage/RegionFile.java
++++ net/minecraft/world/level/chunk/storage/RegionFile.java
+@@ -30,193 +30,193 @@
+         this($$0, $$1, net.minecraft.world.level.chunk.storage.RegionFileVersion.VERSION_DEFLATE, $$2);
+     }
+ 
+-    public net.minecraft.world.level.chunk.storage.RegionFile(java.nio.file.Path regionFile, java.nio.file.Path containingFolder, net.minecraft.world.level.chunk.storage.RegionFileVersion version, boolean sync) throws java.io.IOException {
++    public net.minecraft.world.level.chunk.storage.RegionFile(java.nio.file.Path $$0, java.nio.file.Path $$1, net.minecraft.world.level.chunk.storage.RegionFileVersion $$2, boolean $$3) throws java.io.IOException {
+         this.header = java.nio.ByteBuffer.allocateDirect((int)8192);
+         this.usedSectors = new net.minecraft.world.level.chunk.storage.RegionBitmap();
+-        this.version = version;
+-        if (!java.nio.file.Files.isDirectory((java.nio.file.Path)containingFolder, (java.nio.file.LinkOption[])new java.nio.file.LinkOption[0])) {
+-            throw new java.lang.IllegalArgumentException("Expected directory, got " + containingFolder.toAbsolutePath());
++        this.version = $$2;
++        if (!java.nio.file.Files.isDirectory((java.nio.file.Path)$$1, (java.nio.file.LinkOption[])new java.nio.file.LinkOption[0])) {
++            throw new java.lang.IllegalArgumentException("Expected directory, got " + $$1.toAbsolutePath());
+         }
+-        this.externalFileDir = containingFolder;
++        this.externalFileDir = $$1;
+         this.offsets = this.header.asIntBuffer();
+         this.offsets.limit(1024);
+         this.header.position(4096);
+         this.timestamps = this.header.asIntBuffer();
+-        this.file = sync ? java.nio.channels.FileChannel.open((java.nio.file.Path)regionFile, (java.nio.file.OpenOption[])new java.nio.file.OpenOption[]{java.nio.file.StandardOpenOption.CREATE, java.nio.file.StandardOpenOption.READ, java.nio.file.StandardOpenOption.WRITE, java.nio.file.StandardOpenOption.DSYNC}) : java.nio.channels.FileChannel.open((java.nio.file.Path)regionFile, (java.nio.file.OpenOption[])new java.nio.file.OpenOption[]{java.nio.file.StandardOpenOption.CREATE, java.nio.file.StandardOpenOption.READ, java.nio.file.StandardOpenOption.WRITE});
++        this.file = $$3 ? java.nio.channels.FileChannel.open((java.nio.file.Path)$$0, (java.nio.file.OpenOption[])new java.nio.file.OpenOption[]{java.nio.file.StandardOpenOption.CREATE, java.nio.file.StandardOpenOption.READ, java.nio.file.StandardOpenOption.WRITE, java.nio.file.StandardOpenOption.DSYNC}) : java.nio.channels.FileChannel.open((java.nio.file.Path)$$0, (java.nio.file.OpenOption[])new java.nio.file.OpenOption[]{java.nio.file.StandardOpenOption.CREATE, java.nio.file.StandardOpenOption.READ, java.nio.file.StandardOpenOption.WRITE});
+         this.usedSectors.force(0, 2);
+         this.header.position(0);
+-        int n = this.file.read(this.header, 0L);
+-        if (n != -1) {
+-            if (n != 8192) {
+-                LOGGER.warn("Region file {} has truncated header: {}", (java.lang.Object)regionFile, (java.lang.Object)n);
++        int $$4 = this.file.read(this.header, 0L);
++        if ($$4 != -1) {
++            if ($$4 != 8192) {
++                LOGGER.warn("Region file {} has truncated header: {}", (java.lang.Object)$$0, (java.lang.Object)$$4);
+             }
+-            long l = java.nio.file.Files.size((java.nio.file.Path)regionFile);
+-            for (int i = 0; i < 1024; ++i) {
+-                int n2 = this.offsets.get(i);
+-                if (n2 == 0) continue;
+-                int n3 = net.minecraft.world.level.chunk.storage.RegionFile.getSectorNumber((int)n2);
+-                int n4 = net.minecraft.world.level.chunk.storage.RegionFile.getNumSectors((int)n2);
+-                if (n3 < 2) {
+-                    LOGGER.warn("Region file {} has invalid sector at index: {}; sector {} overlaps with header", new java.lang.Object[]{regionFile, i, n3});
+-                    this.offsets.put(i, 0);
++            long $$5 = java.nio.file.Files.size((java.nio.file.Path)$$0);
++            for (int $$6 = 0; $$6 < 1024; ++$$6) {
++                int $$7 = this.offsets.get($$6);
++                if ($$7 == 0) continue;
++                int $$8 = net.minecraft.world.level.chunk.storage.RegionFile.getSectorNumber((int)$$7);
++                int $$9 = net.minecraft.world.level.chunk.storage.RegionFile.getNumSectors((int)$$7);
++                if ($$8 < 2) {
++                    LOGGER.warn("Region file {} has invalid sector at index: {}; sector {} overlaps with header", new java.lang.Object[]{$$0, $$6, $$8});
++                    this.offsets.put($$6, 0);
+                     continue;
+                 }
+-                if (n4 == 0) {
+-                    LOGGER.warn("Region file {} has an invalid sector at index: {}; size has to be > 0", (java.lang.Object)regionFile, (java.lang.Object)i);
+-                    this.offsets.put(i, 0);
++                if ($$9 == 0) {
++                    LOGGER.warn("Region file {} has an invalid sector at index: {}; size has to be > 0", (java.lang.Object)$$0, (java.lang.Object)$$6);
++                    this.offsets.put($$6, 0);
+                     continue;
+                 }
+-                if ((long)n3 * 4096L > l) {
+-                    LOGGER.warn("Region file {} has an invalid sector at index: {}; sector {} is out of bounds", new java.lang.Object[]{regionFile, i, n3});
+-                    this.offsets.put(i, 0);
++                if ((long)$$8 * 4096L > $$5) {
++                    LOGGER.warn("Region file {} has an invalid sector at index: {}; sector {} is out of bounds", new java.lang.Object[]{$$0, $$6, $$8});
++                    this.offsets.put($$6, 0);
+                     continue;
+                 }
+-                this.usedSectors.force(n3, n4);
++                this.usedSectors.force($$8, $$9);
+             }
+         }
+     }
+ 
+-    public java.nio.file.Path getExternalChunkPath(net.minecraft.world.level.ChunkPos chunkPos) {
+-        java.lang.String string = "c." + chunkPos.x + "." + chunkPos.z + ".mcc";
+-        return this.externalFileDir.resolve(string);
++    public java.nio.file.Path getExternalChunkPath(net.minecraft.world.level.ChunkPos $$0) {
++        java.lang.String $$1 = "c." + $$0.x + "." + $$0.z + ".mcc";
++        return this.externalFileDir.resolve($$1);
+     }
+ 
+     @javax.annotation.Nullable
+-    public synchronized java.io.DataInputStream getChunkDataInputStream(net.minecraft.world.level.ChunkPos chunkPos) throws java.io.IOException {
+-        int n = this.getOffset(chunkPos);
+-        if (n == 0) {
++    public synchronized java.io.DataInputStream getChunkDataInputStream(net.minecraft.world.level.ChunkPos $$0) throws java.io.IOException {
++        int $$1 = this.getOffset($$0);
++        if ($$1 == 0) {
+             return null;
+         }
+-        int n2 = net.minecraft.world.level.chunk.storage.RegionFile.getSectorNumber((int)n);
+-        int n3 = net.minecraft.world.level.chunk.storage.RegionFile.getNumSectors((int)n);
+-        int n4 = n3 * 4096;
+-        java.nio.ByteBuffer byteBuffer = java.nio.ByteBuffer.allocate((int)n4);
+-        this.file.read(byteBuffer, (long)(n2 * 4096));
+-        byteBuffer.flip();
+-        if (byteBuffer.remaining() < 5) {
+-            LOGGER.error("Chunk {} header is truncated: expected {} but read {}", new java.lang.Object[]{chunkPos, n4, byteBuffer.remaining()});
++        int $$2 = net.minecraft.world.level.chunk.storage.RegionFile.getSectorNumber((int)$$1);
++        int $$3 = net.minecraft.world.level.chunk.storage.RegionFile.getNumSectors((int)$$1);
++        int $$4 = $$3 * 4096;
++        java.nio.ByteBuffer $$5 = java.nio.ByteBuffer.allocate((int)$$4);
++        this.file.read($$5, (long)($$2 * 4096));
++        $$5.flip();
++        if ($$5.remaining() < 5) {
++            LOGGER.error("Chunk {} header is truncated: expected {} but read {}", new java.lang.Object[]{$$0, $$4, $$5.remaining()});
+             return null;
+         }
+-        int n5 = byteBuffer.getInt();
+-        byte by = byteBuffer.get();
+-        if (n5 == 0) {
+-            LOGGER.warn("Chunk {} is allocated, but stream is missing", (java.lang.Object)chunkPos);
++        int $$6 = $$5.getInt();
++        byte $$7 = $$5.get();
++        if ($$6 == 0) {
++            LOGGER.warn("Chunk {} is allocated, but stream is missing", (java.lang.Object)$$0);
+             return null;
+         }
+-        int n6 = n5 - 1;
+-        if (net.minecraft.world.level.chunk.storage.RegionFile.isExternalStreamChunk((byte)by)) {
+-            if (n6 != 0) {
++        int $$8 = $$6 - 1;
++        if (net.minecraft.world.level.chunk.storage.RegionFile.isExternalStreamChunk((byte)$$7)) {
++            if ($$8 != 0) {
+                 LOGGER.warn("Chunk has both internal and external streams");
+             }
+-            return this.createExternalChunkInputStream(chunkPos, net.minecraft.world.level.chunk.storage.RegionFile.getExternalChunkVersion((byte)by));
++            return this.createExternalChunkInputStream($$0, net.minecraft.world.level.chunk.storage.RegionFile.getExternalChunkVersion((byte)$$7));
+         }
+-        if (n6 > byteBuffer.remaining()) {
+-            LOGGER.error("Chunk {} stream is truncated: expected {} but read {}", new java.lang.Object[]{chunkPos, n6, byteBuffer.remaining()});
++        if ($$8 > $$5.remaining()) {
++            LOGGER.error("Chunk {} stream is truncated: expected {} but read {}", new java.lang.Object[]{$$0, $$8, $$5.remaining()});
+             return null;
+         }
+-        if (n6 < 0) {
+-            LOGGER.error("Declared size {} of chunk {} is negative", (java.lang.Object)n5, (java.lang.Object)chunkPos);
++        if ($$8 < 0) {
++            LOGGER.error("Declared size {} of chunk {} is negative", (java.lang.Object)$$6, (java.lang.Object)$$0);
+             return null;
+         }
+-        return this.createChunkInputStream(chunkPos, by, (java.io.InputStream)net.minecraft.world.level.chunk.storage.RegionFile.createStream((java.nio.ByteBuffer)byteBuffer, (int)n6));
++        return this.createChunkInputStream($$0, $$7, (java.io.InputStream)net.minecraft.world.level.chunk.storage.RegionFile.createStream((java.nio.ByteBuffer)$$5, (int)$$8));
+     }
+ 
+     public static int getTimestamp() {
+         return (int)(net.minecraft.Util.getEpochMillis() / 1000L);
+     }
+ 
+-    public static boolean isExternalStreamChunk(byte versionByte) {
+-        return (versionByte & 0x80) != 0;
++    public static boolean isExternalStreamChunk(byte $$0) {
++        return ($$0 & 0x80) != 0;
+     }
+ 
+-    public static byte getExternalChunkVersion(byte versionByte) {
+-        return (byte)(versionByte & 0xFFFFFF7F);
++    public static byte getExternalChunkVersion(byte $$0) {
++        return (byte)($$0 & 0xFFFFFF7F);
+     }
+ 
+     @javax.annotation.Nullable
+-    public java.io.DataInputStream createChunkInputStream(net.minecraft.world.level.ChunkPos chunkPos, byte versionByte, java.io.InputStream inputStream) throws java.io.IOException {
+-        net.minecraft.world.level.chunk.storage.RegionFileVersion regionFileVersion = net.minecraft.world.level.chunk.storage.RegionFileVersion.fromId((int)versionByte);
+-        if (regionFileVersion == null) {
+-            LOGGER.error("Chunk {} has invalid chunk stream version {}", (java.lang.Object)chunkPos, (java.lang.Object)versionByte);
++    public java.io.DataInputStream createChunkInputStream(net.minecraft.world.level.ChunkPos $$0, byte $$1, java.io.InputStream $$2) throws java.io.IOException {
++        net.minecraft.world.level.chunk.storage.RegionFileVersion $$3 = net.minecraft.world.level.chunk.storage.RegionFileVersion.fromId((int)$$1);
++        if ($$3 == null) {
++            LOGGER.error("Chunk {} has invalid chunk stream version {}", (java.lang.Object)$$0, (java.lang.Object)$$1);
+             return null;
+         }
+-        return new java.io.DataInputStream(regionFileVersion.wrap(inputStream));
++        return new java.io.DataInputStream($$3.wrap($$2));
+     }
+ 
+     @javax.annotation.Nullable
+-    public java.io.DataInputStream createExternalChunkInputStream(net.minecraft.world.level.ChunkPos chunkPos, byte versionByte) throws java.io.IOException {
+-        java.nio.file.Path path = this.getExternalChunkPath(chunkPos);
+-        if (!java.nio.file.Files.isRegularFile((java.nio.file.Path)path, (java.nio.file.LinkOption[])new java.nio.file.LinkOption[0])) {
+-            LOGGER.error("External chunk path {} is not file", (java.lang.Object)path);
++    public java.io.DataInputStream createExternalChunkInputStream(net.minecraft.world.level.ChunkPos $$0, byte $$1) throws java.io.IOException {
++        java.nio.file.Path $$2 = this.getExternalChunkPath($$0);
++        if (!java.nio.file.Files.isRegularFile((java.nio.file.Path)$$2, (java.nio.file.LinkOption[])new java.nio.file.LinkOption[0])) {
++            LOGGER.error("External chunk path {} is not file", (java.lang.Object)$$2);
+             return null;
+         }
+-        return this.createChunkInputStream(chunkPos, versionByte, java.nio.file.Files.newInputStream((java.nio.file.Path)path, (java.nio.file.OpenOption[])new java.nio.file.OpenOption[0]));
++        return this.createChunkInputStream($$0, $$1, java.nio.file.Files.newInputStream((java.nio.file.Path)$$2, (java.nio.file.OpenOption[])new java.nio.file.OpenOption[0]));
+     }
+ 
+-    public static java.io.ByteArrayInputStream createStream(java.nio.ByteBuffer sourceBuffer, int length) {
+-        return new java.io.ByteArrayInputStream(sourceBuffer.array(), sourceBuffer.position(), length);
++    public static java.io.ByteArrayInputStream createStream(java.nio.ByteBuffer $$0, int $$1) {
++        return new java.io.ByteArrayInputStream($$0.array(), $$0.position(), $$1);
+     }
+ 
+-    public int packSectorOffset(int sectorOffset, int sectorCount) {
+-        return sectorOffset << 8 | sectorCount;
++    public int packSectorOffset(int $$0, int $$1) {
++        return $$0 << 8 | $$1;
+     }
+ 
+-    public static int getNumSectors(int packedSectorOffset) {
+-        return packedSectorOffset & 0xFF;
++    public static int getNumSectors(int $$0) {
++        return $$0 & 0xFF;
+     }
+ 
+-    public static int getSectorNumber(int packedSectorOffset) {
+-        return packedSectorOffset >> 8 & 0xFFFFFF;
++    public static int getSectorNumber(int $$0) {
++        return $$0 >> 8 & 0xFFFFFF;
+     }
+ 
+-    public static int sizeToSectors(int size) {
+-        return (size + 4096 - 1) / 4096;
++    public static int sizeToSectors(int $$0) {
++        return ($$0 + 4096 - 1) / 4096;
+     }
+ 
+-    public boolean doesChunkExist(net.minecraft.world.level.ChunkPos chunkPos) {
+-        int n = this.getOffset(chunkPos);
+-        if (n == 0) {
++    public boolean doesChunkExist(net.minecraft.world.level.ChunkPos $$0) {
++        int $$1 = this.getOffset($$0);
++        if ($$1 == 0) {
+             return false;
+         }
+-        int n2 = net.minecraft.world.level.chunk.storage.RegionFile.getSectorNumber((int)n);
+-        int n3 = net.minecraft.world.level.chunk.storage.RegionFile.getNumSectors((int)n);
+-        java.nio.ByteBuffer byteBuffer = java.nio.ByteBuffer.allocate((int)5);
++        int $$2 = net.minecraft.world.level.chunk.storage.RegionFile.getSectorNumber((int)$$1);
++        int $$3 = net.minecraft.world.level.chunk.storage.RegionFile.getNumSectors((int)$$1);
++        java.nio.ByteBuffer $$4 = java.nio.ByteBuffer.allocate((int)5);
+         try {
+-            this.file.read(byteBuffer, (long)(n2 * 4096));
+-            byteBuffer.flip();
+-            if (byteBuffer.remaining() != 5) {
++            this.file.read($$4, (long)($$2 * 4096));
++            $$4.flip();
++            if ($$4.remaining() != 5) {
+                 return false;
+             }
+-            int n4 = byteBuffer.getInt();
+-            byte by = byteBuffer.get();
+-            if (net.minecraft.world.level.chunk.storage.RegionFile.isExternalStreamChunk((byte)by)) {
+-                if (!net.minecraft.world.level.chunk.storage.RegionFileVersion.isValidVersion((int)net.minecraft.world.level.chunk.storage.RegionFile.getExternalChunkVersion((byte)by))) {
++            int $$5 = $$4.getInt();
++            byte $$6 = $$4.get();
++            if (net.minecraft.world.level.chunk.storage.RegionFile.isExternalStreamChunk((byte)$$6)) {
++                if (!net.minecraft.world.level.chunk.storage.RegionFileVersion.isValidVersion((int)net.minecraft.world.level.chunk.storage.RegionFile.getExternalChunkVersion((byte)$$6))) {
+                     return false;
+                 }
+-                if (!java.nio.file.Files.isRegularFile((java.nio.file.Path)this.getExternalChunkPath(chunkPos), (java.nio.file.LinkOption[])new java.nio.file.LinkOption[0])) {
++                if (!java.nio.file.Files.isRegularFile((java.nio.file.Path)this.getExternalChunkPath($$0), (java.nio.file.LinkOption[])new java.nio.file.LinkOption[0])) {
+                     return false;
+                 }
+             } else {
+-                if (!net.minecraft.world.level.chunk.storage.RegionFileVersion.isValidVersion((int)by)) {
++                if (!net.minecraft.world.level.chunk.storage.RegionFileVersion.isValidVersion((int)$$6)) {
+                     return false;
+                 }
+-                if (n4 == 0) {
++                if ($$5 == 0) {
+                     return false;
+                 }
+-                int n5 = n4 - 1;
+-                if (n5 < 0 || n5 > 4096 * n3) {
++                int $$7 = $$5 - 1;
++                if ($$7 < 0 || $$7 > 4096 * $$3) {
+                     return false;
+                 }
+             }
+         }
+-        catch (java.io.IOException iOException) {
++        catch (java.io.IOException $$8) {
+             return false;
+         }
+         return true;
+     }
+ 
+-    public java.io.DataOutputStream getChunkDataOutputStream(net.minecraft.world.level.ChunkPos chunkPos) throws java.io.IOException {
+-        return new java.io.DataOutputStream(this.version.wrap((java.io.OutputStream)new net.minecraft.world.level.chunk.storage.RegionFile$ChunkBuffer(this, chunkPos)));
++    public java.io.DataOutputStream getChunkDataOutputStream(net.minecraft.world.level.ChunkPos $$0) throws java.io.IOException {
++        return new java.io.DataOutputStream(this.version.wrap((java.io.OutputStream)new net.minecraft.world.level.chunk.storage.RegionFile$ChunkBuffer(this, $$0)));
+     }
+ 
+     public void flush() throws java.io.IOException {
+@@ -236,34 +236,34 @@
+         this.usedSectors.free(net.minecraft.world.level.chunk.storage.RegionFile.getSectorNumber((int)$$2), net.minecraft.world.level.chunk.storage.RegionFile.getNumSectors((int)$$2));
+     }
+ 
+-    public synchronized void write(net.minecraft.world.level.ChunkPos chunkPos, java.nio.ByteBuffer chunkData) throws java.io.IOException {
+-        net.minecraft.world.level.chunk.storage.RegionFile$CommitOp commitOp;
+-        int n;
+-        int n2 = net.minecraft.world.level.chunk.storage.RegionFile.getOffsetIndex((net.minecraft.world.level.ChunkPos)chunkPos);
+-        int n3 = this.offsets.get(n2);
+-        int n4 = net.minecraft.world.level.chunk.storage.RegionFile.getSectorNumber((int)n3);
+-        int n5 = net.minecraft.world.level.chunk.storage.RegionFile.getNumSectors((int)n3);
+-        int n6 = chunkData.remaining();
+-        int n7 = net.minecraft.world.level.chunk.storage.RegionFile.sizeToSectors((int)n6);
+-        if (n7 >= 256) {
+-            java.nio.file.Path path = this.getExternalChunkPath(chunkPos);
+-            LOGGER.warn("Saving oversized chunk {} ({} bytes} to external file {}", new java.lang.Object[]{chunkPos, n6, path});
+-            n7 = 1;
+-            n = this.usedSectors.allocate(n7);
+-            commitOp = this.writeToExternalFile(path, chunkData);
+-            java.nio.ByteBuffer byteBuffer = this.createExternalStub();
+-            this.file.write(byteBuffer, (long)(n * 4096));
++    public synchronized void write(net.minecraft.world.level.ChunkPos $$0, java.nio.ByteBuffer $$1) throws java.io.IOException {
++        net.minecraft.world.level.chunk.storage.RegionFile$CommitOp $$13;
++        int $$12;
++        int $$2 = net.minecraft.world.level.chunk.storage.RegionFile.getOffsetIndex((net.minecraft.world.level.ChunkPos)$$0);
++        int $$3 = this.offsets.get($$2);
++        int $$4 = net.minecraft.world.level.chunk.storage.RegionFile.getSectorNumber((int)$$3);
++        int $$5 = net.minecraft.world.level.chunk.storage.RegionFile.getNumSectors((int)$$3);
++        int $$6 = $$1.remaining();
++        int $$7 = net.minecraft.world.level.chunk.storage.RegionFile.sizeToSectors((int)$$6);
++        if ($$7 >= 256) {
++            java.nio.file.Path $$8 = this.getExternalChunkPath($$0);
++            LOGGER.warn("Saving oversized chunk {} ({} bytes} to external file {}", new java.lang.Object[]{$$0, $$6, $$8});
++            $$7 = 1;
++            int $$9 = this.usedSectors.allocate($$7);
++            net.minecraft.world.level.chunk.storage.RegionFile$CommitOp $$10 = this.writeToExternalFile($$8, $$1);
++            java.nio.ByteBuffer $$11 = this.createExternalStub();
++            this.file.write($$11, (long)($$9 * 4096));
+         } else {
+-            n = this.usedSectors.allocate(n7);
+-            commitOp = () -> java.nio.file.Files.deleteIfExists((java.nio.file.Path)this.getExternalChunkPath(chunkPos));
+-            this.file.write(chunkData, (long)(n * 4096));
++            $$12 = this.usedSectors.allocate($$7);
++            $$13 = () -> java.nio.file.Files.deleteIfExists((java.nio.file.Path)this.getExternalChunkPath($$0));
++            this.file.write($$1, (long)($$12 * 4096));
+         }
+-        this.offsets.put(n2, this.packSectorOffset(n, n7));
+-        this.timestamps.put(n2, net.minecraft.world.level.chunk.storage.RegionFile.getTimestamp());
++        this.offsets.put($$2, this.packSectorOffset($$12, $$7));
++        this.timestamps.put($$2, net.minecraft.world.level.chunk.storage.RegionFile.getTimestamp());
+         this.writeHeader();
+-        commitOp.run();
+-        if (n4 != 0) {
+-            this.usedSectors.free(n4, n5);
++        $$13.run();
++        if ($$4 != 0) {
++            this.usedSectors.free($$4, $$5);
+         }
+     }
+ 
+@@ -275,14 +275,14 @@
+         return $$0;
+     }
+ 
+-    public net.minecraft.world.level.chunk.storage.RegionFile$CommitOp writeToExternalFile(java.nio.file.Path externalChunkFile, java.nio.ByteBuffer chunkData) throws java.io.IOException {
+-        java.nio.file.Path path = java.nio.file.Files.createTempFile((java.nio.file.Path)this.externalFileDir, (java.lang.String)"tmp", null, (java.nio.file.attribute.FileAttribute[])new java.nio.file.attribute.FileAttribute[0]);
+-        try (java.nio.channels.FileChannel fileChannel = java.nio.channels.FileChannel.open((java.nio.file.Path)path, (java.nio.file.OpenOption[])new java.nio.file.OpenOption[]{java.nio.file.StandardOpenOption.CREATE, java.nio.file.StandardOpenOption.WRITE});
++    public net.minecraft.world.level.chunk.storage.RegionFile$CommitOp writeToExternalFile(java.nio.file.Path $$0, java.nio.ByteBuffer $$1) throws java.io.IOException {
++        java.nio.file.Path $$2 = java.nio.file.Files.createTempFile((java.nio.file.Path)this.externalFileDir, (java.lang.String)"tmp", null, (java.nio.file.attribute.FileAttribute[])new java.nio.file.attribute.FileAttribute[0]);
++        try (java.nio.channels.FileChannel $$3 = java.nio.channels.FileChannel.open((java.nio.file.Path)$$2, (java.nio.file.OpenOption[])new java.nio.file.OpenOption[]{java.nio.file.StandardOpenOption.CREATE, java.nio.file.StandardOpenOption.WRITE});
+ ){
+-            chunkData.position(5);
+-            fileChannel.write(chunkData);
++            $$1.position(5);
++            $$3.write($$1);
+         }
+-        return () -> java.nio.file.Files.move((java.nio.file.Path)path, (java.nio.file.Path)externalChunkFile, (java.nio.file.CopyOption[])new java.nio.file.CopyOption[]{java.nio.file.StandardCopyOption.REPLACE_EXISTING});
++        return () -> java.nio.file.Files.move((java.nio.file.Path)$$2, (java.nio.file.Path)$$0, (java.nio.file.CopyOption[])new java.nio.file.CopyOption[]{java.nio.file.StandardCopyOption.REPLACE_EXISTING});
+     }
+ 
+     public void writeHeader() throws java.io.IOException {
+@@ -290,16 +290,16 @@
+         this.file.write(this.header, 0L);
+     }
+ 
+-    public int getOffset(net.minecraft.world.level.ChunkPos chunkPos) {
+-        return this.offsets.get(net.minecraft.world.level.chunk.storage.RegionFile.getOffsetIndex((net.minecraft.world.level.ChunkPos)chunkPos));
++    public int getOffset(net.minecraft.world.level.ChunkPos $$0) {
++        return this.offsets.get(net.minecraft.world.level.chunk.storage.RegionFile.getOffsetIndex((net.minecraft.world.level.ChunkPos)$$0));
+     }
+ 
+-    public boolean hasChunk(net.minecraft.world.level.ChunkPos chunkPos) {
+-        return this.getOffset(chunkPos) != 0;
++    public boolean hasChunk(net.minecraft.world.level.ChunkPos $$0) {
++        return this.getOffset($$0) != 0;
+     }
+ 
+-    public static int getOffsetIndex(net.minecraft.world.level.ChunkPos chunkPos) {
+-        return chunkPos.getRegionLocalX() + chunkPos.getRegionLocalZ() * 32;
++    public static int getOffsetIndex(net.minecraft.world.level.ChunkPos $$0) {
++        return $$0.getRegionLocalX() + $$0.getRegionLocalZ() * 32;
+     }
+ 
+     public void close() throws java.io.IOException {

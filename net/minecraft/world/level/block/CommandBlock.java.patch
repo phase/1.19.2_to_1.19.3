@@ -1,0 +1,203 @@
+--- net/minecraft/world/level/block/CommandBlock.java
++++ net/minecraft/world/level/block/CommandBlock.java
+@@ -24,24 +24,24 @@
+         return $$2;
+     }
+ 
+-    public void neighborChanged(net.minecraft.world.level.block.state.BlockState state, net.minecraft.world.level.Level level, net.minecraft.core.BlockPos pos, net.minecraft.world.level.block.Block block, net.minecraft.core.BlockPos fromPos, boolean isMoving) {
+-        if (level.isClientSide) {
++    public void neighborChanged(net.minecraft.world.level.block.state.BlockState $$0, net.minecraft.world.level.Level $$1, net.minecraft.core.BlockPos $$2, net.minecraft.world.level.block.Block $$3, net.minecraft.core.BlockPos $$4, boolean $$5) {
++        if ($$1.isClientSide) {
+             return;
+         }
+-        net.minecraft.world.level.block.entity.BlockEntity blockEntity = level.getBlockEntity(pos);
+-        if (!(blockEntity instanceof net.minecraft.world.level.block.entity.CommandBlockEntity)) {
++        net.minecraft.world.level.block.entity.BlockEntity $$6 = $$1.getBlockEntity($$2);
++        if (!($$6 instanceof net.minecraft.world.level.block.entity.CommandBlockEntity)) {
+             return;
+         }
+-        net.minecraft.world.level.block.entity.CommandBlockEntity commandBlockEntity = (net.minecraft.world.level.block.entity.CommandBlockEntity)blockEntity;
+-        boolean bl = level.hasNeighborSignal(pos);
+-        boolean bl2 = commandBlockEntity.isPowered();
+-        commandBlockEntity.setPowered(bl);
+-        if (bl2 || commandBlockEntity.isAutomatic() || commandBlockEntity.getMode() == net.minecraft.world.level.block.entity.CommandBlockEntity$Mode.SEQUENCE) {
++        net.minecraft.world.level.block.entity.CommandBlockEntity $$7 = (net.minecraft.world.level.block.entity.CommandBlockEntity)$$6;
++        boolean $$8 = $$1.hasNeighborSignal($$2);
++        boolean $$9 = $$7.isPowered();
++        $$7.setPowered($$8);
++        if ($$9 || $$7.isAutomatic() || $$7.getMode() == net.minecraft.world.level.block.entity.CommandBlockEntity$Mode.SEQUENCE) {
+             return;
+         }
+-        if (bl) {
+-            commandBlockEntity.markConditionMet();
+-            level.scheduleTick(pos, (net.minecraft.world.level.block.Block)this, 1);
++        if ($$8) {
++            $$7.markConditionMet();
++            $$1.scheduleTick($$2, (net.minecraft.world.level.block.Block)this, 1);
+         }
+     }
+ 
+@@ -74,103 +74,103 @@
+         }
+     }
+ 
+-    public void execute(net.minecraft.world.level.block.state.BlockState state, net.minecraft.world.level.Level level, net.minecraft.core.BlockPos pos, net.minecraft.world.level.BaseCommandBlock logic, boolean canTrigger) {
+-        if (canTrigger) {
+-            logic.performCommand(level);
++    public void execute(net.minecraft.world.level.block.state.BlockState $$0, net.minecraft.world.level.Level $$1, net.minecraft.core.BlockPos $$2, net.minecraft.world.level.BaseCommandBlock $$3, boolean $$4) {
++        if ($$4) {
++            $$3.performCommand($$1);
+         } else {
+-            logic.setSuccessCount(0);
++            $$3.setSuccessCount(0);
+         }
+-        net.minecraft.world.level.block.CommandBlock.executeChain((net.minecraft.world.level.Level)level, (net.minecraft.core.BlockPos)pos, (net.minecraft.core.Direction)((net.minecraft.core.Direction)state.getValue((net.minecraft.world.level.block.state.properties.Property)FACING)));
++        net.minecraft.world.level.block.CommandBlock.executeChain((net.minecraft.world.level.Level)$$1, (net.minecraft.core.BlockPos)$$2, (net.minecraft.core.Direction)((net.minecraft.core.Direction)$$0.getValue((net.minecraft.world.level.block.state.properties.Property)FACING)));
+     }
+ 
+-    public net.minecraft.world.InteractionResult use(net.minecraft.world.level.block.state.BlockState state, net.minecraft.world.level.Level level, net.minecraft.core.BlockPos pos, net.minecraft.world.entity.player.Player player, net.minecraft.world.InteractionHand hand, net.minecraft.world.phys.BlockHitResult hit) {
+-        net.minecraft.world.level.block.entity.BlockEntity blockEntity = level.getBlockEntity(pos);
+-        if (blockEntity instanceof net.minecraft.world.level.block.entity.CommandBlockEntity && player.canUseGameMasterBlocks()) {
+-            player.openCommandBlock((net.minecraft.world.level.block.entity.CommandBlockEntity)blockEntity);
+-            return net.minecraft.world.InteractionResult.sidedSuccess((boolean)level.isClientSide);
++    public net.minecraft.world.InteractionResult use(net.minecraft.world.level.block.state.BlockState $$0, net.minecraft.world.level.Level $$1, net.minecraft.core.BlockPos $$2, net.minecraft.world.entity.player.Player $$3, net.minecraft.world.InteractionHand $$4, net.minecraft.world.phys.BlockHitResult $$5) {
++        net.minecraft.world.level.block.entity.BlockEntity $$6 = $$1.getBlockEntity($$2);
++        if ($$6 instanceof net.minecraft.world.level.block.entity.CommandBlockEntity && $$3.canUseGameMasterBlocks()) {
++            $$3.openCommandBlock((net.minecraft.world.level.block.entity.CommandBlockEntity)$$6);
++            return net.minecraft.world.InteractionResult.sidedSuccess((boolean)$$1.isClientSide);
+         }
+         return net.minecraft.world.InteractionResult.PASS;
+     }
+ 
+-    public boolean hasAnalogOutputSignal(net.minecraft.world.level.block.state.BlockState state) {
++    public boolean hasAnalogOutputSignal(net.minecraft.world.level.block.state.BlockState $$0) {
+         return true;
+     }
+ 
+-    public int getAnalogOutputSignal(net.minecraft.world.level.block.state.BlockState blockState, net.minecraft.world.level.Level level, net.minecraft.core.BlockPos pos) {
+-        net.minecraft.world.level.block.entity.BlockEntity blockEntity = level.getBlockEntity(pos);
+-        if (blockEntity instanceof net.minecraft.world.level.block.entity.CommandBlockEntity) {
+-            return ((net.minecraft.world.level.block.entity.CommandBlockEntity)blockEntity).getCommandBlock().getSuccessCount();
++    public int getAnalogOutputSignal(net.minecraft.world.level.block.state.BlockState $$0, net.minecraft.world.level.Level $$1, net.minecraft.core.BlockPos $$2) {
++        net.minecraft.world.level.block.entity.BlockEntity $$3 = $$1.getBlockEntity($$2);
++        if ($$3 instanceof net.minecraft.world.level.block.entity.CommandBlockEntity) {
++            return ((net.minecraft.world.level.block.entity.CommandBlockEntity)$$3).getCommandBlock().getSuccessCount();
+         }
+         return 0;
+     }
+ 
+-    public void setPlacedBy(net.minecraft.world.level.Level level, net.minecraft.core.BlockPos pos, net.minecraft.world.level.block.state.BlockState state, net.minecraft.world.entity.LivingEntity placer, net.minecraft.world.item.ItemStack stack) {
+-        net.minecraft.world.level.block.entity.BlockEntity blockEntity = level.getBlockEntity(pos);
+-        if (!(blockEntity instanceof net.minecraft.world.level.block.entity.CommandBlockEntity)) {
++    public void setPlacedBy(net.minecraft.world.level.Level $$0, net.minecraft.core.BlockPos $$1, net.minecraft.world.level.block.state.BlockState $$2, net.minecraft.world.entity.LivingEntity $$3, net.minecraft.world.item.ItemStack $$4) {
++        net.minecraft.world.level.block.entity.BlockEntity $$5 = $$0.getBlockEntity($$1);
++        if (!($$5 instanceof net.minecraft.world.level.block.entity.CommandBlockEntity)) {
+             return;
+         }
+-        net.minecraft.world.level.block.entity.CommandBlockEntity commandBlockEntity = (net.minecraft.world.level.block.entity.CommandBlockEntity)blockEntity;
+-        net.minecraft.world.level.BaseCommandBlock baseCommandBlock = commandBlockEntity.getCommandBlock();
+-        if (stack.hasCustomHoverName()) {
+-            baseCommandBlock.setName(stack.getHoverName());
++        net.minecraft.world.level.block.entity.CommandBlockEntity $$6 = (net.minecraft.world.level.block.entity.CommandBlockEntity)$$5;
++        net.minecraft.world.level.BaseCommandBlock $$7 = $$6.getCommandBlock();
++        if ($$4.hasCustomHoverName()) {
++            $$7.setName($$4.getHoverName());
+         }
+-        if (!level.isClientSide) {
+-            if (net.minecraft.world.item.BlockItem.getBlockEntityData((net.minecraft.world.item.ItemStack)stack) == null) {
+-                baseCommandBlock.setTrackOutput(level.getGameRules().getBoolean(net.minecraft.world.level.GameRules.RULE_SENDCOMMANDFEEDBACK));
+-                commandBlockEntity.setAutomatic(this.automatic);
++        if (!$$0.isClientSide) {
++            if (net.minecraft.world.item.BlockItem.getBlockEntityData((net.minecraft.world.item.ItemStack)$$4) == null) {
++                $$7.setTrackOutput($$0.getGameRules().getBoolean(net.minecraft.world.level.GameRules.RULE_SENDCOMMANDFEEDBACK));
++                $$6.setAutomatic(this.automatic);
+             }
+-            if (commandBlockEntity.getMode() == net.minecraft.world.level.block.entity.CommandBlockEntity$Mode.SEQUENCE) {
+-                boolean bl = level.hasNeighborSignal(pos);
+-                commandBlockEntity.setPowered(bl);
++            if ($$6.getMode() == net.minecraft.world.level.block.entity.CommandBlockEntity$Mode.SEQUENCE) {
++                boolean $$8 = $$0.hasNeighborSignal($$1);
++                $$6.setPowered($$8);
+             }
+         }
+     }
+ 
+-    public net.minecraft.world.level.block.RenderShape getRenderShape(net.minecraft.world.level.block.state.BlockState state) {
++    public net.minecraft.world.level.block.RenderShape getRenderShape(net.minecraft.world.level.block.state.BlockState $$0) {
+         return net.minecraft.world.level.block.RenderShape.MODEL;
+     }
+ 
+-    public net.minecraft.world.level.block.state.BlockState rotate(net.minecraft.world.level.block.state.BlockState state, net.minecraft.world.level.block.Rotation rotation) {
+-        return (net.minecraft.world.level.block.state.BlockState)state.setValue((net.minecraft.world.level.block.state.properties.Property)FACING, (java.lang.Comparable)rotation.rotate((net.minecraft.core.Direction)state.getValue((net.minecraft.world.level.block.state.properties.Property)FACING)));
++    public net.minecraft.world.level.block.state.BlockState rotate(net.minecraft.world.level.block.state.BlockState $$0, net.minecraft.world.level.block.Rotation $$1) {
++        return (net.minecraft.world.level.block.state.BlockState)$$0.setValue((net.minecraft.world.level.block.state.properties.Property)FACING, (java.lang.Comparable)$$1.rotate((net.minecraft.core.Direction)$$0.getValue((net.minecraft.world.level.block.state.properties.Property)FACING)));
+     }
+ 
+-    public net.minecraft.world.level.block.state.BlockState mirror(net.minecraft.world.level.block.state.BlockState state, net.minecraft.world.level.block.Mirror mirror) {
+-        return state.rotate(mirror.getRotation((net.minecraft.core.Direction)state.getValue((net.minecraft.world.level.block.state.properties.Property)FACING)));
++    public net.minecraft.world.level.block.state.BlockState mirror(net.minecraft.world.level.block.state.BlockState $$0, net.minecraft.world.level.block.Mirror $$1) {
++        return $$0.rotate($$1.getRotation((net.minecraft.core.Direction)$$0.getValue((net.minecraft.world.level.block.state.properties.Property)FACING)));
+     }
+ 
+-    public void createBlockStateDefinition(net.minecraft.world.level.block.state.StateDefinition$Builder<net.minecraft.world.level.block.Block, net.minecraft.world.level.block.state.BlockState> builder) {
+-        builder.add(new net.minecraft.world.level.block.state.properties.Property[]{FACING, CONDITIONAL});
++    public void createBlockStateDefinition(net.minecraft.world.level.block.state.StateDefinition$Builder<net.minecraft.world.level.block.Block, net.minecraft.world.level.block.state.BlockState> $$0) {
++        $$0.add(new net.minecraft.world.level.block.state.properties.Property[]{FACING, CONDITIONAL});
+     }
+ 
+-    public net.minecraft.world.level.block.state.BlockState getStateForPlacement(net.minecraft.world.item.context.BlockPlaceContext context) {
+-        return (net.minecraft.world.level.block.state.BlockState)this.defaultBlockState().setValue((net.minecraft.world.level.block.state.properties.Property)FACING, (java.lang.Comparable)context.getNearestLookingDirection().getOpposite());
++    public net.minecraft.world.level.block.state.BlockState getStateForPlacement(net.minecraft.world.item.context.BlockPlaceContext $$0) {
++        return (net.minecraft.world.level.block.state.BlockState)this.defaultBlockState().setValue((net.minecraft.world.level.block.state.properties.Property)FACING, (java.lang.Comparable)$$0.getNearestLookingDirection().getOpposite());
+     }
+ 
+-    public static void executeChain(net.minecraft.world.level.Level level, net.minecraft.core.BlockPos pos, net.minecraft.core.Direction direction) {
+-        net.minecraft.core.BlockPos$MutableBlockPos mutableBlockPos = pos.mutable();
+-        net.minecraft.world.level.GameRules gameRules = level.getGameRules();
+-        int n = gameRules.getInt(net.minecraft.world.level.GameRules.RULE_MAX_COMMAND_CHAIN_LENGTH);
+-        while (n-- > 0) {
+-            net.minecraft.world.level.block.entity.CommandBlockEntity commandBlockEntity;
+-            net.minecraft.world.level.block.entity.BlockEntity blockEntity;
+-            mutableBlockPos.move(direction);
+-            net.minecraft.world.level.block.state.BlockState blockState = level.getBlockState((net.minecraft.core.BlockPos)mutableBlockPos);
+-            net.minecraft.world.level.block.Block block = blockState.getBlock();
+-            if (!blockState.is(net.minecraft.world.level.block.Blocks.CHAIN_COMMAND_BLOCK) || !((blockEntity = level.getBlockEntity((net.minecraft.core.BlockPos)mutableBlockPos)) instanceof net.minecraft.world.level.block.entity.CommandBlockEntity) || (commandBlockEntity = (net.minecraft.world.level.block.entity.CommandBlockEntity)blockEntity).getMode() != net.minecraft.world.level.block.entity.CommandBlockEntity$Mode.SEQUENCE) break;
+-            if (commandBlockEntity.isPowered() || commandBlockEntity.isAutomatic()) {
+-                net.minecraft.world.level.BaseCommandBlock baseCommandBlock = commandBlockEntity.getCommandBlock();
+-                if (commandBlockEntity.markConditionMet()) {
+-                    if (!baseCommandBlock.performCommand(level)) break;
+-                    level.updateNeighbourForOutputSignal((net.minecraft.core.BlockPos)mutableBlockPos, block);
+-                } else if (commandBlockEntity.isConditional()) {
+-                    baseCommandBlock.setSuccessCount(0);
++    public static void executeChain(net.minecraft.world.level.Level $$0, net.minecraft.core.BlockPos $$1, net.minecraft.core.Direction $$2) {
++        net.minecraft.core.BlockPos$MutableBlockPos $$3 = $$1.mutable();
++        net.minecraft.world.level.GameRules $$4 = $$0.getGameRules();
++        int $$5 = $$4.getInt(net.minecraft.world.level.GameRules.RULE_MAX_COMMAND_CHAIN_LENGTH);
++        while ($$5-- > 0) {
++            net.minecraft.world.level.block.entity.CommandBlockEntity $$9;
++            net.minecraft.world.level.block.entity.BlockEntity $$8;
++            $$3.move($$2);
++            net.minecraft.world.level.block.state.BlockState $$6 = $$0.getBlockState((net.minecraft.core.BlockPos)$$3);
++            net.minecraft.world.level.block.Block $$7 = $$6.getBlock();
++            if (!$$6.is(net.minecraft.world.level.block.Blocks.CHAIN_COMMAND_BLOCK) || !(($$8 = $$0.getBlockEntity((net.minecraft.core.BlockPos)$$3)) instanceof net.minecraft.world.level.block.entity.CommandBlockEntity) || ($$9 = (net.minecraft.world.level.block.entity.CommandBlockEntity)$$8).getMode() != net.minecraft.world.level.block.entity.CommandBlockEntity$Mode.SEQUENCE) break;
++            if ($$9.isPowered() || $$9.isAutomatic()) {
++                net.minecraft.world.level.BaseCommandBlock $$10 = $$9.getCommandBlock();
++                if ($$9.markConditionMet()) {
++                    if (!$$10.performCommand($$0)) break;
++                    $$0.updateNeighbourForOutputSignal((net.minecraft.core.BlockPos)$$3, $$7);
++                } else if ($$9.isConditional()) {
++                    $$10.setSuccessCount(0);
+                 }
+             }
+-            direction = (net.minecraft.core.Direction)blockState.getValue((net.minecraft.world.level.block.state.properties.Property)FACING);
++            $$2 = (net.minecraft.core.Direction)$$6.getValue((net.minecraft.world.level.block.state.properties.Property)FACING);
+         }
+-        if (n <= 0) {
+-            int n2 = java.lang.Math.max((int)gameRules.getInt(net.minecraft.world.level.GameRules.RULE_MAX_COMMAND_CHAIN_LENGTH), (int)0);
+-            LOGGER.warn("Command Block chain tried to execute more than {} steps!", (java.lang.Object)n2);
++        if ($$5 <= 0) {
++            int $$11 = java.lang.Math.max((int)$$4.getInt(net.minecraft.world.level.GameRules.RULE_MAX_COMMAND_CHAIN_LENGTH), (int)0);
++            LOGGER.warn("Command Block chain tried to execute more than {} steps!", (java.lang.Object)$$11);
+         }
+     }
+ 

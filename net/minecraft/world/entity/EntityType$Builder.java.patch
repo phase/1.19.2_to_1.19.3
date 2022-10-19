@@ -1,0 +1,89 @@
+--- net/minecraft/world/entity/EntityType$Builder.java
++++ net/minecraft/world/entity/EntityType$Builder.java
+@@ -15,29 +15,31 @@
+     public int clientTrackingRange;
+     public int updateInterval;
+     public net.minecraft.world.entity.EntityDimensions dimensions;
++    public net.minecraft.world.flag.FeatureFlagSet requiredFeatures;
+ 
+-    public net.minecraft.world.entity.EntityType$Builder(net.minecraft.world.entity.EntityType$EntityFactory<T> factory, net.minecraft.world.entity.MobCategory category) {
++    public net.minecraft.world.entity.EntityType$Builder(net.minecraft.world.entity.EntityType$EntityFactory<T> $$0, net.minecraft.world.entity.MobCategory $$1) {
+         this.immuneTo = com.google.common.collect.ImmutableSet.of();
+         this.serialize = true;
+         this.summon = true;
+         this.clientTrackingRange = 5;
+         this.updateInterval = 3;
+         this.dimensions = net.minecraft.world.entity.EntityDimensions.scalable((float)0.6f, (float)1.8f);
+-        this.factory = factory;
+-        this.category = category;
+-        this.canSpawnFarFromPlayer = category == net.minecraft.world.entity.MobCategory.CREATURE || category == net.minecraft.world.entity.MobCategory.MISC;
++        this.requiredFeatures = net.minecraft.world.flag.FeatureFlags.VANILLA_SET;
++        this.factory = $$0;
++        this.category = $$1;
++        this.canSpawnFarFromPlayer = $$1 == net.minecraft.world.entity.MobCategory.CREATURE || $$1 == net.minecraft.world.entity.MobCategory.MISC;
+     }
+ 
+-    public static <T extends net.minecraft.world.entity.Entity> net.minecraft.world.entity.EntityType$Builder<T> of(net.minecraft.world.entity.EntityType$EntityFactory<T> factory, net.minecraft.world.entity.MobCategory category) {
+-        return new net.minecraft.world.entity.EntityType$Builder(factory, category);
++    public static <T extends net.minecraft.world.entity.Entity> net.minecraft.world.entity.EntityType$Builder<T> of(net.minecraft.world.entity.EntityType$EntityFactory<T> $$0, net.minecraft.world.entity.MobCategory $$1) {
++        return new net.minecraft.world.entity.EntityType$Builder($$0, $$1);
+     }
+ 
+-    public static <T extends net.minecraft.world.entity.Entity> net.minecraft.world.entity.EntityType$Builder<T> createNothing(net.minecraft.world.entity.MobCategory category) {
+-        return new net.minecraft.world.entity.EntityType$Builder((entityType, level) -> null, category);
++    public static <T extends net.minecraft.world.entity.Entity> net.minecraft.world.entity.EntityType$Builder<T> createNothing(net.minecraft.world.entity.MobCategory $$02) {
++        return new net.minecraft.world.entity.EntityType$Builder(($$0, $$1) -> null, $$02);
+     }
+ 
+-    public net.minecraft.world.entity.EntityType$Builder<T> sized(float width, float height) {
+-        this.dimensions = net.minecraft.world.entity.EntityDimensions.scalable((float)width, (float)height);
++    public net.minecraft.world.entity.EntityType$Builder<T> sized(float $$0, float $$1) {
++        this.dimensions = net.minecraft.world.entity.EntityDimensions.scalable((float)$$0, (float)$$1);
+         return this;
+     }
+ 
+@@ -56,8 +58,8 @@
+         return this;
+     }
+ 
+-    public net.minecraft.world.entity.EntityType$Builder<T> immuneTo(net.minecraft.world.level.block.Block ... blocks) {
+-        this.immuneTo = com.google.common.collect.ImmutableSet.copyOf((java.lang.Object[])blocks);
++    public net.minecraft.world.entity.EntityType$Builder<T> immuneTo(net.minecraft.world.level.block.Block ... $$0) {
++        this.immuneTo = com.google.common.collect.ImmutableSet.copyOf((java.lang.Object[])$$0);
+         return this;
+     }
+ 
+@@ -66,21 +68,26 @@
+         return this;
+     }
+ 
+-    public net.minecraft.world.entity.EntityType$Builder<T> clientTrackingRange(int clientTrackingRange) {
+-        this.clientTrackingRange = clientTrackingRange;
++    public net.minecraft.world.entity.EntityType$Builder<T> clientTrackingRange(int $$0) {
++        this.clientTrackingRange = $$0;
+         return this;
+     }
+ 
+-    public net.minecraft.world.entity.EntityType$Builder<T> updateInterval(int updateInterval) {
+-        this.updateInterval = updateInterval;
++    public net.minecraft.world.entity.EntityType$Builder<T> updateInterval(int $$0) {
++        this.updateInterval = $$0;
+         return this;
+     }
+ 
+-    public net.minecraft.world.entity.EntityType<T> build(java.lang.String key) {
++    public net.minecraft.world.entity.EntityType$Builder<T> requiredFeatures(net.minecraft.world.flag.FeatureFlag ... $$0) {
++        this.requiredFeatures = net.minecraft.world.flag.FeatureFlags.REGISTRY.subset($$0);
++        return this;
++    }
++
++    public net.minecraft.world.entity.EntityType<T> build(java.lang.String $$0) {
+         if (this.serialize) {
+-            net.minecraft.Util.fetchChoiceType((com.mojang.datafixers.DSL$TypeReference)net.minecraft.util.datafix.fixes.References.ENTITY_TREE, (java.lang.String)key);
++            net.minecraft.Util.fetchChoiceType((com.mojang.datafixers.DSL$TypeReference)net.minecraft.util.datafix.fixes.References.ENTITY_TREE, (java.lang.String)$$0);
+         }
+-        return new net.minecraft.world.entity.EntityType(this.factory, this.category, this.serialize, this.summon, this.fireImmune, this.canSpawnFarFromPlayer, this.immuneTo, this.dimensions, this.clientTrackingRange, this.updateInterval);
++        return new net.minecraft.world.entity.EntityType(this.factory, this.category, this.serialize, this.summon, this.fireImmune, this.canSpawnFarFromPlayer, this.immuneTo, this.dimensions, this.clientTrackingRange, this.updateInterval, this.requiredFeatures);
+     }
+ }
+ 

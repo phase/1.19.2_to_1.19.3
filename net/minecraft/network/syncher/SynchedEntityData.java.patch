@@ -1,0 +1,255 @@
+--- net/minecraft/network/syncher/SynchedEntityData.java
++++ net/minecraft/network/syncher/SynchedEntityData.java
+@@ -22,88 +22,91 @@
+         this.entity = $$0;
+     }
+ 
+-    public static <T> net.minecraft.network.syncher.EntityDataAccessor<T> defineId(java.lang.Class<? extends net.minecraft.world.entity.Entity> clazz, net.minecraft.network.syncher.EntityDataSerializer<T> serializer) {
+-        int n;
++    public static <T> net.minecraft.network.syncher.EntityDataAccessor<T> defineId(java.lang.Class<? extends net.minecraft.world.entity.Entity> $$0, net.minecraft.network.syncher.EntityDataSerializer<T> $$1) {
++        int $$6;
+         if (LOGGER.isDebugEnabled()) {
+             try {
+-                java.lang.Class clazz2 = java.lang.Class.forName((java.lang.String)java.lang.Thread.currentThread().getStackTrace()[2].getClassName());
+-                if (!clazz2.equals(clazz)) {
+-                    LOGGER.debug("defineId called for: {} from {}", new java.lang.Object[]{clazz, clazz2, new java.lang.RuntimeException()});
++                java.lang.Class $$2 = java.lang.Class.forName((java.lang.String)java.lang.Thread.currentThread().getStackTrace()[2].getClassName());
++                if (!$$2.equals($$0)) {
++                    LOGGER.debug("defineId called for: {} from {}", new java.lang.Object[]{$$0, $$2, new java.lang.RuntimeException()});
+                 }
+             }
+-            catch (java.lang.ClassNotFoundException classNotFoundException) {
++            catch (java.lang.ClassNotFoundException $$2) {
+                 // empty catch block
+             }
+         }
+-        if (ENTITY_ID_POOL.containsKey(clazz)) {
+-            n = ENTITY_ID_POOL.getInt(clazz) + 1;
++        if (ENTITY_ID_POOL.containsKey($$0)) {
++            int $$3 = ENTITY_ID_POOL.getInt($$0) + 1;
+         } else {
+-            int n2 = 0;
+-            java.lang.Class clazz3 = clazz;
+-            while (clazz3 != net.minecraft.world.entity.Entity.class) {
+-                if (!ENTITY_ID_POOL.containsKey((java.lang.Object)(clazz3 = clazz3.getSuperclass()))) continue;
+-                n2 = ENTITY_ID_POOL.getInt((java.lang.Object)clazz3) + 1;
++            int $$4 = 0;
++            java.lang.Class $$5 = $$0;
++            while ($$5 != net.minecraft.world.entity.Entity.class) {
++                if (!ENTITY_ID_POOL.containsKey((java.lang.Object)($$5 = $$5.getSuperclass()))) continue;
++                $$4 = ENTITY_ID_POOL.getInt((java.lang.Object)$$5) + 1;
+                 break;
+             }
+-            n = n2;
++            $$6 = $$4;
+         }
+-        if (n > 254) {
+-            throw new java.lang.IllegalArgumentException("Data value id is too big with " + n + "! (Max is 254)");
++        if ($$6 > 254) {
++            throw new java.lang.IllegalArgumentException("Data value id is too big with " + $$6 + "! (Max is 254)");
+         }
+-        ENTITY_ID_POOL.put((java.lang.Object)clazz, n);
+-        return serializer.createAccessor(n);
++        ENTITY_ID_POOL.put((java.lang.Object)$$0, $$6);
++        return $$1.createAccessor($$6);
+     }
+ 
+-    public <T> void define(net.minecraft.network.syncher.EntityDataAccessor<T> key, T value) {
+-        int n = key.getId();
+-        if (n > 254) {
+-            throw new java.lang.IllegalArgumentException("Data value id is too big with " + n + "! (Max is 254)");
++    public <T> void define(net.minecraft.network.syncher.EntityDataAccessor<T> $$0, T $$1) {
++        int $$2 = $$0.getId();
++        if ($$2 > 254) {
++            throw new java.lang.IllegalArgumentException("Data value id is too big with " + $$2 + "! (Max is 254)");
+         }
+-        if (this.itemsById.containsKey(n)) {
+-            throw new java.lang.IllegalArgumentException("Duplicate id value for " + n + "!");
++        if (this.itemsById.containsKey($$2)) {
++            throw new java.lang.IllegalArgumentException("Duplicate id value for " + $$2 + "!");
+         }
+-        if (net.minecraft.network.syncher.EntityDataSerializers.getSerializedId((net.minecraft.network.syncher.EntityDataSerializer)key.getSerializer()) < 0) {
+-            throw new java.lang.IllegalArgumentException("Unregistered serializer " + key.getSerializer() + " for " + n + "!");
++        if (net.minecraft.network.syncher.EntityDataSerializers.getSerializedId((net.minecraft.network.syncher.EntityDataSerializer)$$0.getSerializer()) < 0) {
++            throw new java.lang.IllegalArgumentException("Unregistered serializer " + $$0.getSerializer() + " for " + $$2 + "!");
+         }
+-        this.createDataItem(key, value);
++        this.createDataItem($$0, $$1);
+     }
+ 
+-    public <T> void createDataItem(net.minecraft.network.syncher.EntityDataAccessor<T> key, T value) {
+-        net.minecraft.network.syncher.SynchedEntityData$DataItem dataItem = new net.minecraft.network.syncher.SynchedEntityData$DataItem(key, value);
++    public <T> void createDataItem(net.minecraft.network.syncher.EntityDataAccessor<T> $$0, T $$1) {
++        net.minecraft.network.syncher.SynchedEntityData$DataItem $$2 = new net.minecraft.network.syncher.SynchedEntityData$DataItem($$0, $$1);
+         this.lock.writeLock().lock();
+-        this.itemsById.put(key.getId(), (java.lang.Object)dataItem);
++        this.itemsById.put($$0.getId(), (java.lang.Object)$$2);
+         this.isEmpty = false;
+         this.lock.writeLock().unlock();
+     }
+ 
+-    public <T> net.minecraft.network.syncher.SynchedEntityData$DataItem<T> getItem(net.minecraft.network.syncher.EntityDataAccessor<T> key) {
+-        net.minecraft.network.syncher.SynchedEntityData$DataItem dataItem;
++    /*
++     * WARNING - void declaration
++     */
++    public <T> net.minecraft.network.syncher.SynchedEntityData$DataItem<T> getItem(net.minecraft.network.syncher.EntityDataAccessor<T> $$0) {
++        void $$5;
+         this.lock.readLock().lock();
+         try {
+-            dataItem = (net.minecraft.network.syncher.SynchedEntityData$DataItem)this.itemsById.get(key.getId());
++            net.minecraft.network.syncher.SynchedEntityData$DataItem $$1 = (net.minecraft.network.syncher.SynchedEntityData$DataItem)this.itemsById.get($$0.getId());
+         }
+-        catch (java.lang.Throwable throwable) {
+-            net.minecraft.CrashReport crashReport = net.minecraft.CrashReport.forThrowable((java.lang.Throwable)throwable, (java.lang.String)"Getting synched entity data");
+-            net.minecraft.CrashReportCategory crashReportCategory = crashReport.addCategory("Synched entity data");
+-            crashReportCategory.setDetail("Data ID", key);
+-            throw new net.minecraft.ReportedException(crashReport);
++        catch (java.lang.Throwable $$2) {
++            net.minecraft.CrashReport $$3 = net.minecraft.CrashReport.forThrowable((java.lang.Throwable)$$2, (java.lang.String)"Getting synched entity data");
++            net.minecraft.CrashReportCategory $$4 = $$3.addCategory("Synched entity data");
++            $$4.setDetail("Data ID", $$0);
++            throw new net.minecraft.ReportedException($$3);
+         }
+         finally {
+             this.lock.readLock().unlock();
+         }
+-        return dataItem;
++        return $$5;
+     }
+ 
+-    public <T> T get(net.minecraft.network.syncher.EntityDataAccessor<T> key) {
+-        return (T)this.getItem(key).getValue();
++    public <T> T get(net.minecraft.network.syncher.EntityDataAccessor<T> $$0) {
++        return (T)this.getItem($$0).getValue();
+     }
+ 
+-    public <T> void set(net.minecraft.network.syncher.EntityDataAccessor<T> key, T value) {
+-        net.minecraft.network.syncher.SynchedEntityData$DataItem dataItem = this.getItem(key);
+-        if (org.apache.commons.lang3.ObjectUtils.notEqual(value, (java.lang.Object)dataItem.getValue())) {
+-            dataItem.setValue(value);
+-            this.entity.onSyncedDataUpdated(key);
+-            dataItem.setDirty(true);
++    public <T> void set(net.minecraft.network.syncher.EntityDataAccessor<T> $$0, T $$1) {
++        net.minecraft.network.syncher.SynchedEntityData$DataItem $$2 = this.getItem($$0);
++        if (org.apache.commons.lang3.ObjectUtils.notEqual($$1, (java.lang.Object)$$2.getValue())) {
++            $$2.setValue($$1);
++            this.entity.onSyncedDataUpdated($$0);
++            $$2.setDirty(true);
+             this.isDirty = true;
+         }
+     }
+@@ -112,13 +115,13 @@
+         return this.isDirty;
+     }
+ 
+-    public static void pack(@javax.annotation.Nullable java.util.List<net.minecraft.network.syncher.SynchedEntityData$DataItem<?>> entries, net.minecraft.network.FriendlyByteBuf buffer) {
+-        if (entries != null) {
+-            for (net.minecraft.network.syncher.SynchedEntityData$DataItem dataItem : entries) {
+-                net.minecraft.network.syncher.SynchedEntityData.writeDataItem((net.minecraft.network.FriendlyByteBuf)buffer, (net.minecraft.network.syncher.SynchedEntityData$DataItem)dataItem);
++    public static void pack(@javax.annotation.Nullable java.util.List<net.minecraft.network.syncher.SynchedEntityData$DataItem<?>> $$0, net.minecraft.network.FriendlyByteBuf $$1) {
++        if ($$0 != null) {
++            for (net.minecraft.network.syncher.SynchedEntityData$DataItem $$2 : $$0) {
++                net.minecraft.network.syncher.SynchedEntityData.writeDataItem((net.minecraft.network.FriendlyByteBuf)$$1, (net.minecraft.network.syncher.SynchedEntityData$DataItem)$$2);
+             }
+         }
+-        buffer.writeByte(255);
++        $$1.writeByte(255);
+     }
+ 
+     @javax.annotation.Nullable
+@@ -154,50 +157,50 @@
+         return $$0;
+     }
+ 
+-    public static <T> void writeDataItem(net.minecraft.network.FriendlyByteBuf buffer, net.minecraft.network.syncher.SynchedEntityData$DataItem<T> entry) {
+-        net.minecraft.network.syncher.EntityDataAccessor entityDataAccessor = entry.getAccessor();
+-        int n = net.minecraft.network.syncher.EntityDataSerializers.getSerializedId((net.minecraft.network.syncher.EntityDataSerializer)entityDataAccessor.getSerializer());
+-        if (n < 0) {
+-            throw new io.netty.handler.codec.EncoderException("Unknown serializer type " + entityDataAccessor.getSerializer());
++    public static <T> void writeDataItem(net.minecraft.network.FriendlyByteBuf $$0, net.minecraft.network.syncher.SynchedEntityData$DataItem<T> $$1) {
++        net.minecraft.network.syncher.EntityDataAccessor $$2 = $$1.getAccessor();
++        int $$3 = net.minecraft.network.syncher.EntityDataSerializers.getSerializedId((net.minecraft.network.syncher.EntityDataSerializer)$$2.getSerializer());
++        if ($$3 < 0) {
++            throw new io.netty.handler.codec.EncoderException("Unknown serializer type " + $$2.getSerializer());
+         }
+-        buffer.writeByte(entityDataAccessor.getId());
+-        buffer.writeVarInt(n);
+-        entityDataAccessor.getSerializer().write(buffer, entry.getValue());
++        $$0.writeByte($$2.getId());
++        $$0.writeVarInt($$3);
++        $$2.getSerializer().write($$0, $$1.getValue());
+     }
+ 
+     @javax.annotation.Nullable
+-    public static java.util.List<net.minecraft.network.syncher.SynchedEntityData$DataItem<?>> unpack(net.minecraft.network.FriendlyByteBuf buffer) {
+-        short s;
+-        java.util.ArrayList arrayList = null;
+-        while ((s = buffer.readUnsignedByte()) != 255) {
+-            int n;
+-            net.minecraft.network.syncher.EntityDataSerializer entityDataSerializer;
+-            if (arrayList == null) {
+-                arrayList = com.google.common.collect.Lists.newArrayList();
++    public static java.util.List<net.minecraft.network.syncher.SynchedEntityData$DataItem<?>> unpack(net.minecraft.network.FriendlyByteBuf $$0) {
++        short $$2;
++        java.util.ArrayList $$1 = null;
++        while (($$2 = $$0.readUnsignedByte()) != 255) {
++            int $$3;
++            net.minecraft.network.syncher.EntityDataSerializer $$4;
++            if ($$1 == null) {
++                $$1 = com.google.common.collect.Lists.newArrayList();
+             }
+-            if ((entityDataSerializer = net.minecraft.network.syncher.EntityDataSerializers.getSerializer((int)(n = buffer.readVarInt()))) == null) {
+-                throw new io.netty.handler.codec.DecoderException("Unknown serializer type " + n);
++            if (($$4 = net.minecraft.network.syncher.EntityDataSerializers.getSerializer((int)($$3 = $$0.readVarInt()))) == null) {
++                throw new io.netty.handler.codec.DecoderException("Unknown serializer type " + $$3);
+             }
+-            arrayList.add((java.lang.Object)net.minecraft.network.syncher.SynchedEntityData.genericHelper((net.minecraft.network.FriendlyByteBuf)buffer, (int)s, (net.minecraft.network.syncher.EntityDataSerializer)entityDataSerializer));
++            $$1.add((java.lang.Object)net.minecraft.network.syncher.SynchedEntityData.genericHelper((net.minecraft.network.FriendlyByteBuf)$$0, (int)$$2, (net.minecraft.network.syncher.EntityDataSerializer)$$4));
+         }
+-        return arrayList;
++        return $$1;
+     }
+ 
+-    public static <T> net.minecraft.network.syncher.SynchedEntityData$DataItem<T> genericHelper(net.minecraft.network.FriendlyByteBuf buffer, int id, net.minecraft.network.syncher.EntityDataSerializer<T> serializer) {
+-        return new net.minecraft.network.syncher.SynchedEntityData$DataItem(serializer.createAccessor(id), serializer.read(buffer));
++    public static <T> net.minecraft.network.syncher.SynchedEntityData$DataItem<T> genericHelper(net.minecraft.network.FriendlyByteBuf $$0, int $$1, net.minecraft.network.syncher.EntityDataSerializer<T> $$2) {
++        return new net.minecraft.network.syncher.SynchedEntityData$DataItem($$2.createAccessor($$1), $$2.read($$0));
+     }
+ 
+     /*
+      * WARNING - Removed try catching itself - possible behaviour change.
+      */
+-    public void assignValues(java.util.List<net.minecraft.network.syncher.SynchedEntityData$DataItem<?>> entries) {
++    public void assignValues(java.util.List<net.minecraft.network.syncher.SynchedEntityData$DataItem<?>> $$0) {
+         this.lock.writeLock().lock();
+         try {
+-            for (net.minecraft.network.syncher.SynchedEntityData$DataItem dataItem : entries) {
+-                net.minecraft.network.syncher.SynchedEntityData$DataItem dataItem2 = (net.minecraft.network.syncher.SynchedEntityData$DataItem)this.itemsById.get(dataItem.getAccessor().getId());
+-                if (dataItem2 == null) continue;
+-                this.assignValue(dataItem2, dataItem);
+-                this.entity.onSyncedDataUpdated(dataItem.getAccessor());
++            for (net.minecraft.network.syncher.SynchedEntityData$DataItem $$1 : $$0) {
++                net.minecraft.network.syncher.SynchedEntityData$DataItem $$2 = (net.minecraft.network.syncher.SynchedEntityData$DataItem)this.itemsById.get($$1.getAccessor().getId());
++                if ($$2 == null) continue;
++                this.assignValue($$2, $$1);
++                this.entity.onSyncedDataUpdated($$1.getAccessor());
+             }
+         }
+         finally {
+@@ -206,11 +209,11 @@
+         this.isDirty = true;
+     }
+ 
+-    public <T> void assignValue(net.minecraft.network.syncher.SynchedEntityData$DataItem<T> target, net.minecraft.network.syncher.SynchedEntityData$DataItem<?> source) {
+-        if (!java.util.Objects.equals((java.lang.Object)source.accessor.getSerializer(), (java.lang.Object)target.accessor.getSerializer())) {
+-            throw new java.lang.IllegalStateException(java.lang.String.format((java.util.Locale)java.util.Locale.ROOT, (java.lang.String)"Invalid entity data item type for field %d on entity %s: old=%s(%s), new=%s(%s)", (java.lang.Object[])new java.lang.Object[]{target.accessor.getId(), this.entity, target.value, target.value.getClass(), source.value, source.value.getClass()}));
++    public <T> void assignValue(net.minecraft.network.syncher.SynchedEntityData$DataItem<T> $$0, net.minecraft.network.syncher.SynchedEntityData$DataItem<?> $$1) {
++        if (!java.util.Objects.equals((java.lang.Object)$$1.accessor.getSerializer(), (java.lang.Object)$$0.accessor.getSerializer())) {
++            throw new java.lang.IllegalStateException(java.lang.String.format((java.util.Locale)java.util.Locale.ROOT, (java.lang.String)"Invalid entity data item type for field %d on entity %s: old=%s(%s), new=%s(%s)", (java.lang.Object[])new java.lang.Object[]{$$0.accessor.getId(), this.entity, $$0.value, $$0.value.getClass(), $$1.value, $$1.value.getClass()}));
+         }
+-        target.setValue(source.getValue());
++        $$0.setValue($$1.getValue());
+     }
+ 
+     public boolean isEmpty() {

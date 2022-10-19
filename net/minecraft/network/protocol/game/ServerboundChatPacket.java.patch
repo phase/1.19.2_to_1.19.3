@@ -1,0 +1,84 @@
+--- net/minecraft/network/protocol/game/ServerboundChatPacket.java
++++ net/minecraft/network/protocol/game/ServerboundChatPacket.java
+@@ -10,50 +10,44 @@
+     public java.lang.String message;
+     public java.time.Instant timeStamp;
+     public long salt;
++    @javax.annotation.Nullable
+     public net.minecraft.network.chat.MessageSignature signature;
+-    public boolean signedPreview;
+     public net.minecraft.network.chat.LastSeenMessages$Update lastSeenMessages;
+ 
+     public net.minecraft.network.protocol.game.ServerboundChatPacket(net.minecraft.network.FriendlyByteBuf $$0) {
+-        this($$0.readUtf(256), $$0.readInstant(), $$0.readLong(), new net.minecraft.network.chat.MessageSignature($$0), $$0.readBoolean(), new net.minecraft.network.chat.LastSeenMessages$Update($$0));
++        this($$0.readUtf(256), $$0.readInstant(), $$0.readLong(), (net.minecraft.network.chat.MessageSignature)$$0.readNullable(net.minecraft.network.chat.MessageSignature::read), new net.minecraft.network.chat.LastSeenMessages$Update($$0));
+     }
+ 
+-    public net.minecraft.network.protocol.game.ServerboundChatPacket(java.lang.String $$0, java.time.Instant $$1, long $$2, net.minecraft.network.chat.MessageSignature $$3, boolean $$4, net.minecraft.network.chat.LastSeenMessages$Update $$5) {
++    public net.minecraft.network.protocol.game.ServerboundChatPacket(java.lang.String $$0, java.time.Instant $$1, long $$2, @javax.annotation.Nullable net.minecraft.network.chat.MessageSignature $$3, net.minecraft.network.chat.LastSeenMessages$Update $$4) {
+         this.message = $$0;
+         this.timeStamp = $$1;
+         this.salt = $$2;
+         this.signature = $$3;
+-        this.signedPreview = $$4;
+-        this.lastSeenMessages = $$5;
++        this.lastSeenMessages = $$4;
+     }
+ 
+-    public void write(net.minecraft.network.FriendlyByteBuf buffer) {
+-        buffer.writeUtf(this.message, 256);
+-        buffer.writeInstant(this.timeStamp);
+-        buffer.writeLong(this.salt);
+-        this.signature.write(buffer);
+-        buffer.writeBoolean(this.signedPreview);
+-        this.lastSeenMessages.write(buffer);
++    public void write(net.minecraft.network.FriendlyByteBuf $$0) {
++        $$0.writeUtf(this.message, 256);
++        $$0.writeInstant(this.timeStamp);
++        $$0.writeLong(this.salt);
++        $$0.writeNullable((java.lang.Object)this.signature, net.minecraft.network.chat.MessageSignature::write);
++        this.lastSeenMessages.write($$0);
+     }
+ 
+-    public void handle(net.minecraft.network.protocol.game.ServerGamePacketListener handler) {
+-        handler.handleChat(this);
++    public void handle(net.minecraft.network.protocol.game.ServerGamePacketListener $$0) {
++        $$0.handleChat(this);
+     }
+ 
+-    public net.minecraft.network.chat.MessageSigner getSigner(net.minecraft.server.level.ServerPlayer $$0) {
+-        return new net.minecraft.network.chat.MessageSigner($$0.getUUID(), this.timeStamp, this.salt);
+-    }
+-
+     public java.lang.String toString() {
+-        return java.lang.runtime.ObjectMethods.bootstrap("toString", new java.lang.invoke.MethodHandle[]{net.minecraft.network.protocol.game.ServerboundChatPacket.class, "message;timeStamp;salt;signature;signedPreview;lastSeenMessages", "message", "timeStamp", "salt", "signature", "signedPreview", "lastSeenMessages"}, this);
++        return java.lang.runtime.ObjectMethods.bootstrap("toString", new java.lang.invoke.MethodHandle[]{net.minecraft.network.protocol.game.ServerboundChatPacket.class, "message;timeStamp;salt;signature;lastSeenMessages", "message", "timeStamp", "salt", "signature", "lastSeenMessages"}, this);
+     }
+ 
+     public int hashCode() {
+-        return (int)java.lang.runtime.ObjectMethods.bootstrap("hashCode", new java.lang.invoke.MethodHandle[]{net.minecraft.network.protocol.game.ServerboundChatPacket.class, "message;timeStamp;salt;signature;signedPreview;lastSeenMessages", "message", "timeStamp", "salt", "signature", "signedPreview", "lastSeenMessages"}, this);
++        return (int)java.lang.runtime.ObjectMethods.bootstrap("hashCode", new java.lang.invoke.MethodHandle[]{net.minecraft.network.protocol.game.ServerboundChatPacket.class, "message;timeStamp;salt;signature;lastSeenMessages", "message", "timeStamp", "salt", "signature", "lastSeenMessages"}, this);
+     }
+ 
+     public boolean equals(java.lang.Object $$0) {
+-        return (boolean)java.lang.runtime.ObjectMethods.bootstrap("equals", new java.lang.invoke.MethodHandle[]{net.minecraft.network.protocol.game.ServerboundChatPacket.class, "message;timeStamp;salt;signature;signedPreview;lastSeenMessages", "message", "timeStamp", "salt", "signature", "signedPreview", "lastSeenMessages"}, this, $$0);
++        return (boolean)java.lang.runtime.ObjectMethods.bootstrap("equals", new java.lang.invoke.MethodHandle[]{net.minecraft.network.protocol.game.ServerboundChatPacket.class, "message;timeStamp;salt;signature;lastSeenMessages", "message", "timeStamp", "salt", "signature", "lastSeenMessages"}, this, $$0);
+     }
+ 
+     public java.lang.String message() {
+@@ -68,14 +62,11 @@
+         return this.salt;
+     }
+ 
++    @javax.annotation.Nullable
+     public net.minecraft.network.chat.MessageSignature signature() {
+         return this.signature;
+     }
+ 
+-    public boolean signedPreview() {
+-        return this.signedPreview;
+-    }
+-
+     public net.minecraft.network.chat.LastSeenMessages$Update lastSeenMessages() {
+         return this.lastSeenMessages;
+     }

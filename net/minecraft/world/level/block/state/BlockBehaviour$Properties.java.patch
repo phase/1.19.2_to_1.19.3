@@ -1,0 +1,240 @@
+--- net/minecraft/world/level/block/state/BlockBehaviour$Properties.java
++++ net/minecraft/world/level/block/state/BlockBehaviour$Properties.java
+@@ -20,6 +20,7 @@
+     public net.minecraft.resources.ResourceLocation drops;
+     public boolean canOcclude;
+     public boolean isAir;
++    public boolean spawnParticlesOnBreak;
+     public net.minecraft.world.level.block.state.BlockBehaviour$StateArgumentPredicate<net.minecraft.world.entity.EntityType<?>> isValidSpawn;
+     public net.minecraft.world.level.block.state.BlockBehaviour$StatePredicate isRedstoneConductor;
+     public net.minecraft.world.level.block.state.BlockBehaviour$StatePredicate isSuffocating;
+@@ -27,13 +28,14 @@
+     public net.minecraft.world.level.block.state.BlockBehaviour$StatePredicate hasPostProcess;
+     public net.minecraft.world.level.block.state.BlockBehaviour$StatePredicate emissiveRendering;
+     public boolean dynamicShape;
++    public net.minecraft.world.flag.FeatureFlagSet requiredFeatures;
+     public java.util.function.Function<net.minecraft.world.level.block.state.BlockState, net.minecraft.world.level.block.state.BlockBehaviour$OffsetType> offsetType;
+ 
+-    public net.minecraft.world.level.block.state.BlockBehaviour$Properties(net.minecraft.world.level.material.Material material, net.minecraft.world.level.material.MaterialColor materialColor) {
+-        this(material, $$1 -> materialColor);
++    public net.minecraft.world.level.block.state.BlockBehaviour$Properties(net.minecraft.world.level.material.Material $$0, net.minecraft.world.level.material.MaterialColor $$12) {
++        this($$0, $$1 -> $$12);
+     }
+ 
+-    public net.minecraft.world.level.block.state.BlockBehaviour$Properties(net.minecraft.world.level.material.Material material, java.util.function.Function<net.minecraft.world.level.block.state.BlockState, net.minecraft.world.level.material.MaterialColor> materialColor) {
++    public net.minecraft.world.level.block.state.BlockBehaviour$Properties(net.minecraft.world.level.material.Material $$02, java.util.function.Function<net.minecraft.world.level.block.state.BlockState, net.minecraft.world.level.material.MaterialColor> $$12) {
+         this.hasCollision = true;
+         this.soundType = net.minecraft.world.level.block.SoundType.STONE;
+         this.lightEmission = $$0 -> 0;
+@@ -41,50 +43,54 @@
+         this.speedFactor = 1.0f;
+         this.jumpFactor = 1.0f;
+         this.canOcclude = true;
++        this.spawnParticlesOnBreak = true;
+         this.isValidSpawn = ($$0, $$1, $$2, $$3) -> $$0.isFaceSturdy($$1, $$2, net.minecraft.core.Direction.UP) && $$0.getLightEmission() < 14;
+         this.isRedstoneConductor = ($$0, $$1, $$2) -> $$0.getMaterial().isSolidBlocking() && $$0.isCollisionShapeFullBlock($$1, $$2);
+         this.isViewBlocking = this.isSuffocating = ($$0, $$1, $$2) -> this.material.blocksMotion() && $$0.isCollisionShapeFullBlock($$1, $$2);
+         this.hasPostProcess = ($$0, $$1, $$2) -> false;
+         this.emissiveRendering = ($$0, $$1, $$2) -> false;
++        this.requiredFeatures = net.minecraft.world.flag.FeatureFlags.VANILLA_SET;
+         this.offsetType = $$0 -> net.minecraft.world.level.block.state.BlockBehaviour$OffsetType.NONE;
+-        this.material = material;
+-        this.materialColor = materialColor;
++        this.material = $$02;
++        this.materialColor = $$12;
+     }
+ 
+-    public static net.minecraft.world.level.block.state.BlockBehaviour$Properties of(net.minecraft.world.level.material.Material material) {
+-        return net.minecraft.world.level.block.state.BlockBehaviour$Properties.of((net.minecraft.world.level.material.Material)material, (net.minecraft.world.level.material.MaterialColor)material.getColor());
++    public static net.minecraft.world.level.block.state.BlockBehaviour$Properties of(net.minecraft.world.level.material.Material $$0) {
++        return net.minecraft.world.level.block.state.BlockBehaviour$Properties.of((net.minecraft.world.level.material.Material)$$0, (net.minecraft.world.level.material.MaterialColor)$$0.getColor());
+     }
+ 
+-    public static net.minecraft.world.level.block.state.BlockBehaviour$Properties of(net.minecraft.world.level.material.Material material, net.minecraft.world.item.DyeColor color) {
+-        return net.minecraft.world.level.block.state.BlockBehaviour$Properties.of((net.minecraft.world.level.material.Material)material, (net.minecraft.world.level.material.MaterialColor)color.getMaterialColor());
++    public static net.minecraft.world.level.block.state.BlockBehaviour$Properties of(net.minecraft.world.level.material.Material $$0, net.minecraft.world.item.DyeColor $$1) {
++        return net.minecraft.world.level.block.state.BlockBehaviour$Properties.of((net.minecraft.world.level.material.Material)$$0, (net.minecraft.world.level.material.MaterialColor)$$1.getMaterialColor());
+     }
+ 
+-    public static net.minecraft.world.level.block.state.BlockBehaviour$Properties of(net.minecraft.world.level.material.Material material, net.minecraft.world.level.material.MaterialColor materialColor) {
+-        return new net.minecraft.world.level.block.state.BlockBehaviour$Properties(material, materialColor);
++    public static net.minecraft.world.level.block.state.BlockBehaviour$Properties of(net.minecraft.world.level.material.Material $$0, net.minecraft.world.level.material.MaterialColor $$1) {
++        return new net.minecraft.world.level.block.state.BlockBehaviour$Properties($$0, $$1);
+     }
+ 
+-    public static net.minecraft.world.level.block.state.BlockBehaviour$Properties of(net.minecraft.world.level.material.Material material, java.util.function.Function<net.minecraft.world.level.block.state.BlockState, net.minecraft.world.level.material.MaterialColor> materialColor) {
+-        return new net.minecraft.world.level.block.state.BlockBehaviour$Properties(material, materialColor);
++    public static net.minecraft.world.level.block.state.BlockBehaviour$Properties of(net.minecraft.world.level.material.Material $$0, java.util.function.Function<net.minecraft.world.level.block.state.BlockState, net.minecraft.world.level.material.MaterialColor> $$1) {
++        return new net.minecraft.world.level.block.state.BlockBehaviour$Properties($$0, $$1);
+     }
+ 
+-    public static net.minecraft.world.level.block.state.BlockBehaviour$Properties copy(net.minecraft.world.level.block.state.BlockBehaviour blockBehaviour) {
+-        net.minecraft.world.level.block.state.BlockBehaviour$Properties properties = new net.minecraft.world.level.block.state.BlockBehaviour$Properties(blockBehaviour.material, blockBehaviour.properties.materialColor);
+-        properties.material = blockBehaviour.properties.material;
+-        properties.destroyTime = blockBehaviour.properties.destroyTime;
+-        properties.explosionResistance = blockBehaviour.properties.explosionResistance;
+-        properties.hasCollision = blockBehaviour.properties.hasCollision;
+-        properties.isRandomlyTicking = blockBehaviour.properties.isRandomlyTicking;
+-        properties.lightEmission = blockBehaviour.properties.lightEmission;
+-        properties.materialColor = blockBehaviour.properties.materialColor;
+-        properties.soundType = blockBehaviour.properties.soundType;
+-        properties.friction = blockBehaviour.properties.friction;
+-        properties.speedFactor = blockBehaviour.properties.speedFactor;
+-        properties.dynamicShape = blockBehaviour.properties.dynamicShape;
+-        properties.canOcclude = blockBehaviour.properties.canOcclude;
+-        properties.isAir = blockBehaviour.properties.isAir;
+-        properties.requiresCorrectToolForDrops = blockBehaviour.properties.requiresCorrectToolForDrops;
+-        properties.offsetType = blockBehaviour.properties.offsetType;
+-        return properties;
++    public static net.minecraft.world.level.block.state.BlockBehaviour$Properties copy(net.minecraft.world.level.block.state.BlockBehaviour $$0) {
++        net.minecraft.world.level.block.state.BlockBehaviour$Properties $$1 = new net.minecraft.world.level.block.state.BlockBehaviour$Properties($$0.material, $$0.properties.materialColor);
++        $$1.material = $$0.properties.material;
++        $$1.destroyTime = $$0.properties.destroyTime;
++        $$1.explosionResistance = $$0.properties.explosionResistance;
++        $$1.hasCollision = $$0.properties.hasCollision;
++        $$1.isRandomlyTicking = $$0.properties.isRandomlyTicking;
++        $$1.lightEmission = $$0.properties.lightEmission;
++        $$1.materialColor = $$0.properties.materialColor;
++        $$1.soundType = $$0.properties.soundType;
++        $$1.friction = $$0.properties.friction;
++        $$1.speedFactor = $$0.properties.speedFactor;
++        $$1.dynamicShape = $$0.properties.dynamicShape;
++        $$1.canOcclude = $$0.properties.canOcclude;
++        $$1.isAir = $$0.properties.isAir;
++        $$1.requiresCorrectToolForDrops = $$0.properties.requiresCorrectToolForDrops;
++        $$1.offsetType = $$0.properties.offsetType;
++        $$1.spawnParticlesOnBreak = $$0.properties.spawnParticlesOnBreak;
++        $$1.requiredFeatures = $$0.properties.requiredFeatures;
++        return $$1;
+     }
+ 
+     public net.minecraft.world.level.block.state.BlockBehaviour$Properties noCollission() {
+@@ -98,41 +104,41 @@
+         return this;
+     }
+ 
+-    public net.minecraft.world.level.block.state.BlockBehaviour$Properties friction(float friction) {
+-        this.friction = friction;
++    public net.minecraft.world.level.block.state.BlockBehaviour$Properties friction(float $$0) {
++        this.friction = $$0;
+         return this;
+     }
+ 
+-    public net.minecraft.world.level.block.state.BlockBehaviour$Properties speedFactor(float speedFactor) {
+-        this.speedFactor = speedFactor;
++    public net.minecraft.world.level.block.state.BlockBehaviour$Properties speedFactor(float $$0) {
++        this.speedFactor = $$0;
+         return this;
+     }
+ 
+-    public net.minecraft.world.level.block.state.BlockBehaviour$Properties jumpFactor(float jumpFactor) {
+-        this.jumpFactor = jumpFactor;
++    public net.minecraft.world.level.block.state.BlockBehaviour$Properties jumpFactor(float $$0) {
++        this.jumpFactor = $$0;
+         return this;
+     }
+ 
+-    public net.minecraft.world.level.block.state.BlockBehaviour$Properties sound(net.minecraft.world.level.block.SoundType soundType) {
+-        this.soundType = soundType;
++    public net.minecraft.world.level.block.state.BlockBehaviour$Properties sound(net.minecraft.world.level.block.SoundType $$0) {
++        this.soundType = $$0;
+         return this;
+     }
+ 
+-    public net.minecraft.world.level.block.state.BlockBehaviour$Properties lightLevel(java.util.function.ToIntFunction<net.minecraft.world.level.block.state.BlockState> lightEmission) {
+-        this.lightEmission = lightEmission;
++    public net.minecraft.world.level.block.state.BlockBehaviour$Properties lightLevel(java.util.function.ToIntFunction<net.minecraft.world.level.block.state.BlockState> $$0) {
++        this.lightEmission = $$0;
+         return this;
+     }
+ 
+-    public net.minecraft.world.level.block.state.BlockBehaviour$Properties strength(float destroyTime, float explosionResistance) {
+-        return this.destroyTime(destroyTime).explosionResistance(explosionResistance);
++    public net.minecraft.world.level.block.state.BlockBehaviour$Properties strength(float $$0, float $$1) {
++        return this.destroyTime($$0).explosionResistance($$1);
+     }
+ 
+     public net.minecraft.world.level.block.state.BlockBehaviour$Properties instabreak() {
+         return this.strength(0.0f);
+     }
+ 
+-    public net.minecraft.world.level.block.state.BlockBehaviour$Properties strength(float strength) {
+-        this.strength(strength, strength);
++    public net.minecraft.world.level.block.state.BlockBehaviour$Properties strength(float $$0) {
++        this.strength($$0, $$0);
+         return this;
+     }
+ 
+@@ -151,8 +157,8 @@
+         return this;
+     }
+ 
+-    public net.minecraft.world.level.block.state.BlockBehaviour$Properties dropsLike(net.minecraft.world.level.block.Block block) {
+-        this.drops = block.getLootTable();
++    public net.minecraft.world.level.block.state.BlockBehaviour$Properties dropsLike(net.minecraft.world.level.block.Block $$0) {
++        this.drops = $$0.getLootTable();
+         return this;
+     }
+ 
+@@ -161,33 +167,33 @@
+         return this;
+     }
+ 
+-    public net.minecraft.world.level.block.state.BlockBehaviour$Properties isValidSpawn(net.minecraft.world.level.block.state.BlockBehaviour$StateArgumentPredicate<net.minecraft.world.entity.EntityType<?>> isValidSpawn) {
+-        this.isValidSpawn = isValidSpawn;
++    public net.minecraft.world.level.block.state.BlockBehaviour$Properties isValidSpawn(net.minecraft.world.level.block.state.BlockBehaviour$StateArgumentPredicate<net.minecraft.world.entity.EntityType<?>> $$0) {
++        this.isValidSpawn = $$0;
+         return this;
+     }
+ 
+-    public net.minecraft.world.level.block.state.BlockBehaviour$Properties isRedstoneConductor(net.minecraft.world.level.block.state.BlockBehaviour$StatePredicate isRedstoneConductor) {
+-        this.isRedstoneConductor = isRedstoneConductor;
++    public net.minecraft.world.level.block.state.BlockBehaviour$Properties isRedstoneConductor(net.minecraft.world.level.block.state.BlockBehaviour$StatePredicate $$0) {
++        this.isRedstoneConductor = $$0;
+         return this;
+     }
+ 
+-    public net.minecraft.world.level.block.state.BlockBehaviour$Properties isSuffocating(net.minecraft.world.level.block.state.BlockBehaviour$StatePredicate isSuffocating) {
+-        this.isSuffocating = isSuffocating;
++    public net.minecraft.world.level.block.state.BlockBehaviour$Properties isSuffocating(net.minecraft.world.level.block.state.BlockBehaviour$StatePredicate $$0) {
++        this.isSuffocating = $$0;
+         return this;
+     }
+ 
+-    public net.minecraft.world.level.block.state.BlockBehaviour$Properties isViewBlocking(net.minecraft.world.level.block.state.BlockBehaviour$StatePredicate isViewBlocking) {
+-        this.isViewBlocking = isViewBlocking;
++    public net.minecraft.world.level.block.state.BlockBehaviour$Properties isViewBlocking(net.minecraft.world.level.block.state.BlockBehaviour$StatePredicate $$0) {
++        this.isViewBlocking = $$0;
+         return this;
+     }
+ 
+-    public net.minecraft.world.level.block.state.BlockBehaviour$Properties hasPostProcess(net.minecraft.world.level.block.state.BlockBehaviour$StatePredicate hasPostProcess) {
+-        this.hasPostProcess = hasPostProcess;
++    public net.minecraft.world.level.block.state.BlockBehaviour$Properties hasPostProcess(net.minecraft.world.level.block.state.BlockBehaviour$StatePredicate $$0) {
++        this.hasPostProcess = $$0;
+         return this;
+     }
+ 
+-    public net.minecraft.world.level.block.state.BlockBehaviour$Properties emissiveRendering(net.minecraft.world.level.block.state.BlockBehaviour$StatePredicate emissiveRendering) {
+-        this.emissiveRendering = emissiveRendering;
++    public net.minecraft.world.level.block.state.BlockBehaviour$Properties emissiveRendering(net.minecraft.world.level.block.state.BlockBehaviour$StatePredicate $$0) {
++        this.emissiveRendering = $$0;
+         return this;
+     }
+ 
+@@ -219,5 +225,15 @@
+         this.offsetType = $$0;
+         return this;
+     }
++
++    public net.minecraft.world.level.block.state.BlockBehaviour$Properties noParticlesOnBreak() {
++        this.spawnParticlesOnBreak = false;
++        return this;
++    }
++
++    public net.minecraft.world.level.block.state.BlockBehaviour$Properties requiredFeatures(net.minecraft.world.flag.FeatureFlag ... $$0) {
++        this.requiredFeatures = net.minecraft.world.flag.FeatureFlags.REGISTRY.subset($$0);
++        return this;
++    }
+ }
+ 
